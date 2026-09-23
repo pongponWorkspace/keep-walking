@@ -1,0 +1,19 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sample-mask",
+        "note": "SAMPLE ONLY: the hole is the tile bbox 99.80,13.40,101.00,14.35. The real hole is the union of the 6 playable province polygons from location-engineer."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]],
+          [[99.80, 13.40], [99.80, 14.35], [101.00, 14.35], [101.00, 13.40], [99.80, 13.40]]
+        ]
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@
     "file": "raid.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06",
+    "task": "P1-F03-T06, P1-H03 (schedule.endLocalTime)",
     "doc": "design/systems/balance-model.md section 11",
     "_note": "First draft for Phase 6. GDD values are final inputs; values marked _assumption are proposals and must be re-simulated before Phase 6 build"
   },
@@ -13,10 +13,17 @@
     "durationTicks": 720,
     "weekday": "saturday",
     "startLocalTime": "16:00",
+    "endLocalTime": "18:00",
     "timezone": "Asia/Bangkok",
     "spawnPointsMin": 5,
     "spawnPointsMax": 8,
-    "clientBatchTicks": 6
+    "clientBatchTicks": 6,
+    "_copyVariables": {
+      "raidDay": "weekday (enum; the copy formatter maps it to a Thai day name through a narrative-owned copy key, never a string in code)",
+      "raidStartTime": "startLocalTime (HH:mm, 24 h, local to timezone)",
+      "raidEndTime": "endLocalTime (HH:mm, 24 h, local to timezone)"
+    },
+    "_note": "P1-H03: endLocalTime added so the copy formatter reads {raidEndTime} directly (style-guide 4.1). Invariant: endLocalTime = startLocalTime + durationTicks x raidTick_s (16:00 + 720 x 10 s = 18:00). The config loader must assert it and fail loudly on mismatch; the server schedules the raid from startLocalTime and durationTicks, endLocalTime is for display. weekday is lowercase English (monday..sunday)"
   },
   "pow": {
     "_source": "GDD > Raid Boss > สูตรลดเลือด (POW = (baseATK + gearATK) x (1 + level/60) x roleMult)",

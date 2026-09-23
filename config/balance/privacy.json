@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "file": "privacy.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-H03",
+    "doc": "design/pillars.md NN-7; design/ux/ia.md section 5; design/ux/flows/F03-core-loop.md A steps 2 and 4 (A-P1-F03-T16-5, A-P1-F03-T16-6)",
+    "_note": "Server-side PDPA values that game rules and copy read. Keys sit at the top level so the names match the docs exactly (privacy.positionLogTtl_s, privacy.minAge_yr). On-device export and logging rules live in config/app/privacy.json (tech-lead, P1-H05); do not duplicate values between the two files. Loaders namespace by path: balance.privacy vs app.privacy. Changing any value here needs HUMAN approval (PDPA sign-off is HUMAN only, protocol section 5); these are not tuning values"
+  },
+  "_source": {
+    "positionLogTtl_s": "GDD > ความปลอดภัยผู้เล่นและ PDPA > ข้อมูลตำแหน่ง (เก็บ position_log ไม่เกิน 24 ชั่วโมงแล้วลบ เก็บไว้เพื่อ anti-cheat เท่านั้น); GDD > data model (position_log ... TTL 24 ชม.); CLAUDE.md non-negotiable 7",
+    "positionLogPurpose": "GDD > ข้อมูลตำแหน่ง (เก็บไว้เพื่อ anti-cheat เท่านั้น ระบุเหตุผลนี้ใน privacy policy)",
+    "minAge_yr": "GDD > ความปลอดภัยผู้เล่นและ PDPA > อายุขั้นต่ำ 15 ปี; pillars 6.1 (จุดตรวจอายุ 15+); flow F03 A step 4 (A-P1-F03-T16-6 เสนอ key privacy.minAge_yr)",
+    "minAgeComparison": "GDD > อายุขั้นต่ำ 15 ปี (15 ปีผ่าน)"
+  },
+  "positionLogTtl_s": 86400,
+  "positionLogPurpose": "antiCheatOnly",
+  "minAge_yr": 15,
+  "minAgeComparison": "greaterThanOrEqual",
+  "seeParentalConsent": "unlocks.json#parentalConsent.enabled",
+  "_note": "positionLogTtl_s: 86400 s = 24 h, measured from the sample timestamp ts; older rows are deleted, not archived. Copy shows it through a formatted duration variable, never a typed number. dungeons.json#offlineEvidence.maxOfflineEvidenceAge_s (1800) is far below the TTL, so late-uploaded samples still fit the retention window. minAge_yr: age >= 15 passes; the player picks an age band or birth year from a list (no typing). Copy variable {minAge} reads this value. GDD notes Thai law treats under-20 as minors; the consent requirement for ages 15-19 is a HUMAN legal question, not a config default"
+}

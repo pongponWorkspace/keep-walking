@@ -3,7 +3,7 @@
     "file": "combat.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06",
+    "task": "P1-F03-T06; hit chance refit P1-F03-T08",
     "doc": "design/systems/balance-model.md section 3"
   },
   "monsterAttack": {
@@ -22,8 +22,8 @@
     "intervalMin_s": 45,
     "intervalMax_s": 75,
     "intervalDistribution": "uniform",
-    "hitChancePerCheck_pct": 50,
-    "_assumption": "A-P1-F03-T06-4: GDD gives no hit chance. 50% is a first fit: level-25 balanced build with tier-3 gear reaches auto-retreat in about 46 min (target about 45). P1-F03-T07 refits it against the GDD survival table. Owner: systems-designer"
+    "hitChancePerCheck_pct": 54,
+    "_assumption": "A-P1-F03-T06-4 (refit P1-F03-T07, D-029 ACCEPTED): GDD gives no hit chance. 54% is the least-squares fit (53.95%) of the level-25 balanced build (tier-3 gear +0, Z = L) to both GDD survival rows: 45 min to auto-retreat at damage x1.0 (D-020) and 55 min with one Tanker L25. Fit alone per row: 53.3% / 54.5%. Result at 54%: 44.4 / 55.6 min. Changed from 50 (+8%, inside the systems-designer +-20% authority). Owner: systems-designer"
   },
   "levelGapDamage": {
     "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (เลเวลต่ำกว่าช่วงของโซน damage x1.25 ต่อระดับที่ห่าง)",

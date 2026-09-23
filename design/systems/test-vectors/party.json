@@ -1,0 +1,2229 @@
+{
+  "formula": "party",
+  "vectors": [
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            25
+          ],
+          "ranged": [
+            25
+          ],
+          "support": [
+            25
+          ],
+          "magic": [
+            25
+          ]
+        },
+        "soloMembers": {
+          "tanker": [
+            25
+          ],
+          "ranged": [],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 2,
+        "exp": 2,
+        "reward": 2
+      },
+      "tolerance": 0.2,
+      "source": "GDD > Class และ Party > เป้าหมายสมดุล (party ครบ role ได้รางวัลต่อหัว 1.8-2.2 เท่าของคนเดียว) · full party L25 (1 per role) vs solo tanker L25 (neither Ranged nor Magic): per-head drop value and exp inside 1.8-2.2"
+    },
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            25
+          ],
+          "ranged": [
+            25
+          ],
+          "support": [
+            25
+          ],
+          "magic": [
+            25
+          ]
+        },
+        "soloMembers": {
+          "tanker": [],
+          "ranged": [],
+          "support": [
+            25
+          ],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 2,
+        "exp": 2,
+        "reward": 2
+      },
+      "tolerance": 0.2,
+      "source": "GDD > Class และ Party > เป้าหมายสมดุล (party ครบ role ได้รางวัลต่อหัว 1.8-2.2 เท่าของคนเดียว) · full party L25 (1 per role) vs solo support L25 (neither Ranged nor Magic): per-head drop value and exp inside 1.8-2.2"
+    },
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            25
+          ],
+          "ranged": [
+            25
+          ],
+          "support": [
+            25
+          ],
+          "magic": [
+            25
+          ]
+        },
+        "soloMembers": {
+          "tanker": [],
+          "ranged": [
+            25
+          ],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 1,
+        "exp": 2.053178,
+        "reward": 1.526589
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · F-14: vs solo Ranged (keeps own drop buff) → drop ratio 1.0"
+    },
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            25
+          ],
+          "ranged": [
+            25
+          ],
+          "support": [
+            25
+          ],
+          "magic": [
+            25
+          ]
+        },
+        "soloMembers": {
+          "tanker": [],
+          "ranged": [],
+          "support": [],
+          "magic": [
+            25
+          ]
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 2.053178,
+        "exp": 1,
+        "reward": 1.526589
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · F-14: vs solo Magic (keeps own exp buff) → exp ratio 1.0"
+    },
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            25,
+            25
+          ],
+          "ranged": [
+            25,
+            25
+          ],
+          "support": [
+            25,
+            25
+          ],
+          "magic": [
+            25,
+            25
+          ]
+        },
+        "soloMembers": {
+          "tanker": [
+            25
+          ],
+          "ranged": [],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 2.26042,
+        "exp": 2.26042,
+        "reward": 2.26042
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · 8 members (2 per role) vs solo Tanker"
+    },
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            25
+          ],
+          "ranged": [],
+          "support": [
+            25
+          ],
+          "magic": [
+            25
+          ]
+        },
+        "soloMembers": {
+          "tanker": [
+            25
+          ],
+          "ranged": [],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 1,
+        "exp": 2.053178,
+        "reward": 1.526589
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · party without Ranged vs solo Tanker → drop 1.0"
+    },
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            1
+          ],
+          "ranged": [
+            1
+          ],
+          "support": [
+            1
+          ],
+          "magic": [
+            1
+          ]
+        },
+        "soloMembers": {
+          "tanker": [
+            1
+          ],
+          "ranged": [],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 1.954552,
+        "exp": 1.954552,
+        "reward": 1.954552
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: everyone level 1"
+    },
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            60
+          ],
+          "ranged": [
+            60
+          ],
+          "support": [
+            60
+          ],
+          "magic": [
+            60
+          ]
+        },
+        "soloMembers": {
+          "tanker": [
+            60
+          ],
+          "ranged": [],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 2.165947,
+        "exp": 2.165947,
+        "reward": 2.165947
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: everyone level 60"
+    },
+    {
+      "input": {
+        "fn": "partyPerHeadRatio",
+        "members": {
+          "tanker": [
+            25
+          ],
+          "ranged": [
+            25
+          ],
+          "support": [
+            25
+          ],
+          "magic": [
+            25
+          ]
+        },
+        "soloMembers": {
+          "tanker": [
+            25
+          ],
+          "ranged": [
+            25
+          ],
+          "support": [
+            25
+          ],
+          "magic": [
+            25
+          ]
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "drop": 1,
+        "exp": 1,
+        "reward": 1
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: same party → 1.0"
+    },
+    {
+      "input": {
+        "fn": "partyEffects",
+        "members": {
+          "tanker": [],
+          "ranged": [],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "damageTakenMult": 1.6,
+        "dropMult": 0.6,
+        "expMult": 0.6,
+        "supportHeal_pctMaxHpPerMin": 0,
+        "magicShield_pctMaxHpPerTick": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: 0 members inside → every missing debuff"
+    },
+    {
+      "input": {
+        "fn": "partyEffects",
+        "members": {
+          "tanker": [
+            25
+          ],
+          "ranged": [],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "damageTakenMult": 0.782804,
+        "dropMult": 0.6,
+        "expMult": 0.6,
+        "supportHeal_pctMaxHpPerMin": 0,
+        "magicShield_pctMaxHpPerTick": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo tanker L25: own buff, other debuffs"
+    },
+    {
+      "input": {
+        "fn": "partyEffects",
+        "members": {
+          "tanker": [],
+          "ranged": [
+            25
+          ],
+          "support": [],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "damageTakenMult": 1.6,
+        "dropMult": 1.231907,
+        "expMult": 0.6,
+        "supportHeal_pctMaxHpPerMin": 0,
+        "magicShield_pctMaxHpPerTick": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo ranged L25: own buff, other debuffs"
+    },
+    {
+      "input": {
+        "fn": "partyEffects",
+        "members": {
+          "tanker": [],
+          "ranged": [],
+          "support": [
+            25
+          ],
+          "magic": []
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "damageTakenMult": 1.6,
+        "dropMult": 0.6,
+        "expMult": 0.6,
+        "supportHeal_pctMaxHpPerMin": 0.661612,
+        "magicShield_pctMaxHpPerTick": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo support L25: own buff, other debuffs"
+    },
+    {
+      "input": {
+        "fn": "partyEffects",
+        "members": {
+          "tanker": [],
+          "ranged": [],
+          "support": [],
+          "magic": [
+            25
+          ]
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "damageTakenMult": 1.6,
+        "dropMult": 0.6,
+        "expMult": 1.231907,
+        "supportHeal_pctMaxHpPerMin": 0,
+        "magicShield_pctMaxHpPerTick": 2.319067
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo magic L25: own buff, other debuffs"
+    },
+    {
+      "input": {
+        "fn": "partyEffects",
+        "members": {
+          "tanker": [
+            25
+          ],
+          "ranged": [
+            25
+          ],
+          "support": [
+            25
+          ],
+          "magic": [
+            25
+          ]
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "damageTakenMult": 0.782804,
+        "dropMult": 1.231907,
+        "expMult": 1.231907,
+        "supportHeal_pctMaxHpPerMin": 0.661612,
+        "magicShield_pctMaxHpPerTick": 2.319067
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · full party L25"
+    },
+    {
+      "input": {
+        "fn": "partyEffects",
+        "members": {
+          "tanker": [
+            25,
+            25
+          ],
+          "ranged": [
+            25,
+            25
+          ],
+          "support": [
+            25,
+            25
+          ],
+          "magic": [
+            25,
+            25
+          ]
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "damageTakenMult": 0.67044,
+        "dropMult": 1.356252,
+        "expMult": 1.356252,
+        "supportHeal_pctMaxHpPerMin": 0.71875,
+        "magicShield_pctMaxHpPerTick": 3.56252
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · 8 members L25"
+    },
+    {
+      "input": {
+        "fn": "partyEffects",
+        "members": {
+          "tanker": [
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60
+          ],
+          "ranged": [
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60
+          ],
+          "support": [
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60
+          ],
+          "magic": [
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60
+          ]
+        },
+        "roles": {
+          "tanker": {
+            "base_pct": 16,
+            "cap_pct": 45,
+            "missingDebuffMult": 1.6
+          },
+          "ranged": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          },
+          "support": {
+            "base_pct": 25,
+            "cap_pct": 50,
+            "missingDebuffMult": 0
+          },
+          "magic": {
+            "base_pct": 17,
+            "cap_pct": 50,
+            "missingDebuffMult": 0.6
+          }
+        },
+        "pPerMemberBase": 1,
+        "pLevelDivisor": 50,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25,
+        "supportHealBase_pctMaxHpPerMin": 0.5,
+        "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300
+      },
+      "expected": {
+        "damageTakenMult": 0.55,
+        "dropMult": 1.5,
+        "expMult": 1.5,
+        "supportHeal_pctMaxHpPerMin": 0.75,
+        "magicShield_pctMaxHpPerTick": 5
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: 200 members per role at level 60 → every buff at cap"
+    }
+  ]
+}

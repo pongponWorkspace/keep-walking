@@ -1,0 +1,547 @@
+{
+  "formula": "expCurve",
+  "vectors": [
+    {
+      "input": {
+        "fn": "ticksPerLevel",
+        "level": 10,
+        "zoneLevel": 10,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 10,
+      "tolerance": 0.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · tick table L10"
+    },
+    {
+      "input": {
+        "fn": "ticksPerLevel",
+        "level": 20,
+        "zoneLevel": 20,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 16,
+      "tolerance": 0.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · tick table L20"
+    },
+    {
+      "input": {
+        "fn": "ticksPerLevel",
+        "level": 30,
+        "zoneLevel": 30,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 22,
+      "tolerance": 0.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · tick table L30"
+    },
+    {
+      "input": {
+        "fn": "ticksPerLevel",
+        "level": 45,
+        "zoneLevel": 45,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 29,
+      "tolerance": 0.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · tick table L45"
+    },
+    {
+      "input": {
+        "fn": "ticksPerLevelCurve",
+        "level": 60,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 35,
+      "tolerance": 0.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · tick table L60: max level has no expToNext, row checked on the curve 2 x L^0.7 (finding F-11)"
+    },
+    {
+      "input": {
+        "fn": "ticksPerLevel",
+        "level": 59,
+        "zoneLevel": 59,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 35,
+      "tolerance": 0.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · tick table row L60 read as the last real level-up L59 (F-11)"
+    },
+    {
+      "input": {
+        "fn": "walkMinutesPerLevel",
+        "zoneLevel": 10,
+        "expMultiplier": 1,
+        "level": 10,
+        "rewardTickInterval_s": 300,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 50,
+      "tolerance": 2.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · walk minutes L10"
+    },
+    {
+      "input": {
+        "fn": "walkMinutesPerLevel",
+        "zoneLevel": 20,
+        "expMultiplier": 1,
+        "level": 20,
+        "rewardTickInterval_s": 300,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 80,
+      "tolerance": 2.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · walk minutes L20"
+    },
+    {
+      "input": {
+        "fn": "walkMinutesPerLevel",
+        "zoneLevel": 30,
+        "expMultiplier": 1,
+        "level": 30,
+        "rewardTickInterval_s": 300,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 110,
+      "tolerance": 2.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · walk minutes L30"
+    },
+    {
+      "input": {
+        "fn": "walkMinutesPerLevel",
+        "zoneLevel": 45,
+        "expMultiplier": 1,
+        "level": 45,
+        "rewardTickInterval_s": 300,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 145,
+      "tolerance": 2.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · walk minutes L45"
+    },
+    {
+      "input": {
+        "fn": "walkMinutesPerLevelCurve",
+        "level": 60,
+        "rewardTickInterval_s": 300,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 175,
+      "tolerance": 2.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · walk minutes L60 (curve, F-11)"
+    },
+    {
+      "input": {
+        "fn": "ticksBetween",
+        "fromLevel": 1,
+        "toLevel": 60,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 1240,
+      "tolerance": 37.199999999999996,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · total ticks 1→60 (F-4, tolerance 3%)"
+    },
+    {
+      "input": {
+        "fn": "walkHoursBetween",
+        "fromLevel": 1,
+        "toLevel": 60,
+        "expMultiplier": 1,
+        "rewardTickInterval_s": 300,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 103,
+      "tolerance": 3.09,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · total hours 1→60 (F-4, tolerance 3%)"
+    },
+    {
+      "input": {
+        "fn": "walkHoursBetween",
+        "fromLevel": 1,
+        "toLevel": 30,
+        "expMultiplier": 1,
+        "rewardTickInterval_s": 300,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 32,
+      "tolerance": 1.28,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า) · hours to reach level 30 (F-4 measured -3.4%, tolerance 4%)"
+    },
+    {
+      "input": {
+        "fn": "ticksBetween",
+        "fromLevel": 1,
+        "toLevel": 60,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 1222.221504,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact total ticks 1→60 at multiplier 1.0"
+    },
+    {
+      "input": {
+        "fn": "ticksBetween",
+        "fromLevel": 1,
+        "toLevel": 60,
+        "expMultiplier": 0.6,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 2037.035839,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · F-2: solo without Magic (x0.6)"
+    },
+    {
+      "input": {
+        "fn": "expToNext",
+        "level": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 60,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 1"
+    },
+    {
+      "input": {
+        "fn": "expToNext",
+        "level": 10,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 9509.359155,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal"
+    },
+    {
+      "input": {
+        "fn": "expToNext",
+        "level": 30,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 106614.926235,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal"
+    },
+    {
+      "input": {
+        "fn": "expToNext",
+        "level": 59,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 472090.951006,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 59 (last level with expToNext)"
+    },
+    {
+      "input": {
+        "fn": "expToNext",
+        "level": 60,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": null,
+      "tolerance": 0,
+      "source": "GDD > Progression > เลเวลสูงสุด 60: no expToNext at max level (implementations return null or reject)"
+    },
+    {
+      "input": {
+        "fn": "expPerTick",
+        "zoneLevel": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 30,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary"
+    },
+    {
+      "input": {
+        "fn": "expPerTick",
+        "zoneLevel": 10,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 948.683298,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal"
+    },
+    {
+      "input": {
+        "fn": "expPerTick",
+        "zoneLevel": 25,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 3750,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal"
+    },
+    {
+      "input": {
+        "fn": "expPerTick",
+        "zoneLevel": 60,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 13942.740046,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary"
+    },
+    {
+      "input": {
+        "fn": "ticksPerLevel",
+        "level": 1,
+        "zoneLevel": 1,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 2,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 1 = 2 ticks"
+    },
+    {
+      "input": {
+        "fn": "ticksPerLevel",
+        "level": 20,
+        "zoneLevel": 30,
+        "expMultiplier": 1,
+        "expToNextCoef": 60,
+        "expToNextExponent": 2.2,
+        "expPerTickCoef": 30,
+        "expPerTickExponent": 1.5,
+        "maxLevel": 60,
+        "startLevel": 1
+      },
+      "expected": 8.863681,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: zone above player level"
+    },
+    {
+      "input": {
+        "fn": "expMultiplier",
+        "magicBuff_pct": null,
+        "levelsOutsideRange": 0,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25
+      },
+      "expected": 0.6,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · no Magic → x0.6"
+    },
+    {
+      "input": {
+        "fn": "expMultiplier",
+        "magicBuff_pct": 23.2,
+        "levelsOutsideRange": 0,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25
+      },
+      "expected": 1.232,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · Magic L25 x1 → x1.232"
+    },
+    {
+      "input": {
+        "fn": "expMultiplier",
+        "magicBuff_pct": 50,
+        "levelsOutsideRange": 0,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25
+      },
+      "expected": 1.5,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · Magic at cap → x1.5"
+    },
+    {
+      "input": {
+        "fn": "expMultiplier",
+        "magicBuff_pct": 60,
+        "levelsOutsideRange": 0,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25
+      },
+      "expected": 1.5,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: buff above cap clamps to x1.5"
+    },
+    {
+      "input": {
+        "fn": "expMultiplier",
+        "magicBuff_pct": 0,
+        "levelsOutsideRange": 1,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25
+      },
+      "expected": 0.92,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · gap 1 → x0.92 (magicBuff 0 = Magic present with 0%)"
+    },
+    {
+      "input": {
+        "fn": "expMultiplier",
+        "magicBuff_pct": 0,
+        "levelsOutsideRange": 17,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25
+      },
+      "expected": 0.25,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: gap 17 → floor 0.25"
+    },
+    {
+      "input": {
+        "fn": "expMultiplier",
+        "magicBuff_pct": null,
+        "levelsOutsideRange": 3,
+        "magicBuffMaxMult": 1.5,
+        "noMagicMult": 0.6,
+        "levelGapMultPerLevel": 0.92,
+        "levelGapMultFloor": 0.25
+      },
+      "expected": 0.467213,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · no Magic and gap 3"
+    }
+  ]
+}

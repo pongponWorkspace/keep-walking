@@ -1,0 +1,31 @@
+/* Full-bleed map shell for a phone screen. No visual design here yet: the
+   art-directed style/theme lands with P1-F03-T12 / P1-F02-T11. */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overscroll-behavior: none;
+}
+
+#app,
+#map {
+  position: absolute;
+  inset: 0;
+}
+
+/* Only used when VITE_TILES_URL is unset (main.ts sets both the class and
+   the fallback text); MapLibre lays out its own canvas absolutely, so this
+   never applies once a real map mounts. */
+#map.map-shell--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  font:
+    14px/1.4 system-ui,
+    sans-serif;
+  color: #444;
+  text-align: center;
+  box-sizing: border-box;
+}

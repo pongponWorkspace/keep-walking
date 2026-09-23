@@ -1,0 +1,22 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "kind": "accuracy", "accuracy_m": 15 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [100.541139, 13.731000], [100.541098, 13.731095], [100.541000, 13.731135],
+          [100.540902, 13.731095], [100.540861, 13.731000], [100.540902, 13.730905],
+          [100.541000, 13.730865], [100.541098, 13.730905], [100.541139, 13.731000]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "position" },
+      "geometry": { "type": "Point", "coordinates": [100.5410, 13.7310] }
+    }
+  ]
+}

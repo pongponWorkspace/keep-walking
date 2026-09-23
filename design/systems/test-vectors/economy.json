@@ -1,0 +1,760 @@
+{
+  "formula": "economy",
+  "vectors": [
+    {
+      "input": {
+        "fn": "incomePerHour_gold",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": 1470,
+      "tolerance": 44.1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา (รายได้ราว 1,470 gold ต่อชั่วโมงเดิน ค่ายาราว 600 gold ต่อชั่วโมง อัตราส่วน 2.45 เท่า) · income at drop multiplier 1.0, every material sold to NPC (F-6)"
+    },
+    {
+      "input": {
+        "fn": "incomeToPotionRatio",
+        "income_gold": 1470,
+        "potionCost_gold": 600
+      },
+      "expected": 2.45,
+      "tolerance": 0.005,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา (รายได้ราว 1,470 gold ต่อชั่วโมงเดิน ค่ายาราว 600 gold ต่อชั่วโมง อัตราส่วน 2.45 เท่า) · the GDD ratio 1,470 / 600"
+    },
+    {
+      "input": {
+        "fn": "ratioStatus",
+        "ratio": 2.45,
+        "targetMin": 2.5,
+        "targetMax": 3,
+        "minAccepted": 2.45
+      },
+      "expected": "ACCEPTED (D-005)",
+      "tolerance": 0,
+      "source": "studio/decisions/decision-log.md D-005 · GDD ratio 2.45 is accepted, below the 2.5-3 target"
+    },
+    {
+      "input": {
+        "fn": "incomePerHour_gold",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": null,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": 892.8,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · F-2: solo without Ranged (x0.6)"
+    },
+    {
+      "input": {
+        "fn": "incomePerHour_gold",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 23.190673264701335,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": 1833.077218,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · party or solo Ranged L25 (buff 23.19%)"
+    },
+    {
+      "input": {
+        "fn": "incomePerHour_gold",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 50,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": 2232,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · Ranged at cap x1.5"
+    },
+    {
+      "input": {
+        "fn": "incomePerHour_gold",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": true,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": 1620,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · small dungeon: fewer Common, more Rare (F-15: +8.9% gold)"
+    },
+    {
+      "input": {
+        "fn": "incomePerHour_gold",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": true,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": 744,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · low trust x0.5"
+    },
+    {
+      "input": {
+        "fn": "incomePerHour_gold",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": 1
+      },
+      "expected": 2976,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · failed raid week x2.0"
+    },
+    {
+      "input": {
+        "fn": "ratioStatus",
+        "ratio": 2.5,
+        "targetMin": 2.5,
+        "targetMax": 3,
+        "minAccepted": 2.45
+      },
+      "expected": "IN TARGET",
+      "tolerance": 0,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: target min → IN TARGET"
+    },
+    {
+      "input": {
+        "fn": "ratioStatus",
+        "ratio": 3,
+        "targetMin": 2.5,
+        "targetMax": 3,
+        "minAccepted": 2.45
+      },
+      "expected": "IN TARGET",
+      "tolerance": 0,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: target max → IN TARGET"
+    },
+    {
+      "input": {
+        "fn": "ratioStatus",
+        "ratio": 3.01,
+        "targetMin": 2.5,
+        "targetMax": 3,
+        "minAccepted": 2.45
+      },
+      "expected": "ABOVE RANGE",
+      "tolerance": 0,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: just above target max"
+    },
+    {
+      "input": {
+        "fn": "ratioStatus",
+        "ratio": 2.4490000000000003,
+        "targetMin": 2.5,
+        "targetMax": 3,
+        "minAccepted": 2.45
+      },
+      "expected": "BELOW RANGE",
+      "tolerance": 0,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: just below min accepted"
+    },
+    {
+      "input": {
+        "fn": "ratioStatus",
+        "ratio": 0,
+        "targetMin": 2.5,
+        "targetMax": 3,
+        "minAccepted": 2.45
+      },
+      "expected": "BELOW RANGE",
+      "tolerance": 0,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: ratio 0"
+    },
+    {
+      "input": {
+        "fn": "netHpLossPerHour_pct",
+        "grossLoss_pctPerHour": 167.9,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "ticksPerHour": 12
+      },
+      "expected": 167.9,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · no heal, no shield → gross loss"
+    },
+    {
+      "input": {
+        "fn": "netHpLossPerHour_pct",
+        "grossLoss_pctPerHour": 167.9,
+        "heal_pctMaxHpPerMin": 0.66,
+        "shield_pctMaxHpPerTick": 0,
+        "ticksPerHour": 12
+      },
+      "expected": 128.3,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · Support L25 heal only"
+    },
+    {
+      "input": {
+        "fn": "netHpLossPerHour_pct",
+        "grossLoss_pctPerHour": 167.9,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 2.32,
+        "ticksPerHour": 12
+      },
+      "expected": 140.06,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · Magic L25 shield only"
+    },
+    {
+      "input": {
+        "fn": "netHpLossPerHour_pct",
+        "grossLoss_pctPerHour": 10,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 5,
+        "ticksPerHour": 12
+      },
+      "expected": 0,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: shield larger than loss per tick is capped at the loss"
+    },
+    {
+      "input": {
+        "fn": "netHpLossPerHour_pct",
+        "grossLoss_pctPerHour": 20,
+        "heal_pctMaxHpPerMin": 1,
+        "shield_pctMaxHpPerTick": 0,
+        "ticksPerHour": 12
+      },
+      "expected": 0,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: heal above loss → 0"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 839.474101,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · no role buff at all (x1.6, like the old reference), hpSmall, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 107.5,
+        "buyPrice_gold": 150
+      },
+      "expected": 404.565832,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · no role buff at all (x1.6, like the old reference), hpSmall, VIT bonus on (balanced build) · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 60,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 400
+      },
+      "expected": 1119.298801,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · no role buff at all (x1.6, like the old reference), hpMedium, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 78.91049922676048,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 410.714888,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo tanker L25, hpSmall, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 78.91049922676048,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 107.5,
+        "buyPrice_gold": 150
+      },
+      "expected": 197.934886,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo tanker L25, hpSmall, VIT bonus on (balanced build) · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 78.91049922676048,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 60,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 400
+      },
+      "expected": 547.61985,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo tanker L25, hpMedium, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 839.474101,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo ranged L25, hpSmall, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 107.5,
+        "buyPrice_gold": 150
+      },
+      "expected": 404.565832,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo ranged L25, hpSmall, VIT bonus on (balanced build) · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 60,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 400
+      },
+      "expected": 1119.298801,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo ranged L25, hpMedium, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0.6616116523516815,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 640.990605,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo support L25, hpSmall, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0.6616116523516815,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 107.5,
+        "buyPrice_gold": 150
+      },
+      "expected": 308.911135,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo support L25, hpSmall, VIT bonus on (balanced build) · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0.6616116523516815,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 60,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 400
+      },
+      "expected": 854.65414,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo support L25, hpMedium, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 2.3190673264701336,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 700.330061,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo magic L25, hpSmall, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 2.3190673264701336,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 107.5,
+        "buyPrice_gold": 150
+      },
+      "expected": 337.508463,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo magic L25, hpSmall, VIT bonus on (balanced build) · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 161.28784811690514,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 2.3190673264701336,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 60,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 400
+      },
+      "expected": 933.773415,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo magic L25, hpMedium, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 78.91049922676048,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0.6616116523516815,
+        "shield_pctMaxHpPerTick": 2.3190673264701336,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 73.087352,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · full party L25 (F-13), hpSmall, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 78.91049922676048,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0.6616116523516815,
+        "shield_pctMaxHpPerTick": 2.3190673264701336,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 107.5,
+        "buyPrice_gold": 150
+      },
+      "expected": 35.22282,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · full party L25 (F-13), hpSmall, VIT bonus on (balanced build) · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 78.91049922676048,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0.6616116523516815,
+        "shield_pctMaxHpPerTick": 2.3190673264701336,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 60,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 400
+      },
+      "expected": 97.449803,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · full party L25 (F-13), hpMedium, VIT bonus off · uncapped analytic"
+    },
+    {
+      "input": {
+        "fn": "potionCostNet_gold",
+        "damage": 0,
+        "maxHp": 3112.5,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "heal_pctMaxHpPerMin": 0,
+        "shield_pctMaxHpPerTick": 0,
+        "rewardTickInterval_s": 300,
+        "potionHeal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 0,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: no damage → 0 gold"
+    }
+  ]
+}

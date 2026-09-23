@@ -1,0 +1,1058 @@
+{
+  "formula": "gear",
+  "vectors": [
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 1,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 30,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 1 +0 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 1,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 30,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 1 +0"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 1,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 54,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 1 +10 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 1,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 54,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 1 +10"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 1,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 66,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 1 +15 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 1,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 66,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 1 +15"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 2,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 79,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 2 +0 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 2,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 79,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 2 +0"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 2,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 142,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 2 +10 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 2,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 143,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 2 +10"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 2,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 174,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 2 +15 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 2,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 174,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 2 +15"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 3,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 140,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 3 +0 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 3,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 140,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 3 +0"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 3,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 252,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 3 +10 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 3,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 251,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 3 +10"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 3,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 308,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 3 +15 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 3,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 307,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 3 +15"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 4,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 209,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 4 +0 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 4,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 209,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 4 +0"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 4,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 376,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 4 +10 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 4,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 376,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 4 +10"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 4,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 460,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 4 +15 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 4,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 460,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 4 +15"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 5,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 285,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 5 +0 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 5,
+        "enhance": 0,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 286,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 5 +0"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 5,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 513,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 5 +10 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 5,
+        "enhance": 10,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 514,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 5 +10"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 5,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 627,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15) · tier 5 +15 (F-3 / D-022: formula rounds once, tolerance 1)"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 5,
+        "enhance": 15,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 628,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 5 +15"
+    },
+    {
+      "input": {
+        "fn": "gearStat",
+        "tier": 1,
+        "enhance": 1,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 32,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: tier 1 +1"
+    },
+    {
+      "input": {
+        "fn": "bossGearStat",
+        "enhance": 0,
+        "bossTier": 5,
+        "bossBaseStatMult": 1.2,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 343,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boss gear tier 5 x1.2 at +0"
+    },
+    {
+      "input": {
+        "fn": "bossGearStat",
+        "enhance": 15,
+        "bossTier": 5,
+        "bossBaseStatMult": 1.2,
+        "gearStatCoef": 30,
+        "gearStatTierExponent": 1.4,
+        "enhanceBonusPerLevel": 0.08,
+        "minTier": 1,
+        "maxTier": 5
+      },
+      "expected": 754,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: boss gear at +15 (v1 cap, A-7a)"
+    },
+    {
+      "input": {
+        "fn": "tierForLevel",
+        "level": 1,
+        "levelMaxForTier": [
+          12,
+          24,
+          36,
+          48,
+          60
+        ]
+      },
+      "expected": 1,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+    },
+    {
+      "input": {
+        "fn": "tierForLevel",
+        "level": 12,
+        "levelMaxForTier": [
+          12,
+          24,
+          36,
+          48,
+          60
+        ]
+      },
+      "expected": 1,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+    },
+    {
+      "input": {
+        "fn": "tierForLevel",
+        "level": 13,
+        "levelMaxForTier": [
+          12,
+          24,
+          36,
+          48,
+          60
+        ]
+      },
+      "expected": 2,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+    },
+    {
+      "input": {
+        "fn": "tierForLevel",
+        "level": 25,
+        "levelMaxForTier": [
+          12,
+          24,
+          36,
+          48,
+          60
+        ]
+      },
+      "expected": 3,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+    },
+    {
+      "input": {
+        "fn": "tierForLevel",
+        "level": 48,
+        "levelMaxForTier": [
+          12,
+          24,
+          36,
+          48,
+          60
+        ]
+      },
+      "expected": 4,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+    },
+    {
+      "input": {
+        "fn": "tierForLevel",
+        "level": 49,
+        "levelMaxForTier": [
+          12,
+          24,
+          36,
+          48,
+          60
+        ]
+      },
+      "expected": 5,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+    },
+    {
+      "input": {
+        "fn": "tierForLevel",
+        "level": 60,
+        "levelMaxForTier": [
+          12,
+          24,
+          36,
+          48,
+          60
+        ]
+      },
+      "expected": 5,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+    },
+    {
+      "input": {
+        "fn": "characterStats",
+        "level": 60,
+        "allocation": {
+          "atk": 180,
+          "def": 0,
+          "hp": 0,
+          "vit": 0
+        },
+        "gear": {
+          "weapon": 0,
+          "armor": 0,
+          "charm": 0,
+          "boots": 0
+        },
+        "pointsPerLevel": 3,
+        "baseStats": {
+          "atk": 20,
+          "def": 20,
+          "hp": 300,
+          "vit": 0
+        },
+        "statPerPoint": {
+          "atk": 4,
+          "def": 3,
+          "hp": 150
+        },
+        "slots": {
+          "weapon": {
+            "atkShare": 1,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0
+          },
+          "armor": {
+            "atkShare": 0,
+            "defShare": 1,
+            "vitPointsPerGearStat": 0
+          },
+          "charm": {
+            "atkShare": 0.5,
+            "defShare": 0.5,
+            "vitPointsPerGearStat": 0
+          },
+          "boots": {
+            "atkShare": 0,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0.25
+          }
+        },
+        "defSoftcap": 300
+      },
+      "expected": {
+        "atk": 740,
+        "def": 20,
+        "hp": 300,
+        "vit": 0,
+        "defReduction_pct": 6.25
+      },
+      "tolerance": 0.000001,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (เลเวล 60 ลงแต้มสุดขั้ว: ATK 740, DEF 560 ลด damage 65%, HP 27,300) · all 180 points in ATK, no gear (atk = GDD value, other stats from formula)"
+    },
+    {
+      "input": {
+        "fn": "characterStats",
+        "level": 60,
+        "allocation": {
+          "atk": 0,
+          "def": 180,
+          "hp": 0,
+          "vit": 0
+        },
+        "gear": {
+          "weapon": 0,
+          "armor": 0,
+          "charm": 0,
+          "boots": 0
+        },
+        "pointsPerLevel": 3,
+        "baseStats": {
+          "atk": 20,
+          "def": 20,
+          "hp": 300,
+          "vit": 0
+        },
+        "statPerPoint": {
+          "atk": 4,
+          "def": 3,
+          "hp": 150
+        },
+        "slots": {
+          "weapon": {
+            "atkShare": 1,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0
+          },
+          "armor": {
+            "atkShare": 0,
+            "defShare": 1,
+            "vitPointsPerGearStat": 0
+          },
+          "charm": {
+            "atkShare": 0.5,
+            "defShare": 0.5,
+            "vitPointsPerGearStat": 0
+          },
+          "boots": {
+            "atkShare": 0,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0.25
+          }
+        },
+        "defSoftcap": 300
+      },
+      "expected": {
+        "atk": 20,
+        "def": 560,
+        "hp": 300,
+        "vit": 0,
+        "defReduction_pct": 65.116279
+      },
+      "tolerance": 0.000001,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (เลเวล 60 ลงแต้มสุดขั้ว: ATK 740, DEF 560 ลด damage 65%, HP 27,300) · all 180 points in DEF, no gear (def = GDD value, other stats from formula)"
+    },
+    {
+      "input": {
+        "fn": "characterStats",
+        "level": 60,
+        "allocation": {
+          "atk": 0,
+          "def": 0,
+          "hp": 180,
+          "vit": 0
+        },
+        "gear": {
+          "weapon": 0,
+          "armor": 0,
+          "charm": 0,
+          "boots": 0
+        },
+        "pointsPerLevel": 3,
+        "baseStats": {
+          "atk": 20,
+          "def": 20,
+          "hp": 300,
+          "vit": 0
+        },
+        "statPerPoint": {
+          "atk": 4,
+          "def": 3,
+          "hp": 150
+        },
+        "slots": {
+          "weapon": {
+            "atkShare": 1,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0
+          },
+          "armor": {
+            "atkShare": 0,
+            "defShare": 1,
+            "vitPointsPerGearStat": 0
+          },
+          "charm": {
+            "atkShare": 0.5,
+            "defShare": 0.5,
+            "vitPointsPerGearStat": 0
+          },
+          "boots": {
+            "atkShare": 0,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0.25
+          }
+        },
+        "defSoftcap": 300
+      },
+      "expected": {
+        "atk": 20,
+        "def": 20,
+        "hp": 27300,
+        "vit": 0,
+        "defReduction_pct": 6.25
+      },
+      "tolerance": 0.000001,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (เลเวล 60 ลงแต้มสุดขั้ว: ATK 740, DEF 560 ลด damage 65%, HP 27,300) · all 180 points in HP, no gear (hp = GDD value, other stats from formula)"
+    },
+    {
+      "input": {
+        "fn": "defReduction_pct",
+        "def": 560,
+        "defSoftcap": 300
+      },
+      "expected": 65,
+      "tolerance": 0.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (เลเวล 60 ลงแต้มสุดขั้ว: ATK 740, DEF 560 ลด damage 65%, HP 27,300) · DEF 560"
+    },
+    {
+      "input": {
+        "fn": "characterStats",
+        "level": 1,
+        "allocation": {
+          "atk": 0.75,
+          "def": 0.75,
+          "hp": 0.75,
+          "vit": 0.75
+        },
+        "gear": {
+          "weapon": 30,
+          "armor": 30,
+          "charm": 30,
+          "boots": 30
+        },
+        "pointsPerLevel": 3,
+        "baseStats": {
+          "atk": 20,
+          "def": 20,
+          "hp": 300,
+          "vit": 0
+        },
+        "statPerPoint": {
+          "atk": 4,
+          "def": 3,
+          "hp": 150
+        },
+        "slots": {
+          "weapon": {
+            "atkShare": 1,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0
+          },
+          "armor": {
+            "atkShare": 0,
+            "defShare": 1,
+            "vitPointsPerGearStat": 0
+          },
+          "charm": {
+            "atkShare": 0.5,
+            "defShare": 0.5,
+            "vitPointsPerGearStat": 0
+          },
+          "boots": {
+            "atkShare": 0,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0.25
+          }
+        },
+        "defSoftcap": 300
+      },
+      "expected": {
+        "atk": 68,
+        "def": 67.25,
+        "hp": 412.5,
+        "vit": 8.25,
+        "defReduction_pct": 18.311777
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · balanced build L1: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
+    },
+    {
+      "input": {
+        "fn": "characterStats",
+        "level": 25,
+        "allocation": {
+          "atk": 18.75,
+          "def": 18.75,
+          "hp": 18.75,
+          "vit": 18.75
+        },
+        "gear": {
+          "weapon": 140,
+          "armor": 140,
+          "charm": 140,
+          "boots": 140
+        },
+        "pointsPerLevel": 3,
+        "baseStats": {
+          "atk": 20,
+          "def": 20,
+          "hp": 300,
+          "vit": 0
+        },
+        "statPerPoint": {
+          "atk": 4,
+          "def": 3,
+          "hp": 150
+        },
+        "slots": {
+          "weapon": {
+            "atkShare": 1,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0
+          },
+          "armor": {
+            "atkShare": 0,
+            "defShare": 1,
+            "vitPointsPerGearStat": 0
+          },
+          "charm": {
+            "atkShare": 0.5,
+            "defShare": 0.5,
+            "vitPointsPerGearStat": 0
+          },
+          "boots": {
+            "atkShare": 0,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0.25
+          }
+        },
+        "defSoftcap": 300
+      },
+      "expected": {
+        "atk": 305,
+        "def": 286.25,
+        "hp": 3112.5,
+        "vit": 53.75,
+        "defReduction_pct": 48.827292
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · balanced build L25: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
+    },
+    {
+      "input": {
+        "fn": "characterStats",
+        "level": 60,
+        "allocation": {
+          "atk": 45,
+          "def": 45,
+          "hp": 45,
+          "vit": 45
+        },
+        "gear": {
+          "weapon": 286,
+          "armor": 286,
+          "charm": 286,
+          "boots": 286
+        },
+        "pointsPerLevel": 3,
+        "baseStats": {
+          "atk": 20,
+          "def": 20,
+          "hp": 300,
+          "vit": 0
+        },
+        "statPerPoint": {
+          "atk": 4,
+          "def": 3,
+          "hp": 150
+        },
+        "slots": {
+          "weapon": {
+            "atkShare": 1,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0
+          },
+          "armor": {
+            "atkShare": 0,
+            "defShare": 1,
+            "vitPointsPerGearStat": 0
+          },
+          "charm": {
+            "atkShare": 0.5,
+            "defShare": 0.5,
+            "vitPointsPerGearStat": 0
+          },
+          "boots": {
+            "atkShare": 0,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0.25
+          }
+        },
+        "defSoftcap": 300
+      },
+      "expected": {
+        "atk": 629,
+        "def": 584,
+        "hp": 7050,
+        "vit": 116.5,
+        "defReduction_pct": 66.063348
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · balanced build L60: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
+    },
+    {
+      "input": {
+        "fn": "characterStats",
+        "level": 1,
+        "allocation": {
+          "atk": 0,
+          "def": 0,
+          "hp": 0,
+          "vit": 0
+        },
+        "gear": {
+          "weapon": 0,
+          "armor": 0,
+          "charm": 0,
+          "boots": 0
+        },
+        "pointsPerLevel": 3,
+        "baseStats": {
+          "atk": 20,
+          "def": 20,
+          "hp": 300,
+          "vit": 0
+        },
+        "statPerPoint": {
+          "atk": 4,
+          "def": 3,
+          "hp": 150
+        },
+        "slots": {
+          "weapon": {
+            "atkShare": 1,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0
+          },
+          "armor": {
+            "atkShare": 0,
+            "defShare": 1,
+            "vitPointsPerGearStat": 0
+          },
+          "charm": {
+            "atkShare": 0.5,
+            "defShare": 0.5,
+            "vitPointsPerGearStat": 0
+          },
+          "boots": {
+            "atkShare": 0,
+            "defShare": 0,
+            "vitPointsPerGearStat": 0.25
+          }
+        },
+        "defSoftcap": 300
+      },
+      "expected": {
+        "atk": 20,
+        "def": 20,
+        "hp": 300,
+        "vit": 0,
+        "defReduction_pct": 6.25
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 1, nothing allocated = base stats"
+    }
+  ]
+}

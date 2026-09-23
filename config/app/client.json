@@ -1,0 +1,85 @@
+{
+  "_meta": {
+    "file": "client.json",
+    "version": 1,
+    "owner": "tech-lead",
+    "task": "P1-H05",
+    "doc": "docs/tech/F02-map-location-spike.md sections 3, 4, 8, 10.5, 11",
+    "_note": "Runtime values of apps/client for the F02 spike (read by apps/client/src/config/runtime.ts). Build-time URLs stay in VITE_* env vars (tech note section 8), not here. Nothing in this file affects a reward; HUD numbers are spike measurements only. Keys starting with '_' are metadata: code skips them. null = not set yet: code must fail loudly. seeFile keys point at the single source of a value owned elsewhere."
+  },
+  "locationWeb": {
+    "_source": "docs/tech/F02-map-location-spike.md section 4 row 'ค่า Web' (ค่าแนะนำเริ่มต้น true, 15000, 0)",
+    "enableHighAccuracy": true,
+    "timeout_ms": 15000,
+    "maximumAge_ms": 0,
+    "_note": "Passed to navigator.geolocation.watchPosition as PositionOptions { enableHighAccuracy, timeout: timeout_ms, maximumAge: maximumAge_ms } inside packages/location/src/web/ only. The tech note wrote timeoutMs/maximumAgeMs; renamed to the unit-suffix convention (ADR 0001 3.10). maximumAge_ms 0 = never accept a cached fix"
+  },
+  "providerQuery": {
+    "_source": "docs/tech/F02-map-location-spike.md section 3 (query loc, trace, speed, loop, hud; ค่าเริ่มต้นต่อ environment มาจาก client config; ค่าที่ไม่รู้จัก → ใช้ค่าเริ่มต้นและเตือนใน console)",
+    "paramNames": {
+      "provider": "loc",
+      "trace": "trace",
+      "speed": "speed",
+      "loop": "loop",
+      "hud": "hud"
+    },
+    "allowedProviders": ["web", "mock", "capacitor"],
+    "allowedMockSpeeds": [1, 10, 60],
+    "traceWhenUnset": "firstInList",
+    "onUnknownValue": "useDefaultAndWarn",
+    "_note": "capacitor is selectable but the stub reports not-implemented (tests the error path). traceWhenUnset: first trace of the import.meta.glob list (gps-trace-format section 5) that passes validateTrace. Boolean params use '1'/'0' in the URL"
+  },
+  "providerQueryDefaultsByMode": {
+    "_source": {
+      "development": "docs/tech/F02-map-location-spike.md section 3 (mock = ค่าเริ่มต้นใน dev)",
+      "production": "docs/tech/F02-map-location-spike.md section 3 (web = ค่าเริ่มต้นใน preview); section 13 (window.__kwSpike เฉพาะเมื่อ hud=1)"
+    },
+    "development": {
+      "provider": "mock",
+      "speed": 1,
+      "loop": true,
+      "hud": false
+    },
+    "production": {
+      "provider": "web",
+      "speed": 1,
+      "loop": false,
+      "hud": false
+    },
+    "_note": "Keyed by Vite import.meta.env.MODE. 'production' covers vite build, i.e. the Cloudflare Pages preview and the field-walk build. An unknown MODE falls back to 'production' with a console warning (safer: real GPS, HUD off)",
+    "_assumption": "A-P1-H05-1: the tech note gives no default for speed or loop. speed 1 (real time) everywhere; loop on in development so a demo keeps moving, off in production where mock is only used on purpose. Owner: tech-lead"
+  },
+  "mapView": {
+    "_source": "docs/tech/F02-map-location-spike.md section 8 (style ตั้ง maxzoom ของแผนที่ 18 เพื่อ overzoom); P1-F02-T11 acceptance (overzoom ถึง 18)",
+    "maxZoom": 18,
+    "_note": "MapLibre Map option maxZoom. The source maxzoom comes from TileJSON or the PMTiles header, never from here"
+  },
+  "hudMeasurement": {
+    "_source": {
+      "accuracyWarmup_s": "docs/tech/F02-map-location-spike.md 10.5 row accuracy (ตัด 60 วินาทีแรกหลัง start())",
+      "sampleGap_s": "10.5 row sample ขาด (ช่วงห่าง > 10 วินาที); gps-trace-format 4.1 gap_count_10s",
+      "gateWindowStep_s": "10.5 row gate (หน้าต่างเลื่อนทีละ 30 วินาที)",
+      "fpsMaxFrameGap_ms": "10.5 row FPS (ตัดช่วงห่าง > 1 วินาที)",
+      "fpsLowPercentile": "10.5 row FPS (p5)",
+      "accuracyHighPercentile": "10.5 row accuracy (median และ p90)",
+      "batteryNormalizeWindow_s": "10.5 row แบต (× 1800 ÷ duration_s)",
+      "batteryMinSegment_s": "10.5 row แบต (segment < 20 นาที = วัดไม่พอ)",
+      "latencyHighPercentile": "gps-trace-format 4.1 latency_p90_ms",
+      "bytesPerMegabyte": "10.5 row MB (1 MB = 10^6 byte)"
+    },
+    "accuracyWarmup_s": 60,
+    "sampleGap_s": 10,
+    "gateWindowStep_s": 30,
+    "fpsMaxFrameGap_ms": 1000,
+    "fpsLowPercentile": 5,
+    "accuracyHighPercentile": 90,
+    "latencyHighPercentile": 90,
+    "batteryNormalizeWindow_s": 1800,
+    "batteryMinSegment_s": 1200,
+    "bytesPerMegabyte": 1000000,
+    "seeGateWindow": "config/balance/dungeons.json#movementGate",
+    "seeTtffAccuracy": "config/balance/anticheat.json#checkIn.maxAccuracy_m",
+    "seeRawTraceTrim": "config/app/privacy.json#rawTraceExport.rawTraceTrim_m",
+    "_note": "Spike measurements only, never sent to a server and never a reward. The gate window length, distance and comparison are read from dungeons.json#movementGate (single source); the TTFF threshold from anticheat.json. Changing these values after the field walk starts breaks comparability with the pre-set criteria in tech note section 10 (TL-M04)"
+  }
+}

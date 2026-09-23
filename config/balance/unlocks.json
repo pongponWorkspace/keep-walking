@@ -1,49 +1,85 @@
 {
   "_meta": {
     "file": "unlocks.json",
-    "version": 1,
+    "version": 2,
     "owner": "systems-designer",
-    "task": "P1-F03-T06",
-    "doc": "design/systems/balance-model.md section 10",
-    "_note": "Referenced by other docs as config: unlocks.<system>. The board text writes unlocks.home.far_dungeon_threshold_m; under the camelCase convention (TL-N02) the key is unlocks.home.farDungeonThreshold_m"
+    "task": "P1-F03-T06, P1-H03",
+    "doc": "design/systems/balance-model.md section 10; design/pillars.md 6.2 (U1-U8), 7.1; design/ux/ia.md section 6",
+    "_note": "Referenced by other docs as config: unlocks.<system>. Every unlock object uses the same condition keys and ALL listed conditions must pass (AND): minLevel (character level >= value), minCompletedRuns (dungeon runs that ended in Ended state with at least one granted reward tick >= value), plus optional extra keys named in that object. Exception: antiCheatHelp also unlocks on any event in unlockOnEvents (OR). Unlocks are evaluated on the server and are permanent once passed. The board text writes unlocks.home.far_dungeon_threshold_m; under the camelCase convention (ADR 0001 3.10) the key is unlocks.home.farDungeonThreshold_m"
   },
-  "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก: ตลาด ตีบวก raid การลงแต้ม stat เปลี่ยน class กลไก party ละเอียด ปลดเมื่อถึงเลเวลหรือเงื่อนไขที่กำหนด)",
-  "_assumption": "A-P1-F03-T06-20: the GDD names the systems to lock but gives no unlock levels. All levels below are proposals from the exp curve (at total exp multiplier 1.0: level 3 about 26 min, level 5 about 74 min, level 8 about 3 h, level 10 about 4.5 h of valid walking). Owner: game-director",
-  "statAllocation": {
-    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
-    "minLevel": 3,
-    "_note": "Points accrue from level 1 (3 per level) and are kept until the screen unlocks"
-  },
-  "partyDetail": {
-    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
-    "minLevel": 3,
-    "_note": "Nearby Party join itself is available from minute 6-8 of onboarding (GDD); only the detailed buff breakdown is locked"
+  "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก: ตลาด ตีบวก raid การลงแต้ม stat เปลี่ยน class กลไก party ละเอียด ปลดเมื่อถึงเลเวลหรือเงื่อนไขที่กำหนด); pillars 6.2 (U1-U8, ตลาดและตีบวกไม่ก่อนจบ run แรก)",
+  "_assumption": "A-P1-F03-T06-20: the GDD names the systems to lock but gives no unlock levels. All levels below are proposals from the exp curve (at total exp multiplier 1.0: level 2 about 10 min, level 3 about 26 min, level 5 about 74 min, level 8 about 3 h, level 10 about 4.5 h of valid walking). Level 2 is never used as a gate because it can arrive inside the first 10 minutes. A-P1-H03-1: minCompletedRuns >= 1 on every tiered unlock enforces pillars 'not before the first run ends' (A-P1-F03-T01-4). A-P1-H03-3: classChange needs 3 completed runs (the player has played their role across several runs before switching) and partyDetail needs 1 Nearby Party join (the player has seen a real buff before the formula is explained, IA section 6). Owner: game-director",
+  "market": {
+    "_source": "pillars 6.2 U1 · level value is assumption A-P1-F03-T06-20 · run count A-P1-H03-1",
+    "unlockId": "U1",
+    "minLevel": 8,
+    "minCompletedRuns": 1,
+    "seeTradeAccountAgeRule": "economy.json#market.minAccountAgeToTrade_days",
+    "_note": "Unlocks the market UI only. The 'account younger than 7 days cannot trade' rule is an F12 trade rule, not a UI unlock (pillars U1); its single source is economy.json"
   },
   "enhance": {
-    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
-    "minLevel": 5
-  },
-  "market": {
-    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
-    "minLevel": 8,
-    "minAccountAge_days": 7,
-    "_minAccountAge_source": "GDD > Economy > ระบบแลกเปลี่ยน (บัญชีอายุต่ำกว่า 7 วัน trade ไม่ได้); same value as economy.json#market.minAccountAgeToTrade_days"
-  },
-  "classChange": {
-    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
-    "minLevel": 10,
-    "_note": "The GDD cost table starts at level 10 (500 gold)"
+    "_source": "pillars 6.2 U2 · level value is assumption A-P1-F03-T06-20 · run count A-P1-H03-1",
+    "unlockId": "U2",
+    "minLevel": 5,
+    "minCompletedRuns": 1
   },
   "raid": {
+    "_source": "pillars 6.2 U3 (ปลดการแจ้งเตือนและหน้า raid · การเข้าร่วมทางกายภาพไม่ถูกบล็อก); GDD > Raid Boss (คนเลเวลต่ำเข้าร่วมได้ทันที) · values are assumption A-P1-H03-2",
+    "unlockId": "U3",
+    "minLevel": 5,
+    "minCompletedRuns": 3,
+    "gatesPhysicalParticipation": false,
+    "_assumption": "A-P1-H03-2: gates only the raid notice screen and raid push (S-19). Standing inside a boss circle always offers the dungeon-or-boss popup regardless of this unlock. Level 5 + 3 completed runs (about 75 min of walking, usually within the first week at 40 min a day) so a new player understands the dungeon loop before the first raid push, without missing more than one weekly raid. Previous value (level 1, 1 run) was set before IA placed raid last. Owner: game-director"
+  },
+  "statAllocation": {
+    "_source": "pillars 6.2 U4 · level value is assumption A-P1-F03-T06-20 · run count A-P1-H03-1",
+    "unlockId": "U4",
+    "minLevel": 3,
+    "minCompletedRuns": 1,
+    "_note": "Points accrue from level 1 (3 per level) and are kept until the screen unlocks"
+  },
+  "classChange": {
+    "_source": "pillars 6.2 U5 · level value is assumption A-P1-F03-T06-20 · run count A-P1-H03-3",
+    "unlockId": "U5",
+    "minLevel": 10,
+    "minCompletedRuns": 3,
+    "_note": "The GDD cost table starts at level 10 (500 gold). Comes after U4 (IA section 6): class change resets stat allocation"
+  },
+  "partyDetail": {
+    "_source": "pillars 6.2 U6; ia.md section 6 (ผ่านจำนวนครั้งที่เคยเข้าร่วม Nearby Party ขั้นต่ำ) · values are assumption A-P1-F03-T06-20, A-P1-H03-3",
+    "unlockId": "U6",
+    "minLevel": 3,
+    "minCompletedRuns": 1,
+    "minNearbyPartyJoins": 1,
+    "_note": "Nearby Party join itself is available from minute 6-8 of onboarding (GDD); only the detailed buff breakdown is locked. minNearbyPartyJoins counts joins where the player received a party buff for at least one granted reward tick. Report/block (S-17) is never gated"
+  },
+  "antiCheatHelp": {
+    "_source": "pillars 6.2 U7 (ปลดแค่หัวข้อในหน้าช่วยเหลือ ไม่มี tutorial); ia.md section 6 (เกิดเหตุการณ์จริง หรือผ่านเกณฑ์) · values are assumption A-P1-H03-4",
+    "unlockId": "U7",
+    "minLevel": 10,
+    "minCompletedRuns": 3,
+    "unlockOnEvents": ["speedLockTriggered", "checkInRejected"],
+    "_assumption": "A-P1-H03-4: unlocks the anti-cheat help topics when level and run thresholds pass, OR at once when the player first meets a speed lock or a rejected check-in, so the explanation is there exactly when an honest player needs it. Event ids are proposals until product/telemetry-events.md names them. Privacy policy is always reachable (PDPA) and is not part of this unlock. Owner: game-director, product-manager"
+  },
+  "lore": {
+    "_source": "pillars 6.2 U8; ia.md section 6 and A-P1-F03-T15-1 (ปลดพร้อม U1/U2 จบ run แรก)",
+    "unlockId": "U8",
     "minLevel": 1,
-    "requiresCompletedRuns": 1,
-    "_source": "GDD > Raid Boss (คนเลเวลต่ำเข้าร่วมได้ทันทีโดยได้รางวัลตาม checkpoint)",
-    "_note": "No level gate, by GDD intent; one completed dungeon run so the player has met the movement gate before"
+    "minCompletedRuns": 1,
+    "_note": "Optional reading only; never pushed and never opened automatically"
+  },
+  "parentalConsent": {
+    "_source": "GDD > ความปลอดภัยผู้เล่นและ PDPA > อายุขั้นต่ำ 15 ปี (ออกแบบระบบให้รองรับ parental consent flow ไว้ตั้งแต่แรกแม้จะยังไม่เปิดใช้); CLAUDE.md non-negotiable 7; flow F03 A step 4",
+    "enabled": false,
+    "seeMinAge": "privacy.json#minAge_yr",
+    "_note": "Scaffold switch. false = a player below the minimum age sees the 'not available yet' screen only: no form, no data collected, one button back to the app start. Setting true needs HUMAN approval after legal review (GDD: ควรปรึกษานักกฎหมายก่อนเปิดจริง) and a built consent flow; it is not a tuning value"
   },
   "home": {
-    "_source": "GDD > 10 นาทีแรกของคนใหม่ (ตัวอย่างรอยแยก 650 ม. และปัญหา dungeon ใกล้สุดอยู่ 3 กิโลหรือนอกกรุงเทพ)",
+    "_source": "GDD > 10 นาทีแรกของคนใหม่ (ตัวอย่างรอยแยก 650 ม. และปัญหา dungeon ใกล้สุดอยู่ 3 กิโลหรือนอกกรุงเทพ); pillars 7.1",
     "farDungeonThreshold_m": 2000,
     "outOfServiceAreaThreshold_m": 20000,
-    "_assumption": "A-P1-F03-T06-20b: nearest open dungeon farther than 2,000 m (about 25 min walk; the GDD's 650 m example works, 3 km fails) = 'far'; farther than 20,000 m = 'outside service area' (show register-interest). Owner: game-director"
+    "reevaluateDistance_m": 200,
+    "seeAccuracy": "location.json#homeState.maxAccuracy_m",
+    "_assumption": "A-P1-F03-T06-20b: nearest open dungeon farther than 2,000 m (about 25 min walk; the GDD's 650 m example works, 3 km fails) = 'far'; farther than 20,000 m = 'outside service area' (show register-interest). Owner: game-director. A-P1-H03-5: re-evaluate the home state on app open and whenever the position moved more than 200 m since the last evaluation (10% of the far threshold, about 2.5 min walk, well above the 30 m check-in accuracy so GPS drift does not flip the panel). Display only, never affects a reward. Owner: uiux-designer, location-engineer"
   }
 }

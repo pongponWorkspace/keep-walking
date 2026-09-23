@@ -1,0 +1,24 @@
+# Owner: devops-engineer (P1-F02-T07).
+# Config for gitleaks (open source, MIT license, no license key / account required).
+# Used by:
+#   - CI job `secret-scan` in .github/workflows/ci.yml (every push and pull request, full git history)
+#   - local check: see docs/tech/environments.md "secret scan (local)"
+#
+# This config EXTENDS gitleaks' built-in default ruleset (AWS keys, GitHub/GitLab tokens,
+# private keys, Cloudflare tokens, Slack tokens, generic high-entropy API keys, etc.)
+# instead of replacing it. `useDefault = true` keeps every default rule active.
+title = "keep-walking gitleaks config"
+
+[extend]
+useDefault = true
+
+# Allowlist: paths that are expected to contain env VAR NAMES but never real values.
+# Anything matched here is skipped even if a rule would otherwise fire.
+# `.env.example` must never gain a real value (enforced by review + this allowlist staying narrow).
+[allowlist]
+description = "Example env files that hold variable names only, never real values"
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)\.env\.[a-zA-Z0-9_.-]+\.example$''',
+  '''(^|/)\.dev\.vars\.example$''',
+]

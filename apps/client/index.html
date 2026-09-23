@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      Locks the viewport to the device width and disables pinch-zoom on the
+      page chrome (the map itself still pans/zooms). Required for the map to
+      feel native on a phone (P1-F02-T09 acceptance: mobile viewport).
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <!--
+      Placeholder tab title: no player ever sees this, so English is fine
+      until narrative-designer publishes real copy keys.
+    -->
+    <title>Keep Walking - map/location spike</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="map"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

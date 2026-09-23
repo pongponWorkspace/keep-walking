@@ -1,0 +1,77 @@
+{
+  "formula": "classChange",
+  "vectors": [
+    {
+      "input": {
+        "fn": "classChangeCost",
+        "level": 10,
+        "costCoef_gold": 500,
+        "costLevelDivisor": 10,
+        "costExponent": 2
+      },
+      "expected": 500,
+      "tolerance": 0,
+      "source": "GDD > Class และ Party > การเปลี่ยน class (เลเวล 10 / 20 / 30 / 50 = 500 / 2,000 / 4,500 / 12,500 gold) · level 10"
+    },
+    {
+      "input": {
+        "fn": "classChangeCost",
+        "level": 20,
+        "costCoef_gold": 500,
+        "costLevelDivisor": 10,
+        "costExponent": 2
+      },
+      "expected": 2000,
+      "tolerance": 0,
+      "source": "GDD > Class และ Party > การเปลี่ยน class (เลเวล 10 / 20 / 30 / 50 = 500 / 2,000 / 4,500 / 12,500 gold) · level 20"
+    },
+    {
+      "input": {
+        "fn": "classChangeCost",
+        "level": 30,
+        "costCoef_gold": 500,
+        "costLevelDivisor": 10,
+        "costExponent": 2
+      },
+      "expected": 4500,
+      "tolerance": 0,
+      "source": "GDD > Class และ Party > การเปลี่ยน class (เลเวล 10 / 20 / 30 / 50 = 500 / 2,000 / 4,500 / 12,500 gold) · level 30"
+    },
+    {
+      "input": {
+        "fn": "classChangeCost",
+        "level": 50,
+        "costCoef_gold": 500,
+        "costLevelDivisor": 10,
+        "costExponent": 2
+      },
+      "expected": 12500,
+      "tolerance": 0,
+      "source": "GDD > Class และ Party > การเปลี่ยน class (เลเวล 10 / 20 / 30 / 50 = 500 / 2,000 / 4,500 / 12,500 gold) · level 50"
+    },
+    {
+      "input": {
+        "fn": "classChangeCost",
+        "level": 1,
+        "costCoef_gold": 500,
+        "costLevelDivisor": 10,
+        "costExponent": 2
+      },
+      "expected": 5,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 1"
+    },
+    {
+      "input": {
+        "fn": "classChangeCost",
+        "level": 60,
+        "costCoef_gold": 500,
+        "costLevelDivisor": 10,
+        "costExponent": 2
+      },
+      "expected": 18000,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 60"
+    }
+  ]
+}

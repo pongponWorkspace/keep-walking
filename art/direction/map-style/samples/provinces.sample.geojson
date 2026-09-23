@@ -1,0 +1,36 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "kind": "border",
+        "note": "SAMPLE ONLY: outline of the tile bbox standing in for real province borders"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[99.80, 13.40], [101.00, 13.40], [101.00, 14.35], [99.80, 14.35], [99.80, 13.40]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "border", "note": "SAMPLE ONLY: a border inside the black zone" },
+      "geometry": { "type": "LineString", "coordinates": [[101.00, 13.90], [101.40, 13.95]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "label", "name": "นครปฐม", "playable": true },
+      "geometry": { "type": "Point", "coordinates": [100.06, 13.82] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "label", "name": "ฉะเชิงเทรา", "playable": false },
+      "geometry": { "type": "Point", "coordinates": [101.20, 13.69] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "label", "name": "พระนครศรีอยุธยา", "playable": false },
+      "geometry": { "type": "Point", "coordinates": [100.57, 14.45] }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "file": "location.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-H03",
+    "doc": "design/pillars.md 7.1 (สถานะ 'ไม่รู้ตำแหน่ง'); design/ux/flows/F03-core-loop.md D3 and section 9.5 (gps.lowAccuracy)",
+    "_note": "Accuracy thresholds for display states only. Nothing in this file grants or blocks a reward: the reward check-in threshold is anticheat.json#checkIn.maxAccuracy_m (server). Accuracy values are the reported horizontal accuracy radius in metres (larger = worse), so every threshold is a maximum radius and is named max*, the same way as anticheat.json"
+  },
+  "homeState": {
+    "_source": "pillars 7.1 (ไม่รู้ตำแหน่ง: accuracy แย่กว่า config: location.minAccuracy_m ต่อเนื่อง); flow F03 D3, section 7 (สถานะ accuracy ต่ำ); GDD > 10 นาทีแรกของคนใหม่ (หน้าที่บ้าน)",
+    "maxAccuracy_m": 100,
+    "sustainedPoorAccuracy_s": 30,
+    "seeCheckInAccuracy": "anticheat.json#checkIn.maxAccuracy_m",
+    "_assumption": "A-P1-H03-6: the home screen is usually opened indoors, where phone GPS commonly reports 30-100 m. Using the 30 m check-in threshold would push many honest players into the 'unknown location' panel at home. A 100 m radius is 5% of the 2,000 m far threshold, so it cannot flip near/far in any meaningful way. The state becomes 'unknown location' (or the gps.lowAccuracy label) only after every fix for 30 s in a row is worse than 100 m, so one bad fix does not flash the panel. Re-check against field-walk results (P1-F02-T27). Owner: location-engineer, uiux-designer",
+    "_note": "Key name in pillars, IA and flow: location.minAccuracy_m. Renamed because 'min accuracy in metres' reads as the opposite of what it is (a maximum radius) and would sit next to anticheat maxAccuracy_m with the same meaning. Not the same concept as check-in: check-in (30 m) decides whether a walk-in counts; this value decides which home panel to show"
+  }
+}

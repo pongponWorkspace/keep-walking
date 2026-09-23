@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  // Own tsconfig because this workspace runs in a browser (DOM) unlike
+  // packages/shared, which must stay Worker/DO-safe (ADR 0001 3.4).
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "vite.config.ts", "e2e/**/*.ts"],
+  "exclude": ["node_modules", "dist", "scripts"]
+}

@@ -1,0 +1,161 @@
+# Owner: devops-engineer (P1-F02-T07).
+# CI calls the exact same root scripts a developer runs locally (ADR 0001 section 3.7).
+# No workflow-local build/test logic here beyond the secret scan and the forbidden-file guard,
+# which exist only to protect this PUBLIC repo (D-002) and have no `pnpm` equivalent.
+#
+# Jobs:
+#   build-test        pnpm lint / typecheck / test / build
+#   e2e               pnpm test:e2e:install && pnpm test:e2e (separate job, browsers are heavy)
+#   secret-scan       gitleaks over full git history (D-002 layer 2)
+#   forbidden-files   guard against tracked secrets/raw-data/oversized files (D-002 layer 2)
+#
+# Free tier: GitHub Actions is unlimited-minutes free for PUBLIC repos (D-001, D-002).
+# No paid action, no license key, no external account is used anywhere in this file.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned gitleaks release (open source, MIT, no license key). Bump both together.
+  GITLEAKS_VERSION: '8.30.1'
+  GITLEAKS_SHA256_LINUX_X64: '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb'
+  # Guard threshold for "oversized file tracked in git" (bytes). 5 MiB, see board T07 acceptance.
+  MAX_TRACKED_FILE_BYTES: '5242880'
+
+jobs:
+  build-test:
+    name: lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        # No `version:` input: pnpm/action-setup@v4 reads packageManager from root package.json
+        # (pinned there by ADR 0001, TL-M01). Keeps one source of truth for the pnpm version.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies (frozen lockfile, no network resolution drift)
+        run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+  e2e:
+    name: e2e (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright browsers (Chromium + WebKit)
+        run: pnpm test:e2e:install
+      - run: pnpm test:e2e
+
+  secret-scan:
+    name: secret scan (gitleaks, full history)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: gitleaks must see every past commit, not just the diff, so a secret
+          # committed and later removed still fails CI (D-002 layer 2).
+          fetch-depth: 0
+      - name: Install gitleaks (pinned release binary, checksum verified, no license key)
+        run: |
+          set -euo pipefail
+          curl -sSL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256_LINUX_X64}  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+      - name: Run gitleaks over full git history
+        run: |
+          gitleaks detect \
+            --source . \
+            --log-opts="--all" \
+            --config .gitleaks.toml \
+            --redact \
+            --verbose \
+            --exit-code 1
+
+  forbidden-files:
+    name: guard forbidden tracked files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if forbidden files are tracked (D-002)
+        run: |
+          set -uo pipefail
+          fail=0
+
+          echo "::group::1. raw playtest results (PDPA, must never be committed)"
+          bad=$(git ls-files | grep -E '^qa/playtest/results/raw/' || true)
+          if [ -n "$bad" ]; then
+            echo "FAIL: raw playtest results are tracked:"; echo "$bad"; fail=1
+          else
+            echo "ok"
+          fi
+          echo "::endgroup::"
+
+          echo "::group::2. .env* files other than .env.example / *.example"
+          bad=$(git ls-files | grep -E '(^|/)\.env(\.[A-Za-z0-9_.-]+)?$' \
+            | grep -v -E '\.example$' || true)
+          if [ -n "$bad" ]; then
+            echo "FAIL: forbidden .env file(s) tracked:"; echo "$bad"; fail=1
+          else
+            echo "ok"
+          fi
+          echo "::endgroup::"
+
+          echo "::group::3. *.pmtiles outside tools/tiles/fixtures/"
+          bad=$(git ls-files | grep -E '\.pmtiles$' \
+            | grep -v -E '^tools/tiles/fixtures/' || true)
+          if [ -n "$bad" ]; then
+            echo "FAIL: .pmtiles tracked outside tools/tiles/fixtures/:"; echo "$bad"; fail=1
+          else
+            echo "ok"
+          fi
+          echo "::endgroup::"
+
+          echo "::group::4. raw OSM extracts (*.osm.pbf)"
+          bad=$(git ls-files | grep -E '\.osm\.pbf$' || true)
+          if [ -n "$bad" ]; then
+            echo "FAIL: raw .osm.pbf tracked:"; echo "$bad"; fail=1
+          else
+            echo "ok"
+          fi
+          echo "::endgroup::"
+
+          echo "::group::5. oversized tracked files (> ${MAX_TRACKED_FILE_BYTES} bytes)"
+          any_big=0
+          while IFS= read -r -d '' f; do
+            size=$(stat -c '%s' "$f")
+            if [ "$size" -gt "$MAX_TRACKED_FILE_BYTES" ]; then
+              echo "FAIL: $f is $size bytes (limit $MAX_TRACKED_FILE_BYTES)"
+              fail=1
+              any_big=1
+            fi
+          done < <(git ls-files -z)
+          if [ "$any_big" -eq 0 ]; then echo "ok"; fi
+          echo "::endgroup::"
+
+          if [ "$fail" -ne 0 ]; then
+            echo "Forbidden-file guard failed. See groups above for details."
+            exit 1
+          fi
+          echo "Forbidden-file guard passed."

@@ -1,0 +1,118 @@
+{
+  "_meta": {
+    "owner": "systems-designer",
+    "task": "P1-F03-T07; drops/economy/party sections P1-F03-T08",
+    "purpose": "GDD target values copied verbatim, used only to build GDD-sourced golden vectors and to print sim-vs-GDD tables. Not balance values; runtime code never reads this file. Tunable values live in config/balance/*.json.",
+    "toleranceRule": "Tables printed with 1 decimal: 0.05. Integer tick table: 0.5. 'ราว' (about) totals: 3% (F-4). Level-30 hours: 4% (F-4 measured -3.4%). Gear table: 1 point (F-3, D-022). 'ราว' survival minutes: 10%. Tanker L50x1 = L1x2: 0.5 point (F-5)."
+  },
+  "buffStacking": {
+    "_source": "GDD > Class และ Party > สูตร buff stacking (ตาราง Tanker เลเวล 25 และค่าต่อ 1 คน)",
+    "memberLevel": 25,
+    "tankerByCount_pct": [21.7, 33.0, 38.8, 41.8],
+    "singleMember_pct": {
+      "tanker": 21.7,
+      "ranged": 23.2,
+      "support": 32.3,
+      "magic": 23.2
+    },
+    "tolerance_pct": 0.05,
+    "equivalence": {
+      "role": "tanker",
+      "oneMemberLevel": 50,
+      "twoMembersLevel": 1,
+      "tolerance_pct": 0.5
+    }
+  },
+  "expCurve": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (ตาราง tick ต่อเลเวล, รวม 1,240 tick / 103 ชม., เลเวล 30 ราว 32 ชม., 40 นาที/วัน ราว 5 เดือน, 3 ชม./วัน เดือนกว่า)",
+    "ticksPerLevel": {
+      "10": 10,
+      "20": 16,
+      "30": 22,
+      "45": 29,
+      "60": 35
+    },
+    "ticksPerLevelTolerance": 0.5,
+    "walkMinutesPerLevel": {
+      "10": 50,
+      "20": 80,
+      "30": 110,
+      "45": 145,
+      "60": 175
+    },
+    "walkMinutesTolerance": 2.5,
+    "totalTicksToMax": 1240,
+    "totalHoursToMax": 103,
+    "totalsTolerance_ratio": 0.03,
+    "hoursToLevel": 30,
+    "hoursToLevelValue": 32,
+    "hoursToLevelTolerance_ratio": 0.04,
+    "casualMinutesPerDay": 40,
+    "casualDaysToMaxText": "ราว 5 เดือน",
+    "heavyMinutesPerDay": 180,
+    "heavyDaysToMaxText": "เดือนกว่า"
+  },
+  "gear": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ตาราง tier 1-5 ที่ +0 / +10 / +15)",
+    "enhanceLevels": [0, 10, 15],
+    "byTier": {
+      "1": [30, 54, 66],
+      "2": [79, 142, 174],
+      "3": [140, 252, 308],
+      "4": [209, 376, 460],
+      "5": [285, 513, 627]
+    },
+    "tolerance": 1
+  },
+  "statExtremes": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (เลเวล 60 ลงแต้มสุดขั้ว: ATK 740, DEF 560 ลด damage 65%, HP 27,300)",
+    "level": 60,
+    "atk": 740,
+    "def": 560,
+    "defReduction_pct": 65,
+    "defReductionTolerance_pct": 0.5,
+    "hp": 27300
+  },
+  "defense": {
+    "_source": "GDD > Raid Boss > ตัวเลขตั้งต้น (K = 300: DEF 300 ลด damage 50%)",
+    "def": 300,
+    "defReduction_pct": 50
+  },
+  "classChange": {
+    "_source": "GDD > Class และ Party > การเปลี่ยน class (เลเวล 10 / 20 / 30 / 50 = 500 / 2,000 / 4,500 / 12,500 gold)",
+    "costByLevel_gold": {
+      "10": 500,
+      "20": 2000,
+      "30": 4500,
+      "50": 12500
+    }
+  },
+  "survival": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (เลเวลตรงโซน build สมดุล ไม่ใช้ยา ราว 45 นาที · มี Tanker เลเวล 25 ราว 55 นาที) · definition: D-020 (to auto-retreat 25%, damage x1.0)",
+    "fitLevel": 25,
+    "tankerLevel": 25,
+    "referenceMatchingLevel_min": 45,
+    "withTanker_min": 55,
+    "tolerance_ratio": 0.1,
+    "decisionShortfall_ratio": 0.2,
+    "reportLevels": [1, 10, 25, 40, 60]
+  },
+  "drops": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (40 นาที/วัน: Epic ราว 10 วัน, Legendary ราว 2 เดือน; 3 ชม./วัน: Epic ทุก 2-3 วัน, Legendary ราว 2 สัปดาห์)",
+    "_note": "Target days live in config/balance/drops.json#gddReferenceFrequency (single copy). This section holds only the comparison tolerance.",
+    "aboutTolerance_ratio": 0.1
+  },
+  "economy": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา (รายได้ราว 1,470 gold ต่อชั่วโมงเดิน ค่ายาราว 600 gold ต่อชั่วโมง อัตราส่วน 2.45 เท่า)",
+    "_note": "1,470 and 600 live in config/balance/economy.json#gddReferenceEconomy. 600 is compared, never used as input.",
+    "incomeTolerance_ratio": 0.03,
+    "potionCostTolerance_ratio": 0.1,
+    "gddRatio": 2.45,
+    "gddRatioTolerance": 0.005
+  },
+  "party": {
+    "_source": "GDD > Class และ Party > เป้าหมายสมดุล (party ครบ role ได้รางวัลต่อหัว 1.8-2.2 เท่าของคนเดียว)",
+    "_note": "Range lives in config/balance/economy.json#partyReward. GDD vector: full party L25 vs a solo player who is neither Ranged nor Magic (T06 section 2.4 reading).",
+    "level": 25
+  }
+}

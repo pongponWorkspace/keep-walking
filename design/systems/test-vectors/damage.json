@@ -1,0 +1,597 @@
+{
+  "formula": "damage",
+  "vectors": [
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "rangeMin": 15,
+        "rangeMax": 25
+      },
+      "expected": 20,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "rangeMin": 20,
+        "rangeMax": 25
+      },
+      "expected": 23,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "rangeMin": 1,
+        "rangeMax": 1
+      },
+      "expected": 1,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "rangeMin": 55,
+        "rangeMax": 60
+      },
+      "expected": 58,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+    },
+    {
+      "input": {
+        "fn": "monsterAtk",
+        "zoneLevel": 1,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3
+      },
+      "expected": 3,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+    },
+    {
+      "input": {
+        "fn": "monsterAtk",
+        "zoneLevel": 10,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3
+      },
+      "expected": 59.857869,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+    },
+    {
+      "input": {
+        "fn": "monsterAtk",
+        "zoneLevel": 25,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3
+      },
+      "expected": 196.989585,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+    },
+    {
+      "input": {
+        "fn": "monsterAtk",
+        "zoneLevel": 40,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3
+      },
+      "expected": 362.910257,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+    },
+    {
+      "input": {
+        "fn": "monsterAtk",
+        "zoneLevel": 60,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3
+      },
+      "expected": 614.777381,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+    },
+    {
+      "input": {
+        "fn": "defReduction_pct",
+        "def": 0,
+        "defSoftcap": 300
+      },
+      "expected": 0,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: DEF 0 → 0%"
+    },
+    {
+      "input": {
+        "fn": "defReduction_pct",
+        "def": 300,
+        "defSoftcap": 300
+      },
+      "expected": 50,
+      "tolerance": 0,
+      "source": "GDD > Raid Boss > ตัวเลขตั้งต้น (K = 300: DEF 300 ลด damage 50%)"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 0,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 0
+      },
+      "expected": 196.989585,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: DEF 0, damage x1.0 → equals monsterATK"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 286.25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 0
+      },
+      "expected": 100.804905,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · L25 balanced build DEF, damage x1.0 (D-020 reference)"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 286.25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 21.7
+      },
+      "expected": 78.930241,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · with Tanker buff 21.7%"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 286.25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": null
+      },
+      "expected": 161.287848,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · no Tanker inside → missing debuff x1.6"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 286.25,
+        "levelsBelowRange": 2,
+        "failedRaidWeek": false,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 0
+      },
+      "expected": 157.507664,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-2: 2 levels below range → x1.25^2"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 286.25,
+        "levelsBelowRange": -3,
+        "failedRaidWeek": false,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 0
+      },
+      "expected": 100.804905,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: above range → no gap multiplier"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 286.25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": true,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 0
+      },
+      "expected": 201.60981,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-16: week after a failed raid → monsterATK x2"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 286.25,
+        "levelsBelowRange": 3,
+        "failedRaidWeek": true,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": null
+      },
+      "expected": 630.030657,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · combined: no Tanker, 3 below range, failed raid week"
+    },
+    {
+      "input": {
+        "fn": "damagePerHit",
+        "zoneLevel": 25,
+        "def": 286.25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 45
+      },
+      "expected": 55.442698,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: Tanker buff at cap 45%"
+    },
+    {
+      "input": {
+        "fn": "hitsToThreshold",
+        "maxHp": 1000,
+        "damage": 250,
+        "threshold_pct": 25
+      },
+      "expected": 3,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: exact multiple, 750/250 = 3 hits reach 25%"
+    },
+    {
+      "input": {
+        "fn": "hitsToThreshold",
+        "maxHp": 1000,
+        "damage": 250,
+        "threshold_pct": 0
+      },
+      "expected": 4,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: HP 0 needs 4 hits"
+    },
+    {
+      "input": {
+        "fn": "hitsToThreshold",
+        "maxHp": 1000,
+        "damage": 2000,
+        "threshold_pct": 25
+      },
+      "expected": 1,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one hit larger than max HP → 1"
+    },
+    {
+      "input": {
+        "fn": "hitsToThreshold",
+        "maxHp": 3112.5,
+        "damage": 100.8,
+        "threshold_pct": 25
+      },
+      "expected": 24,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: L25 build to auto-retreat"
+    },
+    {
+      "input": {
+        "fn": "hitsToThreshold",
+        "maxHp": 3112.5,
+        "damage": 100.8,
+        "threshold_pct": 0
+      },
+      "expected": 31,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: L25 build to HP 0"
+    },
+    {
+      "input": {
+        "fn": "expectedSurvival_min",
+        "hits": 24,
+        "hitChance_pct": 50,
+        "meanInterval_s": 60
+      },
+      "expected": 48,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · E[time] = hits / p x mean interval"
+    },
+    {
+      "input": {
+        "fn": "survivalMinutes",
+        "maxHp": 3112.5,
+        "def": 286.25,
+        "zoneLevel": 25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 0,
+        "stopAt_pct": 25
+      },
+      "expected": 45,
+      "tolerance": 4.5,
+      "source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (เลเวลตรงโซน build สมดุล ไม่ใช้ยา ราว 45 นาที · มี Tanker เลเวล 25 ราว 55 นาที) · definition: D-020 (to auto-retreat 25%, damage x1.0) · L25 balanced build, damage x1.0, to auto-retreat · hitChance_pct 54 = least-squares fit P1-F03-T07 to both GDD rows (config combat.json#attackCheck currently 54)"
+    },
+    {
+      "input": {
+        "fn": "survivalMinutes",
+        "maxHp": 3112.5,
+        "def": 286.25,
+        "zoneLevel": 25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 21.7195838143349,
+        "stopAt_pct": 25
+      },
+      "expected": 55,
+      "tolerance": 5.5,
+      "source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (เลเวลตรงโซน build สมดุล ไม่ใช้ยา ราว 45 นาที · มี Tanker เลเวล 25 ราว 55 นาที) · definition: D-020 (to auto-retreat 25%, damage x1.0) · with one Tanker L25, to auto-retreat · hitChance_pct 54 = least-squares fit P1-F03-T07 to both GDD rows (config combat.json#attackCheck currently 54)"
+    },
+    {
+      "input": {
+        "fn": "survivalMinutes",
+        "maxHp": 3112.5,
+        "def": 286.25,
+        "zoneLevel": 25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 0,
+        "stopAt_pct": 25
+      },
+      "expected": 44.444444,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact: reference to auto-retreat 25%"
+    },
+    {
+      "input": {
+        "fn": "survivalMinutes",
+        "maxHp": 3112.5,
+        "def": 286.25,
+        "zoneLevel": 25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 0,
+        "stopAt_pct": 0
+      },
+      "expected": 57.407407,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · D-020: reference to HP 0"
+    },
+    {
+      "input": {
+        "fn": "survivalMinutes",
+        "maxHp": 3112.5,
+        "def": 286.25,
+        "zoneLevel": 25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 21.7195838143349,
+        "stopAt_pct": 25
+      },
+      "expected": 55.555556,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact: Tanker L25 to auto-retreat"
+    },
+    {
+      "input": {
+        "fn": "survivalMinutes",
+        "maxHp": 3112.5,
+        "def": 286.25,
+        "zoneLevel": 25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": 21.7195838143349,
+        "stopAt_pct": 0
+      },
+      "expected": 74.074074,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · Tanker L25 to HP 0"
+    },
+    {
+      "input": {
+        "fn": "survivalMinutes",
+        "maxHp": 3112.5,
+        "def": 286.25,
+        "zoneLevel": 25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": null,
+        "stopAt_pct": 25
+      },
+      "expected": 27.777778,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · F-1: solo Ranged/Support/Magic (x1.6) to auto-retreat"
+    },
+    {
+      "input": {
+        "fn": "survivalMinutes",
+        "maxHp": 3112.5,
+        "def": 286.25,
+        "zoneLevel": 25,
+        "levelsBelowRange": 0,
+        "failedRaidWeek": false,
+        "hitChance_pct": 54,
+        "intervalMin_s": 45,
+        "intervalMax_s": 75,
+        "monsterAtkCoef": 3,
+        "monsterAtkExponent": 1.3,
+        "defSoftcap": 300,
+        "damageMultPerLevelBelowRange": 1.25,
+        "monsterAtkMultAfterFailedRaid": 2,
+        "tankerMissingDebuffMult": 1.6,
+        "tankerBuff_pct": null,
+        "stopAt_pct": 0
+      },
+      "expected": 37.037037,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · F-1: solo Ranged/Support/Magic (x1.6) to HP 0"
+    },
+    {
+      "input": {
+        "fn": "hpLossPerHour_pct",
+        "damage": 100.8,
+        "maxHp": 3112.5,
+        "hitChance_pct": 50,
+        "meanInterval_s": 60
+      },
+      "expected": 97.156627,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · expected HP loss per walking hour"
+    },
+    {
+      "input": {
+        "fn": "potionCostPerHour_gold",
+        "hpLoss_pctPerHour": 97.16,
+        "heal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 485.8,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · small potion, no VIT bonus"
+    },
+    {
+      "input": {
+        "fn": "potionCostPerHour_gold",
+        "hpLoss_pctPerHour": 97.16,
+        "heal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 107.5,
+        "buyPrice_gold": 150
+      },
+      "expected": 234.120482,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · small potion, VIT 53.75 → +107.5% efficiency"
+    },
+    {
+      "input": {
+        "fn": "potionCostPerHour_gold",
+        "hpLoss_pctPerHour": 0,
+        "heal_pctMaxHp": 30,
+        "potionEfficiencyBonus_pct": 0,
+        "buyPrice_gold": 150
+      },
+      "expected": 0,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: no damage → 0 gold"
+    }
+  ]
+}

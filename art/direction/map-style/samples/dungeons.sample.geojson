@@ -1,0 +1,56 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sample-open-01",
+        "name": "ตัวอย่าง: ลุมพินี — ป่าในเมือง",
+        "status": "open",
+        "sponsored": false,
+        "label_count": "12 คน · T3 R4 S2 M3"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [100.5365, 13.7262], [100.5452, 13.7262], [100.5452, 13.7348],
+          [100.5412, 13.7352], [100.5365, 13.7340], [100.5365, 13.7262]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sample-sponsored-01",
+        "name": "ตัวอย่าง: สวนที่มีผู้สนับสนุน",
+        "status": "open",
+        "sponsored": true,
+        "label_sponsored": "ได้รับการสนับสนุน",
+        "label_count": "3 คน · T1 R1 S1 M0"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [100.5500, 13.8030], [100.5560, 13.8030], [100.5560, 13.8090],
+          [100.5500, 13.8090], [100.5500, 13.8030]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "sample-closed-01",
+        "name": "ตัวอย่าง: dungeon ที่ปิดอยู่",
+        "status": "closed",
+        "sponsored": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [100.5560, 13.7270], [100.5620, 13.7270], [100.5620, 13.7330],
+          [100.5560, 13.7330], [100.5560, 13.7270]
+        ]]
+      }
+    }
+  ]
+}

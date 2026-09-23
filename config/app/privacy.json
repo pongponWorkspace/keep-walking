@@ -1,0 +1,39 @@
+{
+  "_meta": {
+    "file": "privacy.json",
+    "version": 1,
+    "owner": "tech-lead",
+    "task": "P1-H05",
+    "doc": "docs/tech/gps-trace-format.md section 4; docs/tech/F02-map-location-spike.md sections 4, 11, 14",
+    "_note": "On-device privacy values of the client and its tools (what may leave the device and in what shape). Server-side PDPA values (positionLogTtl_s, minAge_yr) live only in config/balance/privacy.json (P1-H03, systems-designer); do not duplicate them here. Loaders must namespace by path (app.privacy vs balance.privacy). Keys starting with '_' are metadata: code skips them. null = not set yet: code must fail loudly, never guess."
+  },
+  "rawTraceExport": {
+    "_source": {
+      "rawTraceTrim_m": "GDD > ความปลอดภัยผู้เล่นและ PDPA (ข้อมูลตำแหน่งเป็นข้อมูลอ่อนไหว); A-P1-F02-T03-1; docs/tech/gps-trace-format.md 4.2 step 1 (ตั้งต้น 200 ม.)",
+      "coordinateDecimals": "docs/tech/gps-trace-format.md 4.2 step 3 (ปัดพิกัดเหลือ 5 ทศนิยม)",
+      "relativeTimeOnly": "docs/tech/gps-trace-format.md 4.2 step 2 (sample แรกที่เหลือเป็น t = 0)",
+      "requiresExplicitOptIn": "docs/tech/gps-trace-format.md 4.2 (คนเดินต้องกดเลือกเองทุกครั้ง); plan review TL-M06, MF-3",
+      "autoUploadAllowed": "docs/tech/gps-trace-format.md 4.2 (ดาวน์โหลดเป็นไฟล์เท่านั้น ไม่ upload)"
+    },
+    "rawTraceTrim_m": 200,
+    "coordinateDecimals": 5,
+    "relativeTimeOnly": true,
+    "requiresExplicitOptIn": true,
+    "autoUploadAllowed": false,
+    "_assumption": "A-P1-F02-T03-1: 200 m trimmed from both the start and the end of the path hides home/work endpoints for a field walk that starts near a park gate. Same value is passed to validateTrace(trace, { minTrim_m }). Owner: tech-lead; confirm with product-manager in P1-F02-T27"
+  },
+  "summaryExport": {
+    "_source": "docs/tech/gps-trace-format.md 4.1 (summary CSV ไม่มีพิกัดเป็นค่าเริ่มต้น, session_id สุ่มใหม่ทุก session)",
+    "isDefaultExport": true,
+    "includesCoordinates": false,
+    "sessionIdRegeneratedPerSession": true,
+    "_note": "Descriptive guard rails for T11 and the tech gate. The forbidden-column list (lat, lng, geohash, place name, wall-clock seconds, device model, full UA) is fixed by the trace-format doc, not tunable"
+  },
+  "logging": {
+    "_source": "docs/tech/F02-map-location-spike.md section 4 row 'log' (ห้าม log พิกัดดิบในระดับ production · debug log ได้หลัง flag hud=1 บนเครื่อง); CLAUDE.md non-negotiable 7",
+    "rawCoordinatesInProductionLog": false,
+    "rawCoordinatesInDebugLogRequiresFlag": "hud",
+    "byteCounterStoresTileUrls": false,
+    "_note": "byteCounterStoresTileUrls: tech note section 11 (tile URLs reveal approximate position; counters keep byte totals per category only)"
+  }
+}

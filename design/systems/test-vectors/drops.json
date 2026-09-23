@@ -1,0 +1,692 @@
+{
+  "formula": "drops",
+  "vectors": [
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 1.2,
+        "minutesPerDay": 40,
+        "rewardTickInterval_s": 300
+      },
+      "expected": 10,
+      "tolerance": 1,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (40 นาที/วัน: Epic ราว 10 วัน, Legendary ราว 2 เดือน; 3 ชม./วัน: Epic ทุก 2-3 วัน, Legendary ราว 2 สัปดาห์) · drop multiplier 1.0 (F-2), every reward tick passes the movement gate · 40 min/day Epic"
+    },
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 0.2,
+        "minutesPerDay": 40,
+        "rewardTickInterval_s": 300
+      },
+      "expected": 60,
+      "tolerance": 6,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (40 นาที/วัน: Epic ราว 10 วัน, Legendary ราว 2 เดือน; 3 ชม./วัน: Epic ทุก 2-3 วัน, Legendary ราว 2 สัปดาห์) · drop multiplier 1.0 (F-2), every reward tick passes the movement gate · 40 min/day Legendary"
+    },
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 1.2,
+        "minutesPerDay": 180,
+        "rewardTickInterval_s": 300
+      },
+      "expected": 2.5,
+      "tolerance": 0.5,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (40 นาที/วัน: Epic ราว 10 วัน, Legendary ราว 2 เดือน; 3 ชม./วัน: Epic ทุก 2-3 วัน, Legendary ราว 2 สัปดาห์) · drop multiplier 1.0 (F-2), every reward tick passes the movement gate · 180 min/day Epic (range 2-3 days)"
+    },
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 0.2,
+        "minutesPerDay": 180,
+        "rewardTickInterval_s": 300
+      },
+      "expected": 14,
+      "tolerance": 1.4,
+      "source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (40 นาที/วัน: Epic ราว 10 วัน, Legendary ราว 2 เดือน; 3 ชม./วัน: Epic ทุก 2-3 วัน, Legendary ราว 2 สัปดาห์) · drop multiplier 1.0 (F-2), every reward tick passes the movement gate · 180 min/day Legendary"
+    },
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 0.72,
+        "minutesPerDay": 40,
+        "rewardTickInterval_s": 300
+      },
+      "expected": 17.361111,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · F-2: solo without Ranged (x0.6) Epic"
+    },
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 0.12,
+        "minutesPerDay": 40,
+        "rewardTickInterval_s": 300
+      },
+      "expected": 104.166667,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · F-2: solo without Ranged (x0.6) Legendary"
+    },
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 0.72,
+        "minutesPerDay": 180,
+        "rewardTickInterval_s": 300
+      },
+      "expected": 3.858025,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · F-2: heavy player solo without Ranged"
+    },
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 1.2,
+        "minutesPerDay": 5,
+        "rewardTickInterval_s": 300
+      },
+      "expected": 83.333333,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: one reward tick per day"
+    },
+    {
+      "input": {
+        "fn": "meanDaysBetween",
+        "chance_pct": 0,
+        "minutesPerDay": 40,
+        "rewardTickInterval_s": 300
+      },
+      "expected": null,
+      "tolerance": 0,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: chance 0 → null"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": {
+        "commonQty": 2,
+        "uncommon": 25,
+        "rare": 6,
+        "epic": 1.2,
+        "legendary": 0.2
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · multiplier 1.0 (GDD table as written)"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": null,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": {
+        "commonQty": 1.2,
+        "uncommon": 15,
+        "rare": 3.6,
+        "epic": 0.72,
+        "legendary": 0.12
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · no Ranged inside → x0.6"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 23.190673264701335,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": {
+        "commonQty": 2.463813,
+        "uncommon": 30.797668,
+        "rare": 7.39144,
+        "epic": 1.478288,
+        "legendary": 0.246381
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · one Ranged L25 inside (buff 23.19%)"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 80,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": {
+        "commonQty": 3,
+        "uncommon": 37.5,
+        "rare": 9,
+        "epic": 1.8,
+        "legendary": 0.3
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: Ranged buff above 50% clamps at x1.5"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": true,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": {
+        "commonQty": 1.2,
+        "uncommon": 25,
+        "rare": 9,
+        "epic": 1.8,
+        "legendary": 0.3
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · small dungeon: rare and above x1.5, Common quantity x0.6"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": true,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": {
+        "commonQty": 1,
+        "uncommon": 12.5,
+        "rare": 3,
+        "epic": 0,
+        "legendary": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · low trust: x0.5 and no Epic or Legendary"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": 0
+      },
+      "expected": {
+        "commonQty": 3.2,
+        "uncommon": 40,
+        "rare": 9.6,
+        "epic": 1.92,
+        "legendary": 0.32
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · failed raid week, boss almost dead → x1.6 (A-16b)"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": 1
+      },
+      "expected": {
+        "commonQty": 4,
+        "uncommon": 50,
+        "rare": 12,
+        "epic": 2.4,
+        "legendary": 0.4
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · failed raid week, boss untouched → x2.0"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": 0.5
+      },
+      "expected": {
+        "commonQty": 3.6,
+        "uncommon": 45,
+        "rare": 10.8,
+        "epic": 2.16,
+        "legendary": 0.36
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · failed raid week, half HP left → x1.8"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": 3
+      },
+      "expected": {
+        "commonQty": 4,
+        "uncommon": 50,
+        "rare": 12,
+        "epic": 2.4,
+        "legendary": 0.4
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary: HP fraction above 1 clamps to x2.0"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": null,
+        "smallDungeon": true,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": {
+        "commonQty": 0.72,
+        "uncommon": 15,
+        "rare": 5.4,
+        "epic": 1.08,
+        "legendary": 0.18
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · combined: small dungeon, no Ranged"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 0,
+        "smallDungeon": true,
+        "lowTrust": true,
+        "failedRaidBossHpLeft": null
+      },
+      "expected": {
+        "commonQty": 0.6,
+        "uncommon": 12.5,
+        "rare": 4.5,
+        "epic": 0,
+        "legendary": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · combined: small dungeon, low trust"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 25,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 50,
+        "smallDungeon": true,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": 1
+      },
+      "expected": {
+        "commonQty": 3.6,
+        "uncommon": 75,
+        "rare": 27,
+        "epic": 5.4,
+        "legendary": 0.9
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · combined maximum: Ranged cap, small dungeon, failed raid x2.0"
+    },
+    {
+      "input": {
+        "fn": "dropRates",
+        "baseChance_pct": {
+          "uncommon": 80,
+          "rare": 6,
+          "epic": 1.2,
+          "legendary": 0.2
+        },
+        "commonMin": 1,
+        "commonMax": 3,
+        "rangedBuffMaxMult": 1.5,
+        "noRangedMult": 0.6,
+        "smallRareAndAboveMult": 1.5,
+        "smallCommonQtyMult": 0.6,
+        "failedRaidWeekMinMult": 1.6,
+        "failedRaidWeekMaxMult": 2,
+        "lowTrustMult": 0.5,
+        "lowTrustBlocksEpicAndAbove": true,
+        "npcPrice_gold": {
+          "common": 20,
+          "uncommon": 120,
+          "rare": 900,
+          "epic": null,
+          "legendary": null
+        },
+        "rewardTickInterval_s": 300,
+        "rangedBuff_pct": 50,
+        "smallDungeon": false,
+        "lowTrust": false,
+        "failedRaidBossHpLeft": 1
+      },
+      "expected": {
+        "commonQty": 6,
+        "uncommon": 100,
+        "rare": 18,
+        "epic": 3.6,
+        "legendary": 0.6
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · boundary (synthetic base Uncommon 80%): chance clamps at 100%"
+    }
+  ]
+}

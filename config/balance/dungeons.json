@@ -3,9 +3,9 @@
     "file": "dungeons.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06",
-    "doc": "design/systems/balance-model.md section 9",
-    "readBy": ["tools/coverage (area limits, A-P1-PLAN-01-5)", "back office polygon validation", "server run state machine"]
+    "task": "P1-F03-T06, P1-H03 (coverageFilter, hpSafety copy variables)",
+    "doc": "design/systems/balance-model.md section 9; tools/coverage/METHOD.md 8.2",
+    "readBy": ["tools/coverage (area limits, A-P1-PLAN-01-5; coverageFilter)","back office polygon validation", "server run state machine"]
   },
   "area": {
     "_source": "GDD > พื้นที่เล่นและ Dungeon > การกำหนด dungeon; ระบบหลังบ้าน > Validation ตอนวาด dungeon (3,000-150,000 ตร.ม.)",
@@ -52,7 +52,12 @@
     "autoRetreatThreshold_pct": 25,
     "autoRetreatKeepsRunLoot": true,
     "lowHpWarningThreshold_pct": 30,
-    "lowHpWarningChannels": ["vibrate", "push"]
+    "lowHpWarningChannels": ["vibrate", "push"],
+    "_copyVariables": {
+      "autoRetreatPct": "autoRetreatThreshold_pct",
+      "hpWarnPct": "lowHpWarningThreshold_pct"
+    },
+    "_note": "P1-H03: copy variables {autoRetreatPct} and {hpWarnPct} (style-guide 4.1) read these keys; the formatter prints the integer as is (25, 30)"
   },
   "death": {
     "_source": "GDD > HP การตาย และการฟื้นฟู > เมื่อตาย",
@@ -86,5 +91,147 @@
   "smallDungeon": {
     "_source": "GDD > การกำหนด dungeon (dungeon เล็ก); value lives in drops.json to keep one source",
     "seeFile": "drops.json#smallDungeon"
+  },
+  "coverageFilter": {
+    "_source": {
+      "maxBlockedShare": "METHOD 7.2, 8.2 · D-006 (religious strictest) · D-026 (cemetery, PROPOSED)",
+      "pointBlockerRadius_m": "METHOD 7.2 (size of a small shrine)",
+      "duplicateIoU": "METHOD 6.3",
+      "nestedContainmentShare": "METHOD 6.3",
+      "partialOverlapShare": "METHOD 6.3, 9.3",
+      "multipartMaxGap_m": "METHOD 6.2",
+      "repairMaxAreaChangeShare": "METHOD 6.2",
+      "excludeAccessValues": "METHOD 6.1",
+      "sizeBandUpper_m2": "METHOD 5.2 · GDD dungeon presets (level-designer confirms)",
+      "boundaryCrossCheckMaxDiffShare": "METHOD 2",
+      "religiousNamePatterns": "METHOD 7.3 R3 (regex, matched from the start of name, name:th, name:en)",
+      "blocklistTags": "METHOD 7.1 · GDD 'สถานที่ที่ไม่ควรเป็น dungeon' · D-006 · D-026 · D-027 (PROPOSED)",
+      "blocklistDisabledCategories": "switch for D-026: add 'cemetery' to turn the cemetery category off",
+      "blocklistDisabledTags": "switch for D-027: add amenity=university, amenity=college, building=university, building=college to allow campus parks",
+      "blocklistAreaOnlyTags": "METHOD 7.1 (amenity=clinic counts only as an area)",
+      "reviewOsmIds": "METHOD 7.1 (level-designer fills, SF-9), format osm-w<id> / osm-r<id>",
+      "reviewTags": "METHOD 7.1 (palace)",
+      "reviewNamePatterns": "METHOD 7.1 (palace and royal residence names; substring match on name, name:th, name:en). Pieces inside a flagged split parent inherit the flag",
+      "reviewMinAreaTags": "METHOD 7.1 (monument / memorial at or above area.minArea_m2)",
+      "outdoorBuildingValues": "METHOD 6.1 (marketplace with building other than these = indoor_market)",
+      "privateGardenTypes": "METHOD 6.1 (garden:type)",
+      "majorWayTags": "METHOD 12 · GDD 'Validation ตอนวาด dungeon'",
+      "majorWayIgnoreIfTagged": "METHOD 12 (tunnel / bridge with a value other than 'no' does not cut the ground)",
+      "majorWayAction": "D-028 PROPOSED: flag (default) | exclude | off",
+      "majorWayMinInsideLength_m": "length of a major way inside a candidate before it counts as crossing (edge-hugging roads do not count)"
+    },
+    "_note": "P1-H03: moved here from tools/coverage/params.json#coverageFilter with identical key names and values (checked by script: deep-equal, 26 keys), so a running coverage pipeline gives the same result whichever file it reads. The same rules are meant for back office polygon validation and temporary dungeons. All values are PROPOSED (METHOD 8.2), not locked. Once this object exists, params.json#coverageFilter is a fallback only and should be removed by its owner so there is one source",
+    "_switches": {
+      "D-026 cemetery (PROPOSED)": "blocklistDisabledCategories: [] keeps cemetery blocked; add \"cemetery\" to allow it. \"religious\" can never be listed (D-006, the pipeline refuses)",
+      "D-027 education incl. universities (PROPOSED)": "blocklistDisabledTags: [] keeps campuses blocked; add \"amenity=university\", \"amenity=college\", \"building=university\", \"building=college\" to allow campus parks",
+      "D-028 crosses_major_way (PROPOSED)": "majorWayAction: \"flag\" (default, mark and keep) | \"exclude\" (drop the candidate) | \"off\" (no check)",
+      "_why": "Lists and one enum instead of booleans because the pipeline validates exactly these keys (tools/coverage/pipeline/config.py REQUIRED_FILTER_KEYS); a boolean it does not read would be a dead switch"
+    },
+    "maxBlockedShare": {
+      "religious": 0.02,
+      "health": 0.1,
+      "education": 0.1,
+      "government": 0.1,
+      "military": 0.02,
+      "diplomatic": 0.02,
+      "cemetery": 0.02
+    },
+    "pointBlockerRadius_m": 10,
+    "duplicateIoU": 0.9,
+    "nestedContainmentShare": 0.9,
+    "partialOverlapShare": 0.05,
+    "multipartMaxGap_m": 30,
+    "repairMaxAreaChangeShare": 0.01,
+    "excludeAccessValues": ["private", "no"],
+    "sizeBandUpper_m2": { "small": 10000, "medium": 50000 },
+    "boundaryCrossCheckMaxDiffShare": 0.05,
+    "religiousNamePatterns": [
+      "^วัด",
+      "^มัสยิด",
+      "^โบสถ์",
+      "^ศาลเจ้า",
+      "^สำนักสงฆ์",
+      "^อาราม",
+      "(?i)^wat ",
+      "(?i)^temple",
+      "(?i)^mosque",
+      "(?i)^church",
+      "(?i)^shrine"
+    ],
+    "blocklistTags": {
+      "religious": [
+        "amenity=place_of_worship",
+        "amenity=monastery",
+        "amenity=crematorium",
+        "landuse=religious",
+        "building=temple",
+        "building=church",
+        "building=mosque",
+        "building=shrine",
+        "building=monastery",
+        "building=cathedral",
+        "building=chapel",
+        "building=synagogue",
+        "building=religious",
+        "historic=wayside_shrine",
+        "historic=temple",
+        "historic=church",
+        "historic=monastery",
+        "office=religion",
+        "religion=*"
+      ],
+      "health": ["amenity=hospital", "healthcare=hospital", "building=hospital", "amenity=clinic"],
+      "education": [
+        "amenity=school",
+        "amenity=kindergarten",
+        "amenity=college",
+        "amenity=university",
+        "building=school",
+        "building=university",
+        "building=college",
+        "building=kindergarten",
+        "landuse=education",
+        "office=educational_institution"
+      ],
+      "government": [
+        "office=government",
+        "government=*",
+        "amenity=townhall",
+        "amenity=courthouse",
+        "amenity=police",
+        "amenity=fire_station",
+        "amenity=prison",
+        "landuse=government",
+        "building=government"
+      ],
+      "military": ["landuse=military", "military=*"],
+      "diplomatic": ["office=diplomatic", "amenity=embassy", "diplomatic=*"],
+      "cemetery": ["landuse=cemetery", "amenity=grave_yard"]
+    },
+    "blocklistDisabledCategories": [],
+    "blocklistDisabledTags": [],
+    "blocklistAreaOnlyTags": ["amenity=clinic"],
+    "reviewOsmIds": [],
+    "reviewTags": ["historic=palace"],
+    "reviewNamePatterns": ["พระราชวัง", "วัง", "พระที่นั่ง", "ตำหนัก", "พระราชฐาน", "(?i)palace"],
+    "reviewMinAreaTags": ["historic=monument", "historic=memorial"],
+    "outdoorBuildingValues": ["no", "roof"],
+    "privateGardenTypes": ["residential", "private"],
+    "majorWayTags": [
+      "highway=motorway",
+      "highway=motorway_link",
+      "highway=trunk",
+      "highway=trunk_link",
+      "highway=primary",
+      "highway=primary_link",
+      "railway=rail",
+      "railway=subway",
+      "railway=light_rail",
+      "waterway=river",
+      "waterway=canal"
+    ],
+    "majorWayIgnoreIfTagged": ["tunnel", "bridge"],
+    "majorWayAction": "flag",
+    "majorWayMinInsideLength_m": 20
   }
 }
