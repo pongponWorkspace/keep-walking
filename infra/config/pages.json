@@ -1,0 +1,33 @@
+{
+  "_comment": "Owner: devops-engineer (P1-F02-T08). Non-secret config for the two Cloudflare Pages Free projects (D-008, D-031, tech note F02 section 7.5). Project names are config, not secrets: CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN (GitHub Actions secrets only) are the only credentials involved.",
+  "productionBranch": "main",
+  "projects": {
+    "client": {
+      "name": "keep-walking-preview",
+      "description": "Client SPA (Vite + MapLibre GL JS). Created manually by HUMAN P1-F02-T17 (Direct Upload, empty index.html) and deployed for real by P1-F02-T19 via infra/scripts/publish-client.sh.",
+      "headersDir": "infra/pages/keep-walking-preview",
+      "url": "https://keep-walking-preview.pages.dev"
+    },
+    "map": {
+      "name": "keep-walking-map",
+      "description": "Tiles (XYZ + tiles.json), glyphs, sprites, font-faces. Auto-created on first deploy by infra/scripts/publish-tiles.sh via `wrangler pages project create` (same CLOUDFLARE_API_TOKEN scope as the client project, Account > Cloudflare Pages > Edit) -- HUMAN does not need to click Create for this one.",
+      "headersDir": "infra/pages/keep-walking-map",
+      "url": "https://keep-walking-map.pages.dev"
+    }
+  },
+  "budget": {
+    "_comment": "Same numbers as tools/tiles/config.json#budget (tech note F02 section 7.1, 7.4, checked 2026-09-23). Duplicated intentionally: this script must not depend on tools/tiles internals, only on its documented output contract (manifest.json, tiles.json, the XYZ directory).",
+    "pagesMaxFilesPerDeploy": 20000,
+    "pagesMaxFileBytes": 26214400,
+    "targetMaxFilesPerDeploy": 16000,
+    "targetMaxTileFiles": 15000
+  },
+  "githubPagesFallback": {
+    "_comment": "Temporary fallback only (ToS: no commercial use, tech note 7.3 row d). Used when tools/tiles/bin/build.sh exits 3 (only the GitHub Pages PMTiles set is within budget). Cloudflare Cache-Control cannot be set here (fixed by GitHub Pages at `max-age=600`, tech note 7.1); CORS is `access-control-allow-origin: *` automatically, also per tech note 7.1 -- both values are recorded in the runbook, not set by this script.",
+    "enabledByDefault": false,
+    "pmtilesPathTemplate": "pmtiles/{tileset_id}.pmtiles",
+    "maxSiteBytes": 1000000000,
+    "fixedCacheControl": "max-age=600",
+    "fixedCorsHeader": "access-control-allow-origin: *"
+  }
+}

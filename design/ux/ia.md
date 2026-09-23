@@ -51,7 +51,7 @@ Task: P1-F03-T15 · เจ้าของ: uiux-designer · สถานะ: ฉ
 | S-00-intro | เกริ่นปัญหา | page | — | ข้อความเดียว "กรุงเทพฯ กำลังมีปัญหา" (นาที 0–1) นำไปหน้า consent ทันที ไม่มีปุ่มข้าม |
 | S-00-consent-location | Consent ตำแหน่ง | page | — | ขอ consent location แยกจาก consent อื่นทั้งหมด (NN-7) ปฏิเสธได้ → ไปหัวข้อ 4 (ไม่รู้ตำแหน่ง) |
 | S-00-permission-browser | ขอ permission เบราว์เซอร์ | page (priming) + native prompt | — | จอเกริ่นก่อน trigger native geolocation prompt เพื่อลดอัตราปฏิเสธ |
-| S-00-age-gate | ตรวจอายุ 15+ | page | — | เลือกช่วงอายุ/ปีเกิดจากตัวเลือก ไม่ใช่พิมพ์ · ต่ำกว่า 15 → ทางแยก parental consent (scaffold ปิดใน v1 `config: unlocks.parentalConsent`, แสดงข้อความ "ยังเปิดใช้งานไม่ได้" ไม่ปิดแอปทันที) |
+| S-00-age-gate | ตรวจอายุ 15+ | page | — | เลือกช่วงอายุ/ปีเกิดจากตัวเลือก ไม่ใช่พิมพ์ · ต่ำกว่า 15 → ทางแยก parental consent (scaffold ปิดใน v1 `config: unlocks.parentalConsent.enabled`, แสดงข้อความ "ยังเปิดใช้งานไม่ได้" ไม่ปิดแอปทันที) |
 | S-00-login | เข้าสู่ระบบ (Google/Apple) | page | — | ตำแหน่งใน flow เป็น `[ASSUMPTION A-P1-F03-T15-2]` ดูหัวข้อ 8 |
 | S-00-class-select | เลือกพลัง (Tanker/Ranged/Support/Magic) | page | — | เลือกได้ภายในนาทีแรก แสดงผลของ role แบบสั้น ไม่มีสูตร |
 | S-01-map | แผนที่ (บ้าน) | page (แท็บหลัก) | — | หน้าเริ่มต้นทุกครั้งที่เปิดแอป มี 4 สถานะ ดูหัวข้อ 4 |
@@ -199,12 +199,12 @@ assumptions:
   - A-P1-F03-T15-1: `unlocks.lore` ปลดพร้อม U1/U2 (owner: game-director)
   - A-P1-F03-T15-2: ตำแหน่ง `S-00-login` ใช้ mandatory-first ชั่วคราวจนกว่า F07 ตัดสิน Q2 (owner: game-director, uiux-designer)
   - A-P1-F03-T15-3: display name สุ่มอัตโนมัติ ไม่มีช่องพิมพ์ (owner: narrative-designer, game-director)
-  - A-P1-F03-T15-4: เกณฑ์ตัวเลขปลด U3/U5/U6 รอ config จริง (owner: systems-designer)
+  - A-P1-F03-T15-4 (ปิดแล้วใน P1-H03): เกณฑ์ตัวเลขปลด U3/U5/U6 มีค่าจริงแล้วใน `config/balance/unlocks.json` — raid (U3) `minLevel: 5, minCompletedRuns: 3`, classChange (U5) `minLevel: 10, minCompletedRuns: 3`, partyDetail (U6) `minLevel: 3, minCompletedRuns: 1, minNearbyPartyJoins: 1` (owner: systems-designer)
   - A-P1-F03-T15-5: ความยาวคำขยายโซน 14 code point พอสำหรับพื้นที่จอ 360px เบื้องต้น รอทดสอบซ้ำกับ font จริงใน T17 (owner: art-director, narrative-designer)
   - A-P1-F03-T15-6: `S-20-raid-run` เข้าถึงได้ทันทีถ้ายืนในวงแม้ไม่ปลด `unlocks.raid` โดยผ่าน `S-02-dungeon-confirm` เสมอ (owner: game-director)
 handoffs:
   - to: narrative-designer | need: copy key และร่างไทยของทุกหน้าใน section 3 (โดยเฉพาะ S-00-*, S-06/S-07/S-08 panel, S-23/S-24) | why: T16/T17 ต้องใช้ copy key จริงในการเขียน flow และ wireframe | blocking: no (T16 อ้าง IA นี้เป็น input หลักและจะระบุ copy key ที่ต้องใช้ต่อ narrative-designer เอง)
-  - to: systems-designer | need: ยืนยันชื่อ config key `unlocks.market`, `unlocks.enhance`, `unlocks.statAllocation`, `unlocks.classChange`, `unlocks.partyDetail`, `unlocks.raid`, `unlocks.antiCheatHelp`, `unlocks.lore`, `unlocks.parentalConsent`, `unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s` และเติมเกณฑ์ตัวเลขจริงตามลำดับในหัวข้อ 6 | why: A-P1-F03-T15-4 และ A-P1-F03-T01-2/3 ใน pillars ยังรอ | blocking: no
+  - to: systems-designer | need: (ปิดแล้วใน P1-H03) ยืนยันชื่อ config key `unlocks.market`, `unlocks.enhance`, `unlocks.statAllocation`, `unlocks.classChange`, `unlocks.partyDetail`, `unlocks.raid`, `unlocks.antiCheatHelp`, `unlocks.lore`, `unlocks.parentalConsent.enabled`, `unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s` และเติมเกณฑ์ตัวเลขจริงตามลำดับในหัวข้อ 6 | why: A-P1-F03-T15-4 และ A-P1-F03-T01-2/3 ใน pillars ได้คำตอบแล้ว (ดู `config/balance/unlocks.json`) | blocking: no
   - to: game-director | need: ยืนยัน A-P1-F03-T15-1, A-P1-F03-T15-2, A-P1-F03-T15-6 และ Q-T15-2 ใน design gate A/B | why: กระทบลำดับ onboarding และเส้นแบ่ง "ห้ามสอน" ของ raid | blocking: no
 decisions:
   - none

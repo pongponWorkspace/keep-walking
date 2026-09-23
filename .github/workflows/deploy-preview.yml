@@ -1,0 +1,153 @@
+# Owner: devops-engineer (P1-F02-T08). Publishes the Phase 1 preview: builds/unpacks map tiles
+# (tools/tiles), publishes them to the Cloudflare Pages Free "map" project, builds the client
+# against that tile set, and publishes it to the Cloudflare Pages Free "client" project
+# (infra/config/pages.json). D-008 (Cloudflare Free, no card) · D-031 (tiles = XYZ + TileJSON).
+#
+# workflow_dispatch ONLY: this never runs on push/PR (CLAUDE.md "no production deploys by
+# agents" -- a human always presses Run workflow, P1-F02-T19). It is a separate workflow from
+# ci.yml on purpose: ci.yml never downloads large data (docs/tech/environments.md section 5),
+# this one does (the Protomaps daily basemap extract, tools/tiles/bin/fetch-tools.sh/fetch-assets.sh).
+#
+# No `wrangler.toml`/`wrangler.jsonc` binding is used anywhere in this workflow: both Pages
+# projects are static-only, deployed with `wrangler pages deploy` (docs/adr/0002-backend-stack.md
+# section 3, "deploy ผ่าน wrangler จาก GitHub Actions ไม่ใช้ Git integration").
+#
+# Secrets read (GitHub Actions secrets only, never committed -- see
+# infra/runbooks/preview-setup.md for how a HUMAN creates them in P1-F02-T17):
+#   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
+name: deploy-preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: build and check budgets, skip every wrangler/Pages deploy call'
+        type: boolean
+        default: true
+      use_github_pages_fallback:
+        description: 'Allow the temporary GitHub Pages PMTiles fallback (tech note F02 7.3 step 3) when the Cloudflare Pages XYZ set is over budget. Off by default: GitHub Pages ToS forbids commercial use, spike-only.'
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-preview
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  # Fixed, non-secret: read again from infra/config/pages.json inside the job so this file stays
+  # the single source of truth, but declared here so `env:` blocks below can see it too.
+  TILES_CONFIG: infra/config/pages.json
+
+jobs:
+  build-and-publish:
+    name: build tiles + client, publish to Cloudflare Pages Free
+    runs-on: ubuntu-latest
+    environment: github-pages # only used when the GitHub Pages fallback steps actually run
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Read Pages project config (non-secret, infra/config/pages.json)
+        id: pages_cfg
+        run: |
+          echo "map_url=$(jq -r .projects.map.url "$TILES_CONFIG")" >> "$GITHUB_OUTPUT"
+          echo "client_url=$(jq -r .projects.client.url "$TILES_CONFIG")" >> "$GITHUB_OUTPUT"
+
+      - name: Build tiles (tools/tiles/bin/build.sh)
+        id: tiles
+        env:
+          TILES_PUBLIC_BASE_URL: ${{ steps.pages_cfg.outputs.map_url }}
+        run: |
+          set +e
+          bash tools/tiles/bin/build.sh
+          rc=$?
+          set -e
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          case "$rc" in
+            0) echo "result=pages" >> "$GITHUB_OUTPUT" ;;
+            3) echo "result=ghpages" >> "$GITHUB_OUTPUT" ;;
+            *) echo "result=fail" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Stop -- no free-tier host fits (HUMAN decision needed)
+        if: steps.tiles.outputs.result == 'fail'
+        run: |
+          echo "::error::tools/tiles/bin/build.sh exited ${{ steps.tiles.outputs.rc }}: no free host fits this build (tech note F02-map-location-spike.md section 7.3 step 4). Do not switch to a paid host (D-001). Report BLOCKED/PARTIAL to HUMAN." >&2
+          exit 1
+
+      - name: Stop -- only the GitHub Pages fallback fits and it was not requested
+        if: steps.tiles.outputs.result == 'ghpages' && inputs.use_github_pages_fallback != true
+        run: |
+          echo "::error::Only the temporary GitHub Pages PMTiles fallback is within budget (tech note section 7.3 step 3). Re-run this workflow with 'use_github_pages_fallback: true' if that is expected, or shrink the tile build (lower area.maxzoom in tools/tiles/config.json) and re-run." >&2
+          exit 1
+
+      - name: Publish tiles to Cloudflare Pages (keep-walking-map)
+        if: steps.tiles.outputs.result == 'pages'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: infra/scripts/publish-tiles.sh tools/tiles/out/publish
+
+      - name: Stage GitHub Pages fallback (tiles, glyphs, sprites only)
+        if: steps.tiles.outputs.result == 'ghpages' && inputs.use_github_pages_fallback == true
+        run: infra/scripts/prepare-ghpages-fallback.sh tools/tiles/out/publish-ghpages
+
+      - name: Upload GitHub Pages artifact
+        if: steps.tiles.outputs.result == 'ghpages' && inputs.use_github_pages_fallback == true && inputs.dry_run != true
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: tools/tiles/out/publish-ghpages
+
+      - name: Deploy GitHub Pages fallback
+        if: steps.tiles.outputs.result == 'ghpages' && inputs.use_github_pages_fallback == true && inputs.dry_run != true
+        id: ghpages_deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Resolve tile base URL for the client build
+        id: tilebase
+        if: steps.tiles.outputs.result == 'pages' || (steps.tiles.outputs.result == 'ghpages' && inputs.use_github_pages_fallback == true)
+        run: |
+          if [ "${{ steps.tiles.outputs.result }}" = "pages" ]; then
+            echo "manifest=tools/tiles/out/publish/manifest.json" >> "$GITHUB_OUTPUT"
+            echo "base_url=${{ steps.pages_cfg.outputs.map_url }}" >> "$GITHUB_OUTPUT"
+          else
+            # https://<owner>.github.io/<repo> -- deterministic from the repo's own name, same
+            # value actions/deploy-pages would report (tech note section 9 URL pattern).
+            echo "manifest=tools/tiles/out/publish-ghpages/manifest.json" >> "$GITHUB_OUTPUT"
+            echo "base_url=https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish client (keep-walking-preview)
+        if: steps.tilebase.outcome == 'success'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: infra/scripts/publish-client.sh "${{ steps.tilebase.outputs.manifest }}" "${{ steps.tilebase.outputs.base_url }}"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### deploy-preview result"
+            echo "- dry_run: ${{ inputs.dry_run }}"
+            echo "- tile result: ${{ steps.tiles.outputs.result }} (exit ${{ steps.tiles.outputs.rc }})"
+            echo "- map project:    ${{ steps.pages_cfg.outputs.map_url }}"
+            echo "- client project: ${{ steps.pages_cfg.outputs.client_url }}"
+            echo "- tiles base URL used by the client build: ${{ steps.tilebase.outputs.base_url }}"
+            echo ""
+            echo "Run the curl checks in infra/runbooks/preview-setup.md against these URLs next."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,310 @@
+{
+  "_meta": {
+    "file": "tools/copy-lint/words.json",
+    "version": 1,
+    "owner": "narrative-designer",
+    "task": "P1-H02",
+    "doc": "design/narrative/style-guide.md sections 4.1, 5, 6; docs/tech/copy-schema.md section 8.1",
+    "_note": "Every entry is the *source* of a RegExp built with the 'u' flag (design/narrative/style-guide.md section 8.1). Plain Thai/English words are valid regex sources as-is. Entries with regex syntax (e.g. negative lookahead) guard against matching inside a normal, allowed word (style-guide 6: 'ห่า(?![งน])' must not match \"ห่าง\"). W2d (slurs) and the full W7 (real brands) list are intentionally minimal placeholders here: narrative-designer owns and extends this content without a code change (style-guide section 9, copy-schema section 9 handoff #4)."
+  },
+
+  "W1": [
+    "ผู้ถูกเลือก",
+    "ถูกเลือกให้",
+    "ถูกเลือกมา",
+    "ถูกกำหนดมา",
+    "โชคชะตา",
+    "ชะตากรรม",
+    "ชะตาชีวิต",
+    "ลิขิต",
+    "พรหมลิขิต",
+    "คำทำนาย",
+    "ทำนาย",
+    "คำพยากรณ์",
+    "พลังที่หลับใหล",
+    "หลับใหล",
+    "พลังแฝง",
+    "พลังซ่อนเร้น",
+    "ตื่นรู้",
+    "ปลุกพลัง",
+    "พลังตื่น",
+    "สายเลือด",
+    "กลับชาติมาเกิด",
+    "ชาติที่แล้ว",
+    "ชาติก่อน",
+    "ราชาปีศาจ"
+  ],
+
+  "W2a": {
+    "_note": "FAIL in system/research/command/legal. In character, only characterAllowed is exempt; 'ตีน' is still FAIL even in character (style-guide 6.2: allowance is 'เฉพาะ กู มึง').",
+    "all": ["กู(?!้)", "มึง", "ตีน"],
+    "characterAllowed": ["กู(?!้)", "มึง"]
+  },
+
+  "W2b": [
+    "ชิบหาย",
+    "ฉิบหาย",
+    "เหี้ย",
+    "เชี่ย",
+    "สัส",
+    "สัด(?!ส่วน)",
+    "สันดาน",
+    "ควย",
+    "เย็ด",
+    "แม่ง",
+    "ห่า(?![งน])",
+    "ไอ้สัตว์",
+    "อีสัตว์",
+    "ส้นตีน",
+    "หี(?!บ)",
+    "แตด",
+    "จัญไร",
+    "ระยำ",
+    "ชาติหมา",
+    "ตอแหล",
+    "ร่าน",
+    "ดอกทอง"
+  ],
+
+  "W2bWarn": ["เวร", "กะหรี่", "ไอ้", "อี(?![กเ])"],
+
+  "W2c": {
+    "fail": ["โง่", "ควาย", "ปัญญาอ่อน", "ไร้สมอง", "กาก"],
+    "warn": ["ขยะ", "อ้วน", "ดำ", "จน(?!กว่า)", "บ้านนอก"]
+  },
+
+  "W2d": [],
+
+  "W2e": {
+    "_note": "S11.evasiveSpellingFail matches known evasive respellings of W2b. obfuscationWarnPattern flags [*#@.] sitting between two Thai letters (a common way to dodge substring matching).",
+    "evasiveSpellingFail": ["เหี้ยก", "ชิบ", "สัสส"],
+    "obfuscationWarnPattern": "[\\u0E00-\\u0E7F][*#@.][\\u0E00-\\u0E7F]"
+  },
+
+  "W3": [
+    "เสียใจ",
+    "ขอโทษ",
+    "ขออภัย",
+    "ไม่เป็นไร",
+    "ไม่ต้องห่วง",
+    "ไม่ต้องเสียใจ",
+    "สู้ๆ",
+    "สู้ต่อไป",
+    "เป็นกำลังใจ",
+    "น่าเสียดาย",
+    "โชคร้าย",
+    "เพราะ"
+  ],
+
+  "W4": [
+    "ผู้กล้า",
+    "วีรบุรุษ",
+    "วีรชน",
+    "ฮีโร่",
+    "ปกป้องเมือง",
+    "ปกป้องกรุงเทพ",
+    "พิทักษ์",
+    "ผู้พิทักษ์",
+    "กอบกู้",
+    "ช่วยโลก",
+    "เงามืด",
+    "สังหาร",
+    "กำจัด",
+    "ปราบ",
+    "พิชิต",
+    "ฆ่า",
+    "ประหาร",
+    "เลือดสาด"
+  ],
+
+  "W5a": {
+    "fail": [
+      "ราชา",
+      "ราชินี",
+      "จักรพรรดิ",
+      "เจ้าชาย",
+      "เจ้าหญิง",
+      "ในหลวง",
+      "ราชวงศ์",
+      "พระราช",
+      "เสด็จ",
+      "พระองค์",
+      "เฉลิมพระเกียรติ",
+      "ร\\.๙",
+      "รัชกาล"
+    ],
+    "warn": ["ทรง"]
+  },
+
+  "W5b": {
+    "fail": [
+      "โบสถ์",
+      "มัสยิด",
+      "ศาลเจ้า",
+      "ศาลพระภูมิ",
+      "นรก",
+      "สวรรค์",
+      "เทวดา",
+      "ครุฑ",
+      "กินรี",
+      "ผีสิง",
+      "อาถรรพ์",
+      "ต้องสาป",
+      "ไสยศาสตร์",
+      "พระธาตุ",
+      "งานวัด",
+      "จีวร"
+    ],
+    "warn": ["(?<!จังห)วัด", "พระ", "บาป", "บุญ", "กรรม", "นาค", "ยักษ์", "สาปแช่ง"]
+  },
+
+  "W5c": {
+    "_note": "style-guide 6.5: all of these are FAIL in system/research/command/legal except 'รัฐบาล', which is WARN until HUMAN decides H-02 (world.md).",
+    "fail": ["นายก", "พรรค", "ส\\.ส\\.", "เลือกตั้ง", "ชุมนุม", "ม็อบ", "รัฐประหาร", "ประชาธิปไตย"],
+    "warn": ["รัฐบาล"]
+  },
+
+  "W5d": ["ปีศาจ", "ผี", "มาร"],
+
+  "W6": [
+    "แทง",
+    "เดิมพัน",
+    "บ่อน",
+    "หวย",
+    "เสี่ยงดวง",
+    "ลุ้นรวย",
+    "แจ็กพอต",
+    "แตก(?!ต่าง)",
+    "พัง",
+    "ระเบิด",
+    "สูญสลาย",
+    "หายไปตลอดกาล"
+  ],
+
+  "W7": {
+    "_note": "style-guide 6.7: full brand list lives here, not in the design doc. Starter set only; narrative-designer extends it. 'ไลน์' is WARN because it collides with 'ออนไลน์'.",
+    "fail": [
+      "บีทีเอส",
+      "เอ็มอาร์ที",
+      "เซเว่น",
+      "แกร็บ",
+      "ไลน์แมน",
+      "ช้อปปี้",
+      "ลาซาด้า",
+      "โลตัส",
+      "บิ๊กซี",
+      "สตาร์บัคส์",
+      "เฟซบุ๊ก"
+    ],
+    "warn": ["ไลน์"]
+  },
+
+  "W8": {
+    "U1": ["ตลาด", "ซื้อขาย", "แลกเปลี่ยน", "แลกของ", "ภาษี", "ขายของ", "ประมูล", "trade"],
+    "U2": [
+      "ตีบวก",
+      "ตีเลย",
+      "อัปเกรด",
+      "อัพเกรด",
+      "วัตถุดิบ",
+      "ผงธาตุ",
+      "แก่นธาตุ",
+      "หินรอยแยก",
+      "\\+\\{",
+      "enhance"
+    ],
+    "U3": ["raid", "เรด", "บอส", "แกนบอส", "\\{raid", "วันเสาร์", "ทุกเสาร์", "ผลงาน"],
+    "U4": ["stat", "สเตตัส", "ลงแต้ม", "แต้มสถานะ", "ค่าพลัง"],
+    "U5": ["class", "เปลี่ยนพลัง", "เปลี่ยนสาย", "เปลี่ยน role", "เปลี่ยนทีหลัง"],
+    "U6": [
+      "debuff",
+      "สูตร",
+      "ตัวคูณ",
+      "ขาด role",
+      "จับคู่",
+      "บล็อก",
+      "รายงานผู้เล่น",
+      "stack",
+      "ซ้อน buff"
+    ],
+    "U7": [
+      "โกง",
+      "ปลอม",
+      "trust",
+      "แบน",
+      "ระงับ",
+      "ตรวจจับ",
+      "ความเร็วผิดปกติ",
+      "speed",
+      "fingerprint"
+    ],
+    "U8": [
+      "ความหนาแน่นทางสังคม",
+      "ฝั่งโน้น",
+      "ทีมวิจัย",
+      "นักวิจัย",
+      "หน่วยงานที่เกี่ยวข้อง",
+      "ผู้เชี่ยวชาญ",
+      "หลายร้อยปี"
+    ]
+  },
+
+  "latinAllowlist": {
+    "_note": "style-guide 5.1. caseInsensitive tokens match regardless of case; caseSensitive tokens must match exactly (e.g. 'hp' is not allowed even though 'HP' is).",
+    "caseInsensitive": [
+      "party",
+      "buff",
+      "debuff",
+      "drop",
+      "dungeon",
+      "run",
+      "raid",
+      "gold",
+      "stat",
+      "class",
+      "badge",
+      "common",
+      "uncommon",
+      "rare",
+      "epic",
+      "legendary"
+    ],
+    "caseSensitive": [
+      "HP",
+      "EXP",
+      "Lv.",
+      "GPS",
+      "AoE",
+      "Tanker",
+      "Ranged",
+      "Support",
+      "Magic",
+      "T",
+      "R",
+      "S",
+      "M"
+    ]
+  },
+
+  "dayNames": {
+    "_note": "Full and short Thai forms per weekday (style-guide 6.8 note, copy-schema 2.4). weekday.<enum> matches config/balance/raid.json#schedule.weekday.",
+    "monday": ["จันทร์"],
+    "tuesday": ["อังคาร"],
+    "wednesday": ["พุธ"],
+    "thursday": ["พฤหัสบดี", "พฤหัส"],
+    "friday": ["ศุกร์"],
+    "saturday": ["เสาร์"],
+    "sunday": ["อาทิตย์"]
+  },
+
+  "politeEndings": {
+    "fail": ["ครับ", "ค่ะ", "คะ", "จ้ะ", "จ้า", "นะคะ"],
+    "warn": ["นะ"],
+    "forbiddenAddressTerms": ["ท่าน", "ผู้เล่นทุกท่าน"]
+  },
+
+  "jokeSignals": {
+    "repeatedFivePattern": "5{3,}",
+    "haPatterns": ["ฮ่า", "อิอิ"]
+  }
+}

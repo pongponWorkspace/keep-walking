@@ -1,0 +1,67 @@
+{
+  "_meta": {
+    "file": "copy-rules.json",
+    "version": 1,
+    "owner": "narrative-designer",
+    "task": "P1-X03, P1-F03-T04 (D-050 buttonFullWidth)",
+    "doc": "docs/tech/copy-schema.md section 6; design/narrative/style-guide.md 4.2, 4.3, 4.4",
+    "_note": "Machine-readable copy rules read by the copy lint (P1-H02) and the client formatter. Limits are display cells as defined in copy-schema 4.1. Variables are NOT here: the variable registry is copy.th.json#_variables. The Thai description in copy.th.json#_meta.limits must match these numbers (copy gate checks by eye)."
+  },
+  "areas": [
+    "account",
+    "age",
+    "class",
+    "common",
+    "consent",
+    "dungeon",
+    "enhance",
+    "gps",
+    "home",
+    "interest",
+    "label",
+    "legal",
+    "lore",
+    "map",
+    "market",
+    "nav",
+    "onboarding",
+    "party",
+    "privacy",
+    "profile",
+    "push",
+    "qc",
+    "raid",
+    "rarity",
+    "roleInfo",
+    "run",
+    "settings",
+    "shop",
+    "unit",
+    "weekday"
+  ],
+  "limits": {
+    "_source": "design/narrative/style-guide.md 4.3; A-P1-F03-T03-1 (uiux-designer confirms in P1-F03-T17); D-023 (legal summary line, pending HUMAN)",
+    "_note": "If HUMAN rejects D-023, delete limits.legal and legal messages fall back to limits.message without a code change (copy-schema 3.2).",
+    "message": { "maxCells": 64, "maxNewlines": 1, "maxCellsPerLine": 32 },
+    "button": { "maxCells": 12, "maxNewlines": 0 },
+    "buttonFullWidth": {
+      "_source": "D-050 (uiux-designer, ACCEPTED): a single full-width primary button with no paired button may take >= 16 cells",
+      "_note": "Selection rule for the lint (copy-schema 3.2, proposed row placed before 'kind: button'): kind = button AND key is listed in keys -> use this limit, otherwise limits.button. A key may be listed only if its screen shows it as the only full-width primary button (uiux-designer confirms in components.md section 10). Every listed key must exist in copy.th.json and have kind button.",
+      "maxCells": 16,
+      "maxNewlines": 0,
+      "keys": ["run.summaryContinue"]
+    },
+    "label": { "maxCells": 20, "maxNewlines": 0 },
+    "push": { "titleMaxCells": 24, "maxNewlines": 0 },
+    "dialogue": { "maxLines": 5, "maxCellsPerLine": 32, "speakerMaxChars": 24 },
+    "command": { "maxCells": 16, "maxNewlines": 0 },
+    "legal": { "summaryMaxCells": 64 }
+  },
+  "formats": {
+    "_source": "design/narrative/style-guide.md 4.2",
+    "numberLocale": "th-TH",
+    "distanceKmFrom_m": 1000,
+    "distanceKmDecimals": 1,
+    "clockPattern": "HH:mm"
+  }
+}

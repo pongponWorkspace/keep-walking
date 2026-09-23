@@ -1,0 +1,247 @@
+{
+  "_meta": {
+    "file": "presets.json",
+    "version": 2,
+    "owner": "level-designer",
+    "task": "P1-F03-T09",
+    "doc": "design/levels/presets.md",
+    "readBy": ["back office dungeon creation form (F14, not yet planned)", "design/levels/coverage-report.md (P1-F01-T07)", "config/content/names.th.json (dungeon.* entries carry a _preset field that must match one of presetIds.confirmed)"],
+    "_note": "Preset definitions only. This file does not contain any dungeon instance (no polygon, no id, no zone_id). Every size, multiplier and drop-table value is a seeFile pointer into config/balance/, per CLAUDE.md non-negotiable 3 (no hardcoded balance numbers) and SF-8. This file is the authoritative source for dungeon preset ids (level-designer owns data/dungeons/*); it confirms the ids config/content/names.th.json proposed as ASSUMPTION A-P1-F03-T04-1."
+  },
+  "presetIds": {
+    "_source": "config/content/names.th.json#_meta.presetIds (proposed by narrative-designer, ASSUMPTION A-P1-F03-T04-1)",
+    "_note": "Confirmed by level-designer in this task. These 3 ids are the only values a dungeon record's preset field may hold. waterside is a second layer (see secondLayers below), not a 4th preset (D-049).",
+    "confirmed": ["largePark", "market", "pocketPark"]
+  },
+  "verification": {
+    "_source": "config/balance/dungeons.json#verification; CLAUDE.md non-negotiable 5 (outdoor only in v1)",
+    "_nullMeans": { "floor_level": "none" },
+    "verification_mode": "continuous_gps",
+    "floor_level": null,
+    "seeFile": "config/balance/dungeons.json#verification"
+  },
+  "secondLayers": {
+    "waterside": {
+      "_source": "design/levels/dungeon-rules.md section 12 (proposed maxAspectRatio flag) · config/content/names.th.json#_meta.presetIds.waterside · D-049",
+      "isPreset": false,
+      "note": "Not a 4th preset (D-049 accepted). A shape/theme layer that stacks on any of the 3 presets above when the polygon is a long, narrow shoreline or canal walk. Counted separately in launch-criteria.md presetDiversityScore (does not add to that formula's denominator of 3).",
+      "pendingConfigKey": "coverageFilter.maxAspectRatio — proposed to systems-designer in design/levels/dungeon-rules.md section 12, not created yet. Until it exists, back office applies this layer by human judgement (long/narrow real-world shape), not by an automatic flag.",
+      "monsterKeysRef": "config/content/names.th.json (monster.* entries with _family = \"waterside\")",
+      "nameSuffixPoolRef": "config/content/names.th.json (zoneSuffix.* entries with _layer = \"waterside\")"
+    }
+  },
+  "presetAssignmentRule": {
+    "_source": "design/levels/presets.md section 2; design/levels/dungeon-rules.md section 12 (size band boundaries confirmed by level-designer)",
+    "_note": "Not read by any runtime pipeline. This is the rule this document used to sort the 741 real candidates in design/levels/presets.md section 4, and the default rule proposed for the F14 back office form (not yet planned) when a creator picks a preset for a new polygon.",
+    "order": [
+      { "if": "class == 'marketplace'", "then": "market" },
+      { "if": "class != 'marketplace' and size_band == 'small'", "then": "pocketPark" },
+      { "if": "class != 'marketplace' and size_band in ['medium', 'large']", "then": "largePark" }
+    ],
+    "classesSeenAtLaunch": ["park", "garden", "historic", "attraction", "pitch", "marketplace"]
+  },
+  "realWorldSnapshot": {
+    "_source": "tools/coverage/README.md section 7; data/coverage/candidates.geojson",
+    "_note": "Informational only. Not a Go/No-go count (that is P1-F01-T07). Recomputed by the validation script referenced in design/levels/presets.md section 12.",
+    "dataDate": "2026-09-01T20:20:50Z",
+    "runDate": "2026-09-23",
+    "totalCandidates": 741
+  },
+  "presets": [
+    {
+      "id": "largePark",
+      "_source": "GDD > พื้นที่เล่นและ Dungeon > การกำหนด dungeon ('สวนใหญ่'); design/levels/presets.md section 3; config/content/names.th.json#_meta.presetIds.largePark",
+      "labelKey": {
+        "seeFile": "config/content/names.th.json#_meta.presetIds.largePark",
+        "_note": "Internal back-office classification label only, not a player-facing string (CLAUDE.md non-negotiable 3 covers zone/dungeon/monster/item/boss names; a preset id is never shown to a player verbatim). The string a player sees is always the specific dungeon's own name_key (dungeon.<id> -> nameReal - nameSuffix in names.th.json), never this preset id. If a future back-office UI needs a translated dropdown label for the preset picker itself, that key belongs in config/content/copy.th.json (back-office namespace), not here — out of scope for this task."
+      },
+      "matches": {
+        "osmClasses": ["park", "garden", "historic", "attraction", "pitch"],
+        "sizeBand": ["medium", "large"]
+      },
+      "areaRange_m2": {
+        "minSeeFile": "config/balance/dungeons.json#coverageFilter.sizeBandUpper_m2.small",
+        "maxSeeFile": "config/balance/dungeons.json#area.maxArea_m2",
+        "_note": "Lower bound is exclusive in practice (size_band=medium starts just above sizeBandUpper_m2.small); the pipeline, not this file, owns the exact comparison."
+      },
+      "suggestedLevelRange": {
+        "minLevel": 20,
+        "maxLevel": 50,
+        "widthSeeFile": "config/balance/dungeons.json#levelRange.exampleRangeWidth_levels",
+        "rationale": "design/levels/presets.md section 8: fewer and more central than pocketPark; the size_band=large landmark parks are a walk-farther, higher-level destination, size_band=medium ones can sit lower in this band."
+      },
+      "smallDungeonMultiplier": {
+        "seeFile": "config/balance/drops.json#smallDungeon",
+        "appliesWhen": "area_m2 < smallDungeonMaxArea_m2 (see pointer)",
+        "_note": "Orthogonal to preset, not owned by it. design/levels/presets.md section 6: 105/216 real largePark candidates (49%) are below smallDungeonMaxArea_m2 and get the same rare-rate boost as pocketPark despite the preset label."
+      },
+      "dropTable": {
+        "seeFile": "config/balance/drops.json",
+        "_note": "v1 has one global drop table (rarity odds in baseChancePerRewardTick_pct, quantities, rewardTypeByRarity) plus the smallDungeon multiplier above. No preset-specific drop_table_id exists yet; a largePark dungeon record's drop_table_id resolves to this same file until systems-designer defines per-preset tables."
+      },
+      "monsterTheme": {
+        "seeFile": "config/content/names.th.json",
+        "themeSummary": "คนวิ่งตอนเย็น แดด ยุง สัตว์ในสวน",
+        "monsterKeys": ["monster.pigeonRegular", "monster.sixPmMosquitoBall", "monster.monitorLizardRoadblock"],
+        "sharedWeatherMonsterKeys": ["monster.stubbornPuddle", "monster.threePmHeatBlob", "monster.wanderingTrafficCone", "monster.tangledWireBall"],
+        "_note": "Names and flavor only (config/content/names.th.json is a starter set, status still not final per its own _meta.status). No monster mechanical config (HP/ATK/ids used by the combat/drop system) exists yet. A dungeon record's monster_roster_ids stays null/pending until that config lands."
+      },
+      "openingHoursSource": {
+        "primary": "osm_opening_hours",
+        "fallback": "manual_required",
+        "_source": "design/levels/dungeon-rules.md section 5",
+        "realWorldCoverage": { "hasOsmOpeningHours": 27, "total": 216, "note": "design/levels/presets.md section 7" }
+      },
+      "realWorldEvidence": {
+        "candidateCount": 216,
+        "bySizeBand": { "medium": 178, "large": 38 },
+        "byProvince": {
+          "กรุงเทพมหานคร": 144,
+          "จังหวัดปทุมธานี": 18,
+          "จังหวัดนนทบุรี": 13,
+          "จังหวัดสมุทรปราการ": 21,
+          "จังหวัดสมุทรสาคร": 11,
+          "จังหวัดนครปฐม": 9
+        }
+      }
+    },
+    {
+      "id": "market",
+      "_source": "GDD > พื้นที่เล่นและ Dungeon > การกำหนด dungeon ('ตลาด'); design/levels/presets.md section 3; config/content/names.th.json#_meta.presetIds.market",
+      "labelKey": {
+        "seeFile": "config/content/names.th.json#_meta.presetIds.market",
+        "_note": "Internal back-office classification label only. See largePark entry for the full rule (a player never sees this id; they see the dungeon's own name_key)."
+      },
+      "matches": {
+        "osmClasses": ["marketplace"],
+        "sizeBand": ["small", "medium", "large"],
+        "_note": "class alone decides this preset regardless of size_band (design/levels/presets.md section 2, item 1) — a market keeps the market theme whether it is one row of stalls or a whole market ground. See workedExample_khlongOngAng below for a real case this rule corrects."
+      },
+      "areaRange_m2": {
+        "minSeeFile": "config/balance/dungeons.json#area.minArea_m2",
+        "maxSeeFile": "config/balance/dungeons.json#area.maxArea_m2",
+        "_note": "Full range on purpose: this preset is defined by class, not by size_band (unlike largePark / pocketPark)."
+      },
+      "suggestedLevelRange": {
+        "minLevel": 10,
+        "maxLevel": 30,
+        "widthSeeFile": "config/balance/dungeons.json#levelRange.exampleRangeWidth_levels",
+        "rationale": "design/levels/presets.md section 8: the mid tier by candidate count (141) and by geographic spread; a step up from pocketPark, reachable well by public transit (launch-criteria.md section 4.3)."
+      },
+      "smallDungeonMultiplier": {
+        "seeFile": "config/balance/drops.json#smallDungeon",
+        "appliesWhen": "area_m2 < smallDungeonMaxArea_m2 (see pointer)",
+        "_note": "Orthogonal to preset. design/levels/presets.md section 6: 101/141 real market candidates (72%) are below smallDungeonMaxArea_m2."
+      },
+      "dropTable": {
+        "seeFile": "config/balance/drops.json",
+        "_note": "Same global drop table as every other preset in v1; see largePark entry for the shared caveat."
+      },
+      "monsterTheme": {
+        "seeFile": "config/content/names.th.json",
+        "themeSummary": "คิว ควันปิ้งย่าง ถุงพลาสติก ต่อราคา",
+        "monsterKeys": ["monster.floatingCarrierBag", "monster.wanderingStallUmbrella", "monster.grillSmokeBlob", "monster.chasingSaleSign", "monster.milkTeaQueueTail"],
+        "sharedWeatherMonsterKeys": ["monster.stubbornPuddle", "monster.threePmHeatBlob", "monster.wanderingTrafficCone", "monster.tangledWireBall"],
+        "_note": "Names and flavor only. See largePark entry for the same null-until-monster-config rule."
+      },
+      "openingHoursSource": {
+        "primary": "osm_opening_hours",
+        "fallback": "manual_required",
+        "_source": "design/levels/dungeon-rules.md section 5",
+        "caution": "day-limited markets (e.g. weekend-only or Fri-Su evenings) are a PERMANENT dungeon of this preset with a restricted opening_hours string, not a temporaryDungeon (D-049). Do not set temporaryDungeon on a market just because it reads 'closed most days'. See workedExample_khlongOngAng below for a real candidate that is exactly this pattern.",
+        "realWorldCoverage": { "hasOsmOpeningHours": 12, "total": 141, "note": "design/levels/presets.md section 7" }
+      },
+      "realWorldEvidence": {
+        "candidateCount": 141,
+        "bySizeBand": { "small": 70, "medium": 59, "large": 12 },
+        "byProvince": {
+          "กรุงเทพมหานคร": 83,
+          "จังหวัดปทุมธานี": 15,
+          "จังหวัดนนทบุรี": 14,
+          "จังหวัดสมุทรปราการ": 21,
+          "จังหวัดสมุทรสาคร": 2,
+          "จังหวัดนครปฐม": 6
+        }
+      }
+    },
+    {
+      "id": "pocketPark",
+      "_source": "GDD > พื้นที่เล่นและ Dungeon > การกำหนด dungeon ('สวนหย่อม'); design/levels/presets.md section 3; config/content/names.th.json#_meta.presetIds.pocketPark",
+      "labelKey": {
+        "seeFile": "config/content/names.th.json#_meta.presetIds.pocketPark",
+        "_note": "Internal back-office classification label only. See largePark entry for the full rule (a player never sees this id; they see the dungeon's own name_key)."
+      },
+      "matches": {
+        "osmClasses": ["park", "garden", "historic", "attraction", "pitch"],
+        "sizeBand": ["small"]
+      },
+      "areaRange_m2": {
+        "minSeeFile": "config/balance/dungeons.json#area.minArea_m2",
+        "maxSeeFile": "config/balance/dungeons.json#coverageFilter.sizeBandUpper_m2.small"
+      },
+      "suggestedLevelRange": {
+        "minLevel": 1,
+        "maxLevel": 15,
+        "widthSeeFile": "config/balance/dungeons.json#levelRange.exampleRangeWidth_levels",
+        "rationale": "design/levels/presets.md section 8: the largest and most evenly spread group (384/741, present in every province in section 4) — the near-home onboarding tier so a low-level dungeon within about 650 m is the common case."
+      },
+      "smallDungeonMultiplier": {
+        "seeFile": "config/balance/drops.json#smallDungeon",
+        "appliesWhen": "area_m2 < smallDungeonMaxArea_m2 (see pointer)",
+        "_note": "Always applies for this preset: sizeBandUpper_m2.small (10,000) is below smallDungeonMaxArea_m2 (20,000), so every pocketPark candidate qualifies (384/384 in the real data)."
+      },
+      "dropTable": {
+        "seeFile": "config/balance/drops.json",
+        "_note": "Same global drop table as every other preset in v1; see largePark entry for the shared caveat."
+      },
+      "monsterTheme": {
+        "seeFile": "config/content/names.th.json",
+        "themeSummary": "คนนั่งเล่นมือถือ ลานกีฬาชุมชน",
+        "monsterKeys": ["monster.noReturnBall", "monster.noSittingBench", "monster.wrigglingHose"],
+        "sharedWeatherMonsterKeys": ["monster.stubbornPuddle", "monster.threePmHeatBlob", "monster.wanderingTrafficCone", "monster.tangledWireBall"],
+        "_note": "Names and flavor only. See largePark entry for the same null-until-monster-config rule."
+      },
+      "openingHoursSource": {
+        "primary": "osm_opening_hours",
+        "fallback": "manual_required",
+        "_source": "design/levels/dungeon-rules.md section 5",
+        "realWorldCoverage": {
+          "hasOsmOpeningHours": 7,
+          "total": 384,
+          "note": "design/levels/presets.md section 7 — 98.2% will be manual_required in practice; F14 should offer a sensible default choice for staff to pick, not leave the field blank."
+        }
+      },
+      "whyStillWorthVisiting": {
+        "_source": "design/systems/sim-report.md F-15; design/levels/presets.md section 5",
+        "note": "A small dungeon nets +8.9% gold/hour (1,620 vs 1,488) because drops.json#multipliers.smallDungeonRareAndAboveMult (1.5x on riftStone-tier drops) outweighs smallDungeonCommonQuantityMult (0.6x on elementDust). Combined with CLAUDE.md non-negotiable 6 (high travel cost), the nearest pocketPark is not a downgrade from a distant largePark — it is the better hourly choice plus zero extra walk."
+      },
+      "realWorldEvidence": {
+        "candidateCount": 384,
+        "bySizeBand": { "small": 384 },
+        "byProvince": {
+          "กรุงเทพมหานคร": 232,
+          "จังหวัดปทุมธานี": 43,
+          "จังหวัดนนทบุรี": 48,
+          "จังหวัดสมุทรปราการ": 25,
+          "จังหวัดสมุทรสาคร": 22,
+          "จังหวัดนครปฐม": 14
+        }
+      }
+    }
+  ],
+  "workedExample_khlongOngAng": {
+    "_source": "orchestrator handoff during P1-F03-T09 (asked level-designer to confirm the preset of dungeon.khlongOngAng once the real polygon is checked) · config/content/names.th.json#dungeon.khlongOngAng (ASSUMPTION A-P1-F03-T04-2) · data/coverage/candidates.geojson feature id osm-w950315091",
+    "narrativeAssumption": "config/content/names.th.json currently has _preset: \"pocketPark\", _layer: \"waterside\" for dungeon.khlongOngAng, flagged as ASSUMPTION A-P1-F03-T04-2 pending a level-designer check against the real polygon.",
+    "realCandidateFound": {
+      "id": "osm-w950315091",
+      "name_real_osm": "ถนนคนเดินคลองโอ่งอ่าง (Khlong Ong Ang Walking Street)",
+      "class": "marketplace",
+      "size_band": "medium",
+      "area_m2": 12505.3,
+      "opening_hours": "Fr-Su 16:00-22:00",
+      "flags": ["crosses_major_way", "multi_district"]
+    },
+    "levelDesignerFinding": "The real OSM candidate is class=marketplace. Under presetAssignmentRule (this file), class == 'marketplace' always resolves to preset 'market', regardless of size_band. So the correct preset is 'market', not 'pocketPark'. The 'waterside' layer stays correct (it runs along the canal). This is also a clean real-world confirmation of design/levels/dungeon-rules.md sections 5 and 11: a walking-street market open only Fri-Su evenings is a PERMANENT dungeon with a day-limited opening_hours string, not a temporaryDungeon — the same pattern as ตลาดนัดจตุจักร under D-049.",
+    "handoffToNarrativeDesigner": "Please update config/content/names.th.json#dungeon.khlongOngAng._preset from \"pocketPark\" to \"market\" (nameReal, nameSuffix and _layer are unaffected; zoneSuffix.canalStroll is still tagged for the market preset in that file's _presets list, so no suffix-pool change is needed)."
+  }
+}

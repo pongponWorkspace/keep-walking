@@ -1,0 +1,12 @@
+# Owner: devops-engineer (P1-F02-T08). Cloudflare Pages `_headers` for the client project
+# (keep-walking-preview). This is Phase 1's only "preview" environment (docs/tech/environments.md
+# section 1: no production exists yet) -- keep it out of search indexes (TL-N07) since it is a
+# spike build, not the real game.
+#
+# No Content-Type/Cache-Control overrides here: this project only serves the Vite build output
+# (index.html, hashed JS/CSS/asset filenames), which Cloudflare Pages already serves correctly
+# and cache-busts by filename. Tile-specific rules live in
+# infra/pages/keep-walking-map/_headers (separate project, tech note F02 section 7.5).
+
+/*
+  X-Robots-Tag: noindex

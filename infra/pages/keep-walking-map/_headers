@@ -1,0 +1,55 @@
+# Owner: devops-engineer (P1-F02-T08). Cloudflare Pages `_headers` for the map project
+# (keep-walking-map): tiles, glyphs, sprites, font-faces, tiles.json, manifest.json.
+# Rules: tech note docs/tech/F02-map-location-spike.md section 7.5. Format:
+# https://developers.cloudflare.com/pages/configuration/headers/ (max 100 rules, checked 2026-09-23:
+# this file has 6 -- well under the cap).
+#
+# This file is copied into the publish directory by infra/scripts/publish-tiles.sh, it is never
+# committed alongside real tile data (tiles are built at deploy time, never in git, tech note 7.5
+# "tile ไม่ถูก commit").
+
+# Vector tiles: MVT/protobuf, immutable (URL embeds tileset_id, so a new build = a new path,
+# tech note 7.5). Cloudflare compresses application/x-protobuf on the fly (tech note 7.1 source list).
+/tiles/*
+  Content-Type: application/x-protobuf
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex
+
+# Glyph PBFs (font ranges) -- same immutable rule as tiles.
+/glyphs/*.pbf
+  Content-Type: application/x-protobuf
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex
+
+# Font faces (Noto Sans Thai TTF, self-hosted per tech note section 6).
+/glyphs/_faces/*
+  Content-Type: font/ttf
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex
+
+# Sprite JSON/PNG (light + light@2x).
+/sprites/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex
+
+# TileJSON: short cache, it can point at a new tileset_id after a rebuild without a URL change
+# if a future task decides to keep one stable TileJSON path (Phase 1 uses a versioned path today).
+/tiles/*/tiles.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex
+
+/manifest.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex

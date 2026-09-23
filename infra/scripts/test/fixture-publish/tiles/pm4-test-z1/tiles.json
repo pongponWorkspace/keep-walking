@@ -1,0 +1,7 @@
+{
+  "tilejson": "3.0.0",
+  "tiles": ["https://keep-walking-map.pages.dev/tiles/pm4-test-z1/{z}/{x}/{y}.mvt"],
+  "minzoom": 0,
+  "maxzoom": 1,
+  "bounds": [99.8, 13.4, 101.0, 14.35]
+}

@@ -23,3 +23,50 @@
 | 7 | W2 | P1-F03-T15 | uiux-designer | 18:26:31 | 18:35:05 | DONE — IA 36 หน้าจอ, สถานะที่บ้าน 4 แบบ, ลำดับปลด 8 หมวด |
 | 8 | W2 | P1-F03-T10 | art-director | 18:26:31 | 18:37:37 | DONE — palette + contrast กลางแดด (WCAG AA ทุกคู่), icon grammar, rarity 4 ชั้นสัญญาณ |
 | 9 | W1 | P1-F01-T01 | location-engineer | 18:17:50 | 18:44:41 | DONE — METHOD.md, ดาวน์โหลด 4 ไฟล์ + SHA-256 สำเร็จ (ไม่ต้องใช้ T25), สแกนจริงพบ 79 เขต/อำเภอ |
+| 10 | W2 | P1-F03-T07 | systems-designer | 18:31:51 | 18:46:12 | DONE — simulator ตรงตาราง GDD ทุกตาราง, 170 vectors, pnpm test 58 ผ่าน · hit chance fit 54% · solo non-Tanker 27.8 นาที |
+| 11 | W2 | P1-F02-T03 | tech-lead | 18:29:14 | 18:47:32 | DONE — tech note + เกณฑ์ spike 17 ตัว · พบ Cloudflare Pages ตอบ range ด้วย 200 ไม่ใช่ 206 → tile เป็น XYZ + TileJSON แทน |
+| 12 | W2 | P1-F02-T07 | devops-engineer | 18:37:37 | 18:47:45 | DONE — CI 4 job (build-test, e2e, gitleaks full history, forbidden-file guard) พิสูจน์ในเครื่อง · typecheck/build ของ apps/client ยังแดง (T09 กำลังทำ) |
+| 13 | W2 | P1-F03-T16 | uiux-designer | 18:35:14 | 18:51:32 | DONE — flow หลัก onboarding 0–10 + consent/อายุ, run state ครบ MF-1, สถานะ 8 แบบ, copy key ~70 |
+| 14 | W2 | P1-F02-T09 | gameplay-programmer | 18:35:14 | 18:55:27 | DONE — client spike MapLibre + PMTiles, unit 12 + e2e 6 ผ่าน (Android/iOS emulation), typecheck/build ของ client เขียว |
+| 15 | W3 | P1-F02-T02 | tech-lead | 18:47:45 | 18:56:14 | DONE — ADR 0002 ยืนยัน D-008 ฟรีไม่ผูกบัตร · Phase 2–3 ใช้ ≤12% ของเพดาน · 1,000 DAU/raid เกิน Free ต้องอนุมัติ Workers Paid ก่อน Phase 6/7 |
+| 16 | W3 | P1-F03-T12 | art-director | 18:47:33 | 18:57:59 | PARTIAL→DONE — style 38 layer + font ไทย + rift + โซนดำ · ไม่มี shell/browser: ย้ายการรัน validator ไป T11 และ screenshot ไป P1-H06 |
+| 17 | W3 | P1-F02-T27 | product-manager | 18:51:32 | 18:58:11 | DONE — verdict PASS ยืนยันเกณฑ์ S1–S17 ทุกข้อ (Hard: S1 S2 S3 S8 S9 S12) |
+| 18 | W3 | P1-H05 | tech-lead | 18:56:14 | 18:58:48 | DONE — config/app/privacy.json + client.json (Web provider, query defaults, HUD constants) JSON valid |
+| 19 | W3 | P1-F03-T08 | systems-designer | 18:46:12 | 19:02:00 | DONE — drop/รายได้/party ×2.05 ตรง GDD · อัตราส่วนรายได้ต่อค่ายานอกช่วงเกือบทุกกรณีจริง → P-1 ถึง HUMAN · pnpm test 94 ผ่าน |
+| 20 | W3 | P1-F02-T12 | qa-tester | 18:55:27 | 19:04:32 | DONE — test plan F02 traceability roadmap + S1–S17 → case, FIELD-* โยงไป T20 |
+| 21 | W3 | P1-H03 | systems-designer | 19:02:00 | 19:07:13 | DONE — เติม key ครบ + ตารางจับคู่ชื่อ · coverageFilter ใน dungeons.json ทำให้ test coverage 7 ข้อต้องแก้ (ส่งข้อความถึง location-engineer ที่กำลังทำ F01-T05) |
+| 22 | W3 | P1-F03-T23 | qa-tester | 19:04:32 | 19:10:54 | DONE — QA gate F03 verdict PASS ตรวจอิสระ Tanker 21.7/33.0/38.8/41.8 ตรง, simulator อ่าน config จริง |
+| 23 | W3 | P1-F03-T05 | narrative-designer | 18:58:11 | 19:12:25 | DONE — copy bank 225 key, JSON valid (orchestrator ตรวจ), checklist S1–S14 ด้วยมือ |
+| 24 | W3 | P1-H01 | tech-lead | 18:58:48 | 19:12:25 | DONE — ADR 0001 amendment + copy-schema.md · D-024, D-037 ACCEPTED · สร้าง fix task ต่อ X03–X06 |
+| 25 | W3 | P1-F01-T05 | location-engineer | 18:44:41 | 19:13:16 | PARTIAL→DONE — 741 candidates / 6,287 excluded, rerun byte-identical, pytest 85 ผ่าน · root pnpm test ต้องเพิ่ม glob ใน vitest.config.ts (ย้ายไป P1-X05) |
+| 26 | W3 | P1-F03-T17 | uiux-designer | 18:58:11 | 19:13:16 | DONE — wireframe 7 หน้า + tokens.json + components.md · เสนอ 2 ทางเรื่องล็อกจอ (ใช้ B ชั่วคราว) |
+| 27 | W3 | P1-H01 (rev) | tech-lead | — | 19:15:47 | DONE — copy-schema เขียนใหม่ตาม copy.th.json จริง (flat map, altOf, cellsFirstLine, dayNameExceptions, copy-rules.json) · แจ้ง X03 แล้ว |
+| 28 | W4 | P1-X03 | narrative-designer | 19:12:25 | 19:18:20 | DONE — copy bank ตาม copy-schema รอบ 2, สร้าง copy-rules.json, แก้ style guide · JSON valid (orchestrator ตรวจ) |
+| 29 | W3 | P1-F01-T02 | level-designer | 19:07:27 | 19:21:51 | DONE — กฎคัด dungeon 16 หัวข้อ + Launch Score 5 ตัวชี้วัด · ตัดสิน D-026/027/028 จากตัวเลขจริง |
+| 30 | W4 | P1-X02 | uiux-designer | 19:13:16 | 19:23:41 | DONE — ชื่อ key ตรง config, ตอบคำถามพื้นที่จอ 4 ข้อ · ปุ่มเต็มความกว้างเดี่ยวรับ ≥16 ช่อง |
+| 31 | W4 | P1-F03-T19 | product-manager | 19:12:25 | 19:24:26 | DONE — metrics 6 หมวด + north star + guardrail 12 ตัว, telemetry 24 event ไม่มีพิกัด |
+| 32 | W4 | P1-F01-T04 | qa-tester | 19:11:02 | 19:24:48 | DONE — test plan F01 · สุ่ม 30 candidate เทียบ OSM 30/30 ตรง, SHA-256 ตรง · พบ GAP-01..04 |
+| 33 | W4 | P1-F02-T04 | location-engineer | 19:13:16 | 19:28:47 | DONE — 13 synthetic trace ผ่าน validateTrace, generator deterministic, test 56 ผ่าน · พบ speed lock อาจล็อกคนเดินในซอย (23–24 km/h จาก jitter) |
+| 34 | W4 | P1-F03-T04 | narrative-designer | 19:23:41 | 19:30:32 | DONE — ชุดชื่อเริ่มต้น (24 suffix, 10 dungeon, 17 มอนสเตอร์, 4 วัตถุดิบ, 4 ยา, 3 บอส) + copy ตาม D-050 · JSON valid (orchestrator ตรวจ) |
+| 35 | W4 | P1-H08 | product-manager | 19:24:48 | 19:32:19 | DONE — ระยะเดินใช้ routing บนเครือข่ายทางเดิน OSM (multi-source Dijkstra) · สำรอง route factor 1.4 (ช่วง 1.2–1.6) อ้าง Boeing 2019 |
+| 36 | W4 | P1-X09 | narrative-designer | 19:30:40 | 19:32:36 | DONE — world.md ตรง D-049/D-051/names.th.json, style guide 4.3 เพิ่ม buttonFullWidth |
+| 37 | W4 | P1-F03-T18 | sound-designer | 19:24:26 | 19:36:31 | DONE — audio direction + cue list สั่นก่อนเสียง 4 ระดับ · เตือน navigator.vibrate() ไม่รองรับบน iOS |
+| 38 | W4 | P1-F03-T09 | level-designer | 19:21:51 | 19:38:12 | DONE — 3 preset อ้าง config, กฎ class-first, largePark 216 / market 141 / pocketPark 384 ครบทุกจังหวัด · คลองโอ่งอ่าง = market |
+| 39 | W4 | P1-X10 | uiux-designer | 19:32:19 | 19:38:25 | DONE — buttonFullWidth ใน components 10.1, wireframe 05 ใช้วลีเต็ม, ยืนยันเพดานชื่อโซน 17/14/34 |
+| 40 | W4 | P1-X11 | narrative-designer | 19:38:25 | 19:39:13 | DONE — คลองโอ่งอ่าง = market, zoneRealName maxCells 17 · JSON valid (orchestrator ตรวจ) |
+| 41 | W5 | P1-F02-T05 | location-engineer | 19:28:47 | 19:39:37 | DONE — Web/Mock/Capacitor provider, replay 13 trace ผ่าน, test 66 ข้อ, ไม่มีพิกัดใน log |
+| 42 | W4 | P1-F03-T20 | liveops-operator | 19:32:36 | 19:39:37 | DONE — กรอบ live ops 5 ประเภท event, ปฏิทินไตรมาสแรก W1–W13, tuning playbook 3 ค่าแรก |
+| 43 | sync | P1-PLAN-SYNC-01 | producer | 19:39:37 | 19:47:13 | DONE — board rev 5: deps 12 task, writes 2 task, wave plan R0–R7 |
+| 44 | W5 | P1-F03-T27 | vfx-animator | 19:36:31 | 19:48:11 | DONE — motion direction 12 หัวข้อ · rift บนแผนที่นิ่ง 100%, จังหวะ rift ย้ายไป UI นอกแผนที่ (รอ art-director ยืนยัน) |
+| 45 | W5 | P1-H02 | gameplay-programmer | 19:18:20 | 19:54:48 | DONE — copy lint S1–S14 + words.json + shared types, test 358 ผ่าน, lint:copy บนไฟล์จริง 0 FAIL 14 WARN · prettier ของไฟล์คนอื่นยังแดง |
+| 46 | W5 | P1-F03-T11 | art-director | 19:48:11 | 20:02:34 | DONE — avatar 3 มุม canvas 128×160, 13 anchor, 4 slot → layer, pose kit ไม่ต้องวาดชุดใหม่ · asset pipeline + manifest schema |
+| 47 | W5 | P1-F02-T08 | devops-engineer | 19:47:13 | 20:03:16 | DONE — deploy-preview (workflow_dispatch, dry-run ค่าเริ่มต้น), _headers/404 ตาม tech note, local preview ตอบ 200+CORS+TAO, runbook ครบ, ค่าใช้จ่าย $0 |
+| 48 | W5 | P1-X01 | game-director | 20:03:16 | 20:05:01 | DONE — ชื่อ key ใน pillars ตรง config · พบนิยาม "นอกพื้นที่" ต่างกัน (config = ระยะถึง dungeon, pillars = ขอบโซนดำ) รอ gate A |
+| 49 | W5 | P1-F02-T06 | location-engineer | 19:39:37 | 20:09:52 | DONE — XYZ z15 13,502 tile / deploy 14,283 ไฟล์ ผ่านงบ, font ไทย self-host, fixture ลุมพินี 4.24 MB, fallback chain ทดสอบครบ, test 39 ผ่าน |
+| 50 | W6 | P1-F03-T21 | narrative-designer | 20:02:34 | 20:10:32 | NEEDS_CHANGES — F-01 (ข้อความให้ของตามเวลา ขัด NN-2), F-02 key ขาด, F-03 wireframe ไม่ผูก key/ร่างเก่า, F-04 cells 2 จุด |
+| — | W6 | P1-X04 | orchestrator | — | 20:10:32 | แก้สถานะ: X04 ถูก mark IN_PROGRESS ที่ 19:38 แต่ไม่เคย dispatch → กลับเป็น TODO |
+| 51 | W6 | P1-X04 (F-07 เท่านั้น) | systems-designer | 20:10:00 | 20:11:03 | DONE บางส่วน — emergencyClose ผ่าน movement gate แบบสัดส่วน ขั้นต่ำ 60 วิ (เพิ่ม key ใน dungeons.json) · test 414 ผ่าน |
+| 52 | W6 | P1-X12 | narrative-designer | 20:10:32 | 20:12:49 | DONE — F-01/F-02/F-04/F-05 แก้ครบ · orchestrator รัน lint:copy: exit 0, 0 FAIL, 11 WARN (ตัวแปรสงวน) |
+| 53 | W6 | P1-H04 | qa-tester | 20:05:01 | 20:15:22 | DONE — ตรวจ contrast 119 คู่อัตโนมัติ ข้อความผ่าน 4.5:1 ทั้งหมด · พบค่าเอกสารคลาด 1 จุด (map.road บน map.land 1.16 → 1.22) · tokens ตรง 51/51 |
+| 54 | W6 | P1-X06 | art-director | 20:15:22 | 20:19:27 | DONE — แก้ 1.16→1.22, adapter whitelist, ramp ผิว/ผม, id icon สุดท้าย · orchestrator รัน contrast test: ยัง fail เพราะค่า 1.16 ฝังใน test (ส่ง QA แก้ใน P1-X15) |
+| 55 | W6 | P1-H07 | location-engineer | 20:09:52 | 20:19:27 | DONE — mask โซนดำ 22.9 KB + 77 จังหวัด 259.8 KB รันซ้ำ byte เดิม, pytest 24 ผ่าน · เส้นนอกพื้นที่ simplify 350 ม. เพราะงบ 300 KB |

@@ -1,0 +1,158 @@
+{
+  "_meta": {
+    "file": "tools/coverage/params.json",
+    "owner": "location-engineer",
+    "task": "P1-F01-T05",
+    "doc": "tools/coverage/METHOD.md sections 4, 7, 8",
+    "_note": "coverageFilter lives in config/balance/dungeons.json (P1-H03, one source). The loader still accepts params.json#coverageFilter as a fallback only when dungeons.json has none; keep it absent here. Area limits and verification fields are always read from dungeons.json."
+  },
+  "pipeline": {
+    "_source": {
+      "sources": "METHOD 4 (dated files, SHA-256 checked before every run)",
+      "studyArea": "METHOD 2 · A-P1-PLAN-01-2 (Bangkok + 5 vicinity provinces, 79 districts)",
+      "candidateClasses": "METHOD 6.1 · GDD 'ปัญหา coverage ที่ต้องแก้ก่อนเริ่ม' (6 tag sets, order = class priority)",
+      "poiTags": "METHOD 6.4",
+      "qaSample": "METHOD 11 (fixed seed so QA re-draws the same sample)",
+      "maxCommittedFileBytes": "CI forbidden-file guard MAX_TRACKED_FILE_BYTES (P1-F02-T07), METHOD 9.2",
+      "outputs": "paths relative to tools/coverage/ · run-meta and points-unmatched go to ignored out/ until data/coverage/ write access is granted"
+    },
+    "sources": [
+      {
+        "id": "D1",
+        "url": "https://download.geofabrik.de/asia/thailand-260901.osm.pbf",
+        "path": "downloads/thailand-260901.osm.pbf",
+        "bytes": 326905982,
+        "sha256": "e09812904250c8fc5bed7b444546338766317865e741733229fc714d32ab272f",
+        "required": true
+      },
+      {
+        "id": "D2",
+        "url": "https://data.worldpop.org/GIS/Population/Global_2015_2030/R2025A/2025/THA/v1/100m/constrained/tha_pop_2025_CN_100m_R2025A_v1.tif",
+        "path": "downloads/tha_pop_2025_CN_100m_R2025A_v1.tif",
+        "bytes": 121874799,
+        "sha256": "c3c03df280fe19fad9892410b05c33c43c4e787535741748781e9455c78b9dec",
+        "required": false
+      },
+      {
+        "id": "D3",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/THA/ADM2/geoBoundaries-THA-ADM2.geojson",
+        "path": "downloads/geoBoundaries-THA-ADM2.geojson",
+        "bytes": 265765263,
+        "sha256": "d3496a7a342e6b895afaa7c2b6710afac243cd45359d3ecb0adec487e4bd3d59",
+        "required": false
+      },
+      {
+        "id": "D4",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/THA/ADM1/geoBoundaries-THA-ADM1.geojson",
+        "path": "downloads/geoBoundaries-THA-ADM1.geojson",
+        "bytes": 4032763,
+        "sha256": "145beb11e52785a42e16997c92a65426b3df8d009941db6b012ec8e411f3e33c",
+        "required": false
+      }
+    ],
+    "osmSource": "D1",
+    "crossCheckSource": "D3",
+    "projectedCrs": "EPSG:32647",
+    "studyArea": {
+      "provinceAdminLevel": "4",
+      "districtAdminLevel": "6",
+      "provinces": [
+        {
+          "iso": "TH-10",
+          "osmRelationId": 92277,
+          "expectedDistricts": 50
+        },
+        {
+          "iso": "TH-12",
+          "osmRelationId": 1908796,
+          "expectedDistricts": 6
+        },
+        {
+          "iso": "TH-13",
+          "osmRelationId": 1908797,
+          "expectedDistricts": 7
+        },
+        {
+          "iso": "TH-11",
+          "osmRelationId": 1908815,
+          "expectedDistricts": 6
+        },
+        {
+          "iso": "TH-74",
+          "osmRelationId": 1908816,
+          "expectedDistricts": 3
+        },
+        {
+          "iso": "TH-73",
+          "osmRelationId": 1908788,
+          "expectedDistricts": 7
+        }
+      ]
+    },
+    "candidateClasses": [
+      {
+        "class": "park",
+        "tags": ["leisure=park"]
+      },
+      {
+        "class": "marketplace",
+        "tags": ["amenity=marketplace"]
+      },
+      {
+        "class": "garden",
+        "tags": ["leisure=garden"]
+      },
+      {
+        "class": "historic",
+        "tags": ["historic=*"]
+      },
+      {
+        "class": "attraction",
+        "tags": ["tourism=attraction"]
+      },
+      {
+        "class": "pitch",
+        "tags": ["leisure=pitch"]
+      }
+    ],
+    "poiTags": ["historic=*", "tourism=attraction", "amenity=marketplace"],
+    "coordinatePrecision": 6,
+    "areaPrecision": 1,
+    "sharePrecision": 4,
+    "qaSample": {
+      "size": 30,
+      "seed": 20260923
+    },
+    "maxCommittedFileBytes": 5242880,
+    "excludedTrimTagKeys": [
+      "name",
+      "name:th",
+      "name:en",
+      "leisure",
+      "amenity",
+      "tourism",
+      "historic",
+      "landuse",
+      "building",
+      "access",
+      "indoor",
+      "layer",
+      "garden:type",
+      "religion",
+      "military",
+      "office",
+      "healthcare",
+      "government",
+      "diplomatic",
+      "opening_hours"
+    ],
+    "outputs": {
+      "candidates": "../../data/coverage/candidates.geojson",
+      "excluded": "../../data/coverage/excluded.geojson",
+      "excludedFull": "out/excluded-full.geojson",
+      "pointsUnmatched": "out/points-unmatched.geojson",
+      "runMeta": "out/run-meta.json",
+      "boundaries": "out/boundaries.geojson"
+    }
+  }
+}

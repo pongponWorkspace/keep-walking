@@ -1,6 +1,6 @@
 # Phase 1 Board — Pre-production และพิสูจน์ความเสี่ยง
 
-สถานะ board: DRAFT rev 4 (P1-PLAN-04) — rev 2 ปรับตาม plan review แล้ว (หัวข้อ 7) · rev 3 ปรับตามคำตอบคน D-001 (ต้นทุนศูนย์ ห้ามผูกบัตร) และ D-002 (repo public + GitHub Actions) (หัวข้อ 8) · rev 4 (P1-PLAN-04) ปรับตาม D-003..D-010: stack และ tile host ตัดสินแล้วเป็น Cloudflare Free ไม่ผูกบัตร (D-008), P1-F02-T22 CUT, E11/E14/E20 ยืนยันแล้ว (D-009), roadmap แก้ตาม D-010 (หัวข้อ 9) · ไม่มีคำถามคนค้างที่ขวางการเริ่ม W1
+สถานะ board: rev 5 (P1-PLAN-SYNC-01 ระหว่าง run 1 · หัวข้อ 3 เขียนใหม่สำหรับงานที่เหลือ · รายการเปลี่ยนในหัวข้อ 10) · rev 4 (P1-PLAN-04) — rev 2 ปรับตาม plan review แล้ว (หัวข้อ 7) · rev 3 ปรับตามคำตอบคน D-001 (ต้นทุนศูนย์ ห้ามผูกบัตร) และ D-002 (repo public + GitHub Actions) (หัวข้อ 8) · rev 4 (P1-PLAN-04) ปรับตาม D-003..D-010: stack และ tile host ตัดสินแล้วเป็น Cloudflare Free ไม่ผูกบัตร (D-008), P1-F02-T22 CUT, E11/E14/E20 ยืนยันแล้ว (D-009), roadmap แก้ตาม D-010 (หัวข้อ 9) · ไม่มีคำถามคนค้างที่ขวางการเริ่ม W1
 Feature: F01 Coverage Survey · F02 Tech Foundation และ Map/Location Spike · F03 Game Bible และทิศทางทุกสาย
 
 ## 1. บริบท
@@ -88,6 +88,19 @@ Feature: F01 Coverage Survey · F02 Tech Foundation และ Map/Location Spike
 - D-001, D-010: roadmap หัวข้อ F02 เคยเขียน "upload R2" และงานคน "บัญชี Cloudflare/R2" · producer แก้แล้วใน P1-PLAN-04 ตาม D-010 เป็น publish บน Cloudflare Free ที่ไม่ผูกบัตร (R2 เมื่ออนุมัติงบ) · เกณฑ์ปิด Phase 4 แก้ตาม D-005 ในงานเดียวกัน
 
 ### งานที่ยกไปให้การวางแผน Phase 2
+- (จาก P1-X06) uiux: เพิ่ม color.ramp.skin-1..6 / hair-1..6 ใน design/ux/tokens.json · qa: ขยาย regex ramp ใน contrast.test.ts เป็น `ramp\.([a-z0-9-]+)` และนับ 22 · qa: เพิ่ม qa/tests/unit/map-style.test.ts (validateStyleMin) หลังติดตั้ง style-spec · (จาก P1-H07) backend Phase 3 ใช้รูของ playarea-mask เป็นขอบพื้นที่เล่นฝั่ง server ผ่าน packages/geo
+- (จาก P1-X04/F-07) backend: จ่ายรางวัลปิดฉุกเฉินตาม dungeons.json#emergencyClose._note พร้อม test ขอบ elapsed 59/60 วิ และระยะเท่าเกณฑ์พอดี (ต้องไม่ผ่าน)
+- (จาก P1-F03-T11) tech-lead: tools/art (rasterize, สลับสี key, quantize 1x/2x, อัปเดต bytes/sha256), validator V1–V13 + art/assets/manifest.schema.json เป็น test ใน CI, วิธีส่ง art/assets ถึง client, field appearance ใน profile API, vendor font (IBM Plex Sans Thai Looped WOFF2 ไม่แก้ไข, Noto Sans Thai TTF) + OFL.txt + sha256 · uiux: อวตารบนแผ่น bg.surface เสมอ, party card ≥96×120, หน้าสร้างตัวละคร 6×6×6 ไม่มีเพศ, หน้า Credits/ลิขสิทธิ์ · vfx: ใช้ pose kit ของ avatar-spec §10 · systems: content config ของอุปกรณ์/cosmetic มี assets.icon/assets.layer เป็น manifest id
+- (จาก P1-F03-T27) vfx-animator build: module CSS/WAAPI ใน `art/vfx/` ตาม motion-direction §10 และ `art/vfx/demo/*.html` · artist-2d ยืนยันท่า quick-command 10 ตัวกับ layer อวตาร 3 มุม
+- (จาก P1-F03-T20) liveops: `ops/raid-playbook.md` และ `ops/runbooks/` (ปิด dungeon ฉุกเฉิน, คิวรายงาน, sponsored lifecycle) · systems: ขยาย tuning playbook ถึง epic/legendary chance และ marketTax · producer: แปลง W1–W13 เป็นวันจริงตอนวาง F24 · (จาก P1-F02-T05) tech-lead: ย้าย listeners.ts/platform.ts ไป src/internal/ (ทางเลือก)
+- (จาก P1-F03-T18) sound-designer build: `audio/src/` (Web Audio generator), `audio/out/`, `audio/manifest.json`, `audio/demo.html` · gameplay: fire-together 4 ชั้น (visual/vibration/sound/push) + priority queue ตาม cue-list.md §4 · **ความเสี่ยง:** `navigator.vibrate()` ไม่รองรับบน iOS WebKit ทำให้ "สั่นก่อนเสียง" ใช้ได้แค่ Android — tech-lead ยืนยัน matrix และหา fallback (ผลเดินทดสอบ T20 บน iPhone ยืนยันได้)
+- (จาก P1-F02-T04, สำคัญ) systems-designer + location-engineer: speed lock ต้องใช้ความเร็วแบบกรอง/ต่อเนื่อง ไม่ใช่ความเร็วระหว่าง fix ดิบ (เดินในซอยพร้อม jitter ได้ 23.2–24.3 km/h ใกล้เพดาน 25) + กฎปลดล็อกเมื่อรถหยุดติดไฟแดง · tech-lead: กำหนด R ของ haversine (6,371,008.8 ม.) และนิยามหน้าต่าง gate (ช่วงปิด เลื่อน 30 วิ นับเฉพาะคู่ที่อยู่ในหน้าต่าง) ใน packages/geo ให้ตรงกับ trace และ HUD S12
+- (จาก P1-F03-T19) Phase 3: tech-lead ออกแบบ pipeline ให้ run_tick_granted/denied ไม่เขียน row แยก (batch export) เพื่อไม่ชนเพดาน rows written · Phase 5: narrative + game-director กำหนด enum dungeon_report_submitted.reason_category
+- (จาก P1-F03-T05) HUMAN: ทบทวนข้อความ legal/PDPA (consent.locationBody, age.underMinBody, privacy.positionLogExplain, privacy.withdrawConfirmBody, account.deleteBody) ก่อน closed beta · gameplay: wire area ใหม่ของ copy (roleInfo, profile, nav, label, push, weekday, privacy, interest, qc) และ formatter · อ่าน copy.th.json เป็น flat map
+- (จาก P1-H01) tech-lead: config lint (ADR 0001 3.10.7) ถ้า P1-X05 ไม่ทำ
+- (จาก P1-H03) tech-lead: config loader ของ Phase 2 ตรวจ raid.schedule.endLocalTime = start + durationTicks × raidTick_s และ fail ชัด · รองรับ namespace balance.privacy / app.privacy และไฟล์ใหม่ location.json, privacy.json
+- (จาก P1-F02-T02) Phase 3: devops ตั้ง alert 50%/70% ของทุกเพดานใน ADR 0002 หัวข้อ 4.2 + runbook "โควตาเต็ม" · tech-lead เขียน tech note F07/F08 (API contract, WebSocket batch + `seq` idempotent, รหัสสถานะเมื่อโควตาเต็ม, schema D1/DO) · narrative เขียน copy "เซิร์ฟเวอร์ไม่พร้อม แต่เก็บการเดินไว้ให้แล้ว" · Phase 6/7: producer เพิ่ม decision ขออนุมัติ Workers Paid ตาม D-036
+- (จาก P1-F03-T07) Phase 2: port `tools/sim/src/formulas.ts` เข้า `packages/shared` และผ่านทุก vector ใน `design/systems/test-vectors/`
 - PRD ของ F04–F06 ต้องครอบกลุ่มผู้เล่นทั้งสาม (40 นาที/วัน เทียบ 3–6 ชม./วัน, คนอยู่บ้านตอนฝนตก, คนอยู่นอกพื้นที่) (PM-N02)
 - HUMAN P1-F03-T28 ถ้ายังเปิดอยู่ (A-P1-PLAN-02-4) · P1-F02-T22 CUT แล้ว (D-008) ไม่ยกยอด
 - ถ้าผล F01 ไม่ใช่ Go ล้วน game-director ประเมินผลต่อ pillars, preset และหน้าจอที่บ้านก่อนปิด phase (SF-13)
@@ -97,117 +110,138 @@ Feature: F01 Coverage Survey · F02 Tech Foundation และ Map/Location Spike
 | ID | Feature | Task | Type | Owner | Deps | Writes | Status | Output |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | P1-F01-T01 | F01 | วิธีสำรวจ coverage และแหล่งข้อมูล (OSM, ขอบเขตจังหวัด, ประชากร, blocklist tag) | research | location-engineer | — | `tools/coverage/METHOD.md` | DONE | `tools/coverage/METHOD.md` |
-| P1-F01-T02 | F01 | กฎคัด dungeon และเกณฑ์ให้คะแนนย่านเปิดตัว | spec | level-designer | — | `design/levels/dungeon-rules.md`, `design/levels/launch-criteria.md` | TODO | — |
+| P1-F01-T02 | F01 | กฎคัด dungeon และเกณฑ์ให้คะแนนย่านเปิดตัว | spec | level-designer | — | `design/levels/dungeon-rules.md`, `design/levels/launch-criteria.md` | DONE | `design/levels/dungeon-rules.md`, `design/levels/launch-criteria.md` |
 | P1-F01-T03 | F01 | PRD F01 พร้อมเกณฑ์ตัวเลข Go / ทางเสริม / No-go | spec | product-manager | — | `product/prd/F01-coverage-survey.md` | DONE | `product/prd/F01-coverage-survey.md` |
-| P1-F01-T04 | F01 | Test plan F01 | spec | qa-tester | P1-F01-T01 | `qa/plans/F01-test-plan.md` | TODO | — |
-| P1-F01-T05 | F01 | Pipeline ดึง OSM + คัด tag + คำนวณพื้นที่ + ตัด blocklist → candidates | build | location-engineer | P1-F02-T01, P1-F01-T01, P1-F03-T06 | `tools/coverage/pipeline/`, `tools/coverage/README.md`, `tools/coverage/requirements.txt`, `data/coverage/candidates.geojson`, `data/coverage/excluded.geojson` | IN_PROGRESS | — |
-| P1-F01-T06 | F01 | นับรายเขต + heatmap เทียบความหนาแน่นประชากร | build | location-engineer | P1-F01-T05 | `tools/coverage/analysis/`, `data/coverage/district-counts.csv`, `data/coverage/heatmap/` | TODO | — |
-| P1-F01-T07 | F01 | Coverage report: ตีความผล, 2–3 ย่านเปิดตัว, คำแนะนำ Go / ทางเสริม | spec | level-designer | P1-F01-T02, P1-F01-T03, P1-F01-T06 | `design/levels/coverage-report.md` | TODO | — |
-| P1-F01-T08 | F01 | QA gate F01 | review-gate | qa-tester | P1-F01-T04, P1-F01-T07 | `qa/reports/F01-qa-gate.md` | TODO | — |
+| P1-F01-T04 | F01 | Test plan F01 | spec | qa-tester | P1-F01-T01 | `qa/plans/F01-test-plan.md` | DONE | `qa/plans/F01-test-plan.md` |
+| P1-F01-T05 | F01 | Pipeline ดึง OSM + คัด tag + คำนวณพื้นที่ + ตัด blocklist → candidates | build | location-engineer | P1-F02-T01, P1-F01-T01, P1-F03-T06 | `tools/coverage/pipeline/`, `tools/coverage/README.md`, `tools/coverage/requirements.txt`, `data/coverage/candidates.geojson`, `data/coverage/excluded.geojson` | DONE | `tools/coverage/pipeline/`, `data/coverage/candidates.geojson` (741), `data/coverage/excluded.geojson` (vitest glob ย้ายไป P1-X05) |
+| P1-F01-T06 | F01 | นับรายเขต + heatmap เทียบความหนาแน่นประชากร | build | location-engineer | P1-F01-T05, P1-H08, P1-F01-T02, P1-X04 | `tools/coverage/analysis/`, `data/coverage/district-counts.csv`, `data/coverage/heatmap/`, `data/coverage/run-meta.json`, `data/coverage/points-unmatched.geojson`, `data/coverage/LICENSE-DATA.md`, `tools/coverage/params.json` (pipeline.outputs เท่านั้น) | TODO | — |
+| P1-F01-T07 | F01 | Coverage report: ตีความผล, 2–3 ย่านเปิดตัว, คำแนะนำ Go / ทางเสริม | spec | level-designer | P1-F01-T02, P1-F01-T03, P1-F01-T06 | `design/levels/coverage-report.md`, `design/levels/launch-criteria.md` | TODO | — |
+| P1-F01-T08 | F01 | QA gate F01 | review-gate | qa-tester | P1-F01-T04, P1-F01-T07, P1-X08 | `qa/reports/F01-qa-gate.md` | TODO | — |
 | P1-F01-T09 | F01 | Design gate F01 | review-gate | game-director | P1-F01-T07, P1-F01-T08 | `design/reviews/F01-design-gate.md` | TODO | — |
 | P1-F01-T10 | F01 | Product gate F01 | review-gate | product-manager | P1-F01-T07, P1-F01-T08 | `product/reviews/F01-product-gate.md` | TODO | — |
 | P1-F01-T11 | F01 | ยืนยันผล Go / No-go ของ coverage | review-gate | HUMAN | P1-F01-T08, P1-F01-T09, P1-F01-T10 | — (orchestrator บันทึกใน decision log) | HUMAN | — |
 | P1-F02-T01 | F02 | ADR 0001 โครง repo + `git init` + monorepo skeleton + lint + test runner + e2e runner + ติดตั้ง dependency ล่วงหน้า | spec | tech-lead | — | `docs/adr/0001-repo-layout.md`, root config (`package.json`, lockfile, workspace file, `tsconfig.base.json`, lint/format config, test/e2e config, `.gitignore`, `.editorconfig`, `.nvmrc`), `apps/README.md`, `apps/client/package.json`, `packages/README.md`, `packages/shared/`, `packages/location/package.json`, `tools/README.md`, `tools/traces/package.json`, `tools/sim/package.json` (ถ้าเป็น TS) | DONE | `docs/adr/0001-repo-layout.md`, root config, workspace stubs, `packages/shared/` (commit 3163a3d) |
-| P1-F02-T02 | F02 | ADR 0002 ยืนยัน backend stack ตาม D-008 (Cloudflare Free: Workers + DO SQLite + D1 + Pages) พร้อมเพดาน free tier ที่ตรวจแล้ว, ประมาณการโหลด Phase 2–3 และทางขยาย · Supabase Free เป็นทางที่ไม่เลือก | research | tech-lead | P1-F02-T01 | `docs/adr/0002-backend-stack.md` | TODO | — |
-| P1-F02-T03 | F02 | Tech note F02 + เกณฑ์ spike + รูปแบบ trace/CSV + tile schema + glyph + เพดานและงบขนาด tile บน Cloudflare Pages (D-008) + `LocationProvider` interface + trace schema | spec | tech-lead | P1-F02-T01 | `docs/tech/F02-map-location-spike.md`, `docs/tech/gps-trace-format.md`, `packages/shared/schemas/gps-trace.schema.json`, `packages/shared/src/trace.ts`, `packages/shared/src/index.ts`, `packages/location/src/types.ts`, `packages/location/src/index.ts` | IN_PROGRESS | — |
-| P1-F02-T04 | F02 | ชุด GPS trace สังเคราะห์ + generator + README | build | location-engineer | P1-F02-T03 | `data/gps-traces/README.md`, `data/gps-traces/synthetic/`, `tools/traces/` | TODO | — |
-| P1-F02-T05 | F02 | Web + Mock `LocationProvider` + Capacitor stub พร้อม test | build | location-engineer | P1-F02-T03, P1-F02-T04 | `packages/location/src/web/`, `packages/location/src/mock/`, `packages/location/src/capacitor/`, `packages/location/src/index.ts`, `packages/location/test/` | TODO | — |
-| P1-F02-T06 | F02 | Script build PMTiles กรุงเทพ+ปริมณฑล ให้ผ่านเพดานไฟล์ของ host ฟรี + fixture เล็ก + glyph/sprite + size report | build | location-engineer | P1-F02-T01, P1-F02-T03 | `tools/tiles/` | TODO | — |
-| P1-F02-T07 | F02 | CI (lint, typecheck, test, build, secret scan, guard ไฟล์ต้องห้าม) + `.env.example` + เอกสาร environment | build | devops-engineer | P1-F02-T01 | `.github/workflows/`, `.gitleaks.toml`, `.env.example`, `docs/tech/environments.md` | IN_PROGRESS | — |
-| P1-F02-T08 | F02 | Infra preview บน Cloudflare Pages Free ไม่ผูกบัตร (D-008, งบขนาดจาก P1-F02-T03) + script publish tile/glyph/sprite + runbook | build | devops-engineer | P1-F02-T07, P1-F02-T03 | `infra/`, `.github/workflows/deploy-preview.yml`, `.env.example` | TODO | — |
-| P1-F02-T09 | F02 | Client scaffold + หน้า spike MapLibre GL JS + PMTiles | build | gameplay-programmer | P1-F02-T01 | `apps/client/` | IN_PROGRESS | — |
-| P1-F02-T10 | F02 | ต่อ `LocationProvider` เข้าแผนที่ (Web/Mock) + UI เล่น trace | build | gameplay-programmer | P1-F02-T09, P1-F02-T05 | `apps/client/` | TODO | — |
-| P1-F02-T11 | F02 | เครื่องมือวัด FPS / แบต / data / accuracy + tile กรุงเทพ + map style | build | gameplay-programmer | P1-F02-T10, P1-F02-T06, P1-F03-T12 | `apps/client/` | TODO | — |
-| P1-F02-T12 | F02 | Test plan F02 | spec | qa-tester | P1-F02-T03 | `qa/plans/F02-test-plan.md` | TODO | — |
-| P1-F02-T13 | F02 | Black-box trace-replay test + QA trace | build | qa-tester | P1-F02-T12, P1-F02-T05, P1-F02-T10 | `qa/tests/F02/`, `data/gps-traces/qa/` | TODO | — |
+| P1-F02-T02 | F02 | ADR 0002 ยืนยัน backend stack ตาม D-008 (Cloudflare Free: Workers + DO SQLite + D1 + Pages) พร้อมเพดาน free tier ที่ตรวจแล้ว, ประมาณการโหลด Phase 2–3 และทางขยาย · Supabase Free เป็นทางที่ไม่เลือก | research | tech-lead | P1-F02-T01 | `docs/adr/0002-backend-stack.md` | DONE | `docs/adr/0002-backend-stack.md` (Accepted) |
+| P1-F02-T03 | F02 | Tech note F02 + เกณฑ์ spike + รูปแบบ trace/CSV + tile schema + glyph + เพดานและงบขนาด tile บน Cloudflare Pages (D-008) + `LocationProvider` interface + trace schema | spec | tech-lead | P1-F02-T01 | `docs/tech/F02-map-location-spike.md`, `docs/tech/gps-trace-format.md`, `packages/shared/schemas/gps-trace.schema.json`, `packages/shared/src/trace.ts`, `packages/shared/src/index.ts`, `packages/location/src/types.ts`, `packages/location/src/index.ts` | DONE | `docs/tech/F02-map-location-spike.md`, `docs/tech/gps-trace-format.md`, `packages/shared/` trace + schema, `packages/location/src/types.ts` |
+| P1-F02-T04 | F02 | ชุด GPS trace สังเคราะห์ + generator + README | build | location-engineer | P1-F02-T03 | `data/gps-traces/README.md`, `data/gps-traces/synthetic/`, `tools/traces/` | DONE | `data/gps-traces/synthetic/` (13 traces), `data/gps-traces/README.md`, `tools/traces/` |
+| P1-F02-T05 | F02 | Web + Mock `LocationProvider` + Capacitor stub พร้อม test | build | location-engineer | P1-F02-T03, P1-F02-T04 | `packages/location/src/web/`, `packages/location/src/mock/`, `packages/location/src/capacitor/`, `packages/location/src/index.ts`, `packages/location/test/` | DONE | `packages/location/src/{web,mock,capacitor}/`, `packages/location/test/` (66 tests) |
+| P1-F02-T06 | F02 | Script build PMTiles กรุงเทพ+ปริมณฑล ให้ผ่านเพดานไฟล์ของ host ฟรี + fixture เล็ก + glyph/sprite + size report | build | location-engineer | P1-F02-T01, P1-F02-T03 | `tools/tiles/` | DONE | `tools/tiles/` (build.sh, fixture lumpini, size-report; 13,502 tiles z15 budget PASS) |
+| P1-F02-T07 | F02 | CI (lint, typecheck, test, build, secret scan, guard ไฟล์ต้องห้าม) + `.env.example` + เอกสาร environment | build | devops-engineer | P1-F02-T01 | `.github/workflows/`, `.gitleaks.toml`, `.env.example`, `docs/tech/environments.md` | DONE | `.github/workflows/ci.yml`, `.gitleaks.toml`, `.env.example`, `docs/tech/environments.md` |
+| P1-F02-T08 | F02 | Infra preview บน Cloudflare Pages Free ไม่ผูกบัตร (D-008, งบขนาดจาก P1-F02-T03) + script publish tile/glyph/sprite + runbook | build | devops-engineer | P1-F02-T07, P1-F02-T03 | `infra/`, `.github/workflows/deploy-preview.yml`, `.env.example` | DONE | `infra/` (Pages config, _headers, publish scripts, runbook), `.github/workflows/deploy-preview.yml` |
+| P1-F02-T09 | F02 | Client scaffold + หน้า spike MapLibre GL JS + PMTiles | build | gameplay-programmer | P1-F02-T01 | `apps/client/` | DONE | `apps/client/` (Vite + MapLibre + PMTiles spike, e2e 6 passed) |
+| P1-F02-T10 | F02 | ต่อ `LocationProvider` เข้าแผนที่ (Web/Mock) + UI เล่น trace | build | gameplay-programmer | P1-F02-T09, P1-F02-T05 | `apps/client/` | IN_PROGRESS | — |
+| P1-F02-T11 | F02 | เครื่องมือวัด FPS / แบต / data / accuracy + tile กรุงเทพ + map style | build | gameplay-programmer | P1-F02-T10, P1-F02-T06, P1-F03-T12, P1-H05, P1-X05 | `apps/client/` | TODO | — |
+| P1-F02-T12 | F02 | Test plan F02 | spec | qa-tester | P1-F02-T03 | `qa/plans/F02-test-plan.md` | DONE | `qa/plans/F02-test-plan.md` |
+| P1-F02-T13 | F02 | Black-box trace-replay test + QA trace | build | qa-tester | P1-F02-T12, P1-F02-T05, P1-F02-T10, P1-F02-T06 | `qa/tests/F02/`, `data/gps-traces/qa/` | TODO | — |
 | P1-F02-T14 | F02 | ชุดคู่มือเดินทดสอบภาคสนาม + แบบฟอร์มผล + safety briefing | spec | qa-tester | P1-F02-T11, P1-F02-T08, P1-F02-T27 | `qa/playtest/field-walk-kit.md`, `qa/playtest/field-walk-form.md`, `qa/playtest/safety-briefing.md` | TODO | — |
-| P1-F02-T15 | F02 | Tech gate F02 (รวม hygiene ของ `tools/coverage/`, `tools/traces/`, `tools/sim/`) | review-gate | tech-lead | P1-F02-T02, P1-F02-T04, P1-F02-T05, P1-F02-T06, P1-F02-T07, P1-F02-T08, P1-F02-T11, P1-F01-T05, P1-F03-T08 | `docs/reviews/F02-tech-gate.md` | TODO | — |
+| P1-F02-T15 | F02 | Tech gate F02 (รวม hygiene ของ `tools/coverage/`, `tools/traces/`, `tools/sim/`) | review-gate | tech-lead | P1-F02-T02, P1-F02-T04, P1-F02-T05, P1-F02-T06, P1-F02-T07, P1-F02-T08, P1-F02-T11, P1-F01-T05, P1-F03-T08, P1-H02, P1-X04, P1-X05, P1-X07 | `docs/reviews/F02-tech-gate.md` | TODO | — |
 | P1-F02-T16 | F02 | QA gate F02 | review-gate | qa-tester | P1-F02-T13, P1-F02-T14, P1-F02-T15 | `qa/reports/F02-qa-gate.md` | TODO | — |
 | P1-F02-T17 | F02 | สมัคร Cloudflare Free (ไม่ผูกบัตร) + สร้าง Pages project + API token สิทธิ์จำกัด เก็บใน GitHub Actions secret / `.env.local` (D-008) | research | HUMAN | — | — (ถ้ามี token เก็บใน `.env.local` หรือ GitHub Actions secret เท่านั้น ไม่ commit) | HUMAN | — |
 | P1-F02-T18 | F02 | สร้าง GitHub repo **public**, เปิด secret scanning + push protection, push ครั้งแรก, ยืนยัน CI รัน | research | HUMAN | P1-F02-T07 | — | HUMAN | — |
-| P1-F02-T19 | F02 | Publish PMTiles + glyph/sprite และ deploy preview บน host ฟรีตาม runbook | build | HUMAN | P1-F02-T17, P1-F02-T08, P1-F02-T11, P1-F02-T15 | — | HUMAN | — |
+| P1-F02-T19 | F02 | Publish PMTiles + glyph/sprite และ deploy preview บน host ฟรีตาม runbook | build | HUMAN | P1-F02-T17, P1-F02-T18, P1-F02-T08, P1-F02-T11, P1-F02-T15 | — | HUMAN | — |
 | P1-F02-T20 | F02 | เดินทดสอบจริงกลางแดด 30 นาทีในสวน + 30 นาทีในซอย แล้วกรอกผลวัด (raw trace เป็น opt-in) | research | HUMAN | P1-F02-T19, P1-F02-T14 | `qa/playtest/results/` (คนกรอก, summary + form เท่านั้น · raw trace อยู่ใน `qa/playtest/results/raw/` ที่ถูก ignore) | HUMAN | — |
 | P1-F02-T21 | F02 | สรุปผล spike + คำแนะนำ Go / No-go ของ map/location | research | tech-lead | P1-F02-T20, P1-F02-T16 | `docs/tech/F02-spike-results.md` | TODO | — |
 | P1-F02-T22 | F02 | ยืนยัน backend stack ตาม ADR 0002 (vendor commitment) | review-gate | HUMAN | — | — | CUT | ตัดสินแล้วใน D-008 (คนมอบให้ orchestrator ตัดสิน) |
 | P1-F02-T23 | F02 | ยืนยันผล Go / No-go ของ map spike | review-gate | HUMAN | P1-F02-T21 | — (orchestrator บันทึกใน decision log) | HUMAN | — |
 | P1-F02-T24 | F02 | แปลง trace จริงที่คนเดินยินยอมเป็น recorded trace (ตัดต้น/ปลาย, ปัดพิกัด) | build | location-engineer | P1-F02-T20 | `data/gps-traces/recorded/`, `data/gps-traces/README.md` | TODO | — |
 | P1-F02-T25 | F02 | สำรอง: ดาวน์โหลดไฟล์ใหญ่ตาม URL + checksum แล้ววางที่ path ที่ระบุ (เปิดเมื่อ agent ดาวน์โหลดไม่ได้เท่านั้น) | research | HUMAN | — | path ตาม README ที่ agent ระบุ (ไฟล์อยู่นอก git) | HUMAN | — |
-| P1-F02-T26 | F02 | push รอบสุดท้ายและส่ง URL CI run สีเขียวของโค้ดทั้ง phase | research | HUMAN | P1-F02-T16, P1-F01-T08, P1-F03-T23 | — | HUMAN | — |
-| P1-F02-T27 | F02 | product-manager ร่วมยืนยันเกณฑ์ spike (มุมประสบการณ์ผู้เล่น) | review-gate | product-manager | P1-F02-T03 | `product/reviews/F02-spike-criteria.md` | TODO | — |
+| P1-F02-T26 | F02 | push รอบสุดท้ายและส่ง URL CI run สีเขียวของโค้ดทั้ง phase | research | HUMAN | P1-F02-T16, P1-F01-T08, P1-F03-T23, P1-H06, P1-F02-T24 | — | HUMAN | — |
+| P1-F02-T27 | F02 | product-manager ร่วมยืนยันเกณฑ์ spike (มุมประสบการณ์ผู้เล่น) | review-gate | product-manager | P1-F02-T03 | `product/reviews/F02-spike-criteria.md` | DONE | `product/reviews/F02-spike-criteria.md` (PASS) |
 | P1-F03-T01 | F03 | Design pillars + non-negotiables + รายการห้ามสอนใน 10 นาทีแรก + ดัชนี feature spec F01–F24 | spec | game-director | — | `design/pillars.md` | DONE | `design/pillars.md` |
 | P1-F03-T02 | F03 | World bible ฉบับเสนอ (ธง HUMAN ทุกจุดที่ต้องยืนยัน) | spec | narrative-designer | — | `design/narrative/world.md` | DONE | `design/narrative/world.md` |
 | P1-F03-T03 | F03 | คู่มือ copy: กฎ 6 ข้อ, คำทับศัพท์ที่ใช้ได้, คำต้องห้าม, checklist ตรวจ | spec | narrative-designer | P1-F03-T02 | `design/narrative/style-guide.md` | DONE | `design/narrative/style-guide.md` |
-| P1-F03-T04 | F03 | ชุดชื่อเริ่มต้น (รูปแบบชื่อโซน, มอนสเตอร์, ไอเทม, วัตถุดิบ, บอส) | asset | narrative-designer | P1-F03-T02, P1-F03-T03 | `config/content/names.th.json` | TODO | — |
-| P1-F03-T05 | F03 | Copy bank ของ core loop (onboarding 0–10 นาที, เข้า dungeon, tick, HP ต่ำ/auto-retreat/ตาย, สถานะ GPS) | asset | narrative-designer | P1-F03-T03, P1-F03-T16 | `config/content/copy.th.json` | TODO | — |
+| P1-F03-T04 | F03 | ชุดชื่อเริ่มต้น (รูปแบบชื่อโซน, มอนสเตอร์, ไอเทม, วัตถุดิบ, บอส) + ปรับ copy ตาม D-050 | asset | narrative-designer | P1-F03-T02, P1-F03-T03 | `config/content/names.th.json`, `config/content/copy.th.json`, `config/content/copy-rules.json` | DONE | `config/content/names.th.json`, copy D-050 (`copy.th.json`, `copy-rules.json`) |
+| P1-F03-T05 | F03 | Copy bank ของ core loop (onboarding 0–10 นาที, เข้า dungeon, tick, HP ต่ำ/auto-retreat/ตาย, สถานะ GPS) | asset | narrative-designer | P1-F03-T03, P1-F03-T16 | `config/content/copy.th.json` | DONE | `config/content/copy.th.json` (225 keys) |
 | P1-F03-T06 | F03 | Balance model (สูตรทั้งหมด) + config balance ชุดแรก | spec | systems-designer | — | `design/systems/balance-model.md`, `config/balance/*.json` | DONE | `design/systems/balance-model.md`, `config/balance/*.json` (11 files) |
-| P1-F03-T07 | F03 | Simulator แกนสูตร (buff stacking, damage/เวลาอยู่รอด, exp curve, stat, gear) + golden test vectors | build | systems-designer | P1-F03-T06, P1-F02-T01 | `tools/sim/`, `design/systems/test-vectors/` | IN_PROGRESS | — |
-| P1-F03-T08 | F03 | Simulator drop + economy + อัตรารางวัล party ต่อหัว + sim report | build | systems-designer | P1-F03-T07 | `tools/sim/`, `design/systems/test-vectors/`, `design/systems/sim-report.md` | TODO | — |
-| P1-F03-T09 | F03 | Dungeon preset (สวนใหญ่ / ตลาด / สวนหย่อม) | spec | level-designer | P1-F01-T02, P1-F03-T06 | `design/levels/presets.md`, `data/dungeons/presets.json` | TODO | — |
+| P1-F03-T07 | F03 | Simulator แกนสูตร (buff stacking, damage/เวลาอยู่รอด, exp curve, stat, gear) + golden test vectors | build | systems-designer | P1-F03-T06, P1-F02-T01 | `tools/sim/`, `design/systems/test-vectors/` | DONE | `tools/sim/`, `design/systems/test-vectors/` (170 vectors) |
+| P1-F03-T08 | F03 | Simulator drop + economy + อัตรารางวัล party ต่อหัว + sim report | build | systems-designer | P1-F03-T07 | `tools/sim/`, `design/systems/test-vectors/`, `design/systems/sim-report.md`, `config/balance/combat.json` | DONE | `tools/sim/` (drops/economy/party), `design/systems/sim-report.md`, 248 vectors, `config/balance/combat.json` |
+| P1-F03-T09 | F03 | Dungeon preset (สวนใหญ่ / ตลาด / สวนหย่อม) | spec | level-designer | P1-F01-T02, P1-F03-T06 | `design/levels/presets.md`, `data/dungeons/presets.json` | DONE | `design/levels/presets.md`, `data/dungeons/presets.json` |
 | P1-F03-T10 | F03 | Art style guide (palette + contrast กลางแดด) + icon grammar | spec | art-director | — | `art/direction/style-guide.md`, `art/direction/icon-grammar.md` | DONE | `art/direction/style-guide.md`, `art/direction/icon-grammar.md` |
-| P1-F03-T11 | F03 | Spec avatar 2D layered isometric 3 มุม + asset pipeline | spec | art-director | P1-F03-T10 | `art/direction/avatar-spec.md`, `art/direction/asset-pipeline.md` | TODO | — |
-| P1-F03-T12 | F03 | Map style (MapLibre style JSON บน Protomaps schema, font ไทย, รอยแยก, โซนดำ + เส้นจังหวัด) | spec | art-director | P1-F03-T10, P1-F02-T03 | `art/direction/map-style.md`, `art/direction/map-style/` | TODO | — |
-| P1-F03-T13 | F03 | Style tile | asset | artist-2d | P1-F03-T10 | `art/assets/ui/style-tile/` | TODO | — |
+| P1-F03-T11 | F03 | Spec avatar 2D layered isometric 3 มุม + asset pipeline | spec | art-director | P1-F03-T10 | `art/direction/avatar-spec.md`, `art/direction/asset-pipeline.md` | DONE | `art/direction/avatar-spec.md`, `art/direction/asset-pipeline.md` |
+| P1-F03-T12 | F03 | Map style (MapLibre style JSON บน Protomaps schema, font ไทย, รอยแยก, โซนดำ + เส้นจังหวัด) | spec | art-director | P1-F03-T10, P1-F02-T03 | `art/direction/map-style.md`, `art/direction/map-style/` | DONE | `art/direction/map-style.md`, `art/direction/map-style/kw-light.style.json` (validator/screenshots ย้ายไป T11, P1-H06) |
+| P1-F03-T13 | F03 | Style tile | asset | artist-2d | P1-F03-T10 | `art/assets/ui/style-tile/` | IN_PROGRESS | — |
 | P1-F03-T14 | F03 | Avatar placeholder layer 3 มุม (SVG) + prompt raster + manifest | asset | artist-2d | P1-F03-T11, P1-F03-T13 | `art/assets/avatar/`, `art/assets/manifest.json`, `art/prompts/avatar.md` | TODO | — |
 | P1-F03-T15 | F03 | IA: รายการหน้าจอ (รวม consent, ความเป็นส่วนตัว, ลบบัญชี), navigation, ลำดับการปลดระบบ | spec | uiux-designer | P1-F03-T01 | `design/ux/ia.md` | DONE | `design/ux/ia.md` |
-| P1-F03-T16 | F03 | Flow หลัก (onboarding + consent + อายุ 15+, แผนที่ → เข้า dungeon → run → HP ต่ำ/auto-retreat/ตาย/ออกเอง → สรุป, dungeon ไกล/นอกพื้นที่) + รายการ copy key | spec | uiux-designer | P1-F03-T15, P1-F03-T01 | `design/ux/flows/F03-core-loop.md` | IN_PROGRESS | — |
-| P1-F03-T17 | F03 | Wireframe HTML ของ flow หลัก + design tokens + component spec | spec | uiux-designer | P1-F03-T16, P1-F03-T10 | `design/ux/wireframes/`, `design/ux/tokens.json`, `design/ux/components.md` | TODO | — |
-| P1-F03-T18 | F03 | Audio direction + cue list (vibration pattern ก่อนเสียง) | spec | sound-designer | — | `audio/direction.md`, `audio/cue-list.md` | TODO | — |
-| P1-F03-T19 | F03 | Metrics framework (6 หมวด) + ชื่อ telemetry event | spec | product-manager | P1-F03-T01, P1-F03-T16 | `product/metrics.md`, `product/telemetry-events.md` | TODO | — |
-| P1-F03-T20 | F03 | กรอบทิศทาง live ops + ประเภท event + ตัวอย่างไตรมาสแรก + tuning playbook ฉบับตั้งต้น | spec | liveops-operator | — | `ops/calendar.md`, `ops/tuning-playbook.md` | TODO | — |
-| P1-F03-T21 | F03 | Content gate (copy) F03 | review-gate | narrative-designer | P1-F03-T04, P1-F03-T05, P1-F03-T17, P1-H02 | `design/reviews/F03-copy-gate.md` | TODO | — |
-| P1-F03-T22 | F03 | Content gate (visual) F03 | review-gate | art-director | P1-F03-T12, P1-F03-T13, P1-F03-T14, P1-F03-T17, P1-F03-T27 | `art/reviews/F03-visual-gate.md` | TODO | — |
-| P1-F03-T23 | F03 | QA gate F03: simulator ตรงตาราง GDD | review-gate | qa-tester | P1-F03-T08 | `qa/reports/F03-qa-gate.md` | TODO | — |
-| P1-F03-T24 | F03 | Design gate A F03 (pillars, narrative, UX, level preset, audio, live ops) | review-gate | game-director | P1-F03-T01, P1-F03-T09, P1-F03-T18, P1-F03-T20, P1-F03-T21 | `design/reviews/F03-design-gate-a.md` | TODO | — |
-| P1-F03-T25 | F03 | Design gate B F03 (systems + simulator, art direction, motion, metrics) | review-gate | game-director | P1-F03-T19, P1-F03-T22, P1-F03-T23, P1-F03-T27 | `design/reviews/F03-design-gate-b.md` | TODO | — |
+| P1-F03-T16 | F03 | Flow หลัก (onboarding + consent + อายุ 15+, แผนที่ → เข้า dungeon → run → HP ต่ำ/auto-retreat/ตาย/ออกเอง → สรุป, dungeon ไกล/นอกพื้นที่) + รายการ copy key | spec | uiux-designer | P1-F03-T15, P1-F03-T01 | `design/ux/flows/F03-core-loop.md` | DONE | `design/ux/flows/F03-core-loop.md` |
+| P1-F03-T17 | F03 | Wireframe HTML ของ flow หลัก + design tokens + component spec | spec | uiux-designer | P1-F03-T16, P1-F03-T10 | `design/ux/wireframes/`, `design/ux/tokens.json`, `design/ux/components.md` | DONE | `design/ux/wireframes/` (7 หน้า), `design/ux/tokens.json`, `design/ux/components.md` |
+| P1-F03-T18 | F03 | Audio direction + cue list (vibration pattern ก่อนเสียง) | spec | sound-designer | — | `audio/direction.md`, `audio/cue-list.md` | DONE | `audio/direction.md`, `audio/cue-list.md` |
+| P1-F03-T19 | F03 | Metrics framework (6 หมวด) + ชื่อ telemetry event | spec | product-manager | P1-F03-T01, P1-F03-T16 | `product/metrics.md`, `product/telemetry-events.md` | DONE | `product/metrics.md`, `product/telemetry-events.md` |
+| P1-F03-T20 | F03 | กรอบทิศทาง live ops + ประเภท event + ตัวอย่างไตรมาสแรก + tuning playbook ฉบับตั้งต้น | spec | liveops-operator | — | `ops/calendar.md`, `ops/tuning-playbook.md` | DONE | `ops/calendar.md`, `ops/tuning-playbook.md` |
+| P1-F03-T21 | F03 | Content gate (copy) F03 | review-gate | narrative-designer | P1-F03-T04, P1-F03-T05, P1-F03-T17, P1-H02, P1-X09, P1-X10, P1-X11, P1-X12, P1-X13 | `design/reviews/F03-copy-gate.md` | TODO | รอบ 1 NEEDS_CHANGES (`design/reviews/F03-copy-gate.md`) · รอบ 2: ตรวจเฉพาะ F-01..F-06 |
+| P1-F03-T22 | F03 | Content gate (visual) F03 | review-gate | art-director | P1-F03-T12, P1-F03-T13, P1-F03-T14, P1-F03-T17, P1-F03-T27, P1-X06, P1-H04, P1-X15 | `art/reviews/F03-visual-gate.md` | TODO | — |
+| P1-F03-T23 | F03 | QA gate F03: simulator ตรงตาราง GDD | review-gate | qa-tester | P1-F03-T08 | `qa/reports/F03-qa-gate.md` | DONE | `qa/reports/F03-qa-gate.md` (PASS) |
+| P1-F03-T24 | F03 | Design gate A F03 (pillars, narrative, UX, level preset, audio, live ops) | review-gate | game-director | P1-F03-T01, P1-F03-T09, P1-F03-T18, P1-F03-T20, P1-F03-T21, P1-X01 | `design/reviews/F03-design-gate-a.md` | TODO | — |
+| P1-F03-T25 | F03 | Design gate B F03 (systems + simulator, art direction, motion, metrics) | review-gate | game-director | P1-F03-T19, P1-F03-T22, P1-F03-T23, P1-F03-T27, P1-X04 | `design/reviews/F03-design-gate-b.md` | TODO | — |
 | P1-F03-T26 | F03 | ยืนยัน world building และ design pillars | review-gate | HUMAN | P1-F03-T02, P1-F03-T01 | — (orchestrator บันทึกใน decision log) | HUMAN | — |
-| P1-F03-T27 | F03 | Motion direction (งบ motion, feedback, rarity, จังหวะ auto-retreat/ตาย, rift บนแผนที่) | spec | vfx-animator | P1-F03-T10, P1-F03-T18 | `art/vfx/specs/motion-direction.md` | TODO | — |
+| P1-F03-T27 | F03 | Motion direction (งบ motion, feedback, rarity, จังหวะ auto-retreat/ตาย, rift บนแผนที่) | spec | vfx-animator | P1-F03-T10, P1-F03-T18 | `art/vfx/specs/motion-direction.md` | DONE | `art/vfx/specs/motion-direction.md` |
 | P1-F03-T28 | F03 | ยืนยันรายการ "ที่ยังต้องตัดสินใจ" ใน GDD ที่ล้าสมัย และอนุมัติการแก้ถ้อยคำ GDD ตาม D-004, D-005, D-006 | review-gate | HUMAN | P1-F03-T06, P1-F03-T08 | — (orchestrator บันทึกใน decision log) | HUMAN | — |
-| P1-H01 | F03 | ADR 0001 amendment: ยืนยัน config convention (`_source`/`_assumption`/`_note`, unit suffix ผสม, `null` = fail ชัด, `seeFile`, ข้าม key `_`) + schema `copy.th.json` และ registry ตัวแปร | spec | tech-lead | P1-F02-T03 | `docs/adr/0001-repo-layout.md`, `docs/tech/copy-schema.md` | TODO | — |
-| P1-H02 | F03 | Copy lint script ตาม style guide หัวข้อ 7 (S1–S14) + ไฟล์คำ + test | build | gameplay-programmer | P1-H01, P1-F03-T03 | `tools/copy-lint/` | TODO | — |
-| P1-H03 | F03 | เติม config key ที่ pillars/IA/style guide อ้าง: เกณฑ์ปลด U1–U8, `unlocks.parentalConsent`, `unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s`, `location.minAccuracy_m`, ตาราง raid (วัน/เวลา) และค่าที่ copy formatter อ่าน | spec | systems-designer | P1-F03-T07 | `config/balance/unlocks.json`, `config/balance/raid.json`, `config/balance/privacy.json`, `config/balance/location.json`, `config/balance/dungeons.json` | TODO | — |
-| P1-H04 | F03 | ตรวจ contrast ทุกคู่สีใน art style guide หัวข้อ 4 ด้วย script อัตโนมัติ | build | qa-tester | P1-F03-T10 | `qa/tests/unit/contrast.test.ts`, `qa/reports/F03-contrast-check.md` | TODO | — |
-| P1-CLOSE-QA | ปิด phase | Regression ปิด Phase 1: ทวนทุก task DONE/CUT, ทุก gate PASS, exit checklist มีหลักฐาน | review-gate | qa-tester | P1-F01-T09, P1-F01-T10, P1-F02-T16, P1-F02-T21, P1-F02-T24, P1-F03-T24, P1-F03-T25 | `qa/reports/phase-1-regression.md`, `qa/bugs.md` | TODO | — |
+| P1-H01 | F03 | ADR 0001 amendment: ยืนยัน config convention (`_source`/`_assumption`/`_note`, unit suffix ผสม, `null` = fail ชัด, `seeFile`, ข้าม key `_`) + schema `copy.th.json` และ registry ตัวแปร | spec | tech-lead | P1-F02-T03 | `docs/adr/0001-repo-layout.md`, `docs/tech/copy-schema.md`, `docs/tech/gps-trace-format.md`, `docs/tech/F02-map-location-spike.md` | DONE | `docs/adr/0001-repo-layout.md` (amendment), `docs/tech/copy-schema.md` |
+| P1-H02 | F03 | Copy lint script ตาม style guide หัวข้อ 7 (S1–S14) + ไฟล์คำ + test + shared content types ตาม copy-schema หัวข้อ 4–7, 10 | build | gameplay-programmer | P1-H01, P1-F03-T03, P1-X03 | `tools/copy-lint/`, `packages/shared/src/content/`, `packages/shared/schemas/copy.schema.json`, `packages/shared/schemas/copy-rules.schema.json`, `packages/shared/src/index.ts`, `pnpm-lock.yaml`, root `package.json` (scripts เท่านั้น) | DONE | `tools/copy-lint/`, `packages/shared/src/content/`, copy schemas (358 tests, lint:copy 0 FAIL) |
+| P1-H03 | F03 | เติม config key ที่ pillars/IA/style guide อ้าง: เกณฑ์ปลด U1–U8, `unlocks.parentalConsent`, `unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s`, `location.minAccuracy_m`, ตาราง raid (วัน/เวลา) และค่าที่ copy formatter อ่าน | spec | systems-designer | P1-F03-T07 | `config/balance/unlocks.json`, `config/balance/raid.json`, `config/balance/privacy.json`, `config/balance/location.json`, `config/balance/dungeons.json` | DONE | `config/balance/{unlocks,privacy,location,raid,dungeons}.json` |
+| P1-H04 | F03 | ตรวจ contrast ทุกคู่สีใน art style guide หัวข้อ 4 ด้วย script อัตโนมัติ | build | qa-tester | P1-F03-T10 | `qa/tests/unit/contrast.test.ts`, `qa/reports/F03-contrast-check.md` | DONE | `qa/tests/unit/contrast.test.ts` (119 คู่), `qa/reports/F03-contrast-check.md` |
+| P1-H05 | F02 | สร้าง `config/app/privacy.json` (`rawTraceTrim_m`) + config ของ client (ค่า Web provider, ค่าเริ่มต้นของ query) ตาม tech note | spec | tech-lead | P1-F02-T03 | `config/app/` | DONE | `config/app/privacy.json`, `config/app/client.json` |
+| P1-H06 | F03 | Screenshot map style S1–S5 (390x844, 360x800) บน fixture tile ทั้ง PMTiles และ TileJSON + ทดสอบกลางแดดตาม map-style.md หัวข้อ 10 | build | qa-tester | P1-F02-T06, P1-F02-T11, P1-X05, P1-H07 | `qa/reports/F02/map-style/`, `qa/tests/unit/map-style.test.ts` | TODO | — |
+| P1-H07 | F02 | GeoJSON โซนดำ (mask รูเท่ากับ 6 จังหวัดที่เล่นได้, simplify ~20 ม.) + เส้นและชื่อ 77 จังหวัด (simplify ~200 ม., ≤300 KB) ตาม map-style.md หัวข้อ 6.2–6.3 | build | location-engineer | P1-F01-T05 | `data/map/playarea-mask.geojson`, `data/map/provinces.geojson`, `tools/coverage/boundaries/` | DONE | `data/map/playarea-mask.geojson`, `data/map/provinces.geojson`, `tools/coverage/boundaries/` |
+| P1-X01 | F03 | แก้ชื่อ config key ใน `design/pillars.md` ให้ตรง config จริง (ตารางจับคู่จาก P1-H03) | fix | game-director | P1-H03 | `design/pillars.md` | DONE | `design/pillars.md` (key names = config) |
+| P1-X02 | F03 | แก้ชื่อ config key ใน `design/ux/ia.md` และ `design/ux/flows/F03-core-loop.md` ให้ตรง config จริง + ลบหมายเหตุ "รอ P1-H03" | fix | uiux-designer | P1-H03, P1-F03-T17 | `design/ux/ia.md`, `design/ux/flows/F03-core-loop.md` | DONE | `design/ux/ia.md`, `design/ux/flows/F03-core-loop.md` |
+| P1-X03 | F03 | ปรับ copy bank ตาม copy-schema หัวข้อ 9 (ฉบับเขียนใหม่) + สร้าง `copy-rules.json` + แก้ style guide 4.4, 5.1, 5.2, 7, 9 | fix | narrative-designer | P1-H01, P1-F03-T05 | `config/content/copy.th.json`, `config/content/copy-rules.json`, `design/narrative/style-guide.md` | DONE | `config/content/copy.th.json`, `config/content/copy-rules.json`, `design/narrative/style-guide.md` |
+| P1-X04 | F03 | เพิ่ม `_nullMeans` 5 จุด (ADR 3.10.5) + vectors*.ts อ่านค่าขอบจาก SimParams แล้วลบ eslint-disable บรรทัดแรก | fix | systems-designer | P1-H01 | `config/balance/combat.json`, `config/balance/economy.json`, `config/balance/dungeons.json`, `config/balance/telemetry.json`, `tools/sim/src/vectors.ts`, `tools/sim/src/vectors-economy.ts` | IN_PROGRESS | — |
+| P1-X05 | F02 | eslint override สำหรับ `tools/sim/src/vectors*.ts` + `@maplibre/maplibre-gl-style-spec` 26.4.4 เป็น root devDependency + เพิ่ม `tools/coverage/pipeline/tests/**/*.test.ts` ใน vitest include | fix | tech-lead | P1-H02, P1-X04 | `eslint.config.js`, `package.json`, `pnpm-lock.yaml`, `vitest.config.ts`, `docs/tech/copy-schema.md`, `.prettierignore`, `tsconfig.json`, `packages/location/src/types.ts`, `packages/location/src/web/`, `packages/location/test/` (เฉพาะถ้าเปลี่ยนชื่อ option · ห้ามแตะ `apps/client/`) | TODO | — |
+| P1-X07 | F01 | CI step สร้าง venv ของ tools/coverage + `pip install -r requirements.txt` + ตั้ง `COVERAGE_PYTEST_REQUIRED=1` ก่อน `pnpm test` (ไม่ดาวน์โหลดข้อมูล) | fix | devops-engineer | P1-X05 | `.github/workflows/ci.yml`, `docs/tech/environments.md` | TODO | — |
+| P1-X06 | F03 | map-style.md: หัวข้อ 6.1 adapter สร้าง property จาก whitelist, status ที่ไม่รู้จัก → closed · หัวข้อ 13 ชี้ test ใหม่ | fix | art-director | P1-H01, P1-F03-T11 | `art/direction/map-style.md`, `art/direction/style-guide.md`, `art/direction/icon-grammar.md` | DONE | `art/direction/map-style.md`, `style-guide.md` §3.4.1, `icon-grammar.md` §7–8 |
+| P1-X08 | F01 | เติม fixture ของ pipeline coverage: ขอบพื้นที่พอดี 2,999/3,000/150,000/150,001 + blocker วงใน, แตะกันต่ำกว่า partialOverlapShare, geometry ต้อง make_valid, assembly_failed (GAP-01, GAP-02) + ลดขนาด excluded.geojson ให้มีระยะเผื่อ (GAP-04) | fix | location-engineer | P1-F01-T05 | `tools/coverage/pipeline/tests/`, `tools/coverage/pipeline/output.py`, `data/coverage/excluded.geojson`, `data/coverage/candidates.geojson` (สร้างซ้ำ ต้อง byte-identical), `data/coverage/run-meta.json` (ถ้า pipeline เขียน) | IN_PROGRESS | — |
+| P1-H08 | F01 | ล็อกแหล่งอ้างอิงและค่า route factor (ระยะเส้นตรง → ระยะเดิน) ใน PRD ก่อน T06 | spec | product-manager | P1-F01-T03 | `product/prd/F01-coverage-survey.md` | DONE | `product/prd/F01-coverage-survey.md` §8.1 (network walking distance; fallback route factor 1.4 ±0.2) |
+| P1-X09 | F03 | world.md หัวข้อ 4 (ย่อหน้า dungeon ชั่วคราว) และ 11 (แถว "ชั่วคราว", "เปิดถึงอาทิตย์", ตัวอย่าง #3) ให้ตรง D-049 และ names.th.json + style guide 4.3 เพิ่มแถว buttonFullWidth | fix | narrative-designer | P1-F03-T04 | `design/narrative/world.md`, `design/narrative/style-guide.md` | DONE | `design/narrative/world.md`, `design/narrative/style-guide.md` |
+| P1-X10 | F03 | components.md หัวข้อ 10 บันทึก buttonFullWidth (D-050) + wireframe 05-run-summary ใช้วลีเต็ม + ยืนยันเพดานชื่อโซน (nameReal ≤17, suffix ≤14, เต็ม ≤34) | fix | uiux-designer | P1-F03-T04 | `design/ux/components.md`, `design/ux/wireframes/05-run-summary.html` | DONE | `design/ux/components.md`, `design/ux/wireframes/05-run-summary.html` |
+| P1-X11 | F03 | names.th.json: `dungeon.khlongOngAng._preset` pocketPark → market (class-first ของ P1-F03-T09) + copy.th.json `_variables.zoneRealName.maxCells` 18 → 17 | fix | narrative-designer | P1-F03-T09, P1-X10 | `config/content/names.th.json`, `config/content/copy.th.json` | DONE | `config/content/names.th.json`, `config/content/copy.th.json` |
+| P1-X12 | F03 | แก้ copy ตาม copy gate: F-01 `dungeon.emergencyClosedTitle` → "โซนนี้ปิดกะทันหัน ได้ของเท่าที่เดินจริง", F-02 เพิ่ม key header/label 7 ตัว, F-04 cells ของ dungeon.vsBossTitle=11 และ label.sponsored=7, F-05 style-guide 4.1 zoneRealName=17 | fix | narrative-designer | P1-F03-T21 | `config/content/copy.th.json`, `design/narrative/style-guide.md` | DONE | `config/content/copy.th.json`, `design/narrative/style-guide.md` (lint:copy exit 0, 11 WARN) |
+| P1-X13 | F03 | แก้ wireframe ตาม copy gate F-03: ผูก key ทุกจุดใน gate หัวข้อ 6.2, ใช้ข้อความจริงจาก copy.th.json, `hp` → `run.hpBarLabel`, quick command 10 ตัวข้อความเต็ม · F-02 ตาราง header→key ใน components 2.1 · F-06 ลบค่า zoneRealName 18 ที่ค้าง | fix | uiux-designer | P1-F03-T21, P1-X12 | `design/ux/wireframes/`, `design/ux/components.md` | IN_PROGRESS | — |
+| P1-X15 | F03 | contrast.test.ts: ค่าที่คาดของ map.road บน map.land 1.16 → 1.22 ตามเอกสารที่แก้แล้ว (P1-X06) | fix | qa-tester | P1-X06 | `qa/tests/unit/contrast.test.ts`, `qa/reports/F03-contrast-check.md` | IN_PROGRESS | — |
+| P1-CLOSE-QA | ปิด phase | Regression ปิด Phase 1: ทวนทุก task DONE/CUT, ทุก gate PASS, exit checklist มีหลักฐาน | review-gate | qa-tester | P1-F01-T09, P1-F01-T10, P1-F02-T16, P1-F02-T21, P1-F02-T24, P1-F03-T24, P1-F03-T25, P1-H06 | `qa/reports/phase-1-regression.md`, `qa/bugs.md` | TODO | — |
 
 ## 3. ลำดับ wave และ critical path
 
-จำนวนงาน: 67 task (agent 56, HUMAN 11 ซึ่งรวมงานสำรอง P1-F02-T25 และ P1-F02-T22 ที่ CUT ตาม D-008 · HUMAN ที่ยังต้องทำ 10) · review-gate ของ agent 12 · ต่อ role: qa-tester 8, location-engineer 7, tech-lead 5, narrative-designer 5, game-director 4, art-director 4, product-manager 4, level-designer 3, systems-designer 3, gameplay-programmer 3, uiux-designer 3, devops-engineer 2, artist-2d 2, sound-designer 1, liveops-operator 1, vfx-animator 1
+(เขียนใหม่ใน P1-PLAN-SYNC-01 สำหรับงานที่เหลือเท่านั้น · แผน W1–W12 เดิมดูประวัติได้ในหัวข้อ 7–9 และ `ledger.md`)
 
-### แผน wave แนะนำ (ภายใต้เพดาน 6 task ต่อ wave และ 1 task ต่อ agent)
-ลำดับนี้เป็นคำแนะนำ orchestrator เลือกตาม priority ได้ แต่ควรรักษา critical path ไว้ก่อน · ตรวจแล้ว: deps ทุกงานเสร็จใน wave ก่อนหน้า, ไม่มี agent ซ้ำใน wave, Writes ไม่ชนกันภายใน wave, lockfile มีเจ้าของเดียวคือ P1-F02-T01 (W1) · (P1-PLAN-03) `.github/workflows/` อยู่ W2 (P1-F02-T07) และ `deploy-preview.yml` อยู่ W5 (P1-F02-T08) · `.gitleaks.toml` อยู่ W2 · `.gitignore` อยู่ W1 เท่านั้น งานหลังจากนั้นที่ต้องเพิ่มรายการให้ handoff ถึง tech-lead
+จำนวนงาน ณ plan-sync 01: 86 task (แผนเดิม 67 + handoff H01–H08 8 งาน + fix X01–X11 11 งาน) · DONE 41 · IN_PROGRESS 5 · TODO 29 · HUMAN 10 (รวมสำรอง P1-F02-T25) · CUT 1 (P1-F02-T22)
+งาน agent ที่เหลือต่อ role (รวมที่กำลังทำ): qa-tester 7 (H04, F02-T13, T14, F01-T08, F02-T16, H06, CLOSE-QA) · location-engineer 5 (F02-T06, F01-T06, X08, H07, F02-T24) · game-director 4 (X01, F03-T24, F01-T09, F03-T25) · tech-lead 3 (X05, F02-T15, T21) · gameplay-programmer 3 (H02, F02-T10, T11) · art-director 3 (F03-T11, X06, F03-T22) · devops-engineer 2 (F02-T08, X07) · artist-2d 2 (F03-T13, T14) · narrative-designer 1 (F03-T21) · level-designer 1 (F01-T07) · product-manager 1 (F01-T10) · systems-designer 1 (X04) · vfx-animator 1 (F03-T27) · uiux, sound, liveops ไม่มีงานเหลือ
 
-| Wave | งาน agent | งานคนที่เริ่มได้ |
-| --- | --- | --- |
-| W1 | P1-F02-T01, P1-F01-T01, P1-F03-T06, P1-F03-T01, P1-F03-T02, P1-F01-T03 | P1-F02-T17 (สมัคร Cloudflare Free + Pages project + token, D-008) · P1-F02-T25 สำรอง (เปิดเมื่อ agent รายงานว่าดาวน์โหลดไม่ได้) |
-| W2 | P1-F02-T03, P1-F01-T05, P1-F03-T07, P1-F03-T15, P1-F03-T10, P1-F02-T07 | P1-F03-T26 (world + pillars) |
-| W3 | P1-F02-T04, P1-F02-T09, P1-F02-T27, P1-F03-T12, P1-F03-T16, P1-F01-T04 | P1-F02-T18 (repo public + push ครั้งแรก) |
-| W4 | P1-F02-T05, P1-F03-T08, P1-F02-T12, P1-F03-T17, P1-F03-T03, P1-F02-T02 | — |
-| W5 | P1-F02-T10, P1-F02-T06, P1-F03-T23, P1-F03-T04, P1-F02-T08, P1-F01-T02 | P1-F03-T28 |
-| W6 | P1-F02-T11, P1-F01-T06, P1-F02-T13, P1-F03-T11, P1-F03-T05, P1-F03-T13 | — |
-| W7 | P1-F02-T14, P1-F02-T15, P1-F01-T07, P1-F03-T18, P1-F03-T20, P1-F03-T14 | P1-F02-T19 เมื่อ tech gate PASS แล้ว P1-F02-T20 |
-| W8 | P1-F01-T08, P1-F03-T09, P1-F03-T21, P1-F03-T27, P1-F03-T19 | (เดินทดสอบต่อ) |
-| W9 | P1-F02-T16, P1-F01-T09, P1-F01-T10, P1-F03-T22 | (เดินทดสอบต่อ) |
-| W10 | P1-F03-T24 · P1-F02-T21 และ P1-F02-T24 เมื่อผลเดินทดสอบ (P1-F02-T20) กลับมา | P1-F01-T11 (gate F01 ครบใน W9) · P1-F02-T26 · P1-F02-T23 หลัง P1-F02-T21 |
-| W11 | P1-F03-T25 | — |
-| W12 | P1-CLOSE-QA | งานคนที่ยังเปิดตาม A-P1-PLAN-02-4 |
+### แผน wave ของงานที่เหลือ (เพดาน 6 task ต่อ wave, 1 task ต่อ agent)
+ใช้ R0–R7 แทนเลข W เพราะ run นี้เดินแบบต่อเนื่อง · R0 = ชุดที่กำลังทำอยู่ · ตรวจแล้ว: deps ของทุกงานเสร็จใน R ก่อนหน้า (หรือ DONE แล้ว), ไม่มี agent ซ้ำใน R เดียวกัน, Writes ไม่ชนกันภายใน R · lockfile: P1-H02 (R0) แล้ว P1-X05 (R1) เท่านั้น เรียงด้วย deps · `.github/workflows/`: P1-F02-T08 (R0, `deploy-preview.yml`) กับ P1-X07 (R2, `ci.yml`) คนละไฟล์และคนละ R · `.env.example` ที่ root: P1-F02-T08 เท่านั้น · `data/coverage/`: P1-F01-T06 (R1) กับ P1-X08 (R2) เจ้าของเดียวกัน คนละ R
 
-- W8–W11 มีช่องว่าง orchestrator ดึง P1-F03-T18 หรือ P1-F03-T20 (ไม่มี deps) ขึ้นมาก่อนได้ทันทีที่ wave ใดมีช่อง
-- ประมาณการ: ฝั่ง agent ราว 11 wave + regression 1 wave (เพิ่มจากร่างแรก 1 wave เพราะเพิ่มงาน 7 งานและให้ QA gate F01 มาก่อน design/product gate) · ระยะจริงของ phase ขึ้นกับเวลาที่คนใช้ทำ P1-F02-T17, T19, T20
+| R | งาน agent | งานคนที่ทำได้ | หมายเหตุ |
+| --- | --- | --- | --- |
+| R0 (กำลังทำ) | P1-H02, P1-F02-T06, P1-X04, P1-F03-T13, P1-F03-T27 · **เติม 1 ช่องทันที: P1-F02-T08** | **P1-F02-T17 และ P1-F02-T18 ควรทำตอนนี้** (ต้องเสร็จก่อนจบ R3) · P1-F03-T26, P1-F03-T28 ตอบได้ทุกเมื่อ | T08 ต้องเสร็จก่อน T14/T15 และ devops ต้องว่างให้ X07 ใน R2 |
+| R1 | P1-F02-T10, P1-F01-T06, P1-X05, P1-F03-T21, P1-F03-T11, P1-H04 | — | T10 เป็นเส้นวิกฤต เริ่มทันทีที่ H02 จบ · F01-T06 เริ่มทันทีที่ F02-T06 และ X04 จบ |
+| R2 | P1-F02-T11, P1-F01-T07, P1-X08, P1-X07, P1-F02-T13, P1-X01 | — | X08 ขนานกับ F01-T07 (candidates ต้อง byte-identical) |
+| R3 | P1-F02-T14, P1-F02-T15, P1-F03-T24, P1-H07, P1-X06, P1-F03-T14 | P1-F02-T19 ทันทีที่ T15 PASS (ต้องมี T17, T18, T08, T11) | qa ทำ T14 ก่อน F01-T08 เพราะอยู่บนเส้นวิกฤตที่มีงานคนต่อท้าย |
+| R4 | P1-F01-T08, P1-F03-T22 | P1-F02-T20 หลัง T19 และ T14 | ช่องว่าง 4 ช่อง · qa เป็นคอขวด (ดูกฎสลับด้านล่าง) |
+| R5 | P1-F01-T09, P1-F01-T10, P1-F02-T16 | (เดินทดสอบต่อ) | game-director ทำ F01 gate ก่อน F03-T25 เพื่อให้ HUMAN P1-F01-T11 เริ่มเร็ว |
+| R6 | P1-F03-T25, P1-H06 · P1-F02-T21 และ P1-F02-T24 เมื่อผล T20 กลับมา (T21 ต้องมี T16) | P1-F01-T11 (gate F01 ครบใน R5) · P1-F02-T23 หลัง T21 · P1-F02-T26 หลัง T16, H06, T24 | ถ้าคนไม่ยินยอมให้ใช้ raw trace orchestrator เปลี่ยน T24 เป็น CUT |
+| R7 | P1-CLOSE-QA | งานคนที่ยกยอดได้ตาม A-P1-PLAN-02-4 (P1-F03-T28) · P1-F02-T25 → CUT ถ้าไม่มีใครต้องใช้ | — |
+
+กฎสลับ (orchestrator ใช้ได้เลยโดยไม่ต้องถาม producer)
+- ถ้าผลเดินทดสอบ (T20) กลับมาก่อนจบ R4 ให้ qa ทำ P1-F02-T16 ก่อน P1-F01-T08 เพราะ T21 → HUMAN T23 จะกลายเป็นเส้นวิกฤต
+- ถ้า P1-F02-T06 รายงาน PARTIAL (เกินงบจำนวนไฟล์ของ Pages แม้ลด z14 แล้ว) ให้ location-engineer ทำ F01-T06 ต่อทันที และเปิด fix ของ T06 หลังจากนั้น · T11 ใช้ fixture tile ไปก่อนได้ แต่ HUMAN T19 ต้องรอ tile ที่ผ่านงบ
+- ช่องว่างใน R4–R6 ใช้รับ fix task (X) จาก gate ที่ได้ NEEDS_CHANGES ก่อนงานอื่น
+- ประมาณการ: ฝั่ง agent อีกราว 7 R (R1–R7) · ระยะจริงของ phase ขึ้นกับเวลาที่คนใช้ทำ P1-F02-T17, T18, T19, T20
 
 ### Critical path
-1. **Map/location spike (ยาวที่สุด มีงานคนต่อท้าย):** P1-F02-T01 (W1) → P1-F02-T03 (W2) → P1-F02-T04 (W3) → P1-F02-T05 (W4) → P1-F02-T10 (W5) → P1-F02-T11 (W6) → P1-F02-T15 tech gate และ P1-F02-T14 kit (W7) → HUMAN P1-F02-T19 → HUMAN P1-F02-T20 → P1-F02-T21 → HUMAN P1-F02-T23 → P1-CLOSE-QA
-   - P1-F02-T19 ขึ้นกับ P1-F02-T15 (ไม่ deploy build ที่ยังไม่ผ่าน tech gate) · P1-F02-T20 ขึ้นกับ P1-F02-T19 และ P1-F02-T14
-   - ต้องพร้อมก่อน P1-F02-T11: P1-F02-T06 (tile + glyph, W5) และ P1-F03-T12 (map style, W3 ย้ายขึ้นตาม SF-13)
-   - ต้องพร้อมก่อน P1-F02-T14: P1-F02-T27 (เกณฑ์ spike ที่ PM ยืนยัน, W3) และ P1-F02-T08 (runbook, W5)
-   - ต้องพร้อมก่อน P1-F02-T19: HUMAN P1-F02-T17 (สมัคร Cloudflare Free + Pages project + token) · (P1-PLAN-04) host ตัดสินแล้วใน D-008 และ repo มีอยู่แล้ว (D-007) จึงไม่มี deps และเริ่มได้ตั้งแต่ W1 · มีเวลาถึง W7 จึงไม่อยู่บนเส้นวิกฤต
-   - P1-F02-T08 (W5) รอ P1-F02-T03 (W2) เพื่อรู้งบขนาด tile และวิธีแบ่งไฟล์ · ไม่เลื่อน wave
-   - P1-F02-T16 (QA gate, W9) ต้องเสร็จก่อน P1-F02-T21 แต่ไม่อยู่บนเส้นวิกฤตตราบที่การเดินทดสอบใช้เวลาเกิน 2 wave
-2. **Coverage:** P1-F01-T01 → P1-F01-T05 → P1-F01-T06 (W6) → P1-F01-T07 (W7) → P1-F01-T08 QA gate (W8) → P1-F01-T09 และ T10 (W9) → HUMAN P1-F01-T11
-3. **Design gates:** game-director มี gate 3 งานต่อกัน W9 (F01-T09), W10 (F03-T24), W11 (F03-T25) · ถ้า W9 F01 gate ยังไม่พร้อม ให้สลับ F03-T24 ขึ้นมาก่อน
-4. **Simulator:** P1-F03-T06 → P1-F03-T07 → P1-F03-T08 (W4) → P1-F03-T23 (W5) → P1-F03-T25 (W11)
+(งานที่เหลือเท่านั้น · DONE ทั้งหมดตัดออกจากเส้นแล้ว)
+1. **Map/location spike (ยาวที่สุด มีงานคนสามงานต่อท้าย):** P1-H02 (R0, gameplay ต้องปิดก่อน) → P1-F02-T10 (R1) → P1-F02-T11 (R2 · ต้องมี T06 จาก R0, T12 และ H05 DONE แล้ว, X05 จาก R1) → P1-F02-T15 tech gate ∥ P1-F02-T14 kit (R3) → HUMAN P1-F02-T19 → HUMAN P1-F02-T20 → P1-F02-T21 (ต้องมี T16 จาก R5) → HUMAN P1-F02-T23 → P1-CLOSE-QA (R7)
+   - ต้องพร้อมก่อน T15: P1-F02-T08 (R0), P1-X07 (R2) ← P1-X05 (R1) ← P1-H02 + P1-X04 (R0) · ทุกข้อจบก่อนหรือพร้อม T11 จึงไม่ยืดเส้น
+   - ต้องพร้อมก่อน HUMAN T19: HUMAN P1-F02-T17 (Cloudflare) และ P1-F02-T18 (push ครั้งแรก) · สองงานนี้ยังไม่เริ่ม ถ้าไม่เสร็จภายใน R3 จะกลายเป็นเส้นวิกฤตทันที → orchestrator ควรส่งถึงคนตอนนี้
+   - ความเสี่ยงบนเส้น: P1-F02-T06 ต้องผ่านงบจำนวนไฟล์ของ Pages ตาม D-031 (tile ≤ 15,000) · ถ้าไม่ผ่านต้องใช้ทางสำรองตามลำดับใน tech note
+2. **Coverage:** P1-F02-T06 (R0, ครอง location-engineer) ∥ P1-X04 (R0) → P1-F01-T06 (R1) → P1-F01-T07 (R2) ∥ P1-X08 (R2) → P1-F01-T08 QA gate (R4 · R3 ให้ T14 ก่อน) → P1-F01-T09 ∥ P1-F01-T10 (R5) → HUMAN P1-F01-T11
+3. **F03 gates:** deps จริงแยกเป็นสองสาย · สาย A: P1-H02 (R0) → P1-F03-T21 (R1) → P1-F03-T24 (R3, ต้องมี X01 จาก R2) · สาย B: P1-F03-T11 (R1) → P1-F03-T14 (R3) → P1-F03-T22 (R4, ต้องมี X06, H04, T27) → P1-F03-T25 (R6, ต้องมี X04) · game-director ทำตามลำดับ X01 (R2) → T24 (R3) → F01-T09 (R5) → T25 (R6) · T24 ไม่ต้องรอ T22
+4. **ส่วนท้าย:** P1-H07 (R3) → P1-H06 (R6) → HUMAN P1-F02-T26 (หลัง T16, H06, T24) และ P1-CLOSE-QA
 
-คอขวดทรัพยากร
-- location-engineer มี 6 งานต่อเนื่อง W1–W6 · แผนนี้ยังให้ tile (P1-F02-T06, W5) มาก่อน heatmap (P1-F01-T06, W6) เพราะสลับแล้วการเดินทดสอบของคนเลื่อน 1 wave ขณะที่ preset (T09, W8) และ flow (T16, W3) ไม่ได้ใช้ผล heatmap ทันไม่ว่าจะเรียงแบบไหน · ถ้าคนยืนยันว่าวันเดินทดสอบช้ากว่า W8 อยู่แล้ว orchestrator สลับสองงานนี้ได้ (SF-13 ข้อ 2)
-- qa-tester มี 8 งาน ได้ slot ทุก wave ตั้งแต่ W3 ถึง W9
+คอขวดทรัพยากรและลำดับที่เสนอ
+- **gameplay-programmer (เส้นวิกฤต):** H02 → T10 → T11 · H02 ถูกจัดก่อน T10 ระหว่าง run ทำให้เส้นวิกฤตเลื่อน 1 R · ห้ามเพิ่มงานใหม่ให้ gameplay จนกว่า T11 จะ DONE · handoff ใหม่ถึง gameplay (เช่น wire copy area ใหม่, fire-together ของเสียง) ยกไป Phase 2 ตามหัวข้อ 1 "งานที่ยกไป" ยกเว้น fix ที่ gate ของ T11 ต้องใช้
+- **location-engineer:** F02-T06 (R0) → F01-T06 (R1) → X08 (R2) → H07 (R3) → F02-T24 (หลัง T20) · F01-T06 ก่อนเพราะ level-designer (T07) รออยู่ · X08 ขนานกับ T07 และต้องเสร็จก่อน QA gate F01 · H07 ท้ายสุดเพราะใช้แค่ใน H06 (R6) และ T11 มีทางสำรองเป็น GeoJSON ว่าง · F02-T06 ครองทั้งเส้นวิกฤตและ coverage ถ้าลากเกิน 1 R ให้ orchestrator ขอให้ location-engineer ปิด T06 แบบ PARTIAL (tile ที่ผ่านงบแล้ว + fixture) แล้วเปิด fix task ต่อท้ายคิว แทนการถือ agent ไว้ยาว
+- **qa-tester (หนักที่สุด 7 งาน):** H04 (R1) → F02-T13 (R2) → F02-T14 (R3) → F01-T08 (R4) → F02-T16 (R5) → H06 (R6) → CLOSE-QA (R7) · ใช้กฎสลับ T16/F01-T08 ด้านบน · งานใหม่ที่ส่งถึง qa ให้ลงช่องหลัง R6 เว้นแต่ gate ต้องใช้
+- **game-director:** มี 4 งาน ไม่ชนกันตามลำดับข้อ 3 · ถ้า F01-T08 เลื่อน ให้ทำ F03-T25 ใน R5 แทนแล้วเลื่อน F01-T09 ไป R6
+- **tech-lead:** X05 (R1) → T15 (R3) → T21 (หลังผลเดิน) · ว่างใน R2 และ R4–R5 ใช้รับ fix ของ T15 ได้ทันที
 
 ## 4. รายละเอียดงาน
 
@@ -268,6 +302,7 @@ Lead: location-engineer · ร่วม: level-designer, product-manager, qa-tes
 
 #### P1-F01-T06 — นับรายเขตและ heatmap (location-engineer, 2 วัน)
 - Goal: ให้ตัวเลขรายเขตและภาพเทียบความหนาแน่นประชากรพอให้เลือกย่านได้
+- (P1-PLAN-SYNC-01) Deps เพิ่ม P1-X04 (เพิ่ม `coverageFilter.walkGraphSnapMaxDistance_m`, route factor สำรอง และ `educationAllowOsmIds`/`maxAspectRatio`/`maxEntranceGap_m` ใน `config/balance/dungeons.json` ที่งานนี้ต้องอ่าน ไม่ hardcode) และ P1-F01-T02 (launch criteria, DONE แล้ว) · ระยะเดินใช้ routing บนเครือข่ายทางเดิน OSM ตาม PRD หัวข้อ 8.1 (P1-H08)
 - Inputs: `data/coverage/candidates.geojson`, `design/levels/launch-criteria.md` (เสร็จ W5 ก่อนงานนี้ใน W6), `product/prd/F01-coverage-survey.md`
 - Acceptance:
   - [ ] `district-counts.csv`: จังหวัด, เขต/อำเภอ, จำนวน polygon ที่ใช้ได้, แยกตาม tag และตามขนาด (เล็ก/กลาง/ใหญ่), พื้นที่รวม, ประชากร, dungeon ต่อประชากร 100,000 คน
@@ -376,6 +411,7 @@ Lead: tech-lead · ร่วม: location-engineer, gameplay-programmer, devops-
   - [ ] ไม่ log พิกัดดิบในระดับ production log
 
 #### P1-F02-T06 — Script build PMTiles (location-engineer, 2 วัน)
+- **แก้ตาม D-031 (orchestrator, 2026-09-23):** Cloudflare Pages ไม่ตอบ 206 → แทนที่ข้อ "แบ่ง PMTiles ตามพื้นที่ + manifest" ด้วย: แตก PMTiles ที่ `pmtiles extract` ได้เป็นไดเรกทอรี XYZ + `tiles.json` (TileJSON) + `manifest.json` · ตรวจงบจำนวนไฟล์ (tile ≤ 15,000, รวมทั้ง deploy ≤ 16,000, เพดาน Pages 20,000) · ลำดับทางแก้ z15 → z14 → GitHub Pages ชั่วคราว (PMTiles) → HUMAN · publish ไฟล์ font Noto Sans Thai (D-032) · ดู `docs/tech/F02-map-location-spike.md` หัวข้อ 7 และ 14 · bbox เริ่มต้น `99.80,13.40,101.00,14.35` ให้ตรวจกับขอบเขตปกครอง
 - Goal: ได้ไฟล์ PMTiles ของกรุงเทพฯ + ปริมณฑลที่สร้างซ้ำได้ และรู้ขนาดจริง
 - Inputs: GDD "แผนที่", ADR 0001, `docs/tech/F02-map-location-spike.md` (tile schema, font stack, path glyph/sprite, หัวข้อ "host ของ tile และ preview" งบขนาด tile และวิธีแบ่งตามพื้นที่), D-008
 - กฎคุมค่าใช้จ่าย: ห้ามผูกบัตร / ห้ามเปิดแผนที่เสียเงิน · แหล่ง tile ต้องดาวน์โหลดได้ฟรีโดยไม่ใช้บัญชี · ถ้าผ่านเพดานของ host ไม่ได้แม้ใช้ทางแก้ทั้งสามแล้ว ให้รายงาน PARTIAL พร้อมคำถาม HUMAN ไม่เปลี่ยนไปใช้ host เสียเงินเอง
@@ -399,6 +435,7 @@ Lead: tech-lead · ร่วม: location-engineer, gameplay-programmer, devops-
   - [ ] `docs/tech/environments.md` อธิบาย local / preview, ว่า env ไหนใช้ที่ไหน, และกฎ repo public (สิ่งที่ห้าม commit และชั้นป้องกัน)
 
 #### P1-F02-T08 — Infra preview บน host ฟรี + script publish + runbook (devops-engineer, 2 วัน)
+- **แก้ตาม D-031 (orchestrator, 2026-09-23):** ใช้ Pages project แยกสำหรับแผนที่ · ตั้ง `_headers` ตาม tech note หัวข้อ 7.5 และใส่ `404.html` · ตรวจด้วย curl ตามหัวข้อ 7.2: XYZ ต้องได้ `200` + content-type + CORS + Timing-Allow-Origin · `206` ตรวจเฉพาะทางสำรอง PMTiles บน GitHub Pages
 - Goal: ทุกอย่างพร้อมให้คนกดหรือรันคำสั่งเดียวแล้วได้ preview URL บน Cloudflare Pages แผน Free ที่ไม่ผูกบัตร (D-008)
 - Inputs: ADR 0001, ADR 0002 ถ้ามี, D-008, `docs/tech/environments.md`, `docs/tech/F02-map-location-spike.md` หัวข้อ "host ของ tile และ preview" (งบขนาด tile และวิธีแบ่งตามพื้นที่), `tools/tiles/README.md` ถ้ามี (output ใน `tools/tiles/out/`)
 - กฎคุมค่าใช้จ่าย: **ห้ามผูกบัตร / ห้ามเปิดแผนที่เสียเงิน** · ใช้เฉพาะความสามารถของแผนฟรี · ไม่มี R2 bucket หรือ storage เสียเงินใดใน `infra/` · ถ้าพบว่าสิ่งที่ต้องทำใช้ไม่ได้บนแผนฟรี ให้รายงานคำถาม HUMAN แทนการทำต่อ
@@ -430,6 +467,9 @@ Lead: tech-lead · ร่วม: location-engineer, gameplay-programmer, devops-
   - [ ] เรียก location ผ่าน interface เท่านั้น
 
 #### P1-F02-T11 — เครื่องมือวัด + tile กรุงเทพ + map style (gameplay-programmer, 2–3 วัน)
+- **เพิ่มจาก P1-F03-T12 (blocking):** (1) รัน `node node_modules/.pnpm/@maplibre+maplibre-gl-style-spec@26.4.4/node_modules/@maplibre/maplibre-gl-style-spec/dist/gl-style-validate.mjs art/direction/map-style/kw-light.style.json` แนบผล (2) ใน style.ts แทน placeholder ตาม map-style.md หัวข้อ 3 และ throw ถ้ายังเหลือ `kw-placeholder.invalid` (3) addImage `kw-rift-crack` pixelRatio 2 และ `fadeDuration: 0` · ถ้าติดตั้ง `@protomaps/basemaps` 5.7.2 ได้ (ผ่าน tech-lead) ให้เทียบชื่อ source-layer/kind/filter กับ kw-light.style.json แล้วรายงาน art-director
+- **แก้ตาม D-031 (orchestrator, 2026-09-23):** client รองรับทั้ง TileJSON (XYZ) และ `pmtiles://` ผ่าน `VITE_TILES_URL` ตัวเดียว · นับ byte ตาม tech note หัวข้อ 11 (custom Source / protocol `kw+https`)
+- **(P1-PLAN-SYNC-01)** Deps เพิ่ม P1-X05 (style-spec เป็น root devDependency · ถ้า X05 เปลี่ยนชื่อ option ของ `WebLocationOptions` ให้ย้ายมาใช้ชื่อใหม่ในงานนี้) · source `kw-provinces` และ mask โซนดำโหลดจาก `data/map/playarea-mask.geojson`, `data/map/provinces.geojson` ผ่าน `setData` (D-043) · ถ้า P1-H07 ยังไม่เสร็จใช้ FeatureCollection ว่างที่ path เดิมและไม่ throw (ไม่ใช่ deps เพื่อไม่ยืดเส้นวิกฤต) · `apps/client/.env.example` ค่า `VITE_*` ว่างตาม D-044 (ไฟล์ `.env.example` ที่ root เป็นของ P1-F02-T08)
 - Goal: ใช้ build นี้ออกไปเดินวัดจริงได้
 - Inputs: `tools/tiles/README.md`, `art/direction/map-style/`, `docs/tech/F02-map-location-spike.md` (เกณฑ์ spike และนิยามการวัด)
 - Acceptance:
@@ -457,9 +497,11 @@ Lead: tech-lead · ร่วม: location-engineer, gameplay-programmer, devops-
   - [ ] form: ช่องกรอก FPS เฉลี่ย/p5, % แบตที่ใช้ต่อ 30 นาที, MB ที่โหลดแยกประเภท, accuracy median/p90, จุดขยับตามจริงไหม (หน่วงกี่วินาที), อ่านจอกลางแดดได้ไหม, ชื่อถนน/สถานที่ภาษาไทยอ่านถูกไหม (วรรณยุกต์ถูกตำแหน่ง, TL-M03), ปัญหาที่เจอ
   - [ ] เกณฑ์ผ่านของแต่ละตัวเลขคัดลอกจาก "เกณฑ์ spike" ที่ P1-F02-T27 ยืนยันแล้วเท่านั้น qa-tester ไม่ตั้งเกณฑ์เอง (PM-M01, TL-M04)
   - [ ] safety briefing: ไม่จ้องจอขณะข้ามถนน, เดินกับเพื่อน, ดื่มน้ำ, หยุดถ้าฝนตกหรือร้อนเกิน
+  - [ ] (P1-PLAN-SYNC-01 จาก P1-H06) kit มีขั้นทดสอบกลางแดดของ map style ตาม `art/direction/map-style.md` หัวข้อ 10.2 (จอ S1, S3, S4 ถ่ายด้วยกล้องอีกเครื่อง แปลงขาวดำ) และช่องกรอกผลใน form เพื่อให้ HUMAN P1-F02-T20 ทำในรอบเดินเดียวกัน
   - [ ] ที่เก็บผล (TL-M06, MF-3): commit ได้เฉพาะ `qa/playtest/results/<YYYY-MM-DD>-<park|soi>-<device>.md` + summary CSV ที่ไม่มีพิกัด · raw trace เก็บใน `qa/playtest/results/raw/` (ถูก `.gitignore`) และแปลงเป็น `data/gps-traces/recorded/` ได้เฉพาะเมื่อคนเดินยินยอมเป็นลายลักษณ์อักษร (ข้อความยินยอมอยู่ใน kit)
 
 #### P1-F02-T15 — Tech gate F02 (tech-lead, 1–2 วัน)
+- (P1-PLAN-SYNC-01) Deps เพิ่ม P1-H02 (`tools/copy-lint/` อยู่ในขอบเขต hygiene), P1-X04 (vectors ไม่ฝังเลข), P1-X05 (lint/vitest/tsconfig), P1-X07 (pytest ของ coverage อยู่ใน CI) · ทั้งหมดเสร็จก่อนหรือพร้อม P1-F02-T11 จึงไม่ยืดเส้นวิกฤต · `tools/coverage/boundaries/` (P1-H07) ตรวจถ้าเสร็จแล้ว ถ้ายังไม่เสร็จ hygiene ของโฟลเดอร์นี้ตรวจใน P1-CLOSE-QA ไม่ขวาง gate นี้
 - Acceptance:
   - [ ] ตรงตาม ADR 0001 และ tech note · ใช้ interface เท่านั้น · ไม่มี magic number และไม่มี secret ใน repo (แนบผล gitleaks ของ P1-F02-T07 บน history ทั้งหมด และผล guard ไฟล์ต้องห้าม · repo public, D-002) · ไม่มีบริการหรือ config ใดที่ต้องผูกบัตร และไม่มีชื่อ env ที่ผูกกับ R2 (D-001)
   - [ ] รัน lint, typecheck, test, build เองและแนบ output
@@ -475,6 +517,7 @@ Lead: tech-lead · ร่วม: location-engineer, gameplay-programmer, devops-
   - [ ] `qa/bugs.md` อัปเดต · verdict PASS / NEEDS_CHANGES
 
 #### P1-F02-T17 — HUMAN: สมัคร Cloudflare Free (ไม่ผูกบัตร) + Pages project + API token (D-008)
+- **หมายเหตุจาก P1-F02-T08 (orchestrator):** คนสร้างเฉพาะ Pages project `keep-walking-preview` · project แผนที่ `keep-walking-map` ถูกสร้างอัตโนมัติตอน deploy ครั้งแรกด้วย token สิทธิ์เดียวกัน (Account > Cloudflare Pages > Edit) · ขั้นตอนเต็มใน `infra/runbooks/preview-setup.md`
 - ปลดล็อก: P1-F02-T19 (publish tile + deploy preview) · ไม่มี deps: host ตัดสินแล้วใน D-008 และ repo `https://github.com/pongponWorkspace/keep-walking` มีอยู่แล้ว (D-007) · เริ่มได้ทันทีตั้งแต่ W1 · ต้องเสร็จก่อน W7
 - **ห้ามผูกบัตร / ห้ามเปิดแผนที่เสียเงิน** (D-001): ถ้าหน้าใดถามบัตร ช่องทางชำระเงิน หรือชวนอัปเกรด/เปิด trial (รวม Workers Paid และ R2) ให้**หยุดทันที** ไม่กรอก แล้วแจ้ง orchestrator ว่าหยุดที่หน้าไหน (ชื่อหน้าและข้อความที่เห็น)
 - ขั้นตอน:
@@ -503,10 +546,11 @@ Lead: tech-lead · ร่วม: location-engineer, gameplay-programmer, devops-
 - เริ่มได้เมื่อ: P1-F02-T15 (tech gate) PASS แล้ว เพื่อไม่ deploy build ที่อาจมี secret หรือ log พิกัดหลุดขึ้น URL สาธารณะ (TL-S01)
 - **ห้ามผูกบัตร / ห้ามเปิดแผนที่เสียเงิน** (D-001): ถ้าขั้นใดแจ้งว่าเกินโควตาฟรีหรือขอให้อัปเกรด ให้หยุดและส่งข้อความนั้นให้ orchestrator ห้ามอัปเกรด
 - ขั้นตอน (รายละเอียดเต็มใน `infra/runbooks/preview-setup.md`):
+  0. (P1-PLAN-SYNC-01) ตรวจว่า P1-F02-T18 เสร็จแล้ว (push ครั้งแรกผ่าน) แล้วรอ orchestrator แจ้งว่า commit ของ wave ที่มี P1-F02-T08, T11, T15 แล้ว · ในเทอร์มินัลที่ `/Users/pongpon/Game`: `git status` ตรวจว่าไม่มี `.env.local` หรือไฟล์ใน `raw/` ถูก track แล้ว `git push` (workflow deploy-preview รันจากโค้ดบน GitHub) · ถ้า push protection บล็อก ห้าม bypass ให้ส่งข้อความให้ orchestrator
   1. ตรวจว่า P1-F02-T17 เสร็จ (มี Pages project และ secret `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` ใน repo แล้ว)
   2. repo → แท็บ Actions → workflow "deploy-preview" → Run workflow แบบ dry-run ก่อน (ตามตัวเลือกใน runbook) แล้วรันจริง · workflow publish tile + glyph/sprite และ deploy client ขึ้น Cloudflare Pages (D-008) · ใช้ทางสำรอง GitHub Pages เฉพาะเมื่อ runbook หรือ orchestrator สั่ง (เช่น tile ผ่านเพดาน Cloudflare ไม่ได้)
   3. จด preview URL จากผลของ workflow หรือคำสั่ง
-  4. รันคำสั่ง `curl` ใน runbook ตรวจว่า URL ของ tile ตอบ `206` (รองรับ range request) และขนาดไฟล์ตรงกับ size report
+  4. รันคำสั่ง `curl` ใน runbook ตรวจ URL ของ tile ตาม D-031: tile แบบ XYZ บน Cloudflare Pages ต้องได้ `200` พร้อม content-type, CORS และ Timing-Allow-Origin · ตรวจ `206` เฉพาะเมื่อใช้ทางสำรอง PMTiles บน GitHub Pages · จำนวนไฟล์และขนาดตรงกับ size report (แก้ใน P1-PLAN-SYNC-01 จากเดิมที่ให้ตรวจ `206` เสมอ)
   5. เปิด URL บนมือถือจริง ตรวจว่าแผนที่กรุงเทพขึ้น ชื่อถนนไทยอ่านได้ และ HUD เปิดได้ · ส่ง URL ให้ orchestrator
 
 #### P1-F02-T20 — HUMAN: เดินทดสอบกลางแดด 30 นาทีในสวน + 30 นาทีในซอย
@@ -824,6 +868,7 @@ Lead: game-director · ร่วม: narrative-designer, systems-designer, level
   - [ ] ทุกข้อใน Phase Exit Checklist มีหลักฐานที่เปิดได้จริง · รัน root `lint`, `typecheck`, `test`, `test:e2e`, `build` อีกครั้งและแนบ output
   - [ ] ยืนยันว่า `qa/playtest/results/` ใน git ไม่มีไฟล์ที่มีพิกัด และ `raw/` ถูก ignore · รัน gitleaks บน git history ทั้งหมดและ guard ไฟล์ต้องห้ามของ P1-F02-T07 อีกครั้ง ผลต้องสะอาด (repo public, D-002) · ตรวจว่าไม่มีชื่อ env หรือ config ที่ผูกกับ R2 หรือบริการเสียเงิน (D-001)
   - [ ] `qa/bugs.md` ไม่มี bug blocking ที่เปิดค้าง · verdict PASS / NEEDS_CHANGES
+  - [ ] (P1-PLAN-SYNC-01) ทุกงาน H และ X ในตารางเป็น DONE หรือ CUT · ถ้า tech gate P1-F02-T15 ไม่ได้ตรวจ `tools/coverage/boundaries/` (P1-H07) ให้ตรวจ hygiene ชุดเดียวกัน (pin, ไม่มีไฟล์ดิบใน git, test รันจาก root script)
 
 ### งาน handoff ระหว่าง run (orchestrator สร้าง)
 
@@ -832,16 +877,18 @@ Lead: game-director · ร่วม: narrative-designer, systems-designer, level
 - [ ] ADR 0001 ข้อ 3.10 ยืนยันหรือแก้ convention ที่ `config/balance/*.json` ใช้อยู่: `_source`/`_assumption`/`_note`, unit suffix ผสม (เช่น `_pctMaxHpPerMin`), `null` = ยังไม่ตั้ง code ต้อง fail ชัด, `seeFile`, key ที่ขึ้นต้นด้วย `_` ถูกข้ามเมื่อวนลูป
 - [ ] `docs/tech/copy-schema.md`: schema ของ `config/content/copy.th.json` (text/voice/kind/context/cells/alts/beat) + registry ตัวแปรพร้อม maxCells ตาม style guide หัวข้อ 4.1, 4.4 · ระบุที่เก็บไฟล์คำของ lint (`tools/copy-lint/`)
 - [ ] ระบุ JSON Schema หรือ type ที่ lint และ client ใช้ร่วมกัน
+- [ ] (จาก P1-H05) เพิ่ม `_ms` ในรายการ unit suffix · บันทึก `config/app/` (เจ้าของ tech-lead, ค่า runtime ของ app) และกฎ namespace ตาม path เทียบ `config/balance/` · แก้ `docs/tech/gps-trace-format.md` 4.2 และ tech note หัวข้อ 4, 14 ให้ใช้ path จริง (`config/app/privacy.json#rawTraceExport.rawTraceTrim_m`, `timeout_ms`, `maximumAge_ms`) และปิด A-P1-F02-T03-1
+- [ ] ตัดสิน D-037 (ขอบเขต/โซนดำจาก GeoJSON) และ property contract ของ `kw-dungeons` (A-P1-F03-T12-5) · ตัดสิน default ชั่วคราวใน `apps/client/.env.example` และ `@maplibre/maplibre-gl-style-spec` เป็น dependency หรือไม่ · no-magic-numbers ใน `tools/sim/src/vectors.ts`
 
 #### P1-H02 — Copy lint script (gameplay-programmer, 1–2 วัน)
 - ที่มา: handoff จาก P1-F03-T03 · ต้องเสร็จก่อน copy gate P1-F03-T21
 - [ ] script ใน `tools/copy-lint/` ตรวจ S1–S14 ของ `design/narrative/style-guide.md` หัวข้อ 7 (คำต้องห้าม W1–W8 ด้วย regex กันคำซ้อน, นับช่องแสดงผลไทยตามหัวข้อ 4.3, เพดานบรรทัด, ตัวแปรต้องอยู่ใน registry) ตาม schema ใน `docs/tech/copy-schema.md`
 - [ ] ไฟล์คำอยู่ใน `tools/copy-lint/` (ไม่พิมพ์คำเหยียด/แบรนด์ในเอกสาร) · test case 10 แถวของ style guide ผ่านทั้งหมดผ่าน `pnpm test`
-- [ ] ไม่แก้ lockfile (ต้องการ dependency ใหม่ → handoff tech-lead)
+- [ ] (แก้ใน P1-PLAN-SYNC-01 ให้ตรงกับ Writes ในตาราง) งานนี้เป็นเจ้าของ lockfile เพียงงานเดียวใน wave ของตัวเอง: เพิ่ม dependency ได้เฉพาะที่ copy-lint ต้องใช้จริง pin exact ตาม D-019 · root `package.json` แก้ได้เฉพาะ `scripts` · ถ้าต้องแก้ `vitest.config.ts`, `tsconfig.json` หรือ `eslint.config.js` (เช่น include `tools/copy-lint/`) ให้ handoff ถึง tech-lead ซึ่ง P1-X05 รับทำต่อทันทีใน wave ถัดไป
 
 #### P1-H03 — เติม config key ที่เอกสารทิศทางอ้าง (systems-designer, 1 วัน)
 - ที่มา: handoff จาก P1-F03-T01, P1-F03-T15, P1-F03-T03, P1-F03-T02
-- [ ] ทุก key ที่ `design/pillars.md` (6.2, 7.1, 11), `design/ux/ia.md` (หัวข้อ 6) และ style guide อ้างมีอยู่ใน config หรือมีตารางจับคู่ชื่อจริง: `unlocks.*` U1–U8 พร้อมเกณฑ์ตัวเลข (เลเวล/จำนวน run), `unlocks.parentalConsent`, `unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s` (24 ชม. ตาม PDPA), `location.minAccuracy_m`
+- [ ] ทุก key ที่ `design/pillars.md` (6.2, 7.1, 11), `design/ux/ia.md` (หัวข้อ 6) และ style guide อ้างมีอยู่ใน config หรือมีตารางจับคู่ชื่อจริง: `unlocks.*` U1–U8 พร้อมเกณฑ์ตัวเลข (เลเวล/จำนวน run), `unlocks.parentalConsent`, `unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s` (24 ชม. ตาม PDPA), `location.minAccuracy_m`, `privacy.minAge_yr` (เกณฑ์อายุ 15+ เสนอโดย P1-F03-T16)
 - [ ] ตาราง raid (วัน เวลาเริ่ม เวลาจบ) และ autoRetreatPct, hpWarnPct, minAge อ่านได้โดย copy formatter (ไม่ hardcode "เสาร์ 16:00")
 - [ ] object `coverageFilter` ใน `config/balance/dungeons.json` ตาม key และค่าที่เสนอใน `tools/coverage/METHOD.md` หัวข้อ 8.2 (handoff จาก P1-F01-T01) · pipeline F01 อ่านจากที่นี่
 - [ ] JSON valid, มี `_source` ทุก object, ตาม convention ADR 0001
@@ -850,6 +897,84 @@ Lead: game-director · ร่วม: narrative-designer, systems-designer, level
 - ที่มา: handoff จาก P1-F03-T10 (art-director คำนวณ contrast ด้วยมือ ไม่มี shell)
 - [ ] test ใน `qa/tests/unit/contrast.test.ts` คำนวณ WCAG 2.x contrast ของทุกคู่ใน `art/direction/style-guide.md` หัวข้อ 4.1–4.5 จาก hex (ไม่เพิ่ม dependency ใหม่ ถ้าต้องการให้ handoff tech-lead) รันผ่าน `pnpm test`
 - [ ] รายงาน `qa/reports/F03-contrast-check.md`: ทุกค่าที่ต่างจากตารางเกิน 0.05 และทุกคู่ที่ตกเกณฑ์ 4.5:1 · ถ้าพบ ส่ง handoff ถึง art-director
+
+#### P1-H05 — config ของ app และ client (tech-lead, 0.5 วัน)
+- ที่มา: handoff จาก P1-F02-T03 · ต้องเสร็จก่อน P1-F02-T11
+- [ ] `config/app/privacy.json` มี `rawTraceTrim_m` (200) และค่า privacy ฝั่ง app อื่นที่ tech note อ้าง พร้อม `_source`
+- [ ] config ของ client สำหรับค่า Web provider (timeout, maximumAge, enableHighAccuracy ฯลฯ) และค่าเริ่มต้นของ query ตาม tech note หัวข้อ 4 และ 8 · ไม่มีค่าเหล่านี้ hardcode ใน code
+- [ ] JSON valid ตาม convention ADR 0001
+
+#### P1-H06 — Screenshot และทดสอบกลางแดดของ map style (qa-tester, 1 วัน)
+- ที่มา: handoff จาก P1-F03-T12 (art-director ไม่มี shell/browser) · ขั้นทดสอบ S1–S5 และเกณฑ์ผ่านอยู่ใน `art/direction/map-style.md` หัวข้อ 10.1
+- (P1-PLAN-SYNC-01) Deps เพิ่ม P1-H07: จอ S4 ต้องเห็นโซนดำและเส้นจังหวัดจาก `data/map/*.geojson` · ขั้นทดสอบกลางแดดด้วยคนจริง (หัวข้อ 10.2) ถูกใส่ไว้ในคู่มือ P1-F02-T14 แล้ว งานนี้แค่อ้างผลจาก `qa/playtest/results/` ถ้ามีตอนรัน
+- [ ] screenshot S1–S5 ที่ 390x844 และ 360x800 บน fixture tile ทั้งแบบ PMTiles และ TileJSON (Playwright android-chrome + ios-safari) เก็บใน `qa/reports/F02/map-style/`
+- [ ] ป้ายชื่อถนนไทยอ่านได้ วรรณยุกต์และสระวางถูก (TL-M03) · ไม่มีจุดผู้เล่นอื่น · ไม่มี animation ต่อเนื่อง
+- [ ] ผลทดสอบกลางแดดตามหัวข้อ 10.2 (ถ้าต้องใช้คนจริง ส่งเป็นขั้นในคู่มือเดินทดสอบ P1-F02-T14)
+- [ ] `qa/tests/unit/map-style.test.ts` เรียก `validateStyleMin` กับ `art/direction/map-style/kw-light.style.json` คาด 0 error (หลัง P1-X05 ติดตั้ง style-spec)
+- [ ] ถ้าพบปัญหา ส่ง handoff ถึง art-director
+
+#### P1-H07 — GeoJSON โซนดำและเส้นจังหวัด (location-engineer, 1 วัน)
+- ที่มา: handoff จาก P1-F03-T12 · ข้อเสนอ D-037 (ขอบเขตมาจาก GeoJSON ไม่ใช่ tile)
+- [ ] `data/map/playarea-mask.geojson`: outer ring ครอบโลก มีรูเท่ากับ union ของ 6 จังหวัดที่เล่นได้ simplify ~20 ม.
+- [ ] `data/map/provinces.geojson`: เส้นขอบ 77 จังหวัด `kind: border` + จุดชื่อ `kind: label` มี `name` และ `playable` simplify ~200 ม. ขนาด ≤300 KB
+- [ ] script ทำซ้ำได้ใน `tools/coverage/boundaries/` อ่านจาก OSM extract เดิม (D1) · attribution OSM · ผ่าน test ขนาดและ validity
+
+#### P1-X01 / P1-X02 — แก้ชื่อ config key ในเอกสารทิศทาง (game-director / uiux-designer, 0.5 วัน)
+- ที่มา: handoff จาก P1-H03 (A-P1-F03-T01-2, A-P1-F03-T16-5: เอกสารต้องตาม config)
+- [ ] ทุก key ที่อ้างตรงกับ config จริง: `location.homeState.maxAccuracy_m`, `unlocks.home.farDungeonThreshold_m`, `unlocks.parentalConsent.enabled`, `dungeons.runState.graceMax_s`/`suspendedMax_s`, `dungeons.rewardTick.rewardTickInterval_s`, `dungeons.movementGate.minDistancePerWindow_m`, `dungeons.hpSafety.autoRetreatThreshold_pct`/`lowHpWarningThreshold_pct`, `anticheat.speedLock.speedLock_kmh`, `economy.json#market.minAccountAgeToTrade_days`, `privacy.minAge_yr`, `privacy.positionLogTtl_s`
+- [ ] ลบหมายเหตุ "ยังไม่มีใน config / รอ P1-H03" · ตรวจด้วย grep ว่าไม่เหลือชื่อเก่า
+
+#### P1-X03 — ปรับ copy bank ตาม copy schema (narrative-designer, 1 วัน)
+- ที่มา: handoff จาก P1-H01 (D-024 ACCEPTED พร้อม 5 ส่วนเพิ่ม) และ P1-F03-T05
+- [ ] (แก้ตาม copy-schema ฉบับเขียนใหม่ของ P1-H01) ทำตามหัวข้อ 9: `_meta` เพิ่ม `version`/`doc`, `_variables` คงเป็น registry + `configKey` 10 ตัวตามหัวข้อ 5.3, ข้อยกเว้น S6 ใช้ `_meta.dayNameExceptions`/`numericExceptions`, push title เป็น key `kind: push` แยก, สร้าง `config/content/copy-rules.json` ตามหัวข้อ 6, เพิ่ม `unit.m`, `unit.km`, `unit.weekday*`, `common.listSeparator`, `common.listLastSeparator`
+- [ ] style guide: 5.1 ชื่อ rarity ภาษาอังกฤษ 5 ชื่อ + T/R/S/M ชั่วคราว, 5.2 เพิ่ม "บล็อก", "เว็บ", 4.4 รายการ area, หัวข้อ 7 และ 9 ชี้ไฟล์คำ `tools/copy-lint/words.json`
+- [ ] JSON valid (ขอให้ตรวจด้วยการอ่านซ้ำ; lint เครื่องมาใน P1-H02)
+
+#### P1-X04 — `_nullMeans` และ vectors ไม่ฝังเลข (systems-designer, 0.5 วัน)
+- [ ] `_nullMeans` ใน 5 จุดตาม ADR 0001 3.10.5 (combat.levelGapDamage.maxMult, economy.npcPricing.npcDailySellLimit, economy.marketTax.brackets[].toDailySales_gold = unbounded; economy.npcSellPrice_gold.equipment, dungeons.verification.v1FloorLevel = none)
+- [ ] (จาก P1-H08) เพิ่ม `coverageFilter.walkGraphSnapMaxDistance_m` (150) และ route factor สำรอง (1.4, ช่วง 1.2–1.6) ตาม PRD F01 หัวข้อ 8.1
+- [ ] (จาก P1-F01-T02) เพิ่ม `coverageFilter.educationAllowOsmIds` (allowlist ว่าง), `coverageFilter.maxAspectRatio`, `coverageFilter.maxEntranceGap_m` ใน `dungeons.json` ตาม `design/levels/dungeon-rules.md` หัวข้อ 4, 8, 12, 16
+- [ ] (จาก P1-F03-T19) เพิ่ม `dungeons.safety.reportThreshold` และไฟล์ `config/balance/telemetry.json` (`batterySampleInterval_s`, `emptyScreenAbandonTimeout_s`, `clockSkewTolerance_s`, `goldAmountBuckets`) ตามที่ `product/telemetry-events.md` อ้าง
+- [ ] `tools/sim/src/vectors.ts` และ `vectors-economy.ts` อ่านค่าขอบจาก SimParams (บรรทัดที่ H01 ระบุ) แล้วลบ `eslint-disable` บรรทัดแรก · `pnpm lint`, `pnpm test`, `gen-vectors.ts --check` ผ่าน
+
+#### P1-X05 — eslint override + style-spec dependency (tech-lead, 0.5 วัน)
+- (P1-PLAN-SYNC-01) Deps: P1-H02 (lockfile ต่อคิว) และ P1-X04 (override ของ vectors ขึ้นกับผลของ X04) · รับ handoff config ของ H02 (include `tools/copy-lint/` ใน vitest/tsconfig/eslint) · วิ่งขนานกับ P1-F02-T10 จึง**ห้ามทำให้ API ของ `packages/location` ที่ T10 ใช้พัง**: ถ้าเปลี่ยน `timeoutMs`/`maximumAgeMs` เป็น `timeout_ms`/`maximumAge_ms` ให้คงชื่อเดิมเป็น alias แบบ deprecated พร้อม test และแก้ `src/web/` กับ `test/` ในงานนี้ · ไม่แตะ `apps/client/` · P1-F02-T11 (ขึ้นกับ X05) ย้ายไปใช้ชื่อใหม่
+- [ ] override ใน `eslint.config.js` สำหรับ `tools/sim/src/vectors*.ts` ตาม ADR 3.5 (ถ้า X04 ลบ disable แล้วยังต้องการ)
+- [ ] `@maplibre/maplibre-gl-style-spec` 26.4.4 เป็น root devDependency (task เดียวใน wave ที่เขียน lockfile) · `pnpm install --frozen-lockfile` และ `pnpm check` ผ่าน
+- [ ] config lint (ADR 3.10.7) ยกไป Phase 2 ถ้าไม่ทันใน task นี้
+- [ ] (จาก P1-H04) `tools/copy-lint/test/cli.test.ts` "exits 0 with only expected WARNs" fail เพราะ copy เปลี่ยน (WARN 14 → 11 หลัง P1-X12) — ให้ test อ่านรายการ WARN ที่คาดจากข้อมูลจริงหรือปรับรายการ ไม่ hardcode จำนวนที่เปราะ
+- [ ] (จาก P1-F02-T06) ยืนยัน A-P1-F02-T06-1 (PMTiles local อยู่ที่ tools/tiles/out/pmtiles/ ไม่ใช่ out/publish/pmtiles/) และ -2 (Python stdlib + Vitest bridge ใน tools/tiles ได้) · แก้ tech note 6.3/9 ให้ตรง
+- [ ] (จาก P1-H07) เพิ่ม `tools/coverage/boundaries/tests/**/*.test.ts` ใน vitest include คู่กับ glob ของ pipeline
+- [ ] (จาก P1-H02) `.prettierignore` ครอบ `tools/coverage/.venv/`, `tools/coverage/out/` และไฟล์ generated ที่ location/devops ระบุ · root `pnpm lint` (eslint + prettier + lint:copy) เขียวทั้ง repo
+- [ ] (จาก P1-F02-T05) root `tsconfig.json` include `packages/location/test/**/*.ts` · ตัดสินเปลี่ยน `WebLocationOptions.timeoutMs`/`maximumAgeMs` เป็น `timeout_ms`/`maximumAge_ms` ให้ตรง tech note หรือคงไว้พร้อมบันทึก
+- [ ] copy-schema 3.2 เพิ่มแถว "kind button + key อยู่ใน limits.buttonFullWidth.keys → buttonFullWidth" และหัวข้อ 6 อนุญาต limits.buttonFullWidth (D-050) · ตัดสิน nameReal/nameSuffix แบบ camelCase ใน names.th.json
+- [ ] เพิ่ม `tools/coverage/pipeline/tests/**/*.test.ts` ใน include ของ `vitest.config.ts` (bridge รัน pytest ข้ามพร้อมคำเตือนเมื่อไม่มี .venv, บังคับเมื่อ `COVERAGE_PYTEST_REQUIRED=1`) · root `pnpm test` ผ่าน
+
+#### P1-X07 — CI รัน pytest ของ coverage (devops-engineer, 0.5 วัน)
+- [ ] เพิ่ม `pnpm exec tsx tools/traces/src/generate.ts --check` ใน CI
+- [ ] job ที่รัน `COVERAGE_PYTEST_REQUIRED=1` ครอบ `tools/coverage/boundaries/tests` ด้วย
+- [ ] forbidden-file guard รองรับ path ที่มีช่องว่าง (fixture `tools/tiles/fixtures/lumpini/glyphs/Noto Sans Regular/`) · test ของ tools/tiles ดึง pmtiles binary ~16 MB ครั้งแรก (checksum) ต้อง cache ใน CI
+- [ ] ใน job build-test: `python3 -m venv tools/coverage/.venv && tools/coverage/.venv/bin/pip install -r tools/coverage/requirements.txt` แล้ว `COVERAGE_PYTEST_REQUIRED=1 pnpm test` · ไม่ดาวน์โหลด OSM/ประชากร · actionlint ผ่าน · อัปเดต environments.md
+
+#### P1-X06 — แก้ map-style.md ตาม tech note 15 (art-director, 0.25 วัน)
+- [ ] (จาก P1-F03-T11) style-guide §3.4 เพิ่ม ramp.skin-1..6 และ ramp.hair-1..6 ตาม avatar-spec §7 · icon-grammar §7–8 ชี้ id สุดท้ายใน asset-pipeline
+- [ ] (จาก P1-H04, blocking) map-style.md §9 แถว "map.road บน map.land (ไม่มีขอบ)" ratio 1.16 → 1.22 · `qa/tests/unit/contrast.test.ts` ต้องผ่าน
+- [ ] หัวข้อ 6.1: adapter สร้าง property จาก whitelist และ map `status` ที่ไม่รู้จักเป็น `closed` · หัวข้อ 13: ชี้ `qa/tests/unit/map-style.test.ts` แทนคำสั่ง path `.pnpm/`
+
+#### P1-X08 — เติม fixture และลดขนาด excluded (location-engineer, 1 วัน)
+- ที่มา: GAP-01, GAP-02, GAP-04 ใน `qa/plans/F01-test-plan.md` (P1-F01-T04)
+- (P1-PLAN-SYNC-01) Writes เพิ่ม `data/coverage/excluded.geojson` (GAP-04 ต้องสร้างไฟล์ใหม่), `candidates.geojson` และ `run-meta.json` เพราะการรัน pipeline ซ้ำเขียนไฟล์เหล่านี้ · `candidates.geojson` ต้อง byte-identical กับก่อนแก้ (แนบ SHA-256 ก่อน/หลัง) เพื่อไม่ให้ตัวเลขของ P1-F01-T06 และ report ของ T07 ที่ทำขนานกันเปลี่ยน · ลำดับแนะนำ: ทำหลัง P1-F01-T06 ขนานกับ P1-F01-T07 และต้องเสร็จก่อน QA gate P1-F01-T08
+- [ ] fixture ขอบพื้นที่ตรง 2,999 / 3,000 / 150,000 / 150,001 ตร.ม. (ตอนนี้ใช้ 2,990/3,010/149,950/150,050) · fixture blocker วงใน, แตะกันต่ำกว่า partialOverlapShare, geometry ที่ต้อง make_valid, assembly_failed · pytest ผ่านทั้งหมด
+- [ ] excluded.geojson ที่ commit มีระยะเผื่อจากเพดาน 5 MiB อย่างน้อย 20% (ตอนนี้ 95%) โดยคง candidates ไม่บีบอัด · ผลรันซ้ำยัง deterministic
+
+#### P1-H08 — ล็อก route factor (product-manager, 0.5 วัน)
+- ที่มา: handoff จาก P1-F01-T04 · ต้องเสร็จก่อน P1-F01-T06
+- [ ] PRD F01 ระบุค่า route factor (ระยะเส้นตรง × factor = ระยะเดินโดยประมาณ) พร้อมแหล่งอ้างอิงที่ตรวจได้ และวิธีใช้กับเกณฑ์ G1/S1/G4/S3/N3 · หรือระบุว่า T06 ต้องใช้ routing บนเครือข่ายทางเดิน OSM จริง
+
+#### P1-X12 / P1-X13 — แก้ตาม copy gate รอบแรก (narrative-designer / uiux-designer)
+- ที่มา: `design/reviews/F03-copy-gate.md` (P1-F03-T21 NEEDS_CHANGES) findings F-01..F-06
+- X12: [ ] F-01, F-02 (key: run.hpBarLabel, gps.pillLabel, onboarding.headerLabel, consent.headerLabel, account.loginHeader, run.summary.headerLabel, run.headerZoneLabel), F-04, F-05 ตาม gate · lint:copy 0 FAIL
+- X13: [ ] F-03 ทุกจุดในหัวข้อ 6.2/6.3 ของ gate, F-02 ตาราง header→key ใน components.md 2.1 และตัดสิน header ใน run ใช้ `{zoneRealName}` (17) หรือ `{zoneName}` (34), F-06 · ไม่ตัดข้อความให้สั้นลงเอง ถ้าไม่พอดีให้รายงาน
 
 ## 5. Phase Exit Checklist
 
@@ -870,7 +995,7 @@ Lead: game-director · ร่วม: narrative-designer, systems-designer, level
 | E6 | Mock trace เล่นซ้ำได้และจุดขยับบนแผนที่ | qa-tester | `qa/tests/F02/` output, `qa/reports/F02-qa-gate.md` | TODO |
 | E7 | build ที่ deploy ได้ใน local/preview | qa-tester (local) + HUMAN (preview) | QA gate F02 + preview URL จาก P1-F02-T19 | TODO |
 | E8 | คู่มือเดินทดสอบพร้อมใช้ | qa-tester | `qa/playtest/field-walk-kit.md`, `field-walk-form.md`, `safety-briefing.md` | TODO |
-| E9 | งานของคน: สร้างบัญชี Cloudflare แผน Free ที่ไม่ผูกบัตรและใส่ credential เอง สำหรับ publish tile + preview (ถ้อยคำ roadmap แก้แล้วตาม D-010 · stack/host ตาม D-008 · R2 เมื่ออนุมัติงบ) | HUMAN | P1-F02-T17 DONE + P1-F02-T19 ได้ preview URL ที่ tile ตอบ `206` | TODO |
+| E9 | งานของคน: สร้างบัญชี Cloudflare แผน Free ที่ไม่ผูกบัตรและใส่ credential เอง สำหรับ publish tile + preview (ถ้อยคำ roadmap แก้แล้วตาม D-010 · stack/host ตาม D-008 · R2 เมื่ออนุมัติงบ) | HUMAN | P1-F02-T17 DONE + P1-F02-T19 ได้ preview URL ที่ tile ผ่านการตรวจ curl ตาม runbook (XYZ `200` + CORS ตาม D-031 · `206` เฉพาะทางสำรอง PMTiles) | TODO |
 | E10 | งานของคน: เดินทดสอบกลางแดด 30 นาทีในสวนและในซอย กรอกผลวัด | HUMAN | `qa/playtest/results/` ครบ 2 สถานที่ (form + summary ไม่มีพิกัด) + `docs/tech/F02-spike-results.md` เทียบเกณฑ์ใน P1-F02-T27 | TODO |
 | E11 | (ถอดออกจากเกณฑ์ปิดใน P1-PLAN-02 ตาม PM-M03 · ยืนยันการถอดแล้ว D-009) การยืนยัน backend stack ไม่อยู่ในเกณฑ์ผ่าน F02 ของ roadmap · stack ตัดสินแล้วใน D-008 และ P1-F02-T22 CUT | — | — | ไม่ใช่เกณฑ์ปิด |
 
@@ -899,6 +1024,7 @@ Lead: game-director · ร่วม: narrative-designer, systems-designer, level
 | 2026-09-23 | producer (P1-PLAN-02) | ปรับตาม plan review 3 ฉบับ (ทั้งหมด NEEDS_CHANGES): เพิ่ม 7 task (P1-F02-T24 recorded trace, T25 HUMAN สำรองดาวน์โหลด, T26 HUMAN push รอบสุดท้าย, T27 PM ยืนยันเกณฑ์ spike, P1-F03-T27 vfx motion direction, T28 HUMAN ตัดสินความไม่สอดคล้องใน GDD, P1-CLOSE-QA regression) → 67 task (agent 56, HUMAN 11) · แก้ deps: F01-T09/T10 รอ F01-T08, F02-T06 รอ T03, F02-T14 รอ T27, F02-T15 ครอบ tools + ADR 0002, F02-T19 รอ T15, F03-T12 รอ F02-T03, F03-T15 รอ T01, F03-T19 รอ T16, F03-T22/T25 รอ T27, F03-T26 รอ T01 · แก้ Writes: F02-T01 (lockfile + stub package.json), F02-T03 (schema + trace.ts ใน `packages/shared`, เอา `packages/location/package.json` ออก), F01-T05 (requirements.txt) · เพิ่มกฎ path ร่วม, ข้อเสนอ decision ของ tech-lead, คำถามคนที่รอคำตอบ · ถอด E11 ออกจากเกณฑ์ปิด (ไม่อยู่ใน roadmap), แก้ E5, E10, E14, E18, เพิ่ม E19 · wave plan ใหม่ 12 wave · รายละเอียดทุกข้อในหัวข้อ 7 |
 | 2026-09-23 | producer (P1-PLAN-03) | ปรับตามคำตอบคน D-001 (ต้นทุนศูนย์ ห้ามผูกบัตร · R2 ใช้ไม่ได้) และ D-002 (repo public + GitHub Actions): จำนวน task คงเดิม 67 (agent 56, HUMAN 11) · แก้ 22 task (รายการในหัวข้อ 8) · deps: P1-F02-T08 เพิ่ม T03, P1-F02-T17 จาก ไม่มี → T03 + T18 (เลื่อนจาก W1 เป็น W3, ไม่อยู่บนเส้นวิกฤต) · Writes: T07 เพิ่ม `.gitleaks.toml`, T08 เพิ่ม `.github/workflows/deploy-preview.yml` · เพิ่มกฎคุมค่าใช้จ่าย, กฎ repo public, ผลที่ตามมาของคำตอบคน ในหัวข้อ 1 · แก้ E9, เพิ่ม E20 · ไม่ตัด gate หรือเกณฑ์ปิด |
 | 2026-09-23 | producer (P1-PLAN-04) | rev 4 ปรับตาม D-003..D-010: P1-F02-T22 HUMAN → CUT (D-008) ออกจาก wave W5 · P1-F02-T17 deps จาก T03 + T18 → ไม่มี และย้ายเป็นงานคน W1 · T02 เปลี่ยนเป็นยืนยัน D-008 · T01, T03, T06, T08, T11, T19, T26, F03-T08 แก้ acceptance · E9, E11, E14, E20 ยืนยันตาม D-009/D-010 · roadmap แก้ตาม D-010 · จำนวน task 67 เท่าเดิม (HUMAN ที่ต้องทำ 10) · ไม่ตัด gate หรือเกณฑ์ปิด · รายละเอียดในหัวข้อ 9 |
+| 2026-09-23 | producer (P1-PLAN-SYNC-01) | plan-sync ระหว่าง run 1 หลังเพิ่ม H01–H08, X01–X11: แก้ deps 12 งาน, Writes 2 งาน (X05, X08), detail 11 จุด, หลักฐาน E9 ตาม D-031 · เขียนหัวข้อ 3 ใหม่สำหรับงานที่เหลือ (R0–R7) · ไม่เปลี่ยน Status/Output · ไม่ CUT งานใด · ไม่ตัด gate หรือเกณฑ์ปิด · 86 task · รายละเอียดในหัวข้อ 10 |
 
 ## 7. บันทึกการปรับตามรีวิว (P1-PLAN-02)
 
@@ -1101,4 +1227,61 @@ Lead: game-director · ร่วม: narrative-designer, systems-designer, level
 - Writes ภายใน wave ไม่ชน: T08 ยังเป็นเจ้าของเดียวของ `.env.example` และ `deploy-preview.yml` ใน W5 · `wrangler` อยู่ใน lockfile ของ T01 (W1) · T17 ไม่เขียนไฟล์ใน repo
 - จำนวน task 67 เท่าเดิม (agent 56, HUMAN 11 โดย CUT 1 · HUMAN ที่ต้องทำ 10 รวมงานสำรอง T25)
 - ไม่มีข้อความ "รอคำตอบ" ของคำถามที่ตอบแล้วเหลือในหัวข้อ 1–5
+
+## 10. Plan-sync 01 (run 1)
+
+ที่มา: P1-PLAN-SYNC-01 (producer, 2026-09-23) หลัง run 1 ผ่านไปราว 5 wave และ orchestrator เพิ่ม H01–H08, X01–X11 · อ่าน: ตาราง, detail, exit checklist, `ledger.md`, `decision-log.md` (ถึง D-054), protocol, roadmap Phase 1
+หลักที่ใช้: ไม่แตะคอลัมน์ Status และ Output ของงานใด (รวมงาน IN_PROGRESS: P1-H02, P1-F03-T27, P1-X04, P1-F03-T13, P1-F02-T06) · แก้เฉพาะ Deps, Writes และข้อความ detail
+
+### ผลตรวจ
+- งานซ้ำ: ไม่พบ · X01/X02 เป็นเอกสารคนละไฟล์คนละเจ้าของ · H06 กับ screenshot ใน T11 ต่างบทบาท (dev ตรวจตัวเอง เทียบ QA อิสระ) · H04 เป็นหลักฐานประกอบ visual gate T22 ไม่ซ้ำกับ gate
+- วงจร deps: ไม่พบทั้งก่อนและหลังแก้ (ตรวจสายยาวสุด H02 → X05 → X07 → T15 → T19 → T20 → T21 → CLOSE-QA และ T26 ไม่มีงานใดขึ้นกับมัน)
+- lockfile: P1-H02 → P1-X05 เรียงด้วย deps ถูกต้อง · detail ของ H02 เดิมเขียน "ไม่แก้ lockfile" ขัดกับ Writes ในตาราง → แก้ detail ให้ตรงตาราง
+- ทุกงาน H และ X มี detail block อยู่แล้ว (X01/X02 ใช้ block ร่วม) · ไม่ต้องเพิ่ม block ใหม่
+- CUT: ไม่มี · ไม่มีงานใดนอกขอบเขต Phase 1 · P1-F02-T25 (สำรอง) ยังคงไว้เพราะ P1-F02-T06 อาจต้องดาวน์โหลด tile · เปลี่ยนเป็น CUT ตอนปิด phase ถ้าไม่มีใครใช้
+
+### Deps ที่แก้ (12 งาน)
+| งาน | เพิ่ม | เหตุผล |
+| --- | --- | --- |
+| P1-F01-T06 | P1-X04, P1-F01-T02 | T06 ต้องอ่าน `coverageFilter.walkGraphSnapMaxDistance_m`, route factor สำรอง, `educationAllowOsmIds` ฯลฯ ที่ X04 เพิ่มใน `dungeons.json` · T02 (DONE) เป็น input launch criteria ที่ detail อ้างแต่ deps ไม่มี |
+| P1-F02-T11 | P1-X05 | ใช้ style-spec ที่ X05 ติดตั้ง และรับการเปลี่ยนชื่อ option ของ `WebLocationOptions` ถ้ามี · X05 อยู่ R1 ขนานกับ T10 จึงไม่ยืดเส้น |
+| P1-F02-T13 | P1-F02-T06 | e2e ต้องใช้ fixture tile ของ T06 ตาม acceptance |
+| P1-F02-T15 | P1-H02, P1-X04, P1-X05, P1-X07 | hygiene ของ `tools/copy-lint/`, vectors ที่ไม่ฝังเลข, lint/vitest config และ pytest ของ coverage ใน CI อยู่ในขอบเขต tech gate |
+| P1-F02-T19 (HUMAN) | P1-F02-T18 | workflow deploy-preview รันบน GitHub จึงต้องมี repo ที่ push แล้ว · เพิ่มขั้น 0 ให้คน push โค้ดล่าสุด |
+| P1-F02-T26 (HUMAN) | P1-H06, P1-F02-T24 | push รอบสุดท้ายต้องอยู่หลังงานสุดท้ายที่เขียนไฟล์ใน repo (`qa/tests/unit/`, `data/gps-traces/recorded/`) |
+| P1-F03-T22 | P1-X06, P1-H04 | map-style.md ต้องแก้ตาม tech note ก่อนตรวจ · ผล contrast อัตโนมัติเป็นหลักฐานของ acceptance "contrast ผ่านเกณฑ์กลางแดด" |
+| P1-F03-T24 | P1-X01 | pillars อยู่ในขอบเขต gate A และต้องใช้ชื่อ config key จริงก่อน |
+| P1-F03-T25 | P1-X04 | `config/balance/*` และ `tools/sim/` อยู่ในขอบเขต gate B |
+| P1-H06 | P1-H07 | จอ S4 ของ map-style 10.1 ต้องเห็นโซนดำและเส้นจังหวัดจาก `data/map/` |
+| P1-X05 | P1-X04 | override eslint ของ `vectors*.ts` ขึ้นกับว่า X04 ลบ `eslint-disable` แล้วยังต้องการหรือไม่ |
+| P1-CLOSE-QA | P1-H06 | เป็นงาน agent เดียวที่ไม่ถูกครอบโดย deps ของ CLOSE-QA ทางอ้อม (งาน H/X อื่นถูกครอบผ่าน T15, T16, F01-T08, T21, T22, T24, T25) |
+
+### Writes ที่แก้ (2 งาน)
+- P1-X05: เพิ่ม `packages/location/src/web/`, `packages/location/test/` (เฉพาะถ้าเปลี่ยนชื่อ option) · เดิมมีแค่ `types.ts` ซึ่งถ้าเปลี่ยนชื่อ field จะทำให้ implementation และ test พังโดยแก้ไม่ได้ · ห้ามแตะ `apps/client/` เพราะ T10 เขียนอยู่ใน R เดียวกัน
+- P1-X08: เพิ่ม `data/coverage/excluded.geojson`, `candidates.geojson` (ต้อง byte-identical), `run-meta.json` (ถ้า pipeline เขียน) · GAP-04 ต้องสร้าง excluded ใหม่แต่ Writes เดิมไม่มีไฟล์นี้ · ใช้ path ร่วมกับ P1-F01-T06 ได้เพราะเจ้าของเดียวกันและจัดคนละ R
+
+### Detail ที่แก้ (11 จุด)
+- P1-H02: เปลี่ยน "ไม่แก้ lockfile" เป็นกติกาเจ้าของ lockfile เดียวใน wave + handoff config ไป X05
+- P1-X05: กติกาไม่ทำให้ API ของ `packages/location` ที่ T10 ใช้พัง (คง alias แบบ deprecated ถ้าเปลี่ยนชื่อ) และรับ handoff config ของ H02
+- P1-X08: เหตุผลของ Writes ใหม่, ต้องแนบ SHA-256 ของ candidates ก่อน/หลัง, ลำดับหลัง F01-T06 ขนานกับ F01-T07
+- P1-H06: deps H07 และให้ขั้นกลางแดดด้วยคนจริงอยู่ในคู่มือ T14
+- P1-F01-T06: เหตุผลของ deps X04 และอ้าง routing ตาม PRD 8.1 (H08)
+- P1-F02-T11: deps X05, โหลด `data/map/*.geojson` ผ่าน `setData` พร้อมทางสำรองเป็น FeatureCollection ว่าง (ไม่ผูก H07 เป็น deps เพื่อไม่ยืดเส้นวิกฤต), แยก `apps/client/.env.example` ออกจาก `.env.example` ที่ root
+- P1-F02-T14: เพิ่ม acceptance ขั้นทดสอบกลางแดดของ map style (map-style 10.2) ใน kit และ form
+- P1-F02-T15: เหตุผลของ deps ใหม่ และ `tools/coverage/boundaries/` ไม่ขวาง gate
+- P1-F02-T19: เพิ่มขั้น 0 (ยืนยัน T18 และ push โค้ดล่าสุด) · แก้ขั้น 4 จาก "ตอบ 206 เสมอ" เป็นการตรวจตาม D-031 (XYZ `200` + CORS · `206` เฉพาะทางสำรอง PMTiles)
+- P1-CLOSE-QA: เพิ่ม acceptance ว่าทุกงาน H/X เป็น DONE หรือ CUT และตรวจ hygiene ของ `tools/coverage/boundaries/` ถ้า T15 ไม่ได้ตรวจ
+
+### Exit checklist
+- E9: แก้เฉพาะคอลัมน์หลักฐานให้ตรง D-031 (Cloudflare Pages ไม่ตอบ `206` · tile เป็น XYZ) · ตัวเกณฑ์ ผู้ตรวจ และสถานะไม่เปลี่ยน · ไม่ตัดหรือเพิ่มเกณฑ์ใด
+
+### หัวข้อ 3
+- เขียนใหม่ทั้งหมดสำหรับงานที่เหลือ: จำนวนงานตามสถานะปัจจุบัน, แผน R0–R7, กฎสลับที่ orchestrator ใช้ได้เอง, critical path สี่สาย และคอขวดทรัพยากรพร้อมลำดับที่เสนอ
+- จุดที่ต้องการการกระทำตอนนี้: เติม P1-F02-T08 เข้า R0 · ส่ง HUMAN P1-F02-T17 และ P1-F02-T18 ถึงคนทันที (ต้องเสร็จก่อนจบ R3 มิฉะนั้นเป็นเส้นวิกฤต) · ไม่เพิ่มงานให้ gameplay-programmer จนกว่า T11 จะ DONE
+
+### ตรวจความสอดคล้องหลังปรับ
+- Status และ Output ทุกแถวเหมือนก่อนแก้ · จำนวน task 86 (DONE 41, IN_PROGRESS 5, TODO 29, HUMAN 10, CUT 1)
+- ทุก R มีไม่เกิน 6 งาน agent และไม่มี agent ซ้ำ · Writes ภายใน R ไม่ชน (ตรวจ R1: apps/client เทียบ root config และ `packages/location` · R2: `data/coverage/` มีเจ้าของเดียวคือ X08 · R3: `data/map/` กับ `art/direction/map-style.md` คนละงาน)
+- งาน agent ที่ขึ้นกับ HUMAN ยังมีแค่ P1-F02-T21 และ P1-F02-T24 (ผ่าน T20) เท่าเดิม
+- ไม่มีการตัด gate หรือเกณฑ์ปิด · ไม่แก้ roadmap
 

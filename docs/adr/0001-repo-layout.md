@@ -2,9 +2,9 @@
 
 | หัวข้อ | ค่า |
 | --- | --- |
-| สถานะ | Accepted |
+| สถานะ | Accepted · แก้ไขครั้งที่ 1 (P1-H01, 2026-09-23) ดูหัวข้อ 7 |
 | วันที่ | 2026-09-23 |
-| task | P1-F02-T01 |
+| task | P1-F02-T01 · แก้ไข P1-H01 |
 | ผู้เขียน / authority | tech-lead (architecture, code standards) |
 | อ้างอิง | CLAUDE.md, GDD "สถาปัตยกรรมเทคนิค", `studio/phases/phase-1/board.md` หัวข้อ 1, D-001, D-002, D-007, D-008, plan review TL-M01, TL-S04, TL-S05, TL-S11, TL-N02, TL-N05, SF-10 |
 | ADR ที่เกี่ยวข้อง | ADR 0002 (backend stack ตาม D-008) ยืนยันชื่อ `apps/api` |
@@ -61,7 +61,7 @@ tools/
   traces/            TS · validate / sanitize / แปลง trace                 location-engineer
   sim/               TS · balance simulator + golden vectors               systems-designer
 qa/tests/            unit/ (Vitest) และ e2e/ (Playwright)                  qa-tester
-config/              balance/*.json, content/*.json (อ่านอย่างเดียวจากโค้ด)  systems-designer, liveops
+config/              balance/, content/, app/ (อ่านอย่างเดียวจากโค้ด)       systems-designer, narrative-designer, tech-lead (หัวข้อ 3.10.1)
 infra/               IaC, CI, monitoring                                   devops-engineer
 docs/                adr/, tech/                                           tech-lead
 ```
@@ -97,6 +97,8 @@ docs/                adr/, tech/                                           tech-
 
 - ESLint flat config (`eslint.config.js`) + `typescript-eslint` ชุด `strict` + `eslint-config-prettier` · Prettier (`.prettierrc.json`) ตรวจเฉพาะโค้ดและ config ของโค้ด · เอกสาร `.md`, `config/`, `data/`, `design/`, `studio/` ไม่ถูก reformat (ดู `.prettierignore`)
 - **กัน magic number:** `@typescript-eslint/no-magic-numbers` เป็น error ในโค้ดทุกไฟล์ · ตัวเลขที่อนุญาต `-1, 0, 1, 2, 100` · ปิดใน test, e2e, `qa/tests/`, `*.config.ts`
+  - **ไฟล์สร้าง golden vector** (`tools/sim/src/vectors*.ts`): ห้ามปิด rule ทั้งไฟล์ด้วย `eslint-disable` · ใช้ override ใน `eslint.config.js` ที่ระบุ glob นี้แทน (เป็นข้อมูล test แบบเดียวกับ `*.test.ts`) · กรณีขอบที่อ้างค่า config (เพดาน, จำนวนสมาชิกสูงสุด, เกณฑ์ถอยอัตโนมัติ, เลเวลสูงสุด) ต้องอ่านจาก `SimParams` ไม่พิมพ์เลข เพื่อให้กรณีขอบย้ายตาม config · literal ที่เหลือคือค่าตัวอย่างของ input (เลเวล 25, gap 3) ที่ไม่ใช่ค่า balance
+  - `eslint-disable` ของ `no-magic-numbers` นอก test เป็น finding ของ tech gate (ตรวจด้วย `grep -rn "eslint-disable.*no-magic-numbers" apps packages tools --include='*.ts'`)
   - lint จับได้เฉพาะ literal ในนิพจน์ · ค่าคงที่ที่ตั้งชื่อแล้ว (`const GATE_M = 50`) ผ่าน lint แต่ **ถือว่าผิดใน tech gate** ถ้าเป็นค่า balance หรือค่าที่มีผลต่อรางวัล · ค่าที่ยอมให้เป็น const ในโค้ดคือค่าคงที่ทางฟิสิกส์หรือหน่วย (รัศมีโลก, 1000 m ต่อ km, 60 s ต่อ min) และต้องตั้งชื่อบอกหน่วย
 - **กัน import ข้ามขอบ:** `@typescript-eslint/no-restricted-imports` ใน `apps/**` และ `packages/**` ห้าม pattern `**/tools/**` และ `@keep-walking/tools-*` (ทดสอบแล้วว่า lint แจ้ง error ทั้งสองแบบ ดูหัวข้อ 6)
 - กฎเพิ่ม: `consistent-type-imports`, `eqeqeq`, `no-console` (ยกเว้น `warn`/`error` และยกเว้น `tools/**`)
@@ -143,13 +145,87 @@ docs/                adr/, tech/                                           tech-
 - `tolerance` เป็นค่าต่างสัมบูรณ์สูงสุดต่อค่าตัวเลข · 0 = ต้องเท่ากันพอดี · ค่าที่ไม่ใช่ตัวเลขต้องเท่ากันพอดี
 - type `GoldenVector` / `GoldenVectorFile` และตัวเปรียบเทียบ `isWithinTolerance` อยู่ใน `packages/shared/src/golden-vector.ts` · simulator (`tools/sim`) และ test ใน `packages/shared` ใช้ตัวเดียวกัน
 
-### 3.10 ข้อตกลง config ขั้นต่ำ (TL-N02)
+### 3.10 ข้อตกลง config (TL-N02 · แก้ไขและยืนยันใน P1-H01)
 
-- key เป็น camelCase · หน่วยอยู่ท้ายชื่อ key: `_m` (เมตร), `_s` (วินาที), `_pct` (เปอร์เซ็นต์ 0–100), `_ratio` (0–1), `_sqm` (ตารางเมตร), `_kmh` (กม./ชม.) · เช่น `minMovedPerTick_m`, `tickLength_s`
-- ค่าเป็นตัวเลขตรง ไม่ห่อ object (`"tickLength_s": 300` ไม่ใช่ `{ "value": 300 }`)
-- แหล่งที่มาอยู่ใน key `_source` ข้างเคียงในระดับ object (string หรือ map ชื่อ key → หัวข้อ GDD / decision ID) · key ที่ขึ้นต้นด้วย `_` เป็น metadata โค้ดไม่อ่าน
-- JSON Schema ของ config ทำใน Phase 2 (tech-lead) · โค้ดโหลด config ผ่าน loader ที่ validate ก่อนใช้
-- ชื่อทุกอย่างที่ผู้เล่นเห็น (zone, dungeon, monster, item, boss) มาจาก `config/content/` หรือ back office ไม่อยู่ในโค้ด
+ยืนยัน convention ที่ `config/balance/*.json` (P1-F03-T06) และ `config/app/*.json` (P1-H05) ใช้อยู่ ทุกข้อด้านล่างตรงกับไฟล์ที่มี ยกเว้นที่ระบุว่า "ต้องเพิ่ม"
+
+**3.10.1 namespace ตาม path**
+
+| โฟลเดอร์ | เนื้อหา | เจ้าของ | ผู้อ่าน |
+| --- | --- | --- | --- |
+| `config/balance/` | ค่า balance สูตร movement gate เศรษฐกิจ anti-cheat และค่า PDPA ฝั่ง server | systems-designer (liveops-operator ปรับในช่วง operate) | server (Phase 3+), simulator, tools · client อ่านเพื่อแสดงผลเท่านั้น |
+| `config/content/` | ชื่อ copy registry ของ copy และข้อมูลเนื้อหา | narrative-designer (copy, ชื่อ) · level-designer (ข้อมูล dungeon เมื่อมี) | client, หลังบ้าน, copy lint |
+| `config/app/` | ค่า runtime ของ app และ tools ที่ไม่ใช่ balance: option ของ provider, ค่าเริ่มต้นของ query, นิยามการวัดของ HUD, privacy ฝั่งเครื่อง | tech-lead | client, tools |
+
+- `config/app/` **ห้าม** มีค่าที่มีผลต่อรางวัล การต่อสู้ เศรษฐกิจ หรือ movement gate และห้ามมีชื่อหรือข้อความที่ผู้เล่นเห็น · ถ้าไม่แน่ใจว่าค่าอยู่ที่ไหน: ผู้เล่นรู้สึกได้ในกติกา → `balance` · ผู้เล่นอ่าน → `content` · ที่เหลือ → `app`
+- ชื่อเต็มของค่า = `<โฟลเดอร์>.<ชื่อไฟล์ไม่มี .json>.<path>` เช่น `balance.dungeons.movementGate.minDistancePerWindow_m`, `app.privacy.rawTraceExport.rawTraceTrim_m` · loader ห้าม merge ไฟล์ข้ามโฟลเดอร์ (`app/privacy.json` กับ `balance/privacy.json` อยู่คู่กันได้โดยไม่ชน)
+- ค่าหนึ่งมีที่อยู่เดียว · ที่อื่นอ้างด้วย pointer (3.10.6) ไม่คัดลอกค่า
+
+**3.10.2 ไฟล์**
+
+- JSON ล้วน UTF-8 ไม่มี comment · top-level เป็น object
+- ทุกไฟล์มี `_meta` ที่ top-level: `file`, `version` (integer เพิ่มเมื่อความหมายของ key เปลี่ยน), `owner`, `task`, `doc` · ตัวเลือก `readBy`, `locale`, `_note`
+- โค้ดอ่านอย่างเดียว ไม่มีโค้ดใดเขียนลง `config/`
+
+**3.10.3 key และหน่วย**
+
+- key เป็น camelCase · ค่าตัวเลขเป็นตัวเลขตรง ไม่ห่อ object (`"window_s": 300` ไม่ใช่ `{ "value": 300 }`) · ตารางใช้ array ของ object ได้ (เช่น `marketTax.brackets`) โดย element ทำตามกติกาเดียวกัน
+- ค่าที่มีหน่วยต้องมี suffix ท้ายชื่อ:
+
+| suffix | หน่วย | ตัวอย่างที่ใช้อยู่ |
+| --- | --- | --- |
+| `_m` | เมตร | `maxAccuracy_m` |
+| `_m2` | ตารางเมตร (แทน `_sqm` ของฉบับแรก · ไม่มีไฟล์ใดใช้ `_sqm`) | `minArea_m2` |
+| `_ms` | มิลลิวินาที | `timeout_ms` (app) |
+| `_s` · `_h` · `_days` · `_yr` | วินาที · ชั่วโมง · วัน · ปี | `window_s`, `cooldown_h`, `minAccountAge_days`, `minAge_yr` (P1-H03) |
+| `_kmh` | กม./ชม. | `speedLock_kmh` |
+| `_pct` | เปอร์เซ็นต์ 0–100 (16 = 16%) | `autoRetreatThreshold_pct` |
+| `_ratio` | สัดส่วน 0–1 | — |
+| `_gold` | หน่วยเงินในเกม | `buyPrice_gold` |
+| `_levels` | จำนวนเลเวล (ช่วงหรือระยะห่าง) | `exampleRangeWidth_levels` |
+| `_pct<Ref>[Per<Unit>]` | เปอร์เซ็นต์ของค่าอ้างอิงที่ตั้งชื่อ ต่อหน่วย (suffix ผสม) | `heal_pctMaxHp`, `inDungeonHealBase_pctMaxHpPerMin`, `shieldPerRewardTick_pctMaxHpPerBuffPct` |
+
+- regex ของ suffix: `_(m|m2|ms|s|h|days|yr|kmh|pct|ratio|gold|levels)$` หรือ `_pct[A-Z][A-Za-z]*$` · suffix ใหม่ต้องแก้ตารางนี้ (tech-lead)
+- ไม่ต้องมี suffix: boolean · string enum · จำนวนนับที่ชื่อบอกสิ่งที่นับ (`maxMembers`, `durationTicks`, `spawnPointsMin`) · ตัวคูณไร้หน่วยที่ชื่อมี `Mult`, `Coef` หรือ `Divisor` · percentile ที่ชื่อลงท้าย `Percentile` · ความยาวข้อความที่ชื่อมี `Cells` (copy registry)
+- key ที่เป็น suffix ล้วน (`base_pct`, `cap_pct`) ใช้ได้เมื่อ object แม่บอกบริบท
+- เวลาของวัน: string `"HH:mm"` ใน key ที่ลงท้าย `LocalTime` คู่กับ `timezone` (IANA) ใน object เดียวกัน · วันในสัปดาห์: string อังกฤษตัวเล็ก (`"saturday"`)
+
+**3.10.4 key metadata (ขึ้นต้นด้วย `_`)**
+
+- ทุก key ที่ขึ้นต้นด้วย `_` เป็น metadata · โค้ดและ loader **ข้ามเมื่อวนลูป** และไม่อ่านเป็นค่า
+- `_source`: บังคับในทุก object ที่มีค่า (ยกเว้น `_meta`) · string หรือ map ชื่อ key → หัวข้อ GDD / decision ID / เอกสาร · ข้อยกเว้น: รายการใน `config/content/copy.<locale>.json` และ `_variables` ของไฟล์เดียวกันไม่ต้องมี `_source` ต่อรายการ (ที่มาคือ `_meta.doc`, field `context` และ `source` ของตัวแปร) · object ใน `config/content/copy-rules.json` (`limits`, `formats`) ยังต้องมี · ไฟล์ copy อ่านเป็น flat key map ห้ามแยก key ตามจุด (`docs/tech/copy-schema.md` หัวข้อ 2.1)
+- `_assumption`: `"A-<task>-<n>: <ข้อสมมติ>. Owner: <role>"` · `_note`: คำอธิบายอิสระ
+- รูปต่อ key `_<key>_source`, `_<key>_assumption` ใช้ได้เมื่อ object มีหลายค่าที่มาต่างกัน (เช่น `_npcDailySellLimit_source`)
+- `_meta` อยู่ที่ top-level เท่านั้น · `_nullMeans` ดู 3.10.5
+
+**3.10.5 `null`**
+
+- `null` = **ยังไม่ตั้งค่า** เป็นความหมายตั้งต้น · accessor ของ loader ต้อง throw `ConfigUnsetError` ที่บอกชื่อเต็มของค่าเมื่อถูกอ่าน · simulator, server และ client ห้ามเดาค่าแทน · ค่าที่ยังไม่ตั้งแต่ไม่มีใครอ่านไม่ทำให้โหลดล้ม
+- `null` ที่ตั้งใจ (ไม่ใช่ยังไม่ตั้ง) ต้องประกาศใน object เดียวกัน: `"_nullMeans": { "<key>": "unbounded" | "none" }` · สำหรับ element ใน array ใช้ `"<arrayKey>[].<field>"` · `unbounded` = ไม่มีเพดาน · `none` = สิ่งนี้ไม่มี (เช่น ขายให้ NPC ไม่ได้, ไม่มีชั้น) · accessor คืน `null` ได้เฉพาะ key ที่ประกาศ
+- `null` ในไฟล์ ณ P1-H01 (7 จุด) · **ต้องเพิ่ม** `_nullMeans` 5 จุด (handoff systems-designer):
+
+| ค่า | ความหมาย | `_nullMeans` |
+| --- | --- | --- |
+| `balance.enhance.bossGearMaterial.bossCorePerAttempt` | ยังไม่ตั้ง (Phase 6) | ไม่ประกาศ |
+| `balance.raid.bossDamage.bossAtkPerTick` | ยังไม่ตั้ง (Phase 6) | ไม่ประกาศ |
+| `balance.combat.levelGapDamage.maxMult` | ไม่มีเพดาน | `unbounded` |
+| `balance.economy.npcPricing.npcDailySellLimit` | ไม่จำกัด | `unbounded` |
+| `balance.economy.marketTax.brackets[].toDailySales_gold` | ขั้นบนสุดไม่มีเพดาน | `unbounded` |
+| `balance.economy.npcSellPrice_gold.equipment` | ขายให้ NPC ไม่ได้ | `none` |
+| `balance.dungeons.verification.v1FloorLevel` | กลางแจ้ง ไม่มีชั้น (non-negotiable 5) | `none` |
+
+**3.10.6 pointer (`seeFile`, `see<Name>`)**
+
+- key `seeFile` หรือ `see` + ชื่อ camelCase (`seeGateWindow`, `seeMonsterAtk`) มีค่าเป็น string `<ไฟล์>#<path คั่นด้วยจุด>` บอกว่าค่านี้อยู่ที่อื่น
+- ไฟล์ไม่มี `/` = โฟลเดอร์เดียวกัน (`drops.json#smallDungeon`) · มี `/` = จากรากของ repo และขึ้นต้นด้วย `config/` (`config/balance/dungeons.json#movementGate`) · path ชี้ object หรือค่าเดี่ยวได้ ชี้เข้า array ไม่ได้
+- pointer ไม่ใช่ค่า: loader ข้ามเมื่อวนลูปเหมือน key `_` · config lint ตรวจว่าปลายทางมีจริง · ห้ามตั้งชื่อ key ค่าจริงขึ้นต้นด้วย `see` ตามด้วยตัวใหญ่
+
+**3.10.7 การโหลดในโค้ด**
+
+- Phase 1: JSON import หรืออ่านไฟล์ แล้วเข้าถึงผ่าน helper ที่ใช้กติกา 3.10.4–3.10.6 (ข้าม `_` และ pointer, throw เมื่อ `null` ที่ไม่ประกาศ) · helper อยู่ใน `packages/shared` เมื่อมีผู้ใช้เกิน 1 ที่ (tech-lead)
+- Phase 2: JSON Schema ต่อไฟล์ (tech-lead) และ loader ที่ validate ก่อนใช้ · Ajv ใช้ได้ใน tools, test และ build step เท่านั้น เพราะ Worker ห้าม `new Function` (ดู `packages/shared/src/trace.ts`)
+- config lint (ตรวจ `_meta`, `_source` ในทุก object ที่มีค่า, regex suffix, ปลายทาง pointer, `null` ที่ไม่ประกาศเป็น WARN) เป็นงานของ tech-lead หลัง P1-H03 · ระหว่างนี้ tech gate ตรวจด้วยตา
+- ชื่อทุกอย่างที่ผู้เล่นเห็น (zone, dungeon, monster, item, boss) มาจาก `config/content/` หรือ back office ไม่อยู่ในโค้ด · schema ของ `copy.th.json` และ registry ตัวแปรอยู่ใน `docs/tech/copy-schema.md`
 
 ### 3.11 นโยบายภาษาใน `tools/`
 
@@ -185,6 +261,8 @@ docs/                adr/, tech/                                           tech-
 | `packages/shared` | `ajv` 8.20.0, `ajv-formats` 3.0.1 · dev `@types/geojson` 7946.0.16 | JSON Schema ของ trace และ config (P1-F02-T03) |
 | `tools/traces` | `ajv` 8.20.0, `ajv-formats` 3.0.1 | validate trace |
 | `packages/location`, `tools/sim` | `@keep-walking/shared` (workspace) | interface และ simulator |
+| root (dev) · เพิ่มใน P1-H01 (ติดตั้งในงาน `X` ของ tech-lead) | `@maplibre/maplibre-gl-style-spec` 26.4.4 (เวอร์ชันเดียวกับที่ `maplibre-gl` 6.10.0 ดึงมาอยู่แล้วใน lockfile จึงไม่มีโค้ดใหม่) | ตรวจ style JSON ของ art-director ใน `pnpm test` (`validateStyleMin`) แทนการเรียก path ใต้ `node_modules/.pnpm/` · bump คู่กับ `maplibre-gl` เสมอ |
+| `tools/copy-lint` (workspace ใหม่ P1-H02) | `@keep-walking/shared` (workspace), `ajv` 8.20.0, `ajv-formats` 3.0.1 | copy lint (`docs/tech/copy-schema.md` หัวข้อ 8.1) |
 
 - ไม่มี Mapbox หรือ Google SDK · งานที่ต้องการ dependency อื่นให้ handoff ถึง tech-lead
 
@@ -229,3 +307,22 @@ docs/                adr/, tech/                                           tech-
 | smoke e2e ชั่วคราวนอก repo (ใช้ root config) | "2 passed" บน `android-chrome` และ `ios-safari`: หน้า https จำลองได้พิกัด 13.7309 และ touch event จาก emulation |
 | probe lint (ไฟล์ชั่วคราวใน `packages/shared`, ลบแล้ว) | import `../../../../tools/sim/src/x` และ `@keep-walking/tools-sim` → error `no-restricted-imports` · `m >= 50` → error "No magic number: 50" |
 | `git check-ignore -v` | ignore: `.env.local`, `.dev.vars`, `*.pem`, `*.key`, `node_modules/`, `tools/coverage/downloads/*.osm.pbf`, `*.tif`, `tools/coverage/.venv/`, `bangkok.pmtiles`, `tools/tiles/out/`, `qa/playtest/results/raw/`, `data/gps-traces/raw/`, `audio/out/`, `.wrangler/`, `reports/` · ไม่ ignore: `.env.example`, `tools/tiles/fixtures/*.pmtiles`, `data/coverage/*.geojson`, `tools/coverage/METHOD.md` |
+
+## 7. บันทึกการแก้ไข
+
+### แก้ไขครั้งที่ 1 — P1-H01 (2026-09-23, tech-lead)
+
+ที่มา: handoff จาก P1-F03-T06 (systems-designer), P1-F03-T03 (narrative-designer), P1-H05 และ P1-F03-T12 · ไม่มี vendor หรือค่าใช้จ่ายใหม่
+
+| หัวข้อ | เปลี่ยนอะไร | เหตุผล |
+| --- | --- | --- |
+| 3.2 | `config/` มีสามโฟลเดอร์ `balance/`, `content/`, `app/` | `config/app/` เกิดใน P1-H05 · ต้องบอกเจ้าของและขอบเขต |
+| 3.5 | กติกา literal ในไฟล์สร้าง golden vector และการตรวจ `eslint-disable` | `tools/sim/src/vectors.ts` และ `vectors-economy.ts` ปิด `no-magic-numbers` ทั้งไฟล์ และมีกรณีขอบที่พิมพ์ค่า config ตรง (เช่น `8` = `classes.json` `maxMembers`) |
+| 3.10 | เขียนใหม่เป็น 3.10.1–3.10.7: namespace ตาม path, `_meta`, ตาราง suffix (เพิ่ม `_ms`, `_m2`, `_h`, `_days`, `_yr`, `_gold`, `_levels`, suffix ผสม `_pct<Ref>[Per<Unit>]` · เลิก `_sqm`), metadata `_*` รวมรูปต่อ key, `null` = ยังไม่ตั้ง + `_nullMeans`, pointer `seeFile`/`see<Name>`, การโหลด | ยืนยัน convention ที่ไฟล์จริงใช้อยู่ และปิดช่องที่ `null` มีสองความหมายโดยไม่มีป้ายบอก |
+| 3.13 | เพิ่ม `@maplibre/maplibre-gl-style-spec` 26.4.4 (root dev) และ dependency ของ `tools/copy-lint` | ตรวจ style ใน `pnpm test` แทนการเรียก path ภายใน `.pnpm/` ที่พังเมื่อ bump · lint ของ copy |
+
+ผลต่อไฟล์ที่มีอยู่: ไม่มีไฟล์ config ที่ผิด convention ใหม่ ยกเว้นต้องเพิ่ม `_nullMeans` 5 จุด (3.10.5) · งานที่ต้องทำต่อ (เป็น handoff ในรายงานของ P1-H01):
+
+- systems-designer: `_nullMeans` 5 จุด · กรณีขอบใน `tools/sim/src/vectors*.ts` อ่านจาก `SimParams` (บรรทัด 143–146 `maxMembers`, 381–386 เพดาน Magic และพื้นของ gap, 618 เพดาน Tanker, 621–625 เกณฑ์ถอยอัตโนมัติ ของ `vectors.ts`) และลบ `eslint-disable` บรรทัด 1 ของทั้งสองไฟล์
+- tech-lead (งาน `X`): override ของ `eslint.config.js` สำหรับ `tools/sim/src/vectors*.ts` · ติดตั้ง `@maplibre/maplibre-gl-style-spec` · script `lint:copy` ที่ root
+- ตรวจแล้ว: `node .../gl-style-validate.mjs art/direction/map-style/kw-light.style.json` → exit 0 ไม่มี error (2026-09-23) · ต่อไปรันผ่าน test แทน

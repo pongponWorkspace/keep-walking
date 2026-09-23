@@ -170,12 +170,12 @@ GDD: สามจังหวะนี้เป็นจุดที่ผู้
 - **ค่าที่มาจาก config ต้องเป็นตัวแปรเสมอ** (non-negotiable 3): เปอร์เซ็นต์ถอยอัตโนมัติ เกณฑ์แจ้ง HP อายุขั้นต่ำ วันและเวลา raid ราคา โอกาสสำเร็จ ระยะ เวลาเปิดปิด
 - **วันและเวลา raid** ใช้ `{raidDay}` `{raidStartTime}` `{raidEndTime}` เท่านั้น ห้ามพิมพ์ "เสาร์" หรือ "16:00" ลงใน copy (world.md หัวข้อ 6) · เรื่องเล่า "ทำไมต้องวันเสาร์" เขียนเป็น "ทีมวิจัยพบว่า{raidDay}คือวันที่มนุษย์ว่างที่สุด" · ประโยคสำรองเมื่อย้ายวัน: "ทีมวิจัยทบทวนแล้ว วันนี้คนว่างกว่า"
 - ชื่อทุกชื่อ (โซน มอนสเตอร์ ไอเทม บอส) มาจาก `names.th.json` หรือหลังบ้านผ่านตัวแปร ห้ามพิมพ์ชื่อลงใน copy
-- ทุกตัวแปรต้องลงทะเบียนใน registry พร้อม `maxCells` (ช่องแสดงผลสูงสุดของค่าที่แทน) เพื่อให้ script คิดความยาวกรณีแย่สุด · ตัวแปรตั้งต้น:
+- ทุกตัวแปรต้องลงทะเบียนใน registry ตัวแปร คือ `_variables` ใน `config/content/copy.th.json` (ไม่มีไฟล์ registry แยก · copy-schema หัวข้อ 5) พร้อม `maxCells` (ช่องแสดงผลสูงสุดของค่าที่แทน) `example` `source` และ `configKey` เมื่อค่ามาจาก config · เพิ่มตัวแปรใหม่ใน `_variables` ก่อนใช้ใน copy · ตารางด้านล่างเป็นตัวแปรตั้งต้น ค่าจริงถืออยู่ที่ `_variables`:
 
 | ตัวแปร | ความหมาย | ตัวอย่างค่า | `maxCells` (เสนอ) |
 | --- | --- | --- | --- |
 | `{zoneName}` | ชื่อโซนเต็ม `<ชื่อจริง> — <คำขยาย>` | ลุมพินี — ป่าในเมือง | 34 |
-| `{zoneRealName}` | ชื่อจริงอย่างเดียว | ลุมพินี | 18 |
+| `{zoneRealName}` | ชื่อจริงอย่างเดียว | ลุมพินี | 17 |
 | `{distanceText}` | ระยะที่ format แล้ว | 650 ม. · 3.2 กม. | 8 |
 | `{levelMin}` `{levelMax}` | ช่วงเลเวลโซน | 1 · 5 | 3 |
 | `{count}` | จำนวนคน | 2 | 4 |
@@ -193,7 +193,8 @@ GDD: สามจังหวะนี้เป็นจุดที่ผู้
 ### 4.2 ตัวเลขและหน่วย
 
 - เลขอารบิกเท่านั้น ไม่ใช้เลขไทย · คั่นหลักพันด้วยจุลภาค
-- **ห้ามตัวเลขที่พิมพ์ตรงใน copy** ทุกเลขต้องมาจากตัวแปร (script S6) · ข้อยกเว้นเดียวคือ "Lv." ที่ตามด้วยตัวแปร และเลขในบทพูดตัวละครที่ไม่ใช่ค่า balance เช่น "Lv.50: กูเก่งแล้ว" (ลงทะเบียนเป็นข้อยกเว้นราย key)
+- **ห้ามตัวเลขที่พิมพ์ตรงใน copy** ทุกเลขต้องมาจากตัวแปร (script S6) · ข้อยกเว้นเดียวคือ "Lv." ที่ตามด้วยตัวแปร และเลขในบทพูดตัวละครที่ไม่ใช่ค่า balance เช่น "Lv.50: กูเก่งแล้ว" (ลงทะเบียน key ใน `_meta.numericExceptions` พร้อมเหตุผล) · key ชื่อวัน `weekday.<enum>` ลงทะเบียนใน `_meta.dayNameExceptions` และ text ต้องเป็นชื่อวันล้วน (copy-schema 2.4)
+- หน่วยและคำเวลาเป็น copy key ไม่อยู่ในโค้ด: `unit.m` `unit.km` `unit.minutes` `unit.hours` `unit.minutesAgo` · `{openTime}` ประกอบจาก `unit.today` `unit.tomorrow` `unit.onWeekday` · ตัวคั่นรายการ `common.listSeparator` และ `common.and` · รูปแบบตัวเลขและเวลาอยู่ใน `config/content/copy-rules.json#formats`
 - ระยะ: ต่ำกว่า 1,000 ม. แสดง "650 ม." · ตั้งแต่ 1,000 ม. แสดง "3.2 กม." · format ในโค้ดด้วยหน่วยจาก key `unit.m` `unit.km`
 - เวลา: 24 ชั่วโมง "16:00" ไม่เติม "น." ในป้ายสั้น · ระยะเวลาใช้ "30 นาที" "2 ชม." ผ่านตัวแปร
 - เลเวล: ในป้ายสั้นใช้ "Lv.{levelMin}–{levelMax}" · ในประโยคใช้ "เลเวล" · คำว่า "ระดับ" สงวนไว้ให้ระดับตีบวก (+1, +2) เพื่อไม่ให้สับสน (ตัวอย่าง GDD "ระดับ 1–5" ในนาที 1–3 จึงเขียนเป็น "Lv.1–5")
@@ -209,19 +210,36 @@ GDD: สามจังหวะนี้เป็นจุดที่ผู้
 | --- | --- |
 | ข้อความ `system` / `research` | รวมไม่เกิน 64 ช่อง หลังแทนตัวแปรด้วยค่า `maxCells` · มี `\n` ได้ไม่เกิน 1 ตัว · ถ้ามี `\n` แต่ละบรรทัดไม่เกิน 32 ช่อง |
 | ปุ่ม | ไม่เกิน 12 ช่อง 1 บรรทัด |
+| ปุ่มหลักเดี่ยวเต็มความกว้าง (`buttonFullWidth`, D-050) | ไม่เกิน 16 ช่อง 1 บรรทัด (ห้ามมี `\n`) · ใช้ได้เฉพาะ key ที่อยู่ใน `copy-rules.json#limits.buttonFullWidth.keys` (ตอนนี้มี `run.summaryContinue` ตัวเดียว) · key อื่นใช้เพดานปุ่ม 12 ช่องแม้จะเป็นปุ่มเต็มความกว้าง · เพิ่ม key ได้เมื่อ uiux-designer ยืนยันใน components.md หัวข้อ 10 ว่าจอนั้นมีปุ่มหลักเต็มความกว้างปุ่มเดียว ไม่มีปุ่มคู่ |
 | ป้ายสั้น หัวข้อ แท็บ | ไม่เกิน 20 ช่อง 1 บรรทัด |
 | push notification | หัวข้อไม่เกิน 24 ช่อง · เนื้อหาไม่เกิน 64 ช่อง |
 | บทพูด `character` | ไม่เกิน 5 บรรทัด แต่ละบรรทัดไม่เกิน 32 ช่อง (ไม่นับชื่อผู้พูด) |
 | quick command | ไม่เกิน 16 ช่อง |
 | `legal` | ยกเว้นเพดาน 2 บรรทัด (ข้อเสนอ ดูหัวข้อ 9) แต่ต้องมีบรรทัดสรุปไม่เกิน 64 ช่องไว้บนสุด |
 
+ตัวเลขชุดที่เครื่องอ่านอยู่ใน `config/content/copy-rules.json#limits` (lint อ่านจากที่นั่นเท่านั้น) · เปลี่ยนเพดาน = แก้ไฟล์นั้นก่อน แล้วแก้ตารางนี้และ `copy.th.json#_meta.limits` ให้ตรง
+
 ใน copy bank ทุก key รายงาน `cells` (ช่องแสดงผล) เป็นจำนวนตัวอักษรหลัก · world.md นับ tagline เป็น code point ไม่รวมช่องว่าง ซึ่งเป็นคนละหน่วย ใช้เทียบกันไม่ได้
 
 ### 4.4 ชื่อ key และรูปแบบไฟล์
 
 - รูปแบบ `<area>.<name>` ตัวพิมพ์เล็กนำ camelCase ต่อ เช่น `run.hpLow` `run.autoRetreat` `run.death` `enhance.fail` `onboarding.pickRole` · regex: `^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)+$`
-- `area` ตั้งต้น: `onboarding` `consent` `home` `map` `dungeon` `run` `party` `quick` `enhance` `market` `shop` `raid` `gps` `settings` `account` `unit` `common` `lore` `legal`
-- รูปแบบรายการใน `copy.th.json` (เสนอ ให้ tech-lead ยืนยัน):
+- `area` (รายการที่ lint อ่านอยู่ใน `config/content/copy-rules.json#areas` · area ที่ไม่อยู่ในรายการ = WARN S1 · เพิ่ม area ใหม่ที่ไฟล์นั้น):
+
+| area | ใช้กับ |
+| --- | --- |
+| `onboarding` `roleInfo` | 10 นาทีแรก หน้าเลือกพลัง คำอธิบาย role |
+| `consent` `age` `legal` `privacy` `account` `profile` | consent location อายุ นโยบาย ความเป็นส่วนตัว login ลบบัญชี โปรไฟล์ |
+| `nav` `map` `label` `home` `interest` | แท็บ แผนที่ ป้ายบนแผนที่ สถานะที่บ้าน (ไกล นอกพื้นที่ ไม่รู้ตำแหน่ง) ยื่นเรื่องเปิดจังหวัด |
+| `dungeon` `run` `party` `qc` `push` | ยืนยันเข้า ระหว่าง run สรุป run party quick command 10 อัน หัวข้อ push |
+| `enhance` `market` `shop` `raid` `lore` | ระบบที่ปลดทีหลัง (U1–U3) และเรื่องเล่า · ยังไม่มี key |
+| `settings` `gps` `common` `unit` `weekday` `rarity` `class` | ตั้งค่า สถานะตำแหน่ง ข้อความกลาง หน่วย ชื่อวัน ชื่อ rarity ชื่อ role |
+
+- quick command ใช้ area `qc` (ไม่ใช่ `quick` ตามร่างแรก · ไฟล์จริงและ copy-rules ใช้ `qc`)
+- รูปแบบไฟล์ `copy.th.json` เป็น flat key map · สัญญาเต็มอยู่ที่ `docs/tech/copy-schema.md` หัวข้อ 2 (tech-lead เป็นเจ้าของ) · สรุป: top-level มี `_meta` (บังคับ `file` `owner` `task` `version` `doc`) และ `_variables` (registry ตัวแปร) · field ของรายการ: `text` `voice` `kind` `context` บังคับ · `cells` `alts` `beat` `altOf` ไม่บังคับ · `cellsFirstLine` เฉพาะ `legal` + `message` · โน้ตใช้ field ขึ้นต้นด้วย `_` · field อื่น = FAIL S1
+- คู่ `voice` × `kind` ที่อนุญาต: `message` กับ system/research/legal · `button` กับ system/legal · `label` กับ system/research/legal · `push` กับ system · `dialogue` กับ character เท่านั้น · `command` กับ command เท่านั้น
+- push notification: `kind: push` คือ **หัวข้อ** ของ push เป็น key แยก (เช่น `push.deathTitle`) · เนื้อหา push ใช้ key `message` เดิม (เช่น `run.death`) · ไม่มี field `title`
+- ตัวอย่างรายการ:
 
 ```json
 {
@@ -252,22 +270,27 @@ GDD: สามจังหวะนี้เป็นจุดที่ผู้
 | buff / debuff | buff · debuff | ทุกที่ · debuff ห้ามใน `onboarding.*` (U6) | GDD กฎข้อ 5 |
 | drop | drop | ทุกที่ | GDD กฎข้อ 5 · ใช้เป็นคำนาม "drop ×2" หรือกริยา "drop ดีขึ้น" |
 | dungeon | dungeon | ทุกที่ | GDD กฎข้อ 5 |
-| HP | HP | ทุกที่ | ตัวพิมพ์ใหญ่เสมอ |
+| HP | HP | ทุกที่ (รวมป้าย HP bar `run.hpBarLabel`) | ตัวพิมพ์ใหญ่เสมอ · ยืนยันซ้ำใน P1-X12 |
 | EXP | EXP | ทุกที่ | ตัวพิมพ์ใหญ่ |
 | Lv. | Lv. | ป้ายสั้นและบทพูด | ตามด้วยตัวเลขหรือตัวแปรติดกัน |
-| run | run | สรุป run, ตาย | ใช้ใน GDD ต้นแบบ "ของใน run นี้" |
+| run | run | สรุป run (รวมป้าย header `run.summary.headerLabel`), ตาย, สถานะระหว่าง run | ใช้ใน GDD ต้นแบบ "ของใน run นี้" · ยืนยันซ้ำใน P1-X12 |
 | raid | raid | หลังปลด U3 | ห้ามใน `onboarding.*` |
 | gold | gold | ทุกที่หลังมีของขาย | สกุลเงินในเกม · ห้ามใช้ "บาท" กับ gold |
 | stat | stat | หลังปลด U4 | ห้ามใน `onboarding.*` |
 | class | class | หลังปลด U5 | ห้ามใน `onboarding.*` · หน้าเลือกครั้งแรกใช้ "พลัง" ตาม GDD |
 | Tanker, Ranged, Support, Magic | ตามนี้ ตัวใหญ่นำ | ทุกที่ | หัวข้อ 1.4 |
-| GPS | GPS | สถานะตำแหน่ง | |
+| GPS | GPS | สถานะตำแหน่ง และคำกำกับ GPS pill (`gps.pillLabel`) | ตัวพิมพ์ใหญ่เสมอ · ยืนยันซ้ำใน P1-X12 |
 | AoE | AoE | หลังปลด raid เท่านั้น | ใช้เท่าที่จำเป็น ปกติเขียน "โดนทั้งวง" |
 | badge | badge | หน้าโปรไฟล์ | |
+| Common, Uncommon, Rare, Epic, Legendary | ตามนี้ ตัวใหญ่นำ | ชื่อ rarity บน chip และ tooltip ของไอเทม (key `rarity.*`) · ห้ามใน `onboarding.*` ยกเว้น HUMAN/director ขอ | D-045 ACCEPTED · คนเล่นเกมไทยพูดชื่อระดับความหายากเป็นภาษาอังกฤษอยู่แล้ว (ตรงเกณฑ์กฎข้อ 5) · ใช้เป็นคำเดี่ยวเท่านั้น ห้ามต่อเป็นวลีอังกฤษ (S5 นับ 3 token ติดกันเป็น FAIL) |
+| T, R, S, M | ตัวใหญ่ ตัวเดียว | ป้ายจำนวนต่อ role บนแผนที่ (`class.*Short` → `{roleGlyph}`) เท่านั้น | D-045 ACCEPTED · **ชั่วคราว** จนกว่า art มี glyph role (icon-grammar) แล้วลบ key `class.*Short` และลบ 4 แถวนี้ออกจาก allowlist · S5 ต้องอนุญาตเฉพาะเมื่อเป็น token เดี่ยวตัวพิมพ์ใหญ่ (ไม่ใช่ flag ไม่สนตัวพิมพ์) |
 
 ### 5.2 คำทับศัพท์ที่เขียนด้วยอักษรไทย (script ตรวจไม่ได้ คนอ่านตาม H5)
 
-ใช้ได้: เลเวล · บอส · ไอเทม · โซน · แอป · ออนไลน์ · ออฟไลน์ · เน็ต · มอนสเตอร์ · โปรไฟล์ · อัปเดต · ล็อกอิน · แชร์
+ใช้ได้: เลเวล · บอส · ไอเทม · โซน · แอป · ออนไลน์ · ออฟไลน์ · เน็ต · มอนสเตอร์ · โปรไฟล์ · อัปเดต · ล็อกอิน · แชร์ · บล็อก · เว็บ
+
+- "บล็อก" = กันผู้เล่นอื่น (เมนู "รายงานและบล็อก" ใน `settings.*`) · ยังห้ามใน `onboarding.*` ตาม W8 หมวด U6
+- "เว็บ" = ตัวเกมบนเบราว์เซอร์ เช่น "เปิดสิทธิ์ตำแหน่งให้เว็บนี้" (`gps.deniedBody`) · ใช้แทน "เบราว์เซอร์" เมื่อพื้นที่จำกัด
 
 รูปสะกดมาตรฐาน: "แอป" (ไม่ใช่ แอพ) · "อัปเดต" (ไม่ใช่ อัพเดท) · "ล็อกอิน" · "มอนสเตอร์" · "ไอเทม" (ไม่ใช่ ไอเท็ม)
 
@@ -387,7 +410,7 @@ GDD: สามจังหวะนี้เป็นจุดที่ผู้
 | S4 | ความยาว | ตามเพดานต่อ `kind` ในหัวข้อ 4.3 หลังแทนตัวแปรด้วยค่า `maxCells` · นับช่องแสดงผลตามนิยาม 4.3 · นับ `\n` · ค่า `cells` ในไฟล์ต้องตรงกับที่ script นับ (ค่าไม่ตรง = WARN) | FAIL | กฎ 2, 4.3 |
 | S5 | ภาษาอังกฤษ | ทุก token อักษรละติน `[A-Za-z][A-Za-z.\-]*` ต้องอยู่ในรายการหัวข้อ 5.1 (ไม่สนตัวพิมพ์เฉพาะคำที่ระบุว่าไม่สน) · มี token ละตินติดกัน 3 ตัวขึ้นไปโดยไม่มีอักษรไทยคั่น = FAIL (วลีอังกฤษ) · ไม่ตรวจชื่อตัวแปรใน `{}` | FAIL | กฎ 5, 5.1 |
 | S6 | ตัวเลขและวันเวลาที่ hardcode | ไม่มี `[0-9๐-๙]` นอก `{}` ยกเว้น key ที่ลงทะเบียนข้อยกเว้น (4.2) · ไม่มีชื่อวัน (จันทร์ อังคาร พุธ พฤหัส ศุกร์ เสาร์ อาทิตย์) หรือรูปเวลา `\d{1,2}[:.]\d{2}` ใน `system` · `lore.*` ที่เอ่ยชื่อวันเป็น WARN | FAIL | 4.1, 4.2 |
-| S7 | ตัวแปร | ทุก `{name}` อยู่ใน registry หัวข้อ 4.1 · วงเล็บปีกกาครบคู่ · ตัวแปรใน `alts` ต้องเป็นชุดเดียวกับ `text` (โค้ดส่งค่าชุดเดียว) | FAIL | 4.1 |
+| S7 | ตัวแปร | ทุก `{name}` อยู่ใน `_variables` ของ `copy.th.json` (หัวข้อ 4.1) · `example` ไม่ยาวเกิน `maxCells` · `configKey` ต้องชี้ path ที่มีจริง (ไม่พบ = WARN) · วงเล็บปีกกาครบคู่ · ตัวแปรใน `alts` ต้องเป็นชุดเดียวกับ `text` (โค้ดส่งค่าชุดเดียว) | FAIL | 4.1 |
 | S8 | คำต้องห้ามของโลก | ชุด W2c W4 W5 W7 ตามระดับในหัวข้อ 6 · W6 ใน `enhance.*` `shop.*` `market.*` | FAIL / WARN ตามตาราง | 6.2, 6.4–6.7 |
 | S9 | สามจังหวะ | key ที่มี `beat` เป็น `hpLow` `autoRetreat` `death` หรือ `raidFail` ไม่มีคำชุด W3 · ข้อความหลักของ hpLow autoRetreat death ต้องตรงกับหัวข้อ 3.1 ทุกตัวอักษร (หลังแทนตัวแปร) | FAIL | 3 |
 | S10 | 10 นาทีแรก | key `onboarding.*` ไม่มีคำชุด W8 ทั้ง 8 หมวด · ผลรายงานแยกตามหมวด U1–U8 (แนบใน report ของ P1-F03-T05) | FAIL | 6.8, pillars 6.2 |
@@ -396,7 +419,11 @@ GDD: สามจังหวะนี้เป็นจุดที่ผู้
 | S13 | ชื่อใน copy | ไม่มีชื่อที่ตรงกับค่าใดใน names.th.json อยู่ใน copy.th.json แบบพิมพ์ตรง (ต้องมาผ่านตัวแปร) | FAIL | non-negotiable 3 |
 | S14 | ทางเลือกของจุดอารมณ์สูง | key ที่มี `beat` เป็น `death` `raidFail` หรือ `enhanceFail` มี `alts` 2 รายการ และทุก alt ผ่าน S2–S12 | FAIL | 3.4 |
 
-หมายเหตุการ implement: รายการคำทั้งหมดในหัวข้อ 5.1 และ 6 ควรแยกออกเป็นไฟล์ข้อมูลที่ script อ่าน (เสนอ `config/content/copy-lint.words.json`) เพื่อให้แก้คำได้โดยไม่แก้โค้ด · เอกสารนี้เป็นต้นฉบับจนกว่าไฟล์นั้นจะมี · ผู้ implement ตัดสินโดย tech-lead (ดูหัวข้อ 9)
+หมายเหตุการ implement (ตัดสินแล้วใน copy-schema D-024):
+- lint อยู่ที่ `tools/copy-lint/` (gameplay-programmer, P1-H02) · คำสั่ง `pnpm lint:copy` · อ่าน `config/content/copy.th.json`, `config/content/copy-rules.json`, `config/content/names.th.json`
+- รายการคำทั้งหมดในหัวข้อ 5.1 และ 6 อยู่ในไฟล์ข้อมูล `tools/copy-lint/words.json` (ไม่ใช่ `config/` เพราะเกมและหลังบ้านไม่อ่าน) · เนื้อหาเป็นของ narrative-designer แก้คำได้โดยไม่แก้โค้ด · key: `W1` … `W7`, `W8` แยกหมวด `U1`–`U8`, `latinAllowlist`, `dayNames` (รูปเต็มและรูปสั้น เช่น พฤหัสบดี และ พฤหัส), `politeEndings`, `jokeSignals`
+- ตัวเลขเพดาน (S4) และรายการ area (S1) อ่านจาก `config/content/copy-rules.json` · registry ตัวแปร (S7) อ่านจาก `copy.th.json#_variables`
+- เอกสารนี้เป็นต้นฉบับของรายการคำจนกว่า `words.json` จะมี · เมื่อมีแล้ว แก้คำที่ `words.json` ก่อนแล้วแก้เอกสารนี้ให้ตรง · รายการ W2d และ W7 ฉบับเต็มอยู่ใน `words.json` เท่านั้น
 
 ตัวอย่างผลที่คาดหวัง (ใช้เป็น test case ของ script)
 
@@ -441,10 +468,11 @@ script จับได้แค่คำ คนต้องตัดสินค
 
 **ข้อสมมติ**
 - A-P1-F03-T03-1: เพดานความยาว 32 ช่องต่อบรรทัด 64 ช่องต่อข้อความ ปุ่ม 12 ช่อง ป้าย 20 ช่อง push หัวข้อ 24 ช่อง (ยืนยัน: uiux-designer จากความกว้าง component และ font ไทยใน P1-F03-T17) · ถ้าเปลี่ยน แก้ตารางหัวข้อ 4.3 จุดเดียว
-- A-P1-F03-T03-2: รายการคำเหยียด (W2d) และแบรนด์ (W7) ฉบับเต็มเก็บในไฟล์ข้อมูลของ script ไม่พิมพ์ในเอกสารออกแบบ (ยืนยัน: narrative-designer เป็นเจ้าของรายการ, tech-lead เรื่องที่เก็บ)
+- A-P1-F03-T03-2: รายการคำเหยียด (W2d) และแบรนด์ (W7) ฉบับเต็มเก็บใน `tools/copy-lint/words.json` ไม่พิมพ์ในเอกสารออกแบบ · **ปิดแล้ว** ที่เก็บยืนยันโดย tech-lead ใน copy-schema หัวข้อ 8.1 (repo public ไฟล์จึงเปิดเผยเมื่อ push ยอมรับได้)
 - A-P1-F03-T03-3: ชื่อ role คงภาษาอังกฤษ Tanker, Ranged, Support, Magic (ปิด A-P1-F03-T02-2 ในฝั่ง copy · ยืนยัน: game-director ใน design gate A)
 - A-P1-F03-T03-4: ชื่อที่ผู้เล่นเห็นของ auto-retreat คือ "ถอยอัตโนมัติ" · ป้ายเลเวลใช้ "Lv." และ "ระดับ" สงวนให้ตีบวก (ยืนยัน: uiux-designer)
-- A-P1-F03-T03-5: รูปแบบรายการ `copy.th.json` ตามหัวข้อ 4.4 (`text` `voice` `kind` `context` `cells` `alts` `beat`) และ registry ตัวแปรพร้อม `maxCells` (ยืนยัน: tech-lead)
+- A-P1-F03-T03-5: รูปแบบรายการ `copy.th.json` ตามหัวข้อ 4.4 และ registry ตัวแปรพร้อม `maxCells` · **ปิดแล้ว** D-024 ACCEPTED (copy-schema รอบ 2): registry คือ `_variables` · ตัวเลขเพดาน area formats อยู่ใน `config/content/copy-rules.json` · push หัวข้อเป็น key แยก · ข้อยกเว้น S6 อยู่ใน `_meta`
+- A-P1-F03-T03-6: ชื่อ rarity ภาษาอังกฤษ 5 ชื่อ และ T/R/S/M ชั่วคราว (หัวข้อ 5.1) · **ปิดแล้ว** D-045 ACCEPTED (authority narrative-designer)
 
 **จุดที่กฎถูกขยายหรือโค้ง (ต้องมีคนรับรู้)**
 - กฎข้อ 2 ข้อความ `legal` (consent location, PDPA, ความยินยอมผู้ปกครอง) เสนอให้ยกเว้นเพดาน 2 บรรทัด เพราะเนื้อหาทางกฎหมายต้องครบ แต่ต้องมีบรรทัดสรุปไม่เกิน 64 ช่องไว้บนสุด และยังห้ามคำหยาบและคำต้องห้ามทุกข้อ · เป็นเรื่อง PDPA จึงต้อง HUMAN อนุมัติ
@@ -452,7 +480,8 @@ script จับได้แค่คำ คนต้องตัดสินค
 - ข้อความ canon ถอยอัตโนมัติของ GDD พิมพ์ "25%" · copy ใช้ `{autoRetreatPct}` แทน เพื่อไม่ hardcode ค่า config (non-negotiable 3) ข้อความที่ผู้เล่นเห็นเหมือน GDD ทุกตัวอักษรตราบที่ config เป็น 25
 
 **ส่งต่อ**
-- tech-lead: ยืนยัน schema `copy.th.json` และ registry ตัวแปร (4.1, 4.4) · กำหนดผู้ implement และที่อยู่ของ lint script ตามหัวข้อ 7 (เสนอให้ gameplay-programmer ทำ พร้อม test case ตารางท้ายหัวข้อ 7) และไฟล์ข้อมูลคำ `config/content/copy-lint.words.json`
+- tech-lead: (ปิดแล้วใน P1-H01) schema อยู่ที่ `docs/tech/copy-schema.md` · lint ที่ `tools/copy-lint/` ทำโดย gameplay-programmer ใน P1-H02 · ไฟล์คำ `tools/copy-lint/words.json` · ไฟล์ตัวเลข `config/content/copy-rules.json`
+- gameplay-programmer (P1-H02): สร้าง `tools/copy-lint/words.json` จากหัวข้อ 5.1 และ 6 ของเอกสารนี้ · `dayNames` รูปเต็มและรูปสั้นทั้ง 7 วัน · narrative-designer ส่งรายการ W2d W7 ฉบับเต็มเข้าไฟล์นั้นในงานถัดไปเมื่อไฟล์มีแล้ว
 - uiux-designer: ยืนยันเพดานหัวข้อ 4.3 · ใช้ `kind` เดียวกันใน components.md · ใช้ชื่อ "ถอยอัตโนมัติ" ในหน้าตั้งค่า
 - systems-designer: เปิดค่า `autoRetreatPct` `hpWarnPct` `minAge` และตาราง raid (วัน เวลาเริ่ม เวลาจบ) ให้ formatter ของ copy อ่านได้ (ชื่อ key จริงใน config ตามที่ systems-designer ตั้ง)
 - narrative-designer (ตัวเอง): P1-F03-T04 ใช้ W1 W5 W7 ตรวจชื่อ · P1-F03-T05 รันเช็คลิสต์หัวข้อ 7 ด้วยมือจนกว่า script จะมี และแนบผล S10 แยกหมวด U1–U8

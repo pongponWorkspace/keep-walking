@@ -1,0 +1,15 @@
+{
+  "name": "@keep-walking/tools-copy-lint",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Copy lint for config/content/copy.th.json (design/narrative/style-guide.md section 7, docs/tech/copy-schema.md section 8.1). Owner: gameplay-programmer (code), narrative-designer (words.json content). Never imported by apps/* or packages/*.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@keep-walking/shared": "workspace:*",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  }
+}

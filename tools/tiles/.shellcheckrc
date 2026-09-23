@@ -1,0 +1,5 @@
+# shellcheck config for tools/tiles (run: shellcheck -x bin/*.sh test/run.sh)
+source-path=SCRIPTDIR
+external-sources=true
+# sh -c worker bodies and jq programs are single-quoted on purpose
+disable=SC2016

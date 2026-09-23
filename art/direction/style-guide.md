@@ -120,6 +120,27 @@ Task: P1-F03-T10 · เจ้าของ: art-director · สถานะ: ฉ�
 
 สีผิว ผม และชุดของ avatar กำหนดใน `avatar-spec.md` (P1-F03-T11) บนหลักเดียวกัน (3 ค่าต่อวัสดุ + ขอบหมึก) · ต้องมีสีผิวอย่างน้อย 6 ระดับ ไม่มีสีผิวใดผูกกับ class หรือความเก่ง
 
+#### 3.4.1 Ramp ผิวและผมของ avatar (เพิ่มใน P1-X06 จาก `avatar-spec.md` 7.1–7.2)
+ค่าเดียวกับ avatar-spec ทุกตัว (ต้นฉบับอยู่ที่นี่ avatar-spec อ้างถึง) · ใช้แทน key color ของ master `body`, `pose_hand`, `hair` ตอน build (avatar-spec 7.4) · ห้ามใช้กับ prop, UI หรือแผนที่ · ตัวเลือกสีผิวเรียงเท่ากันทั้ง 6 ไม่มีค่าเริ่มต้นที่ "ถูกต้อง" · ชื่อเล่นของสีผมห้ามใช้เป็น id
+| Ramp | top | left | right | ตัวอย่างใช้ |
+| --- | --- | --- | --- | --- |
+| `ramp.skin-1` | #FFEADB | #F8D5BE | #DDB093 | ผิว avatar ระดับ 1 (อ่อนสุด) |
+| `ramp.skin-2` | #F9D8BC | #EDBF9C | #CF9D78 | ผิว avatar ระดับ 2 |
+| `ramp.skin-3` | #EDC09A | #D9A57C | #B8845C | ผิว avatar ระดับ 3 |
+| `ramp.skin-4` | #D39C70 | #B98356 | #96653E | ผิว avatar ระดับ 4 |
+| `ramp.skin-5` | #B07A50 | #93613C | #744A2B | ผิว avatar ระดับ 5 |
+| `ramp.skin-6` | #8A5A38 | #6E4529 | #54331D | ผิว avatar ระดับ 6 (เข้มสุด) |
+| `ramp.hair-1` | #4E4A5E | #37344A | #26243A | ผม avatar แบบ 1 (ดำ) |
+| `ramp.hair-2` | #A0704E | #7E5236 | #5A3822 | ผม avatar แบบ 2 (น้ำตาล) |
+| `ramp.hair-3` | #F4D27E | #DDB255 | #B58A35 | ผม avatar แบบ 3 (ทองย้อม) |
+| `ramp.hair-4` | #D6D6E0 | #AEAEBE | #85859A | ผม avatar แบบ 4 (เทาเงิน) |
+| `ramp.hair-5` | #F6AECB | #E184AC | #BC5E88 | ผม avatar แบบ 5 (ชมพูย้อม) |
+| `ramp.hair-6` | #93BCEB | #6394D0 | #4270A8 | ผม avatar แบบ 6 (ฟ้าย้อม) |
+
+- สีผมไม่ใช้ hex เดียวกับ `rift.*`, `rarity.*`, `class.*` เพื่อไม่ให้อ่านเป็นความหมายของระบบ (avatar-spec 7.2)
+- ตาบนผิวเข้มอ่านออกด้วยจุดไฮไลต์ `bg.surface` ไม่ใช่ด้วยการเปลี่ยนสีผิว (avatar-spec 7.5: ไฮไลต์บน `skin-6` left = 8.25:1)
+- ตารางนี้ใช้รูปแบบคอลัมน์เดียวกับตารางวัสดุด้านบน · `design/ux/tokens.json` ต้องเพิ่ม `color.ramp.skin-1`..`skin-6` และ `color.ramp.hair-1`..`hair-6` เป็น `{top, left, right}` ค่าตรงตัว (งานของ uiux-designer) · test ของ QA ตอนนี้ parse เฉพาะชื่อ ramp ที่เป็นตัวอักษรล้วน จึงยังนับ 10 แถว จนกว่า QA จะขยาย regex ให้รับ `-` และตัวเลข แล้วเปลี่ยนจำนวนเป็น 22
+
 ### 3.5 Token แผนที่ตั้งต้น (ให้ P1-F03-T12 ใช้และปรับบน Protomaps schema)
 | Token | Hex | L | หมายเหตุ |
 | --- | --- | --- | --- |

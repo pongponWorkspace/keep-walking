@@ -8,8 +8,9 @@
     "node": ">=24.0.0 <25"
   },
   "scripts": {
-    "lint": "eslint . --max-warnings=0 && prettier --check .",
+    "lint": "eslint . --max-warnings=0 && prettier --check . && pnpm run lint:copy",
     "lint:fix": "eslint . --fix && prettier --write .",
+    "lint:copy": "tsx tools/copy-lint/src/cli.ts",
     "format": "prettier --write .",
     "typecheck": "tsc -p tsconfig.json --noEmit && pnpm -r --if-present run typecheck",
     "test": "vitest run",

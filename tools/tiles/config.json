@@ -1,0 +1,116 @@
+{
+  "_comment": "Single source of every tunable value for tools/tiles (P1-F02-T06). Scripts read this file with jq; nothing here is duplicated in code. See README.md.",
+  "schema": {
+    "name": "protomaps-basemap",
+    "majorVersion": 4,
+    "buildKey": "20260923",
+    "expectedMetadataVersion": "4.15.2",
+    "sourceUrl": "https://build.protomaps.com/20260923.pmtiles",
+    "tilesetIdTemplate": "pm4-{build}-z{maxzoom}"
+  },
+  "area": {
+    "name": "bangkok-and-vicinity",
+    "bbox": [99.8, 13.4, 101.0, 14.35],
+    "provincesFrom": "tools/coverage/params.json#pipeline.studyArea.provinces",
+    "boundariesGeojson": "tools/coverage/out/boundaries.geojson",
+    "minzoom": 0,
+    "maxzoom": 15,
+    "fallbackMaxzoom": 14,
+    "overzoomTo": 18,
+    "regionMode": "bbox",
+    "_regionModeComment": "bbox = rectangle area.bbox (default, matches D-031 numbers). provinces = pmtiles --region from the district polygons of the playable provinces (fewer tiles, blank outside provinces; see size report)."
+  },
+  "budget": {
+    "_comment": "Cloudflare Pages Free limits checked 2026-09-23 (tech note 7.1, 7.4). Hard caps fail the build; targets fail the build unless --allow-over-target.",
+    "pagesMaxFilesPerDeploy": 20000,
+    "pagesMaxFileBytes": 26214400,
+    "targetMaxFilesPerDeploy": 16000,
+    "targetMaxTileFiles": 15000,
+    "githubPagesMaxSiteBytes": 1000000000,
+    "githubRepoMaxFileBytes": 104857600,
+    "ciMaxCommittedFileBytes": 5242880,
+    "reservedDeployFiles": 2,
+    "_reservedComment": "_headers and 404.html added by the devops publish step (P1-F02-T08, tech note 7.5 and 9); counted against the deploy budget here."
+  },
+  "tools": {
+    "pmtiles": {
+      "version": "1.31.2",
+      "release": "https://github.com/protomaps/go-pmtiles/releases/tag/v1.31.2",
+      "assets": {
+        "Darwin_arm64": {
+          "file": "go-pmtiles-1.31.2_Darwin_arm64.zip",
+          "sha256": "40528f7f616fcbf91207cd48c8fc023d213f6d86c0cbf1f748732803d1880f3d"
+        },
+        "Darwin_x86_64": {
+          "file": "go-pmtiles-1.31.2_Darwin_x86_64.zip",
+          "sha256": "1f0dc02eee6c58312dd6c509faee1b5c32f0596568af1bf51f1b034e7a88a65b"
+        },
+        "Linux_arm64": {
+          "file": "go-pmtiles_1.31.2_Linux_arm64.tar.gz",
+          "sha256": "f8bd47e7ea866863489cad588fbaf2f31f42e5821f7a03f009b3769f05801cb1"
+        },
+        "Linux_x86_64": {
+          "file": "go-pmtiles_1.31.2_Linux_x86_64.tar.gz",
+          "sha256": "3ed7dbf4ec2e6dfe5e25b6f70d1ffc932729f93c86db353bf514dd71010a312f"
+        }
+      }
+    }
+  },
+  "assets": {
+    "basemapsAssets": {
+      "repo": "protomaps/basemaps-assets",
+      "commit": "028c18f713baecad011301ff7a69acc39bcc2ae7",
+      "commitDate": "2025-10-31",
+      "fontstacks": ["Noto Sans Regular", "Noto Sans Medium", "Noto Sans Italic"],
+      "sprites": ["light"],
+      "spriteVersion": "v4",
+      "treeSha256": "3f4c2f0e11352da8a2d1ab3ac66393573b8629d969554d9a7ac9c4926d625266",
+      "tarballSha256Informational": "57e40e8c512bd8042d0a3a251f19d0d1c8523ad963c666c3c6643bada4dc92d0",
+      "_comment": "codeload tarballs are not guaranteed byte-stable, so integrity is checked with treeSha256 over the extracted files we use (sorted sha256 list of relative paths)."
+    },
+    "notoSansThai": {
+      "release": "NotoSansThai-v2.002",
+      "url": "https://github.com/notofonts/thai/releases/download/NotoSansThai-v2.002/NotoSansThai-v2.002.zip",
+      "zipSha256": "af889cc673fc714060ce5e4e088fbad32aa4c0571a19958efeaff128a22da485",
+      "license": "OFL-1.1",
+      "faces": {
+        "NotoSansThai-Regular.ttf": {
+          "zipPath": "NotoSansThai/unhinted/ttf/NotoSansThai-Regular.ttf",
+          "sha256": "d4303fe9c63ebb72759ca8b6d2040c8ae81689f7d08d7b91c656154382b49313"
+        },
+        "NotoSansThai-Medium.ttf": {
+          "zipPath": "NotoSansThai/unhinted/ttf/NotoSansThai-Medium.ttf",
+          "sha256": "043a0473caaca159557b0965709cbef586125167771e7714cc7163960175d2f9"
+        }
+      },
+      "licenseZipPath": "OFL.txt",
+      "licenseSha256": "2e98fd23a52d253db8612cd5942c8f2ff4111b21d2367050fdca91d8ccc374a0",
+      "_comment": "Unhinted static TTF: MapLibre rasterises font-faces to SDF via canvas, so hinting adds bytes without benefit."
+    }
+  },
+  "fixture": {
+    "name": "lumpini",
+    "_comment": "Lumphini Park incl. Rama IV (south) and Ratchadamri (west) edges; 18 tiles z0-15. Source maxzoom is 15; clients overzoom to 16+. maxTotalBytes applies to the fixture PMTiles (tech note 9: <= 2 MB).",
+    "bbox": [100.538, 13.727, 100.545, 13.734],
+    "minzoom": 0,
+    "maxzoom": 15,
+    "maxTotalBytes": 2097152,
+    "glyphRanges": ["0-255", "3584-3839", "8192-8447"],
+    "maxXyzBytes": 3145728,
+    "fontstacks": ["Noto Sans Regular", "Noto Sans Medium"],
+    "publicUrl": "http://127.0.0.1:8765/fixtures/lumpini",
+    "maxDirBytes": 5242880,
+    "_limitsComment": "maxTotalBytes: fixture PMTiles (tech note 9, <= 2 MB). maxXyzBytes: XYZ tiles. maxDirBytes: whole fixtures/lumpini tree. Every file must also stay under budget.ciMaxCommittedFileBytes (CI guard, P1-F02-T07)."
+  },
+  "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap</a> <a href=\"https://protomaps.com\">Protomaps</a>",
+  "localServe": {
+    "host": "127.0.0.1",
+    "port": 8765,
+    "root": "tools/tiles",
+    "_comment": "bin/serve.py serves this directory: out/publish -> /out/publish, fixtures -> /fixtures"
+  },
+  "estimates": {
+    "_comment": "Only used by bin/estimate-area.sh (network dry-run, no download of tiles).",
+    "thailandBbox": [97.34, 5.61, 105.64, 20.47]
+  }
+}

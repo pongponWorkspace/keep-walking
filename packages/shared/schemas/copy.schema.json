@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/copy.schema.json",
+  "title": "copy.<locale>.json (docs/tech/copy-schema.md section 2)",
+  "description": "Flat key map. Keys are opaque strings; `run.death` and `run.death.alt1` are two unrelated top-level entries, never a nested object (copy-schema 2.1). This schema checks structure only: word rules (S2, S3, S5, S6, S8-S14) and cross-file checks (S4 length, S7 variable registry, S13 names) run in tools/copy-lint against the parsed file.",
+  "type": "object",
+  "required": ["_meta", "_variables"],
+  "properties": {
+    "_meta": { "$ref": "#/$defs/meta" },
+    "_variables": { "$ref": "#/$defs/variables" }
+  },
+  "patternProperties": {
+    "^_": {},
+    "^[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$": { "$ref": "#/$defs/entry" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "exceptionList": {
+      "type": "object",
+      "required": ["keys", "reason"],
+      "properties": {
+        "keys": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "reason": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "meta": {
+      "type": "object",
+      "description": "Only file/owner/task are required by schema (missing version/doc is a WARN, not a FAIL, per copy-schema 2.1). Other fields are free-form documentation that lint does not read.",
+      "required": ["file", "owner", "task"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "owner": { "type": "string", "minLength": 1 },
+        "task": { "type": "string", "minLength": 1 },
+        "version": { "type": "integer", "minimum": 1 },
+        "doc": { "type": "string", "minLength": 1 },
+        "numericExceptions": { "type": "array", "items": { "$ref": "#/$defs/exceptionList" } },
+        "dayNameExceptions": { "$ref": "#/$defs/exceptionList" },
+        "gpsStateMap": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "variable": {
+      "type": "object",
+      "required": ["maxCells", "example", "source"],
+      "properties": {
+        "maxCells": { "type": "integer", "minimum": 1 },
+        "example": { "type": "string" },
+        "source": { "type": "string", "minLength": 1 },
+        "configKey": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    },
+    "variables": {
+      "type": "object",
+      "patternProperties": {
+        "^_": {},
+        "^[a-z][a-zA-Z0-9]*$": { "$ref": "#/$defs/variable" }
+      },
+      "additionalProperties": false
+    },
+    "entry": {
+      "type": "object",
+      "required": ["text", "voice", "kind", "context"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "voice": { "enum": ["system", "research", "character", "command", "legal"] },
+        "kind": { "enum": ["message", "button", "label", "push", "dialogue", "command"] },
+        "context": { "type": "string", "minLength": 1 },
+        "cells": { "type": "integer", "minimum": 0 },
+        "cellsFirstLine": { "type": "integer", "minimum": 0 },
+        "alts": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "altOf": { "type": "string", "minLength": 1 },
+        "beat": { "enum": ["hpLow", "autoRetreat", "death", "raidFail", "enhanceFail"] }
+      },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "tileset_id": "pm4-test-z1",
+  "layout": "cloudflare-pages-xyz",
+  "files": { "tiles": 1, "total_with_reserved": 8 },
+  "bytes": { "largest_file": { "bytes": 15, "path": "tiles/pm4-test-z1/0/0/0.mvt" } }
+}

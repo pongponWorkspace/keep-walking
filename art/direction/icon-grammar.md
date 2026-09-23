@@ -162,65 +162,79 @@ Class ตาม GDD: Tanker, Ranged, Support, Magic · สีมาจากช�
 
 ## 7. ชุด icon เริ่มต้นของ v1
 
-id ในตารางเป็นชื่อเสนอ รูปแบบสุดท้ายกำหนดใน `asset-pipeline.md` (P1-F03-T11) · glyph ที่ระบุ "ห้าม" คือทางเลือกที่ดูเผินๆ ถูก แต่ขัด style guide
+id ในตารางเป็น **id สุดท้าย** ตาม `asset-pipeline.md` หัวข้อ 3 (ไวยากรณ์ 3.1, path 3.2, ตาราง kind 3.3, quick command 3.4) · แก้ใน P1-X06 จากชื่อเสนอเดิม · ถ้าขัดกัน asset-pipeline ชนะ · ตัวอย่าง path: `icon.ui.map` → `art/assets/icon/ui/map.svg` · glyph ที่ระบุ "ห้าม" คือทางเลือกที่ดูเผินๆ ถูก แต่ขัด style guide
 
 ### 7.1 UI glyph (24 px master + 16 px)
-| id เสนอ | ความหมาย | glyph | ห้าม |
+kind `icon-ui` · 24 px = `icon.ui.<name>` · 16 px วาดแยก = `icon.ui16.<name>` (`<name>` เดียวกัน เช่น `icon.ui16.gate-pass`)
+| id สุดท้าย (24 px) | ความหมาย | glyph | ห้าม |
 | --- | --- | --- | --- |
-| `map` | แผนที่ | แผ่นแผนที่พับ 3 ตอน | — |
-| `bag` | กระเป๋า / inventory | กระเป๋าผ้ามีหู | — |
-| `enhance` | ตีบวก | ใบเสร็จรอยฉีกล่าง + เครื่องหมาย % | ค้อน ทั่ง เตา ประกายไฟ ลูกเต๋า |
-| `market` | ตลาด | ป้ายราคาแขวนเชือก | ตาชั่งแบบศาล, สัญลักษณ์สกุลเงินจริง |
-| `profile` | โปรไฟล์ | หัว avatar ทั่วไป | รูปถ่าย หน้าคนจริง |
-| `settings` | ตั้งค่า | เฟือง 6 ซี่ | ธรรมจักร หรือเฟือง 8 ซี่ที่คล้ายธรรมจักร |
-| `help` | ช่วยเหลือ | วงกลม + ? | — |
-| `enter` | เข้า dungeon | ลูกศรชี้เข้ารอยแตกซิกแซก | ประตูโบราณ ซุ้มประตู |
-| `retreat` | ถอย / auto-retreat | คนก้อนกลมวิ่ง + ลูกศรชี้ออก | — |
-| `gate-pass` | tick ผ่าน movement gate | รอยเท้า 2 ข้าง + เครื่องหมายถูก (เติม `state.success`) | — |
-| `gate-miss` | tick ยังเดินไม่พอ | รอยเท้า 2 ข้าง + ขีดกลาง (outline, ไม่ใช้สีแดง เพราะไม่ใช่การลงโทษ ตาม pillars NN-8 ข้อ 4) | กากบาท สีแดง |
-| `hp` | HP | หยดน้ำอ้วน (เติม `state.danger`) | หัวใจ (ชนกับ glyph Support), กะโหลก |
-| `grace` | Grace / Suspended | นาฬิกาทราย | — |
-| `location-off` | ไม่รู้ตำแหน่ง | หมุดแผนที่ + เส้นทแยง | — |
-| `speed-lock` | speed lock | แม่กุญแจ + เส้นความเร็ว 3 เส้น | ป้ายตำรวจ ไซเรน |
-| `rain` | ฝน | เมฆก้อน + หยด 3 หยด | — |
-| `hours` | เวลาทำการ | นาฬิกาหน้าปัดกลม | — |
-| `party` | จำนวนคนใน dungeon | หัวก้อนกลม 2 หัวซ้อน | จุดบนแผนที่, รูปคนรายตัวพร้อมตำแหน่ง |
-| `report` | รายงาน / บล็อก | ธงสามเหลี่ยมเปล่า | ธงชาติ ธงที่มีลาย |
-| `consent` | ความเป็นส่วนตัว / consent | โล่เล็ก + หมุดแผนที่ | แม่กุญแจ (ชนกับ speed-lock) |
+| `icon.ui.map` | แผนที่ | แผ่นแผนที่พับ 3 ตอน | — |
+| `icon.ui.bag` | กระเป๋า / inventory | กระเป๋าผ้ามีหู | — |
+| `icon.ui.enhance` | ตีบวก | ใบเสร็จรอยฉีกล่าง + เครื่องหมาย % | ค้อน ทั่ง เตา ประกายไฟ ลูกเต๋า |
+| `icon.ui.market` | ตลาด | ป้ายราคาแขวนเชือก | ตาชั่งแบบศาล, สัญลักษณ์สกุลเงินจริง |
+| `icon.ui.profile` | โปรไฟล์ | หัว avatar ทั่วไป | รูปถ่าย หน้าคนจริง |
+| `icon.ui.settings` | ตั้งค่า | เฟือง 6 ซี่ | ธรรมจักร หรือเฟือง 8 ซี่ที่คล้ายธรรมจักร |
+| `icon.ui.help` | ช่วยเหลือ | วงกลม + ? | — |
+| `icon.ui.enter` | เข้า dungeon | ลูกศรชี้เข้ารอยแตกซิกแซก | ประตูโบราณ ซุ้มประตู |
+| `icon.ui.retreat` | ถอย / auto-retreat | คนก้อนกลมวิ่ง + ลูกศรชี้ออก | — |
+| `icon.ui.gate-pass` | tick ผ่าน movement gate | รอยเท้า 2 ข้าง + เครื่องหมายถูก (เติม `state.success`) | — |
+| `icon.ui.gate-miss` | tick ยังเดินไม่พอ | รอยเท้า 2 ข้าง + ขีดกลาง (outline, ไม่ใช้สีแดง เพราะไม่ใช่การลงโทษ ตาม pillars NN-8 ข้อ 4) | กากบาท สีแดง |
+| `icon.ui.hp` | HP | หยดน้ำอ้วน (เติม `state.danger`) | หัวใจ (ชนกับ glyph Support), กะโหลก |
+| `icon.ui.grace` | Grace / Suspended | นาฬิกาทราย | — |
+| `icon.ui.location-off` | ไม่รู้ตำแหน่ง | หมุดแผนที่ + เส้นทแยง | — |
+| `icon.ui.speed-lock` | speed lock | แม่กุญแจ + เส้นความเร็ว 3 เส้น | ป้ายตำรวจ ไซเรน |
+| `icon.ui.rain` | ฝน | เมฆก้อน + หยด 3 หยด | — |
+| `icon.ui.hours` | เวลาทำการ | นาฬิกาหน้าปัดกลม | — |
+| `icon.ui.party` | จำนวนคนใน dungeon | หัวก้อนกลม 2 หัวซ้อน | จุดบนแผนที่, รูปคนรายตัวพร้อมตำแหน่ง |
+| `icon.ui.report` | รายงาน / บล็อก | ธงสามเหลี่ยมเปล่า | ธงชาติ ธงที่มีลาย |
+| `icon.ui.consent` | ความเป็นส่วนตัว / consent | โล่เล็ก + หมุดแผนที่ | แม่กุญแจ (ชนกับ speed-lock) |
 
 ### 7.2 Quick command 10 ตัว (32 px, ตาม GDD "Quick command")
-| คำสั่ง (GDD) | id เสนอ | glyph | ห้าม |
-| --- | --- | --- | --- |
-| มาแล้วจ้า | `qc-arrived` | มือโบก + เส้นเคลื่อนไหว 2 เส้น | — |
-| กำลังไป รอแป๊บ | `qc-coming` | รอยเท้า + นาฬิกาเล็ก | — |
-| ไปต่อ | `qc-go-on` | ลูกศรหนาชี้ขวา | — |
-| ขอเลือดหน่อย | `qc-need-hp` | หยด HP + ลูกศรขึ้น | กากบาทแดง |
-| เลือดจะหมดแล้ว | `qc-hp-low` | หยด HP ครึ่งหยด + ! | กะโหลก |
-| ช่วยบังหน่อย | `qc-cover-me` | โล่ outline (ไม่มีวงกลมพื้น) | badge Tanker เต็มรูปแบบ |
-| ขอพักแป๊บ | `qc-break` | แก้วน้ำมีหลอด | แก้วที่ระบุแบรนด์ได้ |
-| ขอถอยก่อนนะ | `qc-leaving` | ประตูเปิด + ลูกศรออก | — |
-| ของออกแล้ว | `qc-loot` | กล่องเปิด + เส้นประกายตรง 3 เส้น | ดาว 4 แฉก (ชน glyph Magic), หีบสมบัติทองมีมงกุฎ |
-| ขอบคุณ | `qc-thanks` | นิ้วโป้งชู | มือพนม (อ่านเป็นการสวดหรือพิธีได้) |
+kind `icon-qc` · id ตามตาราง asset-pipeline 3.4 (copy key `qc.*` ของ narrative-designer แปลง camelCase เป็น kebab) · pose ของ avatar ที่คู่กันอยู่ใน asset-pipeline 3.4 และ avatar-spec 10
+| คำสั่ง (GDD) | copy key | id สุดท้าย | glyph | ห้าม |
+| --- | --- | --- | --- | --- |
+| มาแล้วจ้า | `qc.arrived` | `icon.qc.arrived` | มือโบก + เส้นเคลื่อนไหว 2 เส้น | — |
+| กำลังไป รอแป๊บ | `qc.onMyWay` | `icon.qc.on-my-way` | รอยเท้า + นาฬิกาเล็ก | — |
+| ไปต่อ | `qc.goOn` | `icon.qc.go-on` | ลูกศรหนาชี้ขวา | — |
+| ขอเลือดหน่อย | `qc.needHeal` | `icon.qc.need-heal` | หยด HP + ลูกศรขึ้น | กากบาทแดง |
+| เลือดจะหมดแล้ว | `qc.hpCritical` | `icon.qc.hp-critical` | หยด HP ครึ่งหยด + ! | กะโหลก |
+| ช่วยบังหน่อย | `qc.needCover` | `icon.qc.need-cover` | โล่ outline (ไม่มีวงกลมพื้น) | badge Tanker เต็มรูปแบบ |
+| ขอพักแป๊บ | `qc.needBreak` | `icon.qc.need-break` | แก้วน้ำมีหลอด | แก้วที่ระบุแบรนด์ได้ |
+| ขอถอยก่อนนะ | `qc.retreating` | `icon.qc.retreating` | ประตูเปิด + ลูกศรออก | — |
+| ของออกแล้ว | `qc.goodDrop` | `icon.qc.good-drop` | กล่องเปิด + เส้นประกายตรง 3 เส้น | ดาว 4 แฉก (ชน glyph Magic), หีบสมบัติทองมีมงกุฎ |
+| ขอบคุณ | `qc.thanks` | `icon.qc.thanks` | นิ้วโป้งชู | มือพนม (อ่านเป็นการสวดหรือพิธีได้) |
+
+ชื่อเสนอเดิม (`qc-coming`, `qc-need-hp`, `qc-hp-low`, `qc-cover-me`, `qc-break`, `qc-leaving`, `qc-loot`) เลิกใช้ ห้ามใช้เป็นชื่อไฟล์หรือ id
 
 ### 7.3 Item icon (64 px isometric)
-| หมวด | id เสนอ | ภาพ | ห้าม |
+kind `icon-item` · id = `icon.item.<category>-<name>` (asset-pipeline 3.3) · `<name>` เป็นคำนามภาษาอังกฤษทั่วไปแบบ kebab ไม่ใช่ชื่อไอเทมภาษาไทยจากหลังบ้าน (ชื่อที่ผู้เล่นเห็นมาจาก content config, NN-3)
+| หมวด | id สุดท้าย | ภาพ | ห้าม |
 | --- | --- | --- | --- |
-| อาวุธ | `item-weapon-<id>` | ของในเมืองที่ใช้ตีได้แบบตลก (ร่มพับ ไม้ถูพื้น หนังสติ๊ก) หรืออาวุธแฟนตาซีทรงก้อนกลม | ปืนสมจริง มีดสมจริง อาวุธโบราณไทยที่ผูกกับพิธี |
-| เกราะ | `item-armor-<id>` | เสื้อกันฝน เสื้อกั๊กสะท้อนแสงแบบไม่มีตัวอักษร เกราะแฟนตาซีก้อนกลม | เครื่องแบบจริง เสื้อวินมีเลข |
-| เครื่องราง | `item-charm-<id>` | พวงกุญแจ ป้ายห้อยกระเป๋า เข็มกลัด ตุ๊กตาห้อย | **พระเครื่อง ตะกรุด ยันต์ ผ้ายันต์ สายสิญจน์ ลูกประคำ** · "เครื่องราง" ในเกมคือของห้อยกระเป๋า ไม่ใช่ของมงคล |
-| รองเท้า | `item-boots-<id>` | รองเท้าผ้าใบ รองเท้าแตะ รองเท้าบูทกันน้ำ | โลโก้หรือลายเส้นที่ระบุแบรนด์ได้ |
-| ช่องว่าง | `item-slot-empty-<slot>` | silhouette ของช่องนั้นเส้นประ `ink.500` | — |
-| ผงธาตุ | `mat-dust` | ถุงซิปใสมีผงเรืองแสงสี `rift.300` | ขวดหรือผอบทรงเจดีย์ |
-| แก่นธาตุ | `mat-essence` | ก้อนผลึกกลมเหลี่ยมมน | — |
-| หินรอยแยก | `mat-rift-stone` | เศษหินหักซิกแซก `ramp.rift` | — |
-| แกนบอส | `mat-boss-core` | ลูกบอลแข็งมีรอยแตกรอยแยก ขอบ 3 px | ผอบ พระธาตุ หรือภาชนะทรงศาสนา |
-| ยา | `potion-<id>` | ขวดเครื่องดื่มเกลือแร่ทั่วไปไม่มีฉลาก | ขวดที่คล้ายแบรนด์จริง |
-| gold | `currency-gold` | เหรียญทองเกลี้ยง มีวงแหวนนูน 1 วง | **รูปหน้าคนบนเหรียญ** ตราหรือลายของเหรียญจริง (เหรียญไทยจริงมีพระบรมรูป) |
-| badge | `badge-<id>` | เข็มกลัดกลมก้อนกลม · ภายในเป็น motif จาก style guide 8.1 | สัญลักษณ์ในหมวดห้ามของ style guide 8.2 |
+| อาวุธ | `icon.item.weapon-<name>` เช่น `icon.item.weapon-folding-umbrella` | ของในเมืองที่ใช้ตีได้แบบตลก (ร่มพับ ไม้ถูพื้น หนังสติ๊ก) หรืออาวุธแฟนตาซีทรงก้อนกลม | ปืนสมจริง มีดสมจริง อาวุธโบราณไทยที่ผูกกับพิธี |
+| เกราะ | `icon.item.armor-<name>` | เสื้อกันฝน เสื้อกั๊กสะท้อนแสงแบบไม่มีตัวอักษร เกราะแฟนตาซีก้อนกลม | เครื่องแบบจริง เสื้อวินมีเลข |
+| เครื่องราง | `icon.item.charm-<name>` | พวงกุญแจ ป้ายห้อยกระเป๋า เข็มกลัด ตุ๊กตาห้อย | **พระเครื่อง ตะกรุด ยันต์ ผ้ายันต์ สายสิญจน์ ลูกประคำ** · "เครื่องราง" ในเกมคือของห้อยกระเป๋า ไม่ใช่ของมงคล |
+| รองเท้า | `icon.item.boots-<name>` | รองเท้าผ้าใบ รองเท้าแตะ รองเท้าบูทกันน้ำ | โลโก้หรือลายเส้นที่ระบุแบรนด์ได้ |
+| ช่องว่าง | `icon.item.slot-empty-<slot>` เช่น `icon.item.slot-empty-boots` | silhouette ของช่องนั้นเส้นประ `ink.500` | — |
+| ผงธาตุ | `icon.item.mat-dust` | ถุงซิปใสมีผงเรืองแสงสี `rift.300` | ขวดหรือผอบทรงเจดีย์ |
+| แก่นธาตุ | `icon.item.mat-essence` | ก้อนผลึกกลมเหลี่ยมมน | — |
+| หินรอยแยก | `icon.item.mat-rift-stone` | เศษหินหักซิกแซก `ramp.rift` | — |
+| แกนบอส | `icon.item.mat-boss-core` | ลูกบอลแข็งมีรอยแตกรอยแยก ขอบ 3 px | ผอบ พระธาตุ หรือภาชนะทรงศาสนา |
+| ยา | `icon.item.potion-<name>` | ขวดเครื่องดื่มเกลือแร่ทั่วไปไม่มีฉลาก | ขวดที่คล้ายแบรนด์จริง |
+| gold | `icon.item.currency-gold` | เหรียญทองเกลี้ยง มีวงแหวนนูน 1 วง | **รูปหน้าคนบนเหรียญ** ตราหรือลายของเหรียญจริง (เหรียญไทยจริงมีพระบรมรูป) |
+| badge | `icon.item.badge-<name>` (ของสะสมของผู้เล่น ไม่ใช่ `badge.class.*`) | เข็มกลัดกลมก้อนกลม · ภายในเป็น motif จาก style guide 8.1 | สัญลักษณ์ในหมวดห้ามของ style guide 8.2 |
 
 ## 8. กฎ SVG และการส่งมอบ
 
-กฎเหล่านี้เป็นส่วนของ icon · naming เต็ม โครง manifest และงบขนาดไฟล์สุดท้ายอยู่ใน `asset-pipeline.md` (P1-F03-T11) ถ้าขัดกัน asset-pipeline ชนะ
+กฎเหล่านี้เป็นส่วนของ icon · naming เต็ม โครง manifest และงบขนาดไฟล์สุดท้ายอยู่ใน `asset-pipeline.md` ถ้าขัดกัน asset-pipeline ชนะ · id และ path: asset-pipeline หัวข้อ 3 · กฎ SVG ที่เพิ่มจากตารางนี้: asset-pipeline 4.1 · งบขนาดสุดท้าย: asset-pipeline 7 (ค่าในตารางนี้ตรงกับที่นั่นทุกตัว)
+
+| ชนิด | id สุดท้าย (asset-pipeline 3.3) | path ตัวอย่าง |
+| --- | --- | --- |
+| UI glyph 24 / 16 px | `icon.ui.<name>` / `icon.ui16.<name>` | `art/assets/icon/ui/gate-pass.svg`, `art/assets/icon/ui16/gate-pass.svg` |
+| quick command | `icon.qc.<name>` (ตาราง 7.2) | `art/assets/icon/qc/on-my-way.svg` |
+| item icon | `icon.item.<category>-<name>` | `art/assets/icon/item/mat-rift-stone.svg` |
+| class badge | `badge.class.<class>-<size>` · class = `tanker`, `ranged`, `support`, `magic` · size = 20, 32, 48 | `art/assets/badge/class/support-20.svg` |
+| rarity frame | `frame.rarity.<tier>-<size>` · tier = `common`, `uncommon`, `rare`, `epic`, `legendary` · size = 52, 72 | `art/assets/frame/rarity/legendary-72.svg` |
+| icon บนแผนที่ | `map.icon.<name>` (ข้อยกเว้นของ path) | `art/direction/map-style/icons/rift-crack.svg` |
 
 | กฎ | ค่า |
 | --- | --- |
@@ -233,7 +247,7 @@ id ในตารางเป็นชื่อเสนอ รูปแบบ�
 | rarity frame | 1 ไฟล์ต่อระดับต่อขนาด (10 ไฟล์) ไม่รวม item icon · code ประกอบ frame + icon เอง |
 | class badge | 1 ไฟล์ต่อ class ต่อขนาด (12 ไฟล์ที่ 20/32/48) |
 | id ภายใน SVG | ห้าม id ซ้ำข้ามไฟล์ (prefix ด้วยชื่อไฟล์) เพราะ SVG อาจ inline หลายตัวในหน้าเดียว |
-| งบขนาดเสนอ | UI glyph ≤ 2 KB · class badge ≤ 3 KB · rarity frame ≤ 3 KB · item icon ≤ 8 KB (หลัง SVGO) |
+| งบขนาด | UI glyph 24 px ≤ 2 KB · 16 px ≤ 1.5 KB · quick command ≤ 2 KB · class badge ≤ 3 KB · rarity frame ≤ 3 KB · item icon ≤ 8 KB (หลัง SVGO ก่อน gzip) · ค่าสุดท้ายอยู่ใน asset-pipeline 7 |
 
 ## 9. Checklist ตรวจ icon (ใช้ใน content gate `art/reviews/F<nn>-visual-gate.md`)
 
@@ -256,6 +270,6 @@ id ในตารางเป็นชื่อเสนอ รูปแบบ�
 - A-P1-F03-T10-3: ชื่อ class แสดงเป็นภาษาอังกฤษตาม GDD (ยืนยัน: narrative-designer)
 - A-P1-F03-T10-6: ชื่อ rarity 5 ระดับตาม brief ของ role (Common ถึง Legendary) · ถ้า systems-designer ใช้จำนวนระดับต่างจากนี้ใน `config/balance/` ต้องแจ้ง art-director เพื่อออกแบบ pip และมุมเพิ่ม ไม่ใช่เพิ่มสีอย่างเดียว (ยืนยัน: systems-designer)
 - A-P1-F03-T10-7: icon ทั้งหมดไม่มีข้อความในตัว ข้อความมาจาก copy key ของ narrative-designer (`rarity.*`, `class.*`, `qc.*`, `label.sponsored` เป็นชื่อเสนอ) (ยืนยัน: narrative-designer)
-- A-P1-F03-T10-8: id และงบขนาดในหัวข้อ 7–8 เป็นข้อเสนอ `asset-pipeline.md` (P1-F03-T11) เป็นตัวตัดสิน (ยืนยัน: art-director ใน T11)
+- A-P1-F03-T10-8: **ปิดแล้วใน P1-X06** · id ในหัวข้อ 7 และงบในหัวข้อ 8 เปลี่ยนเป็นค่าสุดท้ายตาม `asset-pipeline.md` หัวข้อ 3 และ 7
 
 การเปลี่ยนเอกสารนี้: art-director แก้ได้ภายในทิศทางที่อนุมัติ · การเปลี่ยนสี rarity หรือ class ต้องคำนวณ contrast ใหม่และทดสอบตาบอดสีตามหัวข้อ 6.3 ก่อน

@@ -1,0 +1,9 @@
+{
+  // A CLI tool: Node types are allowed here, unlike packages/shared (ADR 0001 3.2).
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}

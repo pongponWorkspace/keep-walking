@@ -1,0 +1,140 @@
+{
+  "tileset_id": "pm4-20260923-z15-lumpini",
+  "layout": "fixture",
+  "schema": {
+    "name": "protomaps-basemap",
+    "major": 4,
+    "metadataVersion": "4.15.2"
+  },
+  "build_key": "20260923",
+  "source_url": "https://build.protomaps.com/20260923.pmtiles",
+  "osm_replication_time": "2026-09-23T04:00:00Z",
+  "bbox": [100.538, 13.727, 100.545, 13.734],
+  "region_mode": "bbox",
+  "minzoom": 0,
+  "maxzoom": 15,
+  "overzoom_to": 18,
+  "files": {
+    "tiles": 18,
+    "glyph_pbf": 6,
+    "font_faces": 2,
+    "sprite_files": 5,
+    "total": 36,
+    "reserved_for_publish_step": 2,
+    "total_with_reserved": 38
+  },
+  "bytes": {
+    "tiles": 2238706,
+    "total": 4235254,
+    "largest_file": {
+      "path": "pmtiles/pm4-20260923-z15-lumpini.pmtiles",
+      "bytes": 1479856
+    },
+    "pmtiles_archive": 1479856
+  },
+  "per_zoom": [
+    {
+      "z": 0,
+      "files": 1,
+      "bytes": 93230,
+      "maxTileBytes": 93230
+    },
+    {
+      "z": 1,
+      "files": 1,
+      "bytes": 106563,
+      "maxTileBytes": 106563
+    },
+    {
+      "z": 2,
+      "files": 1,
+      "bytes": 84939,
+      "maxTileBytes": 84939
+    },
+    {
+      "z": 3,
+      "files": 1,
+      "bytes": 143921,
+      "maxTileBytes": 143921
+    },
+    {
+      "z": 4,
+      "files": 1,
+      "bytes": 79111,
+      "maxTileBytes": 79111
+    },
+    {
+      "z": 5,
+      "files": 1,
+      "bytes": 61181,
+      "maxTileBytes": 61181
+    },
+    {
+      "z": 6,
+      "files": 1,
+      "bytes": 52505,
+      "maxTileBytes": 52505
+    },
+    {
+      "z": 7,
+      "files": 1,
+      "bytes": 71829,
+      "maxTileBytes": 71829
+    },
+    {
+      "z": 8,
+      "files": 1,
+      "bytes": 59875,
+      "maxTileBytes": 59875
+    },
+    {
+      "z": 9,
+      "files": 1,
+      "bytes": 88569,
+      "maxTileBytes": 88569
+    },
+    {
+      "z": 10,
+      "files": 1,
+      "bytes": 190456,
+      "maxTileBytes": 190456
+    },
+    {
+      "z": 11,
+      "files": 1,
+      "bytes": 176676,
+      "maxTileBytes": 176676
+    },
+    {
+      "z": 12,
+      "files": 1,
+      "bytes": 231527,
+      "maxTileBytes": 231527
+    },
+    {
+      "z": 13,
+      "files": 1,
+      "bytes": 208357,
+      "maxTileBytes": 208357
+    },
+    {
+      "z": 14,
+      "files": 2,
+      "bytes": 314634,
+      "maxTileBytes": 179525
+    },
+    {
+      "z": 15,
+      "files": 2,
+      "bytes": 275333,
+      "maxTileBytes": 185973
+    }
+  ],
+  "pins": {
+    "pmtiles_cli": "1.31.2",
+    "basemaps_assets_commit": "028c18f713baecad011301ff7a69acc39bcc2ae7",
+    "noto_sans_thai": "NotoSansThai-v2.002"
+  },
+  "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap</a> <a href=\"https://protomaps.com\">Protomaps</a>",
+  "generated_at": "2026-09-23T12:53:28Z"
+}

@@ -1,0 +1,47 @@
+{
+  "_meta": {
+    "file": "tools/coverage/boundaries/params.json",
+    "owner": "location-engineer",
+    "task": "P1-H07",
+    "doc": "docs/tech/F02-map-location-spike.md section 15.1 · art/direction/map-style.md 6.2–6.3",
+    "_note": "Tool parameters only. The playable province list is NOT here: it is read from tools/coverage/params.json#pipeline.studyArea.provinces (same list as the coverage survey). The OSM source (D1) and projected CRS also come from that file. The mask hole is built from the play-area edge lines of the border step, so it uses borders.playableSimplify_m and borders.playableCoordinatePrecision (one geometry for the line and the hole)."
+  },
+  "provinces": {
+    "adminLevel": "4",
+    "isoPrefix": "TH-",
+    "expectedCount": 77,
+    "nameTags": ["name:th", "name"],
+    "nameStripPrefixes": ["จังหวัด"]
+  },
+  "mask": {
+    "coordinatePrecision": 5,
+    "outerRing": [
+      [-180, -85],
+      [180, -85],
+      [180, 85],
+      [-180, 85],
+      [-180, -85]
+    ]
+  },
+  "borders": {
+    "simplify_m": 350,
+    "coordinatePrecision": 4,
+    "playableSimplify_m": 20,
+    "playableCoordinatePrecision": 5,
+    "classifyTolerance_m": 0.5
+  },
+  "labels": {
+    "polylabelTolerance_m": 500,
+    "coordinatePrecision": 4
+  },
+  "maxFileBytes": 307200,
+  "attribution": "© OpenStreetMap contributors (ODbL)",
+  "outputs": {
+    "mask": "../../data/map/playarea-mask.geojson",
+    "provinces": "../../data/map/provinces.geojson"
+  },
+  "_source": {
+    "borders.simplify_m": "map-style 6.3 suggests ~200 m for all 77 provinces. On the 2026-09-01 extract with 20 m lines around the play area: 300 m gives 292 KB, 350 m gives 260 KB (15% headroom under the 300 KB budget, A-P1-H01-2). About 1 px at z8. Applies only to lines not touching a playable province.",
+    "borders.playableSimplify_m": "map-style 6.2 (~20 m): lines touching a playable province, including the mask hole"
+  }
+}

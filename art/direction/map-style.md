@@ -1,6 +1,6 @@
 # Map Style — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T12 · เจ้าของ: art-director · สถานะ: ฉบับแรก (0.1.0) พร้อมให้ P1-F02-T11 โหลด · รอภาพทดสอบกับ fixture tile และกลางแดด (หัวข้อ 9) · วันที่: 2026-09-23
+Task: P1-F03-T12 (แก้ใน P1-X06: หัวข้อ 2, 5, 6.1, 9, 13, 14 ตาม tech note 15 และผลตรวจ contrast ของ QA · ไม่เปลี่ยน style JSON) · เจ้าของ: art-director · สถานะ: ฉบับแรก (0.1.0) พร้อมให้ P1-F02-T11 โหลด · รอภาพทดสอบกับ fixture tile และกลางแดด (หัวข้อ 9) · วันที่: 2026-09-23
 แหล่งอ้างอิง: GDD "แผนที่และโซนดำ", "รายได้ของโปรเจกต์" · `art/direction/style-guide.md` (3.5, 4.4, 4.5, 9.2, 9.3) · `art/direction/icon-grammar.md` · `docs/tech/F02-map-location-spike.md` (5, 6, 6.3, 7, 8, 14) · D-006, D-031, D-032
 
 ## สารบัญ
@@ -40,7 +40,7 @@ Task: P1-F03-T12 · เจ้าของ: art-director · สถานะ: ฉ�
 | theme ตั้งต้น | `@protomaps/basemaps` 5.7.2 flavor `light`, `lang: "th"` |
 | สิ่งที่เปลี่ยนจาก theme ตั้งต้น | (1) สีทั้งหมดเป็น token จาก style-guide 3.1–3.5 · (2) ตัด layer ที่ไม่ช่วยการเดินหาที่: landcover, boundaries ของ tile, icon ของ POI, shield ทางหลวง, tunnel/bridge แยกชั้น, label ประเทศและทะเล · (3) POI เหลือแบบ whitelist (หัวข้อ 12) · (4) เพิ่ม layer เกม `kw-*` 15 ชั้น |
 | ชื่อ layer | ชั้นพื้นฐานตั้งชื่อแบบ Protomaps (`earth`, `landuse_park`, `roads_minor`, `roads_label_major` ...) เพื่อให้ diff กับ theme ทางการได้ · ชั้นของเกมขึ้นต้น `kw-` |
-| ชื่อภาษา | ทุก label ของ tile ใช้ `["coalesce", ["get", "name:th"], ["get", "name"]]` คือชื่อไทยก่อน ถ้าไม่มีใช้ `name` (ตรงกับ `lang: "th"`) · ยืนยันข้อเปิดใน tech note 14: ใช้ `th` |
+| ชื่อภาษา | ทุก label ของ tile ใช้ `["coalesce", ["get", "name:th"], ["get", "name"]]` คือชื่อไทยก่อน ถ้าไม่มีใช้ `name` (ตรงกับ `lang: "th"`) · ยืนยันข้อเปิดใน tech note 14: ใช้ `th` · ตรวจซ้ำใน P1-X06: label ของ tile ทั้ง 7 ชั้น (`water_label_point`, `water_label_line`, `pois_label`, `roads_label_minor`, `roads_label_major`, `places_neighbourhood`, `places_locality`) ใช้ `coalesce` นี้ทุกชั้น · build `20260923` **ไม่มี key `name:th`** ชื่อไทยอยู่ใน `name` (`tools/tiles/README.md` หัวข้อ 5: tile z15 `25535/15122` มี `ถนนพระรามที่ 4`, `ถนนราชดำริ`, `ถนนวิทยุ` ใน `name`) จึงแสดงผ่านทาง fallback เสมอ ไม่ต้องแก้ style · ถ้า build ถัดไปมี `name:th` ชื่อนั้นจะขึ้นก่อนโดยอัตโนมัติ |
 | ห้าม | ห้ามผสม schema แบบ OpenMapTiles · ห้ามชี้ font หรือ tile ไปที่ CDN ภายนอก |
 
 [ASSUMPTION A-P1-F03-T12-1: ในเครื่องนี้ไม่มี package `@protomaps/basemaps` (ไม่อยู่ใน `node_modules` และงานนี้ห้ามแตะ lockfile) style จึงเขียนมือโดยยึดชื่อ source-layer และค่า `kind` ของ schema v4 (`earth`, `landuse`, `water`, `roads`, `buildings`, `places`, `pois` · roads `kind` = `highway`, `major_road`, `minor_road`, `path`, `other`, `rail`) · ผู้ที่ติดตั้ง package ได้ (P1-F02-T06 หรือ T11) ให้ generate `layers("protomaps", namedFlavor("light"), { lang: "th" })` แล้วเทียบชื่อ `source-layer`, `kind` และ filter กับไฟล์นี้ ถ้าต่างให้ส่ง handoff กลับมา art-director แก้ ไม่แก้สีเอง]
@@ -91,7 +91,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 | 9 | `buildings` | protomaps / buildings | ≥ 15 | `ink.100` #DDDDEE | อาคาร (ตั้งใจให้จาง ไม่แย่งถนน) |
 | 10 | `transit_rail` | protomaps / roads `rail` | ≥ 12 | `ink.500` #555566 เส้นประ 3/2 | ราง |
 | 11 | `roads_path` | protomaps / roads `path` | ≥ 14 | `ink.500` เส้นประ 2/1.5 | ทางเดินในสวน ทางเท้า |
-| 12–14 | `roads_minor_casing`, `roads_major_casing`, `roads_highway_casing` | protomaps / roads | ≥ 13 / ≥ 9 / ≥ 7 | `map.road-casing` #555566 | ขอบถนนทุกระดับ (ถนนขาวบนดินได้แค่ 1.16:1 จึงต้องมีขอบ) |
+| 12–14 | `roads_minor_casing`, `roads_major_casing`, `roads_highway_casing` | protomaps / roads | ≥ 13 / ≥ 9 / ≥ 7 | `map.road-casing` #555566 | ขอบถนนทุกระดับ (ถนนขาวบนดินได้แค่ 1.22:1 จึงต้องมีขอบ) |
 | 15–17 | `roads_minor`, `roads_major`, `roads_highway` | protomaps / roads | ≥ 13 / ≥ 9 / ≥ 7 | `map.road` #FFFFFF | ตัวถนน |
 | 18–19 | `water_label_point`, `water_label_line` | protomaps / water | ≥ 13 | `map.label-water` #005588 halo #FFFFFF 2 px | ชื่อแม่น้ำ คลอง |
 | 20 | `pois_label` | protomaps / pois (whitelist) | ≥ 15 | `ink.700` #333344 halo ขาว 2 px, 14 px | ชื่อสวน ตลาด สถานี (ข้อความอย่างเดียว ไม่มี icon) |
@@ -129,12 +129,16 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 | --- | --- | --- | --- |
 | `id` | string | back office (`promoteId` ของ source) | feature-state ในอนาคต |
 | `name` | string | ชื่อ dungeon จาก back office (non-negotiable 3) | `kw-rift-name` |
-| `status` | `"open"` \| `"closed"` | server | `closed` → ขอบประ `ink.500` ไม่มี icon ไม่มีสีพื้น |
+| `status` | `"open"` \| `"closed"` | server ผ่าน adapter (ค่าอื่น → `"closed"`) | `closed` → ขอบประ `ink.500` ไม่มี icon ไม่มีสีพื้น |
 | `sponsored` | boolean | back office | เปิด `kw-rift-sponsored` |
 | `label_sponsored` | string | copy key `label.sponsored` (เสนอใน style-guide 9.2 ถ้อยคำของ narrative-designer) | `kw-rift-sponsored` |
 | `label_count` | string | client จัดรูปจากค่าระดับ dungeon ที่ server ส่ง (จำนวนคนรวม + จำนวนต่อ class) ผ่าน copy key | `kw-rift-count` |
 
-- geometry: `Polygon` หรือ `MultiPolygon` ตาม RFC 7946 · **วงนอกทวนเข็มนาฬิกา** (ทำให้ `line-offset: -2` ของ `kw-rift-inner` อยู่ด้านในเสมอ) · client หรือ backend ต้อง rewind ก่อนส่ง (เช่น `@turf/rewind` หรือฟังก์ชันเทียบเท่า)
+สัญญานี้ ACCEPTED ใน tech note `docs/tech/F02-map-location-spike.md` 15.2 เป็น **view model ฝั่ง client** ไม่ใช่ API · กติกาของ adapter เดียว `apps/client/src/map/dungeons-source.ts`
+- **สร้าง object ใหม่จาก whitelist:** ใส่เฉพาะ 6 property ในตาราง (`id`, `name`, `status`, `sponsored`, `label_sponsored`, `label_count`) · **ห้าม spread payload ของ server ลง feature** · property อื่นที่ server ส่งมาทิ้งทั้งหมด (tech gate ตรวจว่าไม่มีรหัส ชื่อ พิกัด geohash หรือเวลาที่เห็นล่าสุดของผู้เล่นคนใด, non-negotiable 4)
+- **`status` ที่ไม่รู้จัก → `"closed"`:** ค่าใดที่ไม่ใช่ `"open"` หรือ `"closed"` (รวมค่าว่างหรือไม่มี field) adapter แปลงเป็น `"closed"` และ `console.warn` · style จึงเห็นแค่สองค่านี้ ส่วน dungeon ที่สถานะไม่ชัดแสดงเป็นขอบประ `ink.500` ไม่ชวนให้เดินไปที่ที่อาจเข้าไม่ได้ · เพิ่มสถานะใหม่ต้องแก้ทั้ง style (art-director) และ adapter พร้อมกัน
+- `label_count` จำนวน 0 → สตริงว่าง (ไม่มีป้ายจำนวน) · `name` มาจาก payload ของหลังบ้าน ไม่ใช่ copy · ไม่มีอักษรไทยในโค้ด
+- geometry: `Polygon` หรือ `MultiPolygon` ตาม RFC 7946 · **วงนอกทวนเข็มนาฬิกา** (ทำให้ `line-offset: -2` ของ `kw-rift-inner` อยู่ด้านในเสมอ) · adapter rewind ด้วย pure function ของโปรเจกต์ (`packages/geo` เมื่อสร้าง ระหว่างนี้อยู่ใน `apps/client/src/map/`) · ไม่เพิ่ม `@turf/rewind` โดยไม่มี handoff ถึง tech-lead (tech note 15.2 ข้อ 7)
 - ห้ามมี property ที่เป็นพิกัด รหัส หรือชื่อของผู้เล่นคนใด · `label_count` เป็นตัวเลขรวมระดับ dungeon เท่านั้น
 - ต่อไปเมื่อ artist-2d วาด glyph class 4 แบบตาม icon-grammar แล้ว จะเพิ่ม image `kw-class-tanker` ... ใน `label_count` ด้วย `format` + `image` แทนตัวย่อ (เวอร์ชันถัดไปของ style ไม่เปลี่ยนสัญญา property)
 
@@ -192,7 +196,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 
 ## 9. ตาราง contrast บนแผนที่
 
-คำนวณตามวิธีใน style-guide 2 (WCAG 2.x) · ค่า L ของ #3377AA = 0.1680 (คำนวณใหม่ในงานนี้) ค่าอื่นจาก style-guide 3
+คำนวณตามวิธีใน style-guide 2 (WCAG 2.x) · ค่า L ของ #3377AA = 0.1680 (คำนวณใหม่ในงานนี้) ค่าอื่นจาก style-guide 3 · ทุกแถวตรวจอัตโนมัติด้วย `qa/tests/unit/contrast.test.ts` (P1-H04, ผลใน `qa/reports/F03-contrast-check.md`) · แก้ใน P1-X06: แถว `map.road` บน `map.land` 1.16 → 1.22 (= (1.0000 + 0.05) / (0.8111 + 0.05) = 1.2194) ข้อสรุปเดิมไม่เปลี่ยน ถนนทุกระดับยังต้องมีขอบ
 
 | คู่ | Ratio | ผล | หมายเหตุ |
 | --- | --- | --- | --- |
@@ -216,7 +220,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 | ขอบ `ink.900` ของจุดตัวเองบน `map.land` / `map.park` / ถนน | 14.18 / 13.60 / 17.29 | UI | |
 | `accent.signal` ในจุดตัวเองกับขอบ `ink.900` | 11.43 | UI | |
 | ขอบวง accuracy `state.info` บน `map.land` / `map.park` / ถนน | 5.13 / 4.91 / 6.25 | UI | |
-| `map.road` บน `map.land` (ไม่มีขอบ) | 1.16 | ห้าม | เหตุผลที่ถนนทุกระดับมีขอบ |
+| `map.road` บน `map.land` (ไม่มีขอบ) | 1.22 | ห้าม | เหตุผลที่ถนนทุกระดับมีขอบ |
 | `buildings` `ink.100` บน `map.land` | 1.10 | ตกแต่ง | ตั้งใจให้จาง ไม่ถือเป็นข้อมูล |
 | `map.water` บน `map.land` (ไม่มีขอบ) | 1.19 | ห้าม | เหตุผลที่เพิ่ม `water_edge` |
 
@@ -263,13 +267,13 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 
 ## 13. การตรวจ style JSON
 
-คำสั่งตรวจ (ใช้ validator ที่ติดมากับ `maplibre-gl` 6.10 อยู่แล้ว ไม่ติดตั้งเพิ่ม ไม่แตะ lockfile) รันจากรากของ repo:
+การตรวจหลัก (tech note 15.3): test `qa/tests/unit/map-style.test.ts` เรียก `validateStyleMin` ของ `@maplibre/maplibre-gl-style-spec` 26.4.4 (dev dependency ของ root ตาม ADR 0001 3.13 เวอร์ชันเดียวกับที่ `maplibre-gl` 6.10.0 ใช้) กับ `art/direction/map-style/kw-light.style.json` ต้องได้ error 0 · รันผ่าน `pnpm test` ไม่เรียก path ใต้ `node_modules/.pnpm/` อีก · qa-tester เพิ่ม test นี้หลัง tech-lead ติดตั้ง style-spec เป็น dev dependency (ระหว่างนี้ยังไม่มีไฟล์ test)
 
-```
-node node_modules/.pnpm/@maplibre+maplibre-gl-style-spec@26.4.4/node_modules/@maplibre/maplibre-gl-style-spec/dist/gl-style-validate.mjs art/direction/map-style/kw-light.style.json
-```
+ผลตรวจที่มีแล้ว: P1-H01 (2026-09-23) รัน `gl-style-validate.mjs` กับไฟล์นี้ → exit 0 ไม่มีบรรทัด error (tech note 15.3)
 
-ผลที่คาด: ไม่มีบรรทัด error และ exit code 0 · ในงาน P1-F03-T12 ผู้เขียนไม่มีเครื่องมือรันคำสั่ง จึงตรวจด้วยมือเทียบกับ `src/reference/v8.json` และ `src/validate/*.ts` ของ style-spec 26.4.4 ดังนี้
+contrast ของหัวข้อ 9 ตรวจด้วย `qa/tests/unit/contrast.test.ts` (P1-H04) · ผลรอบแรก 294/295 ผ่าน ตกข้อเดียวคือแถว `map.road` บน `map.land` ที่เขียนไว้ 1.16 · P1-X06 แก้เป็น 1.22 แล้ว test ข้อนั้นจึงควรผ่าน (295/295) · ผู้เขียนไม่มี shell ให้ qa-tester ยืนยันด้วยการรันซ้ำ
+
+บันทึกเดิมของ P1-F03-T12 (ตรวจด้วยมือเทียบกับ `src/reference/v8.json` และ `src/validate/*.ts` ของ style-spec 26.4.4 ก่อนมีเครื่องมือ)
 
 | สิ่งที่ตรวจ | ผล |
 | --- | --- |
@@ -282,16 +286,16 @@ node node_modules/.pnpm/@maplibre+maplibre-gl-style-spec@26.4.4/node_modules/@ma
 | `id` ของ layer ไม่ซ้ำ 38 ชั้น · ทุก layer อ้าง source ที่มีอยู่ · layer ของ source `vector` มี `source-layer` ทุกชั้น | ผ่าน |
 | JSON parse ได้ (อ่านทวนทั้งไฟล์หลังเขียนเสร็จ) | ผ่าน (ตรวจด้วยตา) |
 
-ผลจริงของคำสั่งต้องแนบโดย P1-F02-T11 หรือ qa-tester (handoff ในหัวข้อ 14) · ถ้าพบ error ให้ส่งกลับ art-director แก้ในไฟล์นี้
+ถ้า `map-style.test.ts` พบ error ให้ส่งกลับ art-director แก้ใน style JSON และไฟล์นี้ ไม่แก้ในโค้ด
 
 ## 14. สมมติฐานและงานส่งต่อ
 
 สมมติฐาน
 - A-P1-F03-T12-1: style เขียนมือตาม schema v4 เพราะไม่มี `@protomaps/basemaps` ในเครื่อง (หัวข้อ 2) (ยืนยัน: gameplay-programmer หรือ location-engineer ที่ generate theme ทางการได้)
 - A-P1-F03-T12-2: label แผนที่ใช้ Noto Sans Regular/Medium ไม่ใช่ Bold (หัวข้อ 4) (ยืนยัน: art-director แก้ style-guide 7)
-- A-P1-F03-T12-3: เส้นจังหวัดและ mask โซนดำมาจาก GeoJSON แยก ไม่ใช้ layer `boundaries` ของ tile (หัวข้อ 6.2–6.3) (ยืนยัน: location-engineer, tech-lead)
+- A-P1-F03-T12-3: เส้นจังหวัดและ mask โซนดำมาจาก GeoJSON แยก ไม่ใช้ layer `boundaries` ของ tile (หัวข้อ 6.2–6.3) · **ปิดแล้ว:** D-037 ACCEPTED ใน tech note 15.1 (ไฟล์ `data/map/playarea-mask.geojson`, `data/map/provinces.geojson`)
 - A-P1-F03-T12-4: token ใหม่ที่ใช้บนแผนที่เป็น token เดิมทั้งหมด (`ramp.water` right #3377AA ใช้กับคลองและขอบน้ำ) ไม่มี hex ใหม่ · ตาราง 3.5 ของ style-guide ยังถูก แต่ควรเพิ่มแถว `map.water-edge` = #3377AA (ยืนยัน: art-director)
-- A-P1-F03-T12-5: สัญญา property ของ `kw-dungeons` (หัวข้อ 6.1) เป็นร่างจนกว่า tech-lead จะออก API contract ของ dungeon ใน Phase 3 (ยืนยัน: tech-lead)
+- A-P1-F03-T12-5: สัญญา property ของ `kw-dungeons` (หัวข้อ 6.1) เป็นร่างจนกว่า tech-lead จะออก API contract ของ dungeon ใน Phase 3 · **ปิดในส่วนชื่อ property:** tech note 15.2 ACCEPTED เป็น view model ฝั่ง client (adapter whitelist, `status` ไม่รู้จัก → `closed`) · ส่วนที่ยังเปิดคือรูป payload ของ server (Phase 3) ซึ่งไม่กระทบ style
 
 การเปลี่ยน style: art-director เท่านั้น · ทุกครั้งที่เปลี่ยนสี ให้คำนวณหัวข้อ 9 ใหม่ และเพิ่ม `metadata.kw:styleVersion`
 

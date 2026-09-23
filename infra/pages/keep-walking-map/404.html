@@ -1,0 +1,23 @@
+<!doctype html>
+<!--
+  Owner: devops-engineer (P1-F02-T08).
+  Required at the root of the map project (keep-walking-map): without it, Cloudflare Pages
+  treats the deploy as a single-page app and answers every missing path -- including tiles
+  outside the built z/x/y set -- with `index.html` and HTTP 200 (tech note F02 section 9,
+  "unpack XYZ" note; QA plan TC-TILE-04 checks this exact failure mode).
+  This project serves no HTML UI, so this page is only ever seen by a human opening the
+  project root directly or by a curl check confirming a real 404.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>404 - keep-walking-map</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <p>
+      404: this Cloudflare Pages project serves map tiles, glyphs, sprites, and fonts only (see
+      manifest.json at the project root). There is no page to render at this path.
+    </p>
+  </body>
+</html>

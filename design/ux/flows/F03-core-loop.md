@@ -15,6 +15,7 @@ Task: P1-F03-T16 · เจ้าของ: uiux-designer · สถานะ: ฉ
 8. แอปถูกย่อ/ปิด และเน็ตหลุด ต่อ flow
 9. รายการ copy key ทั้งหมด (ส่งต่อ P1-F03-T05) และประกาศ `gps.*` ให้ P1-F02-T10 ใช้ (N-7)
 10. สมมติฐานและคำถามค้าง
+11. คำตอบต่อคำถามพื้นที่จอจาก copy bank (P1-F03-T05, ตอบใน P1-X02 — uiux-designer เป็นเจ้าของอำนาจ UX)
 
 ## 1. หลักการอ่าน flow นี้
 
@@ -38,14 +39,14 @@ Task: P1-F03-T16 · เจ้าของ: uiux-designer · สถานะ: ฉ
 แต่ละขั้นเป็นจอเดียว ปุ่มเดียวเด่นสุด ไม่มีย่อหน้ายาว เพื่อให้รวมกันยังอยู่ในงบ 1 นาที
 
 1. `S-00-intro` — ข้อความเดียว `[onboarding.intro]` ("กรุงเทพฯ กำลังมีปัญหา") ไม่มีปุ่มข้าม กดที่ใดก็ได้ทั้งจอเพื่อไปต่อ (ปุ่มเดียวเต็มจอ ไม่ใช่ปุ่มเล็ก) → `S-00-consent-location`
-2. `S-00-consent-location` — consent location **แยกจาก consent อื่นทั้งหมด** (NN-7): หัวข้อ `[consent.locationTitle]`, เหตุผลสั้น `[consent.locationBody]` (ใช้ทำอะไร + เก็บ `position_log` ไม่เกิน `config: privacy.positionLogTtl_s` แล้วลบ — key นี้ยังไม่มีใน config, รอ P1-H03), ปุ่ม `[consent.locationAccept]` / `[consent.locationDecline]`
+2. `S-00-consent-location` — consent location **แยกจาก consent อื่นทั้งหมด** (NN-7): หัวข้อ `[consent.locationTitle]`, เหตุผลสั้น `[consent.locationBody]` (ใช้ทำอะไร + เก็บ `position_log` ไม่เกิน `config: privacy.positionLogTtl_s` แล้วลบ), ปุ่ม `[consent.locationAccept]` / `[consent.locationDecline]`
    ⤷ เงื่อนไข: ปฏิเสธ → ข้าม permission เบราว์เซอร์และการอ่านตำแหน่งทั้งหมด ไปที่ `S-00-age-gate` ตรง ๆ (อายุและ login เป็นเรื่องอิสระจากตำแหน่ง) แล้วหลังจากนั้นเข้า `S-01-map` ที่สถานะ "ไม่รู้ตำแหน่ง" ทันที (ดู Flow D หัวข้อ 5) — **ยังดู avatar อ่าน role และลงทะเบียนความสนใจได้จากหน้านั้น เหมือนรูปแบบเดียวกับกรณี dungeon ไกล** (แผงล่างของ `S-01-map` เปลี่ยนเนื้อหาไม่ใช่คนละหน้า)
    ⤷ เงื่อนไข: ยอมรับ → `S-00-permission-browser`
 3. `S-00-permission-browser` — จอเกริ่นสั้น `[consent.browserPrimingTitle]` / `[consent.browserPrimingBody]` ก่อน trigger native geolocation prompt ของเบราว์เซอร์ (ลดอัตราปฏิเสธ) → กด `[consent.browserPrimingContinue]` → native prompt ของ OS/เบราว์เซอร์ (ไม่ใช่ UI ของเกม)
    ⤷ เงื่อนไข: ผู้เล่นกด "Block" ที่ native prompt → เหมือนกรณีปฏิเสธ consent ในขั้น 2 (ไปที่สถานะ "ไม่รู้ตำแหน่ง")
    ⤷ เงื่อนไข: ผู้เล่นกด "Allow" → `S-00-age-gate`
-4. `S-00-age-gate` — ตรวจอายุ 15+ ด้วยตัวเลือกช่วงอายุ/ปีเกิดจากรายการ (ไม่พิมพ์) `[age.gateTitle]` `[age.gateOptions]` เทียบกับ `config: privacy.minAge_yr` (ยังไม่มีใน config ปัจจุบัน — เสนอ key ใหม่ ดูหัวข้อ 10)
-   ⤷ เงื่อนไข: ต่ำกว่าเกณฑ์ → `[age.underMinTitle]` `[age.underMinBody]` เส้นทาง parental consent เป็น **scaffold ปิดไว้** ควบคุมด้วย `config: unlocks.parentalConsent` (ยังไม่มีใน config ปัจจุบัน รอ P1-H03) แสดงข้อความ "ยังเปิดใช้งานไม่ได้" เท่านั้น ไม่มีฟอร์มให้กรอกอะไร ไม่ปิดแอปทันที มีปุ่มเดียวกลับหน้าแรกของแอป (ไม่ไปต่อ flow onboarding ที่เหลือ)
+4. `S-00-age-gate` — ตรวจอายุ 15+ ด้วยตัวเลือกช่วงอายุ/ปีเกิดจากรายการ (ไม่พิมพ์) `[age.gateTitle]` `[age.gateOptions]` เทียบกับ `config: privacy.minAge_yr`
+   ⤷ เงื่อนไข: ต่ำกว่าเกณฑ์ → `[age.underMinTitle]` `[age.underMinBody]` เส้นทาง parental consent เป็น **scaffold ปิดไว้** ควบคุมด้วย `config: unlocks.parentalConsent.enabled` แสดงข้อความ "ยังเปิดใช้งานไม่ได้" เท่านั้น ไม่มีฟอร์มให้กรอกอะไร ไม่ปิดแอปทันที มีปุ่มเดียวกลับหน้าแรกของแอป (ไม่ไปต่อ flow onboarding ที่เหลือ)
    ⤷ เงื่อนไข: ผ่านเกณฑ์ → `S-00-login`
 5. `S-00-login` — เข้าสู่ระบบด้วย Google/Apple เท่านั้น (GDD "การเข้าสู่ระบบ") `[account.loginTitle]` ปุ่ม `[account.loginGoogle]` `[account.loginApple]` — ตำแหน่งของขั้นนี้ใน flow เป็น `mandatory-first` ตาม [ASSUMPTION A-P1-F03-T15-2 ของ ia.md] จนกว่า F07 จะตัดสิน guest session
    ⤷ เงื่อนไข: login ล้มเหลว/ปฏิเสธสิทธิ์ provider → `[account.loginError]` พร้อมปุ่มลองใหม่ ค้างที่หน้านี้ ไปต่อไม่ได้ (ต้องมี account ก่อนผูก progress ตาม NN-1)
@@ -164,7 +165,7 @@ B5. server ยืนยัน → เข้า `S-03-run` สถานะเร�
 
 ## 5. Flow D — dungeon ไกล / นอกพื้นที่ / ไม่รู้ตำแหน่ง
 
-ที่มา: pillars หัวข้อ 7 (สถานะที่บ้าน) และ ia.md หัวข้อ 4 เอกสารนี้เพิ่มลำดับขั้นเป็น flow ให้ชัดว่าเข้า-ออกจากสถานะเหล่านี้ตอนไหน `S-01-map` เป็นหน้าเดียวเสมอ เปลี่ยนแค่เนื้อหาแผงล่าง ประเมินสถานะใหม่ทุกครั้งที่เปิดแอปและทุกครั้งที่ตำแหน่งเปลี่ยนเกิน `config: unlocks.home.reevaluateDistance_m` (ยังไม่มีใน config ปัจจุบัน รอ P1-H03)
+ที่มา: pillars หัวข้อ 7 (สถานะที่บ้าน) และ ia.md หัวข้อ 4 เอกสารนี้เพิ่มลำดับขั้นเป็น flow ให้ชัดว่าเข้า-ออกจากสถานะเหล่านี้ตอนไหน `S-01-map` เป็นหน้าเดียวเสมอ เปลี่ยนแค่เนื้อหาแผงล่าง ประเมินสถานะใหม่ทุกครั้งที่เปิดแอปและทุกครั้งที่ตำแหน่งเปลี่ยนเกิน `config: unlocks.home.reevaluateDistance_m`
 
 D1. ผู้เล่นอยู่ในพื้นที่เล่นแต่ dungeon ที่เปิดอยู่ใกล้สุดไกลกว่า `config: unlocks.home.farDungeonThreshold_m (= 2000 ม.)` → แผง `S-06-far-dungeon-panel` ทับแผนที่: ระยะจริง `[home.farBody]` ({distanceText}) ไม่หลอกว่าใกล้ ปุ่มเด่นสุด `[home.farNavigate]` ("นำทาง") ยังพาไปเดินจริงแม้ไกล ทางลัด `[home.farRoleInfoLink]` → `S-05-role-info` และ `[home.farProfileLink]` → `S-10-profile`
    ⤷ เงื่อนไข: dungeon ใกล้สุดจริง ๆ อยู่ในระยะ `farDungeonThreshold_m` แต่ปิดตามเวลาทำการทั้งหมด (ไกลชั่วคราว) → แผงเดียวกันแต่เพิ่ม `[home.farNextOpen]` ("เปิดอีกครั้ง {openTime}")
@@ -172,7 +173,7 @@ D1. ผู้เล่นอยู่ในพื้นที่เล่นแ�
 
 D2. ตำแหน่งอยู่นอกขอบเขตพื้นที่เล่น (เกิน `config: unlocks.home.outOfServiceAreaThreshold_m (= 20000 ม.)` จากพื้นที่เล่น หรือ back office กำหนดว่าอยู่นอกจังหวัดที่เปิด) → แผนที่ส่วนนั้นเป็นโซนดำมีเส้นแบ่งจังหวัด นำทางไม่ได้ แผง `S-07-out-of-area-panel`: กรอบ `[home.outOfAreaTitle]` ("ช่วยกันปลุกจังหวัดเรา") จำนวนคนลงทะเบียนต่อจังหวัด `[home.outOfAreaCount]` ปุ่มเด่นสุด `[home.outOfAreaCta]` ("ลงทะเบียนความสนใจ") → `S-09-interest-register` ทางลัดไป role-info และ profile เหมือน D1
 
-D3. ปฏิเสธ consent location / ปฏิเสธ permission เบราว์เซอร์ / GPS ปิด / accuracy แย่กว่า `config: location.minAccuracy_m` ต่อเนื่อง (ยังไม่มีใน config ปัจจุบัน รอ P1-H03) → แผนที่กรุงเทพแบบไม่มีจุดตัวเอง ไม่มีระยะ แผง `S-08-unknown-location-panel`: ปุ่มเดียวเด่นสุด `[home.unknownCta]` ("ให้สิทธิ์ตำแหน่งอีกครั้ง") พากลับไปเริ่ม `S-00-consent-location` ใหม่ (ไม่ตื๊อ popup ซ้ำอัตโนมัติเอง) ทางลัดไป role-info, profile, และ **ลงทะเบียนความสนใจ** (`S-09-interest-register`) เหมือน D2 — นี่คือหน้าที่ผู้เล่นที่ปฏิเสธ consent ตั้งแต่ Flow A ขั้น 2 มาเจอ
+D3. ปฏิเสธ consent location / ปฏิเสธ permission เบราว์เซอร์ / GPS ปิด / accuracy แย่กว่า `config: location.homeState.maxAccuracy_m` ต่อเนื่องเกิน `config: location.homeState.sustainedPoorAccuracy_s` วินาที → แผนที่กรุงเทพแบบไม่มีจุดตัวเอง ไม่มีระยะ แผง `S-08-unknown-location-panel`: ปุ่มเดียวเด่นสุด `[home.unknownCta]` ("ให้สิทธิ์ตำแหน่งอีกครั้ง") พากลับไปเริ่ม `S-00-consent-location` ใหม่ (ไม่ตื๊อ popup ซ้ำอัตโนมัติเอง) ทางลัดไป role-info, profile, และ **ลงทะเบียนความสนใจ** (`S-09-interest-register`) เหมือน D2 — นี่คือหน้าที่ผู้เล่นที่ปฏิเสธ consent ตั้งแต่ Flow A ขั้น 2 มาเจอ
 
 D4. `S-09-interest-register`: เลือกจังหวัดจากรายการเท่านั้น (ไม่มีช่องพิมพ์) `[interest.selectProvince]` ปุ่ม `[interest.confirm]` → `[interest.confirmed]` ("จะแจ้งเตือนเมื่อ{provinceName}เปิด") ไม่มีของหรือรางวัลใดตอบแทนการลงทะเบียน (pillars 7.3 ข้อ 1) → กลับ `S-01-map` สถานะเดิม
 
@@ -192,7 +193,7 @@ E2. หน้าย่อย "การเดินและความปล�
 
 ## 7. ตารางสถานะที่ต้องมีทุกหน้า
 
-นิยามสถานะทั้ง 8 ก่อนเข้าเนื้อหา: **empty** = ไม่มีข้อมูลให้แสดง (ไม่ใช่ error) · **loading** = กำลังรอข้อมูล · **GPS ปิด** = OS ปิด location service หรือปฏิเสธ permission ถาวร · **accuracy ต่ำ** = ได้พิกัดแต่แย่กว่า `config: location.minAccuracy_m` ต่อเนื่อง (รอ P1-H03) · **offline** = ไม่มีเน็ตแต่แอปเปิดอยู่หน้าจอ (ต่างจากหัวข้อ 8 ที่เป็นแอปถูกย่อ/ปิด) · **dungeon ปิด** = ปิดตามเวลาทำการหรือปิดฉุกเฉิน · **นอกระยะ** = ตำแหน่งจริงไม่ตรงกับที่คาดไว้สำหรับหน้านั้น (ความหมายต่างกันไปตามบริบทหน้า ดูหมายเหตุ) · **error** = ระบบขัดข้องทั่วไปที่ไม่เข้าเงื่อนไข 7 ข้อก่อนหน้า
+นิยามสถานะทั้ง 8 ก่อนเข้าเนื้อหา: **empty** = ไม่มีข้อมูลให้แสดง (ไม่ใช่ error) · **loading** = กำลังรอข้อมูล · **GPS ปิด** = OS ปิด location service หรือปฏิเสธ permission ถาวร · **accuracy ต่ำ** = ได้พิกัดแต่แย่กว่า `config: location.homeState.maxAccuracy_m` ต่อเนื่องเกิน `config: location.homeState.sustainedPoorAccuracy_s` วินาที · **offline** = ไม่มีเน็ตแต่แอปเปิดอยู่หน้าจอ (ต่างจากหัวข้อ 8 ที่เป็นแอปถูกย่อ/ปิด) · **dungeon ปิด** = ปิดตามเวลาทำการหรือปิดฉุกเฉิน · **นอกระยะ** = ตำแหน่งจริงไม่ตรงกับที่คาดไว้สำหรับหน้านั้น (ความหมายต่างกันไปตามบริบทหน้า ดูหมายเหตุ) · **error** = ระบบขัดข้องทั่วไปที่ไม่เข้าเงื่อนไข 7 ข้อก่อนหน้า
 
 | หน้า/กลุ่มหน้า | empty | loading | GPS ปิด | accuracy ต่ำ | offline | dungeon ปิด | นอกระยะ | error |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -334,7 +335,7 @@ E2. หน้าย่อย "การเดินและความปล�
 | `gps.searching` | label | กำลังรอ GPS fix ครั้งแรกหรือ fix ใหม่หลัง resume |
 | `gps.off` | label | OS ปิด location service ทั้งระบบ |
 | `gps.denied` | label | ผู้เล่นปฏิเสธ permission ถาวร (ต้องไปตั้งค่า OS เอง) |
-| `gps.lowAccuracy` | label | ได้พิกัดแต่แย่กว่า `config: location.minAccuracy_m` ต่อเนื่อง |
+| `gps.lowAccuracy` | label | ได้พิกัดแต่แย่กว่า `config: location.homeState.maxAccuracy_m` ต่อเนื่องเกิน `config: location.homeState.sustainedPoorAccuracy_s` วินาที |
 | `gps.offline` | label | ไม่มีเน็ตขณะแอปยัง foreground |
 | `gps.restored` | label | กลับมาปกติหลังเคยเป็นสถานะข้างต้น (toast สั้นแล้วหาย) |
 
@@ -355,12 +356,61 @@ E2. หน้าย่อย "การเดินและความปล�
 - A-P1-F03-T16-2: v1 บนเว็บหยุดนับ movement ทันทีที่ล็อกหน้าจอ (ตาม GDD) เอกสารนี้เสนอให้มี "คำเตือนครั้งเดียว" ก่อนเข้า run ครั้งแรกของบัญชี ไม่ใช่ทุกครั้งที่เข้า run เพื่อไม่ให้เป็นการสอนซ้ำ (ขัดกับ pillars 6.2 ที่ห้ามมี tutorial ซ้ำซาก) — ยืนยัน: game-director, gameplay-programmer (ตรวจว่า implement ได้จริงว่า "ครั้งแรกของบัญชี" ไม่ใช่ "ครั้งแรกของ session")
 - A-P1-F03-T16-3: `dungeon.confirmCount`/`party.foundTitle` ไม่แสดงเมื่อจำนวนคน = 0 (ซ่อนทั้ง element ไม่ใช่แสดงเลข 0) เพื่อไม่ให้ความรู้สึก "dungeon ร้าง" มาก่อนเดินถึงจริง — ยืนยัน: game-director, art-director (ผลต่อ layout ว่าง)
 - A-P1-F03-T16-4: `run.death.alt1`/`run.death.alt2` และทางเลือกสำรองของ raid ล้มบอส/ตีบวกล้มเหลว (ตาม style guide 3.4) เป็นหน้าที่ของ narrative-designer เขียนคำจริงใน P1-F03-T05 เอกสารนี้กำหนดแค่ตำแหน่งที่ต้องมี 3 ทางเลือกต่อจังหวะอารมณ์สูง ไม่ได้เสนอถ้อยคำ (ยืนยัน: narrative-designer)
-- A-P1-F03-T16-5: คีย์ config ที่ flow นี้อ้างถึงแต่ยังไม่มีในไฟล์ config ปัจจุบัน (รอ P1-H03 ซึ่ง status TODO ในบอร์ด ณ วันที่เขียนเอกสารนี้): `unlocks.parentalConsent`, `unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s`, `location.minAccuracy_m` — เอกสารนี้ใช้ชื่อ key ตามที่ pillars.md และ ia.md อ้างไว้แล้วเพื่อความสอดคล้อง ถ้า P1-H03 ตั้งชื่อจริงต่างจากนี้ ให้แก้เฉพาะชื่อ key ในเอกสารนี้และ copy bank ไม่ต้องออกแบบ flow ใหม่ (ยืนยัน: systems-designer)
-- A-P1-F03-T16-6: เกณฑ์อายุขั้นต่ำ 15 ปียังไม่มี config key ใดเป็นเจ้าของ (ตรวจแล้วไม่มีใน `unlocks.json`, `dungeons.json`, หรือไฟล์อื่นใน `config/balance/`) เอกสารนี้เสนอชื่อ `privacy.minAge_yr` ให้อยู่ไฟล์เดียวกับ `privacy.positionLogTtl_s` ที่ P1-H03 กำลังสร้าง เพราะเป็นเรื่อง PDPA เดียวกัน (handoff ด้านล่าง)
+- A-P1-F03-T16-5 (ปิดแล้วใน P1-H03): คีย์ config ที่ flow นี้อ้างถึงตอนเขียนครั้งแรกยังไม่มีในไฟล์ config ตอนนั้น ตอนนี้มีค่าจริงแล้วทั้งหมด: `unlocks.home.reevaluateDistance_m` และ `privacy.positionLogTtl_s` ใช้ชื่อเดิมตรงตัว ส่วนอีก 2 จุด (parental consent switch และเกณฑ์ accuracy ของหน้าแรก) ชื่อ key จริงต่างจากที่เอกสารนี้เคยเสนอไว้ตอนแรก จึงแก้เป็น `unlocks.parentalConsent.enabled` (`config/balance/unlocks.json`) และ `location.homeState.maxAccuracy_m` คู่กับ `location.homeState.sustainedPoorAccuracy_s` (`config/balance/location.json`, เหตุผลการตั้งชื่ออยู่ใน `_note` ของไฟล์นั้น) เอกสารนี้แก้ชื่อ key ครบแล้วในหัวข้อ 2, 5, 7, 9.5 (ยืนยัน: systems-designer)
+- A-P1-F03-T16-6 (ปิดแล้วใน P1-H03): เกณฑ์อายุขั้นต่ำ 15 ปีมีเจ้าของแล้วคือ `privacy.minAge_yr` (`config/balance/privacy.json`, ค่า 15) ตรงกับชื่อที่เอกสารนี้เสนอไว้ทุกตัวอักษร
 
 ### คำถามค้าง (ไม่ขวางงานถัดไป)
 - Q-T16-1: `home.farBody`/`home.farNextOpen` ควรรวมเป็นข้อความเดียวหรือแยกบรรทัดเมื่อ dungeon ใกล้สุดทั้งไกลและปิดพร้อมกัน (ไกลถาวร + ปิดชั่วคราว) — เสนอแยก 2 บรรทัดให้ผู้เล่นแยกแยะสองเหตุผลได้ ส่งให้ T17 (wireframe) ทดสอบพื้นที่จอจริง
 - Q-T16-2: `run.summaryRewardList` เมื่อ auto-retreat/exit-early ทำงานระหว่าง tick แรกยังไม่ครบ 5 นาที ควรแสดงข้อความ empty แบบไหน (เช่น "เดินไม่พอ ไม่ได้ของรอบนี้") หรือปล่อยว่างเฉย ๆ — ส่งให้ narrative-designer ตัดสินใน P1-F03-T05 เพื่อไม่ให้ซ้ำโทนกับ `run.tickDenied`
 
 ### Handoff สรุป (รายละเอียดเต็มอยู่ท้าย REPORT)
-รายการ copy key ทั้งหมดในหัวข้อ 9 ส่งต่อ narrative-designer (P1-F03-T05) · ชื่อ key กลุ่ม `gps.*` (หัวข้อ 9.5) ประกาศให้ gameplay-programmer (P1-F02-T10) ใช้ตรงกัน · คีย์ config ที่ขาด (`unlocks.parentalConsent`, `unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s`, `location.minAccuracy_m`, และคีย์ใหม่ที่เสนอ `privacy.minAge_yr`) ส่งต่อ systems-designer (P1-H03)
+รายการ copy key ทั้งหมดในหัวข้อ 9 ส่งต่อ narrative-designer (P1-F03-T05) · ชื่อ key กลุ่ม `gps.*` (หัวข้อ 9.5) ประกาศให้ gameplay-programmer (P1-F02-T10) ใช้ตรงกัน · คีย์ config ที่เอกสารนี้เคยรอ (`unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s`, `privacy.minAge_yr` และอีก 2 จุดที่เปลี่ยนชื่อ ดู A-P1-F03-T16-5) มีค่าจริงครบแล้วจาก P1-H03 (`config/balance/unlocks.json`, `location.json`, `privacy.json`) — ชื่อ key ในเอกสารนี้แก้ตามของจริงแล้ว
+
+## 11. คำตอบต่อคำถามพื้นที่จอจาก copy bank (P1-F03-T05, ตอบใน P1-X02)
+
+ที่มา: narrative-designer ส่งคำถามพื้นที่จอ 4 ข้อมาพร้อม `config/content/copy.th.json` (P1-F03-T05) หลังเขียนถ้อยคำจริงจากรายการ key ในหัวข้อ 9 · UX flow เป็นอำนาจของ uiux-designer ตาม `studio/protocol.md` ข้อ 5 เอกสารนี้ตอบทั้ง 4 ข้อที่นี่ อ้างตัวเลขจริงจาก `design/ux/tokens.json` และ `design/ux/components.md` เท่านั้น ไม่เดาตัวเลขใหม่
+
+### 11.1 หัว/label ที่ประกาศเป็น kind `message` (30–34 ช่อง) พอดีพื้นที่จอไหม
+
+| key | ช่อง | คอนเทนเนอร์จริง | ผล |
+| --- | --- | --- | --- |
+| `dungeon.confirmTitle` | 34 | หัว popup (`type.h1` 24px bold) กว้างเต็ม popup ลบ padding 2×16px = 328px ที่จอ 360px | พอดี — `components.md` หัวข้อ 8 ทดสอบแล้วว่าคำขยายชื่อโซนยาวสุด ("เขาวงกตแผงลอย") พอดีบรรทัดเดียวที่ 360px ด้วย font ตัวแทน (ยังต้องทดสอบซ้ำกับ font จริงตาม A-P1-F03-T17-2) |
+| `dungeon.confirmRoles` | 30 | เนื้อหา popup (`type.body` 16px) กว้างเท่ากัน 328px บรรทัดถัดจากหัว | พอดี — ตัวอักษรเล็กกว่าหัว popup ที่ผ่านแล้วที่ 34 ช่อง จึงมีที่ว่างเหลือมากกว่า ไม่ต้อง wrap |
+| `party.foundRoles` | 30 | เนื้อหา drawer (`type.body` 16px, `space.cardPadding_px` เท่ากับ popup) | พอดี ด้วยเหตุผลเดียวกับ `dungeon.confirmRoles` |
+| `map.labelCount` | 29 | ป้ายบนแผนที่ (`caption` 14px bold) เพดานความกว้างป้าย ≤ 2/3 ของจอ = ≤240px ตาม `components.md` หัวข้อ 8 | **ไม่พอดีเสมอไป** — 240px แคบกว่า container ของอีก 3 key มาก ต้องใช้ fallback (ดู 11.1.1) |
+
+**11.1.1 กติกาใช้ `map.labelCount`:** ใช้ได้เฉพาะตอนซูมเข้าจนป้ายมีที่ว่างพอ (กติกาเดียวกับการตัดคำขยายชื่อโซนใน `components.md` หัวข้อ 8) เมื่อพื้นที่ไม่พอหรือซูมออก ให้สลับไปใช้ `map.labelCountOnly` (7 ช่อง) ร่วมกับ `map.labelRoleCount` (glyph, 4 ช่องต่อหน่วย) ตามที่ narrative เตรียม fallback ไว้แล้วในคีย์เดียวกัน — ที่นี่ยืนยันว่า fallback นี้**จำเป็นจริงจากตัวเลขพื้นที่จอ** ไม่ใช่ทางเลือกเสริม ส่วนเกณฑ์ตัด (pixel/zoom level ที่แน่นอน) เป็นของ `art/direction/map-style.md` และ gameplay-programmer ตอน build จริง (handoff ด้านล่าง)
+
+### 11.2 เพดานปุ่มเต็มความกว้าง — `run.summaryContinue` (11 ช่อง) เทียบ `run.continueCta` (13 ช่อง)
+
+เพดาน `button` 12 ช่องบรรทัดเดียวใน `components.md` หัวข้อ 10 คำนวณจากกรณีเลวร้ายสุด (ปุ่มรองที่อยู่คู่กัน เช่น ยกเลิก/เข้า หรือไอคอนใน quick command) ไม่ใช่ปุ่มหลักเต็มความกว้างแบบเดี่ยว ๆ ที่ใช้กับทั้ง `run.continueCta` และ `run.summaryContinue` (ปุ่มเดียวเด่นสุด ครึ่งล่างจอ ตาม ia.md หลักการ 6 และ `components.md` หัวข้อ 3) พื้นที่ข้อความจริงของปุ่มหลักเต็มความกว้างที่ 360px ≈ 360 − 2×`space.screenPadding_px`(16) − 2×padding ในปุ่ม (~16) ≈ 296px ด้วย `type.bodyBold` (16px) — เทียบกับหัว popup ที่ยืนยันแล้วว่า 34 ช่องพอดีใน 328px ที่ 24px ตัวหนา (~9.6px/ช่อง) ตัวอักษรที่เล็กกว่าใน `bodyBold` ให้พื้นที่ต่อช่องน้อยกว่ามาก จึงมีที่ว่างเหลือเกินพอสำหรับทั้ง 11 และ 13 ช่องในบรรทัดเดียว ไม่มีความเสี่ยง wrap
+
+**คำตัดสิน (uiux เป็นเจ้าของ):** เพดาน `button` 12 ช่องยังใช้กับปุ่มรอง/ปุ่มคู่/ไอคอนคำสั่งตามเดิม แต่ปุ่มหลักเต็มความกว้างแบบเดี่ยว (ไม่มีปุ่มคู่ในจอเดียวกัน) รับได้ถึงอย่างน้อย 16 ช่องในบรรทัดเดียว ให้ใช้ถ้อยคำเต็มตาม GDD **"เดินต่อเพื่อรับเพิ่ม"** (`run.continueCta`, 13 ช่อง) กับทั้งสองบริบท (ปิด tick แรกของ onboarding และปุ่มปิดหน้าสรุปผล) แทนการย่อคำเฉพาะ `run.summaryContinue` เพื่อให้ข้อความเดียวกันของการกระทำเดียวกันอ่านเหมือนกันทุกจุด ไม่ต้องให้ผู้เล่นเรียนรู้คำสองแบบสำหรับปุ่มความหมายเดียวกัน
+
+### 11.3 Layout ของ legal text หลายบรรทัด — `consent.locationBody` (138 ช่อง, 5 บรรทัด)
+
+`S-00-consent-location` เป็น `page` เต็มจอ ไม่ใช่ popup/toast และเป็นข้อความ `voice: legal` ที่ผู้เล่นต้องอ่านจริงก่อนตัดสินใจ ไม่ใช่ toast ที่ต้องอ่านจบใน 3 วินาที กติกา layout:
+
+1. แสดง 5 บรรทัดที่ narrative เขียนไว้แล้วตรงตัว (`\n` แต่ละจุด = 1 บรรทัดจริง) เป็น `type.body` (16px, ชิดซ้าย, `lineHeight` 1.5) ในพื้นที่เนื้อหาของหน้า ไม่บีบรวมเป็นย่อหน้าเดียวและไม่ตัดคำ
+2. ตรวจพื้นที่จอทดสอบเล็กสุด 360×800 (`tokens.json#breakpoint`): header 48px + หัวจอ (`type.h1` ~36px) + `space.sectionGap_px`(24) + เนื้อหา 5 บรรทัด×24px = 120px + `space.sectionGap_px`(24) + ปุ่ม 2 ปุ่มเรียงซ้อน (primary 56px + `space.stackGap_px`(8) + secondary 48px) + padding บน-ล่าง 32 ≈ 396px พอดีใน 800px (และ 844px ของ iOS) **โดยไม่ต้องเลื่อนจอ**
+3. ปุ่มอยู่ครึ่งล่างจอเสมอตามหลักการ 6 ของ ia.md: `consent.locationAccept` (primary เต็มความกว้าง) วางเหนือ `consent.locationDecline` (secondary เต็มความกว้าง) ทั้งคู่ ≥48px น้ำหนักภาพเท่ากันตามที่ copy bank ระบุ (ไม่ใช่ปุ่มหลัก-รองต่างขนาด)
+4. กติกากันพลาดสำหรับจอที่เล็กกว่าหรือขยายขนาดตัวอักษรเพื่อ accessibility จนเนื้อหาไม่พอ 800px: ให้พื้นที่เนื้อหาระหว่าง header กับกลุ่มปุ่มเลื่อนได้อิสระ ปุ่มทั้งสองต้องไม่เลื่อนหลุดจอ และห้ามตัดข้อความ legal ทิ้งเด็ดขาด — ข้อนี้อยู่เหนือกฎ "ไม่ต้องเลื่อนจอ" ที่ใช้ที่อื่นในแอป เพราะเป็นข้อความยินยอมตามกฎหมาย
+5. ไม่ใส่การ์ด/กรอบรอบข้อความ ใช้พื้นหลังหน้าเปล่า (`bg.paper`) เพื่อไม่ให้ดูเหมือนตัวเลือกหรือการ์ดรางวัล (หลักการเดียวกับ `components.md` หัวข้อ 4 ที่ห้าม tint การ์ดด้วยสีที่สื่อความหมายอื่น)
+
+### 11.4 ปุ่ม login ใช้ปุ่มแบรนด์ของผู้ให้บริการหรือปุ่มของเราเอง
+
+copy bank เปิดทางเลือกนี้ไว้แล้ว (หมายเหตุใน `account.loginGoogle`/`account.loginApple`: "ถ้าใช้ปุ่มที่ผู้ให้บริการ render เองตาม brand guideline ไม่ต้องใช้ key นี้")
+
+**คำตัดสิน (uiux เป็นเจ้าของ):** ค่าเริ่มต้นใช้ **ปุ่มแบรนด์ของผู้ให้บริการเอง** (Google Identity Services button, Apple "Sign in with Apple" JS button) ไม่ใช่ปุ่ม `.btn-secondary` ของเราที่ใส่ถ้อยคำ `account.loginGoogle`/`account.loginApple` เหตุผล:
+1. ปุ่มของทั้งสองผู้ให้บริการมี touch target และ contrast ผ่านเกณฑ์อยู่แล้วเมื่อ render ที่ขนาดใหญ่สุดที่ SDK มีให้ ต้องตั้งค่าให้สูง ≥ `touchTarget.min_px` (48px) เสมอ ห้ามบีบเล็กลง
+2. ตัดภาระแปล/ดูแล brand guideline ที่ไม่ใช่ของทีมเรา (สี โลโก้ ชื่อผู้ให้บริการเปลี่ยนได้โดยไม่ผ่านรอบ copy ของเรา)
+3. เงื่อนไขสนามจริงของเกมนี้ (แดด ฝน เน็ตไม่เสถียรในสวนสาธารณะ) ทำให้ script ของ SDK อาจโหลดไม่สำเร็จ — เฉพาะกรณีนี้ให้ fallback เป็นปุ่ม `.btn-secondary` ของเราเองด้วย `account.loginGoogle`/`account.loginApple` ("ใช้ {providerName}") ตามสเปกใน `components.md` หัวข้อ 3 สูง ≥48px แทนที่ตำแหน่งเดิม ไม่ปล่อยพื้นที่ว่าง (จังหวะ timeout ที่แน่นอนเป็นรายละเอียด implementation ของ gameplay-programmer)
+4. ปุ่มทั้งสองผู้ให้บริการเรียงซ้อนแนวตั้งในครึ่งล่างจอของ `S-00-login` ลำดับเดิมทุกครั้ง (Google บน Apple ล่าง ตามลำดับใน copy bank) เพื่อความเดาตำแหน่งได้ตามหลักการ 6 ของ ia.md
+
+คีย์ `account.loginGoogle`/`account.loginApple` จึงยังมีประโยชน์เป็น fallback ตามที่ copy bank เตรียมทางไว้ ไม่ใช่ key ที่ถูกทิ้ง
+
+### Handoff เพิ่มเติมจาก P1-X02
+- to: narrative-designer | need: ตัดสินว่าจะรวม `run.summaryContinue` เข้ากับ `run.continueCta` เป็น key เดียว หรือคงสองคีย์แต่ใช้ถ้อยคำเต็มเดียวกัน ("เดินต่อเพื่อรับเพิ่ม") ตามผลข้อ 11.2 | why: uiux ยืนยันแล้วว่าเพดานพื้นที่จอไม่ใช่เหตุผลให้ต้องย่อคำอีกต่อไป | blocking: no
+- to: gameplay-programmer, art-director | need: กำหนด zoom level/pixel threshold ที่แน่นอนสำหรับสลับ `map.labelCount` ↔ `map.labelCountOnly`+`map.labelRoleCount` บนแผนที่จริง (ข้อ 11.1.1) | why: เอกสารนี้ยืนยันแค่ว่า fallback จำเป็น ไม่ได้กำหนดตัวเลข pixel/zoom จริง | blocking: no
+- to: gameplay-programmer | need: implement ปุ่ม login แบบ provider branded เป็นค่าเริ่มต้น + fallback ปุ่มของเราเองเมื่อ SDK โหลดไม่สำเร็จ (ข้อ 11.4) | why: ป้องกันจอว่างเมื่อเน็ตไม่เสถียรกลางแจ้ง | blocking: no
+- to: art-director | need: ยืนยันว่าปุ่มแบรนด์ Google/Apple (สีของผู้ให้บริการเอง) วางร่วมกับ UI palette ของเราใน `S-00-login` ได้โดยไม่ขัด style guide (ข้อ 11.4) | why: เป็นจุดเดียวในแอปที่ไม่ใช้ token สีของเราเอง | blocking: no

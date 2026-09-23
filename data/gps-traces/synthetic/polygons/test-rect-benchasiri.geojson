@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "test-rect-benchasiri",
+        "note": "Synthetic test rectangle for edge-walk, walk-in and teleport traces. Not a real dungeon polygon."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              100.5662,
+              13.7293
+            ],
+            [
+              100.5683,
+              13.7293
+            ],
+            [
+              100.5683,
+              13.7317
+            ],
+            [
+              100.5662,
+              13.7317
+            ],
+            [
+              100.5662,
+              13.7293
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

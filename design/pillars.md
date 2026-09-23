@@ -1,10 +1,10 @@
 # Design Pillars — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T01 · เจ้าของ: game-director · สถานะ: ฉบับเสนอ รอ HUMAN ยืนยันใน P1-F03-T26 · วันที่: 2026-09-23
+Task: P1-F03-T01 (แก้ชื่อ config key ใน P1-X01) · เจ้าของ: game-director · สถานะ: ฉบับเสนอ รอ HUMAN ยืนยันใน P1-F03-T26 · วันที่: 2026-09-23
 แหล่งอ้างอิง: GDD หัวข้อ "ภาพรวมและหลักการออกแบบ", "หลักการที่ใช้ตัดสินทุกข้อขัดแย้ง", "ข้อจำกัดที่กำหนดรูปร่างของ design", "Core loop ใน Dungeon", "Movement gate", "10 นาทีแรกของคนใหม่", "HP การตาย และการฟื้นฟู", "ผลข้างเคียงที่ตั้งใจ", "ความปลอดภัยผู้เล่นและ PDPA", "หลักการที่ห้ามละเมิด", "ที่ยังต้องตัดสินใจ", "สิ่งที่ตัดออกจาก v1 โดยตั้งใจ" · `studio/roadmap.md` · decision D-004, D-005, D-006, D-008
 
 ลำดับอำนาจเอกสาร: GDD > roadmap > เอกสารนี้ > feature spec > เอกสารอื่น · เอกสารนี้ไม่แก้ GDD ทุกจุดที่ GDD เงียบหรือขัดกันเองถูกเสนอเป็น decision authority HUMAN (หัวข้อ 9)
-ตัวเลขทุกตัวในเอกสารนี้อ้างเป็น `config: <key>` ของ systems-designer ค่าที่ยกมาจาก GDD เขียนไว้เพื่ออธิบายเจตนาเท่านั้น โค้ดและ spec ต้องอ่านจาก config
+ตัวเลขทุกตัวในเอกสารนี้อ้างเป็น `config: <file>.<path>` ของ systems-designer ตาม `config/balance/<file>.json` (เช่น `dungeons.hpSafety.autoRetreatThreshold_pct` = `config/balance/dungeons.json` → `hpSafety.autoRetreatThreshold_pct`) ค่าที่ยกมาจาก GDD เขียนไว้เพื่ออธิบายเจตนาเท่านั้น โค้ดและ spec ต้องอ่านจาก config · ชื่อ key ตรวจกับ config จริงแล้วใน P1-X01 (ตารางจับคู่จาก P1-H03)
 
 ## สารบัญ
 1. เป้าหมายเดียวของเกม
@@ -39,7 +39,7 @@ Tagline ที่สรุปเจตนา: "ออกไปเดิน ช�
 
 ### P2 · มาถึงแล้วต้องได้เล่น
 - ผู้เล่นรู้สึก: "นั่งรถเมล์มา 40 นาทีแล้วคุ้ม" เกมไม่แกล้ง เน็ตหลุดไม่เท่ากับเกมโอเวอร์
-- design ต้อง: auto-retreat เปิดเป็น default (`config: dungeons.autoRetreat.threshold_pct`) · แจ้งเตือนก่อนถอย (`config: dungeons.hpWarning.threshold_pct`) · กดออกได้ทุกเมื่อโดยไม่ต้องเดินออก · Grace และ Suspended รองรับ GPS drift และธุระสั้น (`config: dungeons.grace_s`, `config: dungeons.suspended_s`) · ไม่บล็อกการเข้า dungeon ด้วยเลเวล · ของไม่แตกเมื่อตีบวก · แยก run state กับ connection state
+- design ต้อง: auto-retreat เปิดเป็น default (`config: dungeons.hpSafety.autoRetreatThreshold_pct`) · แจ้งเตือนก่อนถอย (`config: dungeons.hpSafety.lowHpWarningThreshold_pct`) · กดออกได้ทุกเมื่อโดยไม่ต้องเดินออก · Grace และ Suspended รองรับ GPS drift และธุระสั้น (`config: dungeons.runState.graceMax_s`, `config: dungeons.runState.suspendedMax_s`) · ไม่บล็อกการเข้า dungeon ด้วยเลเวล · ของไม่แตกเมื่อตีบวก · แยก run state กับ connection state
 - ละเมิดเมื่อ: บทลงโทษที่ทำให้ผู้เล่นที่ไม่ได้ตั้งใจเสี่ยงเสียของ · ต้องเดินออกจาก polygon ถึงจะจบ run · run ถูกล้างเพราะเน็ตหลุด · ต้องปลดล็อกด้วยเลเวลก่อนเข้า dungeon ใกล้บ้าน
 
 ### P3 · อยู่ในที่เดียวกันก็คือเล่นด้วยกัน
@@ -49,7 +49,7 @@ Tagline ที่สรุปเจตนา: "ออกไปเดิน ช�
 
 ### P4 · มือถืออยู่ในกระเป๋า
 - ผู้เล่นรู้สึก: "เดินเล่นตามปกติ เปิดดูเป็นระยะ" ไม่ต้องจ้องจอขณะเดิน ปลอดภัยและไม่เปลืองแบต
-- design ต้อง: เล่นเป็น session ที่ผู้เล่นตั้งใจเปิด (web ไม่มี background location) · รางวัลเป็นขั้นทุก tick (`config: dungeons.tick_s`) ไม่ใช่รายวินาที · สื่อสารจังหวะสำคัญด้วยการสั่นก่อนเสียงและภาพ · ไม่มี animation ต่อเนื่องบนแผนที่ · speed lock เป็นการล็อกการเล่น ไม่ใช่แค่เตือน (`config: anticheat.speedLock_kmh`)
+- design ต้อง: เล่นเป็น session ที่ผู้เล่นตั้งใจเปิด (web ไม่มี background location) · รางวัลเป็นขั้นทุก tick (`config: dungeons.rewardTick.rewardTickInterval_s`) ไม่ใช่รายวินาที · สื่อสารจังหวะสำคัญด้วยการสั่นก่อนเสียงและภาพ · ไม่มี animation ต่อเนื่องบนแผนที่ · speed lock เป็นการล็อกการเล่น ไม่ใช่แค่เตือน (`config: anticheat.speedLock.speedLock_kmh`)
 - ละเมิดเมื่อ: กลไกที่ต้องกดหรือแตะขณะเดิน (ปุ่มโจมตี, mini-game, จับเวลาให้กด) · AR ผ่านกล้อง · การแจ้งเตือนที่เรียกให้มองจอบ่อยกว่าจังหวะ tick หรือเหตุการณ์ HP · ชวนให้เข้าไปในพื้นที่อันตรายหรือเวลาที่สถานที่ปิด
 
 ### P5 · กรุงเทพจริง เล่าแบบแห้ง
@@ -85,12 +85,12 @@ Tagline ที่สรุปเจตนา: "ออกไปเดิน ช�
 | # | Non-negotiable | หัวข้อ GDD | สิ่งที่ design gate ตรวจ |
 | --- | --- | --- | --- |
 | NN-1 | **Server-authoritative** client ส่งแค่ตำแหน่ง + timestamp · damage, drop, contribution, รางวัล และ movement gate คำนวณที่ server | "หลักการที่ห้ามละเมิด", "ข้อจำกัดที่กำหนดรูปร่างของ design" | spec ไม่มีประโยคที่ให้ client ตัดสินผลรางวัล · ผลที่คำนวณบน client ใน Phase 2 เป็นต้นแบบ ไม่ย้ายเข้า account |
-| NN-2 | **ทุกรางวัลผ่าน movement gate เดียวกัน** (`config: dungeons.movementGate.minDistance_m` ต่อ `config: dungeons.movementGate.window_s`) รวม raid ไม่มีข้อยกเว้น | "Movement gate", หลักการข้อ 2 | ทุกแหล่งของ exp, gold, drop, contribution, checkpoint, ของบอส อ้าง gate ตัวเดียวกัน |
+| NN-2 | **ทุกรางวัลผ่าน movement gate เดียวกัน** (`config: dungeons.movementGate.minDistancePerWindow_m` ต่อ `config: dungeons.movementGate.window_s`) รวม raid ไม่มีข้อยกเว้น | "Movement gate", หลักการข้อ 2 | ทุกแหล่งของ exp, gold, drop, contribution, checkpoint, ของบอส อ้าง gate ตัวเดียวกัน |
 | NN-3 | **ค่า balance และชื่อทุกอย่างอยู่ใน config / หลังบ้าน** (โซน, dungeon, มอนสเตอร์, ไอเทม, บอส) | "หลักการที่ห้ามละเมิด", "ธีมและการตั้งชื่อ" | spec เขียนเลขเป็น `config: <key>` · ไม่มีชื่อ hardcode |
 | NN-4 | **ไม่มี PvP, ไม่มีแชทอิสระ (quick command 10 อัน), ไม่แสดงตำแหน่งรายบุคคล** แสดงได้แค่จำนวนและ role ระดับ dungeon | "มาตรการด้านสังคม", "ข้อมูลตำแหน่ง", "Quick command", "สิ่งที่ตัดออกจาก v1" | ไม่มีช่องพิมพ์อิสระทุกหน้า (รวมชื่อตัวละคร) · ไม่มีจุดหรือ heatmap ผู้เล่นอื่นบนแผนที่ผู้เล่น · ไม่มีอันดับหรือ event ที่ผู้เล่นแข่งกันเอง นอกจากอันดับ contribution ของ raid ตาม GDD |
 | NN-5 | **กลางแจ้งเท่านั้นใน v1** data model ยังมี `verification_mode` และ `floor_level` | "ข้อจำกัดที่กำหนดรูปร่างของ design", "เตรียมไว้สำหรับ dungeon ในอาคาร" | dungeon ทุกแห่ง `verification_mode` = `continuous_gps`, `floor_level` = null |
 | NN-6 | **บทลงโทษต่ำ ต้นทุนเดินทางสูง** auto-retreat เปิดเป็น default · ของไม่แตกเมื่อตีบวก | "ระบบกันตาย", "ระบบตีบวก", หลักการข้อ 3 | การปิด auto-retreat ต้องเข้าหน้าตั้งค่าเองและมีขั้นยืนยัน · ผลล้มเหลวของตีบวกมีแค่เสียวัตถุดิบหรือลดระดับ |
-| NN-7 | **PDPA** consent location แยก · `position_log` TTL (`config: privacy.positionLogTtl_s`) · ลบบัญชีจริง · profile ไม่มีตัวตนจริง · อายุ 15+ พร้อมโครง parental consent | "ความปลอดภัยผู้เล่นและ PDPA", "การเข้าสู่ระบบ" | onboarding นาที 0–1 มี consent แยกและจุดตรวจอายุ · ปฏิเสธ consent แล้วยังใช้หน้าที่บ้านได้ (หัวข้อ 7) |
+| NN-7 | **PDPA** consent location แยก · `position_log` TTL (`config: privacy.positionLogTtl_s`) · ลบบัญชีจริง · profile ไม่มีตัวตนจริง · อายุขั้นต่ำ (`config: privacy.minAge_yr`) พร้อมโครง parental consent (`config: unlocks.parentalConsent.enabled` ค่าเริ่มต้นปิด เปิดได้เมื่อ HUMAN อนุมัติหลังตรวจกฎหมาย) | "ความปลอดภัยผู้เล่นและ PDPA", "การเข้าสู่ระบบ" | onboarding นาที 0–1 มี consent แยกและจุดตรวจอายุ · ปฏิเสธ consent แล้วยังใช้หน้าที่บ้านได้ (หัวข้อ 7) |
 | NN-8 | **กฎคู่ auto-retreat + movement gate** สองระบบต้องอยู่ด้วยกันเสมอ เอาอันใดอันหนึ่งออกหรือทำให้อ่อนลงโดยลำพังไม่ได้ | "ผลข้างเคียงที่ตั้งใจ" | ดูกฎด้านล่าง |
 
 ### NN-8 กฎคู่ auto-retreat + movement gate (รายละเอียด)
@@ -119,8 +119,8 @@ Tagline ที่สรุปเจตนา: "ออกไปเดิน ช�
 ### 6.1 สิ่งที่ 10 นาทีแรกทำได้ (ลำดับตาม GDD)
 | ช่วง | สิ่งที่มี | หมายเหตุเจตนา |
 | --- | --- | --- |
-| นาที 0–1 | "กรุงเทพฯ กำลังมีปัญหา" → consent location (แยก) + permission เบราว์เซอร์ + จุดตรวจอายุ 15+ (ช่อง parental consent เป็น scaffold ปิดไว้) → เห็นแผนที่และรอยแยกใกล้ตัว → เลือกพลัง 4 แบบ | consent และอายุเป็นข้อบังคับ ไม่ใช่การสอนระบบ ต้องสั้นพอให้ยังเลือกพลังได้ในนาทีแรก (MF-2) · ปฏิเสธ consent → ไปหัวข้อ 7 |
-| นาที 1–3 | รอยแยกใกล้สุด ระยะ ช่วงเลเวล ปุ่มนำทาง | เป้าหมายเดียวคือเดินไปให้ถึง · ถ้าระยะเกิน `config: unlocks.home.far_dungeon_threshold_m` → หัวข้อ 7 |
+| นาที 0–1 | "กรุงเทพฯ กำลังมีปัญหา" → consent location (แยก) + permission เบราว์เซอร์ + จุดตรวจอายุ 15+ (`config: privacy.minAge_yr` · ช่อง parental consent เป็น scaffold ปิดไว้ `config: unlocks.parentalConsent.enabled`) → เห็นแผนที่และรอยแยกใกล้ตัว → เลือกพลัง 4 แบบ | consent และอายุเป็นข้อบังคับ ไม่ใช่การสอนระบบ ต้องสั้นพอให้ยังเลือกพลังได้ในนาทีแรก (MF-2) · ปฏิเสธ consent → ไปหัวข้อ 7 |
+| นาที 1–3 | รอยแยกใกล้สุด ระยะ ช่วงเลเวล ปุ่มนำทาง | เป้าหมายเดียวคือเดินไปให้ถึง · ถ้าระยะเกิน `config: unlocks.home.farDungeonThreshold_m` → หัวข้อ 7 |
 | นาที 3–6 | confirm เข้า เห็นชื่อโซนและจำนวนคน ประโยคเดียว "เดินต่อไปเพื่อรับรางวัล" | tutorial หลักของทั้งเกม |
 | นาที 6–8 | ถ้ามีคน: จำนวน + role และปุ่มเข้าร่วม ได้ buff ทันที | แสดงผลของ buff ได้ ห้ามอธิบายสูตรหรือกลไก |
 | นาที 8–10 | ผ่าน movement gate ได้รางวัลก้อนแรก ปิดด้วย "เดินต่อเพื่อรับเพิ่ม" | ถ้า tick แรกไม่ผ่าน gate บอกแค่ว่าเดินไม่พอ ไม่ลงโทษ |
@@ -132,7 +132,7 @@ auto-retreat, ยาอัตโนมัติ และแจ้งเตื�
 
 | # | ระบบ | เงื่อนไขปลด | เจตนาของการปลด | หลังปลด |
 | --- | --- | --- | --- | --- |
-| U1 | ตลาด | `config: unlocks.market` | ต้องมีของที่ได้จากการเดินแล้วจึงมีอะไรให้ขาย · ไม่ก่อนจบ run แรก | ใช้ที่บ้านได้ (กิจกรรมช่วงฝน) · กฎบัญชีอายุต่ำกว่าที่กำหนด trade ไม่ได้ เป็นกฎของ F12 แยกจากการปลด UI |
+| U1 | ตลาด | `config: unlocks.market` | ต้องมีของที่ได้จากการเดินแล้วจึงมีอะไรให้ขาย · ไม่ก่อนจบ run แรก | ใช้ที่บ้านได้ (กิจกรรมช่วงฝน) · กฎบัญชีอายุต่ำกว่าที่กำหนด trade ไม่ได้ (`config: economy.market.minAccountAgeToTrade_days` ใน `config/balance/economy.json`) เป็นกฎของ F12 แยกจากการปลด UI |
 | U2 | ตีบวก | `config: unlocks.enhance` | ต้องมีอุปกรณ์และวัตถุดิบจาก dungeon ก่อน · ไม่ก่อนจบ run แรก | ใช้ที่บ้านได้ · copy แบบซื่อสัตย์ตาม GDD |
 | U3 | raid | `config: unlocks.raid` (ปลดการแจ้งเตือนและหน้า raid) | raid เป็นนัดรายสัปดาห์ คนใหม่ต้องเข้าใจ loop ของ dungeon ก่อน | **การเข้าร่วมทางกายภาพไม่ถูกบล็อก** ถ้าคนใหม่ยืนอยู่ในวงบอสระหว่าง raid ให้ขึ้น popup เลือกตัวเดียวกับการเข้า dungeon ตาม GDD "การเลือกระหว่าง dungeon กับ boss" (GDD ให้คนเลเวลต่ำเข้าร่วมได้ทันที) · ไม่ถือว่าเป็นการสอน |
 | U4 | การลงแต้ม stat | `config: unlocks.statAllocation` | ระหว่างยังไม่ปลด แต้มสะสมไว้ ไม่หาย | ปลดพร้อมคำอธิบายสั้น 1 จอ |
@@ -140,6 +140,10 @@ auto-retreat, ยาอัตโนมัติ และแจ้งเตื�
 | U6 | กลไก party ละเอียด (สูตร buff, debuff เมื่อขาด role, ลำดับจับคู่, การบล็อก) | `config: unlocks.partyDetail` | 10 นาทีแรกเห็นแค่ "มีคน N คน กดเข้าร่วม" | ปุ่มรายงาน/บล็อกต้องเข้าถึงได้ตลอดจากหน้าตั้งค่า แม้ยังไม่ปลด (เป็นเรื่องความปลอดภัย ไม่ใช่การสอน) |
 | U7 | anti-cheat (trust score, fingerprint, speed lock) | `config: unlocks.antiCheatHelp` (ปลดแค่หัวข้อในหน้าช่วยเหลือ) · ไม่มี tutorial ของระบบนี้เลย · privacy policy เข้าถึงได้ตลอดตาม PDPA | ไม่ทำให้คนสุจริตรู้สึกถูกจับตา | speed lock แสดงผลเมื่อเกิดขึ้นจริงด้วย copy สั้น ไม่อธิบายวิธีตรวจ |
 | U8 | lore ยาว | `config: unlocks.lore` | GDD: backstory ของผู้เล่นมีแค่บรรทัดเดียวและห้ามมีมากกว่านั้น | lore เพิ่มเติมเป็นของอ่านเสริม ไม่ขวาง loop |
+
+รูปแบบเงื่อนไขปลดใน config: `config: unlocks.<system>` เป็น object ที่มี `minLevel` และ `minCompletedRuns` (ต้องผ่านทุกข้อ) บวก key เสริมเฉพาะระบบ เช่น `unlocks.partyDetail.minNearbyPartyJoins`, `unlocks.antiCheatHelp.unlockOnEvents` · ทุกระบบใน U1–U8 มี object ใน `config/balance/unlocks.json` แล้ว
+
+ลำดับปลดและเลเวล: systems-designer เสนอไว้ใน D-040 (หน้า raid และ push ปลดที่ L5 + 3 run) และ D-041 (stat/party L3 → enhance/raid L5 → market L8 → classChange L10, lore หลัง run แรก, ทุกขั้นต้องจบ run แรกก่อน) · สถานะ PROPOSED ถึง game-director · **ยังไม่ตัดสินในเอกสารนี้** จะตัดสินใน design gate A (P1-F03-T24) · ระหว่างนี้ตารางด้านบนคือเจตนา ค่าใน config คือข้อเสนอ
 
 ตัวตรวจ: script ของ narrative-designer ตรวจคำของทั้ง 8 หมวดใน key `onboarding.*` (P1-F03-T05) · uiux-designer ตรวจว่า flow นาที 0–10 ไม่มีทางไปหน้าของ U1–U8 (P1-F03-T16) · IA ใช้ลำดับปลดจากตารางนี้ (P1-F03-T15)
 
@@ -152,10 +156,12 @@ auto-retreat, ยาอัตโนมัติ และแจ้งเตื�
 
 | สถานะ | นิยาม | ตัวอย่าง |
 | --- | --- | --- |
-| ใกล้ | อยู่ในพื้นที่เล่น และ dungeon ที่เปิดอยู่ตอนนี้ใกล้สุดห่างไม่เกิน `config: unlocks.home.far_dungeon_threshold_m` (ระยะเส้นตรงจากตำแหน่งผู้เล่นถึงขอบ polygon) | ตัวอย่าง GDD "650 ม." |
-| ไกล | อยู่ในพื้นที่เล่น แต่ dungeon ที่เปิดอยู่ใกล้สุดห่างเกิน `config: unlocks.home.far_dungeon_threshold_m` · รวมกรณีมี dungeon ใกล้แต่ปิดตามเวลาทำการทั้งหมด (ไกลชั่วคราว: แสดงเวลาเปิดถัดไป) | ตัวอย่าง GDD "3 กิโล" |
+| ใกล้ | อยู่ในพื้นที่เล่น และ dungeon ที่เปิดอยู่ตอนนี้ใกล้สุดห่างไม่เกิน `config: unlocks.home.farDungeonThreshold_m` (ระยะเส้นตรงจากตำแหน่งผู้เล่นถึงขอบ polygon) | ตัวอย่าง GDD "650 ม." |
+| ไกล | อยู่ในพื้นที่เล่น แต่ dungeon ที่เปิดอยู่ใกล้สุดห่างเกิน `config: unlocks.home.farDungeonThreshold_m` · รวมกรณีมี dungeon ใกล้แต่ปิดตามเวลาทำการทั้งหมด (ไกลชั่วคราว: แสดงเวลาเปิดถัดไป) | ตัวอย่าง GDD "3 กิโล" |
 | นอกพื้นที่ | ตำแหน่งอยู่นอกขอบเขตพื้นที่เล่น (กรุงเทพฯ + ปริมณฑล ขอบเขตมาจาก config/หลังบ้าน ไม่ hardcode) · แผนที่ส่วนนั้นเป็นโซนดำ | อยู่ต่างจังหวัด |
-| ไม่รู้ตำแหน่ง | ปฏิเสธ consent location, ปฏิเสธ permission เบราว์เซอร์, GPS ปิด หรือ accuracy แย่กว่า `config: location.minAccuracy_m` ต่อเนื่อง | ยังไม่ให้ consent |
+| ไม่รู้ตำแหน่ง | ปฏิเสธ consent location, ปฏิเสธ permission เบราว์เซอร์, GPS ปิด หรือ accuracy แย่กว่า `config: location.homeState.maxAccuracy_m` ต่อเนื่องนานเกิน `config: location.homeState.sustainedPoorAccuracy_s` (ค่านี้ใช้แสดงผลที่บ้านเท่านั้น แยกจาก `config: anticheat.checkIn.maxAccuracy_m` ที่ใช้ตรวจ check-in) | ยังไม่ให้ consent |
+
+หมายเหตุ: config มี `config: unlocks.home.outOfServiceAreaThreshold_m` (ระยะถึง dungeon ใกล้สุด) ซึ่ง systems-designer เสนอเป็นเกณฑ์ "นอกพื้นที่" · เจตนาของเอกสารนี้คือขอบเขตพื้นที่เล่นเป็นหลัก (6 จังหวัด ตรงกับ mask โซนดำ) · ความต่างนี้ตรวจและตัดสินใน design gate A (P1-F03-T24) ไม่แก้ที่นี่
 
 [ASSUMPTION A-P1-F03-T01-1: ใช้ระยะเส้นตรง ไม่ใช่ระยะเดินตามถนน ใน v1 เพราะไม่ต้องใช้ routing engine · ถ้า F01 พบว่าสิ่งกีดขวาง (คลอง ทางด่วน) ทำให้ระยะจริงต่างมาก ให้ level-designer เสนอ]
 
@@ -259,9 +265,9 @@ GDD "ที่ยังต้องตัดสินใจ" ยังมี 6 �
 
 ### สมมติฐาน
 - A-P1-F03-T01-1: ระยะ "ไกล" ใช้ระยะเส้นตรงถึงขอบ polygon ใน v1 (หัวข้อ 7.1) (ยืนยัน: level-designer, location-engineer)
-- A-P1-F03-T01-2: ชื่อ config key ในเอกสารนี้เป็นชื่อที่เสนอ ยกเว้น `unlocks.home.far_dungeon_threshold_m` ที่มาจาก board · systems-designer เป็นเจ้าของชื่อจริงใน `config/balance/*.json` (P1-F03-T06) และอาจปรับเป็น camelCase ตาม TL-N02 · ถ้าชื่อต่าง ให้แก้เอกสารนี้ตาม config ไม่ใช่กลับกัน (ยืนยัน: systems-designer)
-- A-P1-F03-T01-3: key ใหม่ที่เอกสารนี้ต้องการและยังไม่อยู่ใน acceptance ของ T06: `unlocks.antiCheatHelp`, `unlocks.lore`, `unlocks.home.reevaluateDistance_m`, `location.minAccuracy_m` (ยืนยัน: systems-designer)
-- A-P1-F03-T01-4: เงื่อนไขปลดของตลาดและตีบวกต้องไม่เกิดก่อนจบ run แรก (เจตนา) ส่วนเลเวลหรือเงื่อนไขที่แน่นอนเป็นของ systems-designer (ยืนยัน: systems-designer)
+- A-P1-F03-T01-2: ปิดแล้วใน P1-X01 · ชื่อ config key ทุกตัวในเอกสารนี้ตรงกับ `config/balance/*.json` ตามตารางจับคู่ของ P1-H03 · กติกายังคงเดิม: ถ้า config เปลี่ยนชื่อ ให้แก้เอกสารนี้ตาม config ไม่ใช่กลับกัน
+- A-P1-F03-T01-3: ปิดแล้วใน P1-X01 · key ที่ขอมีใน config ครบ: `unlocks.antiCheatHelp`, `unlocks.lore`, `unlocks.home.reevaluateDistance_m`, `location.homeState.maxAccuracy_m` (+ `sustainedPoorAccuracy_s`)
+- A-P1-F03-T01-4: เงื่อนไขปลดของตลาดและตีบวกต้องไม่เกิดก่อนจบ run แรก (เจตนา) ส่วนเลเวลหรือเงื่อนไขที่แน่นอนเป็นของ systems-designer · config ใส่ `minCompletedRuns` ≥ 1 ทุกขั้นแล้ว (A-P1-H03-1) · เลเวลรอตัดสินพร้อม D-041 ใน P1-F03-T24 (ยืนยัน: game-director ใน T24)
 - A-P1-F03-T01-5: การลงทะเบียนความสนใจเลือกจังหวัดจากรายการและไม่เก็บพิกัด เพื่อให้ใช้ได้ทั้งคนที่ไม่ให้ consent location (ยืนยัน: product-manager สำหรับ F23)
 
 ### คำถามค้าง (ไม่ขวาง Phase 1)

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/copy-rules.schema.json",
+  "title": "config/content/copy-rules.json (docs/tech/copy-schema.md section 6)",
+  "type": "object",
+  "required": ["_meta", "areas", "limits", "formats"],
+  "properties": {
+    "_meta": { "type": "object" },
+    "areas": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*$" }
+    },
+    "limits": { "$ref": "#/$defs/limits" },
+    "formats": { "$ref": "#/$defs/formats" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "limits": {
+      "type": "object",
+      "required": ["message", "button", "label", "push", "dialogue", "command"],
+      "properties": {
+        "message": { "$ref": "#/$defs/messageLimit" },
+        "button": { "$ref": "#/$defs/simpleLimit" },
+        "buttonFullWidth": { "$ref": "#/$defs/buttonFullWidthLimit" },
+        "label": { "$ref": "#/$defs/simpleLimit" },
+        "push": { "$ref": "#/$defs/pushLimit" },
+        "dialogue": { "$ref": "#/$defs/dialogueLimit" },
+        "command": { "$ref": "#/$defs/simpleLimit" },
+        "legal": { "$ref": "#/$defs/legalLimit" }
+      },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    },
+    "messageLimit": {
+      "type": "object",
+      "required": ["maxCells", "maxNewlines", "maxCellsPerLine"],
+      "properties": {
+        "maxCells": { "type": "integer", "minimum": 1 },
+        "maxNewlines": { "type": "integer", "minimum": 0 },
+        "maxCellsPerLine": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "simpleLimit": {
+      "type": "object",
+      "required": ["maxCells", "maxNewlines"],
+      "properties": {
+        "maxCells": { "type": "integer", "minimum": 1 },
+        "maxNewlines": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "buttonFullWidthLimit": {
+      "description": "D-050: alternate button limit selected by key, see CopyButtonFullWidthLimit.",
+      "type": "object",
+      "required": ["maxCells", "maxNewlines", "keys"],
+      "properties": {
+        "maxCells": { "type": "integer", "minimum": 1 },
+        "maxNewlines": { "type": "integer", "minimum": 0 },
+        "keys": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    },
+    "pushLimit": {
+      "type": "object",
+      "required": ["titleMaxCells", "maxNewlines"],
+      "properties": {
+        "titleMaxCells": { "type": "integer", "minimum": 1 },
+        "maxNewlines": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "dialogueLimit": {
+      "type": "object",
+      "required": ["maxLines", "maxCellsPerLine", "speakerMaxChars"],
+      "properties": {
+        "maxLines": { "type": "integer", "minimum": 1 },
+        "maxCellsPerLine": { "type": "integer", "minimum": 1 },
+        "speakerMaxChars": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "legalLimit": {
+      "type": "object",
+      "required": ["summaryMaxCells"],
+      "properties": {
+        "summaryMaxCells": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "formats": {
+      "type": "object",
+      "required": ["numberLocale", "distanceKmFrom_m", "distanceKmDecimals", "clockPattern"],
+      "properties": {
+        "numberLocale": { "type": "string", "minLength": 1 },
+        "distanceKmFrom_m": { "type": "number", "exclusiveMinimum": 0 },
+        "distanceKmDecimals": { "type": "integer", "minimum": 0 },
+        "clockPattern": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    }
+  }
+}
