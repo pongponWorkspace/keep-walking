@@ -2088,8 +2088,8 @@
       }
     ],
     "run": {
-      "started_unix": 1790180763,
-      "duration_s": 46.5,
+      "started_unix": 1790183306,
+      "duration_s": 46.0,
       "python": "3.14.7",
       "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
       "packages": {
@@ -2107,13 +2107,13 @@
     "heatmapPngs": 193592
   },
   "run": {
-    "started_unix": 1790180976,
-    "duration_s": 15.7,
+    "started_unix": 1790183352,
+    "duration_s": 15.4,
     "timings_s": {
       "load_and_verify": 0.2,
-      "walk_graph": 0.1,
-      "population_raster": 1.5,
-      "routing_and_metrics": 13.3,
+      "walk_graph": 0.0,
+      "population_raster": 1.4,
+      "routing_and_metrics": 13.2,
       "write_outputs": 0.3
     },
     "python": "3.14.7",

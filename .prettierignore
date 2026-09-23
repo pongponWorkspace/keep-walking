@@ -32,3 +32,8 @@ tools/tiles/downloads/
 # Generated files that must stay byte-exact (sizes and sha256 are recorded in manifests;
 # `pnpm format` must never rewrite them). Regenerate with the owning tool instead.
 tools/tiles/fixtures/
+
+# Python str.format() templates (BUG-F01-003). Braces in <style>/<script> are escaped as
+# contiguous `{{`/`}}`; prettier splits them across lines and breaks .format(). Guarded by
+# tools/coverage/pipeline/tests/test_heatmap_text.py instead.
+tools/coverage/analysis/heatmap-template.html

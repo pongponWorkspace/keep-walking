@@ -105,3 +105,13 @@
 | 82 | W8 | P1-F02-T14 | qa-tester | 23:51:40 | 00:06:09 | DONE — คู่มือเดินทดสอบสำหรับคนทั่วไป, แบบฟอร์มตรงคอลัมน์ CSV, safety briefing · พบ HUD ส่ง segment/environment คงที่ ใช้วิธีเปิดหน้าใหม่ต่อช่วงแทน |
 | 83 | W8 | P1-X27 | tech-lead | 00:04:09 | 00:06:50 | DONE — tech note + ADR 0001 ตรงคำตัดสิน D-062/D-064/D-068 และ X05/X07 |
 | 84 | W8 | P1-X26 | location-engineer | 00:04:09 | 00:07:04 | DONE — gitleaks --no-git exit 0, pytest 176 ผ่าน |
+| 85 | W8 | P1-F01-T08 | qa-tester | 00:06:09 | 00:17:27 | PASS — รันซ้ำ SHA ตรงทุกไฟล์, นับเอง 730/76 เขตตรง CSV 0 mismatch, สุ่ม OSM 30/30 · bug ไม่ blocking 2 ข้อ |
+| 86 | W8 | P1-X29 | location-engineer | 00:17:27 | 00:22:48 | DONE — test หมวด blocklist 4 หมวด 28 case + 44 unit, ย้ายข้อความไทยออกจาก Python, heatmap byte เดิม · pytest 256 ผ่าน |
+| 87 | W8 | P1-X24 | qa-tester | 00:17:27 | 00:24:04 | DONE — e2e ของ QA ส่ง glyph/sprite จาก fixture ตรวจ load + tile render จริง · pnpm test:e2e 28/28 ผ่าน (Android+iOS) |
+| 88 | W8 | P1-F01-T10 | product-manager | 00:17:27 | 00:24:24 | PASS — Go เต็ม 2 เขต (พระนคร G1 81.7%, ปทุมวัน 72.0%), ดินแดงผ่านแบบมีทางเสริม, ไม่มีเงื่อนไข No-go, ไม่ขยับเกณฑ์หลังเห็นผล |
+| 89 | W8 | P1-F01-T09 | game-director | 00:17:27 | 00:26:09 | NEEDS_CHANGES — Go ยังยืน แต่รายการสถานที่อ่อนไหวขาด 6 แห่งในย่านเปิดตัว (อนุสรณ์ราชวงศ์, สวนสราญรมย์, ท่าพระจันทร์, หัวลำโพง, จิม ทอมป์สัน, สวนเอกชน) |
+| 90 | W8 | P1-X30 | level-designer | 00:26:09 | 00:41:42 | DONE — รายการสถานที่ให้ HUMAN ตัดสิน 16 → 25 ข้อ, หัวลำโพงออกจากตัวนับ (ปทุมวัน 18/19), worst-case พระนคร 12 แห่ง G1 ~55–75% |
+| 91 | W8 | P1-F01-T09 (รอบ 2) | game-director | 00:41:42 | 00:45:18 | PASS — F-01..F-03 แก้ครบ · เงื่อนไข C-1: หัวข้อ 0 ต้องบอก worst case พระนคร 10 แห่ง (ส่ง level-designer แก้แล้ว) · ค่าประมาณ G1 พอให้ตัดสิน Go ได้ |
+| 92 | W8 | P1-X30 (C-1) | level-designer | 00:45:19 | 00:47:07 | DONE — หัวข้อ 0/8/6.2 worst case พระนคร 10 (ตัดทั้งหมด) / 13 (ตัดเฉพาะมั่นใจสูง) + D-C · orchestrator ตรวจข้อความแล้ว |
+| 93 | W8 | P1-F02-T16 | qa-tester | 00:24:04 | 00:50:15 | PASS — คำสั่งทุกตัวเขียว, TC-HUD 03/05/07/10/11 ผ่าน black-box · BUG-F01-003 prettier ของ heatmap-template (แก้ด้วย .prettierignore) · QA แก้ heatmap-strings.th.json นอก writes (whitespace เท่านั้น) |
+| 94 | W8 | P1-X31 | tech-lead | 00:50:15 | 00:51:00 | DONE — root pnpm lint exit 0, pytest 256 ผ่าน |

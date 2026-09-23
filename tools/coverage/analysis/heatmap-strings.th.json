@@ -1,0 +1,21 @@
+{
+  "_note": "Thai text of the offline heatmap page (data/coverage/heatmap/index.html) and of its summary lines. Read at runtime by analysis/heatmap.py so no UI text is hardcoded in Python (BUG-F01-002). Values are Python str.format templates; the field names in braces are filled by the code and must not be renamed. The page layout itself is analysis/heatmap-template.html. Internal analysis tool, not in-game copy.",
+  "no_name": "(ไม่มีชื่อ)",
+  "district_title": "{district} ({province}) · dungeon {count} · เขียว {green} · แดง {red} · Launch Score {score:.3f} (อันดับ {rank})",
+  "candidate_title": "{name} · {cls} · {area:,.0f} ตร.ม. · {id}",
+  "table_head": [
+    "อันดับ",
+    "เขต/อำเภอ",
+    "จังหวัด",
+    "dungeon",
+    "preset",
+    "เขียว",
+    "เขียว+เหลือง",
+    "แดง",
+    "ระยะเดินเฉลี่ย (ม.)",
+    "ประชากร",
+    "Launch Score"
+  ],
+  "totals_line": "dungeon ที่ใช้ได้ {usable} แห่ง (ไม่นับ review_required {not_counted}) · ย่านที่มี dungeon {districts_with}/{districts} · ประชากรในโซนเขียว {green:.1%} เหลือง {yellow:.1%} แดง {red:.1%}",
+  "method_line": "ระยะเดิน = routing บนโครงข่ายทางเดิน OSM (multi-source Dijkstra จาก rep_point ของ dungeon ทุกแห่ง) · เซลล์ที่ห่างกราฟเกิน {snap_m} ม. นับเป็นแดง"
+}

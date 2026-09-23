@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>F01 coverage heatmap: candidates vs population density</title>
+    <style>
+      body{{font-family:system-ui,sans-serif;margin:16px;color:#222}}
+      #map{{width:100%;max-width:1100px;border:1px solid #999;background:#f4f4f4}}
+      .d{{fill:transparent;stroke:#333;stroke-width:0.8}}
+      .d:hover{{fill:rgba(0,0,0,0.08)}}
+      .d.empty{{stroke:#b2182b;stroke-width:2;stroke-dasharray:6 3;fill:url(#hatch)}}
+      image{{image-rendering:pixelated}}
+      table{{border-collapse:collapse;font-size:13px;margin-top:12px}}
+      td,th{{border:1px solid #ccc;padding:2px 6px;text-align:right}}
+      td:nth-child(2),td:nth-child(3){{text-align:left}}
+      tr.empty td{{background:#fde0dd}}
+      .sw{{display:inline-block;width:12px;height:12px;vertical-align:middle;margin:0 4px 0 10px}}
+    </style>
+  </head>
+  <body>
+    <h1>F01 Coverage: dungeon candidates เทียบความหนาแน่นประชากร</h1>
+    <p>
+      ข้อมูล OSM {data_date} · ประชากร WorldPop R2025A (100 ม.) รวมเป็นช่อง {block_m} ม. ก่อนแสดง ·
+      จุด = candidate ที่ใช้ได้ (ตำแหน่ง rep_point ของสถานที่สาธารณะ ไม่มีตำแหน่งบ้านหรือบุคคล) ·
+      เขตเส้นประแดง + ลาย = ย่านว่าง (ไม่มี dungeon ที่ใช้ได้)
+    </p>
+    <p>{totals}<br />{method}</p>
+    <p>
+      <label><input type="checkbox" checked onchange="t('pop', this)" /> ความหนาแน่นประชากร</label>
+      <label
+        ><input type="checkbox" checked onchange="t('red', this)" /> พื้นที่ว่าง (โซนแดง &gt; 3 กม.
+        หรือห่างทางเดิน)</label
+      >
+      <label
+        ><input type="checkbox" onchange="t('zone', this)" /> โซนระยะเดินทั้งหมด
+        (เขียว/เหลือง/แดง)</label
+      >
+      <label><input type="checkbox" checked onchange="t('cand', this)" /> candidates</label>
+      <label><input type="checkbox" checked onchange="t('dist', this)" /> เขต/อำเภอ</label>
+    </p>
+    <p>
+      คน/ตร.กม. (log): {ticks} <span class="sw" style="background: #00a651"></span>largePark
+      <span class="sw" style="background: #ff7f00"></span>market
+      <span class="sw" style="background: #b8e186"></span>pocketPark
+      <span
+        class="sw"
+        style="background: repeating-linear-gradient(45deg, #d7191c 0 2px, transparent 2px 5px)"
+      ></span
+      >พื้นที่ว่าง <span class="sw" style="background: rgba(26, 152, 80, 0.6)"></span>เขียว &le; 800
+      ม. <span class="sw" style="background: rgba(254, 224, 139, 0.8)"></span>เหลือง
+      <span class="sw" style="background: rgba(215, 48, 39, 0.8)"></span>แดง
+    </p>
+    <svg id="map" viewBox="0 0 {vb_w} {vb_h}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern
+          id="hatch"
+          width="8"
+          height="8"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)"
+        >
+          <line x1="0" y1="0" x2="0" y2="8" stroke="#b2182b" stroke-width="1.5" opacity="0.35" />
+        </pattern>
+      </defs>
+      <g id="pop">
+        <image
+          href="data:image/png;base64,{pop_png}"
+          x="0"
+          y="0"
+          width="{img_w}"
+          height="{img_h}"
+          preserveAspectRatio="none"
+        />
+      </g>
+      <g id="zone" style="display: none">
+        <image
+          href="data:image/png;base64,{zone_png}"
+          x="0"
+          y="0"
+          width="{img_w}"
+          height="{img_h}"
+          preserveAspectRatio="none"
+        />
+      </g>
+      <g id="red">
+        <image
+          href="data:image/png;base64,{red_png}"
+          x="0"
+          y="0"
+          width="{img_w}"
+          height="{img_h}"
+          preserveAspectRatio="none"
+        />
+      </g>
+      <g id="dist">{districts}</g>
+      <g id="cand">{candidates}</g>
+    </svg>
+    <h2>79 เขต/อำเภอ เรียงตาม Launch Score (ตัวเลขเต็มอยู่ใน district-counts.csv)</h2>
+    <table>
+      {table}
+    </table>
+    <p>
+      © OpenStreetMap contributors (ODbL 1.0) · WorldPop (CC BY 4.0) · ดู
+      data/coverage/LICENSE-DATA.md
+    </p>
+    <script>
+      function t(id, el) {{
+        document.getElementById(id).style.display = el.checked ? '' : 'none';
+      }}
+    </script>
+  </body>
+</html>

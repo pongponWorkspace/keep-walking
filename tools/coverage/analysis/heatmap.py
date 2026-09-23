@@ -7,14 +7,50 @@ location is shown."""
 from __future__ import annotations
 
 import base64
+import functools
 import html
+import json
 import math
 import struct
 import zlib
+from pathlib import Path
 from typing import Any
 
 import numpy as np
 from shapely.geometry import shape
+
+# UI text and page layout live next to this module as data (BUG-F01-002):
+# the Thai strings are str.format templates, the page is a str.format
+# template with literal braces doubled.
+_HERE = Path(__file__).resolve().parent
+STRINGS_PATH = _HERE / "heatmap-strings.th.json"
+TEMPLATE_PATH = _HERE / "heatmap-template.html"
+
+
+@functools.lru_cache(maxsize=None)
+def strings() -> dict[str, Any]:
+    return json.loads(STRINGS_PATH.read_text(encoding="utf-8"))
+
+
+@functools.lru_cache(maxsize=None)
+def html_template() -> str:
+    # newline="" keeps the file bytes as written (no newline translation).
+    with TEMPLATE_PATH.open(encoding="utf-8", newline="") as fh:
+        return fh.read()
+
+
+def summary_lines(totals: dict[str, Any], not_counted: int, snap_m: Any) -> dict[str, str]:
+    """totals_line and method_line shown under the page title."""
+    s = strings()
+    return {
+        "totals_line": s["totals_line"].format(
+            usable=totals["usable_dungeons"], not_counted=not_counted,
+            districts_with=totals["districts_with_usable_dungeon"], districts=totals["districts"],
+            green=totals["pop_share_green"], yellow=totals["pop_share_yellow"],
+            red=totals["pop_share_red"]),
+        "method_line": s["method_line"].format(snap_m=snap_m),
+    }
+
 
 # Display palette only (not a game value): ColorBrewer Blues, light -> dark,
 # so the red "empty area" hatch stays readable on top of it.
@@ -125,15 +161,17 @@ def build_html(grid, rows: list[dict[str, Any]], usable: list[dict[str, Any]],
     img_h = math.ceil(h_cells / block) * block
     vb_w, vb_h = w_cells * k, h_cells
     row_by_id = {r["district_osm_id"]: r for r in rows}
+    text = strings()
     d_svg = []
     for d in sorted(districts, key=lambda f: f["properties"]["district_osm_id"]):
         p = d["properties"]
         r = row_by_id[p["district_osm_id"]]
         geom = shape(d["geometry"]).simplify(grid.dx / 2, preserve_topology=True)
         empty = r["g2_valid_count_incl_multi"] == 0
-        title = (f"{p['district']} ({p['province']}) · dungeon {r['valid_polygon_count']} · "
-                 f"เขียว {_pct(r['g1_pop_share_green'])} · แดง {_pct(r['g4_pop_share_red'])} · "
-                 f"Launch Score {r['launch_score']:.3f} (อันดับ {r['launch_rank']})")
+        title = text["district_title"].format(
+            district=p["district"], province=p["province"], count=r["valid_polygon_count"],
+            green=_pct(r["g1_pop_share_green"]), red=_pct(r["g4_pop_share_red"]),
+            score=r["launch_score"], rank=r["launch_rank"])
         cls = "d empty" if empty else "d"
         d_svg.append(f'<path class="{cls}" d="{_path(geom, X, Y)}"><title>{html.escape(title)}</title></path>')
     c_svg = []
@@ -141,12 +179,13 @@ def build_html(grid, rows: list[dict[str, Any]], usable: list[dict[str, Any]],
         p = f["properties"]
         lon, lat = p["rep_point"]
         color = PRESET_COLOR.get(p["_preset"], "#000")
-        title = f"{p.get('name') or '(ไม่มีชื่อ)'} · {p['class']} · {p['area_m2']:,.0f} ตร.ม. · {f['id']}"
+        title = text["candidate_title"].format(
+            name=p.get("name") or text["no_name"], cls=p["class"], area=p["area_m2"], id=f["id"])
         c_svg.append(f'<circle cx="{X(lon):.1f}" cy="{Y(lat):.1f}" r="3.2" fill="{color}" stroke="#000" stroke-width="0.6">'
                      f'<title>{html.escape(title)}</title></circle>')
     table = _table(rows)
     legend_ticks = " · ".join(f"{t:,.0f}" for t in ticks)
-    return HTML_TEMPLATE.format(
+    return html_template().format(
         vb_w=f"{vb_w:.1f}", vb_h=f"{vb_h:.1f}", img_w=f"{img_w:.1f}", img_h=img_h,
         pop_png=_b64(pop_png), zone_png=_b64(zone_png), red_png=_b64(red_png), districts="\n".join(d_svg),
         candidates="\n".join(c_svg), table=table, ticks=legend_ticks, block_m=block * 100,
@@ -161,9 +200,7 @@ def _pct(v: float | None) -> str:
 
 
 def _table(rows: list[dict[str, Any]]) -> str:
-    head = ("<tr><th>อันดับ</th><th>เขต/อำเภอ</th><th>จังหวัด</th><th>dungeon</th><th>preset</th>"
-            "<th>เขียว</th><th>เขียว+เหลือง</th><th>แดง</th><th>ระยะเดินเฉลี่ย (ม.)</th>"
-            "<th>ประชากร</th><th>Launch Score</th></tr>")
+    head = "<tr>" + "".join(f"<th>{html.escape(h)}</th>" for h in strings()["table_head"]) + "</tr>"
     body = []
     for r in sorted(rows, key=lambda r: r["launch_rank"]):
         cls = ' class="empty"' if r["g2_valid_count_incl_multi"] == 0 else ""
@@ -176,62 +213,3 @@ def _table(rows: list[dict[str, Any]]) -> str:
             f"<td>{walk}</td><td>{r['population']:,.0f}</td><td>{r['launch_score']:.3f}</td></tr>")
     return head + "\n".join(body)
 
-
-HTML_TEMPLATE = """<!doctype html>
-<html lang="th"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>F01 coverage heatmap: candidates vs population density</title>
-<style>
-body{{font-family:system-ui,sans-serif;margin:16px;color:#222}}
-#map{{width:100%;max-width:1100px;border:1px solid #999;background:#f4f4f4}}
-.d{{fill:transparent;stroke:#333;stroke-width:0.8}}
-.d:hover{{fill:rgba(0,0,0,0.08)}}
-.d.empty{{stroke:#b2182b;stroke-width:2;stroke-dasharray:6 3;fill:url(#hatch)}}
-image{{image-rendering:pixelated}}
-table{{border-collapse:collapse;font-size:13px;margin-top:12px}}
-td,th{{border:1px solid #ccc;padding:2px 6px;text-align:right}}
-td:nth-child(2),td:nth-child(3){{text-align:left}}
-tr.empty td{{background:#fde0dd}}
-.sw{{display:inline-block;width:12px;height:12px;vertical-align:middle;margin:0 4px 0 10px}}
-</style></head><body>
-<h1>F01 Coverage: dungeon candidates เทียบความหนาแน่นประชากร</h1>
-<p>ข้อมูล OSM {data_date} · ประชากร WorldPop R2025A (100 ม.) รวมเป็นช่อง {block_m} ม. ก่อนแสดง ·
-จุด = candidate ที่ใช้ได้ (ตำแหน่ง rep_point ของสถานที่สาธารณะ ไม่มีตำแหน่งบ้านหรือบุคคล) ·
-เขตเส้นประแดง + ลาย = ย่านว่าง (ไม่มี dungeon ที่ใช้ได้)</p>
-<p>{totals}<br>{method}</p>
-<p>
-<label><input type="checkbox" checked onchange="t('pop',this)"> ความหนาแน่นประชากร</label>
-<label><input type="checkbox" checked onchange="t('red',this)"> พื้นที่ว่าง (โซนแดง &gt; 3 กม. หรือห่างทางเดิน)</label>
-<label><input type="checkbox" onchange="t('zone',this)"> โซนระยะเดินทั้งหมด (เขียว/เหลือง/แดง)</label>
-<label><input type="checkbox" checked onchange="t('cand',this)"> candidates</label>
-<label><input type="checkbox" checked onchange="t('dist',this)"> เขต/อำเภอ</label>
-</p>
-<p>คน/ตร.กม. (log): {ticks}
-<span class="sw" style="background:#00a651"></span>largePark
-<span class="sw" style="background:#ff7f00"></span>market
-<span class="sw" style="background:#b8e186"></span>pocketPark
-<span class="sw" style="background:repeating-linear-gradient(45deg,#d7191c 0 2px,transparent 2px 5px)"></span>พื้นที่ว่าง
-<span class="sw" style="background:rgba(26,152,80,.6)"></span>เขียว &le; 800 ม.
-<span class="sw" style="background:rgba(254,224,139,.8)"></span>เหลือง
-<span class="sw" style="background:rgba(215,48,39,.8)"></span>แดง</p>
-<svg id="map" viewBox="0 0 {vb_w} {vb_h}" xmlns="http://www.w3.org/2000/svg">
-<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-<line x1="0" y1="0" x2="0" y2="8" stroke="#b2182b" stroke-width="1.5" opacity="0.35"/></pattern></defs>
-<g id="pop"><image href="data:image/png;base64,{pop_png}" x="0" y="0" width="{img_w}" height="{img_h}" preserveAspectRatio="none"/></g>
-<g id="zone" style="display:none"><image href="data:image/png;base64,{zone_png}" x="0" y="0" width="{img_w}" height="{img_h}" preserveAspectRatio="none"/></g>
-<g id="red"><image href="data:image/png;base64,{red_png}" x="0" y="0" width="{img_w}" height="{img_h}" preserveAspectRatio="none"/></g>
-<g id="dist">
-{districts}
-</g>
-<g id="cand">
-{candidates}
-</g>
-</svg>
-<h2>79 เขต/อำเภอ เรียงตาม Launch Score (ตัวเลขเต็มอยู่ใน district-counts.csv)</h2>
-<table>
-{table}
-</table>
-<p>© OpenStreetMap contributors (ODbL 1.0) · WorldPop (CC BY 4.0) · ดู data/coverage/LICENSE-DATA.md</p>
-<script>function t(id,el){{document.getElementById(id).style.display=el.checked?'':'none'}}</script>
-</body></html>
-"""

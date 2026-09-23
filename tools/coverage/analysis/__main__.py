@@ -152,12 +152,7 @@ def run_analysis(args) -> int:
     pop_png, zone_png = H.png_bytes(pop_rgba), H.png_bytes(H.zone_rgba(zone))
     red_png = H.png_bytes(H.red_hatch_rgba(zone))
     hm = {"osm_data_date": cmeta.get("data_date"),
-          "totals_line": (f"dungeon ที่ใช้ได้ {totals['usable_dungeons']} แห่ง (ไม่นับ review_required "
-                          f"{len(res['not_counted'])}) · ย่านที่มี dungeon {totals['districts_with_usable_dungeon']}/"
-                          f"{totals['districts']} · ประชากรในโซนเขียว {totals['pop_share_green']:.1%} "
-                          f"เหลือง {totals['pop_share_yellow']:.1%} แดง {totals['pop_share_red']:.1%}"),
-          "method_line": ("ระยะเดิน = routing บนโครงข่ายทางเดิน OSM (multi-source Dijkstra จาก rep_point ของ "
-                          f"dungeon ทุกแห่ง) · เซลล์ที่ห่างกราฟเกิน {cf['walkGraphSnapMaxDistance_m']} ม. นับเป็นแดง")}
+          **H.summary_lines(totals, len(res["not_counted"]), cf["walkGraphSnapMaxDistance_m"])}
     page = H.build_html(grid, res["rows"], res["usable"], districts, pop_png, zone_png, red_png, ticks, block, hm)
     hdir = out["heatmapDir"]
     sizes["heatmapHtml"] = write_text(hdir / "index.html", page)
