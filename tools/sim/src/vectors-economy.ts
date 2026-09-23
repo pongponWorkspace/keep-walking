@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers -- literals here are golden-vector case inputs
-   (levels, member counts, context flags, boundary ratios), as in vectors.ts. Every tunable comes
-   from SimParams / DropParams (config). */
 // Builds drops.json, economy.json and party.json golden vectors (P1-F03-T08).
 // GDD targets come from config/balance (gddReferenceFrequency, gddReferenceEconomy, partyReward)
 // and tolerances from tools/sim/gdd-reference.json.
+// Literals (ADR 0001 section 3.5): config-dependent boundaries (role caps, party size, max level)
+// come from SimParams (GDD targets from EconomyRefs); the only numbers written here are example inputs in CASE
+// and unit constants.
 import type { BalanceConfig } from './config';
 import { num } from './config';
 import type { DropContext, DropParams } from './drops';
@@ -56,10 +56,27 @@ export interface EconomyInputs {
 
 const SIM_TOLERANCE = 1e-6;
 const SIM_DECIMALS = 6;
+const DECIMAL_BASE = 10;
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 3600;
+const roundTo = (value: number, decimals: number) =>
+  Math.round(value * DECIMAL_BASE ** decimals) / DECIMAL_BASE ** decimals;
+
+/** Example inputs for golden vectors (not balance values). */
+const CASE = {
+  rangedBuffAboveCap_pct: 30,
+  syntheticUncommon_pct: 80,
+  ratioStepAbove: 0.01,
+  ratioStepBelow: 0.001,
+  printed: { grossLossDecimals: 1, healShieldDecimals: 2 },
+  shieldAboveLoss: { gross: 10, heal: 0, shield: 5 },
+  healAboveLoss: { gross: 20, heal: 1, shield: 0 },
+  asymptoteMembersPerRole: 200,
+} as const;
 const SIM = 'sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts)';
 
 function roundSim(value: VectorOutput): VectorOutput {
-  const f = 10 ** SIM_DECIMALS;
+  const f = DECIMAL_BASE ** SIM_DECIMALS;
   if (typeof value === 'number') return Math.round(value * f) / f;
   if (value !== null && typeof value === 'object') {
     const out: Record<string, number> = {};
@@ -84,7 +101,7 @@ function gdd(
   tolerance: number,
   source: string,
 ): Vector {
-  const f = 10 ** TOLERANCE_DECIMALS;
+  const f = DECIMAL_BASE ** TOLERANCE_DECIMALS;
   return { input, expected, tolerance: Math.round(tolerance * f) / f, source };
 }
 
@@ -156,18 +173,22 @@ export function dropsVectors(p: SimParams, g: GddReference, e: EconomyInputs): V
     ),
     sim(days('epic', refs.heavyMinutesPerDay, soloMult), 'F-2: heavy player solo without Ranged'),
     sim(
-      { ...days('epic', 0), minutesPerDay: dp.rewardTickInterval_s / 60 },
+      { ...days('epic', 0), minutesPerDay: dp.rewardTickInterval_s / SECONDS_PER_MINUTE },
       'boundary: one reward tick per day',
     ),
     sim({ ...days('epic', refs.casualMinutesPerDay), chance_pct: 0 }, 'boundary: chance 0 → null'),
   );
   const L = g.party.level;
   const rangedL = buffOrNull([L], 'ranged', p) as number;
+  const rangedCap = p.roles.ranged.cap_pct;
   const cases: [Partial<DropContext>, string][] = [
     [{}, 'multiplier 1.0 (GDD table as written)'],
     [{ rangedBuff_pct: null }, 'no Ranged inside → x0.6'],
     [{ rangedBuff_pct: rangedL }, `one Ranged L${L} inside (buff ${rangedL.toFixed(2)}%)`],
-    [{ rangedBuff_pct: 80 }, 'boundary: Ranged buff above 50% clamps at x1.5'],
+    [
+      { rangedBuff_pct: rangedCap + CASE.rangedBuffAboveCap_pct },
+      `boundary: Ranged buff above ${rangedCap}% clamps at x${dp.rangedBuffMaxMult}`,
+    ],
     [{ smallDungeon: true }, 'small dungeon: rare and above x1.5, Common quantity x0.6'],
     [{ lowTrust: true }, 'low trust: x0.5 and no Epic or Legendary'],
     [{ failedRaidBossHpLeft: 0 }, 'failed raid week, boss almost dead → x1.6 (A-16b)'],
@@ -177,21 +198,24 @@ export function dropsVectors(p: SimParams, g: GddReference, e: EconomyInputs): V
     [{ smallDungeon: true, rangedBuff_pct: null }, 'combined: small dungeon, no Ranged'],
     [{ smallDungeon: true, lowTrust: true }, 'combined: small dungeon, low trust'],
     [
-      { rangedBuff_pct: 50, smallDungeon: true, failedRaidBossHpLeft: 1 },
+      { rangedBuff_pct: rangedCap, smallDungeon: true, failedRaidBossHpLeft: 1 },
       'combined maximum: Ranged cap, small dungeon, failed raid x2.0',
     ],
   ];
   for (const [over, note] of cases)
     v.push(sim({ fn: 'dropRates', ...dropIn(dp), ...ctxIn(ctx(over)) }, note));
-  const synthetic = { ...dropIn(dp), baseChance_pct: { ...dp.baseChance_pct, uncommon: 80 } };
+  const synthetic = {
+    ...dropIn(dp),
+    baseChance_pct: { ...dp.baseChance_pct, uncommon: CASE.syntheticUncommon_pct },
+  };
   v.push(
     sim(
       {
         fn: 'dropRates',
         ...synthetic,
-        ...ctxIn(ctx({ rangedBuff_pct: 50, failedRaidBossHpLeft: 1 })),
+        ...ctxIn(ctx({ rangedBuff_pct: rangedCap, failedRaidBossHpLeft: 1 })),
       },
-      'boundary (synthetic base Uncommon 80%): chance clamps at 100%',
+      `boundary (synthetic base Uncommon ${CASE.syntheticUncommon_pct}%): chance clamps at 100%`,
     ),
   );
   return { formula: 'drops', vectors: v };
@@ -230,6 +254,18 @@ function potionIn(
     potionEfficiencyBonus_pct: withVit ? row.build.vit * p.stats.vitPotionEfficiency_pct : 0,
     buyPrice_gold: pot.buyPrice_gold,
   };
+}
+
+/** Expected HP loss per hour (% max HP) of the level-L balanced build with no Tanker inside. */
+function grossLossNoTanker(level: number, p: SimParams): number {
+  const row = survivalRow(level, { kind: 'noTanker' }, p);
+  return evaluateVector({
+    fn: 'hpLossPerHour_pct',
+    damage: row.damage,
+    maxHp: row.build.hp,
+    hitChance_pct: p.attack.hitChancePerCheck_pct,
+    meanInterval_s: (p.attack.intervalMin_s + p.attack.intervalMax_s) / 2,
+  }) as number;
 }
 
 export function economyVectors(p: SimParams, g: GddReference, e: EconomyInputs): VectorFile {
@@ -277,7 +313,7 @@ export function economyVectors(p: SimParams, g: GddReference, e: EconomyInputs):
   for (const [over, note] of [
     [{ rangedBuff_pct: null }, 'F-2: solo without Ranged (x0.6)'],
     [{ rangedBuff_pct: rangedL }, `party or solo Ranged L${L} (buff ${rangedL.toFixed(2)}%)`],
-    [{ rangedBuff_pct: 50 }, 'Ranged at cap x1.5'],
+    [{ rangedBuff_pct: p.roles.ranged.cap_pct }, `Ranged at cap x${dp.rangedBuffMaxMult}`],
     [{ smallDungeon: true }, 'small dungeon: fewer Common, more Rare (F-15: +8.9% gold)'],
     [{ lowTrust: true }, 'low trust x0.5'],
     [{ failedRaidBossHpLeft: 1 }, 'failed raid week x2.0'],
@@ -286,26 +322,44 @@ export function economyVectors(p: SimParams, g: GddReference, e: EconomyInputs):
   for (const [ratio, note] of [
     [target.targetMin, 'boundary: target min → IN TARGET'],
     [target.targetMax, 'boundary: target max → IN TARGET'],
-    [target.targetMax + 0.01, 'boundary: just above target max'],
-    [target.minAccepted - 0.001, 'boundary: just below min accepted'],
+    [target.targetMax + CASE.ratioStepAbove, 'boundary: just above target max'],
+    [target.minAccepted - CASE.ratioStepBelow, 'boundary: just below min accepted'],
     [0, 'boundary: ratio 0'],
   ] as [number, string][])
     v.push(sim({ fn: 'ratioStatus', ratio, ...target }, note));
-  for (const [gross, heal, shield, note] of [
-    [167.9, 0, 0, 'no heal, no shield → gross loss'],
-    [167.9, 0.66, 0, 'Support L25 heal only'],
-    [167.9, 0, 2.32, 'Magic L25 shield only'],
-    [10, 0, 5, 'boundary: shield larger than loss per tick is capped at the loss'],
-    [20, 1, 0, 'boundary: heal above loss → 0'],
+  // Level-L values as printed in the sim report: gross loss without a Tanker (1 decimal), solo
+  // Support heal and solo Magic shield (2 decimals).
+  const gross = roundTo(grossLossNoTanker(L, p), CASE.printed.grossLossDecimals);
+  const healL = roundTo(
+    potionIn(soloSpec('support', L), L, 'hpSmall', false, p, dp)['heal_pctMaxHpPerMin'] as number,
+    CASE.printed.healShieldDecimals,
+  );
+  const shieldL = roundTo(
+    potionIn(soloSpec('magic', L), L, 'hpSmall', false, p, dp)['shield_pctMaxHpPerTick'] as number,
+    CASE.printed.healShieldDecimals,
+  );
+  const sa = CASE.shieldAboveLoss;
+  const ha = CASE.healAboveLoss;
+  for (const [grossLoss, heal, shield, note] of [
+    [gross, 0, 0, 'no heal, no shield → gross loss'],
+    [gross, healL, 0, `Support L${L} heal only`],
+    [gross, 0, shieldL, `Magic L${L} shield only`],
+    [
+      sa.gross,
+      sa.heal,
+      sa.shield,
+      'boundary: shield larger than loss per tick is capped at the loss',
+    ],
+    [ha.gross, ha.heal, ha.shield, 'boundary: heal above loss → 0'],
   ] as [number, number, number, string][])
     v.push(
       sim(
         {
           fn: 'netHpLossPerHour_pct',
-          grossLoss_pctPerHour: gross,
+          grossLoss_pctPerHour: grossLoss,
           heal_pctMaxHpPerMin: heal,
           shield_pctMaxHpPerTick: shield,
-          ticksPerHour: 3600 / dp.rewardTickInterval_s,
+          ticksPerHour: SECONDS_PER_HOUR / dp.rewardTickInterval_s,
         },
         note,
       ),
@@ -361,6 +415,9 @@ export function partyVectors(p: SimParams, g: GddReference, e: EconomyInputs): V
   const L = g.party.level;
   const base = partyIn(p, dp);
   const full = fullPartySpec(L);
+  const perRoleAtMax = Math.floor(p.partyMaxMembers / ROLES.length);
+  const start = p.exp.startLevel;
+  const max = p.exp.maxLevel;
   const ratio = (party: PartySpec, solo: PartySpec): VectorInput => ({
     fn: 'partyPerHeadRatio',
     members: membersIn(party),
@@ -388,16 +445,19 @@ export function partyVectors(p: SimParams, g: GddReference, e: EconomyInputs): V
       ratio(full, soloSpec('magic', L)),
       'F-14: vs solo Magic (keeps own exp buff) → exp ratio 1.0',
     ),
-    sim(ratio(fullPartySpec(L, 2), soloSpec('tanker', L)), '8 members (2 per role) vs solo Tanker'),
+    sim(
+      ratio(fullPartySpec(L, perRoleAtMax), soloSpec('tanker', L)),
+      `${perRoleAtMax * ROLES.length} members (${perRoleAtMax} per role) vs solo Tanker`,
+    ),
     sim(
       ratio(partyWithout(L, ['ranged']), soloSpec('tanker', L)),
       'party without Ranged vs solo Tanker → drop 1.0',
     ),
-    sim(ratio(fullPartySpec(1), soloSpec('tanker', 1)), 'boundary: everyone level 1'),
     sim(
-      ratio(fullPartySpec(p.exp.maxLevel), soloSpec('tanker', p.exp.maxLevel)),
-      'boundary: everyone level 60',
+      ratio(fullPartySpec(start), soloSpec('tanker', start)),
+      `boundary: everyone level ${start}`,
     ),
+    sim(ratio(fullPartySpec(max), soloSpec('tanker', max)), `boundary: everyone level ${max}`),
     sim(ratio(full, full), 'boundary: same party → 1.0'),
   );
   const fx = (s: PartySpec, note: string) =>
@@ -405,9 +465,10 @@ export function partyVectors(p: SimParams, g: GddReference, e: EconomyInputs): V
   fx(partyWithout(L, [...ROLES]), 'boundary: 0 members inside → every missing debuff');
   for (const r of ROLES) fx(soloSpec(r, L), `solo ${r} L${L}: own buff, other debuffs`);
   fx(full, `full party L${L}`);
-  fx(fullPartySpec(L, 2), `8 members L${L}`);
+  fx(fullPartySpec(L, perRoleAtMax), `${perRoleAtMax * ROLES.length} members L${L}`);
   const capped = partyWithout(L, []);
-  for (const r of ROLES) capped.members[r] = Array.from({ length: 200 }, () => p.exp.maxLevel);
-  fx(capped, 'boundary: 200 members per role at level 60 → every buff at cap');
+  const many = CASE.asymptoteMembersPerRole;
+  for (const r of ROLES) capped.members[r] = Array.from({ length: many }, () => max);
+  fx(capped, `boundary: ${many} members per role at level ${max} → every buff at cap`);
   return { formula: 'party', vectors: v };
 }

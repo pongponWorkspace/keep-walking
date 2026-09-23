@@ -94,12 +94,35 @@ export interface LocationProvider {
   onStateChange(listener: (state: LocationProviderState) => void): Unsubscribe;
 }
 
-/** Options for the Web provider. Numeric values come from client config, not literals. */
-export interface WebLocationOptions extends LocationProviderDeps {
-  readonly enableHighAccuracy: boolean;
-  readonly timeoutMs: number;
-  readonly maximumAgeMs: number;
+/**
+ * Geolocation timing, named with the ADR 0001 3.10.3 unit suffix so the values map 1:1 to
+ * `config/app/client.json#locationWeb.{timeout_ms, maximumAge_ms}` (P1-X05).
+ */
+export interface WebLocationTiming {
+  readonly timeout_ms: number;
+  readonly maximumAge_ms: number;
+  readonly timeoutMs?: never;
+  readonly maximumAgeMs?: never;
 }
+
+/**
+ * @deprecated Since P1-X05. Use `timeout_ms` / `maximumAge_ms` ({@link WebLocationTiming}).
+ * Kept so callers written against the first draft keep compiling; removal is planned once no
+ * caller uses it (P1-F02-T11 migrates apps/client). Mixing old and new names is a type error.
+ */
+export interface LegacyWebLocationTiming {
+  /** @deprecated Use `timeout_ms`. */
+  readonly timeoutMs: number;
+  /** @deprecated Use `maximumAge_ms`. */
+  readonly maximumAgeMs: number;
+  readonly timeout_ms?: never;
+  readonly maximumAge_ms?: never;
+}
+
+/** Options for the Web provider. Numeric values come from client config, not literals. */
+export type WebLocationOptions = LocationProviderDeps & {
+  readonly enableHighAccuracy: boolean;
+} & (WebLocationTiming | LegacyWebLocationTiming);
 
 /** Replay speeds offered in the spike UI. */
 export type MockSpeed = 1 | 10 | 60;

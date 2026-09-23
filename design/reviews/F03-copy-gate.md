@@ -254,3 +254,69 @@ wireframe มี pseudo-key `hp` และ header ที่ไม่มี key �
 2. `dungeon.emergencyClosedTitle` เป็นถ้อยคำตาม F-01 หรือถ้อยคำอื่นที่ไม่สัญญารางวัลตามเวลา
 3. ทุก `copykey` ใน wireframe มีจริง ไม่มีข้อความผู้เล่นเห็นที่ไม่ผูก key และร่างไทยตรง text จริง
 4. components.md 2.1 มีตาราง header → key
+
+---
+
+# รอบ 2 — P1-F03-T21 (second pass)
+
+- ผู้ตรวจ: narrative-designer · วันที่: 2026-09-23
+- ขอบเขต: ตรวจเฉพาะ F-01..F-06 ของรอบ 1 หลัง fix task P1-X12 (copy bank) และ P1-X13 (wireframe + components.md) · ไม่เปิด finding ใหม่นอกขอบเขตนี้ ยกเว้นสิ่งที่พบระหว่างตรวจ F-03 (บันทึกเป็น follow-up)
+- **verdict: PASS** · F-01..F-06 แก้ครบทั้ง 6 ข้อ · เงื่อนไขรัน gate ซ้ำ (หัวข้อ 10) ผ่านครบ 4 ข้อ · เหลือ follow-up ไม่ blocking 4 รายการ (หัวข้อ R4)
+
+## R1. ผล lint หลัง fix (orchestrator รันหลัง P1-X12)
+
+```
+$ pnpm lint:copy
+exit code: 0
+FAIL: 0
+WARN: 11   (S7 ตัวแปรลงทะเบียนแต่ไม่มี key ใดใช้ ทั้งหมด)
+  bossName, fromLevel, gold, itemName, monsterName, newLevel,
+  raidDay, raidEndTime, raidStartTime, successPct, toLevel
+cli.test: expected WARN คำนวณจากข้อมูลจริงแล้ว · root lint: ผ่าน
+```
+
+คำตัดสิน: ตรงกับเงื่อนไขข้อ 1 ของหัวข้อ 10 · WARN S4 สองรายการ (F-04) หายไป · `zoneRealName` หายจากรายการเพราะถูกใช้ใน `run.headerZoneLabel` ตามที่คาดไว้ (12 → 11) · ตัวแปรที่เหลือ 11 ตัวยังเป็นตัวแปรจองของระบบที่ปลดทีหลัง คำตัดสินรอบ 1 หัวข้อ 2.2 ยังใช้ได้ ไม่ต้องแก้
+
+## R2. ผลราย finding
+
+| finding | ผล | หลักฐาน |
+| --- | --- | --- |
+| F-01 `dungeon.emergencyClosedTitle` | **แก้แล้ว** | `copy.th.json` บรรทัด 157 text = "โซนนี้ปิดกะทันหัน ได้ของเท่าที่เดินจริง" cells 28 · context ระบุ "รางวัลตามระยะที่เดินจริงเท่านั้น … ห้ามสื่อว่าอยู่เฉยๆ ก็ได้ของ" · `05-run-summary.html` บรรทัด 60 ร่างตรงตัว · caption "ตามสัดส่วนเวลาที่อยู่จริง" เดิมที่ 05:59 ไม่มีแล้ว (grep ไม่พบ) · H12 ผ่าน ไม่สัญญารางวัลนอก movement gate |
+| F-02 key ที่ขาด 7 key | **แก้แล้ว** | ครบทั้ง 7 key ในถ้อยคำและ kind ตามข้อเสนอ: `onboarding.headerLabel` (98, label 5) · `consent.headerLabel` (106, label 9) · `account.loginHeader` (122, label 8) · `run.headerZoneLabel` (182, label 17, `{zoneRealName}`) · `run.hpBarLabel` (183, label 2) · `run.summary.headerLabel` (208, label 7) · `gps.pillLabel` (284, label 3) · ตาราง header → key อยู่ที่ `components.md` 2.1.1 บรรทัด 47–66 ครอบทุกจอที่รอบ 1 ระบุ · D-058 (บรรทัด 68) ยืนยันใช้ `{zoneRealName}` ใน header ระหว่าง run พร้อมเหตุผลพื้นที่จอ 360px ซึ่งตรงกับทางเลือกหลักของรอบ 1 จึงไม่ต้องเปลี่ยน key เป็น kind message |
+| F-03 wireframe ↔ copy bank | **แก้แล้ว** (เหลือ 1 จุดร่างไม่ตรง ไม่ blocking ดู R3) | ดึง `copykey` ทุกจุดใน 7 ไฟล์: ทุก key มีจริงใน `copy.th.json` (ไม่นับ `key.name` ใน 00:11 ที่เป็นคำอธิบายสัญลักษณ์) · pseudo-key `hp` หายแล้ว แทนด้วย `run.hpBarLabel` ที่ 03:20 · จุดในตาราง 6.2 ทั้งหมดผูก key แล้ว (เช่น 03:24 `run.tickTimer`, 03:29 `run.exitButton`, 02:92 `dungeon.closedDismiss`, 02:109 `common.close`, 04:88 `run.exitConfirmCancel`, 01:30–31 `home.farRoleInfoLink`/`home.farProfileLink`, 01:85 `home.interestLink`, 01:77 `home.unknownTitle`, 05:34 `run.summaryRewardLost`, 06:79 `run.autoRetreatOffBadge`, 00:83 `age.underMinBack`) · grep ถ้อยคำเก่าที่ขัดกฎ (ฮีล, ดาเมจ, เช็ค, "tick ถัดไป", "สรุปผล run", "ขอสิทธิ์เบราว์เซอร์", "จะตายจริง") ไม่พบในจอใดเลย · ร่าง `thaidraft` ตรงกับ text จริงทุกจุด ยกเว้น 01:105 · แผง quick command 03:67–77 แสดงครบ 10 คำสั่งด้วยข้อความเต็มตรงกับ `qc.*` บรรทัด 164–173 และ `shared/style.css` บรรทัด 118 `.qc-btn` font-size 14px = `type.caption` · ไม่มีคำสั่งใดต้องย่อ จึงไม่มีงาน H14 ค้าง |
+| F-04 cells 2 key | **แก้แล้ว** | `dungeon.vsBossTitle` (149) cells 11 · `label.sponsored` (139) cells 7 · ข้อความไม่เปลี่ยน · lint ไม่มี WARN S4 แล้ว (R1) |
+| F-05 style-guide `{zoneRealName}` | **แก้แล้ว** | `style-guide.md` บรรทัด 178 maxCells 17 ตรงกับ `_variables` และ `names.th.json#_meta.limits.nameRealMaxCells` |
+| F-06 components.md ข้อความล้าสมัย | **แก้แล้ว** | `components.md` บรรทัด 144 เปลี่ยนเป็น "แก้แล้วใน P1-X11 … เป็น 17" · handoff เดิมบรรทัด 224 ขีดฆ่าและระบุ "ปิดแล้ว (P1-X11)" · บรรทัด 137 อ้างเลข 18 เฉพาะในฐานะประวัติการแก้ ไม่ใช่ค่าปัจจุบัน ยอมรับ |
+
+F-07 (systems-designer ยืนยันว่ารางวัล pro-rated ตอนปิดฉุกเฉินผ่าน movement gate) ไม่อยู่ในขอบเขตรอบนี้และไม่ blocking ตั้งแต่รอบ 1 · copy หลังแก้ F-01 ถูกต้องไม่ว่าระบบจะออกมาแบบใด ถ้าระบบให้รางวัลโดยไม่ตรวจการเดิน ต้องแก้ที่ระบบ
+
+## R3. จุดที่ยังไม่ตรงและคำตัดสินว่า blocking หรือไม่
+
+เกณฑ์ที่ใช้ตัดสิน: จุดหนึ่ง block PASS เมื่อ (ก) ทำให้ผู้เล่นเห็นข้อความที่ไม่ได้มาจาก key หรือขัดกฎ copy 6 ข้อใน build ของ Phase 1 หรือ (ข) ทำให้ผู้อ่าน wireframe (design gate A, QA, gameplay-programmer) หยิบถ้อยคำผิดไปเป็น canon ได้จริง
+
+| จุด | สภาพ | blocking | เหตุผล |
+| --- | --- | --- | --- |
+| `01-map-home-states.html` บรรทัด 105 ร่างของ `interest.confirm` เป็น "(ยืนยัน)" แต่ text จริง "ยื่นเรื่อง" (`copy.th.json` 242) | ผูก key ถูก ร่างไม่ตรง | no | UI อ่าน key จึงแสดง "ยื่นเรื่อง" เสมอ · "ยืนยัน" ไม่ขัดกฎข้อใด ต่อให้มีคนหยิบไปก็ไม่ผิดกฎ · เป็นการแก้ 1 คำ |
+| `02-dungeon-confirm.html` บรรทัด 70–71 การ์ด B3 "dungeon ปกติ" / "HP realtime · ทุกคนช่วยกัน" และหัวการ์ด "บอสประจำสัปดาห์" | ไม่มี key · wireframe ติดป้าย "(ยังไม่มี copy key — ดู handoff)" ไว้ชัด | no | B3 เป็นกรณีคร่อมวง raid ซึ่งระบบ raid (U3, S-20-raid-run) อยู่นอกขอบเขต build ของ Phase 1 · ป้ายบอกชัดว่าไม่ใช่ canon จึงไม่เข้าเกณฑ์ (ข) · แต่ถ้อยคำปัจจุบันใช้ต่อไม่ได้: "realtime" ไม่อยู่ใน allowlist style-guide 5.1 (ขัดกฎ 5) และหัวการ์ดต้องมาจาก `{bossName}` ไม่ใช่ข้อความตายตัว |
+| `06-settings-autoretreat.html` บรรทัด 23 และ 29 เมนู "ภาษา" | ไม่มี key · ติดป้ายว่ายังไม่มี key และรอตัดสินใจ | no | v1 เป็นภาษาไทยอย่างเดียว เมนูที่มีตัวเลือกเดียวคือ UI ตาย · ติดป้ายชัด ไม่ใช่ canon · ต้องตัดสินใจว่าเอาออกหรือไม่ก่อนมีคนสร้างหน้าตั้งค่าจริง |
+| `index.html` บรรทัด 16 "ลงทะเบียนความสนใจ" | คำอธิบายในหน้าสารบัญ wireframe | no | ไม่ใช่ข้อความผู้เล่นเห็น · ถ้าแก้ให้ใช้ "ยื่นเรื่องเปิดจังหวัด" ตามศัพท์กลางจะอ่านง่ายขึ้นสำหรับทีม ไม่บังคับ |
+
+ไม่มีจุดใดเข้าเกณฑ์ (ก) หรือ (ข) จึงไม่ใช่เหตุให้ NEEDS_CHANGES
+
+## R4. Follow-up ที่ไม่ blocking
+
+| # | งาน | เจ้าของ | เมื่อไร |
+| --- | --- | --- | --- |
+| R4-1 | แก้ร่าง 01:105 เป็น "(ยื่นเรื่อง)" | uiux-designer | งานถัดไปที่แตะไฟล์ 01 (Phase 1 หรือ 2) |
+| R4-2 | เพิ่ม key การ์ด B3: `dungeon.vsBossNormalCardHint` = "dungeon ปกติ" (label, 11 ช่อง) · `dungeon.vsBossRaidCardHint` = "บอสตัวเดียว ทุกคนรุมตี" (label, 17 ช่อง, ข้อเสนอแทน "HP realtime · ทุกคนช่วยกัน") · หัวการ์ดใช้ `{zoneName}` และ `{bossName}` (ตัวแปรจองที่มีอยู่แล้ว เมื่อใช้ WARN `bossName` จะหายไป) | narrative-designer (เพิ่ม key) → uiux-designer (ผูกใน 02:70–71) | Phase 2 ก่อนเริ่มสเปกหรือ build ของ raid/S-20 |
+| R4-3 | ตัดสินใจเรื่องเมนู "ภาษา": ข้อเสนอของเจ้าของ copy คือ **เอาออกจาก v1** · ถ้า uiux ยืนยันจะเก็บไว้ narrative-designer เพิ่ม `settings.languageLabel` = "ภาษา" (label, 4 ช่อง) | uiux-designer (ตัดสิน) · narrative-designer (เพิ่ม key ถ้าเก็บ) | Phase 2 ก่อน build หน้าตั้งค่า S-22 |
+| R4-4 | ปรับคำใน `index.html` บรรทัด 16 ให้ตรงศัพท์กลาง (ไม่บังคับ) | uiux-designer | เมื่อสะดวก |
+
+## R5. เงื่อนไขรัน gate ซ้ำ (หัวข้อ 10) — ผล
+
+1. lint exit 0 · FAIL 0 · WARN 11 เป็นตัวแปรจองทั้งหมด (≤ 12 และ `zoneRealName` หายไปตามคาด) → **ผ่าน**
+2. `dungeon.emergencyClosedTitle` ไม่สัญญารางวัลตามเวลา → **ผ่าน**
+3. ทุก `copykey` มีจริง · ข้อความผู้เล่นเห็นที่ไม่ผูก key เหลือเฉพาะจุดที่ติดป้าย "ยังไม่มี copy key" ในระบบนอก Phase 1 (R3) · ร่างตรง text จริงยกเว้น 1 คำที่ไม่ขัดกฎ → **ผ่านโดยมี follow-up R4-1 ถึง R4-3**
+4. `components.md` 2.1.1 มีตาราง header → key พร้อม D-058 → **ผ่าน**
+
+**กฎที่ผ่อนในรอบนี้:** ไม่มี · ไม่มี key ใหม่หรือถ้อยคำใหม่เข้า copy bank ในรอบนี้ (ข้อเสนอใน R4-2 และ R4-3 ตรวจตามกฎ 6 ข้อแล้ว: ไม่มีคำต้องห้ามกฎ 1, บรรทัดเดียว, ไม่มีมุกยัด, ไม่แซะ, อังกฤษมีแค่ dungeon ใน allowlist, ไม่หยาบ)

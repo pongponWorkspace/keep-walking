@@ -14,7 +14,7 @@
       "poiTags": "METHOD 6.4",
       "qaSample": "METHOD 11 (fixed seed so QA re-draws the same sample)",
       "maxCommittedFileBytes": "CI forbidden-file guard MAX_TRACKED_FILE_BYTES (P1-F02-T07), METHOD 9.2",
-      "outputs": "paths relative to tools/coverage/ · run-meta and points-unmatched go to ignored out/ until data/coverage/ write access is granted"
+      "outputs": "paths relative to tools/coverage/ · points-unmatched is committed in data/coverage/ (P1-F01-T06) · the pipeline run meta stays in ignored out/ because it holds run time and machine data; tools/coverage/analysis merges it into data/coverage/run-meta.json"
     },
     "sources": [
       {
@@ -150,7 +150,7 @@
       "candidates": "../../data/coverage/candidates.geojson",
       "excluded": "../../data/coverage/excluded.geojson",
       "excludedFull": "out/excluded-full.geojson",
-      "pointsUnmatched": "out/points-unmatched.geojson",
+      "pointsUnmatched": "../../data/coverage/points-unmatched.geojson",
       "runMeta": "out/run-meta.json",
       "boundaries": "out/boundaries.geojson"
     }

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — S-03-run: HP ต่ำ / auto-retreat / ตาย / ออกเอง (P1-F03-T17)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>S-03-run — HP ต่ำ (30%), Auto-retreat (25%), ตาย, ออกเอง (Flow C หัวข้อ 4.2–4.7, MF-1)</h1>
+  <p>ทำงานตั้งแต่นาทีแรกโดยไม่ต้องสอน · ทุกตัวเลขอ้าง config เท่านั้น</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>4.2 HP ต่ำ 30% (แจ้งเตือน)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="toast danger" style="top:16px;">
+      <span class="copykey">run.hpLow</span> <b>canon ห้ามแก้คำ</b><br>
+      <span class="thaidraft">(HP ต่ำ กลับบ้าน ซื้อยา หาเพื่อนที่มี Support หรือไม่ก็เลิกดื้อ)</span>
+    </div>
+    <div class="hp-track" style="margin-top:72px;"><div class="hp-fill low" style="width:28%;"></div></div>
+    <p class="numeric" style="text-align:right;color:var(--state-danger);">28%</p>
+    <p class="caption" style="margin-top:8px;">สั่น + push ถ้าแอปอยู่เบื้องหลัง (<span class="config-ref">config: dungeons.hpSafety.lowHpWarningThreshold_pct (=30), lowHpWarningChannels</span>) · ไม่มีปุ่มบังคับ ผู้เล่นตัดสินใจเอง</p>
+    <div class="toast neutral" style="top:180px;background:#E9F7EE;border-color:var(--state-success);">
+      <span class="copykey">run.autoPotionUsed</span> <span class="thaidraft">(ใช้ยาอัตโนมัติ)</span> — ที่ <span class="config-ref">config: economy.autoPotion.defaultThreshold_pct (=40)</span> ถ้ามียา
+    </div>
+  </div>
+</div>
+<p class="frame-caption">HP bar ยังเป็นค่าจาก server เท่านั้น ไม่คำนวณที่ client</p>
+</div>
+
+<div class="frame-block">
+<h3>4.4 Auto-retreat (ถอยอัตโนมัติ) ที่ 25%</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.summary.headerLabel</span> <span class="thaidraft">(สรุป run)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="text-align:center;">
+    <h1 class="scr-title" style="color:var(--state-danger);"><span class="copykey">run.summary.autoRetreated</span><br><span class="thaidraft">(ถอยอัตโนมัติ ของอยู่ครบ)</span></h1>
+    <div class="card" style="text-align:left;">
+      <p class="body-text"><span class="copykey">run.autoRetreat</span> <b>canon — ห้ามแก้คำ ยกเว้นตัดบรรทัด</b><br>
+      <span class="thaidraft">(HP เหลือต่ำกว่า {autoRetreatPct}% ระบบพาคุณกลับก่อน<br>คุณรอด มอนสเตอร์ไม่ได้ แต่ก็ช่างมันเถอะ)</span></p>
+      <p class="caption">ตัด `\n` ที่หน้า "คุณรอด" ถ้าจอแคบกว่า 32 ช่อง/บรรทัด (style guide 3.1) — ทดสอบแล้วพอดีที่ 360px</p>
+    </div>
+    <p class="body-text" style="margin-top:12px;"><span class="copykey">run.summaryRewardList</span> <span class="thaidraft">(ของที่ได้ใน run นี้)</span></p>
+    <div class="card" style="text-align:left;">ผงธาตุ ×3 · gold 140 · EXP 60 (<span class="config-ref">config: dungeons.hpSafety.autoRetreatKeepsRunLoot (=true)</span> — ของครบ ไม่หาย ต่างจากตายชัดเจน)</div>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">run.summaryContinue</span>&nbsp;<span class="thaidraft">(เดินต่อเพื่อรับเพิ่ม)</span></div>
+  </div>
+</div>
+<p class="frame-caption">threshold: <span class="config-ref">config: dungeons.hpSafety.autoRetreatThreshold_pct (=25)</span> · เปิดเป็นค่าเริ่มต้นเสมอ ปิดได้แค่ใน 06-settings-autoretreat.html</p>
+</div>
+
+<div class="frame-block">
+<h3>4.5 ตาย (เฉพาะคนปิด auto-retreat)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="hp-track"><div class="hp-fill low" style="width:0%;"></div></div>
+    <div class="popup-overlay center">
+      <div class="popup center-sheet">
+        <p class="body-text" style="color:var(--state-danger);font-weight:700;"><span class="copykey">run.death</span> <b>canon</b><br><span class="thaidraft">(คุณตาย ของใน run นี้หายทั้งหมด ครั้งหน้าลองกลับบ้านก่อนตาย)</span></p>
+        <p class="caption"><span class="config-ref">config: dungeons.death.loseAllRunLoot (=true)</span> — ต่างจาก auto-retreat ต้องสื่อให้ชัด</p>
+        <p class="caption" style="margin-top:8px;font-weight:700;">ทางฟื้น 3 ทาง (เลือกได้บนจอเดียวกัน):</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+          <div class="card"><span class="copykey">run.death.waitRecover</span> <span class="thaidraft">(รอฟื้นเอง)</span><br><span class="caption"><span class="copykey">run.death.waitRecoverDetail</span> <span class="thaidraft">(HP กลับมา {recoverPct}% ภายใน {recoverTime})</span></span></div>
+          <div class="card"><span class="copykey">run.death.usePotion</span> <span class="thaidraft">(ใช้ยาฟื้น)</span> — เล่นต่อทันที</div>
+          <div class="card"><span class="copykey">run.death.reviveHint</span> <span class="thaidraft">(Support ในทีมชุบได้)</span> — อัตโนมัติเมื่อเขากด ไม่ใช่ปุ่มของเรา · แสดงเฉพาะเมื่ออยู่ใน party</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ยังอยู่ใน S-03-run ระหว่างรอฟื้น ไม่ถูกเด้งออกเหมือน auto-retreat · ถ้าอยากออกจริงกดปุ่มออกเองได้ตลอด</p>
+</div>
+
+<div class="frame-block">
+<h3>4.7 กดออกเอง (popup ยืนยัน)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="padding:16px;"><div class="hp-track"><div class="hp-fill" style="width:78%;"></div></div></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">run.exitConfirmTitle</span><br><span class="thaidraft">(ออกตอนนี้เลยไหม)</span></h1>
+        <p class="body-text"><span class="copykey">run.exitConfirmBody</span><br><span class="thaidraft">(ของที่เก็บได้อยู่ครบ HP เริ่มฟื้นทันที)</span></p>
+        <div class="btn-row">
+          <div class="btn btn-secondary" style="flex:1;"><span class="copykey">run.exitConfirmCancel</span> <span class="thaidraft">(อยู่ต่อ)</span></div>
+          <div class="btn btn-danger-confirm" style="flex:2;"><span class="copykey">run.exitConfirmButton</span> <span class="thaidraft">(ออกเลย)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">popup ชั้นเดียว กันกดโดนตอนเดิน ไม่ใช่กันใจเปลี่ยน · <span class="config-ref">config: dungeons.exit.manualExitAnytime (=true)</span> ปุ่มออกอยู่ครึ่งล่างจอเสมอ (ดู 03-run-active.html เฟรม C1)</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -123,11 +123,15 @@ export interface SimParams {
   safety: SafetyParams;
   healShield: HealShieldParams;
   income: IncomeParams;
+  /** `classes.json#party.maxMembers`: largest party a boundary case may use (P1-X05). */
+  partyMaxMembers: number;
+  /** `enhance.json#rules.maxEnhanceLevel`: v1 enhance cap (P1-X05). */
+  maxEnhanceLevel: number;
 }
 
 /** Builds every parameter the simulator needs from config/balance. Throws on null or missing. */
 export function paramsFromConfig(cfg: BalanceConfig): SimParams {
-  const { classes, combat, progression, equipment, economy, dungeons, drops } = cfg;
+  const { classes, combat, progression, equipment, economy, dungeons, drops, enhance } = cfg;
   const roles = {} as Record<Role, RoleParams>;
   for (const role of ROLES) {
     roles[role] = {
@@ -261,5 +265,7 @@ export function paramsFromConfig(cfg: BalanceConfig): SimParams {
       ratioTargetMax: num(economy, 'incomeToPotionRatio.targetMax'),
       ratioMinAccepted: num(economy, 'incomeToPotionRatio.minAccepted'),
     },
+    partyMaxMembers: num(classes, 'party.maxMembers'),
+    maxEnhanceLevel: num(enhance, 'rules.maxEnhanceLevel'),
   };
 }

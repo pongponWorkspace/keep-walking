@@ -29,3 +29,152 @@ body {
   text-align: center;
   box-sizing: border-box;
 }
+
+/* GPS status UI (P1-F02-T10). #hud is a sibling of #map (index.html) so it
+   survives the "tiles URL not configured" fallback above. Values below are
+   copied byte-for-byte from design/ux/tokens.json; no visual/motion design
+   has landed for this exact spike screen yet (P1-F03-T22/T25/T27 are still
+   open), so layout here is minimal placement, not final art direction. */
+#hud {
+  pointer-events: none;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+}
+
+#hud > * {
+  pointer-events: auto;
+}
+
+/* design/ux/components.md 2.2: GPS pill, ~20px tall, chip radius, icon+label
+   (icon omitted until art-director assigns one; label text alone still
+   satisfies "ต้องมีคำกำกับด้วยเสมอ", never colour alone). */
+.gps-pill {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  left: 8px;
+  min-height: 20px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #1a1a22;
+  color: #fff8ee;
+  font-size: 14px;
+}
+
+.gps-pill-body {
+  position: absolute;
+  top: calc(max(8px, env(safe-area-inset-top)) + 32px);
+  left: 8px;
+  max-width: min(80vw, 320px);
+  padding: 4px 12px;
+  font-size: 14px;
+  color: #333344;
+}
+
+/* design/ux/components.md 6: banner at top, z-index 10 (below toast/popup). */
+.banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.banner.info {
+  background: #d9edf7;
+  color: #006699;
+}
+
+/* design/ux/components.md 6: toast, centered, z-index 30, disappears on its own. */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: #1a1a22;
+  color: #fff8ee;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* touchTarget.min_px = 48 (style-guide S8).
+   P1-X25 fix: the P1-X23 ios-safari screenshot showed these two buttons visually overlapping
+   ("doubled button"). It was not a double DOM mount (`mountGpsUi` has one call site, src/main.ts) —
+   `#start-location` (centered, `left: 50%`) and `#follow-toggle` (right-anchored) are two distinct
+   real buttons that shared one row, and their content is the literal `client.mapSpike.*` copy key
+   (TL-N06: no narrative-designer text exists for these two dev-only affordances yet), which is long
+   enough to make either button wide enough to collide with the other on a narrow phone viewport.
+   `max-width` + `text-overflow: ellipsis` bounds each button's width regardless of copy length, and
+   stacking them into two rows (never sharing one) keeps them apart even if both still hit that cap
+   at once — a fix that holds once real short Thai copy lands, not just for today's placeholder. */
+#start-location,
+#follow-toggle {
+  position: absolute;
+  box-sizing: border-box;
+  min-height: 48px;
+  min-width: 48px;
+  max-width: calc(100vw - 32px);
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 2px solid #1a1a22;
+  background: #fff8ee;
+  color: #1a1a22;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Bottom row: the follow toggle (used constantly, in every provider mode). */
+#follow-toggle {
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Row above it: the start-location button (`?loc=web` only, src/main.ts). `space.scale_px`
+   (design/ux/tokens.json) has no single step that reliably clears a 48px-tall neighbour plus its
+   own `stackGap_px` (8px) inside one `calc()`, so this composes two token values instead of
+   introducing a new literal. */
+#start-location {
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 48px + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Debug HUD panel (P1-F02-T11, hud=1 only): minimal placement, not final art direction, same as
+   the rest of #hud (no visual design has landed for this spike screen). Scrollable and capped so a
+   long readout never blocks the export buttons or covers the whole viewport on a small phone. */
+#hud-panel {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  right: 8px;
+  max-width: min(70vw, 360px);
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgb(26 26 34 / 85%);
+  color: #fff8ee;
+  font-size: 11px;
+}
+
+#hud-panel-readout {
+  margin: 0 0 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#hud-export-summary,
+#hud-export-raw {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 12px;
+}

@@ -11,6 +11,10 @@ export default defineConfig({
       'packages/*/test/**/*.test.ts',
       'tools/*/src/**/*.test.ts',
       'tools/*/test/**/*.test.ts',
+      // Python pytest bridges (P1-X05): skipped with a warning when tools/coverage/.venv is
+      // absent, required when COVERAGE_PYTEST_REQUIRED=1 (CI, P1-X07).
+      'tools/coverage/pipeline/tests/**/*.test.ts',
+      'tools/coverage/boundaries/tests/**/*.test.ts',
       'qa/tests/**/*.test.ts',
     ],
     exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],

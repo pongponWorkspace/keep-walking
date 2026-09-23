@@ -20,6 +20,13 @@
   <body>
     <div id="app">
       <div id="map"></div>
+      <!--
+        Sibling of #map, not a child: main.ts may replace #map's own content
+        with an honest "not configured" fallback text (P1-F02-T09) when no
+        tiles URL is set. The GPS status UI (P1-F02-T10) must survive that,
+        since location works independently of whether the basemap rendered.
+      -->
+      <div id="hud"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

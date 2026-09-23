@@ -4,7 +4,7 @@
 | --- | --- |
 | สถานะ | Accepted (เกณฑ์ spike รอ product-manager ร่วมยืนยันใน P1-F02-T27) |
 | วันที่ | 2026-09-23 |
-| task | P1-F02-T03 · ผู้เขียน tech-lead · แก้ไข P1-H01 (หัวข้อ 2, 3, 4, 8, 14 และเพิ่มหัวข้อ 15) |
+| task | P1-F02-T03 · ผู้เขียน tech-lead · แก้ไข P1-H01 (หัวข้อ 2, 3, 4, 8, 14 และเพิ่มหัวข้อ 15) · แก้ไข P1-X27 (หัวข้อ 2, 12, 15.1 ดูหัวข้อ 16) |
 | อ้างอิง | GDD "สถาปัตยกรรมเทคนิค" (แผนที่, โครงสร้างระบบ, สัญญาณขาดและแอปถูกปิด), "Movement gate", "Anti-cheat" ชั้น 1, "M1" · ADR 0001 · D-001, D-002, D-003, D-008 · plan review TL-M02..M06, TL-S05, TL-S07..S09, TL-S13, TL-N04 |
 | สัญญาร่วม | `docs/tech/gps-trace-format.md` · `packages/shared/src/trace.ts` · `packages/shared/schemas/gps-trace.schema.json` · `packages/location/src/types.ts` |
 | ผู้ build ตาม note นี้ | location-engineer (T04, T05, T06, T24), gameplay-programmer (T09, T10, T11), devops-engineer (T08), art-director (P1-F03-T12), qa-tester (T12, T13, T14), product-manager (T27) |
@@ -32,6 +32,7 @@ apps/client/src/
   config/env.ts        อ่าน VITE_* ครั้งเดียว ตรวจรูปแบบ ล้มพร้อมข้อความชัดถ้าขาด
   config/runtime.ts    อ่าน config/app/client.json และ config/app/privacy.json (ADR 0001 3.10.1) ไม่ใช่ literal
   map/
+    worker.ts          ตั้ง worker URL ของ MapLibre 6.10 ESM ผ่าน `maplibre-gl-worker.mjs?worker&url` + setWorkerUrl() ก่อนสร้างแผนที่ (D-068)
     source.ts          resolveTileSource(VITE_TILES_URL) → pmtiles:// หรือ TileJSON (หัวข้อ 8)
     style.ts           โหลด style จาก art/direction/map-style/ แล้วแทน placeholder ของ source/glyphs/sprite/font-faces
     counting.ts        ตัวนับ byte: custom Source ของ pmtiles + protocol ห่อ fetch (หัวข้อ 11)
@@ -79,7 +80,7 @@ infra/                 _headers, publish script, deploy-preview (P1-F02-T08)
 | error | `permission-denied` (fatal) · `position-unavailable`, `timeout` (ไม่ fatal ลองต่อ) · `unsupported`, `not-implemented` (fatal) · ข้อความเป็นภาษาอังกฤษสำหรับ dev · UI ใช้ key `gps.*` (P1-F03-T16) |
 | visibility | หน้าถูกซ่อน (`visibilitychange` → hidden, จอล็อก, สลับแท็บ) → state `suspended`, ไม่ส่งและไม่เก็บ sample · กลับมา visible → `running` · ไม่นับช่วงที่ซ่อน (GDD "ล็อกหน้าจอ") |
 | clock | ทุกการรอผ่าน `Clock` ที่ฉีดได้ · test ใช้ fake clock เล่น trace 30 นาทีในไม่กี่ ms (P1-F02-T05) |
-| ค่า Web | `config/app/client.json#locationWeb.enableHighAccuracy`, `#locationWeb.timeout_ms`, `#locationWeb.maximumAge_ms` (ค่าในไฟล์ `true`, 15000, 0) ส่งเป็น `PositionOptions { enableHighAccuracy, timeout, maximumAge }` ภายใน `packages/location/src/web/` เท่านั้น · ชื่อ `timeoutMs`/`maximumAgeMs` ของฉบับแรกเลิกใช้ (convention suffix `_ms` ADR 0001 3.10.3) |
+| ค่า Web | `config/app/client.json#locationWeb.enableHighAccuracy`, `#locationWeb.timeout_ms`, `#locationWeb.maximumAge_ms` (ค่าในไฟล์ `true`, 15000, 0) ส่งเป็น `PositionOptions { enableHighAccuracy, timeout, maximumAge }` ภายใน `packages/location/src/web/` เท่านั้น · ชื่อ `timeoutMs`/`maximumAgeMs` ของฉบับแรกเลิกใช้ (convention suffix `_ms` ADR 0001 3.10.3) · ตั้งแต่ P1-X05 `WebLocationOptions` ใน `packages/location/src/types.ts` รับ `timeout_ms`/`maximumAge_ms` · ชื่อเดิมเป็น alias แบบ `@deprecated` (ใช้ชุดใดชุดหนึ่งต่อ object ผสมกัน = type error) จนกว่า P1-F02-T11 ย้าย `apps/client` เสร็จ แล้วจึงลบ alias |
 | log | ห้าม log พิกัดดิบในระดับ production · debug log พิกัดได้เฉพาะหลัง flag `hud=1` บนเครื่อง |
 | Mock | เล่นตามเวลา × `speed` (1, 10, 60), pause/resume/seek/loop, เล่น `events` ของ trace (ซ่อนหน้า, error) · รับเฉพาะ trace ที่ผ่าน `validateTrace` |
 | Capacitor | stub ที่ implement interface ครบ · `start()` ส่ง error `not-implemented` ("not implemented until Phase 8") และเข้า `error` |
@@ -146,7 +147,7 @@ pmtiles extract https://build.protomaps.com/20260923.pmtiles tools/tiles/out/bkk
 <root>/
   tiles/<tileset_id>/tiles.json            TileJSON 3.0 (bounds, minzoom 0, maxzoom, attribution, vector_layers)
   tiles/<tileset_id>/{z}/{x}/{y}.mvt       MVT ไม่บีบอัด (Cloudflare บีบอัดตอนส่ง)
-  pmtiles/<tileset_id>.pmtiles             สำหรับ local/GitHub Pages สำรอง/R2 เท่านั้น (ไม่ publish ขึ้น Pages)
+  pmtiles/<tileset_id>.pmtiles             เฉพาะชุด GitHub Pages สำรอง (`out/publish-ghpages/`) และ R2 · ชุด Cloudflare Pages ไม่มีโฟลเดอร์นี้
   glyphs/<fontstack>/<start>-<end>.pbf      เช่น glyphs/Noto Sans Regular/0-255.pbf
   glyphs/_faces/NotoSansThai-Regular.ttf    ไฟล์ของ font-faces
   glyphs/_faces/NotoSansThai-Medium.ttf
@@ -157,6 +158,8 @@ pmtiles extract https://build.protomaps.com/20260923.pmtiles tools/tiles/out/bkk
 - `tileset_id` = `pm4-<build yyyymmdd>-z<maxzoom>` เช่น `pm4-20260923-z15` · URL ใหม่ทุกครั้งที่เปลี่ยน build ทำให้ตั้ง cache ยาวได้
 - ที่อยู่ของ font-faces ได้จาก `VITE_GLYPHS_URL` โดยแทน `{fontstack}/{range}.pbf` ด้วย `_faces/<ไฟล์>` (ไม่เพิ่ม env ใหม่)
 - P1-F02-T06 สร้างชุดนี้ · P1-F03-T12 อ้างใน style ด้วย placeholder · P1-F02-T11 โหลด · P1-F02-T08 publish
+- **PMTiles ในเครื่องอยู่ที่ `tools/tiles/out/pmtiles/<tileset_id>.pmtiles` ไม่ใช่ `out/publish/pmtiles/`** (ยืนยัน A-P1-F02-T06-1 ใน P1-X05) · เหตุผล: `out/publish/` ต้อง deploy ขึ้น Cloudflare Pages ได้ทั้งโฟลเดอร์ และไฟล์ PMTiles ทั้งภูมิภาค (68 MiB) เกินเพดาน 25 MiB ต่อไฟล์ของ Pages · ชุด GitHub Pages สำรอง (`out/publish-ghpages/`) และ R2 ยังใช้ `pmtiles/<tileset_id>.pmtiles` ตามผังด้านบน · รายละเอียดไฟล์ดู `tools/tiles/README.md`
+- `tools/tiles/` ใช้ Python 3.11+ **stdlib เท่านั้น** (`bin/serve.py` ที่ตอบ range request `206`, `bin/verify-bbox.py`) โดยไม่มี venv และไม่มี `requirements.txt` ได้ และ root `pnpm test` เรียก `test/run.sh` ผ่าน bridge `test/tiles.test.ts` ได้ (ยืนยัน A-P1-F02-T06-2 ใน P1-X05) · ถ้าต้องใช้ package นอก stdlib ให้ทำตามกติกา venv ของ ADR 0001 หัวข้อ 3.11 · ADR 3.11 จะเพิ่มข้อยกเว้นนี้ในรอบแก้ ADR ครั้งถัดไป
 
 ## 7. Host ของ tile และ preview (D-001, D-008)
 
@@ -275,7 +278,7 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 | environment | tile | glyph / sprite / font | ค่า `VITE_TILES_URL` |
 | --- | --- | --- | --- |
 | unit / e2e / CI | fixture PMTiles ≤ 2 MB ใน `tools/tiles/fixtures/` (สวนลุมพินี z ≤ 16, T06, TL-S08) · e2e ห้ามดาวน์โหลดจากเน็ต | ชุดเล็กใน fixture | `pmtiles://http://localhost:4173/map/fixture.pmtiles` (dev server เสิร์ฟ fixture) |
-| local dev | `tools/tiles/out/publish/pmtiles/<tileset_id>.pmtiles` หรือ XYZ ใน `tools/tiles/out/publish/tiles/` | `tools/tiles/out/publish/` | `pmtiles://...` (Vite/sirv ตอบ `206` ได้) หรือ TileJSON ผ่าน static server ใดก็ได้ |
+| local dev | `tools/tiles/out/pmtiles/<tileset_id>.pmtiles` (หัวข้อ 6.3) หรือ XYZ ใน `tools/tiles/out/publish/tiles/` | `tools/tiles/out/publish/` | `pmtiles://http://127.0.0.1:8765/out/pmtiles/<tileset_id>.pmtiles` ผ่าน `python3 tools/tiles/bin/serve.py` (ตอบ `206`) หรือ TileJSON ผ่าน static server ใดก็ได้ · `python3 -m http.server` ใช้กับ `pmtiles://` ไม่ได้เพราะไม่รองรับ `Range` |
 | preview (Cloudflare Pages) | XYZ บน project แผนที่ | project แผนที่ | TileJSON URL (หัวข้อ 8) |
 | สำรอง (GitHub Pages) | PMTiles ไฟล์เดียว | site เดียวกัน | `pmtiles://https://<owner>.github.io/<repo>/pmtiles/<tileset_id>.pmtiles` |
 | อนาคต (R2) | PMTiles ไฟล์เดียว | bucket เดียวกัน | `pmtiles://https://<r2-domain>/<tileset_id>.pmtiles` |
@@ -387,6 +390,7 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 | F12 | trace ไม่ผ่าน `validateTrace` | ผลตรวจ `ok: false` | Mock ไม่เริ่ม | แสดง path/code แรกของ error · ไม่ crash |
 | F13 | build.protomaps.com ใช้ไม่ได้ หรือ agent ดาวน์โหลดไม่ได้ | extract ล้ม | ไม่มี tile ใหม่ | ใช้ build ที่ pin จาก cache ในเครื่อง · planetiler + profile Protomaps · HUMAN P1-F02-T25 ดาวน์โหลดแทน |
 | F14 | พิกัดดิบหลุดเข้า git | CI guard (T07) + gitleaks | ละเมิด PDPA บน repo public | `.gitignore` ครอบ `raw/` · summary ไม่มีพิกัด · raw ผ่าน `validateTrace` แบบ `field` เท่านั้น |
+| F15 | worker URL ของ MapLibre ไม่ถูกตั้ง (6.10 ESM หา worker เองไม่ได้หลัง bundle) | event `load` ไม่ fire และไม่มี tile render แม้ canvas มีอยู่ · console ไม่มี error | แผนที่ดำ | `apps/client/src/map/worker.ts` เรียก `setWorkerUrl()` ก่อน `new Map()` (D-068) · e2e ต้องตรวจว่า `load` fire และ tile render จริง ไม่ใช่แค่มี canvas (P1-X24) |
 
 ## 13. Test plan hooks (สำหรับ T05, T10, T12, T13)
 
@@ -419,7 +423,7 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 | --- | --- |
 | tile ครอบแค่ bbox ของ 6 จังหวัด | เส้นจังหวัดต้องเห็นทั่วประเทศในโซนดำ (GDD "แผนที่เต็มคือประเทศไทย") · ขยาย tile ทั้งประเทศทำให้เกินงบไฟล์ของหัวข้อ 7.4 |
 | เปิดจังหวัดใหม่ = เปลี่ยนข้อมูล | ไม่ต้อง build tile ใหม่ ไม่แก้ style |
-| geometry ชุดเดียวทั้งระบบ | ขอบเขตพื้นที่เล่นชุดเดียวกันจะใช้ฝั่ง server (Phase 3: สถานะ "นอกพื้นที่" ตาม `config/balance/unlocks.json#home.outOfServiceAreaThreshold_m`, validation ของ dungeon) ผ่าน `packages/geo` · ไม่มีขอบเขตสองชุดที่ต้องทำให้ตรงกัน |
+| geometry ชุดเดียวทั้งระบบ | ขอบเขตพื้นที่เล่นชุดเดียวกันใช้ทั้ง client และ server ผ่าน pure function ใน `packages/geo` (สร้างเมื่อมีผู้ใช้ · ADR 0001 3.2) · สถานะ "นอกพื้นที่" ของหน้าแรก = ตำแหน่งอยู่นอกรูของ `data/map/playarea-mask.geojson` ตาม pointer `config/balance/unlocks.json#home.seeOutOfAreaMask` (D-064, D-043) ไม่ใช่ระยะถึง dungeon · อยู่ในพื้นที่แต่ dungeon ที่เปิดใกล้สุดไกลกว่า `unlocks.home.farDungeonThreshold_m` = สถานะ "ไกล" · client ตรวจ mask ได้เพราะแสดงผลอย่างเดียว (non-negotiable 1 ไม่กระทบ) · Phase 3 server ใช้ geometry ชุดเดียวกันสำหรับ validation ของ dungeon · ไม่มีขอบเขตสองชุดที่ต้องทำให้ตรงกัน |
 
 สัญญาของไฟล์ (P1-H07 สร้าง, location-engineer)
 
@@ -454,3 +458,11 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 - ไม่ใส่ใน `apps/client` dependencies เพราะ runtime ใช้ตัวที่อยู่ใน `maplibre-gl` แล้ว · ใช้เฉพาะ test
 - test `qa/tests/unit/map-style.test.ts` (qa-tester หลังติดตั้ง) เรียก `validateStyleMin` กับ `art/direction/map-style/kw-light.style.json` ต้องได้ error 0 · แทนคำสั่งที่เรียก path ใต้ `node_modules/.pnpm/` ใน map-style หัวข้อ 13
 - ผลตรวจครั้งแรก (P1-H01, 2026-09-23): `gl-style-validate.mjs art/direction/map-style/kw-light.style.json` → exit 0 ไม่มีบรรทัด error
+
+
+## 16. บันทึกการแก้ไข
+
+| task | วันที่ | หัวข้อ | เปลี่ยนอะไร | ที่มา |
+| --- | --- | --- | --- | --- |
+| P1-X27 | 2026-09-24 | 15.1 | สถานะ "นอกพื้นที่" อ้าง `unlocks.home.seeOutOfAreaMask` → `data/map/playarea-mask.geojson` ผ่าน `packages/geo` และ "ไกล" อ้าง `unlocks.home.farDungeonThreshold_m` แทน key ระยะทางที่ถูกลบใน P1-X18 | D-064, D-043, `config/balance/unlocks.json` v3, tech gate T-01 |
+| P1-X27 | 2026-09-24 | 2, 12 | เพิ่ม `apps/client/src/map/worker.ts` และ failure mode F15 (แผนที่ดำเมื่อไม่ตั้ง worker URL) | D-068, P1-X23, P1-X24 |

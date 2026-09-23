@@ -13,6 +13,21 @@ Task: P1-F03-T20 · เจ้าของ: liveops-operator · สถานะ: 
 3. **liveops-operator เป็นผู้เสนอและติดตามสัญญาณ ไม่ใช่ผู้อนุมัติค่าเอง** — liveops อ่าน dashboard, เปิด/ปิดข้อเสนอ, บันทึกผล และเป็น owner ของการดำเนินการ แต่ผู้อนุมัติค่าตัวเลขคือ systems-designer หรือ game-director ตามข้อ 2 เสมอ (กฎสองคน)
 4. ทุกการเปลี่ยนแปลงต้องบันทึก: สัญญาณที่พบ (พร้อมตัวเลข/วันที่), ค่าก่อนแก้, ค่าหลังแก้, % ที่เปลี่ยนเทียบค่าตั้งต้น, ผู้อนุมัติ, วันที่มีผล, และแผน rollback ก่อนเริ่มใช้งานจริง
 5. **ห้ามปรับค่าที่กระทบเงินจริงหรือ sponsor** ผ่าน playbook นี้ — เรื่องนั้นเป็น HUMAN เสมอ (ดู `ops/calendar.md` หัวข้อ 5)
+6. **`dungeons.movementGate.*` และ `dungeons.hpSafety.*` ไม่อยู่ในขอบเขตของ playbook นี้เลย** (F-14, design gate A) — ดูรายการคีย์เต็มและเหตุผลในหัวข้อ 1.1
+
+### 1.1 ค่าที่ไม่ใช่ของ live ops ไม่ว่ากรณีใด (non-tunable by live ops)
+
+รายการนี้ไม่ใช่แค่ "อยู่นอกขอบเขตของ 3 ค่าแรก" (แบบ `epic`/`legendary`/`marketTax` ในหัวข้อ 6) แต่ห้าม liveops-operator เสนอ อนุมัติ หรือใส่ในตารางบันทึกของเอกสารนี้เลย ไม่ว่าจะอยู่ในกรอบ ±20% หรือไม่ก็ตาม และห้ามปรากฏใน `ops/calendar.md` แถวใดทั้งสิ้น (`ops/calendar.md` หัวข้อ 1 ข้อ 8):
+
+| Key | ไฟล์ | เหตุผลที่ห้าม |
+| --- | --- | --- |
+| `movementGate.minDistancePerWindow_m` | `config/balance/dungeons.json` | ตัวเลขของ movement gate เดียวที่ทุกรางวัลต้องผ่าน (NN-2) ผ่อนค่านี้ = สร้างรางวัลที่ไม่มีการเดินจริงรองรับ |
+| `movementGate.window_s` | `config/balance/dungeons.json` | เช่นเดียวกับข้างต้น — ยืดหน้าต่างเวลาก็เท่ากับผ่อน gate |
+| `movementGate.comparison` / `movementGate.appliesTo` / `movementGate.exceptions` | `config/balance/dungeons.json` | การเพิ่มข้อยกเว้น (เช่น "raid ไม่นับ" หรือ "event ฝนไม่บังคับ") ขัด NN-2 ("ไม่มีข้อยกเว้น") โดยตรง |
+| `hpSafety.autoRetreatEnabledByDefault` / `autoRetreatThreshold_pct` / `autoRetreatKeepsRunLoot` | `config/balance/dungeons.json` | คู่กับ movement gate ตาม NN-8 — ทำให้ auto-retreat อ่อนลงโดยไม่ประเมิน gate พร้อมกันเป็นสิ่งต้องห้ามของ NN-8 ข้อ 2 |
+| `hpSafety.lowHpWarningThreshold_pct` / `lowHpWarningChannels` | `config/balance/dungeons.json` | ส่วนหนึ่งของระบบกันตายเดียวกัน เปลี่ยนแล้วกระทบจังหวะแจ้งเตือนก่อนถอยที่ NN-8 ผูกไว้ |
+
+ถ้าสัญญาณ dashboard ชี้ว่าต้องแก้ค่าชุดนี้จริง (เช่น auto-retreat ถอยช้า/เร็วเกินไปหลังข้อมูลภาคสนาม) ให้เขียนเป็น **handoff ถึง game-director** โดยตรง ไม่ใช่เสนอผ่านกระบวนการ ±20% ปกติของ playbook นี้ และต้องแนบการประเมินผลต่ออีกฝั่งของคู่ NN-8 มาด้วยเสมอ (เช่น จะลด `autoRetreatThreshold_pct` ต้องประเมินผลต่อ `movementGate` ในเอกสารเดียวกัน) — game-director เป็นผู้เดียวที่อนุมัติได้ ไม่ว่าเปอร์เซ็นต์การเปลี่ยนจะเท่าไร
 
 ## 2. สามค่าแรกที่ต้องจูน (จาก GDD)
 

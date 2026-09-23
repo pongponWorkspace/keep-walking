@@ -2,9 +2,9 @@
 
 | หัวข้อ | ค่า |
 | --- | --- |
-| สถานะ | Accepted · แก้ไขครั้งที่ 1 (P1-H01, 2026-09-23) ดูหัวข้อ 7 |
+| สถานะ | Accepted · แก้ไขครั้งที่ 1 (P1-H01, 2026-09-23) · แก้ไขครั้งที่ 2 (P1-X27, 2026-09-24) ดูหัวข้อ 7 |
 | วันที่ | 2026-09-23 |
-| task | P1-F02-T01 · แก้ไข P1-H01 |
+| task | P1-F02-T01 · แก้ไข P1-H01, P1-X27 |
 | ผู้เขียน / authority | tech-lead (architecture, code standards) |
 | อ้างอิง | CLAUDE.md, GDD "สถาปัตยกรรมเทคนิค", `studio/phases/phase-1/board.md` หัวข้อ 1, D-001, D-002, D-007, D-008, plan review TL-M01, TL-S04, TL-S05, TL-S11, TL-N02, TL-N05, SF-10 |
 | ADR ที่เกี่ยวข้อง | ADR 0002 (backend stack ตาม D-008) ยืนยันชื่อ `apps/api` |
@@ -83,7 +83,7 @@ docs/                adr/, tech/                                           tech-
 - การแก้ `dependencies` หรือ `devDependencies` ใน `package.json` ใดก็ตาม และการสร้าง workspace ใหม่ (`package.json` ใหม่ใต้ glob) ถือว่าเขียน lockfile · ใน wave หนึ่งมีได้ไม่เกิน 1 งานที่ประกาศ lockfile ใน Writes
 - งานอื่นที่ต้องการ dependency ใหม่: เขียน handoff ถึง tech-lead พร้อมชื่อ package เหตุผล และ workspace · orchestrator เปิดงาน `X` ของ tech-lead ใน wave ถัดไป (Writes: lockfile, root `package.json`, `package.json` ของ workspace นั้น) · ระหว่างรอใช้ assumption ต่อได้
 - เจ้าของ workspace แก้ส่วนอื่นของ `package.json` ตัวเองได้ (`scripts`, `exports`) โดยไม่ถือว่าเขียน lockfile ตราบที่ไม่แตะ dependency
-- Python ใน `tools/` pin ต่อโฟลเดอร์ (`requirements.txt` + `.venv/` ในโฟลเดอร์นั้น) จึงไม่ชน lockfile
+- Python ใน `tools/` ที่มี dependency นอก stdlib pin ต่อโฟลเดอร์ (`requirements.txt` + `.venv/` ในโฟลเดอร์นั้น) จึงไม่ชน lockfile · script ที่ใช้ stdlib ล้วนไม่ต้องมีทั้งสองอย่าง (3.11)
 
 ### 3.4 TypeScript
 
@@ -97,7 +97,7 @@ docs/                adr/, tech/                                           tech-
 
 - ESLint flat config (`eslint.config.js`) + `typescript-eslint` ชุด `strict` + `eslint-config-prettier` · Prettier (`.prettierrc.json`) ตรวจเฉพาะโค้ดและ config ของโค้ด · เอกสาร `.md`, `config/`, `data/`, `design/`, `studio/` ไม่ถูก reformat (ดู `.prettierignore`)
 - **กัน magic number:** `@typescript-eslint/no-magic-numbers` เป็น error ในโค้ดทุกไฟล์ · ตัวเลขที่อนุญาต `-1, 0, 1, 2, 100` · ปิดใน test, e2e, `qa/tests/`, `*.config.ts`
-  - **ไฟล์สร้าง golden vector** (`tools/sim/src/vectors*.ts`): ห้ามปิด rule ทั้งไฟล์ด้วย `eslint-disable` · ใช้ override ใน `eslint.config.js` ที่ระบุ glob นี้แทน (เป็นข้อมูล test แบบเดียวกับ `*.test.ts`) · กรณีขอบที่อ้างค่า config (เพดาน, จำนวนสมาชิกสูงสุด, เกณฑ์ถอยอัตโนมัติ, เลเวลสูงสุด) ต้องอ่านจาก `SimParams` ไม่พิมพ์เลข เพื่อให้กรณีขอบย้ายตาม config · literal ที่เหลือคือค่าตัวอย่างของ input (เลเวล 25, gap 3) ที่ไม่ใช่ค่า balance
+  - **ไฟล์สร้าง golden vector** (`tools/sim/src/vectors*.ts`): ห้ามปิด rule ทั้งไฟล์ด้วย `eslint-disable` และ **ไม่มี override** ใน `eslint.config.js` (D-062 · ดูหมายเหตุใน `eslint.config.js` หลังบล็อก `no-restricted-imports`) · ไฟล์เหล่านี้ผ่าน rule เต็มชุด: กรณีขอบที่อ้างค่า config (เพดาน, จำนวนสมาชิกสูงสุด, เกณฑ์ถอยอัตโนมัติ, เลเวลสูงสุด) อ่านจาก `SimParams` / `EconomyRefs` ไม่พิมพ์เลข เพื่อให้กรณีขอบย้ายตาม config · ค่าตัวอย่างของ input ที่ไม่ใช่ค่า balance (เลเวล 25, gap 3) เป็น const ที่ตั้งชื่อ (`CASE`) · override แบบปิด rule ทั้ง glob จะซ่อนค่า balance ที่ hardcode ในอนาคต จึงไม่ทำ
   - `eslint-disable` ของ `no-magic-numbers` นอก test เป็น finding ของ tech gate (ตรวจด้วย `grep -rn "eslint-disable.*no-magic-numbers" apps packages tools --include='*.ts'`)
   - lint จับได้เฉพาะ literal ในนิพจน์ · ค่าคงที่ที่ตั้งชื่อแล้ว (`const GATE_M = 50`) ผ่าน lint แต่ **ถือว่าผิดใน tech gate** ถ้าเป็นค่า balance หรือค่าที่มีผลต่อรางวัล · ค่าที่ยอมให้เป็น const ในโค้ดคือค่าคงที่ทางฟิสิกส์หรือหน่วย (รัศมีโลก, 1000 m ต่อ km, 60 s ต่อ min) และต้องตั้งชื่อบอกหน่วย
 - **กัน import ข้ามขอบ:** `@typescript-eslint/no-restricted-imports` ใน `apps/**` และ `packages/**` ห้าม pattern `**/tools/**` และ `@keep-walking/tools-*` (ทดสอบแล้วว่า lint แจ้ง error ทั้งสองแบบ ดูหัวข้อ 6)
@@ -108,6 +108,7 @@ docs/                adr/, tech/                                           tech-
 
 - **Vitest 5** ตัวเดียวที่ root (`vitest.config.ts`) เก็บ `apps/*/src|test`, `packages/*/src|test`, `tools/*/src|test` และ `qa/tests/**` · environment `node` · coverage v8 ออกที่ `reports/coverage/` (ignore)
   - ถ้า client ต้องการ DOM environment ให้ handoff ถึง tech-lead เพื่อเพิ่ม Vitest project และ dependency (jsdom หรือ happy-dom)
+  - **pytest bridge** (P1-X05, P1-X07): include มี `tools/coverage/pipeline/tests/**/*.test.ts` และ `tools/coverage/boundaries/tests/**/*.test.ts` · แต่ละไฟล์ (`pytest-bridge.test.ts`) เรียก pytest ด้วย `tools/coverage/.venv` · ไม่มี venv ในเครื่อง → skip พร้อมคำเตือน (`pnpm test` ของ dev ที่ไม่ได้ทำงาน GIS ยังผ่าน) · env `COVERAGE_PYTEST_REQUIRED=1` → ไม่มี venv = fail แทน skip · CI ตั้งค่านี้เสมอ (3.11)
   - ประเภท test: unit สำหรับ logic, trace-replay สำหรับ location logic (อ่าน trace จาก `data/gps-traces/` ผ่าน MockLocationProvider), contract test สำหรับ API (Phase 3)
 - **Playwright 1.63** (`playwright.config.ts`) เก็บ `qa/tests/e2e/**/*.spec.ts` และ `apps/*/e2e/**/*.spec.ts`
   - project `android-chrome` (Pixel 7, Chromium) และ `ios-safari` (iPhone 14, WebKit) ตาม D-003 · ค่าตั้งต้น geolocation อนุญาตแล้ว, locale `th-TH`, timezone `Asia/Bangkok`
@@ -128,7 +129,7 @@ docs/                adr/, tech/                                           tech-
 | `pnpm test:e2e:install` | ดาวน์โหลด Chromium + WebKit ของ Playwright |
 | `pnpm check` | lint + typecheck + test + build ต่อกัน |
 
-- CI (P1-F02-T07) เรียกคำสั่งชุดนี้เท่านั้น ไม่มี logic ของตัวเองใน workflow · test ของ Python ใน `tools/` รันด้วยคำสั่งที่ README ของโฟลเดอร์นั้นระบุ และ CI เพิ่มเป็น step แยก
+- CI (P1-F02-T07) เรียกคำสั่งชุดนี้เท่านั้น ไม่มี logic ของตัวเองใน workflow · test ของ Python ใน `tools/coverage/` รันจาก `pnpm test` ผ่าน Vitest bridge (3.6) · CI มีแค่ step เตรียม environment (สร้าง venv, 3.11) ไม่มี step รัน pytest แยก
 - เจ้าของ workspace เพิ่ม script ในระดับ workspace ได้ (`build`, `typecheck`, `dev`) · root รวมให้อัตโนมัติผ่าน `pnpm -r --if-present`
 
 ### 3.8 server authority และ pure function (SF-10)
@@ -155,9 +156,10 @@ docs/                adr/, tech/                                           tech-
 | --- | --- | --- | --- |
 | `config/balance/` | ค่า balance สูตร movement gate เศรษฐกิจ anti-cheat และค่า PDPA ฝั่ง server | systems-designer (liveops-operator ปรับในช่วง operate) | server (Phase 3+), simulator, tools · client อ่านเพื่อแสดงผลเท่านั้น |
 | `config/content/` | ชื่อ copy registry ของ copy และข้อมูลเนื้อหา | narrative-designer (copy, ชื่อ) · level-designer (ข้อมูล dungeon เมื่อมี) | client, หลังบ้าน, copy lint |
-| `config/app/` | ค่า runtime ของ app และ tools ที่ไม่ใช่ balance: option ของ provider, ค่าเริ่มต้นของ query, นิยามการวัดของ HUD, privacy ฝั่งเครื่อง | tech-lead | client, tools |
+| `config/app/` | ค่า runtime ของ app และ tools ที่ไม่ใช่ balance: option ของ provider, ค่าเริ่มต้นของ query, นิยามการวัดของ HUD, privacy ฝั่งเครื่อง, การวัด telemetry (sampling, bucket, timestamp) | tech-lead | client, tools, server เฉพาะส่วนที่ไม่กระทบรางวัล (telemetry ingest อ่าน `app.telemetry.timestamps`) |
 
 - `config/app/` **ห้าม** มีค่าที่มีผลต่อรางวัล การต่อสู้ เศรษฐกิจ หรือ movement gate และห้ามมีชื่อหรือข้อความที่ผู้เล่นเห็น · ถ้าไม่แน่ใจว่าค่าอยู่ที่ไหน: ผู้เล่นรู้สึกได้ในกติกา → `balance` · ผู้เล่นอ่าน → `content` · ที่เหลือ → `app`
+- `telemetry.json` อยู่ `config/app/` (D-062, ย้ายใน P1-X16 key เดิม): telemetry วัดเกม ไม่มีค่าใดเปลี่ยนรางวัล movement gate การต่อสู้ หรือเศรษฐกิจ · server อ่านไฟล์ใน `config/app/` ได้ตามกติกาเดียวกัน (ห้ามใช้ค่าจาก `app` ในการคำนวณที่กระทบรางวัล) · bucket อ้างสเกลของ `config/balance/economy.json` เป็นข้อมูลอ้างอิงเท่านั้น ไม่ merge
 - ชื่อเต็มของค่า = `<โฟลเดอร์>.<ชื่อไฟล์ไม่มี .json>.<path>` เช่น `balance.dungeons.movementGate.minDistancePerWindow_m`, `app.privacy.rawTraceExport.rawTraceTrim_m` · loader ห้าม merge ไฟล์ข้ามโฟลเดอร์ (`app/privacy.json` กับ `balance/privacy.json` อยู่คู่กันได้โดยไม่ชน)
 - ค่าหนึ่งมีที่อยู่เดียว · ที่อื่นอ้างด้วย pointer (3.10.6) ไม่คัดลอกค่า
 
@@ -176,7 +178,7 @@ docs/                adr/, tech/                                           tech-
 | --- | --- | --- |
 | `_m` | เมตร | `maxAccuracy_m` |
 | `_m2` | ตารางเมตร (แทน `_sqm` ของฉบับแรก · ไม่มีไฟล์ใดใช้ `_sqm`) | `minArea_m2` |
-| `_ms` | มิลลิวินาที | `timeout_ms` (app) |
+| `_ms` | มิลลิวินาที | `timeout_ms`, `maximumAge_ms` (app · `WebLocationOptions` ใช้ชื่อเดียวกันตั้งแต่ P1-X05, D-062) |
 | `_s` · `_h` · `_days` · `_yr` | วินาที · ชั่วโมง · วัน · ปี | `window_s`, `cooldown_h`, `minAccountAge_days`, `minAge_yr` (P1-H03) |
 | `_kmh` | กม./ชม. | `speedLock_kmh` |
 | `_pct` | เปอร์เซ็นต์ 0–100 (16 = 16%) | `autoRetreatThreshold_pct` |
@@ -186,7 +188,7 @@ docs/                adr/, tech/                                           tech-
 | `_pct<Ref>[Per<Unit>]` | เปอร์เซ็นต์ของค่าอ้างอิงที่ตั้งชื่อ ต่อหน่วย (suffix ผสม) | `heal_pctMaxHp`, `inDungeonHealBase_pctMaxHpPerMin`, `shieldPerRewardTick_pctMaxHpPerBuffPct` |
 
 - regex ของ suffix: `_(m|m2|ms|s|h|days|yr|kmh|pct|ratio|gold|levels)$` หรือ `_pct[A-Z][A-Za-z]*$` · suffix ใหม่ต้องแก้ตารางนี้ (tech-lead)
-- ไม่ต้องมี suffix: boolean · string enum · จำนวนนับที่ชื่อบอกสิ่งที่นับ (`maxMembers`, `durationTicks`, `spawnPointsMin`) · ตัวคูณไร้หน่วยที่ชื่อมี `Mult`, `Coef` หรือ `Divisor` · percentile ที่ชื่อลงท้าย `Percentile` · ความยาวข้อความที่ชื่อมี `Cells` (copy registry)
+- ไม่ต้องมี suffix: boolean · string enum · จำนวนนับที่ชื่อบอกสิ่งที่นับ (`maxMembers`, `durationTicks`, `spawnPointsMin`) · จำนวนนับที่ชื่อลงท้าย `Threshold` เมื่อ object แม่หรือ `_note` บอกสิ่งที่นับ (`dungeons.reportThreshold` = จำนวนผู้เล่นที่รายงาน, D-062) · เกณฑ์ที่มีหน่วยยังต้องมี suffix (`farDungeonThreshold_m`, `autoRetreatThreshold_pct`) · อัตราส่วนไร้หน่วยที่ชื่อ camelCase ลงท้าย `Ratio` และบอกตัวตั้งกับตัวหาร (`maxAspectRatio` = ด้านยาว/ด้านสั้น, `incomeToPotionRatio`, `minBaseToCapRatio`) ไม่ผูกช่วง 0–1 (`maxAspectRatio` = 8 ได้, D-062) · suffix `_ratio` สงวนไว้สำหรับสัดส่วน 0–1 ของทั้งหมดที่ไม่ได้ตั้งชื่อ · ตัวคูณไร้หน่วยที่ชื่อมี `Mult`, `Coef` หรือ `Divisor` · percentile ที่ชื่อลงท้าย `Percentile` · ความยาวข้อความที่ชื่อมี `Cells` (copy registry)
 - key ที่เป็น suffix ล้วน (`base_pct`, `cap_pct`) ใช้ได้เมื่อ object แม่บอกบริบท
 - เวลาของวัน: string `"HH:mm"` ใน key ที่ลงท้าย `LocalTime` คู่กับ `timezone` (IANA) ใน object เดียวกัน · วันในสัปดาห์: string อังกฤษตัวเล็ก (`"saturday"`)
 
@@ -224,14 +226,16 @@ docs/                adr/, tech/                                           tech-
 
 - Phase 1: JSON import หรืออ่านไฟล์ แล้วเข้าถึงผ่าน helper ที่ใช้กติกา 3.10.4–3.10.6 (ข้าม `_` และ pointer, throw เมื่อ `null` ที่ไม่ประกาศ) · helper อยู่ใน `packages/shared` เมื่อมีผู้ใช้เกิน 1 ที่ (tech-lead)
 - Phase 2: JSON Schema ต่อไฟล์ (tech-lead) และ loader ที่ validate ก่อนใช้ · Ajv ใช้ได้ใน tools, test และ build step เท่านั้น เพราะ Worker ห้าม `new Function` (ดู `packages/shared/src/trace.ts`)
-- config lint (ตรวจ `_meta`, `_source` ในทุก object ที่มีค่า, regex suffix, ปลายทาง pointer, `null` ที่ไม่ประกาศเป็น WARN) เป็นงานของ tech-lead หลัง P1-H03 · ระหว่างนี้ tech gate ตรวจด้วยตา
+- config lint (ตรวจ `_meta`, `_source` ในทุก object ที่มีค่า, regex suffix และข้อยกเว้นของ 3.10.3, ปลายทาง pointer, `null` ที่ไม่ประกาศเป็น WARN) เป็นงานของ tech-lead ใน Phase 2 (D-062) · ระหว่างนี้ tech gate ตรวจด้วยตา
 - ชื่อทุกอย่างที่ผู้เล่นเห็น (zone, dungeon, monster, item, boss) มาจาก `config/content/` หรือ back office ไม่อยู่ในโค้ด · schema ของ `copy.th.json` และ registry ตัวแปรอยู่ใน `docs/tech/copy-schema.md`
 
 ### 3.11 นโยบายภาษาใน `tools/`
 
 - TypeScript เป็นค่าตั้งต้น (workspace ใน glob `tools/*`, source ใน `src/`, รันด้วย `pnpm exec tsx`)
 - Python ได้สำหรับงาน GIS (`tools/coverage/`) · pin เวอร์ชันใน `requirements.txt` ของโฟลเดอร์นั้น, venv ที่ `tools/<name>/.venv/` (ignore), Python 3.11 ขึ้นไป · README ของโฟลเดอร์ระบุคำสั่งติดตั้งและรัน test
+  - test ของ Python รันจาก `pnpm test` ผ่าน Vitest bridge (3.6) · CI สร้าง `tools/coverage/.venv` จาก `requirements.txt` เมื่อ cache miss (cache key = hash ของ `requirements.txt`) แล้วรัน `pnpm test` ด้วย `COVERAGE_PYTEST_REQUIRED=1` (P1-X07, `.github/workflows/ci.yml`)
 - `tools/tiles/` ใช้ shell + CLI `pmtiles` (binary เดียว pin เวอร์ชันและ checksum ใน README) · ถ้าต้องใช้ Node ให้ขอสร้าง workspace ผ่านงาน tech-lead
+  - script Python ใน `tools/tiles/bin/` (`serve.py`, `verify-bbox.py`) ใช้ได้เมื่อเป็น **stdlib ล้วน** Python 3.11 ขึ้นไป ไม่ต้องมี `requirements.txt` หรือ venv · ถ้าต้องการ package นอก stdlib ให้ทำตามกติกาของ `tools/coverage/` ข้างบน (pin + venv ในโฟลเดอร์) และแจ้ง tech-lead
 - ผลลัพธ์ของ tools ที่ commit ได้ต้องเล็กและไม่มีข้อมูลส่วนบุคคล · ข้อมูลดิบอยู่ในโฟลเดอร์ที่ ignore
 
 ### 3.12 git, การ commit และ `.gitignore`
@@ -257,7 +261,7 @@ docs/                adr/, tech/                                           tech-
 | root (dev) | `@playwright/test` 1.63.0 | e2e (P1-F02-T13) |
 | root (dev) | `eslint` 10.10.0, `@eslint/js` 10.0.1, `typescript-eslint` 8.70.0, `globals` 17.12.0, `eslint-config-prettier` 10.1.8, `prettier` 3.9.6 | lint / format |
 | root (dev) | `wrangler` 4.132.0 | local preview และ deploy บน Cloudflare Pages/Workers (P1-F02-T08, T19 ตาม D-008) |
-| `apps/client` | `maplibre-gl` 6.10.0, `pmtiles` 4.5.0 · dev `vite` 8.3.0 | spike แผนที่ (P1-F02-T09) |
+| `apps/client` | `maplibre-gl` 6.10.0, `pmtiles` 4.5.0 · dev `vite` 8.3.0 | spike แผนที่ (P1-F02-T09) · MapLibre 6.10 ESM ต้องตั้ง worker URL เองผ่าน `maplibre-gl-worker.mjs?worker&url` + `setWorkerUrl()` ใน `apps/client/src/map/worker.ts` (D-068) · bump `maplibre-gl` ต้องตรวจกติกานี้ซ้ำ |
 | `packages/shared` | `ajv` 8.20.0, `ajv-formats` 3.0.1 · dev `@types/geojson` 7946.0.16 | JSON Schema ของ trace และ config (P1-F02-T03) |
 | `tools/traces` | `ajv` 8.20.0, `ajv-formats` 3.0.1 | validate trace |
 | `packages/location`, `tools/sim` | `@keep-walking/shared` (workspace) | interface และ simulator |
@@ -324,5 +328,22 @@ docs/                adr/, tech/                                           tech-
 ผลต่อไฟล์ที่มีอยู่: ไม่มีไฟล์ config ที่ผิด convention ใหม่ ยกเว้นต้องเพิ่ม `_nullMeans` 5 จุด (3.10.5) · งานที่ต้องทำต่อ (เป็น handoff ในรายงานของ P1-H01):
 
 - systems-designer: `_nullMeans` 5 จุด · กรณีขอบใน `tools/sim/src/vectors*.ts` อ่านจาก `SimParams` (บรรทัด 143–146 `maxMembers`, 381–386 เพดาน Magic และพื้นของ gap, 618 เพดาน Tanker, 621–625 เกณฑ์ถอยอัตโนมัติ ของ `vectors.ts`) และลบ `eslint-disable` บรรทัด 1 ของทั้งสองไฟล์
-- tech-lead (งาน `X`): override ของ `eslint.config.js` สำหรับ `tools/sim/src/vectors*.ts` · ติดตั้ง `@maplibre/maplibre-gl-style-spec` · script `lint:copy` ที่ root
+- tech-lead (งาน `X`): ~~override ของ `eslint.config.js` สำหรับ `tools/sim/src/vectors*.ts`~~ ยกเลิกตาม D-062 (P1-X05: ไฟล์ผ่าน rule เต็มชุดแล้ว ไม่มี override) · ติดตั้ง `@maplibre/maplibre-gl-style-spec` · script `lint:copy` ที่ root
 - ตรวจแล้ว: `node .../gl-style-validate.mjs art/direction/map-style/kw-light.style.json` → exit 0 ไม่มี error (2026-09-23) · ต่อไปรันผ่าน test แทน
+
+### แก้ไขครั้งที่ 2 — P1-X27 (2026-09-24, tech-lead)
+
+ที่มา: tech gate F02 (`docs/reviews/F02-tech-gate.md` T-02..T-05) · บันทึกผลที่ตัดสินแล้วใน P1-X05, P1-X07, D-062, D-068 ให้ ADR ตรงกับไฟล์จริง · ไม่มี vendor หรือค่าใช้จ่ายใหม่
+
+| หัวข้อ | เปลี่ยนอะไร | เหตุผล |
+| --- | --- | --- |
+| 3.3 | Python ที่ใช้ stdlib ล้วนไม่ต้องมี `requirements.txt` / venv | ตรงกับ `tools/tiles/bin/*.py` |
+| 3.5 | ไม่มี override ของ `eslint.config.js` สำหรับ `tools/sim/src/vectors*.ts` · กรณีขอบอ่านจาก `SimParams` / `EconomyRefs` · ค่าตัวอย่างเป็น const ที่ตั้งชื่อ · handoff เดิมในหัวข้อ 7 ขีดว่ายกเลิก | D-062, P1-X05, `eslint.config.js:79-82` (T-02) |
+| 3.6, 3.7 | pytest bridge ใน include ของ Vitest · `COVERAGE_PYTEST_REQUIRED=1` (skip เมื่อไม่มี venv ในเครื่อง, บังคับใน CI) · Python test รันจาก `pnpm test` | P1-X05, P1-X07, `vitest.config.ts` (T-03) |
+| 3.10.1 | `telemetry.json` อยู่ `config/app/` · ผู้อ่านของ `config/app/` รวม server telemetry ingest (ไม่กระทบรางวัล) | D-062, P1-X16 (T-04) |
+| 3.10.3 | จำนวนนับที่ลงท้าย `Threshold` และอัตราส่วน camelCase ลงท้าย `Ratio` (ไม่ผูก 0–1) ไม่ต้องมี suffix · `_ratio` สงวนไว้สำหรับ 0–1 · `timeout_ms` / `maximumAge_ms` ใน `WebLocationOptions` | D-062 (`maxAspectRatio`, `reportThreshold`) (T-04) |
+| 3.10.7 | config lint ยกไป Phase 2 | D-062 |
+| 3.11 | CI สร้าง `tools/coverage/.venv` จาก `requirements.txt` (cache ตาม hash) · `tools/tiles/` ใช้ Python stdlib ได้โดยไม่มี venv | P1-X07, `.github/workflows/ci.yml` (T-05) |
+| 3.13 | กติกา worker URL ของ MapLibre 6.10 ESM ในแถว `apps/client` | D-068, P1-X23 |
+
+ผลต่อไฟล์ที่มีอยู่: ไม่มีไฟล์โค้ดหรือ config ที่ต้องแก้ · ทุกข้อบันทึกสิ่งที่ไฟล์ทำอยู่แล้ว

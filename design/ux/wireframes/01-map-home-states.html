@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — S-01-map: 4 สถานะที่บ้าน (P1-F03-T17)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>S-01-map — 4 สถานะที่บ้าน (ใกล้ / ไกล / นอกพื้นที่ / ไม่รู้ตำแหน่ง)</h1>
+  <p>อ้างอิง: design/ux/ia.md หัวข้อ 4, design/ux/flows/F03-core-loop.md Flow D · หน้าเดียวเสมอ เปลี่ยนแค่แผงล่าง · สถานะ "ใกล้" แบบเต็มดูที่ <code>00-onboarding.html</code> เฟรมที่ 7 · ทุกสถานะมีทางลัดไป avatar และ role-info เสมอ (pillars 7.2) และไม่มีหน้าใดให้รางวัลโดยไม่ผ่าน movement gate (pillars 7.3)</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>D1. ไกล — S-06-far-dungeon-panel</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span><span class="gps-pill ok"><span class="copykey">gps.pillLabel</span> <span class="thaidraft">(GPS)</span></span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-land);height:55%;position:relative;">
+      <div style="position:absolute;left:150px;top:60px;width:24px;height:24px;background:var(--ink-900);border-radius:50%;border:2px solid var(--bg-surface);"></div>
+      <div style="position:absolute;left:20px;top:10px;width:30px;height:38px;background:var(--rift-500);opacity:.5;clip-path:polygon(50% 0%,80% 20%,70% 55%,100% 70%,40% 100%,45% 60%,0% 45%,35% 35%);"></div>
+    </div>
+    <div class="drawer" style="border-radius:16px 16px 0 0;position:absolute;bottom:0;left:0;right:0;">
+      <div class="drawer-handle"></div>
+      <p class="body-text"><span class="copykey">home.farBody</span><br><span class="thaidraft">(ใกล้สุด {distanceText} ไกลก็จริง แต่ขามีไว้เดิน)</span></p>
+      <p class="caption">กรณีปิดชั่วคราวเพิ่ม: <span class="copykey">home.farNextOpen</span> <span class="thaidraft">(ที่ใกล้กว่าปิดอยู่ เปิดอีกที {openTime})</span></p>
+      <div class="btn btn-primary"><span class="copykey">home.farNavigate</span>&nbsp;<span class="thaidraft">(นำทาง)</span></div>
+      <div class="btn-row" style="margin-top:8px;">
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">home.farRoleInfoLink</span> <span class="thaidraft">(แต่ละพลังทำอะไร)</span></div>
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">home.farProfileLink</span> <span class="thaidraft">(ดูตัวละครของคุณ)</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottombar"><div class="tab active"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div></div>
+</div>
+<p class="frame-caption">threshold: <span class="config-ref">config: unlocks.home.farDungeonThreshold_m (=2000)</span> · แผงหายเองเมื่อเดินเข้าใกล้ ไม่ต้องกดปิด</p>
+</div>
+
+<div class="frame-block">
+<h3>D2. นอกพื้นที่ — S-07-out-of-area-panel</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span><span class="gps-pill ok"><span class="copykey">gps.pillLabel</span> <span class="thaidraft">(GPS)</span></span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-zone-black);height:55%;position:relative;">
+      <div style="position:absolute;inset:12px;border:2px dashed var(--map-province-border);"></div>
+      <p class="caption" style="color:var(--ink-100);position:absolute;left:16px;top:16px;">นครปฐม <span class="config-ref">({provinceName} ตัวอย่างข้อมูล ไม่ใช่ copy key)</span></p>
+      <div style="position:absolute;left:130px;top:60px;width:24px;height:24px;background:var(--ink-100);border-radius:50%;border:2px solid var(--bg-surface);"></div>
+    </div>
+    <div class="drawer" style="border-radius:16px 16px 0 0;position:absolute;bottom:0;left:0;right:0;">
+      <div class="drawer-handle"></div>
+      <p class="body-text" style="font-weight:700;"><span class="copykey">home.outOfAreaTitle</span><br><span class="thaidraft">(ช่วยกันปลุกจังหวัดเรา)</span></p>
+      <p class="caption"><span class="copykey">home.outOfAreaBody</span> <span class="thaidraft">({provinceName}ยังไม่มีใครมาสำรวจ ยื่นเรื่องขอเปิดได้ที่นี่)</span></p>
+      <p class="caption"><span class="copykey">home.outOfAreaCount</span> <span class="thaidraft">({count} คนยื่นเรื่องแล้ว)</span> — เมื่อ 0: <span class="copykey">home.outOfAreaCountZero</span> <span class="thaidraft">(ยังไม่มีใครยื่นเรื่อง)</span></p>
+      <div class="btn btn-primary"><span class="copykey">home.outOfAreaCta</span>&nbsp;<span class="thaidraft">(ยื่นเรื่อง)</span></div>
+      <div class="btn-row" style="margin-top:8px;">
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">home.farRoleInfoLink</span> <span class="thaidraft">(แต่ละพลังทำอะไร)</span></div>
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">home.farProfileLink</span> <span class="thaidraft">(ดูตัวละครของคุณ)</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottombar"><div class="tab active"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div></div>
+</div>
+<p class="frame-caption">โซนดำ = <span class="config-ref">color.map.zoneBlack</span> เส้นจังหวัดประ · นำทางไม่ได้ · ไม่มีของ/รางวัลตอบแทนการลงทะเบียน (pillars 7.3) · กด <span class="copykey">home.outOfAreaCta</span> → S-09-interest-register</p>
+</div>
+
+<div class="frame-block">
+<h3>D3. ไม่รู้ตำแหน่ง — S-08-unknown-location-panel</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span><span class="gps-pill bad"><span class="copykey">gps.pillLabel</span> <span class="thaidraft">(GPS)</span></span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-land);height:55%;position:relative;filter:grayscale(60%);">
+      <p class="caption" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">แผนที่กรุงเทพ ไม่มีจุดตัวเอง ไม่มีระยะ</p>
+    </div>
+    <div class="drawer" style="border-radius:16px 16px 0 0;position:absolute;bottom:0;left:0;right:0;">
+      <div class="drawer-handle"></div>
+      <p class="body-text" style="font-weight:700;"><span class="copykey">home.unknownTitle</span><br><span class="thaidraft">(ไม่รู้ว่าคุณอยู่ไหน)</span></p>
+      <p class="caption"><span class="copykey">home.unknownBody</span> <span class="thaidraft">(ไม่มีตำแหน่ง ก็ไม่มีรอยแยกใกล้ตัว แผนที่ยังดูได้)</span></p>
+      <p class="caption">สาเหตุ (ตัวอย่างหนึ่งในหลายกรณี): <span class="copykey">gps.denied</span> <span class="thaidraft">(ไม่ได้ให้สิทธิ์ตำแหน่ง)</span> · <span class="copykey">gps.deniedBody</span> <span class="thaidraft">(ไปเปิดสิทธิ์ตำแหน่งให้เว็บนี้ในตั้งค่า)</span> — หรือ <span class="copykey">gps.off</span>/<span class="copykey">gps.offBody</span> แล้วแต่สาเหตุจริง</p>
+      <div class="btn btn-primary"><span class="copykey">home.unknownCta</span>&nbsp;<span class="thaidraft">(ให้ใช้ตำแหน่ง)</span></div>
+      <div class="btn-row" style="margin-top:8px;">
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">home.farRoleInfoLink</span> <span class="thaidraft">(แต่ละพลังทำอะไร)</span></div>
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">home.farProfileLink</span> <span class="thaidraft">(ดูตัวละครของคุณ)</span></div>
+      </div>
+      <div class="btn btn-secondary" style="width:100%;margin-top:8px;"><span class="copykey">home.interestLink</span> <span class="thaidraft">(ยื่นเรื่องเปิดจังหวัด)</span></div>
+    </div>
+  </div>
+  <div class="bottombar"><div class="tab active"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div></div>
+</div>
+<p class="frame-caption">ปุ่มเดียวเด่นสุดพากลับไป S-00-consent-location ใหม่ ไม่ตื๊อ popup ซ้ำอัตโนมัติ · ทางลัดครบทั้ง 3 เหมือน D2</p>
+</div>
+
+<div class="frame-block">
+<h3>S-09-interest-register (เปิดจาก D2/D3)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">interest.title</span> <span class="thaidraft">(ยื่นเรื่องขอเปิดจังหวัด)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <h1 class="scr-title"><span class="copykey">interest.selectProvince</span><br><span class="thaidraft">(เลือกจังหวัดของคุณ)</span></h1>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card">นครปฐม</div>
+      <div class="card">สมุทรสาคร</div>
+      <div class="card">สมุทรปราการ</div>
+    </div>
+    <p class="caption" style="margin-top:8px;">เลือกจากรายการเท่านั้น ไม่มีช่องพิมพ์ (IA หลักการ 5) · ไม่เก็บพิกัด · ว่าง (โหลดรายชื่อไม่ได้): <span class="copykey">interest.empty</span> <span class="thaidraft">(ยังโหลดรายชื่อจังหวัดไม่ได้)</span> · offline: <span class="copykey">interest.pending</span> <span class="thaidraft">(รอส่ง)</span></p>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">interest.confirm</span>&nbsp;<span class="thaidraft">(ยืนยัน)</span></div>
+  </div>
+</div>
+<p class="frame-caption">ยืนยันแล้ว → toast <span class="copykey">interest.confirmed</span> <span class="thaidraft">(ยื่นเรื่องแล้ว {provinceName}เปิดเมื่อไรจะแจ้ง)</span> → กลับ S-01-map สถานะเดิม ไม่มีรางวัลตอบแทน</p>
+</div>
+
+</div>
+</body>
+</html>

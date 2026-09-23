@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — S-03-run: Active state (P1-F03-T17, แก้ P1-X17: F-04 จอพกกระเป๋า/Wake Lock ทิศทาง A)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>S-03-run — สถานะ Active (Flow C หัวข้อ 4)</h1>
+  <p>idle screen: มือถือเก็บกระเป๋าได้ ไม่ต้องกดอะไรเพื่อ "เล่น" มีแค่ทางเลือกให้กดเมื่อ *ตัดสินใจ* บางอย่าง องค์ประกอบถาวร: HP bar (server), tick timer, ปุ่มออกเองครึ่งล่างจอเสมอ</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>C0. จอพกกระเป๋า (ค่าเริ่มต้นทันทีที่เข้า run — ทิศทาง A, F-04)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="background:var(--ink-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0;">
+    <p class="numeric" style="font-size:64px;color:var(--bg-surface);margin:0;">78%</p>
+    <p class="caption" style="color:var(--bg-surface);"><span class="copykey">run.pocketHp</span> <span class="thaidraft">(HP {hpPct}%)</span></p>
+    <p class="numeric" style="font-size:28px;color:var(--bg-surface);margin-top:24px;">03:12</p>
+    <p class="caption" style="color:var(--ink-300);"><span class="copykey">run.pocketNextTick</span> <span class="thaidraft">(อีก {timeLeft} ได้ของ)</span></p>
+    <p class="caption" style="color:var(--ink-300);margin-top:16px;"><span class="copykey">run.pocketCounting</span> <span class="thaidraft">(กำลังนับระยะให้อยู่)</span></p>
+    <p class="caption" style="color:var(--ink-300);margin-top:32px;max-width:70%;"><span class="copykey">run.pocketWakeHint</span> <span class="thaidraft">(ปัดขึ้นค้างเพื่อดูปุ่ม)</span> — แสดงครั้งแรกของบัญชีเท่านั้น</p>
+  </div>
+</div>
+<p class="frame-caption">ไม่มีปุ่มใดบนจอนี้เลย (กันแตะพลาดในกระเป๋า) · Wake Lock ขอทันทีหลัง server ยืนยัน B5 ปล่อยเมื่อจบ run ทุกทาง (components.md 12.2) · เสียง/สั่นของ HP ต่ำ/auto-retreat/ตาย/tick ยังทำงานเพราะหน้าเว็บยัง foreground · ออกด้วยปัดขึ้นค้าง (swipe-up-hold) → กลับสู่ C1 ด้านล่าง พร้อมปุ่ม <span class="copykey">run.pocketEnterButton</span> <span class="thaidraft">(กลับไปจอพกกระเป๋า)</span> ให้กดกลับเข้าเอง</p>
+</div>
+
+<div class="frame-block">
+<h3>C0b. ทางสำรอง B — Wake Lock ใช้ไม่ได้ (components.md 12.3)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="toast neutral" style="top:16px;">
+      <span class="copykey">run.screenLockNotice</span> <span class="thaidraft">(จอดับ ระยะก็หยุดนับ เปิดจอไว้ระหว่างเดิน)</span>
+    </div>
+    <div class="hp-track" style="margin-top:64px;"><div class="hp-fill" style="width:78%;"></div></div>
+    <p class="numeric" style="text-align:right;">78%</p>
+  </div>
+</div>
+<p class="frame-caption">แสดงครั้งเดียวต่อบัญชี ตอนเข้า run ครั้งแรก เมื่อ browser ไม่รองรับ/ขอ Wake Lock ไม่สำเร็จ — ไม่มีจอพกกระเป๋า ใช้จอ run ปกติเต็มข้อมูล (C1 ด้านล่าง) แทนตลอด run นี้ · ถ้าผู้เล่นล็อกจอเองอยู่ดี กลับมาแสดง <span class="copykey">gps.suspended</span> <span class="thaidraft">(ช่วงจอดับไม่ได้นับระยะ)</span></p>
+</div>
+
+<div class="frame-block">
+<h3>C1. หลังปัดออกจากจอพกกระเป๋า / ทางสำรอง B (Active ปกติ, ไม่มีคนอื่น)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span><span class="gps-pill ok"><span class="copykey">gps.pillLabel</span> <span class="thaidraft">(GPS)</span></span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <p class="caption"><span class="copykey">run.hpBarLabel</span> <span class="thaidraft">(HP)</span></p>
+    <div class="hp-track"><div class="hp-fill" style="width:78%;"></div></div>
+    <p class="numeric" style="text-align:right;">78%</p>
+    <div class="card" style="margin-top:16px;text-align:center;">
+      <p class="caption"><span class="copykey">run.tickTimer</span> <span class="thaidraft">(รอบถัดไป {timeLeft})</span></p>
+      <p class="numeric" style="font-size:32px;">03:12</p>
+      <p class="caption">นับถอยหลัง mm:ss เป็น widget ตัวเลขสด ไม่ใช่ copy text · <span class="config-ref">config: dungeons.rewardTick.rewardTickInterval_s (=300)</span></p>
+    </div>
+    <p class="caption" style="margin-top:16px;">ไม่มีคนอื่นในโซนนี้ → ไม่แสดงแผง Nearby Party เลย (ไม่ใช่แสดงว่าง)</p>
+    <div class="btn btn-secondary" style="width:100%;margin-top:8px;"><span class="copykey">run.pocketEnterButton</span> <span class="thaidraft">(กลับไปจอพกกระเป๋า)</span></div>
+    <div class="btn btn-secondary btn-fullwidth-bottom" style="border-color:var(--state-danger);color:var(--state-danger);"><span class="copykey">run.exitButton</span> <span class="thaidraft">(ออก)</span></div>
+  </div>
+</div>
+<p class="frame-caption">ครั้งแรกในเกม: overlay ทับสั้น "<span class="copykey">dungeon.confirmTutorialLine</span> <span class="thaidraft">(เดินต่อไปเพื่อรับรางวัล)</span>" — tutorial บรรทัดเดียวของทั้งเกม · ปุ่ม "กลับไปจอพกกระเป๋า" ไม่แสดงถ้าอยู่ในทางสำรอง B (C0b, ไม่มี Wake Lock ให้กลับไป)</p>
+</div>
+
+<div class="frame-block">
+<h3>C2. Nearby Party (drawer)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="hp-track"><div class="hp-fill" style="width:78%;"></div></div>
+    <div class="drawer">
+      <div class="drawer-handle"></div>
+      <p class="body-text"><span class="copykey">party.foundTitle</span><br><span class="thaidraft">(เจออีก {count} คนในนี้)</span></p>
+      <p class="caption"><span class="copykey">party.foundRoles</span> <span class="thaidraft">(Tanker กับ Support)</span></p>
+      <div style="display:flex;gap:8px;margin:8px 0;">
+        <div class="class-badge" style="background:var(--class-tanker);">T</div>
+        <div class="class-badge" style="background:var(--class-support);">S</div>
+      </div>
+      <p class="caption" style="color:var(--state-danger);">ไม่มีชื่อ ไม่มีตำแหน่งรายบุคคล (NN-4) · เข้าร่วมครั้งเดียวจบ ไม่มี invite</p>
+      <div class="btn btn-primary"><span class="copykey">party.joinButton</span>&nbsp;<span class="thaidraft">(เข้าร่วม)</span></div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ไม่บล็อกจอ ไม่ใช่ popup ต้องตอบ · กดเข้าร่วม → toast <span class="copykey">party.buffApplied</span> <span class="thaidraft">(เข้าร่วมแล้ว ได้ buff ทันที)</span> ไม่มีหน้าอธิบายสูตร (U6 ยังไม่ปลด) · ไม่มีคนเลย: <span class="copykey">party.empty</span> <span class="thaidraft">(ในนี้ไม่มีใครเลย เดินคนเดียวก็ได้ของ แค่ช้ากว่า)</span></p>
+</div>
+
+<div class="frame-block">
+<h3>C3. Quick command (drawer)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="hp-track"><div class="hp-fill" style="width:78%;"></div></div>
+    <div class="drawer">
+      <div class="drawer-handle"></div>
+      <p class="body-text" style="margin-bottom:8px;"><span class="copykey">qc.panelTitle</span> <span class="thaidraft">(คำสั่งด่วน)</span></p>
+      <p class="caption" style="margin-bottom:8px;">10 คำสั่งสำเร็จรูป ข้อความเต็มทุกปุ่ม (≥ type.caption 14px) — ไม่มีช่องพิมพ์อิสระที่ไหนเลย</p>
+      <div class="qc-grid">
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.arrived</span> <span class="thaidraft">(มาแล้วจ้า)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.onMyWay</span> <span class="thaidraft">(กำลังไป รอแป๊บ)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.goOn</span> <span class="thaidraft">(ไปต่อ)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.needHeal</span> <span class="thaidraft">(ขอเลือดหน่อย)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.hpCritical</span> <span class="thaidraft">(เลือดจะหมดแล้ว)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.needCover</span> <span class="thaidraft">(ช่วยบังหน่อย)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.needBreak</span> <span class="thaidraft">(ขอพักแป๊บ)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.retreating</span> <span class="thaidraft">(ขอถอยก่อนนะ)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.goodDrop</span> <span class="thaidraft">(ของออกแล้ว)</span></div>
+        <div class="btn btn-secondary qc-btn"><span class="copykey">qc.thanks</span> <span class="thaidraft">(ขอบคุณ)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ครบ 10/10 คำสั่ง ข้อความเต็มไม่ตัดคำ (F03 copy gate F-03, H14) · กดแล้ว avatar เล่น animation ทันที ปิด drawer เอง ไม่มีขั้นยืนยัน · glyph จาก icon-grammar 7.2</p>
+</div>
+
+<div class="frame-block">
+<h3>C4. Grace / Suspended banners</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span><span class="gps-pill bad"><span class="copykey">gps.pillLabel</span> <span class="thaidraft">(GPS)</span></span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding-top:0;">
+    <div class="banner info"><span class="copykey">run.stateGrace</span> <span class="thaidraft">(กำลังยืนยันตำแหน่ง)</span></div>
+    <div style="height:36px;"></div>
+    <div class="hp-track"><div class="hp-fill" style="width:78%;"></div></div>
+    <div class="card" style="margin-top:56px;background:#FDEBEB;border-color:var(--state-danger);">
+      <p class="body-text" style="color:var(--state-danger);"><span class="copykey">run.stateSuspended</span><br><span class="thaidraft">(run หยุดชั่วคราว กลับเข้าเขตภายใน {timeLeft})</span></p>
+      <p class="caption">กลับเข้าเขตแล้ว: <span class="copykey">run.stateResumed</span> <span class="thaidraft">(กลับเข้าเขตแล้ว)</span> · ตัวอย่าง 2 สถานะซ้อนกันในเฟรมเดียวเพื่อเทียบโทน — จริงแสดงทีละสถานะ</p>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">Grace ≤ <span class="config-ref">config: dungeons.runState.graceMax_s (=180)</span> ไม่ตกใจ (แค่ GPS drift) · Suspended ถึง <span class="config-ref">suspendedMax_s (=900)</span> ยังไม่จบ run · เกิน → Ended อัตโนมัติ</p>
+</div>
+
+<div class="frame-block">
+<h3>C5. tick ผ่าน / ไม่ผ่าน gate</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="toast neutral" style="border-color:var(--state-success);top:16px;">
+      <span class="copykey">run.tickGranted</span> <span class="thaidraft">(เดินพอแล้ว ได้ของรอบนี้)</span>
+    </div>
+    <div class="hp-track" style="margin-top:64px;"><div class="hp-fill" style="width:78%;"></div></div>
+    <div class="toast neutral" style="top:180px;opacity:.7;">
+      <span class="copykey">run.tickDenied</span> <span class="thaidraft">(รอบนี้เดินไม่พอ ไม่ได้ของ เดินต่อ)</span>
+      <p class="caption" style="margin:4px 0 0;">โทนจางกว่า ไม่ใช้สีแดง ไม่ใช่ error ไม่มีคำต่อว่า · <span class="config-ref">config: dungeons.movementGate.minDistancePerWindow_m (=50) / window_s (=300)</span></p>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">tickDenied เกิดซ้ำได้หลายรอบโดยไม่มีเพดานลงโทษเพิ่ม · run ดำเนินต่อปกติ</p>
+</div>
+
+</div>
+<div class="issue-box">
+<h4>ตัดสินแล้ว (design gate A หัวข้อ 4.4, P1-X17): ทิศทาง A</h4>
+<p>เดิมเป็นประเด็นเปิดจาก P1-F02-T27 (product-manager): โจทย์ต้นเรื่อง "มือถืออยู่ในกระเป๋าได้" ขัดกับกฎ GDD "ล็อกหน้าจอ (v1 เว็บ) หยุดนับ movement" — <b>game-director ตัดสินทิศทาง A</b> (Wake Lock + จอพกกระเป๋า, เฟรม C0 ด้านบน) แทนทางเลือก B ที่เคยเป็นค่าเริ่มต้น ด้วยเหตุผลว่าคนที่เดินจริงไม่ควรเสีย tick เพราะข้อจำกัดของ browser ทางเลือก B ยังอยู่เป็นทางสำรองเมื่อ Wake Lock ใช้ไม่ได้ (เฟรม C0b) สเปกเต็มอยู่ที่ <code>components.md</code> หัวข้อ 12 และ flow หัวข้อ 4.9 · tech-lead ยืนยันความเป็นไปได้จริงของ Wake Lock บนเครื่องทดสอบก่อน build (F-17, Phase 2) ถ้าทำไม่ได้จริงหรือเกินงบแบต ส่งกลับ game-director ตัดสินใหม่ ไม่ถอยไปทางเลือก B เงียบ ๆ</p>
+</div>
+</body>
+</html>

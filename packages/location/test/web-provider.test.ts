@@ -18,8 +18,8 @@ function setup(opts: { permissions?: PermissionsLike | null; visible?: boolean }
   const clock = new FakeClock();
   const provider = new WebLocationProvider({
     enableHighAccuracy: LOCATION_WEB.enableHighAccuracy,
-    timeoutMs: LOCATION_WEB.timeout_ms,
-    maximumAgeMs: LOCATION_WEB.maximumAge_ms,
+    timeout_ms: LOCATION_WEB.timeout_ms,
+    maximumAge_ms: LOCATION_WEB.maximumAge_ms,
     clock,
     visibility,
     geolocation,
@@ -212,8 +212,8 @@ describe('WebLocationProvider permission and platform', () => {
   it('no geolocation → unsupported (fatal) and getPermission unsupported', async () => {
     const provider = new WebLocationProvider({
       enableHighAccuracy: true,
-      timeoutMs: 1,
-      maximumAgeMs: 0,
+      timeout_ms: 1,
+      maximumAge_ms: 0,
       clock: new FakeClock(),
       visibility: new FakeVisibility(),
       geolocation: null,

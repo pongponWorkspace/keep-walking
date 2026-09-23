@@ -58,17 +58,23 @@ Repo `https://github.com/pongponWorkspace/keep-walking` เป็น **public** 
 
 ## 5. รันชุดเดียวกับ CI ในเครื่อง
 
-CI (`build-test` job) เรียก root script ชุดเดียวกับที่รันในเครื่องเป๊ะๆ (ADR 0001 3.7) ไม่มี logic แยกใน workflow:
+CI (`build-test` job) เรียก root script ชุดเดียวกับที่รันในเครื่องเป๊ะๆ (ADR 0001 3.7) ไม่มี logic แยกใน workflow นอกจาก dependency caching (หัวข้อ 5.1):
 
 ```bash
 pnpm install --frozen-lockfile
+
+# Python pytest bridges (P1-X05/P1-X07): ต้องมี venv ก่อน pnpm test จึงจะไม่ skip
+python3 -m venv tools/coverage/.venv
+tools/coverage/.venv/bin/pip install -r tools/coverage/requirements.txt
+
 pnpm lint
 pnpm typecheck
-pnpm test
+pnpm exec tsx tools/traces/src/generate.ts --check   # trace generator ตรงกับไฟล์ที่ commit
+COVERAGE_PYTEST_REQUIRED=1 pnpm test                 # bridge fail แทน skip เมื่อไม่มี venv
 pnpm build
 ```
 
-หรือรันรวดเดียวด้วย `pnpm check` (เท่ากับ lint + typecheck + test + build ต่อกัน)
+หรือรันรวดเดียวด้วย `pnpm check` (เท่ากับ lint + typecheck + test + build ต่อกัน — ไม่รวมสองบรรทัดข้างต้นที่ไม่ใช่ pnpm script)
 
 e2e แยก job (Playwright browser ใหญ่ ดาวน์โหลดนาน) รันในเครื่องด้วย:
 
@@ -78,6 +84,21 @@ pnpm test:e2e
 ```
 
 Node version มาจาก `.nvmrc` (24) และ pnpm version จาก `packageManager` ใน root `package.json` (11.24.0) — ใช้ `nvm use` หรือเทียบเท่า ก่อนรัน
+
+### 5.1 pytest bridge, trace generator check และ dependency caching ใน CI (P1-X07)
+
+`vitest.config.ts` include สอง glob ที่เป็น "bridge" เรียก pytest ของ Python จาก root `pnpm test`: `tools/coverage/pipeline/tests/**/*.test.ts` และ `tools/coverage/boundaries/tests/**/*.test.ts` (ทั้งคู่ใช้ fixture สังเคราะห์ในเครื่อง ไม่ใช้เน็ต ไม่ดาวน์โหลด OSM/ประชากรจริง) โดยดีฟอลต์ถ้าไม่มี `tools/coverage/.venv` bridge จะ **skip พร้อม warning** เพื่อไม่บังคับให้ dev ที่ไม่แตะ Python ต้องมี venv — CI ต้อง**ไม่ skip เงียบๆ** จึงสร้าง venv ก่อนเสมอแล้วตั้ง `COVERAGE_PYTEST_REQUIRED=1` ให้ `pnpm test` (bridge จะ fail แทน skip ถ้า venv หาย)
+
+`pnpm test` ยังรัน `tools/tiles/test/tiles.test.ts` (bridge เรียก `tools/tiles/test/run.sh`) ซึ่งดาวน์โหลด CLI `go-pmtiles` ที่ pin ไว้ (~16 MiB, ตรวจ sha256, ไม่มี credential) มาไว้ที่ `tools/tiles/downloads/pmtiles-<version>/` เองถ้ายังไม่มี — เพื่อไม่ให้ทุก CI run โหลดไฟล์เดิมซ้ำ job `build-test` cache สองก้อนด้วย `actions/cache@v4`:
+
+| cache | path | key |
+| --- | --- | --- |
+| pmtiles binary | `tools/tiles/downloads/pmtiles-<version>/` | `pmtiles-bin-<os>-<version>-<sha256 ของ build linux_x86_64>` (อ่านทั้งคู่จาก `tools/tiles/config.json` ที่รันไทม์ ไม่ hardcode ในไฟล์ workflow) |
+| Python venv (`tools/coverage/.venv`) | `tools/coverage/.venv/` | `coverage-venv-<os>-<hash ของ tools/coverage/requirements.txt>` |
+
+ทั้งสอง key ผูกกับ pin/ไฟล์ที่กำหนดเวอร์ชัน — เปลี่ยนเวอร์ชัน pmtiles ใน `config.json` หรือแก้ `requirements.txt` แล้ว cache เก่าใช้ไม่ได้อัตโนมัติ (key ไม่ตรง ต้องสร้างใหม่) ไม่ต้อง invalidate มือ
+
+ลำดับ `pnpm exec tsx tools/traces/src/generate.ts --check` มาก่อน `pnpm test` โดยตั้งใจ: เร็วกว่า (ต่ำกว่า 1 วินาที) และ fail-fast ถ้า fixture ใต้ `data/gps-traces/synthetic/` ไม่ตรงกับ generator (`tools/traces/src/generate.ts`) ก่อนเสียเวลารัน suite เต็ม
 
 ## 6. secret scan ในเครื่อง (gitleaks)
 
@@ -121,6 +142,8 @@ git ls-files -z | xargs -0 -I{} stat -f '%z {}' {} 2>/dev/null | awk '$1 > 52428
 ```
 
 หลักฐานว่า guard fail จริงเมื่อมีไฟล์ต้องห้าม: ดู REPORT ของ P1-F02-T07 (ทดลองใน local branch ทิ้ง ไม่ push)
+
+**path ที่มีช่องว่าง (P1-X07):** repo มีไฟล์ที่ track จริงชื่อมีช่องว่าง เช่น `tools/tiles/fixtures/lumpini/glyphs/Noto Sans Regular/0-255.pbf` และ `.../Noto Sans Medium/…` guard ข้อ 1–4 ใช้ `git ls-files` (ไม่ใส่ `-z`) ซึ่งไม่ใส่ quote รอบช่องว่างธรรมดา (quote เฉพาะอักขระพิเศษ/นอก ASCII) หนึ่งบรรทัดต่อหนึ่ง path เสมอ ต่อให้ path มีช่องว่างก็ยังตรงกับ `grep -E` ถูกบรรทัด ส่วนข้อ 5 ใช้ `git ls-files -z` คู่กับ `while IFS= read -r -d ''` (ไม่ใช่ `for f in $(...)`) เพื่อให้ path เป็นค่าเดียวไม่ถูกตัดคำที่ space ก่อนส่งต่อให้ `stat` — ยืนยันแล้วว่า guard ผ่านทั้ง 5 ข้อบน repo จริงที่มี fixture เหล่านี้ (หัวข้อรายงาน P1-X07) `.github/workflows/ci.yml` job `forbidden-files` มี step self-check ก่อน guard จริงที่ยืนยันว่ายังมีอย่างน้อยหนึ่ง path ที่มีช่องว่างถูก track อยู่เสมอ (fail ทันทีถ้า fixture นี้หายไปโดยไม่มีใครมาแทนที่ property ที่ทดสอบ)
 
 ## 8. งานต่อยอด
 

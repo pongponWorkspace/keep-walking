@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "file": "tools/coverage/analysis/launch-score.config.json",
+    "owner": "location-engineer (values copied from level-designer / product-manager documents)",
+    "task": "P1-F01-T06",
+    "_note": "Analysis-only parameters (not read by the game runtime). launch-criteria.md section 3 asks for the Launch Score weights to live here instead of in code. Walk-graph snap limit and route factors are read from config/balance/dungeons.json#coverageFilter, never from this file."
+  },
+  "_source": {
+    "weights": "design/levels/launch-criteria.md section 3 (0.25 / 0.25 / 0.20 / 0.15 / 0.15)",
+    "distanceBands_m": "product/prd/F01-coverage-survey.md section 3 (green <= 800 m, yellow 800-3,000 m, red > 3,000 m)",
+    "walkHighways": "product/prd/F01-coverage-survey.md section 8.1 (P1-H08)",
+    "footOverrideValues": "A-P1-F01-T06-2: a way with access in coverageFilter.excludeAccessValues stays walkable when foot is one of these (pedestrian streets are often access=no + foot=yes)",
+    "footNoValues": "product/prd/F01-coverage-survey.md section 8.1 (foot=no is not walkable)",
+    "transit": "design/levels/launch-criteria.md section 4.3 (rail 2 : bus 1, parking not scored)",
+    "transit.railAcceptableWalk_m": "A-P1-F01-T06-3: launch-criteria 4.3 says 'rail within an acceptable distance' without a number; the PRD green band (800 m) is used. Owner: level-designer",
+    "circuityMinStraight_m": "run-meta only: measured route factor (network / straight line to the same dungeon) uses cells at least this far in a straight line, so tiny denominators do not dominate",
+    "graphBboxBuffer_m": "walk graph covers the study-area bounding box plus this margin so routes near the edge may leave the study area",
+    "populationSource": "tools/coverage/params.json#pipeline.sources (D2 WorldPop R2025A constrained 100 m)",
+    "populationResolutionLabel": "PRD F01 section 8.2 asks for the resolution per area; WorldPop is one grid for the whole country",
+    "presets": "data/dungeons/presets.json presets[].matches (class first, then size_band; level-designer P1-F03-T09)",
+    "primaryPresets": "design/levels/launch-criteria.md section 4.4 (denominator 3)",
+    "heatmap": "display only: population is aggregated to blocks of displayBlockCells x displayBlockCells source cells before drawing (no single 100 m cell is shown)"
+  },
+  "weights": {
+    "densityScore": 0.25,
+    "walkDistanceScore": 0.25,
+    "transitAccessScore": 0.2,
+    "presetDiversityScore": 0.15,
+    "populationDensityScore": 0.15
+  },
+  "distanceBands_m": { "greenMax": 800, "yellowMax": 3000 },
+  "walkHighways": [
+    "footway",
+    "path",
+    "pedestrian",
+    "living_street",
+    "residential",
+    "service",
+    "track",
+    "steps",
+    "unclassified",
+    "tertiary",
+    "secondary",
+    "primary"
+  ],
+  "footNoValues": ["no"],
+  "footOverrideValues": ["yes", "designated", "permissive"],
+  "transit": {
+    "railTags": [
+      "railway=station",
+      "public_transport=station",
+      "station=subway",
+      "station=light_rail",
+      "station=train"
+    ],
+    "busTags": ["highway=bus_stop", "amenity=bus_station"],
+    "railExcludeIfTagged": ["amenity=bus_station", "bus=yes", "station=bus"],
+    "railWeight": 2,
+    "busWeight": 1,
+    "railAcceptableWalk_m": 800
+  },
+  "graphBboxBuffer_m": 3000,
+  "circuityMinStraight_m": 250,
+  "populationSource": "D2",
+  "populationResolutionLabel": "WorldPop R2025A constrained, 3 arc-second grid (about 100 m), same resolution in all 79 districts",
+  "presetsFile": "data/dungeons/presets.json",
+  "primaryPresets": ["largePark", "market", "pocketPark"],
+  "heatmap": { "displayBlockCells": 3 },
+  "outputs": {
+    "districtCounts": "../../data/coverage/district-counts.csv",
+    "runMeta": "../../data/coverage/run-meta.json",
+    "heatmapDir": "../../data/coverage/heatmap",
+    "cacheDir": "cache",
+    "boundaries": "out/boundaries.geojson",
+    "pipelineRunMeta": "out/run-meta.json"
+  }
+}

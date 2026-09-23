@@ -76,6 +76,10 @@ export default tseslint.config(
       'no-restricted-imports': ['error', TOOLS_IMPORT_BAN],
     },
   },
+  // No override for tools/sim/src/vectors*.ts (P1-X05 decision under ADR 0001 3.5): after
+  // P1-X04 those files lint clean under the full rule set (config-derived boundaries come from
+  // SimParams / EconomyRefs, example inputs are named consts in CASE). Adding a blanket
+  // no-magic-numbers override would only hide future hard-coded balance values.
   {
     // Tests, golden-vector fixtures, and tool/config files may use literal numbers.
     files: [

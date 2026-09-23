@@ -1,13 +1,26 @@
 # Owner: devops-engineer (P1-F02-T07).
-# CI calls the exact same root scripts a developer runs locally (ADR 0001 section 3.7).
-# No workflow-local build/test logic here beyond the secret scan and the forbidden-file guard,
-# which exist only to protect this PUBLIC repo (D-002) and have no `pnpm` equivalent.
+# CI calls the exact same root scripts a developer runs locally (ADR 0001 section 3.7), including
+# the extra non-pnpm commands documented in tools/coverage/README.md section 6 and
+# tools/traces/src/generate.ts's own header comment -- a developer can run every line below.
+# No workflow-local build/test logic here beyond the secret scan and the forbidden-file guard
+# (which exist only to protect this PUBLIC repo, D-002, and have no `pnpm` equivalent) and
+# dependency caching (actions/cache; optimizes cost, never changes what runs or its result).
 #
 # Jobs:
-#   build-test        pnpm lint / typecheck / test / build
+#   build-test        pnpm lint / typecheck / trace-generator check / golden-vectors check / test / build
 #   e2e               pnpm test:e2e:install && pnpm test:e2e (separate job, browsers are heavy)
 #   secret-scan       gitleaks over full git history (D-002 layer 2)
 #   forbidden-files   guard against tracked secrets/raw-data/oversized files (D-002 layer 2)
+#
+# build-test also creates tools/coverage/.venv (Python pytest bridges, P1-X05/P1-X07:
+# tools/coverage/pipeline/tests and tools/coverage/boundaries/tests run inside `pnpm test` via
+# their pytest-bridge.test.ts) and sets COVERAGE_PYTEST_REQUIRED=1 so those bridges fail instead
+# of skipping on a missing venv. Both bridges use only the committed synthetic OSM fixture
+# (docs/tech/environments.md section 5) -- this job never downloads OSM or population data.
+# `pnpm test` also runs tools/tiles/test/tiles.test.ts, which fetches the pinned go-pmtiles CLI
+# (~16 MB, checksum-verified) on first use; that binary and the coverage venv are both cached
+# below, keyed on their pin (version + sha256 / requirements.txt hash) so an unrelated code
+# change never redownloads or reinstalls them.
 #
 # Free tier: GitHub Actions is unlimited-minutes free for PUBLIC repos (D-001, D-002).
 # No paid action, no license key, no external account is used anywhere in this file.
@@ -44,9 +57,43 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies (frozen lockfile, no network resolution drift)
         run: pnpm install --frozen-lockfile
+
+      - name: Read pmtiles pin (single source of truth, tools/tiles/config.json)
+        id: pmtiles_pin
+        run: |
+          set -euo pipefail
+          echo "version=$(jq -er '.tools.pmtiles.version' tools/tiles/config.json)" >> "$GITHUB_OUTPUT"
+          echo "sha256=$(jq -er '.tools.pmtiles.assets.Linux_x86_64.sha256' tools/tiles/config.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pinned pmtiles binary (~16 MB, tools/tiles/test/run.sh, checksum-verified)
+        uses: actions/cache@v4
+        with:
+          path: tools/tiles/downloads/pmtiles-${{ steps.pmtiles_pin.outputs.version }}
+          key: pmtiles-bin-${{ runner.os }}-${{ steps.pmtiles_pin.outputs.version }}-${{ steps.pmtiles_pin.outputs.sha256 }}
+
+      - name: Cache tools/coverage/.venv (pip, pytest bridges, P1-X07)
+        id: coverage_venv_cache
+        uses: actions/cache@v4
+        with:
+          path: tools/coverage/.venv
+          key: coverage-venv-${{ runner.os }}-${{ hashFiles('tools/coverage/requirements.txt') }}
+
+      - name: Create tools/coverage/.venv and install pinned Python deps (cache miss only)
+        if: steps.coverage_venv_cache.outputs.cache-hit != 'true'
+        run: |
+          python3 -m venv tools/coverage/.venv
+          tools/coverage/.venv/bin/pip install -r tools/coverage/requirements.txt
+
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      - name: Trace generator is in sync with committed fixtures (tools/traces)
+        run: pnpm exec tsx tools/traces/src/generate.ts --check
+      - name: Golden vectors are in sync with config (tools/sim)
+        run: pnpm exec tsx tools/sim/src/gen-vectors.ts --check
+      - name: Test (Vitest incl. Python pytest bridges, required not skipped)
+        env:
+          COVERAGE_PYTEST_REQUIRED: '1'
+        run: pnpm test
       - run: pnpm build
 
   e2e:
@@ -98,6 +145,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Self-check -- guard still sees tracked paths containing spaces (P1-X07 regression)
+        run: |
+          set -euo pipefail
+          # tools/tiles/fixtures/lumpini/glyphs/Noto Sans Regular/ (and .../Noto Sans Medium/) are
+          # real tracked filenames containing spaces. `git ls-files` (no -z) does not C-quote plain
+          # spaces, so line-based `grep` below (groups 1-4) already treats each path as one line
+          # regardless of embedded spaces; group 5 uses `git ls-files -z` + `read -r -d ''`
+          # specifically so a raw byte, not a word-split token, reaches `stat`. This step fails
+          # loudly if that fixture (or any space-containing tracked path) ever disappears, so the
+          # guard's space-handling is exercised by every run instead of only by local testing.
+          count=$(git ls-files | grep -c ' ' || true)
+          if [ "$count" -eq 0 ]; then
+            echo "::error::no tracked path contains a space; expected e.g. tools/tiles/fixtures/lumpini/glyphs/Noto Sans Regular/. The forbidden-files guard's space-handling has nothing to exercise -- if this fixture was intentionally removed, replace this self-check with another space-containing fixture."
+            exit 1
+          fi
+          echo "ok: $count tracked path(s) contain a space"
       - name: Fail if forbidden files are tracked (D-002)
         run: |
           set -uo pipefail
@@ -143,6 +206,9 @@ jobs:
 
           echo "::group::5. oversized tracked files (> ${MAX_TRACKED_FILE_BYTES} bytes)"
           any_big=0
+          # NUL-delimited (git ls-files -z / read -r -d '') on purpose: paths containing spaces
+          # (e.g. tools/tiles/fixtures/lumpini/glyphs/Noto Sans Regular/*) must reach `stat` as one
+          # argument, not be word-split. Do not change this to `for f in $(git ls-files)`.
           while IFS= read -r -d '' f; do
             size=$(stat -c '%s' "$f")
             if [ "$size" -gt "$MAX_TRACKED_FILE_BYTES" ]; then

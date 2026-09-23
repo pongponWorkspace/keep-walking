@@ -3,7 +3,7 @@
     "file": "combat.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06; hit chance refit P1-F03-T08",
+    "task": "P1-F03-T06; hit chance refit P1-F03-T08; _nullMeans P1-X04",
     "doc": "design/systems/balance-model.md section 3"
   },
   "monsterAttack": {
@@ -30,6 +30,7 @@
     "damageMultPerLevelBelowRange": 1.25,
     "mode": "compound",
     "maxMult": null,
+    "_nullMeans": { "maxMult": "unbounded" },
     "_assumption": "A-P1-F03-T06-2: 'x1.25 per level' read as 1.25^gap (not 1 + 0.25 x gap), no cap because the GDD says nobody adjusts it for you. Gap counts from the range minimum. Owner: game-director"
   },
   "raidFailPenalty": {

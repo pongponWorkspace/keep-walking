@@ -3,7 +3,7 @@
     "file": "economy.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06",
+    "task": "P1-F03-T06; _nullMeans P1-X04",
     "doc": "design/systems/balance-model.md section 8"
   },
   "npcSellPrice_gold": {
@@ -12,6 +12,7 @@
     "elementCore": 120,
     "riftStone": 900,
     "equipment": null,
+    "_nullMeans": { "equipment": "none" },
     "_assumption": "A-P1-F03-T06-8b: GDD has no NPC price for equipment; null = cannot be sold to NPC in v1. Owner: game-director"
   },
   "npcPricing": {
@@ -19,6 +20,7 @@
     "npcPriceToMarketValueMin_pct": 40,
     "npcPriceToMarketValueMax_pct": 50,
     "npcDailySellLimit": null,
+    "_nullMeans": { "npcDailySellLimit": "unbounded" },
     "_npcDailySellLimit_source": "GDD > Economy > มาตรการคุมเงินเฟ้อ (ไม่จำกัดการขายให้ NPC ต่อวัน). null = no limit, by design"
   },
   "potions": {
@@ -66,6 +68,7 @@
       { "fromDailySales_gold": 60001, "toDailySales_gold": 150000, "tax_pct": 26 },
       { "fromDailySales_gold": 150001, "toDailySales_gold": null, "tax_pct": 35 }
     ],
+    "_nullMeans": { "brackets[].toDailySales_gold": "unbounded" },
     "bracketMode": "marginal",
     "resetTimezone": "Asia/Bangkok",
     "resetLocalTime": "00:00",

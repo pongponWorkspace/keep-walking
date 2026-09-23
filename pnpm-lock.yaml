@@ -11,6 +11,9 @@ importers:
       '@eslint/js':
         specifier: 10.0.1
         version: 10.0.1(eslint@10.10.0(supports-color@10.2.2))
+      '@maplibre/maplibre-gl-style-spec':
+        specifier: 26.4.4
+        version: 26.4.4
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
@@ -85,6 +88,15 @@ importers:
       '@types/geojson':
         specifier: 7946.0.16
         version: 7946.0.16
+
+  qa/tests/F02:
+    devDependencies:
+      '@keep-walking/location':
+        specifier: workspace:*
+        version: link:../../../packages/location
+      '@keep-walking/shared':
+        specifier: workspace:*
+        version: link:../../../packages/shared
 
   tools/copy-lint:
     dependencies:

@@ -3,7 +3,7 @@
     "file": "dungeons.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06, P1-H03 (coverageFilter, hpSafety copy variables)",
+    "task": "P1-F03-T06, P1-H03 (coverageFilter, hpSafety copy variables), P1-X04 (_nullMeans, emergencyClose, safety, coverageFilter walk / shape / entrance keys)",
     "doc": "design/systems/balance-model.md section 9; tools/coverage/METHOD.md 8.2",
     "readBy": ["tools/coverage (area limits, A-P1-PLAN-01-5; coverageFilter)","back office polygon validation", "server run state machine"]
   },
@@ -77,7 +77,28 @@
   "emergencyClose": {
     "_source": "GDD > ระบบหลังบ้าน > Validation ตอนวาด dungeon (ปุ่มปิดฉุกเฉิน moderator คนเดียว คนข้างในได้รางวัลตามสัดส่วน)",
     "singleModeratorAllowed": true,
-    "proRatedRewardOnClose": true
+    "proRatedRewardOnClose": true,
+    "proRatedRewardPassesMovementGate": true,
+    "partialTickGateScaling": "proportional",
+    "partialTickMinElapsed_s": 60,
+    "seeMovementGate": "dungeons.json#movementGate",
+    "_note": "Copy gate F-07 / non-negotiable 2. The emergency close never skips the movement gate. (1) Reward ticks completed before the close were already judged by the normal gate; only ticks that passed are paid. (2) The unfinished tick at close pays elapsed_s / movementGate.window_s of one tick, and only if the distance accumulated in that partial window is greater than movementGate.minDistancePerWindow_m x elapsed_s / movementGate.window_s (the same 50 m per 300 s rate, same comparison greaterThan). (3) If elapsed_s < partialTickMinElapsed_s the partial tick pays nothing (a few seconds of GPS jitter could otherwise pass a threshold under 10 m). Computed on the server like every other reward",
+    "_assumption": "A-P1-X04-1: 'pro-rated' means the partial tick scaled by elapsed time with the gate distance scaled the same way, plus a 60 s floor. Owner: game-director (gate rules), backend-programmer (implementation)"
+  },
+  "safety": {
+    "_source": {
+      "reportThreshold": "GDD > ระบบหลังบ้าน > ฟีเจอร์ที่ต้องมี (คิวรายงานจากผู้เล่น พร้อมสถิติรายงานซ้ำ); ความเสี่ยงที่ต้องเฝ้าดู (ทางเท้าเข้าไม่ถึงจริง → คิวรายงาน + ปุ่มปิดฉุกเฉิน); product/metrics.md GR-9 (A-P1-F03-T19-3)",
+      "reportWindow_h": "product/metrics.md section 7 ('ภายในหน้าต่างเวลาเดียวกัน')",
+      "reportCountsDistinctPlayers": "one player reporting many times must not close a dungeon",
+      "onThresholdAction": "product/metrics.md section 7 (ปิดชั่วคราวอัตโนมัติรอ moderator ตรวจ)"
+    },
+    "reportThreshold": 5,
+    "reportWindow_h": 24,
+    "reportCountsDistinctPlayers": true,
+    "onThresholdAction": "suspendPendingModerator",
+    "seeEmergencyClose": "dungeons.json#emergencyClose",
+    "_note": "When at least reportThreshold distinct players report the same dungeon inside a rolling reportWindow_h, the server suspends the dungeon until a moderator reviews it. Players inside are paid the same way as emergencyClose (movement gate still applies)",
+    "_assumption": "A-P1-X04-3: 5 distinct players in 24 h is a PROPOSED starting value (not in the GDD) chosen so one small party cannot close a dungeon but a real hazard closes within a day at launch traffic. Owner: game-director (safety rule), liveops-operator (tuning after launch)"
   },
   "temporaryDungeon": {
     "_source": "GDD > ระบบหลังบ้าน > ฟีเจอร์ที่ต้องมี (dungeon ชั่วคราวต้องมีวันหมดอายุบังคับ)",
@@ -86,7 +107,9 @@
   "verification": {
     "_source": "GDD > ระบบหลังบ้าน > เตรียมไว้สำหรับ dungeon ในอาคาร",
     "v1VerificationMode": "continuous_gps",
-    "v1FloorLevel": null
+    "v1FloorLevel": null,
+    "_nullMeans": { "v1FloorLevel": "none" },
+    "_note": "v1 is outdoor only (CLAUDE.md non-negotiable 5): v1FloorLevel null means there is no floor, not 'not set yet' (ADR 0001 3.10.5)"
   },
   "smallDungeon": {
     "_source": "GDD > การกำหนด dungeon (dungeon เล็ก); value lives in drops.json to keep one source",
@@ -118,7 +141,16 @@
       "majorWayTags": "METHOD 12 · GDD 'Validation ตอนวาด dungeon'",
       "majorWayIgnoreIfTagged": "METHOD 12 (tunnel / bridge with a value other than 'no' does not cut the ground)",
       "majorWayAction": "D-028 PROPOSED: flag (default) | exclude | off",
-      "majorWayMinInsideLength_m": "length of a major way inside a candidate before it counts as crossing (edge-hugging roads do not count)"
+      "majorWayMinInsideLength_m": "length of a major way inside a candidate before it counts as crossing (edge-hugging roads do not count)",
+      "walkGraphSnapMaxDistance_m": "PRD F01 8.1 (P1-H08): population cells that snap farther than this to the walk graph count as red zone",
+      "walkRouteFactorFallbackMult": "PRD F01 8.1 (P1-H08): fallback only when network routing cannot run; walk distance = straight line from rep_point x this factor (Boeing 2019; Loo et al. 2024)",
+      "walkRouteFactorUncertaintyMinMult": "PRD F01 8.1 (P1-H08): lower edge of the uncertainty band; fallback results must be reported at min / fallback / max",
+      "walkRouteFactorUncertaintyMaxMult": "PRD F01 8.1 (P1-H08): upper edge of the uncertainty band",
+      "educationAllowOsmIds": "design/levels/dungeon-rules.md 8 (D-027 item 4) and 16: per-site allowlist of campus green areas open to the public 24 h without a fence, format osm-w<id> / osm-r<id> like reviewOsmIds; level-designer fills one id at a time; empty = every education site stays blocked",
+      "maxAspectRatio": "design/levels/dungeon-rules.md 12 and 16 (riverside / canal preset): long side / short side of the minimum rotated rectangle; above this the candidate gets review_required, it is never dropped automatically",
+      "aspectRatioMethod": "design/levels/dungeon-rules.md 12 (two methods named; this picks the rotated-rectangle one because it is scale free and cheap in shapely)",
+      "aspectRatioAction": "design/levels/dungeon-rules.md 12: flag review_required only",
+      "maxEntranceGap_m": "design/levels/dungeon-rules.md 4 and 16 (point B, back office F14): largest distance from a pinned entrance on the polygon edge to the nearest public footway"
     },
     "_note": "P1-H03: moved here from tools/coverage/params.json#coverageFilter with identical key names and values (checked by script: deep-equal, 26 keys), so a running coverage pipeline gives the same result whichever file it reads. The same rules are meant for back office polygon validation and temporary dungeons. All values are PROPOSED (METHOD 8.2), not locked. Once this object exists, params.json#coverageFilter is a fallback only and should be removed by its owner so there is one source",
     "_switches": {
@@ -232,6 +264,16 @@
     ],
     "majorWayIgnoreIfTagged": ["tunnel", "bridge"],
     "majorWayAction": "flag",
-    "majorWayMinInsideLength_m": 20
+    "majorWayMinInsideLength_m": 20,
+    "walkGraphSnapMaxDistance_m": 150,
+    "walkRouteFactorFallbackMult": 1.4,
+    "walkRouteFactorUncertaintyMinMult": 1.2,
+    "walkRouteFactorUncertaintyMaxMult": 1.6,
+    "educationAllowOsmIds": [],
+    "maxAspectRatio": 8,
+    "aspectRatioMethod": "minRotatedRectangle",
+    "aspectRatioAction": "review",
+    "maxEntranceGap_m": 20,
+    "_assumption": "A-P1-X04-2: maxAspectRatio 8 (a 3,000 m2 strip about 20 m wide is 7.5 and still passes; a 10 m canal walk 300 m long is 30 and gets review) and maxEntranceGap_m 20 (about two GPS accuracy radii of OSM misalignment between a pinned entrance and the drawn footway) are PROPOSED starting values, not from the GDD. The walk route values are copied from PRD F01 8.1 exactly and are locked there. Owner: level-designer (shape and entrance rules), product-manager (walk distance method)"
   }
 }

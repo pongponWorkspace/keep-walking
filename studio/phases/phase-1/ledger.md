@@ -70,3 +70,38 @@
 | 53 | W6 | P1-H04 | qa-tester | 20:05:01 | 20:15:22 | DONE — ตรวจ contrast 119 คู่อัตโนมัติ ข้อความผ่าน 4.5:1 ทั้งหมด · พบค่าเอกสารคลาด 1 จุด (map.road บน map.land 1.16 → 1.22) · tokens ตรง 51/51 |
 | 54 | W6 | P1-X06 | art-director | 20:15:22 | 20:19:27 | DONE — แก้ 1.16→1.22, adapter whitelist, ramp ผิว/ผม, id icon สุดท้าย · orchestrator รัน contrast test: ยัง fail เพราะค่า 1.16 ฝังใน test (ส่ง QA แก้ใน P1-X15) |
 | 55 | W6 | P1-H07 | location-engineer | 20:09:52 | 20:19:27 | DONE — mask โซนดำ 22.9 KB + 77 จังหวัด 259.8 KB รันซ้ำ byte เดิม, pytest 24 ผ่าน · เส้นนอกพื้นที่ simplify 350 ม. เพราะงบ 300 KB |
+| 56 | W6 | P1-X04 | systems-designer | 20:11:04 | 20:20:36 | DONE — _nullMeans 5 จุด, coverageFilter 9 key ใหม่, dungeons.safety, telemetry.json, vectors ไม่มี eslint-disable (byte เดิม) · test 708/710 (2 fail เป็นไฟล์คนอื่น) |
+| 57 | W6 | P1-X15 | qa-tester | 20:19:27 | 20:23:14 | DONE — contrast test 295/295 ผ่าน |
+| 58 | W6 | P1-F02-T10 | gameplay-programmer | 19:54:48 | 20:26:46 | DONE — LocationProvider ต่อแผนที่ จุด+วง accuracy+follow, สถานะ gps.* ครบ, test 716 ผ่าน, e2e 14 ผ่าน (Android+iOS) · bundle 1.15 MB min / 312 kB gzip ใกล้เกณฑ์ S5 |
+| 59 | W6 | P1-X05 | tech-lead | 20:20:36 | 20:27:49 | DONE — root install/lint/typecheck/test/check เขียวทั้ง repo (716 test), style-spec devDep, pytest bridge ใน vitest, WebLocationOptions timeout_ms + alias |
+| 60 | W6 | P1-X13 | uiux-designer | 20:12:49 | 20:30:13 | DONE — wireframe 00–06 ผูก key จริงทุกจุด, ร่างไทยตรง copy bank, quick command 10 ตัวเต็ม, header→key table, ยืนยัน D-058 |
+| — | W7 | P1-X08 location-engineer |  | — | 22:42:05 | FAILED — API rate limit (session limit) กลางงาน · re-dispatch ครั้งที่ 1 พร้อม resume |
+| — | W7 | P1-F02-T13 qa-tester |  | — | 22:42:05 | FAILED — API rate limit (session limit) กลางงาน · re-dispatch ครั้งที่ 1 พร้อม resume |
+| — | W7 | P1-X07 devops-engineer |  | — | 22:42:05 | FAILED — API rate limit (session limit) กลางงาน · re-dispatch ครั้งที่ 1 พร้อม resume |
+| — | W7 | P1-F03-T21 narrative-designer |  | — | 22:42:05 | FAILED — API rate limit (session limit) กลางงาน · re-dispatch ครั้งที่ 1 พร้อม resume |
+| — | W7 | P1-F02-T11 gameplay-programmer |  | — | 22:42:05 | FAILED — API rate limit (session limit) กลางงาน · re-dispatch ครั้งที่ 1 พร้อม resume |
+| — | W7 | P1-F03-T13 artist-2d |  | — | 22:42:05 | FAILED — API rate limit (session limit) กลางงาน · re-dispatch ครั้งที่ 1 พร้อม resume |
+| 61 | W7 | P1-F03-T21 (รอบ 2) | narrative-designer | 22:42:00 | 22:44:58 | PASS — F-01..F-06 แก้ครบ, เหลือ 4 จุดไม่ blocking ยกไป Phase 2 |
+| 62 | W7 | P1-X07 | devops-engineer | 22:42:00 | 22:51:42 | DONE — CI รัน pytest แบบบังคับ, trace generator --check, cache pmtiles/venv, self-check path มีช่องว่าง · COVERAGE_PYTEST_REQUIRED=1 pnpm test 743 ผ่าน |
+| 63 | W7 | P1-X16 | systems-designer | 22:51:42 | 22:53:49 | DONE — vectors อ่าน SimParams (byte เดิม), ย้าย telemetry.json → config/app · root lint/typecheck/test เขียว 820 test |
+| 64 | W7 | P1-F03-T24 | game-director | 22:44:58 | 22:54:24 | NEEDS_CHANGES — 6 finding blocking (NPC shop แยกจากตลาด, ลำดับ IA, นิยามนอกพื้นที่ = mask, ล็อกจอใช้ Wake Lock ทาง A, ลำดับนาที 0–1, event ฤดูฝน) · ตัดสิน D-040/D-041/D-052 ACCEPT |
+| 65 | W7 | P1-X08 | location-engineer | 22:42:00 | 22:55:33 | DONE — fixture ขอบพื้นที่ + GAP-02 ครบ, excluded 4.08 MB (เผื่อ 22%), พบช่องโหว่จริง 2 ข้อ (ศาสนสถานในรูของ attraction, way ไม่ปิดถูกทิ้งเงียบ ~15 ชิ้น) |
+| 66 | W7 | P1-X18 | systems-designer | 22:54:24 | 22:56:37 | DONE — unlocks.npcShop, ถอด outOfServiceAreaThreshold_m ชี้ mask, นิยาม run ที่นับ · test 831 ผ่าน |
+| 67 | W7 | P1-F02-T13 | qa-tester | 22:42:00 | 22:56:37 | DONE — black-box 99 test + e2e fixture tile ผ่าน Android/iOS · เขียนนอก writes: qa/tests/F02/package.json + lockfile refresh, qa/tests/e2e/ spec (ตาม ADR) |
+| 68 | W7 | P1-X21 | game-director | 22:56:38 | 22:59:08 | DONE — pillars ตรง D-040/041/052/063/064/065, ร้าน NPC ใช้ id NPC ถาวร |
+| 69 | W7 | P1-F03-T13 | artist-2d | 22:42:00 | 23:01:35 | DONE — style tile SVG ใช้ hex จาก style guide 87 ค่าครบ, rarity 5 ระดับ 4 สัญญาณ, class badge 4 ตัว, xmllint ผ่าน · ยังไม่ได้จำลองตาบอดสี (ไม่มี browser) |
+| 70 | W7 | P1-X19 | liveops-operator | 22:56:38 | 23:01:48 | DONE — event ฤดูฝนลดต้นทุนของที่ได้แล้วเท่านั้น, movementGate/hpSafety แตะไม่ได้, ประกาศ raid เฉพาะผู้ปลด |
+| 71 | W7 | P1-X22 | systems-designer | 22:59:08 | 23:01:56 | DONE — balance-model ตรงคำตัดสินล่าสุด (54%, npcShop, ลำดับปลด, นอกพื้นที่ = mask) · test 833 ผ่าน |
+| 72 | W7 | P1-X20 | narrative-designer | 22:59:08 | 23:05:26 | DONE — copy ร้านปากซอย (NPC), จอหรี่ระหว่างเดิน, Wake Lock fallback, ปุ่มยืนยัน age gate · lint:copy 0 FAIL, 3 WARN cells (ส่งแก้แล้ว) |
+| 73 | W7 | P1-X17 | uiux-designer | 22:54:24 | 23:17:45 | DONE — ร้าน NPC แยก, ลำดับปลดตาม D-041, นอกพื้นที่ = mask, จอพกกระเป๋า Wake Lock ครบ 8 ข้อ, แผนที่ก่อนเลือกพลัง, ปุ่มยืนยัน age gate, ตัดเมนูภาษา |
+| 74 | W7 | P1-F03-T24 (รอบ 2) | game-director | 23:17:45 | 23:21:16 | PASS — F-01..F-06 แก้ครบ, core-loop flow อนุมัติเต็ม, ทุก role ใน gate A ผ่าน E14 |
+| 75 | W7 | P1-F01-T06 | location-engineer | 22:55:33 | 23:34:22 | DONE — ใช้ได้ 730 แห่ง ใน 76/79 เขต · ประชากรโซนเขียว 10.6% เหลือง 55.3% แดง 34.1% (routing จริง) · Launch Score top: พระนคร ปทุมวัน ดินแดง |
+| 76 | W8 | P1-F02-T11 | gameplay-programmer | 22:42:00 | 23:42:29 | DONE พร้อมช่องโหว่ — HUD ครบ, style จริง validate ผ่าน, test 888, e2e 20 ผ่าน · แต่โหลด fixture ลุมพินีจริงแล้วแผนที่ยังดำ (map load ไม่ fire) → สร้าง P1-X23 blocking |
+| 77 | W8 | P1-X23 | tech-lead | 23:42:29 | 23:51:40 | DONE — สาเหตุ: Vite ไม่ส่งไฟล์ worker ของ MapLibre 6.10 (URL สร้างตอน runtime) → แก้ด้วย ?worker&url + setWorkerUrl · ลุมพินี render ได้ทั้ง pmtiles และ XYZ ป้ายไทยขึ้น, e2e ใหม่ 4/4 |
+| 78 | W8 | P1-F01-T07 | level-designer | 23:34:22 | 23:56:56 | DONE — แนะนำ Go: พระนคร + ปทุมวันผ่าน G1–G4, ดินแดงเป็นย่านที่ 3 แบบ Go พร้อมทางเสริม · แก้สูตร transit (อันดับไม่เปลี่ยน) · สถานที่อ่อนไหว 16 รายการให้ HUMAN ตัดสิน |
+| 79 | W8 | P1-X25 | gameplay-programmer | 23:51:40 | 23:58:01 | DONE — README บันทึกสาเหตุแผนที่ดำ, ปุ่มซ้อนเป็นบั๊ก CSS (ไม่ใช่ mount ซ้ำ) แก้ + test, screenshot ย่อเหลือ ~65 KB · e2e 26 ผ่าน |
+| 80 | W8 | P1-F02-T15 | tech-lead | 23:51:40 | 00:04:09 | PASS — สถาปัตยกรรม/server authority/config/test ผ่าน, 889 test, build ปลอดภัยสำหรับ URL สาธารณะหลังแก้ F-01 (gitleaks false positive 1 บรรทัด) |
+| 81 | W8 | P1-X28 | devops-engineer | 00:04:09 | 00:05:21 | DONE — CI ตรวจ golden vectors ตรง config, actionlint ผ่าน |
+| 82 | W8 | P1-F02-T14 | qa-tester | 23:51:40 | 00:06:09 | DONE — คู่มือเดินทดสอบสำหรับคนทั่วไป, แบบฟอร์มตรงคอลัมน์ CSV, safety briefing · พบ HUD ส่ง segment/environment คงที่ ใช้วิธีเปิดหน้าใหม่ต่อช่วงแทน |
+| 83 | W8 | P1-X27 | tech-lead | 00:04:09 | 00:06:50 | DONE — tech note + ADR 0001 ตรงคำตัดสิน D-062/D-064/D-068 และ X05/X07 |
+| 84 | W8 | P1-X26 | location-engineer | 00:04:09 | 00:07:04 | DONE — gitleaks --no-git exit 0, pytest 176 ผ่าน |

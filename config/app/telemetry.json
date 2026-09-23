@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "file": "telemetry.json",
+    "version": 1,
+    "owner": "tech-lead",
+    "task": "P1-X04 (keys proposed by P1-F03-T19, A-P1-F03-T19-8; authored by systems-designer); moved from config/balance/ to config/app/ in P1-X16 (D-062), keys unchanged",
+    "doc": "product/telemetry-events.md sections 1, 2, 5, 7; product/metrics.md",
+    "readBy": ["client telemetry emitter (sampling, bucketing)", "server telemetry ingest (timestamps)", "analytics (bucket labels)"],
+    "_note": "Lives in config/app/ (ADR 0001 3.10.1, D-062): telemetry measures the game; no value here changes a reward, the movement gate, combat, or the economy. Full key names are app.telemetry.<path>. Bucket bounds follow the economy scale in config/balance/economy.json (read only as a reference, never merged) so a bucket stays meaningful when prices are tuned; retune them together"
+  },
+  "sampling": {
+    "_source": {
+      "batterySampleInterval_s": "product/telemetry-events.md 7 battery_sample (proposed 1800 = 30 min, the unit of spike criterion S3 in product/reviews/F02-spike-criteria.md 4.2)",
+      "emptyScreenAbandonTimeout_s": "product/telemetry-events.md 2 onboarding_empty_screen_abandoned (seconds_before_close_bucket tops out at '60+', so the window must be longer than 60 s)"
+    },
+    "batterySampleInterval_s": 1800,
+    "emptyScreenAbandonTimeout_s": 120,
+    "_assumption": "A-P1-X04-4: emptyScreenAbandonTimeout_s 120 = the '60+' bucket keeps a real range (60-120 s); a player who stays longer than 2 min on the fallback screen without pressing anything is counted as reading, not abandoning. Owner: product-manager"
+  },
+  "timestamps": {
+    "_source": "product/telemetry-events.md 1 envelope (server_ts wins when client_ts and server_ts differ by more than this)",
+    "clockSkewTolerance_s": 120,
+    "seeOfflineEvidence": "config/balance/dungeons.json#offlineEvidence",
+    "_note": "Skew is measured once per upload batch (client send time vs server receive time), not per event: events ride on the trace batch (telemetry-events.md 8.2) and may be up to balance.dungeons.offlineEvidence.maxOfflineEvidenceAge_s old by design. Only the per-batch offset above the tolerance makes the server rewrite client_ts. Telemetry timestamps never feed the movement gate, which uses server-side checks only",
+    "_assumption": "A-P1-X04-5: 120 s covers normal phone clock drift and mobile network latency. Owner: backend-programmer, product-manager"
+  },
+  "goldAmountBuckets": {
+    "_source": "product/telemetry-events.md 5 economy_gold_earned / economy_gold_spent amount_bucket; scale from config/balance/economy.json (npcSellPrice_gold 20-900, potions 150-2500, gddReferenceEconomy.incomePerWalkingHour_gold 1470, marketTax brackets up to 150000)",
+    "upperBounds_gold": [50, 200, 500, 1500, 5000, 20000, 60000, 150000],
+    "lowerBoundInclusive": false,
+    "labelFormat": "<lower>-<upper>, last bucket '<lastUpper>+'",
+    "_note": "Bucket i covers (upperBounds_gold[i-1], upperBounds_gold[i]]; the first covers [0, 50]; amounts above the last bound go to '150000+'. Labels: 0-50, 50-200, 200-500, 500-1500, 1500-5000, 5000-20000, 20000-60000, 60000-150000, 150000+. 50 ~ one dust sale, 200 ~ one core sale or small potion, 500-1500 ~ one walking hour, 20000 / 60000 / 150000 match the market tax bracket edges so tax behaviour can be read from the buckets"
+  }
+}

@@ -66,7 +66,7 @@
 
 ## ข้อตกลงด้าน lint
 
-`src/vectors.ts` ปิด `no-magic-numbers` ทั้งไฟล์พร้อมเหตุผล เพราะเลขในไฟล์เป็น input ของกรณีทดสอบ (เลเวล, จำนวนคน, ช่องว่างเลเวล) ไม่ใช่ค่า balance · ค่า balance ทุกตัวมาจาก `SimParams`
+`src/vectors.ts` และ `src/vectors-economy.ts` ผ่าน `@typescript-eslint/no-magic-numbers` ชุดเต็ม ไม่มี `eslint-disable` และไม่มี override ใน `eslint.config.js` (ADR 0001 ข้อ 3.5, D-062) · กรณีขอบที่อ้างค่า config (เพดาน buff, `p.partyMaxMembers`, `p.maxEnhanceLevel`, เลเวลสูงสุด, เกณฑ์ถอยอัตโนมัติ, ขอบ tier) อ่านจาก `SimParams` จึงย้ายตาม config · เป้าจาก GDD (ความถี่ drop, รายได้, ช่วง party ต่อหัว) อ่านจาก `EconomyRefs` · เลขที่เหลือเป็นค่าตัวอย่างของ input ที่ตั้งชื่อไว้ใน `CASE` (เลเวล, จำนวนคน, ช่องว่างเลเวล) ไม่ใช่ค่า balance
 
 ## สมมติฐานของการจำลองเศรษฐกิจ (T08, ไม่ใช่ค่า balance)
 

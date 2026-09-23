@@ -1,21 +1,30 @@
 {
   "_meta": {
     "file": "unlocks.json",
-    "version": 2,
+    "version": 3,
     "owner": "systems-designer",
-    "task": "P1-F03-T06, P1-H03",
-    "doc": "design/systems/balance-model.md section 10; design/pillars.md 6.2 (U1-U8), 7.1; design/ux/ia.md section 6",
-    "_note": "Referenced by other docs as config: unlocks.<system>. Every unlock object uses the same condition keys and ALL listed conditions must pass (AND): minLevel (character level >= value), minCompletedRuns (dungeon runs that ended in Ended state with at least one granted reward tick >= value), plus optional extra keys named in that object. Exception: antiCheatHelp also unlocks on any event in unlockOnEvents (OR). Unlocks are evaluated on the server and are permanent once passed. The board text writes unlocks.home.far_dungeon_threshold_m; under the camelCase convention (ADR 0001 3.10) the key is unlocks.home.farDungeonThreshold_m"
+    "task": "P1-F03-T06, P1-H03, P1-X18, P1-X22",
+    "doc": "design/systems/balance-model.md section 10; design/pillars.md 6.2 (U1-U8), 7.1; design/ux/ia.md section 6; design/reviews/F03-design-gate-a.md 4.5, 4.9, F-01, F-03, F-15; decision-log D-041, D-064, D-065",
+    "_note": "Referenced by other docs as config: unlocks.<system>. Every unlock object uses the same condition keys and ALL listed conditions must pass (AND): minLevel (character level >= value), minCompletedRuns (count of counted runs >= value), plus optional extra keys named in that object. Counted run (F-15, design gate A): a dungeon run that has ended, for ANY cause (completed, auto_retreat, manual_exit, died, closed_by_moderator = product/telemetry-events.md dungeon_exited.exit_reason; emergency close counts too), and in which at least one reward tick passed the movement gate (ticks_granted_count >= 1). A run with zero granted ticks never counts, whatever its end cause. Exception: antiCheatHelp also unlocks on any event in unlockOnEvents (OR). Unlocks are evaluated on the server and are permanent once passed. The board text writes unlocks.home.far_dungeon_threshold_m; under the camelCase convention (ADR 0001 3.10) the key is unlocks.home.farDungeonThreshold_m"
   },
   "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก: ตลาด ตีบวก raid การลงแต้ม stat เปลี่ยน class กลไก party ละเอียด ปลดเมื่อถึงเลเวลหรือเงื่อนไขที่กำหนด); pillars 6.2 (U1-U8, ตลาดและตีบวกไม่ก่อนจบ run แรก)",
   "_assumption": "A-P1-F03-T06-20: the GDD names the systems to lock but gives no unlock levels. All levels below are proposals from the exp curve (at total exp multiplier 1.0: level 2 about 10 min, level 3 about 26 min, level 5 about 74 min, level 8 about 3 h, level 10 about 4.5 h of valid walking). Level 2 is never used as a gate because it can arrive inside the first 10 minutes. A-P1-H03-1: minCompletedRuns >= 1 on every tiered unlock enforces pillars 'not before the first run ends' (A-P1-F03-T01-4). A-P1-H03-3: classChange needs 3 completed runs (the player has played their role across several runs before switching) and partyDetail needs 1 Nearby Party join (the player has seen a real buff before the formula is explained, IA section 6). Owner: game-director",
   "market": {
-    "_source": "pillars 6.2 U1 · level value is assumption A-P1-F03-T06-20 · run count A-P1-H03-1",
+    "_source": "pillars 6.2 U1 · level value is assumption A-P1-F03-T06-20 · run count A-P1-H03-1 · D-041 (L8 kept, gates player market only)",
     "unlockId": "U1",
     "minLevel": 8,
     "minCompletedRuns": 1,
     "seeTradeAccountAgeRule": "economy.json#market.minAccountAgeToTrade_days",
-    "_note": "Unlocks the market UI only. The 'account younger than 7 days cannot trade' rule is an F12 trade rule, not a UI unlock (pillars U1); its single source is economy.json"
+    "_note": "Unlocks the player-to-player market only (GDD ระบบแลกเปลี่ยน: listing, tax). Selling materials to NPC and buying potions are NOT gated here; see unlocks.npcShop (D-065, design gate A 4.9). The 'account younger than 7 days cannot trade' rule is an F12 trade rule, not a UI unlock (pillars U1); its single source is economy.json"
+  },
+  "npcShop": {
+    "_source": "design/reviews/F03-design-gate-a.md 4.9 and F-01; decision-log D-065; GDD > Economy > Gold source, Gold sink, ราคา NPC และยา, core loop (ตีบวก ขายของ อัปเกรด หลังสรุปรางวัล)",
+    "unlockId": "NPC",
+    "minLevel": 1,
+    "minCompletedRuns": 1,
+    "seeNpcPricing": "economy.json#npcPricing",
+    "seePotionPrices": "economy.json#potions",
+    "_note": "NPC shop: sell materials to NPC at fixed price + buy potions. Unlocks when the first counted run ends (see _meta._note), never inside onboarding minutes 0-10. Not part of unlocks.market (U1). Selling to NPC has NO daily cap by design (GDD มาตรการคุมเงินเฟ้อ); the single source of that rule and of all prices is economy.json#npcPricing (npcDailySellLimit = null) and economy.json#potions, not duplicated here. unlockId 'NPC' is a permanent id with no U-number, confirmed by design/pillars.md 6.2 (P1-X21, game-director): U1-U8 are the GDD 'do not teach' list and the NPC shop is not on it; giving it a U-number would read as a teach-locked system (tie-break principle 3, potions must be reachable early). Do not renumber"
   },
   "enhance": {
     "_source": "pillars 6.2 U2 · level value is assumption A-P1-F03-T06-20 · run count A-P1-H03-1",
@@ -58,8 +67,12 @@
     "unlockId": "U7",
     "minLevel": 10,
     "minCompletedRuns": 3,
-    "unlockOnEvents": ["speedLockTriggered", "checkInRejected"],
-    "_assumption": "A-P1-H03-4: unlocks the anti-cheat help topics when level and run thresholds pass, OR at once when the player first meets a speed lock or a rejected check-in, so the explanation is there exactly when an honest player needs it. Event ids are proposals until product/telemetry-events.md names them. Privacy policy is always reachable (PDPA) and is not part of this unlock. Owner: game-director, product-manager"
+    "unlockOnEvents": [
+      "speedLockTriggered",
+      "checkInRejected"
+    ],
+    "_assumption": "A-P1-H03-4: unlocks the anti-cheat help topics when level and run thresholds pass, OR at once when the player first meets a speed lock or a rejected check-in, so the explanation is there exactly when an honest player needs it. Event ids are proposals until product/telemetry-events.md names them. Privacy policy is always reachable (PDPA) and is not part of this unlock. Owner: game-director, product-manager",
+    "_eventIdStatus": "MISMATCH (F-15): product/telemetry-events.md (P1-F03-T19) defines no event for a speed lock or a rejected check-in; the nearest events are run_tick_denied (gate not passed, explicitly 'not a punishment', so it must not unlock this) and run_gps_status_changed. unlockOnEvents ids stay as server-side proposals until product-manager adds the telemetry events; when added, replace these ids with the exact telemetry names (snake_case convention there, e.g. proposed anticheat_speed_lock_triggered, checkin_rejected). Handoff: product-manager"
   },
   "lore": {
     "_source": "pillars 6.2 U8; ia.md section 6 and A-P1-F03-T15-1 (ปลดพร้อม U1/U2 จบ run แรก)",
@@ -75,11 +88,12 @@
     "_note": "Scaffold switch. false = a player below the minimum age sees the 'not available yet' screen only: no form, no data collected, one button back to the app start. Setting true needs HUMAN approval after legal review (GDD: ควรปรึกษานักกฎหมายก่อนเปิดจริง) and a built consent flow; it is not a tuning value"
   },
   "home": {
-    "_source": "GDD > 10 นาทีแรกของคนใหม่ (ตัวอย่างรอยแยก 650 ม. และปัญหา dungeon ใกล้สุดอยู่ 3 กิโลหรือนอกกรุงเทพ); pillars 7.1",
+    "_source": "GDD > 10 นาทีแรกของคนใหม่ (ตัวอย่างรอยแยก 650 ม. และปัญหา dungeon ใกล้สุดอยู่ 3 กิโลหรือนอกกรุงเทพ); pillars 7.1; GDD > แผนที่และโซนดำ; D-064; design gate A 4.5",
     "farDungeonThreshold_m": 2000,
-    "outOfServiceAreaThreshold_m": 20000,
+    "seeOutOfAreaMask": "data/map/playarea-mask.geojson",
     "reevaluateDistance_m": 200,
     "seeAccuracy": "location.json#homeState.maxAccuracy_m",
-    "_assumption": "A-P1-F03-T06-20b: nearest open dungeon farther than 2,000 m (about 25 min walk; the GDD's 650 m example works, 3 km fails) = 'far'; farther than 20,000 m = 'outside service area' (show register-interest). Owner: game-director. A-P1-H03-5: re-evaluate the home state on app open and whenever the position moved more than 200 m since the last evaluation (10% of the far threshold, about 2.5 min walk, well above the 30 m check-in accuracy so GPS drift does not flip the panel). Display only, never affects a reward. Owner: uiux-designer, location-engineer"
+    "_assumption": "A-P1-F03-T06-20b: position inside the play area and nearest open dungeon farther than 2,000 m (about 25 min walk; the GDD's 650 m example works, 3 km fails) = 'far', however far (distance is still shown and navigable). Owner: game-director. A-P1-H03-5: re-evaluate the home state on app open and whenever the position moved more than 200 m since the last evaluation (10% of the far threshold, about 2.5 min walk, well above the 30 m check-in accuracy so GPS drift does not flip the panel). Display only, never affects a reward. Owner: uiux-designer, location-engineer",
+    "_note": "'Outside area' (D-064, F-03) is NOT a distance: it is 'position outside the play area' = outside the holes of data/map/playarea-mask.geojson (same geometry the server uses in Phase 3, D-043; opening a province changes data only). The former key outOfServiceAreaThreshold_m (20,000 m to nearest dungeon) was removed in P1-X18 and must not be reintroduced. Mask check may run on the client because it is display only (NN-1 unaffected)"
   }
 }

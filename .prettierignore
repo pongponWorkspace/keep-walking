@@ -20,3 +20,15 @@ audio/
 ops/
 qa/playtest/
 .claude/
+
+# Tool outputs, downloads and virtualenvs (P1-X05). Also in .gitignore, listed here so
+# prettier stays correct even when run with --ignore-path .prettierignore only.
+tools/coverage/.venv/
+tools/coverage/out/
+tools/coverage/downloads/
+tools/tiles/out/
+tools/tiles/downloads/
+
+# Generated files that must stay byte-exact (sizes and sha256 are recorded in manifests;
+# `pnpm format` must never rewrite them). Regenerate with the owning tool instead.
+tools/tiles/fixtures/

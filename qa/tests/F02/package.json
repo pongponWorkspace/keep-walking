@@ -1,0 +1,11 @@
+{
+  "name": "@keep-walking/qa-tests-f02",
+  "version": "0.0.0",
+  "private": true,
+  "description": "QA black-box trace-replay tests for F02 (P1-F02-T13). Owner: qa-tester. Uses only the public interface of @keep-walking/location and @keep-walking/shared; never imported by apps/* or packages/*.",
+  "type": "module",
+  "devDependencies": {
+    "@keep-walking/location": "workspace:*",
+    "@keep-walking/shared": "workspace:*"
+  }
+}

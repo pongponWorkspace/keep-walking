@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — S-04-run-summary: 5 สาเหตุจบ run (P1-F03-T17)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>S-04-run-summary — ทางออกเดียวของทุกเส้นทางใน Flow C (หัวข้อ 4.8)</h1>
+  <p>หัวข้อบอกสาเหตุที่จบให้ชัด ไม่ใช้คำเดียวกันทุกกรณี · ปุ่มเดียวเด่นสุดกลับ S-01-map เสมอ ไม่มีหน้าจอปลายทางอื่น</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>จบปกติ (Ended / ครบ tick)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.summary.headerLabel</span> <span class="thaidraft">(สรุป run)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <h1 class="scr-title" style="color:var(--state-success);"><span class="copykey">run.summary.completed</span><br><span class="thaidraft">(จบ run แล้ว)</span></h1>
+    <p class="body-text"><span class="copykey">run.summaryRewardList</span> <span class="thaidraft">(ของที่ได้ใน run นี้)</span></p>
+    <div class="card">ผงธาตุ ×3 · gold 140 · EXP 60</div>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">run.summaryContinue</span>&nbsp;<span class="thaidraft">(เดินต่อเพื่อรับเพิ่ม)</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame-block">
+<h3>ตาย</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.summary.headerLabel</span> <span class="thaidraft">(สรุป run)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <h1 class="scr-title" style="color:var(--state-danger);"><span class="copykey">run.summary.died</span><br><span class="thaidraft">(คุณตาย ของหายหมด)</span></h1>
+    <p class="body-text"><span class="copykey">run.summaryRewardLost</span> <span class="thaidraft">(ไม่เหลืออะไร)</span></p>
+    <p class="caption" style="color:var(--ink-500);">รายการว่างเสมอ — เพื่อย้ำผลของการตาย (loseAllRunLoot) · ใช้ <code>run.summaryRewardLost</code> แทน <code>run.summaryRewardList</code> ในสถานะนี้</p>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">run.summaryContinue</span>&nbsp;<span class="thaidraft">(เดินต่อเพื่อรับเพิ่ม)</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame-block">
+<h3>ออกเอง</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.summary.headerLabel</span> <span class="thaidraft">(สรุป run)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <h1 class="scr-title"><span class="copykey">run.summary.exited</span><br><span class="thaidraft">(ออกเอง ของอยู่ครบ)</span></h1>
+    <p class="body-text"><span class="copykey">run.summaryRewardList</span> <span class="thaidraft">(ของที่ได้ใน run นี้)</span></p>
+    <div class="card">ผงธาตุ ×1 · gold 40</div>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">run.summaryContinue</span>&nbsp;<span class="thaidraft">(เดินต่อเพื่อรับเพิ่ม)</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame-block">
+<h3>ปิดฉุกเฉินโดย moderator</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.summary.headerLabel</span> <span class="thaidraft">(สรุป run)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <h1 class="scr-title" style="color:var(--state-info);"><span class="copykey">run.summary.closedByModerator</span><br><span class="thaidraft">(โซนปิดกะทันหัน)</span></h1>
+    <p class="body-text"><span class="copykey">dungeon.emergencyClosedTitle</span> <span class="thaidraft">(โซนนี้ปิดกะทันหัน ได้ของเท่าที่เดินจริง)</span></p>
+    <p class="body-text"><span class="copykey">run.summaryRewardList</span> <span class="thaidraft">(ของที่ได้ใน run นี้)</span></p>
+    <div class="card">ผงธาตุ ×1 · gold 40 (<span class="config-ref">config: dungeons.emergencyClose.proRatedRewardOnClose (=true)</span> — รอบที่ถูกตัดยังต้องผ่าน movement gate ตามสัดส่วน, F-07)</div>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">run.summaryContinue</span>&nbsp;<span class="thaidraft">(เดินต่อเพื่อรับเพิ่ม)</span></div>
+  </div>
+</div>
+</div>
+
+<div class="issue-box" style="margin-top:24px;padding:16px;border:2px solid var(--ink-900);">
+  <strong>บันทึก D-050 (ยืนยันโดย P1-X10):</strong> ปุ่ม <code>run.summaryContinue</code> "เดินต่อเพื่อรับเพิ่ม" (13 ช่อง) เป็นปุ่มหลักเต็มความกว้างปุ่มเดียวของทุก state ในหน้านี้ (ไม่มีปุ่มคู่วางข้างหรือใต้เลยสัก state) จึงเข้าเงื่อนไขใช้เพดาน <code>copy-rules.json#limits.buttonFullWidth</code> (16 ช่อง) แทนเพดาน <code>button</code> ปกติ (12 ช่อง) ดูกฎเลือกเต็มที่ <code>design/ux/components.md</code> หัวข้อ 10.1 — ถ้อยคำต้องคงเดิมทุก state ห้ามใช้คำสั้นแบบอื่นแทน เพราะเป็นถ้อยคำ canon ตรงตัวตาม GDD (D-050)
+</div>
+
+</div>
+</body>
+</html>

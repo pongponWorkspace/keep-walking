@@ -1,6 +1,7 @@
 # Balance Model — GPS Dungeon Bangkok
 
-- งาน: P1-F03-T06 · เจ้าของ: systems-designer · สถานะ: ฉบับแรก (Phase 1)
+- งาน: P1-F03-T06 · เจ้าของ: systems-designer · สถานะ: ฉบับแรก (Phase 1) · ปรับตามคำตัดสินหลัง T06 ใน P1-X22 (เป็นบันทึก ไม่เปลี่ยนค่า config)
+- คำตัดสินที่สะท้อนแล้ว: D-029 (hit chance 54), D-041 (ลำดับปลด), D-059 PROPOSED (รางวัลปิดฉุกเฉิน), D-061 PROPOSED (`dungeons.safety`), D-062 (`telemetry.json` อยู่ `config/app/`), D-064 ("นอกพื้นที่" = นอก mask), D-065 (ร้าน NPC) · ตัวเลขผลรันล่าสุดอยู่ที่ `design/systems/sim-report.md`
 - แหล่งความจริง: GDD (`เกม GPS Dungeon กรุงเทพฯ — Design Document.md`) · decision D-004, D-005
 - ค่าทุกตัวอยู่ใน `config/balance/*.json` เอกสารนี้อธิบายสูตรและเหตุผลเท่านั้น โค้ดห้ามถือเลขเอง
 - ผู้ใช้ต่อ: P1-F03-T07 และ T08 (simulator + golden test vectors), P1-F03-T09 (preset), gameplay/backend-programmer, liveops-operator
@@ -17,7 +18,7 @@
 | ค่าอ้างอิง | object ชื่อ `gddReference*` เป็นเป้าให้ simulator เทียบ ห้าม runtime อ่าน |
 | metadata | key ที่ขึ้นต้นด้วย `_` เป็นคำอธิบาย ไม่ใช่ค่า โค้ดที่วนอ่าน map (เช่น `roles`, `successRateByTargetLevel_pct`) ต้องข้าม key เหล่านี้ · หน่วยผสมเขียนต่อท้ายได้ เช่น `_pctMaxHpPerMin` |
 
-ไฟล์ทั้งหมด (ตรวจ JSON valid ครบ 11 ไฟล์ ดูหัวข้อ 14)
+ไฟล์ทั้งหมด (T06 ตรวจ JSON valid ครบ 11 ไฟล์ ดูหัวข้อ 14 · ไฟล์ที่เพิ่มภายหลังอยู่ท้ายตาราง)
 
 | ไฟล์ | เนื้อหา | หัวข้อ |
 | --- | --- | --- |
@@ -28,10 +29,14 @@
 | `enhance.json` | โอกาสสำเร็จ, ผลล้มเหลว (ไม่มีแตก), สะสมความล้มเหลว, ค่าวัตถุดิบและ gold | 6 |
 | `drops.json` | โอกาสต่อ tick, จำนวน, ตัวคูณ, dungeon เล็ก | 7 |
 | `economy.json` | ราคา NPC, ยา, ยาอัตโนมัติ, เป้าอัตราส่วน, ภาษีขั้นบันได, กฎตลาด | 8 |
-| `dungeons.json` | พื้นที่ 3,000–150,000 ตร.ม., สถานะ run, reward tick, movement gate, auto-retreat, แจ้ง HP | 9 |
-| `unlocks.json` | เงื่อนไขปลดต่อระบบ, ระยะ "ไกล" และ "นอกพื้นที่" | 10 |
+| `dungeons.json` | พื้นที่ 3,000–150,000 ตร.ม., สถานะ run, reward tick, movement gate, auto-retreat, แจ้ง HP, ปิดฉุกเฉิน (`emergencyClose`), พัก dungeon จากรายงาน (`safety`) | 9 |
+| `unlocks.json` | เงื่อนไขปลดต่อระบบ (U1–U8 และร้าน NPC), นิยาม run ที่นับ, ระยะ "ไกล", อ้าง mask "นอกพื้นที่" | 10 |
 | `raid.json` | POW, presence/survival/party mult, HP บอส, checkpoint, อันดับ contribution | 11 |
 | `anticheat.json` | check-in, speed lock, trust score, offline evidence, audit ผลลัพธ์ | 12 |
+| `location.json` | เกณฑ์ accuracy ของสถานะหน้าจอ (ไม่ให้หรือกันรางวัล) · P1-H03 | 10 |
+| `privacy.json` | ค่า PDPA ฝั่ง server (`positionLogTtl_s`, `minAge_yr`) · P1-H03 | — |
+
+- `telemetry.json` ไม่ใช่ไฟล์ balance: อยู่ที่ `config/app/telemetry.json` (D-062 ไม่กระทบกฎหรือรางวัล key เดิม) · ค่า privacy ฝั่งเครื่องอยู่ `config/app/privacy.json` ของ tech-lead
 
 ## 1. สรุปข้อค้นพบ (findings)
 
@@ -125,7 +130,7 @@ failMult     = 2 ในสัปดาห์หลังล้มบอสไม
 damagePerHit = monsterATK × (1 − defRed) × tankerTerm × gapMult × failMult
 ```
 
-- ทุก `45–75 วินาที` (สุ่มแบบ uniform) ระบบทอยว่าโดนตีไหม โอกาส `hitChancePerCheck_pct` = 50% (A-4 ค่าตั้งต้นที่ fit ให้ได้ราว 45 นาที T07 fit ใหม่)
+- ทุก `45–75 วินาที` (สุ่มแบบ uniform) ระบบทอยว่าโดนตีไหม โอกาส `combat.attackCheck.hitChancePerCheck_pct` = 54% (A-4 · ค่าตั้งต้น T06 คือ 50% · T07 fit ใหม่เป็น 54 ด้วย least-squares ต่อแถว 45 และ 55 นาทีของ GDD · D-029 ACCEPTED)
 - โล่ Magic ดูดซับ damage ก่อน HP (A-13) · heal ของ Support ทำงานเฉพาะเมื่อมี Support ในดัน (A-12)
 - HP ≤ 30% → สั่น + push ครั้งเดียวต่อการลงผ่านเกณฑ์ · HP ≤ ยาอัตโนมัติ 40% → ใช้ยาเล็กก่อน (A-15b) · HP ≤ 25% และเปิด auto-retreat (default) → ถอนอัตโนมัติ เก็บของครบ run จบ · HP = 0 → ตาย ของใน run หายหมด
 - ออกจาก dungeon แล้วฟื้น 1.6667% maxHP/นาที × (1 + 1.5% × VIT) (A-15a) · ตายแล้วฟื้นจาก 0 ถึง 50% ใน 30 นาที · ยาชุบชีวิตฟื้นเป็น 50% ทันที
@@ -138,6 +143,8 @@ damagePerHit = monsterATK × (1 − defRed) × tankerTerm × gapMult × failMult
 
 ### 3.3 ผลเบื้องต้น (โอกาสโดนตี 50%, รอบเฉลี่ย 60 วินาที, เลเวลตรงโซน, ไม่ใช้ยา, damage ×1.0)
 
+> บันทึกประวัติของ T06 ที่ hit chance 50% · ค่าปัจจุบันคือ 54% (D-029) ผลที่ 54% จาก simulator: เลเวล 25 ถึง auto-retreat 44.4 นาที / ถึง HP 0 57.4 นาที · มี Tanker เลเวล 25 = 55.6 นาที · คนเดียวที่ไม่ใช่ Tanker (×1.6) 27.8 / 37.0 นาที (`design/systems/sim-report.md` หัวข้อ 3 แถว 12–14) · ทุกแถวของตารางด้านล่างสั้นลงราว 8% ที่ค่าปัจจุบัน
+
 | เลเวล = Z | DEF | HP | damage ต่อครั้ง | นาทีถึง auto-retreat 25% | นาทีถึง HP 0 |
 | --- | --- | --- | --- | --- | --- |
 | 10 | 88 | 1,425 | 46.3 | 46.1 | 61.5 |
@@ -148,7 +155,7 @@ damagePerHit = monsterATK × (1 − defRed) × tankerTerm × gapMult × failMult
 - เส้นแบนดีตลอดช่วงเลเวล (46–51 นาที) แปลว่า GDD ตั้ง exponent 1.3 ของ monsterATK ให้เข้ากับการโตของ HP + DEF + gear ได้แล้ว
 - มี Tanker เลเวล 25 (21.7%): เลเวล 25 → 59.1 นาทีถึง 25% (GDD ราว 55, ต่าง +7%)
 - **F-1:** ถ้าไม่มี Tanker เลยตาม GDD ตัวอักษร damage × 1.6 → เลเวล 25 เหลือ 28.9 นาทีถึง 25% และ 38.6 นาทีถึง HP 0 · Tanker เล่นคนเดียวได้ buff ตัวเองจึงอยู่ได้ 59 นาที ส่วน Ranged, Support, Magic เล่นคนเดียวอยู่ได้ราว 29 นาที ต่างกันสองเท่าตาม class
-- ข้อเสนอเบื้องต้นให้ T07: ใช้นิยาม "45 นาที = เวลาถึง auto-retreat ที่ damage ×1.0" (ตรงกับความเห็นของ game-director ใน SF-4 ว่าให้นับถึงตอนถูกพากลับ) แล้วรายงานกรณีคนเดียวที่ไม่ใช่ Tanker เป็น decision authority HUMAN เพราะสั้นกว่า 45 เกิน 20%
+- ข้อเสนอเบื้องต้นให้ T07 (ต่อมาเป็น D-020 PROPOSED รอ HUMAN): ใช้นิยาม "45 นาที = เวลาถึง auto-retreat ที่ damage ×1.0" (ตรงกับความเห็นของ game-director ใน SF-4 ว่าให้นับถึงตอนถูกพากลับ) แล้วรายงานกรณีคนเดียวที่ไม่ใช่ Tanker เป็น decision authority HUMAN เพราะสั้นกว่า 45 เกิน 20%
 
 ### 3.4 ต้นทุนยาต่อชั่วโมง (ภาพตัวอย่างให้ T08 ขยาย ไม่รับ 600 เป็น input)
 
@@ -156,6 +163,8 @@ damagePerHit = monsterATK × (1 − defRed) × tankerTerm × gapMult × failMult
 hpLossPerHour_pct = (3600 / meanCheckInterval_s) × hitChance × damagePerHit / maxHP × 100
 potionCostPerHour = hpLossPerHour_pct / (heal_pct × (1 + 2% × VIT)) × buyPrice
 ```
+
+(ตัวเลขย่อหน้านี้เป็นของ T06 ที่ hit chance 50% · ที่ 54% ผลของ T08 คือยาเล็กล้วน 525 และยากลางล้วน 699 gold/ชม. ดู sim-report หัวข้อ 3 แถว 20–21)
 
 เลเวล 25 build สมดุล damage ×1.0: เสีย HP 97% ต่อชั่วโมง (ไม่คิดโบนัส VIT) → ยาเล็กล้วน 487 gold/ชม., ยากลางล้วน 649 gold/ชม. · GDD 600 อยู่ระหว่างสองค่านี้ จึงสอดคล้องในกรณี damage ×1.0 · กรณีคนเดียวที่ไม่ใช่ Tanker (×1.6) = 779–1,038 gold/ชม. คู่กับรายได้ที่ drop ×0.6 → อัตราส่วนต่ำกว่า 2.45 มาก (F-2, ให้ T08 ยืนยัน)
 
@@ -286,10 +295,12 @@ chance_r     = min(100, base_r × rangedTerm × smallTerm_r × failTerm × trust
 
 | รายการ | ค่า |
 | --- | --- |
-| ขาย NPC: ผงธาตุ / แก่นธาตุ / หินรอยแยก | 20 / 120 / 900 gold · ไม่จำกัดจำนวนต่อวัน (GDD ตั้งใจ) |
+| ขาย NPC: ผงธาตุ / แก่นธาตุ / หินรอยแยก | 20 / 120 / 900 gold · ไม่จำกัดจำนวนต่อวัน (GDD ตั้งใจ · `economy.npcPricing.npcDailySellLimit = null` แปลว่าไม่มีเพดาน) |
 | ยา HP เล็ก 30% / กลาง 60% / ใหญ่ 100% | 150 / 400 / 1,000 gold (gold ต่อ 1% HP = 5.0 / 6.7 / 10.0) |
 | ยาชุบชีวิต 0 → 50% | 2,500 gold ใช้ในดันได้ |
 | ราคา NPC เทียบมูลค่าตลาด | 40–50% (ใช้ตอนตรวจราคาตลาดจริงหลัง beta) |
+
+- ขายให้ NPC และซื้อยาอยู่ในร้าน NPC ที่ปลดเมื่อจบ run ที่นับครั้งแรก (`unlocks.npcShop`, D-065) ไม่ผูกกับตลาดผู้เล่น (`unlocks.market`, L8) ดูหัวข้อ 10
 
 ยาเล็กคุ้มสุดต่อ HP ยาใหญ่จ่ายเพื่อความเร็ว (ฟื้นครั้งเดียว) · ยาอัตโนมัติ default ที่ 40% ใช้ยาเล็กก่อน (A-15b)
 
@@ -343,11 +354,22 @@ listing เท่านั้น, ไม่ระบุตัวตน, ห้�
 | Auto-retreat | `hpSafety.autoRetreatThreshold_pct` | 25% เปิดเป็น default |
 | แจ้งเตือน HP | `hpSafety.lowHpWarningThreshold_pct` | 30% สั่น + push |
 | offline evidence | `offlineEvidence.maxOfflineEvidenceAge_s` | 1,800 วินาที |
+| ปิดฉุกเฉิน: tick ค้างขั้นต่ำ | `emergencyClose.partialTickMinElapsed_s` | 60 วินาที (ต่ำกว่านี้ tick ค้างไม่จ่าย) · D-059 PROPOSED |
+| พัก dungeon จากรายงาน | `safety.reportThreshold` / `reportWindow_h` | ผู้เล่นต่างกัน 5 คนภายใน 24 ชม. → `suspendPendingModerator` · D-061 PROPOSED (A-P1-X04-3) |
 
 ```
 distance(window)  = Σ ระยะระหว่าง sample ที่ผ่านการกรองใน 300 วินาทีล่าสุด (กรอง accuracy และ speed ตาม anticheat.json)
 tickGranted       = state == Active  AND  distance(window) > 50
 outsideTime ≤ 180 → Grace · 180 < outsideTime ≤ 900 → Suspended · > 900 → Ended
+```
+
+```
+ปิดฉุกเฉิน (dungeons.emergencyClose, D-059 PROPOSED · A-P1-X04-1)
+  tick ที่จบก่อนปิด    : จ่ายเฉพาะ tick ที่ผ่าน movement gate ปกติแล้ว
+  tick ที่ค้างตอนปิด   : elapsed < 60 วิ → 0
+                        ไม่งั้น จ่าย elapsed / 300 ของหนึ่ง tick ถ้า distance(ช่วงที่ค้าง) > 50 × elapsed / 300 (greaterThan)
+  คำนวณฝั่ง server · ไม่มีทางลัดข้าม gate (NN-2)
+พัก dungeon จากรายงาน (dungeons.safety, D-061 PROPOSED): ผู้เล่นในดันได้รางวัลตามกฎปิดฉุกเฉินข้างบน
 ```
 
 - ใช้ `>` ตาม GDD "เกิน 50 เมตร" (`movementGate.comparison = greaterThan`) · ระยะเท่ากับ 50.0 พอดีไม่ผ่าน
@@ -356,20 +378,34 @@ outsideTime ≤ 180 → Grace · 180 < outsideTime ≤ 900 → Suspended · > 90
 
 ## 10. เงื่อนไขปลดระบบ (unlocks)
 
-แหล่ง: GDD "10 นาทีแรกของคนใหม่" (สิ่งที่ห้ามสอนใน 10 นาทีแรก), "Economy > ระบบแลกเปลี่ยน", "Raid Boss" · config: `unlocks.json` (SF-6) · เอกสารอื่นอ้างเป็น `config: unlocks.<system>`
+แหล่ง: GDD "10 นาทีแรกของคนใหม่" (สิ่งที่ห้ามสอนใน 10 นาทีแรก), "Economy > ระบบแลกเปลี่ยน", "Raid Boss" · `design/pillars.md` 6.2 (U1–U8 และแถว NPC), 7.1 · D-040, D-041, D-064, D-065 · config: `unlocks.json` v3 · เอกสารอื่นอ้างเป็น `config: unlocks.<system>`
 
-| ระบบ | เงื่อนไข | เวลาเดินโดยประมาณ (ตัวคูณ exp 1.0) | ที่มา |
+- ทุก object ใช้ `minLevel` และ `minCompletedRuns` (ต้องผ่านทุกข้อ, AND) บวก key เสริมเฉพาะระบบ · server ประเมิน · ปลดแล้วถาวร
+- **run ที่นับ:** run ที่จบแล้วด้วยสาเหตุใดก็ได้ (รวมปิดฉุกเฉิน) และมี reward tick ผ่าน movement gate อย่างน้อย 1 ครั้ง · นิยามเดียวอยู่ที่ `unlocks.json` → `_meta._note` (design gate A F-15)
+- ตารางเรียงตามลำดับปลดของ D-041 (ACCEPTED) · เวลาเดินคิดที่ตัวคูณ exp 1.0 · เลเวลทุกตัวยังเป็นค่าสมมติ A-20 ของ game-director
+
+| ขั้น | ระบบ (key) | id | เงื่อนไข | เวลาเดินโดยประมาณ | ที่มา |
+| --- | --- | --- | --- | --- | --- |
+| 1 | ร้าน NPC ขายวัตถุดิบ + ซื้อยา (`npcShop`) | NPC | เลเวล 1 + run ที่นับ 1 | จบ run แรก | D-065 · ไม่จำกัดการขายต่อวัน (`economy.npcPricing.npcDailySellLimit = null`) |
+| 1 | lore ยาว (`lore`) | U8 | เลเวล 1 + run ที่นับ 1 | จบ run แรก | D-041 · อ่านเสริม ไม่ push |
+| 2 | ลงแต้ม stat (`statAllocation`) | U4 | เลเวล 3 + run 1 | ราว 26 นาที | A-20, A-P1-H03-1 |
+| 2 | กลไก party ละเอียด (`partyDetail`) | U6 | เลเวล 3 + run 1 + ได้ buff จาก Nearby Party 1 ครั้ง | ราว 26 นาที · ปุ่มเข้าร่วม Nearby Party ใช้ได้ตั้งแต่นาที 6–8 | A-20, A-P1-H03-3 |
+| 3 | ตีบวก (`enhance`) | U2 | เลเวล 5 + run 1 | ราว 74 นาที | A-20 |
+| 3 | หน้าประกาศ raid + push (`raid`) | U3 | เลเวล 5 + run 3 · `gatesPhysicalParticipation = false` | ราว 75 นาที | D-040, A-P1-H03-2 · การเข้าร่วมทางกายภาพไม่ล็อก (GDD ให้คนเลเวลต่ำเข้าได้ทันที) |
+| 4 | ตลาดผู้เล่น (`market`) | U1 | เลเวล 8 + run 1 | ราว 3 ชม. | D-041 · กฎบัญชีอายุ 7 วันเป็นกฎ trade ของ F12 อยู่ที่ `economy.market.minAccountAgeToTrade_days` ไม่ใช่เงื่อนไขปลด UI |
+| 5 | เปลี่ยน class (`classChange`) | U5 | เลเวล 10 + run 3 | ราว 4.5 ชม. | ตารางค่าเปลี่ยนเริ่มที่เลเวล 10 · มาหลัง U4 เพราะ reset stat |
+| — | หัวข้อ anti-cheat ในหน้าช่วยเหลือ (`antiCheatHelp`) | U7 | เลเวล 10 + run 3 หรือเกิด event ใน `unlockOnEvents` (OR) | ราว 4.5 ชม. หรือทันทีที่เจอเหตุ | A-P1-H03-4 · id event ยังรอ product-manager |
+| — | parental consent (`parentalConsent`) | — | `enabled = false` (scaffold) | — | NN-7 · เปิดต้อง HUMAN |
+
+สถานะหน้าที่บ้าน (display เท่านั้น ไม่กระทบรางวัล)
+
+| สถานะ | นิยาม | config | ที่มา |
 | --- | --- | --- | --- |
-| ลงแต้ม stat (`statAllocation`) | เลเวล 3 | ราว 26 นาที | A-20 |
-| กลไก party ละเอียด (`partyDetail`) | เลเวล 3 | ราว 26 นาที · ปุ่มเข้าร่วม Nearby Party ใช้ได้ตั้งแต่นาที 6–8 | A-20 |
-| ตีบวก (`enhance`) | เลเวล 5 | ราว 74 นาที | A-20 |
-| ตลาด (`market`) | เลเวล 8 และบัญชีอายุ 7 วัน | ราว 3 ชม. | อายุบัญชีจาก GDD · เลเวล A-20 |
-| เปลี่ยน class (`classChange`) | เลเวล 10 | ราว 4.5 ชม. | ตารางค่าเปลี่ยนเริ่มที่เลเวล 10 · A-20 |
-| Raid (`raid`) | เลเวล 1 และจบ run แรกแล้ว | — | GDD ให้คนเลเวลต่ำเข้าได้ทันที |
-| ระยะ "ไกล" (`home.farDungeonThreshold_m`) | dungeon ที่เปิดอยู่ใกล้สุดเกิน 2,000 ม. | ราว 25 นาทีเดิน | A-20b (GDD: 650 ม. ใช้ได้, 3 กม. พัง) |
-| "นอกพื้นที่" (`home.outOfServiceAreaThreshold_m`) | ใกล้สุดเกิน 20,000 ม. | — | A-20b |
+| "ไกล" | อยู่ใน play area และ dungeon ที่เปิดอยู่ใกล้สุดเกิน 2,000 ม. | `unlocks.home.farDungeonThreshold_m` | A-20b (GDD: 650 ม. ใช้ได้, 3 กม. พัง) · ประเมินใหม่เมื่อขยับเกิน `reevaluateDistance_m` 200 ม. (A-P1-H03-5) |
+| "นอกพื้นที่" | ตำแหน่งอยู่นอก play area ตาม mask ไม่ใช่ระยะถึง dungeon | `unlocks.home.seeOutOfAreaMask` → `data/map/playarea-mask.geojson` | D-064 · key เดิม `outOfServiceAreaThreshold_m` (20,000 ม.) ถูกตัดใน P1-X18 ห้ามนำกลับ |
 
-หมายเหตุชื่อ key: board เขียน `unlocks.home.far_dungeon_threshold_m` ตามรูปแบบ camelCase (TL-N02) key จริงคือ `unlocks.home.farDungeonThreshold_m`
+- ร้าน NPC ใช้ id `NPC` ถาวร ไม่มีเลข U (pillars 6.2 คำตัดสินเรื่องรหัส P1-X21): ไม่อยู่ในรายการห้ามสอนของ GDD และต้องซื้อยาได้เร็ว (หลักการข้อ 3)
+- หมายเหตุชื่อ key: board เขียน `unlocks.home.far_dungeon_threshold_m` ตามรูปแบบ camelCase (ADR 0001 3.10) key จริงคือ `unlocks.home.farDungeonThreshold_m`
 
 ## 11. Raid (ร่างแรกสำหรับ Phase 6)
 
@@ -413,7 +449,7 @@ bossHP         = medianPOW_lastWeek × activePlayers_lastWeek × α × 720
 | 1 | Z จากช่วงเลเวล dungeon | ปัดค่ากลางช่วง | combat | game-director, level-designer |
 | 2 | damage ×1.25 ต่อระดับที่ต่ำกว่าช่วง | ทบต้น 1.25^gap ไม่มีเพดาน | combat | game-director |
 | 3 | exp ×0.92 ต่อระดับที่ห่าง | ทบต้น ต่ำสุด 0.25 ทั้งสองฝั่ง | progression | game-director |
-| 4 | โอกาสโดนตีต่อรอบ | 50% (T07 fit) | combat | systems-designer |
+| 4 | โอกาสโดนตีต่อรอบ | 54% (T07 fit จาก 50, D-029 ACCEPTED) | combat | systems-designer |
 | 5 | tier ที่คาดหวังตามเลเวล | ทุก 12 เลเวล | equipment | game-director, level-designer |
 | 6 | เครื่องราง "ผสม" และรองเท้า VIT | 50/50 ATK/DEF · VIT = gearStat × 0.25 | equipment | game-director |
 | 7a | เพดานตีบวก | +15 | enhance | game-director |
@@ -437,13 +473,15 @@ bossHP         = medianPOW_lastWeek × activePlayers_lastWeek × α × 720
 | 18 | bossATK | null (Phase 6) | raid | systems-designer |
 | 19a | วิธีคิดภาษีขั้นบันได | ส่วนเพิ่ม (marginal) | economy | game-director |
 | 19b | เพดานมูลค่าโอนต่อวัน | 1,000 gold × เลเวล | economy | game-director |
-| 20 | เลเวลปลดระบบ | หัวข้อ 10 | unlocks | game-director |
-| 20b | ระยะ "ไกล" / "นอกพื้นที่" | 2,000 ม. / 20,000 ม. | unlocks | game-director |
+| 20 | เลเวลปลดระบบ | หัวข้อ 10 (ลำดับรับแล้วใน D-041 · เลเวลยังเป็นค่าสมมติ) | unlocks | game-director |
+| 20b | ระยะ "ไกล" | 2,000 ม. · "นอกพื้นที่" ไม่ใช่ระยะแล้ว (D-064 ใช้ mask พื้นที่เล่น) | unlocks | game-director |
 | 21 | น้ำหนัก offline sample | 0.5 | anticheat | tech-lead, backend-programmer |
 | 21b | "ติดต่อกัน" ของ audit p99 | 3 วัน | anticheat | liveops-operator |
 | 22 | ปัดจำนวน Common ที่เป็นเศษ | สุ่มตามเศษ ด้วย RNG ฝั่ง server | drops | systems-designer, backend-programmer |
 
 ## 14. หลักฐานการตรวจ และสิ่งที่ T07 / T08 ต้องทำต่อ
+
+> บันทึกประวัติของ T06 (hit chance 50%, ก่อนมี `location.json` และ `privacy.json`) · ผลรันปัจจุบันและคำสั่งอยู่ที่ `design/systems/sim-report.md` หัวข้อ 10 และ `tools/sim/` (T07, T08 เสร็จแล้ว)
 
 ตัวเลขในเอกสารนี้มาจาก script ตรวจชั่วคราวที่อ่าน `config/balance/*.json` โดยตรง (ยังไม่ใช่ simulator ใน `tools/sim/` ซึ่งเป็นงาน T07) ผลที่ได้:
 

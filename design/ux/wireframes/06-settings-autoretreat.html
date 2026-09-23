@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — ตั้งค่า auto-retreat: ฝังลึกโดยตั้งใจ (P1-F03-T17, แก้ P1-X17: F-04 toggle จอพกกระเป๋า, F-08 ตัดเมนูภาษา)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>S-22-settings → "การเดินและความปลอดภัย" — ปิดถอยอัตโนมัติ (Flow E)</h1>
+  <p>เจตนา: ทำให้ปิดยากกว่าเปิด ไม่ใช่ทำให้หาไม่เจอเลย · เปิดเป็นค่าเริ่มต้นเสมอสำหรับบัญชีใหม่</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>E1. S-22-settings (หน้าแรก)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">settings.title</span> <span class="thaidraft">(ตั้งค่า)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card"><span class="copykey">settings.walkingSafetyLink</span><br><span class="thaidraft">(การเดินและความปลอดภัย)</span> ›</div>
+      <div class="card"><span class="copykey">settings.soundLabel</span> <span class="thaidraft">(เสียง)</span> / <span class="copykey">settings.vibrationLabel</span> <span class="thaidraft">(สั่น)</span> ›</div>
+      <div class="card"><span class="copykey">settings.privacyLink</span> <span class="thaidraft">(ความเป็นส่วนตัว)</span> (S-23) ›</div>
+      <div class="card"><span class="copykey">settings.reportBlockLink</span> <span class="thaidraft">(รายงานและบล็อก)</span> (S-17) ›</div>
+      <div class="card"><span class="copykey">settings.helpLink</span> <span class="thaidraft">(ช่วยเหลือ)</span> (S-25) ›</div>
+      <div class="card"><span class="copykey">settings.accountDeleteLink</span> <span class="thaidraft">(ลบบัญชี)</span> (S-24) ›</div>
+    </div>
+    <p class="caption" style="margin-top:8px;">ไม่มี toggle auto-retreat โผล่ในหน้านี้โดยตรง (ตั้งใจ) · ไอคอนเฟือง (หัวจอขวา) เข้าถึงได้ทุกหน้าไม่ล็อกด้วย consent/unlock · **เมนู "ภาษา" ตัดออกแล้ว (F-08, gate A หัวข้อ 5.2): ไม่อยู่ใน v1 เพราะ in-game copy เป็นไทยล้วนตาม CLAUDE.md ไม่ต้องมี key `settings.languageLink`**</p>
+  </div>
+</div>
+</div>
+
+<div class="frame-block">
+<h3>E2. หน้าย่อย "การเดินและความปลอดภัย"</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">settings.walkingSafetyLink</span> <span class="thaidraft">(การเดินและความปลอดภัย)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><span class="copykey">settings.autoRetreatToggleLabel</span><br><span class="thaidraft">(ถอยอัตโนมัติ)</span><br><span class="caption"><span class="copykey">settings.autoRetreatToggleHint</span> <span class="thaidraft">(HP ต่ำกว่า {autoRetreatPct}% ระบบพาออกจาก dungeon ให้เอง)</span></span></div>
+      <div style="width:48px;height:28px;background:var(--state-success);border:2px solid var(--ink-900);border-radius:999px;position:relative;"><div style="width:22px;height:22px;background:var(--bg-surface);border:2px solid var(--ink-900);border-radius:50%;position:absolute;right:2px;top:1px;"></div></div>
+    </div>
+    <p class="caption" style="margin-top:8px;">ค่าเริ่มต้น = เปิดเสมอ (<span class="config-ref">config: dungeons.hpSafety.autoRetreatEnabledByDefault (=true)</span>) · เปิด→ปิด ต้องผ่าน popup ยืนยัน (E3) · ปิด→เปิด เปลี่ยนทันทีไม่ต้องยืนยัน</p>
+    <div class="card" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+      <div><span class="copykey">settings.autoPotionLabel</span> <span class="thaidraft">(ใช้ยาอัตโนมัติ)</span><br><span class="caption"><span class="copykey">settings.autoPotionThreshold</span> <span class="thaidraft">(ใช้เมื่อ HP ต่ำกว่า {autoPotionPct}%)</span></span></div>
+      <div style="width:48px;height:28px;background:var(--state-success);border:2px solid var(--ink-900);border-radius:999px;position:relative;"><div style="width:22px;height:22px;background:var(--bg-surface);border:2px solid var(--ink-900);border-radius:50%;position:absolute;right:2px;top:1px;"></div></div>
+    </div>
+    <p class="caption" style="margin-top:8px;">ปรับเกณฑ์ยาอัตโนมัติ — ไม่ต้องมี popup ยืนยัน เพราะไม่ใช่การปิดระบบกันตายทั้งระบบ · offline: <span class="copykey">settings.pendingSync</span> <span class="thaidraft">(ยังไม่บันทึก รอเน็ต)</span></p>
+    <div class="card" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+      <div><span class="copykey">settings.pocketScreenLabel</span> <span class="thaidraft">(จอพกกระเป๋า)</span><br><span class="caption"><span class="copykey">settings.pocketScreenHint</span> <span class="thaidraft">(ปิดจอเป็นจอมืดมี HP ระหว่างเดิน กันแตะพลาดในกระเป๋า)</span></span></div>
+      <div style="width:48px;height:28px;background:var(--state-success);border:2px solid var(--ink-900);border-radius:999px;position:relative;"><div style="width:22px;height:22px;background:var(--bg-surface);border:2px solid var(--ink-900);border-radius:50%;position:absolute;right:2px;top:1px;"></div></div>
+    </div>
+    <p class="caption" style="margin-top:8px;">ค่าเริ่มต้นเปิด (F-04, gate A 4.4 ข้อ 7) · เปิด/ปิดไม่ต้อง popup ยืนยัน ต่างจากถอยอัตโนมัติด้านบน (ไม่ใช่ระบบกันตาย) · ปิดแล้วยัง request Wake Lock เหมือนเดิมเพื่อกัน movement หยุดนับ แค่จอ run แสดงข้อมูลเต็มแทนจอมืด (components.md 12.4)</p>
+  </div>
+</div>
+</div>
+
+<div class="frame-block">
+<h3>E3. Popup ยืนยันก่อนปิด (บังคับ — เฉพาะถอยอัตโนมัติ)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">settings.walkingSafetyLink</span> <span class="thaidraft">(การเดินและความปลอดภัย)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="padding:16px;"><div class="card"><span class="copykey">settings.autoRetreatToggleLabel</span> <span class="thaidraft">(ถอยอัตโนมัติ)</span> (กำลังจะปิด)</div></div>
+    <div class="popup-overlay center">
+      <div class="popup center-sheet">
+        <h1 class="scr-title" style="color:var(--state-danger);"><span class="copykey">settings.autoRetreatOffWarningTitle</span><br><span class="thaidraft">(ปิดถอยอัตโนมัติไหม)</span></h1>
+        <p class="body-text"><span class="copykey">settings.autoRetreatOffWarningBody</span><br><span class="thaidraft">(ถ้า HP หมด คุณตาย ของใน run นี้หายทั้งหมด ระบบไม่ดึงคุณออกให้)</span></p>
+        <div class="btn-row">
+          <div class="btn btn-secondary" style="flex:1;"><span class="copykey">settings.autoRetreatOffCancel</span> <span class="thaidraft">(ไม่ปิด)</span></div>
+          <div class="btn btn-danger-confirm" style="flex:1;"><span class="copykey">settings.autoRetreatOffConfirm</span> <span class="thaidraft">(ปิดเลย)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">อธิบายผลตรงไปตรงมา ไม่ใช่แค่ "แน่ใจไหม" · ยืนยัน → toggle ปิดจริง</p>
+</div>
+
+<div class="frame-block">
+<h3>ป้ายเตือนค้างในหน้า run เมื่อปิดอยู่</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="banner warn"><span class="copykey">run.autoRetreatOffBadge</span> <span class="thaidraft">(ถอยอัตโนมัติ: ปิด)</span></div>
+    <div class="hp-track" style="margin-top:36px;"><div class="hp-fill" style="width:78%;"></div></div>
+  </div>
+</div>
+<p class="frame-caption">ป้ายเล็กค้างตลอดเวลาที่ปิดอยู่ ไม่ใช่แค่ตอนตั้งค่า เพื่อไม่ให้ผู้เล่นลืม</p>
+</div>
+
+</div>
+</body>
+</html>

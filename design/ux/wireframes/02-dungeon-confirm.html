@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — S-02-dungeon-confirm (P1-F03-T17)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>S-02-dungeon-confirm — popup เดียวใช้ตลอดเกม (Flow B)</h1>
+  <p>อ้างอิง: design/ux/flows/F03-core-loop.md หัวข้อ 3 · popup เปิดเองทันทีที่เดินถึงขอบ polygon ไม่ต้องกดปุ่มเปิด · <span class="config-ref">config: dungeons.entry.confirmPopupRequired (=true)</span> ไม่มีข้อยกเว้นแม้เข้ามาแล้วนับร้อยครั้ง</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>B1. Confirm ปกติ (มีคนอยู่)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.confirmTitle</span><br><span class="thaidraft">(ลุมพินี — ป่าในเมือง)</span></h1>
+        <p class="body-text"><span class="copykey">dungeon.confirmCount</span> <span class="thaidraft">(ตอนนี้มี {count} คน)</span> · <span class="copykey">dungeon.confirmRoles</span> <span class="thaidraft">(Tanker กับ Support)</span></p>
+        <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.{levelMin}–{levelMax})</span> (ไม่บล็อกการเข้าตามช่วงเลเวล)</p>
+        <div class="btn-row" style="margin-top:12px;">
+          <div class="btn btn-secondary" style="flex:1;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div>
+          <div class="btn btn-primary" style="flex:2;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ไม่มีคน → ซ่อนบรรทัด confirmCount/confirmRoles ทั้งบรรทัด ไม่แสดงเลข 0 (A-P1-F03-T16-3) · กด "เข้า" → ปุ่มเป็น spinner รอ server disable กันกดซ้ำ</p>
+</div>
+
+<div class="frame-block">
+<h3>B2. Polygon ซ้อนกัน</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.overlapTitle</span><br><span class="thaidraft">(เลือกโซนที่จะเข้า)</span></h1>
+        <div class="btn-row">
+          <div class="card" style="flex:1;border-color:var(--accent-signal);"><b>ลุมพินี — ป่าในเมือง</b><br><span class="caption"><span class="copykey">map.labelCountOnly</span> <span class="thaidraft">({count} คน)</span> · <span class="copykey">class.tanker</span> <span class="thaidraft">(Tanker)</span></span></div>
+          <div class="card" style="flex:1;"><b>ตลาดคลองเตย — เขาวงกตแผงลอย</b><br><span class="caption"><span class="copykey">map.labelCountOnly</span> <span class="thaidraft">({count} คน)</span></span></div>
+        </div>
+        <p class="caption" style="margin-top:8px;"><span class="copykey">dungeon.overlapHint</span> <span class="thaidraft">(เลือกโซนก่อนแล้วกดเข้า)</span></p>
+        <div class="btn btn-disabled" style="margin-top:8px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">GDD: ต่อให้ polygon ซ้อน dungeon อื่นก็ถือว่าอยู่ dungeon ที่เลือกเท่านั้น · ประเด็นเปิด: การ์ดซ้อนแสดง 0 คนตรงๆ เพื่อให้เทียบกันได้ ต่างจาก B1 ที่ซ่อนบรรทัดเมื่อ 0 (A-P1-F03-T16-3) — ยืนยันข้อยกเว้นนี้กับ systems-designer/narrative-designer ก่อน design gate</p>
+</div>
+
+<div class="frame-block">
+<h3>B3. คร่อมวง raid boss</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.vsBossTitle</span><br><span class="thaidraft">(ตรงนี้มีบอสด้วย)</span></h1>
+        <p class="caption"><span class="copykey">dungeon.vsBossHint</span> <span class="thaidraft">(เลือกได้ที่เดียว)</span></p>
+        <div class="btn-row">
+          <div class="card" style="flex:1;"><b>ลุมพินี — ป่าในเมือง</b><br><span class="caption">dungeon ปกติ (ยังไม่มี copy key — ดู handoff)</span></div>
+          <div class="card" style="flex:1;border-color:var(--state-danger);"><b>บอสประจำสัปดาห์</b><br><span class="caption">HP realtime · ทุกคนช่วยกัน (ยังไม่มี copy key — ดู handoff)</span></div>
+        </div>
+        <div class="btn btn-disabled" style="margin-top:8px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ใช้ได้แม้ยังไม่ผ่าน <span class="config-ref">config: unlocks.raid</span> (U3) เพราะเข้าร่วมทางกายภาพไม่ถูกบล็อกด้วย unlock (ia.md A-P1-F03-T15-6) · เลือก raid → S-20-raid-run (นอกขอบเขต T17 นี้) · ปุ่ม "เข้า" disable จนกว่าจะเลือกการ์ด เหมือน B2</p>
+</div>
+
+<div class="frame-block">
+<h3>B4. Dungeon ปิดอยู่</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;filter:grayscale(50%);"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.closedTitle</span><br><span class="thaidraft">(ปิดอยู่ตอนนี้)</span></h1>
+        <p class="body-text"><span class="copykey">dungeon.closedBody</span><br><span class="thaidraft">(ยามปิดประตูแล้ว เปิดอีกที {openTime})</span></p>
+        <p class="caption">ปิดฉุกเฉินยังไม่มีเวลาเปิด: <span class="copykey">dungeon.closedEmergencyBody</span> <span class="thaidraft">(โซนนี้ปิดชั่วคราว ยังไม่รู้ว่าเปิดเมื่อไร)</span></p>
+        <div class="btn btn-secondary" style="width:100%;"><span class="copykey">dungeon.closedDismiss</span> <span class="thaidraft">(กลับแผนที่)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ไม่มีปุ่ม "เข้า" ให้กด · เกิดได้ทั้งตอนเดินเข้าเขตครั้งแรกและตอนกด "เข้า" แล้ว server ปฏิเสธ · เกิน maxActiveDungeonsPerPlayer: <span class="copykey">dungeon.alreadyActive</span> <span class="thaidraft">(ยังอยู่ใน dungeon อื่น ออกจากที่นั่นก่อน)</span></p>
+</div>
+
+<div class="frame-block">
+<h3>ยกเลิก / นอกระยะ (GPS drift)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <p class="body-text"><span class="copykey">dungeon.outOfRangeTitle</span><br><span class="thaidraft">(GPS ยังไม่เชื่อว่าคุณถึงแล้ว เดินลึกเข้าไปอีกหน่อย)</span></p>
+        <div class="btn btn-secondary" style="width:100%;"><span class="copykey">common.close</span> <span class="thaidraft">(ปิด)</span> (กลับแผนที่)</div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">server ตรวจพบว่าตำแหน่งจริงไม่อยู่ใน polygon → ปิด popup กลับแผนที่ ไม่ลงโทษ · offline กด "เข้า": <span class="copykey">common.offlineNotice</span> <span class="thaidraft">(ไม่มีเน็ต ส่งไม่ได้ตอนนี้)</span> + <span class="copykey">common.offlineRetry</span> <span class="thaidraft">(ลองอีกครั้ง)</span></p>
+</div>
+
+</div>
+</body>
+</html>

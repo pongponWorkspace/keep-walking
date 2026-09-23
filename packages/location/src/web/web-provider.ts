@@ -22,6 +22,7 @@ import type {
 } from '../types';
 import { ListenerSet } from './listeners';
 import { documentVisibility, systemClock } from './platform';
+import { resolveWebLocationTiming } from './timing';
 
 /** W3C GeolocationPositionError codes. */
 enum GeolocationErrorCode {
@@ -72,12 +73,12 @@ export interface PermissionsLike {
   query(descriptor: { name: 'geolocation' }): Promise<{ readonly state: string }>;
 }
 
-export interface WebLocationProviderOptions extends WebLocationOptions {
+export type WebLocationProviderOptions = WebLocationOptions & {
   /** Defaults to `navigator.geolocation`. `null` simulates a platform without geolocation. */
   readonly geolocation?: GeolocationLike | null;
   /** Defaults to `navigator.permissions`. `null` simulates iOS Safari without the API. */
   readonly permissions?: PermissionsLike | null;
-}
+};
 
 function defaultGeolocation(): GeolocationLike | null {
   if (typeof navigator === 'undefined') {
@@ -174,10 +175,11 @@ export class WebLocationProvider implements LocationProvider {
       options.geolocation === undefined ? defaultGeolocation() : options.geolocation;
     this.permissions =
       options.permissions === undefined ? defaultPermissions() : options.permissions;
+    const timing = resolveWebLocationTiming(options);
     this.positionOptions = {
       enableHighAccuracy: options.enableHighAccuracy,
-      timeout: options.timeoutMs,
-      maximumAge: options.maximumAgeMs,
+      timeout: timing.timeout_ms,
+      maximumAge: timing.maximumAge_ms,
     };
   }
 

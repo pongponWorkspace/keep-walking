@@ -37,6 +37,7 @@
 | `tools/copy-lint/` | script lint + `words.json` + test | gameplay-programmer (โค้ด) · narrative-designer (เนื้อหา `words.json`) | CI, copy gate |
 
 - ชื่อไฟล์ copy ตาม locale `copy.<locale>.json` · v1 มีแค่ `th` · ไม่มี fallback ข้ามภาษา
+- `names.th.json` ใช้ field แบบ camelCase `nameReal` / `nameSuffix` (D-051): **tech-lead ยืนยันใน P1-X05** ว่าตรง ADR 0001 3.10.3 (key ใน `config/` เป็น camelCase) · `name_real` ใน `data/dungeons/` เป็นชื่อ OSM ดิบของ pipeline คนละความหมาย จึงไม่ต้องตรงกัน · หลังบ้าน (Phase 5) อ่าน camelCase
 - `names.th.json`: lint ไม่บังคับโครงสร้าง ใช้ทุก string ที่เป็นใบ (leaf) โดยข้าม key ที่ขึ้นต้นด้วย `_` · schema ของชื่อทำเมื่อหลังบ้านรับช่วง (Phase 5)
 - โค้ดไม่เขียนลงไฟล์เหล่านี้ (ADR 0001 หัวข้อ 3.2)
 
@@ -123,6 +124,7 @@
 | --- | --- | --- |
 | `voice: legal` และ `kind: message` | `legal` | บรรทัดแรกไม่เกิน `summaryMaxCells` · บรรทัดอื่นไม่จำกัด (D-023 รอ HUMAN · ถ้า HUMAN ไม่อนุมัติ ลบ `limits.legal` แล้ว legal ใช้ `message` โดยไม่แก้โค้ด) |
 | `kind: message` | `message` | รวมไม่เกิน `maxCells` · `\n` ไม่เกิน `maxNewlines` · ถ้ามี `\n` แต่ละบรรทัดไม่เกิน `maxCellsPerLine` · ข้อความนี้ใช้เป็นเนื้อหา push ได้เพราะเพดานเนื้อหา push เท่ากัน |
+| `kind: button` และ key อยู่ใน `limits.buttonFullWidth.keys` | `buttonFullWidth` | ไม่เกิน `maxCells` · `maxNewlines` = 0 · ใช้ได้เฉพาะปุ่มหลักเต็มความกว้างแบบเดี่ยวที่ไม่มีปุ่มคู่ (D-050, uiux-designer ยืนยันใน `design/ux/components.md` หัวข้อ 10) · ไม่มี `limits.buttonFullWidth` = ทุกปุ่มใช้ `button` โดยไม่แก้โค้ด (P1-X05) |
 | `kind: button` | `button` | ไม่เกิน `maxCells` · `maxNewlines` = 0 |
 | `kind: label` | `label` | ไม่เกิน `maxCells` · `maxNewlines` = 0 |
 | `kind: push` | `push` | หัวข้อ push ไม่เกิน `titleMaxCells` · `maxNewlines` = 0 |
@@ -197,6 +199,7 @@
     "_source": "design/narrative/style-guide.md 4.3; A-P1-F03-T03-1 (uiux-designer confirms); D-023 (legal, HUMAN)",
     "message": { "maxCells": 64, "maxNewlines": 1, "maxCellsPerLine": 32 },
     "button": { "maxCells": 12, "maxNewlines": 0 },
+    "buttonFullWidth": { "_source": "D-050", "maxCells": 16, "maxNewlines": 0, "keys": ["run.summaryContinue"] },
     "label": { "maxCells": 20, "maxNewlines": 0 },
     "push": { "titleMaxCells": 24, "maxNewlines": 0 },
     "dialogue": { "maxLines": 5, "maxCellsPerLine": 32, "speakerMaxChars": 24 },
@@ -214,6 +217,7 @@
 ```
 
 - `areas` ตั้งต้น = area ทั้ง 25 ที่ไฟล์ copy ใช้อยู่ + `enhance` `market` `shop` `raid` `lore` จาก style guide 4.4 (`quick` ของ style guide ถูกแทนด้วย `qc` ในไฟล์จริง)
+- `limits.buttonFullWidth` (D-050, เพิ่มใน P1-X05) ไม่บังคับ · `keys` ต้องเป็น key ที่มีอยู่จริงใน `copy.th.json` และเป็น `kind: button` ทุกตัว มิฉะนั้น FAIL S1 · การเลือกเพดานตามแถวของหัวข้อ 3.2 · เพิ่ม key ในรายการได้เมื่อ uiux-designer ยืนยันว่าหน้าจอนั้นแสดงเป็นปุ่มหลักเต็มความกว้างเดี่ยว
 - เปลี่ยนเพดาน = แก้ `limits` จุดเดียว แล้ว narrative-designer แก้ตาราง 4.3 ของ style guide ให้ตรง · `_meta.limits` ในไฟล์ copy เป็นคำอธิบาย ต้องตรงกับไฟล์นี้ (copy gate ตรวจด้วยตา)
 - ไฟล์ไม่มี = lint exit 2 (ไม่ถือว่าผ่าน) · P1-H02 ทดสอบด้วย fixture ของตัวเองได้โดยไม่รอไฟล์จริง
 

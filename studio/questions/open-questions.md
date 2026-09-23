@@ -33,3 +33,5 @@
 | Q-P1-22 | P1-F03-T04 (narrative-designer) | สวนรถไฟ (ชื่อทางการเป็นชื่อพระราชทาน) ใช้ชื่อสามัญตาม D-013 ได้ไหม | ได้ / ไม่ได้ (ตัด dungeon.rotFaiPark ออก) | no | ได้ ชั่วคราว | |
 | Q-P1-23 | P1-F03-T11 (art-director) | ลิขสิทธิ์ของงานศิลป์ของโปรเจกต์เอง (repo เป็น public) | (ก) สงวนสิทธิ์ทั้งหมด / (ข) CC BY-NC 4.0 / (ค) CC BY 4.0 | no | manifest ใช้ LicenseRef-KeepWalking-Original ชั่วคราว | |
 | Q-P1-24 | P1-F03-T11 (art-director) | ภาพ raster จาก prompt ต้องมีคนรันเครื่องมือสร้างภาพฟรีที่อนุญาตให้เผยแพร่ใน repo public และใช้ในเกมที่มีรายได้ | คุณรันเอง / ใช้ SVG ที่ agent วาดอย่างเดียวไปก่อน | no | SVG อย่างเดียวใน Phase 1 | |
+| Q-P1-25 | P1-F01-T06 (location-engineer) | รวมข้อมูล OSM (ODbL) กับประชากร WorldPop (CC BY 4.0) ไว้ใน district-counts.csv ไฟล์เดียวได้ไหม | (ก) ได้ ใส่ attribution ทั้งสองแหล่ง / (ข) แยกคอลัมน์ประชากรเป็นไฟล์ต่างหาก | no | (ก) | |
+| Q-P1-26 | P1-F01-T06 (location-engineer) | ข้อความอ้างอิง WorldPop | (ก) "WorldPop (www.worldpop.org), CC BY 4.0" / (ข) อ้างอิงเต็มพร้อมผู้จัดทำและ DOI R2025A | no | (ก) | |

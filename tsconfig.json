@@ -10,6 +10,7 @@
   "include": [
     "*.ts",
     "packages/location/src/**/*.ts",
+    "packages/location/test/**/*.ts",
     "tools/traces/src/**/*.ts",
     "tools/sim/src/**/*.ts",
     "qa/tests/**/*.ts"

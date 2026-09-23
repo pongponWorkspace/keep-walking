@@ -86,8 +86,8 @@ describe('no raw coordinates in logs', () => {
     const visibility = new FakeVisibility();
     const web = location.createWebLocationProvider({
       enableHighAccuracy: true,
-      timeoutMs: 15000,
-      maximumAgeMs: 0,
+      timeout_ms: 15000,
+      maximumAge_ms: 0,
       clock,
       visibility,
       geolocation,
