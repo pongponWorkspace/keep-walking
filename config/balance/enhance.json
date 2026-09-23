@@ -1,0 +1,61 @@
+{
+  "_meta": {
+    "file": "enhance.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 6"
+  },
+  "rules": {
+    "_source": "GDD > Progression > ระบบตีบวก (ของไม่แตกหายไม่ว่ากรณีใด)",
+    "itemCanBreak": false,
+    "itemCanBeDestroyed": false,
+    "levelIndexing": "targetLevel",
+    "maxEnhanceLevel": 15,
+    "_note": "Allowed failure outcomes are only 'materialsLost' and 'dropOneLevel'. There is no break state (N-5). The GDD example '+7 -> +8 = 35%' fixes the rate index to the target level",
+    "_assumption": "A-P1-F03-T06-7a: GDD calls enhancement endless but the material cost table and gear table stop at +15. v1 cap = +15; raising it needs new material and gold rows. Owner: game-director"
+  },
+  "successRateByTargetLevel_pct": {
+    "_source": "GDD > Progression > ระบบตีบวก (+1..+3 100%, +4..+6 80->60%, +7..+9 45->25%, +10 ขึ้นไป 20->5%)",
+    "1": 100, "2": 100, "3": 100,
+    "4": 80, "5": 70, "6": 60,
+    "7": 45, "8": 35, "9": 25,
+    "10": 20, "11": 17, "12": 14, "13": 11, "14": 8, "15": 5,
+    "_assumption": "A-P1-F03-T06-7b: linear steps inside each band. The +10 band spreads 20 -> 5 over +10..+15 (3 points per level). Owner: game-director"
+  },
+  "failureOutcomeByTargetLevel": {
+    "_source": "GDD > Progression > ระบบตีบวก (ผลเมื่อล้มเหลว)",
+    "1": "none", "2": "none", "3": "none",
+    "4": "materialsLost", "5": "materialsLost", "6": "materialsLost",
+    "7": "dropOneLevel", "8": "dropOneLevel", "9": "dropOneLevel",
+    "10": "dropOneLevel", "11": "dropOneLevel", "12": "dropOneLevel",
+    "13": "dropOneLevel", "14": "dropOneLevel", "15": "dropOneLevel",
+    "_note": "Materials and gold are always consumed on an attempt. 'dropOneLevel' also consumes them (GDD copy: 'อุปกรณ์ลดเป็น +6 วัตถุดิบหาย')"
+  },
+  "pity": {
+    "_source": "GDD > Progression > ระบบตีบวก > ระบบสะสมความล้มเหลว (ล้มเหลวติดกันเพิ่มโอกาสครั้งถัดไป 5% ต่อครั้ง สะสมได้ถึงเพดานที่กำหนด)",
+    "bonusPerConsecutiveFail_pct": 5,
+    "bonusMode": "additivePercentagePoints",
+    "maxBonus_pct": 25,
+    "resetOnSuccess": true,
+    "scope": "perItem",
+    "_assumption": "A-P1-F03-T06-7c: GDD does not give the cap. Cap = +25 percentage points (5 fails in a row); +5 is read as percentage points; the counter is per item and resets on success. Owner: game-director"
+  },
+  "costByTargetLevel": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > วัตถุดิบและการตีบวก",
+    "bands": [
+      { "fromLevel": 1, "toLevel": 3, "elementDust": 5, "elementCore": 0, "riftStone": 0, "gold": 200 },
+      { "fromLevel": 4, "toLevel": 6, "elementDust": 15, "elementCore": 3, "riftStone": 0, "gold": 1200 },
+      { "fromLevel": 7, "toLevel": 9, "elementDust": 40, "elementCore": 10, "riftStone": 1, "gold": 6000 },
+      { "fromLevel": 10, "toLevel": 12, "elementDust": 90, "elementCore": 25, "riftStone": 4, "gold": 20000 },
+      { "fromLevel": 13, "toLevel": 15, "elementDust": 180, "elementCore": 60, "riftStone": 12, "gold": 60000 }
+    ],
+    "_note": "Material ids: elementDust = ผงธาตุ (Common), elementCore = แก่นธาตุ (Uncommon), riftStone = หินรอยแยก (Rare). Display names come from content config, not here"
+  },
+  "bossGearMaterial": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > วัตถุดิบและการตีบวก (แกนบอส ได้จาก raid เท่านั้นและใช้กับอุปกรณ์บอส)",
+    "bossCoreRequiredForBossGear": true,
+    "bossCorePerAttempt": null,
+    "_assumption": "A-P1-F03-T06-7d: GDD gives no boss core amount per attempt; left null until Phase 6 (raid). Owner: systems-designer in Phase 6"
+  }
+}

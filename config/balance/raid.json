@@ -1,0 +1,88 @@
+{
+  "_meta": {
+    "file": "raid.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 11",
+    "_note": "First draft for Phase 6. GDD values are final inputs; values marked _assumption are proposals and must be re-simulated before Phase 6 build"
+  },
+  "schedule": {
+    "_source": "GDD > Raid Boss > ตัวเลขตั้งต้น (tick 10 วินาที, 2 ชั่วโมง เย็นเสาร์ 16:00-18:00 = 720 ticks); จุดเกิดบอส (5-8 จุด)",
+    "raidTick_s": 10,
+    "durationTicks": 720,
+    "weekday": "saturday",
+    "startLocalTime": "16:00",
+    "timezone": "Asia/Bangkok",
+    "spawnPointsMin": 5,
+    "spawnPointsMax": 8,
+    "clientBatchTicks": 6
+  },
+  "pow": {
+    "_source": "GDD > Raid Boss > สูตรลดเลือด (POW = (baseATK + gearATK) x (1 + level/60) x roleMult)",
+    "powLevelDivisor": 60,
+    "roleMult": { "ranged": 1.3, "magic": 1.25, "tanker": 0.8, "support": 0.75 }
+  },
+  "presenceMult": {
+    "_source": "GDD > Raid Boss > สูตรลดเลือด > presenceMult (เดินต่อเนื่องผ่าน movement gate 1.0, อยู่ในวงแต่ไม่ขยับ 0.3)",
+    "walkingPassesGate": 1.0,
+    "insideCircleNotMoving": 0.3
+  },
+  "survivalMult": {
+    "_source": "GDD > Raid Boss > สูตรลดเลือด > survivalMult (>70% 1.0, 30-70% 0.7, <30% 0.4, ล้ม 0)",
+    "bands": [
+      { "hpAbove_pct": 70, "mult": 1.0 },
+      { "hpAbove_pct": 30, "mult": 0.7 },
+      { "hpAbove_pct": 0, "mult": 0.4 }
+    ],
+    "downedMult": 0,
+    "_note": "Boundary: exactly 70% -> 0.7, exactly 30% -> 0.4 (GDD says 'more than 70%' and 'less than 30%'; 30% itself is assigned to the lower band as an assumption A-P1-F03-T06-17c)"
+  },
+  "bossDamage": {
+    "_source": "GDD > Raid Boss > survivalMult (damage = bossATK x (1 - DEF/(DEF+K)) x (1 - tankerBuff)); ตัวเลขตั้งต้น (K 300)",
+    "defSoftcapK": 300,
+    "bossAtkPerTick": null,
+    "_assumption": "A-P1-F03-T06-18: GDD gives no bossATK. Left null; Phase 6 simulation sets it so a median player without Tanker or potions falls below 70% HP in about 20 min. Simulators must fail loudly on null. Owner: systems-designer (Phase 6)"
+  },
+  "partyMult": {
+    "_source": "GDD > Raid Boss > partyMult (สูตร diminishing return ตัวเดียวกับ dungeon ครบ role ราว 1.4-1.6 ไม่ครบ 1.0-1.2 ไม่มี party 1.0)",
+    "noPartyMult": 1.0,
+    "fullPartyTargetMin": 1.4,
+    "fullPartyTargetMax": 1.6,
+    "incompletePartyTargetMin": 1.0,
+    "incompletePartyTargetMax": 1.2,
+    "weight": 0.8,
+    "incompletePartyFactor": 0.6,
+    "_assumption": "A-P1-F03-T06-17: GDD names the shape, not the formula. Proposal: partyMult = 1 + weight x (sum over 4 roles of buff_role/cap_role) / 4 x (all 4 roles present ? 1 : incompletePartyFactor). Check: one of each role at L25 = 1.41, two of each = 1.61, one of each at L60 = 1.52, three roles at L25 = 1.17. Owner: game-director"
+  },
+  "bossHp": {
+    "_source": "GDD > Raid Boss > HP ของบอส (bossHP = medianPOW_lastWeek x activePlayers_lastWeek x alpha x ticks; alpha 0.45 เดือนแรก แล้วขยับเป็น 0.55)",
+    "alphaLaunch": 0.45,
+    "alphaLaunchPeriod_days": 30,
+    "alphaTarget": 0.55,
+    "nextBossHpMultAfterFail": 0.85,
+    "_nextBoss_source": "GDD > Raid Boss > เมื่อล้มบอสไม่สำเร็จ (บอสสัปดาห์ถัดไปอ่อนลง 15%)"
+  },
+  "failure": {
+    "_source": "GDD > Raid Boss > เมื่อล้มบอสไม่สำเร็จ (dungeon แข็งแกร่งขึ้น 2 เท่า, drop x1.6-2.0, เตือนเมื่อเหลือ 30 นาทีและ HP ยังไม่ถึง 75%)",
+    "seeMonsterAtk": "combat.json#raidFailPenalty",
+    "seeDropMult": "drops.json#multipliers.failedRaidWeekMinMult",
+    "warnWhenRemaining_s": 1800,
+    "warnIfBossHpReducedBelow_pct": 75
+  },
+  "checkpoints": {
+    "_source": "GDD > Raid Boss > Checkpoint reward > ชั้นที่ 1 (25% วัตถุดิบ, 50% + gold, 75% เริ่มมีโอกาสของบอส, 100% ของบอสเต็มอัตรา + buff drop สัปดาห์ถัดไป)",
+    "thresholds_pct": [25, 50, 75, 100],
+    "unlocks": ["materials", "materialsAndGold", "bossItemChance", "bossItemFullAndNextWeekDropBuff"]
+  },
+  "contributionRankMult": {
+    "_source": "GDD > Raid Boss > Checkpoint reward > ชั้นที่ 2 (ต่ำกว่ามัธยฐาน x0.6, มัธยฐาน-p75 x1.0, p75-p95 x1.5, p95 ขึ้นไป x2.2)",
+    "bands": [
+      { "fromPercentile": 0, "toPercentile": 50, "mult": 0.6 },
+      { "fromPercentile": 50, "toPercentile": 75, "mult": 1.0 },
+      { "fromPercentile": 75, "toPercentile": 95, "mult": 1.5 },
+      { "fromPercentile": 95, "toPercentile": 100, "mult": 2.2 }
+    ],
+    "rankBasis": "relativeWithinWeek"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "_meta": {
+    "file": "dungeons.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 9",
+    "readBy": ["tools/coverage (area limits, A-P1-PLAN-01-5)", "back office polygon validation", "server run state machine"]
+  },
+  "area": {
+    "_source": "GDD > พื้นที่เล่นและ Dungeon > การกำหนด dungeon; ระบบหลังบ้าน > Validation ตอนวาด dungeon (3,000-150,000 ตร.ม.)",
+    "minArea_m2": 3000,
+    "maxArea_m2": 150000,
+    "outOfRangeAction": "warn"
+  },
+  "levelRange": {
+    "_source": "GDD > พื้นที่เล่นและ Dungeon > ระดับเลเวลที่เหมาะสม (กำหนดเป็นช่วง เช่น 15-25 ไม่บล็อกการเข้า)",
+    "rangeRequired": true,
+    "blockEntryOutsideRange": false,
+    "exampleRangeWidth_levels": 10
+  },
+  "entry": {
+    "_source": "GDD > พื้นที่เล่นและ Dungeon > การเข้าและออก (อยู่ได้ทีละ 1 dungeon, popup confirm ก่อนเข้าเสมอ)",
+    "maxActiveDungeonsPerPlayer": 1,
+    "confirmPopupRequired": true,
+    "respectOpeningHours": true
+  },
+  "runState": {
+    "_source": "GDD > พื้นที่เล่นและ Dungeon > การเข้าและออก (Active / Grace ไม่เกิน 3 นาที / Suspended 3-15 นาที / Ended เกิน 15 นาที)",
+    "graceMax_s": 180,
+    "suspendedMax_s": 900,
+    "rewardTickDuringGrace": false,
+    "rewardTickDuringSuspended": false,
+    "suspendedTimeCounts": false,
+    "_note": "Outside time <= 180 s = Grace; 180-900 s = Suspended; > 900 s = Ended. The same 15-minute limit ends a run on connection loss (GDD > สถาปัตยกรรมเทคนิค > สัญญาณขาดและแอปถูกปิด)"
+  },
+  "rewardTick": {
+    "_source": "GDD > Core loop ใน Dungeon > Reward tick (ให้ของเป็นขั้นทุก 5 นาที)",
+    "rewardTickInterval_s": 300
+  },
+  "movementGate": {
+    "_source": "GDD > Core loop ใน Dungeon > Movement gate (ระยะทางสะสมเกิน 50 เมตรใน 5 นาที ใช้ทั้ง dungeon และ raid ไม่มีข้อยกเว้น)",
+    "minDistancePerWindow_m": 50,
+    "window_s": 300,
+    "comparison": "greaterThan",
+    "appliesTo": ["dungeon", "raid"],
+    "exceptions": []
+  },
+  "hpSafety": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > ระบบกันตาย",
+    "autoRetreatEnabledByDefault": true,
+    "autoRetreatThreshold_pct": 25,
+    "autoRetreatKeepsRunLoot": true,
+    "lowHpWarningThreshold_pct": 30,
+    "lowHpWarningChannels": ["vibrate", "push"]
+  },
+  "death": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > เมื่อตาย",
+    "loseAllRunLoot": true,
+    "supportReviveOnlyInsideSameDungeon": true
+  },
+  "exit": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > การออกจาก dungeon (กดออกได้ทุกเมื่อ ระบบเริ่มฟื้น HP ทันที)",
+    "manualExitAnytime": true,
+    "regenStartsOnExit": true
+  },
+  "offlineEvidence": {
+    "_source": "GDD > สถาปัตยกรรมเทคนิค > สัญญาณขาดและแอปถูกปิด (รับ offline evidence ย้อนหลังได้ไม่เกิน 30 นาที)",
+    "maxOfflineEvidenceAge_s": 1800,
+    "connectionLostEndsRunAfter_s": 900
+  },
+  "emergencyClose": {
+    "_source": "GDD > ระบบหลังบ้าน > Validation ตอนวาด dungeon (ปุ่มปิดฉุกเฉิน moderator คนเดียว คนข้างในได้รางวัลตามสัดส่วน)",
+    "singleModeratorAllowed": true,
+    "proRatedRewardOnClose": true
+  },
+  "temporaryDungeon": {
+    "_source": "GDD > ระบบหลังบ้าน > ฟีเจอร์ที่ต้องมี (dungeon ชั่วคราวต้องมีวันหมดอายุบังคับ)",
+    "expiryRequired": true
+  },
+  "verification": {
+    "_source": "GDD > ระบบหลังบ้าน > เตรียมไว้สำหรับ dungeon ในอาคาร",
+    "v1VerificationMode": "continuous_gps",
+    "v1FloorLevel": null
+  },
+  "smallDungeon": {
+    "_source": "GDD > การกำหนด dungeon (dungeon เล็ก); value lives in drops.json to keep one source",
+    "seeFile": "drops.json#smallDungeon"
+  }
+}

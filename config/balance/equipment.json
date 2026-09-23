@@ -1,0 +1,46 @@
+{
+  "_meta": {
+    "file": "equipment.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 5"
+  },
+  "gearStat": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (gearStat = 30 x T^1.4 x (1 + 0.08 x enhance))",
+    "gearStatCoef": 30,
+    "gearStatTierExponent": 1.4,
+    "enhanceBonusPerLevel": 0.08,
+    "minTier": 1,
+    "maxTier": 5,
+    "rounding": "roundHalfUpFinal",
+    "_note": "Formula with a single final rounding differs from the GDD table by exactly 1 point in 6 of 15 cells (tier 2 +10, tier 3 +10/+15, tier 5 +0/+10/+15). See balance-model.md finding F-3. Test vectors use tolerance 1"
+  },
+  "slots": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (4 ช่อง: อาวุธ ATK, เกราะ DEF, เครื่องราง ผสม, รองเท้า VIT)",
+    "weapon": { "atkShare": 1, "defShare": 0, "vitPointsPerGearStat": 0 },
+    "armor": { "atkShare": 0, "defShare": 1, "vitPointsPerGearStat": 0 },
+    "charm": { "atkShare": 0.5, "defShare": 0.5, "vitPointsPerGearStat": 0 },
+    "boots": { "atkShare": 0, "defShare": 0, "vitPointsPerGearStat": 0.25 },
+    "_assumption": "A-P1-F03-T06-6: GDD says charm is 'mixed' and boots give VIT without numbers. Charm = 50% ATK + 50% DEF of gearStat. Boots = gearStat x 0.25 VIT points (the same value per point as ATK: 4 gear stat = 1 point). Owner: game-director"
+  },
+  "bossGear": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > อุปกรณ์ (ของบอสเป็น tier 5 ค่าพื้นฐานสูงกว่าปกติ 20%, bind on pickup); Raid Boss > ของบอส (15-25%)",
+    "tier": 5,
+    "baseStatMult": 1.2,
+    "bindOnPickup": true,
+    "enhanceable": true,
+    "tradeable": false,
+    "npcSellable": false,
+    "_note": "Raid section proposes 15-25% stronger; Progression section fixes 20%. 20% is inside the range, used as the value"
+  },
+  "binding": {
+    "_source": "GDD > Economy > ระบบแลกเปลี่ยน (อุปกรณ์ที่ตีบวกแล้วผูกกับตัวถาวร)",
+    "bindOnFirstEnhance": true
+  },
+  "tierByLevel": {
+    "_source": "not in GDD (needed by the survival and economy simulation)",
+    "levelMaxForTier": [12, 24, 36, 48, 60],
+    "_assumption": "A-P1-F03-T06-5: expected gear tier for a player at level L = the first tier whose max level >= L (tier 1: L1-12 ... tier 5: L49-60). Used for 'balanced build' simulation and dungeon drop tables. Owner: game-director, level-designer"
+  }
+}

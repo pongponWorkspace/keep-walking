@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "file": "anticheat.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 12",
+    "_note": "Movement gate lives in dungeons.json#movementGate (single source). All checks run on the server"
+  },
+  "checkIn": {
+    "_source": "GDD > Anti-cheat > มาตรการเป็นชั้น > ชั้น 1 (GPS sample ต่อเนื่องอย่างน้อย 60 วินาทีที่เดินเข้ามาจากข้างนอก, accuracy น้อยกว่า 30 เมตร)",
+    "minContinuousApproach_s": 60,
+    "maxAccuracy_m": 30,
+    "teleportIntoPolygonAllowed": false
+  },
+  "speedLock": {
+    "_source": "GDD > Anti-cheat > ชั้น 1; ความปลอดภัยผู้เล่นและ PDPA > ความปลอดภัยทางกายภาพ (speed lock 25 กม./ชม. ล็อกการเล่น ไม่ใช่แค่เตือน)",
+    "speedLock_kmh": 25,
+    "action": "lockPlay"
+  },
+  "offlineEvidence": {
+    "_source": "GDD > สถาปัตยกรรมเทคนิค > สัญญาณขาดและแอปถูกปิด (sample ที่ upload ทีหลังมีน้ำหนักต่ำกว่าใน trust score)",
+    "seeMaxAge": "dungeons.json#offlineEvidence.maxOfflineEvidenceAge_s",
+    "trustWeightVsLive": 0.5,
+    "_assumption": "A-P1-F03-T06-21: GDD says 'lower weight' without a number. Late-uploaded samples count 0.5 of a live sample in trust scoring. Owner: backend-programmer, tech-lead"
+  },
+  "trustScore": {
+    "_source": "GDD > Anti-cheat > มาตรการเป็นชั้น > ชั้น 4 (score ต่ำทำให้ drop แย่ลง ของ rare ไม่ออก trade ไม่ได้)",
+    "min": 0,
+    "max": 100,
+    "initial": 70,
+    "lowThreshold": 40,
+    "lowTrustCanTrade": false,
+    "seeDropEffect": "drops.json#multipliers.lowTrustMult",
+    "_assumption": "A-P1-F03-T06-11: GDD gives no scale or threshold. Scale 0-100, new accounts start at 70, below 40 = low trust. Owner: game-director, backend-programmer"
+  },
+  "outputAudit": {
+    "_source": "GDD > Anti-cheat > มาตรการเป็นชั้น > ชั้น 5 (บัญชีที่ผลิตเกิน p99 ของ cohort เดียวกันติดต่อกันให้ตั้งธง)",
+    "flagPercentile": 99,
+    "consecutiveDaysToFlag": 3,
+    "_assumption": "A-P1-F03-T06-21b: 'ติดต่อกัน' = 3 days in a row. Owner: liveops-operator"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "file": "classes.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "convention": "camelCase keys, unit suffix in key (_pct, _s, _m, _h, _gold, Mult = dimensionless multiplier), plain numbers, GDD section in _source next to the values",
+    "doc": "design/systems/balance-model.md section 2"
+  },
+  "party": {
+    "_source": "GDD > Class และ Party > สูตร buff stacking",
+    "maxMembers": 8,
+    "countOnlyMembersInsideDungeon": true,
+    "duplicateRolesAllowed": true
+  },
+  "buffStacking": {
+    "_source": "GDD > Class และ Party > สูตร buff stacking (buff = cap x (1 - (1 - base/cap)^P), P = sum(1 + level/50))",
+    "pPerMemberBase": 1,
+    "pLevelDivisor": 50
+  },
+  "baseCapRule": {
+    "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (กฎการปรับค่า base ราว 1/3 ถึง 2/5 ของ cap)",
+    "minBaseToCapRatio": 0.3333,
+    "maxBaseToCapRatio": 0.4,
+    "intentionalExceptions": [
+      "support"
+    ],
+    "_intentionalExceptions_source": "studio/decisions/decision-log.md D-004 (Support 25/50 = 0.50 is an intentional exception)"
+  },
+  "roles": {
+    "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (per-role _source below)",
+    "tanker": {
+      "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Tanker ลด damage ที่ party ได้รับ)",
+      "buffEffect": "damageTakenReduction",
+      "base_pct": 16,
+      "cap_pct": 45,
+      "missingDebuffEffect": "damageTakenMult",
+      "missingDebuffMult": 1.6
+    },
+    "ranged": {
+      "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Ranged เพิ่มของที่ได้)",
+      "buffEffect": "dropMult",
+      "base_pct": 17,
+      "cap_pct": 50,
+      "missingDebuffEffect": "dropMult",
+      "missingDebuffMult": 0.6
+    },
+    "support": {
+      "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Support heal เร็วขึ้น และชุบเพื่อนที่ HP หมดได้)",
+      "buffEffect": "inDungeonHealRateBonus",
+      "base_pct": 25,
+      "cap_pct": 50,
+      "missingDebuffEffect": "noInDungeonHeal",
+      "missingDebuffMult": 0,
+      "inDungeonHealBase_pctMaxHpPerMin": 0.5,
+      "reviveToHp_pct": 30,
+      "_assumption": "A-P1-F03-T06-12: GDD gives no base heal rate or revive HP. With a Support present, heal = 0.5% maxHP/min x (1 + supportBuff); a Support revives a downed member to 30% HP. Owner: game-director"
+    },
+    "magic": {
+      "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Magic เพิ่ม exp และสร้างโล่กัน damage)",
+      "buffEffect": "expMult",
+      "base_pct": 17,
+      "cap_pct": 50,
+      "missingDebuffEffect": "expMult",
+      "missingDebuffMult": 0.6,
+      "shieldPerRewardTick_pctMaxHpPerBuffPct": 0.1,
+      "_assumption": "A-P1-F03-T06-13: GDD gives no shield size. Proposal: each 5-min reward tick grants a shield of (0.1 x magicBuff_pct)% maxHP that absorbs damage and does not stack. Owner: game-director"
+    }
+  },
+  "levelGapContribution": {
+    "_source": "GDD > พื้นที่เล่นและ Dungeon > ระดับเลเวลที่เหมาะสม (support เพื่อนได้น้อยลงตามระยะห่างจากช่วง)",
+    "pMultPerLevelOutsideRange": 0.92,
+    "pMultFloor": 0.25,
+    "_assumption": "A-P1-F03-T06-14: GDD gives no number. A member's P term is multiplied by 0.92^gap (floor 0.25), mirroring the exp level-gap multiplier. Owner: game-director"
+  },
+  "classChange": {
+    "_source": "GDD > Class และ Party > การเปลี่ยน class (cost = 500 x (level/10)^2, cooldown 24 ชม., คืน allocation ฟรีภายใน 7 วัน)",
+    "costCoef_gold": 500,
+    "costLevelDivisor": 10,
+    "costExponent": 2,
+    "cooldown_h": 24,
+    "cooldownReducibleWithGold": false,
+    "freeRestoreWindow_h": 168,
+    "levelKept": true,
+    "statPointsReset": true
+  }
+}

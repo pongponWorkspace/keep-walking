@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "file": "unlocks.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 10",
+    "_note": "Referenced by other docs as config: unlocks.<system>. The board text writes unlocks.home.far_dungeon_threshold_m; under the camelCase convention (TL-N02) the key is unlocks.home.farDungeonThreshold_m"
+  },
+  "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก: ตลาด ตีบวก raid การลงแต้ม stat เปลี่ยน class กลไก party ละเอียด ปลดเมื่อถึงเลเวลหรือเงื่อนไขที่กำหนด)",
+  "_assumption": "A-P1-F03-T06-20: the GDD names the systems to lock but gives no unlock levels. All levels below are proposals from the exp curve (at total exp multiplier 1.0: level 3 about 26 min, level 5 about 74 min, level 8 about 3 h, level 10 about 4.5 h of valid walking). Owner: game-director",
+  "statAllocation": {
+    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
+    "minLevel": 3,
+    "_note": "Points accrue from level 1 (3 per level) and are kept until the screen unlocks"
+  },
+  "partyDetail": {
+    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
+    "minLevel": 3,
+    "_note": "Nearby Party join itself is available from minute 6-8 of onboarding (GDD); only the detailed buff breakdown is locked"
+  },
+  "enhance": {
+    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
+    "minLevel": 5
+  },
+  "market": {
+    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
+    "minLevel": 8,
+    "minAccountAge_days": 7,
+    "_minAccountAge_source": "GDD > Economy > ระบบแลกเปลี่ยน (บัญชีอายุต่ำกว่า 7 วัน trade ไม่ได้); same value as economy.json#market.minAccountAgeToTrade_days"
+  },
+  "classChange": {
+    "_source": "GDD > 10 นาทีแรกของคนใหม่ (สิ่งที่ห้ามสอนใน 10 นาทีแรก) · level value is assumption A-P1-F03-T06-20",
+    "minLevel": 10,
+    "_note": "The GDD cost table starts at level 10 (500 gold)"
+  },
+  "raid": {
+    "minLevel": 1,
+    "requiresCompletedRuns": 1,
+    "_source": "GDD > Raid Boss (คนเลเวลต่ำเข้าร่วมได้ทันทีโดยได้รางวัลตาม checkpoint)",
+    "_note": "No level gate, by GDD intent; one completed dungeon run so the player has met the movement gate before"
+  },
+  "home": {
+    "_source": "GDD > 10 นาทีแรกของคนใหม่ (ตัวอย่างรอยแยก 650 ม. และปัญหา dungeon ใกล้สุดอยู่ 3 กิโลหรือนอกกรุงเทพ)",
+    "farDungeonThreshold_m": 2000,
+    "outOfServiceAreaThreshold_m": 20000,
+    "_assumption": "A-P1-F03-T06-20b: nearest open dungeon farther than 2,000 m (about 25 min walk; the GDD's 650 m example works, 3 km fails) = 'far'; farther than 20,000 m = 'outside service area' (show register-interest). Owner: game-director"
+  }
+}

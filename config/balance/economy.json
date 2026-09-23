@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "file": "economy.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 8"
+  },
+  "npcSellPrice_gold": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา",
+    "elementDust": 20,
+    "elementCore": 120,
+    "riftStone": 900,
+    "equipment": null,
+    "_assumption": "A-P1-F03-T06-8b: GDD has no NPC price for equipment; null = cannot be sold to NPC in v1. Owner: game-director"
+  },
+  "npcPricing": {
+    "_source": "GDD > Economy > Gold source (ตั้งราคา NPC ราว 40-50% ของมูลค่าตลาด)",
+    "npcPriceToMarketValueMin_pct": 40,
+    "npcPriceToMarketValueMax_pct": 50,
+    "npcDailySellLimit": null,
+    "_npcDailySellLimit_source": "GDD > Economy > มาตรการคุมเงินเฟ้อ (ไม่จำกัดการขายให้ NPC ต่อวัน). null = no limit, by design"
+  },
+  "potions": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา",
+    "hpSmall": { "heal_pctMaxHp": 30, "buyPrice_gold": 150 },
+    "hpMedium": { "heal_pctMaxHp": 60, "buyPrice_gold": 400 },
+    "hpLarge": { "heal_pctMaxHp": 100, "buyPrice_gold": 1000 },
+    "revive": { "reviveToHp_pct": 50, "buyPrice_gold": 2500, "usableInsideDungeon": true },
+    "purchaseCurrency": "gold"
+  },
+  "autoPotion": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > ระบบกันตาย (ยาอัตโนมัติ เปิด ถ้ามียาในกระเป๋า ใช้ยาเองเมื่อ HP ต่ำกว่าเกณฑ์ที่ตั้ง)",
+    "enabledByDefault": true,
+    "defaultThreshold_pct": 40,
+    "defaultPotionOrder": ["hpSmall", "hpMedium", "hpLarge"],
+    "_assumption": "A-P1-F03-T06-15b: GDD leaves the threshold to the player. Default 40% (above the 30% warning and the 25% auto-retreat), smallest potion first. Owner: game-director, uiux-designer"
+  },
+  "incomeToPotionRatio": {
+    "_source": "GDD > Economy > Gold source (รายได้ต่อชั่วโมงราว 2.5-3 เท่าของค่ายา); studio/decisions/decision-log.md D-005",
+    "targetMin": 2.5,
+    "targetMax": 3,
+    "minAccepted": 2.45,
+    "_note": "Economy target, HUMAN authority. Sim must compute potion cost from the damage model, never take 600 as input"
+  },
+  "gddReferenceEconomy": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา (รายได้ราว 1,470 gold ต่อชั่วโมงเดิน ค่ายาราว 600 gold ต่อชั่วโมง)",
+    "_note": "Reference values for simulator comparison only; runtime code must not read them",
+    "incomePerWalkingHour_gold": 1470,
+    "potionCostPerHour_gold": 600
+  },
+  "partyReward": {
+    "_source": "GDD > Class และ Party > เป้าหมายสมดุล (party ครบ role ได้รางวัลต่อหัว 1.8-2.2 เท่าของคนเดียว)",
+    "fullPartyPerHeadToSoloMin": 1.8,
+    "fullPartyPerHeadToSoloMax": 2.2
+  },
+  "playtimeGap": {
+    "_source": "GDD > Core loop ใน Dungeon > ความเสี่ยงที่ต้องเฝ้าดู (40 นาที/วัน vs 6 ชม./วัน ราว 9 เท่า)",
+    "expectedDailyRewardGapMax": 9
+  },
+  "marketTax": {
+    "_source": "GDD > Economy > มาตรการคุมเงินเฟ้อ (ภาษีขั้นบันไดตามมูลค่าขายสะสมในวัน รีเซ็ตทุกเที่ยงคืน); Gold sink (ภาษีตลาด 10% ขั้นต่ำ)",
+    "brackets": [
+      { "fromDailySales_gold": 0, "toDailySales_gold": 20000, "tax_pct": 10 },
+      { "fromDailySales_gold": 20001, "toDailySales_gold": 60000, "tax_pct": 18 },
+      { "fromDailySales_gold": 60001, "toDailySales_gold": 150000, "tax_pct": 26 },
+      { "fromDailySales_gold": 150001, "toDailySales_gold": null, "tax_pct": 35 }
+    ],
+    "bracketMode": "marginal",
+    "resetTimezone": "Asia/Bangkok",
+    "resetLocalTime": "00:00",
+    "_assumption": "A-P1-F03-T06-19a: 'marginal' = each gold of sales is taxed at the bracket its cumulative daily total falls in (like income tax), so a sale that crosses a line is split. Owner: game-director"
+  },
+  "market": {
+    "_source": "GDD > Economy > ระบบแลกเปลี่ยน",
+    "listingOnly": true,
+    "anonymous": true,
+    "directGoldTrade": false,
+    "tradeableCategories": ["rawMaterial", "consumable"],
+    "priceBandVsAvg_pct": 40,
+    "priceBandAvgWindow_days": 7,
+    "minAccountAgeToTrade_days": 7,
+    "dailyTransferCapPerLevel_gold": 1000,
+    "_dailyTransferCap_assumption": "A-P1-F03-T06-19b: GDD requires a daily transfer-value cap by level without a number. Cap = 1,000 gold x level per day (level 30 -> 30,000, inside the first two tax brackets). Owner: game-director"
+  }
+}

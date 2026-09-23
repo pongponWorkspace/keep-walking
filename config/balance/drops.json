@@ -1,0 +1,71 @@
+{
+  "_meta": {
+    "file": "drops.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 7"
+  },
+  "baseChancePerRewardTick_pct": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (โอกาสต่อ 1 reward tick ก่อนตัวคูณ)",
+    "common": 100,
+    "uncommon": 25,
+    "rare": 6,
+    "epic": 1.2,
+    "legendary": 0.2,
+    "_note": "Each rarity is rolled independently per reward tick. A reward tick exists only when the movement gate passes (dungeons.json#movementGate)"
+  },
+  "quantityPerDrop": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (Common ได้ 1-3 ชิ้น)",
+    "commonMin": 1,
+    "commonMax": 3,
+    "commonDistribution": "uniformInteger",
+    "uncommon": 1,
+    "rare": 1,
+    "epic": 1,
+    "legendary": 1,
+    "fractionalQuantityRounding": "stochastic",
+    "_fractionalQuantityRounding_assumption": "A-P1-F03-T06-22: after multipliers a fractional Common quantity (e.g. 1.2) rounds up with probability equal to the fraction, using server RNG, so the mean matches the formula. Owner: systems-designer, backend-programmer"
+  },
+  "rewardTypeByRarity": {
+    "_source": "GDD > Progression > วัตถุดิบและการตีบวก (ผงธาตุ Common, แก่นธาตุ Uncommon, หินรอยแยก Rare)",
+    "common": "elementDust",
+    "uncommon": "elementCore",
+    "rare": "riftStone",
+    "epic": "equipment",
+    "legendary": "equipment",
+    "_assumption": "A-P1-F03-T06-8: Common/Uncommon/Rare drops are materials (1 unit each for Uncommon and Rare); Epic and Legendary are equipment of the dungeon's tier. With this reading 12 ticks/h give 1,488 gold/h at NPC prices (GDD: about 1,470). Owner: game-director"
+  },
+  "multipliers": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table > ตัวคูณ",
+    "rangedBuffMaxMult": 1.5,
+    "noRangedMult": 0.6,
+    "rangedAppliesTo": "allRarities",
+    "_rangedAppliesTo_assumption": "A-P1-F03-T06-9: Ranged 'เพิ่มของที่ได้' multiplies Common quantity and the chance of every other rarity; chances are clamped at 100%. Owner: game-director",
+    "smallDungeonRareAndAboveMult": 1.5,
+    "smallDungeonCommonQuantityMult": 0.6,
+    "failedRaidWeekMinMult": 1.6,
+    "failedRaidWeekMaxMult": 2.0,
+    "_failedRaidWeek_assumption": "A-P1-F03-T06-16b: mult = 1.6 + 0.4 x (boss HP fraction left at the end), so a near-kill gives 1.6 and an untouched boss gives 2.0. Owner: game-director",
+    "lowTrustMult": 0.5,
+    "lowTrustBlocksEpicAndAbove": true,
+    "_lowTrust_source": "GDD > Anti-cheat > มาตรการเป็นชั้น > ชั้น 4; threshold lives in anticheat.json#trustScore",
+    "stacking": "multiplicative"
+  },
+  "smallDungeon": {
+    "_source": "GDD > พื้นที่เล่นและ Dungeon > การกำหนด dungeon (dungeon เล็กให้ของน้อยชิ้นกว่าแต่ rare rate สูงกว่า)",
+    "smallDungeonMaxArea_m2": 20000,
+    "_assumption": "A-P1-F03-T06-10: GDD does not define 'small'. A dungeon with area below 20,000 m2 (the pocket-park tier) is small. Owner: level-designer"
+  },
+  "gddReferenceFrequency": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (40 นาที/วัน: Epic ราว 10 วัน, Legendary ราว 2 เดือน; 3 ชม./วัน: Epic 2-3 วัน, Legendary ราว 2 สัปดาห์)",
+    "_note": "Targets for the simulator (P1-F03-T08), not runtime values. They hold at a total multiplier of 1.0. See balance-model.md finding F-2",
+    "casualMinutesPerDay": 40,
+    "casualEpicEvery_days": 10,
+    "casualLegendaryEvery_days": 60,
+    "heavyMinutesPerDay": 180,
+    "heavyEpicEveryMin_days": 2,
+    "heavyEpicEveryMax_days": 3,
+    "heavyLegendaryEvery_days": 14
+  }
+}

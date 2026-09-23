@@ -1,0 +1,44 @@
+{
+  "_meta": {
+    "file": "combat.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 3"
+  },
+  "monsterAttack": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (monsterATK = 3 x Z^1.3, Z = zone level)",
+    "monsterAtkCoef": 3,
+    "monsterAtkExponent": 1.3,
+    "zoneLevelFrom": "levelRangeMidpointRounded",
+    "_assumption": "A-P1-F03-T06-1: GDD defines Z as the zone level but a dungeon stores a level range (e.g. 15-25). Z = round((min + max) / 2). Owner: game-director, level-designer"
+  },
+  "defense": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน; Raid Boss > ตัวเลขตั้งต้น (K = 300, DEF 300 ลด damage 50%)",
+    "defSoftcap": 300
+  },
+  "attackCheck": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (ทุก 45-75 วินาที ระบบสุ่มว่ามอนสเตอร์เข้ามาตีหรือเปล่า)",
+    "intervalMin_s": 45,
+    "intervalMax_s": 75,
+    "intervalDistribution": "uniform",
+    "hitChancePerCheck_pct": 50,
+    "_assumption": "A-P1-F03-T06-4: GDD gives no hit chance. 50% is a first fit: level-25 balanced build with tier-3 gear reaches auto-retreat in about 46 min (target about 45). P1-F03-T07 refits it against the GDD survival table. Owner: systems-designer"
+  },
+  "levelGapDamage": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (เลเวลต่ำกว่าช่วงของโซน damage x1.25 ต่อระดับที่ห่าง)",
+    "damageMultPerLevelBelowRange": 1.25,
+    "mode": "compound",
+    "maxMult": null,
+    "_assumption": "A-P1-F03-T06-2: 'x1.25 per level' read as 1.25^gap (not 1 + 0.25 x gap), no cap because the GDD says nobody adjusts it for you. Gap counts from the range minimum. Owner: game-director"
+  },
+  "raidFailPenalty": {
+    "_source": "GDD > Raid Boss > เมื่อล้มบอสไม่สำเร็จ (dungeon ทั้งเกมแข็งแกร่งขึ้น 2 เท่าตลอดสัปดาห์ถัดไป)",
+    "monsterAtkMultAfterFailedRaid": 2,
+    "_assumption": "A-P1-F03-T06-16: 'stronger x2' applied to monsterATK only (not HP or hit chance). Owner: game-director"
+  },
+  "deathProtection": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > ระบบกันตาย (values live in dungeons.json > hpSafety)",
+    "seeFile": "dungeons.json#hpSafety"
+  }
+}

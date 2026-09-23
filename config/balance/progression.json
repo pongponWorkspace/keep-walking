@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "file": "progression.json",
+    "version": 1,
+    "owner": "systems-designer",
+    "task": "P1-F03-T06",
+    "doc": "design/systems/balance-model.md section 4"
+  },
+  "level": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น (เลเวลสูงสุด 60 ตรงกับตัวหาร level/60 ในสูตร POW)",
+    "maxLevel": 60,
+    "startLevel": 1
+  },
+  "expCurve": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (expToNext(L) = 60 x L^2.2, expPerTick(Z) = 30 x Z^1.5)",
+    "expToNextCoef": 60,
+    "expToNextExponent": 2.2,
+    "expPerTickCoef": 30,
+    "expPerTickExponent": 1.5
+  },
+  "expMultipliers": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve > ตัวคูณ exp",
+    "magicBuffMaxMult": 1.5,
+    "noMagicMult": 0.6,
+    "levelGapMultPerLevel": 0.92,
+    "levelGapMultFloor": 0.25,
+    "levelGapMode": "compound",
+    "_assumption": "A-P1-F03-T06-3: 'x0.92 per level' read as 0.92^gap with floor 0.25 (reached at gap 17), gap counted on both sides of the dungeon range. Owner: game-director"
+  },
+  "statPoints": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (3 แต้มต่อเลเวล รวม 180 แต้มที่เลเวล 60)",
+    "pointsPerLevel": 3,
+    "pointsFormula": "pointsPerLevel x level",
+    "_note": "180 at level 60 means points = 3 x level (level 1 already has 3). This reproduces the GDD extremes ATK 740, DEF 560, HP 27,300"
+  },
+  "baseStats": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (ค่าพื้นฐานตอนเลเวล 1 ATK 20, DEF 20, HP 300)",
+    "atk": 20,
+    "def": 20,
+    "hp": 300,
+    "vit": 0
+  },
+  "statPerPoint": {
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (ATK +4, DEF +3, HP +150, VIT +1.5% ความเร็วฟื้น HP และ +2% ประสิทธิภาพยา)",
+    "atk": 4,
+    "def": 3,
+    "hp": 150,
+    "vitHpRegenSpeed_pct": 1.5,
+    "vitPotionEfficiency_pct": 2
+  },
+  "hpRecovery": {
+    "_source": "GDD > HP การตาย และการฟื้นฟู > การออกจาก dungeon; เมื่อตาย (ฟื้นจาก 0 ถึง 50% ใช้เวลา 30 นาที)",
+    "deathRecoveryTo_pct": 50,
+    "deathRecoveryDuration_s": 1800,
+    "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+    "_assumption": "A-P1-F03-T06-15a: regen after a normal exit uses the same rate as death recovery (50% per 30 min = 1.6667%/min), scaled by (1 + VIT regen bonus). Owner: game-director"
+  },
+  "rewardTick": {
+    "_source": "GDD > Core loop ใน Dungeon > Reward tick (value lives in dungeons.json to keep one source)",
+    "seeFile": "dungeons.json#rewardTick"
+  }
+}
