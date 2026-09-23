@@ -2,9 +2,9 @@
   "version": 8,
   "name": "kw-light",
   "metadata": {
-    "kw:task": "P1-F03-T12",
+    "kw:task": "P1-F03-T12 (fix P1-X32: dungeon symbols read from the kw-dungeon-labels point source)",
     "kw:owner": "art-director",
-    "kw:styleVersion": "0.1.0",
+    "kw:styleVersion": "0.2.0",
     "kw:basedOn": "@protomaps/basemaps 5.7.2 flavor light, lang th, Protomaps Basemap v4 schema (build 20260923, version 4.15.2); recoloured to art/direction/style-guide.md tokens and reduced",
     "kw:doc": "art/direction/map-style.md",
     "kw:placeholderOrigin": "https://kw-placeholder.invalid",
@@ -17,7 +17,8 @@
     "kw:runtimeImages": {
       "kw-rift-crack": "art/direction/map-style/icons/rift-crack.svg (client adds with map.addImage, pixelRatio 2)"
     },
-    "kw:privacy": "Only kw-self carries a position, and only the local device's own position. Other players appear only as the pre-formatted dungeon-level label_count on kw-dungeons. No point, circle, heatmap or cluster layer of other players may be added."
+    "kw:privacy": "Only kw-self carries a position, and only the local device's own position. Other players appear only as the pre-formatted dungeon-level label_count on kw-dungeon-labels (one point per dungeon, never per player). No point, circle, heatmap or cluster layer of other players may be added.",
+    "kw:dungeonSources": "kw-dungeons = one Polygon/MultiPolygon per dungeon, used only by fill/line layers (kw-rift-fill, kw-rift-outline-closed, kw-rift-outline, kw-rift-inner). kw-dungeon-labels = exactly one Point per dungeon (pole of inaccessibility of the largest polygon), same id and same 6 whitelisted properties, used only by symbol layers (kw-rift-crack, kw-rift-name, kw-rift-count, kw-rift-sponsored). No symbol layer may read kw-dungeons: symbols on polygons are placed once per internal geojson-vt tile and duplicate. *-allow-overlap stays true on purpose (keeps name, count, sponsored label and crack of one dungeon together and above basemap labels); duplicates are impossible by construction because each dungeon has one point, and point anchors outside a tile's extent are skipped by MapLibre."
   },
   "center": [100.5018, 13.7563],
   "zoom": 15,
@@ -40,6 +41,11 @@
       "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap</a>"
     },
     "kw-dungeons": {
+      "type": "geojson",
+      "data": { "type": "FeatureCollection", "features": [] },
+      "promoteId": "id"
+    },
+    "kw-dungeon-labels": {
       "type": "geojson",
       "data": { "type": "FeatureCollection", "features": [] },
       "promoteId": "id"
@@ -493,10 +499,10 @@
     {
       "id": "kw-rift-crack",
       "type": "symbol",
-      "source": "kw-dungeons",
+      "source": "kw-dungeon-labels",
       "minzoom": 10,
       "filter": ["all",
-        ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false],
+        ["==", ["geometry-type"], "Point"],
         ["!=", ["get", "status"], "closed"]],
       "layout": {
         "icon-image": "kw-rift-crack",
@@ -509,10 +515,10 @@
     {
       "id": "kw-rift-name",
       "type": "symbol",
-      "source": "kw-dungeons",
+      "source": "kw-dungeon-labels",
       "minzoom": 12,
       "filter": ["all",
-        ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false],
+        ["==", ["geometry-type"], "Point"],
         ["has", "name"]],
       "layout": {
         "text-field": ["get", "name"],
@@ -533,10 +539,10 @@
     {
       "id": "kw-rift-count",
       "type": "symbol",
-      "source": "kw-dungeons",
+      "source": "kw-dungeon-labels",
       "minzoom": 14,
       "filter": ["all",
-        ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false],
+        ["==", ["geometry-type"], "Point"],
         ["has", "label_count"]],
       "layout": {
         "text-field": ["get", "label_count"],
@@ -556,10 +562,10 @@
     {
       "id": "kw-rift-sponsored",
       "type": "symbol",
-      "source": "kw-dungeons",
+      "source": "kw-dungeon-labels",
       "minzoom": 12,
       "filter": ["all",
-        ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false],
+        ["==", ["geometry-type"], "Point"],
         ["==", ["get", "sponsored"], true],
         ["has", "label_sponsored"]],
       "layout": {

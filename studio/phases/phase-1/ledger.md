@@ -115,3 +115,15 @@
 | 92 | W8 | P1-X30 (C-1) | level-designer | 00:45:19 | 00:47:07 | DONE — หัวข้อ 0/8/6.2 worst case พระนคร 10 (ตัดทั้งหมด) / 13 (ตัดเฉพาะมั่นใจสูง) + D-C · orchestrator ตรวจข้อความแล้ว |
 | 93 | W8 | P1-F02-T16 | qa-tester | 00:24:04 | 00:50:15 | PASS — คำสั่งทุกตัวเขียว, TC-HUD 03/05/07/10/11 ผ่าน black-box · BUG-F01-003 prettier ของ heatmap-template (แก้ด้วย .prettierignore) · QA แก้ heatmap-strings.th.json นอก writes (whitespace เท่านั้น) |
 | 94 | W8 | P1-X31 | tech-lead | 00:50:15 | 00:51:00 | DONE — root pnpm lint exit 0, pytest 256 ผ่าน |
+| 95 | W8 | P1-H06 | qa-tester | 00:50:15 | 01:28:30 | DONE — screenshot 40 ภาพ ป้ายไทยถูก, validateStyleMin 0 error, ตาบอดสี PASS · พบ bug สำคัญ: ป้ายชื่อ dungeon ซ้ำหลายชุดเมื่อ polygon คร่อมหลาย tile |
+| 96 | W8 | P1-X32 | art-director | 01:28:30 | 01:31:57 | DONE — ป้าย dungeon อ่านจาก source จุด kw-dungeon-labels · orchestrator รัน validateStyleMin: 2/2 ผ่าน |
+| 97 | W8 | P1-X33 | gameplay-programmer | 01:31:57 | 01:50:38 | DONE — adapter 2 source + polylabel เขียนเอง, e2e ยืนยันป้าย 1 ชุดต่อ dungeon ทั้ง Android/iOS · ยังไม่ต่อเข้า main.ts เพราะยังไม่มีรายการ dungeon จริง |
+| — | W8 | P1-F03-T14 | orchestrator | — | 01:50:50 | แก้สถานะ: mark IN_PROGRESS ที่ 23:01 แต่ไม่เคย dispatch — dispatch จริงตอนนี้ |
+| 98 | W9 | P1-F03-T14 | artist-2d | 01:50:50 | 02:05:30 | DONE — placeholder อวตาร 12 layer 3 มุม xmllint ผ่าน, manifest ผ่าน schema §6.6 (13 entry รวม style tile), prompt avatar.md · master สี key อยู่ใน art/assets ชั่วคราว (ควรย้าย art/src ใน Phase 2) |
+| 99 | W9 | P1-F03-T22 | art-director | 02:05:30 | 02:15:15 | NEEDS_CHANGES — 3 blocking: motion มี opacity วน (V-01), wireframe สีนอก token/opacity บนข้อความ (V-02), avatar placeholder แสงกลับด้าน/ของผิดตำแหน่ง (V-03) · ตัดสิน R-1..R-8 |
+| 100 | W9 | P1-X34 | vfx-animator | 02:15:15 | 02:19:26 | DONE — ตัด idle breathing/loop ทั้งหมด, รอยแตกกางออก one-shot 300 ms scaleY, filter allow-list, HP bar scaleX |
+| 101 | W9 | P1-X35 | uiux-designer | 02:15:15 | 02:23:02 | DONE — V-02 a–d แก้ครบ, ปุ่ม login fallback เท่ากัน + เงื่อนไข R-6 · ไม่มี hex นอก token ใน html/components |
+| 102 | W9 | P1-X36 | artist-2d | 02:15:15 | 02:35:10 | DONE — V-03 a–g แก้ครบ, master สี key → art/src/avatar, style tile → art/ref, ภาพ composite ทดสอบ, manifest ผ่าน schema และ V3/V8/V11 |
+| 103 | W9 | P1-X37 | qa-tester | 02:35:10 | 02:37:08 | DONE — สคริปต์ตาบอดสีชี้ art/ref/style-tile, ภาพ 10 ไฟล์ byte เดิม, PASS |
+| 104 | W9 | P1-F03-T22 (รอบ 2) | art-director | 02:35:10 | 02:41:14 | PASS — V-01..V-03 แก้ครบ · follow-up ไม่ blocking V-18..V-22 |
+| 105 | W9 | P1-F03-T25 | game-director | 02:41:14 | 02:51:45 | PASS — 4 role ผ่าน E14 · D-039/D-056/D-059 ACCEPT, D-061 CHANGE, R-B1 ลำดับผลต่อ hit, farDungeonThreshold ≤1,970 ม. · แนะนำ HUMAN: D-020 รับ, D-038 ทาง B |

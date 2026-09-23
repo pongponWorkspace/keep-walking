@@ -1,6 +1,6 @@
 # Component Spec — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อยกเว้น `buttonFullWidth` D-050 หัวข้อ 10.1, ยืนยันเพดานชื่อโซน 17/14/34 หัวข้อ 8) และ P1-X17 (2026-09-23: F-04 ตัดสินทิศทาง A จอพกกระเป๋า/Wake Lock แทนประเด็นเปิดเดิมในหัวข้อ 12, F-08 ตัดเมนูภาษาออกจาก v1) · เจ้าของ: uiux-designer · สถานะ: แก้ตาม `design/reviews/F03-design-gate-a.md` รอบ 1 รอ gate รอบ 2 · วันที่: 2026-09-23
+Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อยกเว้น `buttonFullWidth` D-050 หัวข้อ 10.1, ยืนยันเพดานชื่อโซน 17/14/34 หัวข้อ 8), P1-X17 (2026-09-23: F-04 ตัดสินทิศทาง A จอพกกระเป๋า/Wake Lock แทนประเด็นเปิดเดิมในหัวข้อ 12, F-08 ตัดเมนูภาษาออกจาก v1) และ P1-X35 (2026-09-24: แก้ V-02 ตาม `art/reviews/F03-visual-gate.md` 3.7a–d — เลิกพื้นอ่อนนอก token ของ pill/banner, toast จางเป็นทึบ 100%, การ์ดที่เลือกคงขอบหมึก+เพิ่มวงแหวนนอก, รอยแยกจำลองทึบมีขอบหมึก · เพิ่มหัวข้อ 3.1 บันทึกเงื่อนไข R-6 ของปุ่ม login) · เจ้าของ: uiux-designer · สถานะ: แก้ตาม `art/reviews/F03-visual-gate.md` (V-02) รอ re-run gate รอบถัดไป · วันที่: 2026-09-24
 แหล่งอ้างอิง: `design/ux/tokens.json` (ค่า token) · `design/ux/wireframes/*.html` (ตัวอย่างจริงของทุกคอมโพเนนต์) · `design/ux/ia.md`, `design/ux/flows/F03-core-loop.md` (พฤติกรรมและ copy key) · `art/direction/style-guide.md` หัวข้อ 2–7 (กฎอ่านออกกลางแดด, palette, shape, เส้น, ฟอนต์) · `art/direction/icon-grammar.md` (ขนาด icon, class badge, rarity frame) · `design/narrative/style-guide.md` หัวข้อ 4 (ตัวแปร, ความยาว, `kind`)
 ลำดับอำนาจ: GDD > pillars.md > ia.md > flow (T16) > เอกสารนี้ · สีทุกค่าต้องตรง `tokens.json` เท่านั้น ห้าม hardcode hex ใหม่
 
@@ -39,7 +39,7 @@ Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อ
 | --- | --- | --- | --- |
 | ซ้าย | avatar icon ย่อ | 40×40 px วงกลม ขอบ `ink.900` 2px · touch target ขยายเป็น 48×48 ด้วย padding โปร่งรอบนอก | กดแล้วไป `S-10-profile` เสมอ ทุกหน้า ทุกสถานะ consent/unlock |
 | กลาง | context label | `type.body` 700 | **ไม่ใช่ปุ่ม** เป็น label เฉยๆ ห้ามทำให้ดูกดได้ (ไม่มีขอบ ไม่มีพื้นการ์ด) |
-| กลาง (ต่อ) | GPS pill | `.gps-pill` สูง ~20px มุม `radius.chip` | ไอคอนเล็ก + สถานะสีตาม `state.success`(ok)/`state.danger`(bad) **ต้องมีคำกำกับด้วยเสมอ** (ห้ามใช้สีอย่างเดียว ตาม style-guide S4) |
+| กลาง (ต่อ) | GPS pill | `.gps-pill` สูง ~20px มุม `radius.chip` พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบ 2px สี state | ไอคอนเล็ก + สถานะสีตาม `state.success`(ok)/`state.danger`(bad) ทั้งขอบและข้อความ **ต้องมีคำกำกับด้วยเสมอ** (ห้ามใช้สีอย่างเดียว ตาม style-guide S4) |
 | ขวา | settings icon | เหมือน avatar icon | กดแล้วไป `S-22-settings` เสมอ ทุกหน้า ทุกสถานะ |
 
 กฎร่วม: header bar อยู่ตำแหน่งเดิมทุกหน้าไม่เปลี่ยน (เดาตำแหน่งได้แม้ไม่มองจอนาน ตาม ia.md) สูงขั้นต่ำ = `touchTarget.min_px` (48 px)
@@ -86,6 +86,17 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 
 กฎกดปุ่ม (feedback ที่ไม่ใช่ animation ต่อเนื่อง ตาม style-guide 5): เมื่อกด เงาหายและปุ่มเลื่อนลง `elevation.pressedOffset_px` (4px) ทันที ไม่มี transition ยืดเวลา
 
+### 3.1 ปุ่ม login ผู้ให้บริการภายนอก (R-6, ข้อไม่บังคับของ V-02 — art gate F03-visual-gate 3.7, หัวข้อ 4)
+
+ปุ่มแบรนด์ (Google/Apple) เป็น UI ของบุคคลที่สามที่ต้องตามแนวทางแบรนด์ของเขาเอง จึงเป็นข้อยกเว้นเดียวที่ **ไม่ตาม** กฎ "1 ปุ่มหลักต่อจอ" และ "ห้ามใช้สีนอก token" ของหัวข้อ 3 — art-director (ผู้มีอำนาจด้านภาพ) ตัดสิน ACCEPTED พร้อม 6 เงื่อนไขนี้ ต้องคงไว้ทุกข้อ:
+
+1. ใช้เฉพาะ `S-00-login` และหน้าเชื่อมบัญชีใน settings เท่านั้น ที่อื่นในเกมห้ามมีปุ่มแบรนด์
+2. เลือกธีมที่ contrast สูงสุดบน `bg.paper`: Google แบบ filled black, Apple แบบ black (ปุ่ม native ของ SDK ผู้ให้บริการ ไม่ใช่ `.btn-primary`/`.btn-secondary` ของเรา)
+3. ปุ่มสองผู้ให้บริการกว้างเท่ากัน เรียงแนวตั้ง ห่าง ≥ 8 px
+4. ถ้าความสูงที่ SDK ให้ต่ำกว่า `touchTarget.min_px` (48 px) ยอมเป็นข้อยกเว้นของ style-guide S8 เฉพาะปุ่มนี้ — gameplay-programmer วัดความสูงจริงตอน build F07 แล้วรายงานกลับ
+5. **fallback** (กรณี SDK เรนเดอร์ปุ่มเองไม่ได้): ทั้งสองปุ่มเป็น `.btn-secondary` น้ำหนักเท่ากัน ห้ามใช้ `accent.signal` กับผู้ให้บริการรายใดรายหนึ่ง (กันไม่ให้ดูเหมือนชี้นำและกันไม่ให้กินสิทธิ์ CTA เดียวของจอ) — ดู `wireframes/00-onboarding.html` เฟรม 5 (S-00-login)
+6. ไม่มีโลโก้ผู้ให้บริการที่อื่นในเกมนอกจากปุ่มนี้
+
 ## 4. การ์ดและ popup
 
 ตัวอย่างจริง: `.card`, `.popup-overlay`, `.popup` ใน `wireframes/02-dungeon-confirm.html`, `04-run-critical.html`, `06-settings-autoretreat.html`
@@ -93,10 +104,11 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 | คอมโพเนนต์ | ใช้กับ | โครงสร้าง | กฎเฉพาะ |
 | --- | --- | --- | --- |
 | Card (`.card`) | รายการเมนู, ตัวเลือกในการ์ดซ้อน (B2), รายละเอียดของรางวัล | พื้น `bg.surface` ขอบ `ink.900` 2px มุม `radius.card` (12px) padding `space.cardPadding_px` (16px) | ห้าม tint พื้นด้วยสี semantic/rarity (จะกลืนกับสถานะจริง) |
+| Card ที่เลือกแล้ว (`.card.selected`) | ตัวเลือกที่แตะเลือกได้ (Overlap card B2, ตัวเลือกปีเกิดใน age-gate) | ขอบ `ink.900` **เพิ่ม** ความหนาเป็น 4px (จากปกติ 2px) + วงแหวนนอกทึบ `accent.signal` 3px (`box-shadow: 0 0 0 3px`) | สถานะเลือกคือ "เพิ่มเส้น" ไม่ใช่ "แทนที่สี" (icon-grammar 3) — ขอบหมึกต้องยังอยู่เสมอ เพื่อให้เห็นชัดแม้ในภาพขาวดำ (style-guide S3, S10) ห้ามใช้ `accent.signal` เป็นสีขอบแทน `ink.900` เพราะบน `bg.surface` เหลือแค่ 1.43:1 (ต่ำกว่า S3) |
 | Popup — bottom sheet (`.popup` จาก `.popup-overlay`) | confirm เข้า dungeon, ยืนยันออกเอง, ยืนยันปิด auto-retreat | เลื่อนขึ้นจากล่าง มุมบนโค้ง `radius.card` overlay พื้นหลัง `rgba(ink.900, .45)` | ปุ่มหลักอยู่ล่างสุดของ popup เสมอ (ยังอยู่ครึ่งล่างจอทั้งที่ popup สูงขึ้นมา) |
 | Popup — center sheet (`.popup.center-sheet`) | เหตุการณ์ที่ต้องหยุดความสนใจเต็มที่ (ตาย, เตือนปิด auto-retreat) | กึ่งกลางจอ กว้าง 90% มุมโค้งทุกด้าน | ใช้เมื่อเนื้อหาไม่ผูกกับตำแหน่งล่างจอ (เช่น ทางเลือกฟื้น 3 ทางของ 4.5) |
 | Confirm dungeon card (พิเศษ) | `S-02-dungeon-confirm` ปกติ | ชื่อโซน + จำนวนคน + role + ช่วงเลเวล + ปุ่ม 2 ปุ่ม (secondary ยกเลิก, primary เข้า) | ถ้าจำนวนคน = 0 **ซ่อนทั้งบรรทัด** ไม่แสดงเลข 0 (A-P1-F03-T16-3) |
-| Overlap card (พิเศษ) | B2 polygon ซ้อน | 2 การ์ดเรียงแนวนอนเท่ากัน แตะเพื่อ select (ขอบ `accent.signal` เมื่อเลือก) | ปุ่ม "เข้า" เป็น `.btn-disabled` จนกว่าจะเลือกการ์ดใดการ์ดหนึ่ง |
+| Overlap card (พิเศษ) | B2 polygon ซ้อน | 2 การ์ดเรียงแนวนอนเท่ากัน แตะเพื่อ select (ใช้ `.card.selected` ด้านบนเมื่อเลือก) | ปุ่ม "เข้า" เป็น `.btn-disabled` จนกว่าจะเลือกการ์ดใดการ์ดหนึ่ง |
 
 ## 5. Drawer (bottom sheet ไม่บล็อกจอ)
 
@@ -115,11 +127,11 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 
 | คอมโพเนนต์ | ใช้กับ | โทนสี | หายเอง? |
 | --- | --- | --- | --- |
-| Toast กลาง (`.toast.neutral`) | `run.tickGranted`, `party.buffApplied`, `run.autoPotionUsed` | ขอบ `ink.900` ปกติ หรือเน้น `state.success` เมื่อเป็นผลบวก | หายเองสั้นๆ |
-| Toast จาง (`.toast.neutral` แบบ opacity ต่ำ) | `run.tickDenied` | **ห้ามใช้ `state.danger`** เพราะไม่ใช่การลงโทษ (icon-grammar `gate-miss` ก็ห้ามกากบาทแดงเช่นกัน) | หายเองสั้นๆ |
+| Toast กลาง (`.toast.neutral`) | `run.tickGranted`, `party.buffApplied`, `run.autoPotionUsed` | พื้น `bg.surface` เสมอ · ขอบ `ink.900` ปกติ หรือเน้น `state.success` เมื่อเป็นผลบวก (สีขอบเปลี่ยนได้ พื้นห้าม tint) | หายเองสั้นๆ |
+| Toast จาง (`.toast.faded`) | `run.tickDenied` | **ทึบ 100% เสมอ** ห้ามใช้ opacity บนข้อความ/ขอบ (style-guide S7) — "จาง" คือไม่มีเงาทึบ (flat) + ขอบ `ink.300` 2px + ข้อความ `ink.700` · **ห้ามใช้ `state.danger`** เพราะไม่ใช่การลงโทษ (icon-grammar `gate-miss` ก็ห้ามกากบาทแดงเช่นกัน) | หายเองสั้นๆ |
 | Toast อันตราย (`.toast.danger`) | `run.hpLow` (canon, ห้ามแก้คำ) | ขอบ+ข้อความ `state.danger` | ค้างจนกว่าผู้เล่นตัดสินใจหรือ HP เปลี่ยนสถานะ |
-| Banner บนสุด (`.banner.info`) | `run.stateGrace`, `gps.offline` | `state.info` บนพื้นอ่อน | ค้างตลอดสถานะนั้น ไม่ใช่ toast ชั่วคราว |
-| Banner เตือน (`.banner.warn`) | `run.stateSuspended`, ป้ายเตือน auto-retreat ปิดอยู่ | `state.danger` บนพื้นอ่อน | ค้างตลอดสถานะนั้น |
+| Banner บนสุด (`.banner.info`) | `run.stateGrace`, `gps.offline` | พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบล่าง 2px และข้อความ `state.info` | ค้างตลอดสถานะนั้น ไม่ใช่ toast ชั่วคราว |
+| Banner เตือน (`.banner.warn`) | `run.stateSuspended`, ป้ายเตือน auto-retreat ปิดอยู่ | พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบล่าง 2px และข้อความ `state.danger` | ค้างตลอดสถานะนั้น |
 
 กฎร่วม: ทุก toast/banner มี **icon + ข้อความ** เสมอ ไม่ใช้สีอย่างเดียว (style-guide S4) · z-index ตาม `tokens.json`: banner (10) < drawer (20) < toast (30) < popup (40)
 

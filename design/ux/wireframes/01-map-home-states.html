@@ -19,7 +19,11 @@
   <div class="screen-body" style="padding:0;">
     <div style="background:var(--map-land);height:55%;position:relative;">
       <div style="position:absolute;left:150px;top:60px;width:24px;height:24px;background:var(--ink-900);border-radius:50%;border:2px solid var(--bg-surface);"></div>
-      <div style="position:absolute;left:20px;top:10px;width:30px;height:38px;background:var(--rift-500);opacity:.5;clip-path:polygon(50% 0%,80% 20%,70% 55%,100% 70%,40% 100%,45% 60%,0% 45%,35% 35%);"></div>
+      <!-- V-02 fix (art gate 3.7d): รอยแยกจำลองต้องทึบ + มีขอบหมึก ไม่ใช้ opacity — ก้อนดำ ink.900 ขนาดใหญ่กว่าอยู่ล่าง ก้อนสี rift.500 เท่าเดิมอยู่บน เว้น 2px รอบ = ขอบหมึก -->
+      <div style="position:absolute;left:18px;top:8px;width:34px;height:42px;">
+        <div style="position:absolute;inset:0;background:var(--ink-900);clip-path:polygon(50% 0%,80% 20%,70% 55%,100% 70%,40% 100%,45% 60%,0% 45%,35% 35%);"></div>
+        <div style="position:absolute;inset:2px;background:var(--rift-500);clip-path:polygon(50% 0%,80% 20%,70% 55%,100% 70%,40% 100%,45% 60%,0% 45%,35% 35%);"></div>
+      </div>
     </div>
     <div class="drawer" style="border-radius:16px 16px 0 0;position:absolute;bottom:0;left:0;right:0;">
       <div class="drawer-handle"></div>

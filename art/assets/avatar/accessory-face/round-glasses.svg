@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 160" width="384" height="160">
+  <g id="round-glasses-r0-c0" transform="translate(0,0)"><circle cx="54" cy="56" r="8" fill="#333344"/><path d="M 49 51 L 53 55" stroke="#FFFFFF" stroke-width="2"/><path d="M 52 50 L 56 54" stroke="#FFFFFF" stroke-width="2"/><circle cx="54" cy="56" r="8" fill="none" stroke="#1A1A22" stroke-width="2"/><circle cx="74" cy="56" r="8" fill="#333344"/><path d="M 69 51 L 73 55" stroke="#FFFFFF" stroke-width="2"/><path d="M 72 50 L 76 54" stroke="#FFFFFF" stroke-width="2"/><circle cx="74" cy="56" r="8" fill="none" stroke="#1A1A22" stroke-width="2"/><path d="M 62 56 L 66 56" stroke="#1A1A22" stroke-width="2"/></g>
+  <g id="round-glasses-r0-c1" transform="translate(128,0)"><circle cx="78" cy="56" r="8" fill="#333344"/><path d="M 73 51 L 77 55" stroke="#FFFFFF" stroke-width="2"/><path d="M 76 50 L 80 54" stroke="#FFFFFF" stroke-width="2"/><circle cx="78" cy="56" r="8" fill="none" stroke="#1A1A22" stroke-width="2"/></g>
+  <g id="round-glasses-r0-c2" transform="translate(256,0)"></g>
+</svg>

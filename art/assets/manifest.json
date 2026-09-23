@@ -1,0 +1,807 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-09-24",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "avatar.accessory-charm.keychain",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "accessory_charm",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "accessory_charm"
+        ]
+      },
+      "files": [
+        {
+          "path": "avatar/accessory-charm/keychain.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 2289,
+          "width": 384,
+          "height": 160,
+          "sha256": "4ddb0c50990319666597fe0e1a4ca97cbea86fdad69f166dcf53d49c9c6fc802"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Placeholder แบบก้อนเรียบง่ายตาม avatar-spec 12 · แก้ V-03 a/b: แสงจากซ้ายบน, เส้นรอบนอกวาดเป็น element สุดท้าย · ข้อไม่บังคับ: ห่วงย้ายให้เริ่มที่ hip_charm anchor (y=120) แทนที่จะลอยอยู่เหนือ anchor · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix)."
+    },
+    {
+      "id": "avatar.accessory-face.round-glasses",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "accessory_face",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "accessory_face"
+        ]
+      },
+      "files": [
+        {
+          "path": "avatar/accessory-face/round-glasses.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 1120,
+          "width": 384,
+          "height": 160,
+          "sha256": "32782884b0450a19ba9f1bd3c7a0008dd6cea58a648faaab7689981223018b1a"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Placeholder แบบก้อนเรียบง่ายตาม avatar-spec 12 · แก้ V-03 d: front เลนส์ r8 ที่ cx 54/74 (ตรงตา eye_line 54/74) สะพาน 62-66, side เลนส์ r8 ที่ cx 78 (ตรง eye_line side 78) กว้างรวมสะพาน 36<=44, แถบสะท้อน stroke 1.5->2 · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix)."
+    },
+    {
+      "id": "avatar.accessory-head.sun-hat",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "accessory_head",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "accessory_head"
+        ]
+      },
+      "files": [
+        {
+          "path": "avatar/accessory-head/sun-hat.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 2349,
+          "width": 384,
+          "height": 160,
+          "sha256": "ffe1235fb4d8c77baee69470d3d8aa8dcff6b338fe0d505e9ae5aa534c5e9656"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Placeholder แบบก้อนเรียบง่ายตาม avatar-spec 12 · แก้ V-03 a/b: แสงจากซ้ายบน (ปีกหมวก, กระบัง), เส้นรอบนอกวาดเป็น element สุดท้าย · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix)."
+    },
+    {
+      "id": "avatar.body.base",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "body",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "body",
+          "arm_w",
+          "arm_p"
+        ]
+      },
+      "files": [
+        {
+          "path": "art/src/avatar/body/base.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 10325,
+          "width": 384,
+          "height": 480,
+          "sha256": "dfc849fd1dc3b91d87e83a80dd317cbabb089aef05acf479a36537f3ce78b556"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Master SVG มี key color (avatar-spec 7.4) ย้ายมาที่ art/src/avatar/body/base.svg ตาม asset-pipeline 2/4.2 (ข้อยกเว้น 'master ชั่วคราว' ก่อนมี build tool) และคำตัดสิน R-5 ของ art/reviews/F03-visual-gate.md (P1-F03-T22) · แก้ V-03 a/b: แสงจากซ้ายบน (top แถบบน 35% ของสูง, right แถบขวา 30% + แถบล่าง, base=left) ทุกก้อนรวม arm_w/arm_p, เส้นรอบนอก 2px ink.900 วาดเป็น element สุดท้ายจึงเห็นเต็มเสมอ · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix).",
+      "variants": {
+        "axis": "skin",
+        "values": [
+          "skin-1",
+          "skin-2",
+          "skin-3",
+          "skin-4",
+          "skin-5",
+          "skin-6"
+        ]
+      }
+    },
+    {
+      "id": "avatar.face.base",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "face",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "neutral",
+          "smile",
+          "wince",
+          "dizzy",
+          "content"
+        ]
+      },
+      "files": [
+        {
+          "path": "avatar/face/base.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 3634,
+          "width": 384,
+          "height": 800,
+          "sha256": "ec7e4e9fdab5b235a9770036a1eb07641a02e096aa219f1698c3f24b4e924c42"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Placeholder แบบก้อนเรียบง่ายตาม avatar-spec 12 · แก้ finding ไม่บังคับท้าย F03-visual-gate 3.2: ปากเปลี่ยนจาก ink.700 เป็น ink.900 2px ตาม avatar-spec 7.5, หยดเหงื่อ wince stroke 1.5 -> 2 · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix)."
+    },
+    {
+      "id": "avatar.hair.buzz",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "hair",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "hair",
+          "hair_back"
+        ]
+      },
+      "files": [
+        {
+          "path": "art/src/avatar/hair/buzz.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 1729,
+          "width": 384,
+          "height": 320,
+          "sha256": "1959437331607f2eb5f488b8f9dfe26c7b5c5d69b7f904c628128cd8f26989d4"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Master SVG มี key color (avatar-spec 7.4) ย้ายมาที่ art/src/avatar/hair/buzz.svg ตาม asset-pipeline 2/4.2 และคำตัดสิน R-5 · แก้ V-03 a/b: แสงจากซ้ายบน, เส้นรอบนอกวาดเป็น element สุดท้าย · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix).",
+      "variants": {
+        "axis": "hair",
+        "values": [
+          "hair-1",
+          "hair-2",
+          "hair-3",
+          "hair-4",
+          "hair-5",
+          "hair-6"
+        ]
+      }
+    },
+    {
+      "id": "avatar.hair.long-straight",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "hair",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "hair",
+          "hair_back"
+        ]
+      },
+      "files": [
+        {
+          "path": "art/src/avatar/hair/long-straight.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 5209,
+          "width": 384,
+          "height": 320,
+          "sha256": "bb3b5405d194beb3b54d122b0c317934653a957942f86873929a2df7c333edf0"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Master SVG มี key color (avatar-spec 7.4) ย้ายมาที่ art/src/avatar/hair/long-straight.svg ตาม asset-pipeline 2/4.2 และคำตัดสิน R-5 · แก้ V-03 a/b: แสงจากซ้ายบน, เส้นรอบนอกวาดเป็น element สุดท้ายทุกก้อนรวม hair_back (ข้อยกเว้น E2) · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix).",
+      "variants": {
+        "axis": "hair",
+        "values": [
+          "hair-1",
+          "hair-2",
+          "hair-3",
+          "hair-4",
+          "hair-5",
+          "hair-6"
+        ]
+      }
+    },
+    {
+      "id": "avatar.outfit-body.raincoat",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "outfit_body",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "outfit_body",
+          "sleeve_w",
+          "sleeve_p"
+        ]
+      },
+      "files": [
+        {
+          "path": "avatar/outfit-body/raincoat.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 5702,
+          "width": 384,
+          "height": 480,
+          "sha256": "f64985332f3355a9c1123ca98caa86a69aab4e0a5eeeceff1f183f767b2e2099"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Placeholder แบบก้อนเรียบง่ายตาม avatar-spec 12 · แก้ V-03 a/b/c: แสงจากซ้ายบน, เส้นรอบนอกวาดเป็น element สุดท้าย, sleeve_w/sleeve_p ลบวงกลมมือที่ทับมือออก ปรับกว้างให้เท่า arm_w/arm_p เดิมและจบที่ y<=104 (มือเริ่ม y106 ไม่ถูกทับ) · ข้อไม่บังคับ: torso front/back หดเป็น x38-90 ตาม avatar-spec 11 · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix)."
+    },
+    {
+      "id": "avatar.outfit-feet.rain-boots",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "outfit_feet",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "outfit_feet"
+        ]
+      },
+      "files": [
+        {
+          "path": "avatar/outfit-feet/rain-boots.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 2421,
+          "width": 384,
+          "height": 160,
+          "sha256": "9ee7caef2b948fab22422eb9a7bb2ffdb107f7dec8489dbf3e1d3838eff422f7"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Placeholder แบบก้อนเรียบง่ายตาม avatar-spec 12 · แก้ V-03 a/b/e: แสงจากซ้ายบน, เส้นรอบนอกวาดเป็น element สุดท้าย, view side ครอบรองเท้าแตะตั้งต้นเป็นก้อนเดียว x44-84 (เดิมโผล่ข้างละ 3px), front/back ขยายเป็นสองก้อน รวม x42-86 ครอบสนิท · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix)."
+    },
+    {
+      "id": "avatar.pose-hand.base",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "pose_hand",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "wave",
+          "point",
+          "reach",
+          "thumb",
+          "fist",
+          "clutch",
+          "hold"
+        ],
+        "rows": [
+          "pose_hand"
+        ]
+      },
+      "files": [
+        {
+          "path": "art/src/avatar/pose-hand/base.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 5320,
+          "width": 896,
+          "height": 160,
+          "sha256": "4ffdbd0866d5735465440e8743f762d20db5f25bbf86884b014feeebbfad6f43"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Master SVG มี key color (avatar-spec 7.4) ย้ายมาที่ art/src/avatar/pose-hand/base.svg ตาม asset-pipeline 2/4.2 และคำตัดสิน R-5 · แก้ V-03 a/b/f: แสงจากซ้ายบน, เส้นรอบนอกวาดเป็น element สุดท้ายทุกท่า, ท่า point เลื่อนมือเข้ามาที่ cx 110 ปลายนิ้ว cx 116 (รวมเส้น <=120) ให้อยู่ใน safe area ตาม avatar-spec 3/10 · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix).",
+      "variants": {
+        "axis": "skin",
+        "values": [
+          "skin-1",
+          "skin-2",
+          "skin-3",
+          "skin-4",
+          "skin-5",
+          "skin-6"
+        ]
+      }
+    },
+    {
+      "id": "avatar.pose-prop.base",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "pose_prop",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "cup",
+          "shield"
+        ],
+        "rows": [
+          "pose_prop"
+        ]
+      },
+      "files": [
+        {
+          "path": "avatar/pose-prop/base.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 1080,
+          "width": 256,
+          "height": 160,
+          "sha256": "cc268f34c9669782db052f0d81c78e682ffdf9f82a8f10de2e3f771dfeedb8bd"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Placeholder แบบก้อนเรียบง่ายตาม avatar-spec 12 · แก้ V-03 a/b: แสงจากซ้ายบน (cup, shield), เส้นรอบนอกวาดเป็น element สุดท้าย · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix)."
+    },
+    {
+      "id": "avatar.weapon.folding-umbrella",
+      "kind": "avatar-layer",
+      "status": "placeholder",
+      "placeholder": true,
+      "size": {
+        "width": 128,
+        "height": 160
+      },
+      "layer": "weapon",
+      "sheet": {
+        "frameW": 128,
+        "frameH": 160,
+        "cols": [
+          "front",
+          "side",
+          "back"
+        ],
+        "rows": [
+          "weapon"
+        ]
+      },
+      "files": [
+        {
+          "path": "avatar/weapon/folding-umbrella.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 3339,
+          "width": 384,
+          "height": 160,
+          "sha256": "25f1db1b6d803022b61895e2640edf81bba57bc0c59d1ac6f81ba5c19f62e6f2"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T14",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "Placeholder แบบก้อนเรียบง่ายตาม avatar-spec 12 · แก้ V-03 a/b: แสงจากซ้ายบน (ด้าม, ร่ม, มือกำ), เส้นรอบนอกวาดเป็น element สุดท้าย · ยังไม่ผ่าน visual gate รอบใหม่ (P1-X36 fix)."
+    },
+    {
+      "id": "ref.avatar.composite-f03",
+      "kind": "reference",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 552,
+        "height": 216
+      },
+      "files": [
+        {
+          "path": "art/ref/avatar/composite-f03.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 43378,
+          "width": 552,
+          "height": 216,
+          "sha256": "5d8dde836b9102af14eed5c4d4e68436781ae42711f581ac1182482d620d328a"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-X36",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "shipped": false,
+      "notes": "ภาพประกอบทดสอบตาม avatar-spec §12 และ F03-visual-gate V-03 g: front view ของ avatar ประกอบทุก 12 layer placeholder ตาม z-order avatar-spec 5.2 (shadow, hair_back, body, face, hair, outfit_feet, outfit_body, weapon, arm/sleeve x2, accessory_charm/head/face) ด้วย ramp.skin-1 และ ramp.hair-1 (ไม่ใช่ key color) · 4 แผง: bg.paper และ bg.surface (จำลองการ์ดกลางคืน) ที่ขนาด 128x160 และ 96x120 · ไม่ใช่ asset ที่ส่งถึงผู้เล่น (shipped:false) ใช้ตรวจ content gate เท่านั้น · มี <text> ป้ายกำกับได้เพราะเป็นไฟล์ reference (เหมือน ref.style-tile.v1)"
+    },
+    {
+      "id": "ref.style-tile.v1",
+      "kind": "reference",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 1440,
+        "height": 2720
+      },
+      "files": [
+        {
+          "path": "art/ref/style-tile/style-tile.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 40802,
+          "width": 1440,
+          "height": 2720,
+          "sha256": "739cf4c92abf6411d34d6fcab2dba0ad4fb6fe85d3b29bd15cd259378c5cf40c"
+        },
+        {
+          "path": "art/ref/style-tile/contact-sheet-1x.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 5108,
+          "width": 620,
+          "height": 200,
+          "sha256": "ce79389d83ae166febac202601c0b964b1b187c0fd7d4e9774a6d8c3d63df572"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T13",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-23"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "shipped": false,
+      "notes": "Style tile และ contact sheet 1x ของ artist-2d (P1-F03-T13) · ใช้เป็น reference ภายในทีมเท่านั้น ไม่ส่งถึงผู้เล่น · ย้าย path จาก art/assets/ui/style-tile/ มาที่ art/ref/style-tile/ ตาม asset-pipeline §2/§3.2 และคำตัดสิน R-4 ของ art/reviews/F03-visual-gate.md (P1-F03-T22) · เนื้อหาไฟล์ไม่เปลี่ยน (bytes/sha256 เท่าเดิม) · handoff ถึง qa-tester: qa/reports/F03/colorblind/capture-colorblind.spec.ts ยังอ้าง path เดิม ต้องแก้เป็น art/ref/style-tile/."
+    }
+  ]
+}

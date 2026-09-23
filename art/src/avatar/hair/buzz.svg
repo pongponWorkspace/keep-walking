@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 320" width="384" height="320">
+  <g id="buzz-r0-c0" transform="translate(0,0)"><rect x="40" y="14" width="48" height="24" rx="14" fill="#20C0C0"/><rect x="40" y="14" width="48" height="8" rx="14" fill="#40FFFF"/><rect x="74" y="22" width="14" height="12" rx="14" fill="#008080"/><rect x="40" y="34" width="48" height="4" rx="14" fill="#008080"/><rect x="43" y="17" width="3" height="3" fill="#FFFFFF"/><rect x="40" y="14" width="48" height="24" rx="14" fill="none" stroke="#1A1A22" stroke-width="2"/></g>
+  <g id="buzz-r0-c1" transform="translate(128,0)"><rect x="40" y="14" width="48" height="24" rx="14" fill="#20C0C0"/><rect x="40" y="14" width="48" height="8" rx="14" fill="#40FFFF"/><rect x="74" y="22" width="14" height="12" rx="14" fill="#008080"/><rect x="40" y="34" width="48" height="4" rx="14" fill="#008080"/><rect x="43" y="17" width="3" height="3" fill="#FFFFFF"/><rect x="40" y="14" width="48" height="24" rx="14" fill="none" stroke="#1A1A22" stroke-width="2"/></g>
+  <g id="buzz-r0-c2" transform="translate(256,0)"><rect x="40" y="14" width="48" height="24" rx="14" fill="#20C0C0"/><rect x="40" y="14" width="48" height="8" rx="14" fill="#40FFFF"/><rect x="74" y="22" width="14" height="12" rx="14" fill="#008080"/><rect x="40" y="34" width="48" height="4" rx="14" fill="#008080"/><rect x="43" y="17" width="3" height="3" fill="#FFFFFF"/><rect x="40" y="14" width="48" height="24" rx="14" fill="none" stroke="#1A1A22" stroke-width="2"/></g>
+  <g id="buzz-r1-c0" transform="translate(0,160)"></g>
+  <g id="buzz-r1-c1" transform="translate(128,160)"></g>
+  <g id="buzz-r1-c2" transform="translate(256,160)"></g>
+</svg>

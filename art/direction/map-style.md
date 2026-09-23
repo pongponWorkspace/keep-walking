@@ -1,6 +1,6 @@
 # Map Style — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T12 (แก้ใน P1-X06: หัวข้อ 2, 5, 6.1, 9, 13, 14 ตาม tech note 15 และผลตรวจ contrast ของ QA · ไม่เปลี่ยน style JSON) · เจ้าของ: art-director · สถานะ: ฉบับแรก (0.1.0) พร้อมให้ P1-F02-T11 โหลด · รอภาพทดสอบกับ fixture tile และกลางแดด (หัวข้อ 9) · วันที่: 2026-09-23
+Task: P1-F03-T12 (แก้ใน P1-X06: หัวข้อ 2, 5, 6.1, 9, 13, 14 ตาม tech note 15 และผลตรวจ contrast ของ QA · ไม่เปลี่ยน style JSON) · แก้ใน P1-X32 (2026-09-24): ป้ายรอยแยกย้ายไปอ่าน point source `kw-dungeon-labels` แก้บั๊กป้ายซ้ำจาก P1-H06 หัวข้อ 5 · style 0.2.0 · หัวข้อ 1, 5, 6, 6.1, 12, 13, 14 · เจ้าของ: art-director · สถานะ: ฉบับแรก (0.1.0) พร้อมให้ P1-F02-T11 โหลด · รอภาพทดสอบกับ fixture tile และกลางแดด (หัวข้อ 9) · วันที่: 2026-09-23
 แหล่งอ้างอิง: GDD "แผนที่และโซนดำ", "รายได้ของโปรเจกต์" · `art/direction/style-guide.md` (3.5, 4.4, 4.5, 9.2, 9.3) · `art/direction/icon-grammar.md` · `docs/tech/F02-map-location-spike.md` (5, 6, 6.3, 7, 8, 14) · D-006, D-031, D-032
 
 ## สารบัญ
@@ -25,7 +25,8 @@ Task: P1-F03-T12 (แก้ใน P1-X06: หัวข้อ 2, 5, 6.1, 9, 13, 1
 | --- | --- | --- |
 | `art/direction/map-style/kw-light.style.json` | MapLibre style v8 ตัวหลัก (โหมดกลางวัน) | `apps/client/src/map/style.ts` (P1-F02-T11) |
 | `art/direction/map-style/icons/rift-crack.svg` | icon รอยแตกของรอยแยก วาดที่ 2x (48 × 72) | client เรียก `map.addImage("kw-rift-crack", img, { pixelRatio: 2 })` |
-| `art/direction/map-style/samples/dungeons.sample.geojson` | dungeon ตัวอย่าง 3 แบบ: เปิด, sponsored, ปิด | preview, e2e, ภาพทดสอบ |
+| `art/direction/map-style/samples/dungeons.sample.geojson` | polygon ของ dungeon ตัวอย่าง 3 แบบ: เปิด, sponsored, ปิด (source `kw-dungeons`) | preview, e2e, ภาพทดสอบ |
+| `art/direction/map-style/samples/dungeon-labels.sample.geojson` | จุดวางป้าย 1 จุดต่อ dungeon ของ 3 dungeon เดียวกัน `id` และ property ชุดเดียวกัน (source `kw-dungeon-labels`) | 〃 · ใช้เป็นค่าคาดหวังของ unit test ของ adapter |
 | `art/direction/map-style/samples/playarea-mask.sample.geojson` | mask โซนดำตัวอย่าง (รูของ mask = bbox ของ tile) | 〃 |
 | `art/direction/map-style/samples/provinces.sample.geojson` | เส้นจังหวัดและชื่อจังหวัดตัวอย่าง | 〃 |
 | `art/direction/map-style/samples/self.sample.geojson` | ตำแหน่งตัวเอง + วง accuracy 15 ม. ตัวอย่าง | 〃 |
@@ -106,24 +107,34 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 | 29 | `kw-rift-outline` | kw-dungeons | ≥ 12 | `rift.500` #CC1177 3 px มุมแหลม (miter) | ขอบรอยแยก |
 | 30 | `kw-rift-inner` | kw-dungeons | ≥ 14 | `rift.300` 1 px offset −2 px (ด้านใน) | ขอบในของรอยแยก |
 | 31 | `kw-province-label` | kw-provinces `label` | ≥ 6 | `ink.100` #DDDDEE halo `ink.900` 2 px | ชื่อจังหวัด (อยู่เหนือโซนดำ) |
-| 32 | `kw-rift-crack` | kw-dungeons (เปิด) | ≥ 10 | image `kw-rift-crack` | icon รอยแตกกลาง polygon |
-| 33 | `kw-rift-name` | kw-dungeons | ≥ 12 | `bg.paper` บน halo `rift.500` 3 px (ปิด: halo `ink.500`) 16→18 px | ชื่อ dungeon เหนือ icon |
-| 34 | `kw-rift-count` | kw-dungeons | ≥ 14 | `ink.900` บน halo `rift.300` 3 px, 14 px | จำนวนคนและ role ระดับ dungeon ใต้ icon |
-| 35 | `kw-rift-sponsored` | kw-dungeons `sponsored = true` | ≥ 12 (เท่ากับชื่อ) | `bg.paper` บน halo `ink.900` 3 px, 14 px | ป้าย sponsored |
+| 32 | `kw-rift-crack` | kw-dungeon-labels (เปิด) | ≥ 10 | image `kw-rift-crack` | icon รอยแตกที่จุดวางป้าย (ด้านในของ polygon) |
+| 33 | `kw-rift-name` | kw-dungeon-labels | ≥ 12 | `bg.paper` บน halo `rift.500` 3 px (ปิด: halo `ink.500`) 16→18 px | ชื่อ dungeon เหนือ icon |
+| 34 | `kw-rift-count` | kw-dungeon-labels | ≥ 14 | `ink.900` บน halo `rift.300` 3 px, 14 px | จำนวนคนและ role ระดับ dungeon ใต้ icon |
+| 35 | `kw-rift-sponsored` | kw-dungeon-labels `sponsored = true` | ≥ 12 (เท่ากับชื่อ) | `bg.paper` บน halo `ink.900` 3 px, 14 px | ป้าย sponsored |
 | 36 | `kw-self-accuracy` | kw-self `accuracy` | ทุก zoom | `state.info` #006699 ทึบ 12% | วง accuracy |
 | 37 | `kw-self-accuracy-edge` | kw-self `accuracy` | ทุก zoom | `state.info` 2 px | ขอบวง accuracy |
 | 38 | `kw-self-dot` | kw-self `position` | ทุก zoom | `accent.signal` #FFCC00 รัศมี 8 px ขอบ `ink.900` 3 px | ตำแหน่งของตัวเอง |
 
 เหตุผลของลำดับ
 - label ของ basemap อยู่ **ใต้** `kw-zone-black` เพื่อให้ชื่อถนนนอกเขตถูกปิดไปด้วย (style-guide 9.3 "ถนนนอกเขตไม่แสดง")
-- ชั้นเกมที่อยู่บนสุดได้สิทธิ์วางป้ายก่อน (MapLibre วางสัญลักษณ์จากชั้นบนลงล่าง) ป้ายรอยแยกจึงไม่ถูกชื่อถนนเบียด และใช้ `text-allow-overlap: true` ให้ชื่อ จำนวน และป้าย sponsored แสดงคู่กันเสมอ
+- ชั้นเกมที่อยู่บนสุดได้สิทธิ์วางป้ายก่อน (MapLibre วางสัญลักษณ์จากชั้นบนลงล่าง) ป้ายรอยแยกจึงไม่ถูกชื่อถนนเบียด และใช้ `text-allow-overlap: true` ให้ชื่อ จำนวน และป้าย sponsored แสดงคู่กันเสมอ · การตั้ง allow-overlap นี้ **ตั้งใจ** และปลอดภัยเพราะป้ายซ้ำเกิดไม่ได้ตั้งแต่โครงสร้างข้อมูล (หัวข้อ 6.1 "ทำไมไม่ซ้ำ") ไม่ได้พึ่ง collision ซ่อนให้
+- symbol layer ของรอยแยกทั้ง 4 ชั้นอ่าน `kw-dungeon-labels` (Point) เท่านั้น · `kw-dungeons` (polygon) มีแค่ fill และ line 4 ชั้น (8, 28, 29, 30) · **ห้ามเพิ่ม symbol layer ที่อ่าน `kw-dungeons`** (P1-X32)
 - `kw-rift-fill` อยู่ใต้ถนนเพื่อไม่ทับชื่อถนน (style-guide 3.5 หมายเหตุ rift-fill) · ความหมายของรอยแยกอยู่ที่ขอบทึบและ icon ไม่ใช่สีพื้น
 
 ## 6. สัญญาข้อมูลของ source ฝั่งเกม (GeoJSON)
 
 ทุก source `kw-*` ใน style เริ่มเป็น FeatureCollection ว่าง · client เติมด้วย `map.getSource(id).setData(...)` · style ไม่มีข้อความไทยฝังเอง ทุกข้อความที่ผู้เล่นเห็นมาจาก property ที่ client เตรียมจาก back office หรือ copy key
 
-### 6.1 `kw-dungeons` (polygon ของ dungeon)
+### 6.1 `kw-dungeons` (polygon) และ `kw-dungeon-labels` (จุดวางป้าย)
+
+ตั้งแต่ P1-X32 (style 0.2.0) adapter เดียวผลิต **2 FeatureCollection จาก dungeon ชุดเดียวกัน** แล้วเรียก `setData` ทั้งสอง source ในรอบเดียวกัน
+
+| source | geometry | จำนวน feature | layer ที่อ่าน |
+| --- | --- | --- | --- |
+| `kw-dungeons` | `Polygon` / `MultiPolygon` | 1 ต่อ dungeon | `kw-rift-fill`, `kw-rift-outline-closed`, `kw-rift-outline`, `kw-rift-inner` (fill/line เท่านั้น) |
+| `kw-dungeon-labels` | `Point` (ห้าม `MultiPoint`) | **1 ต่อ dungeon เท่านั้น** | `kw-rift-crack`, `kw-rift-name`, `kw-rift-count`, `kw-rift-sponsored` (symbol เท่านั้น) |
+
+ทั้งสอง source ใช้ property whitelist ชุดเดียวกัน (ตารางด้านล่าง ไม่เปลี่ยนจากเดิม) และตั้ง `promoteId: "id"` ทั้งคู่ · feature ที่มี `id` เดียวกันในสอง source ต้องมีค่า property เท่ากันทุกตัว
 
 | property | type | ที่มา | ใช้ที่ |
 | --- | --- | --- | --- |
@@ -134,6 +145,8 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 | `label_sponsored` | string | copy key `label.sponsored` (เสนอใน style-guide 9.2 ถ้อยคำของ narrative-designer) | `kw-rift-sponsored` |
 | `label_count` | string | client จัดรูปจากค่าระดับ dungeon ที่ server ส่ง (จำนวนคนรวม + จำนวนต่อ class) ผ่าน copy key | `kw-rift-count` |
 
+ฝั่ง polygon: `status` ใช้กับ fill/line · ฝั่งจุด: `name`, `status` (สี halo ของชื่อ, ซ่อน icon ของ dungeon ที่ปิด), `sponsored`, `label_sponsored`, `label_count` ใช้กับ symbol · ใส่ครบทั้ง 6 ตัวทั้งสองฝั่งเพื่อให้สร้างจาก object เดียวกันและตรวจเท่ากันได้ง่าย
+
 สัญญานี้ ACCEPTED ใน tech note `docs/tech/F02-map-location-spike.md` 15.2 เป็น **view model ฝั่ง client** ไม่ใช่ API · กติกาของ adapter เดียว `apps/client/src/map/dungeons-source.ts`
 - **สร้าง object ใหม่จาก whitelist:** ใส่เฉพาะ 6 property ในตาราง (`id`, `name`, `status`, `sponsored`, `label_sponsored`, `label_count`) · **ห้าม spread payload ของ server ลง feature** · property อื่นที่ server ส่งมาทิ้งทั้งหมด (tech gate ตรวจว่าไม่มีรหัส ชื่อ พิกัด geohash หรือเวลาที่เห็นล่าสุดของผู้เล่นคนใด, non-negotiable 4)
 - **`status` ที่ไม่รู้จัก → `"closed"`:** ค่าใดที่ไม่ใช่ `"open"` หรือ `"closed"` (รวมค่าว่างหรือไม่มี field) adapter แปลงเป็น `"closed"` และ `console.warn` · style จึงเห็นแค่สองค่านี้ ส่วน dungeon ที่สถานะไม่ชัดแสดงเป็นขอบประ `ink.500` ไม่ชวนให้เดินไปที่ที่อาจเข้าไม่ได้ · เพิ่มสถานะใหม่ต้องแก้ทั้ง style (art-director) และ adapter พร้อมกัน
@@ -141,6 +154,23 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 - geometry: `Polygon` หรือ `MultiPolygon` ตาม RFC 7946 · **วงนอกทวนเข็มนาฬิกา** (ทำให้ `line-offset: -2` ของ `kw-rift-inner` อยู่ด้านในเสมอ) · adapter rewind ด้วย pure function ของโปรเจกต์ (`packages/geo` เมื่อสร้าง ระหว่างนี้อยู่ใน `apps/client/src/map/`) · ไม่เพิ่ม `@turf/rewind` โดยไม่มี handoff ถึง tech-lead (tech note 15.2 ข้อ 7)
 - ห้ามมี property ที่เป็นพิกัด รหัส หรือชื่อของผู้เล่นคนใด · `label_count` เป็นตัวเลขรวมระดับ dungeon เท่านั้น
 - ต่อไปเมื่อ artist-2d วาด glyph class 4 แบบตาม icon-grammar แล้ว จะเพิ่ม image `kw-class-tanker` ... ใน `label_count` ด้วย `format` + `image` แทนตัวย่อ (เวอร์ชันถัดไปของ style ไม่เปลี่ยนสัญญา property)
+
+**การเลือกจุดวางป้าย (`kw-dungeon-labels`)**
+1. ใช้ **pole of inaccessibility** (อัลกอริทึม polylabel: จุดภายใน polygon ที่ห่างจากขอบมากที่สุด) ของ polygon · **ห้ามใช้** จุดกึ่งกลาง bbox หรือ centroid ทางเรขาคณิต เพราะทั้งสองแบบตกนอก polygon ได้เมื่อรูปเว้า (สวนรูปตัว L ริมคลอง ตลาดที่เป็นแนวยาวหักมุม) ทำให้ icon และชื่อไปอยู่บนถนนหรือในพื้นที่ของที่อื่น
+2. `MultiPolygon`: เลือก polygon ย่อยที่มีพื้นที่ (planar) มากที่สุด แล้วหาจุดของ polygon นั้นจุดเดียว · ไม่สร้างจุดต่อ polygon ย่อย
+3. คำนวณในพิกัด lon/lat ตรงได้ (dungeon กว้างไม่กี่ร้อยเมตร ความเพี้ยนของมาตราส่วนที่ละติจูด 13–14 องศาน้อยจนไม่มีผลกับการวางป้าย) · precision 0.00001 องศา (~1 ม.) · ปัดพิกัดผลลัพธ์ ≤ 5 ทศนิยม
+4. ผลต้อง **อยู่ภายใน polygon** เสมอ (ไม่อยู่ในรู ไม่อยู่บนขอบ) · ถ้าอัลกอริทึมคืนจุดที่ไม่ผ่าน point-in-polygon (polygon เสีย) ให้ `console.warn` และ **ไม่ใส่จุดของ dungeon นั้น** ดีกว่าวางป้ายผิดที่ (polygon ยังแสดงตามปกติ)
+5. คำนวณครั้งเดียวเมื่อ geometry ของ dungeon เปลี่ยน แล้ว cache ตาม `id` · การเปลี่ยน `label_count` ทุก tick ไม่ต้องคำนวณจุดใหม่ (แค่สร้าง feature ใหม่ด้วยจุดเดิม)
+6. ในอนาคต (Phase 3) หลังบ้านอาจส่งจุดที่ level-designer เลือกเองมาได้ · ถ้ามี ให้ใช้เมื่อผ่านข้อ 4 ไม่ผ่านจึงคำนวณเอง (ต้องมีใน API contract ของ tech-lead ก่อน ไม่ใช่งานของ Phase 1)
+7. อัลกอริทึม: เขียนเป็น pure function ของโปรเจกต์ (`packages/geo` เมื่อสร้าง ระหว่างนี้ `apps/client/src/map/` เหมือน rewind) หรือใช้ package `polylabel` (ISC, ไม่มี dependency) **ต่อเมื่อ tech-lead อนุมัติผ่าน handoff** เช่นเดียวกับกติกา `@turf/rewind`
+
+ค่าคาดหวังของตัวอย่าง: `samples/dungeon-labels.sample.geojson` · `sample-open-01` (polygon เกือบสี่เหลี่ยม ขอบบนเอียง) → `[100.54085, 13.7306]` รัศมีวงในสุด ~0.00435 องศา · `sample-sponsored-01` และ `sample-closed-01` (สี่เหลี่ยมจัตุรัส) → จุดกลาง `[100.553, 13.806]`, `[100.559, 13.73]` · test ของ adapter เทียบได้ด้วย tolerance 0.0001 องศา
+
+**ทำไมป้ายไม่ซ้ำ (by construction) และทำไม allow-overlap ยังเป็น true**
+- บั๊กเดิม (P1-H06 หัวข้อ 5): symbol layer อ่าน polygon จาก GeoJSON source · geojson-vt ตัด polygon ข้าม internal tile และ MapLibre คำนวณ anchor ของ symbol ต่อชิ้นใน tile แต่ละใบ ป้ายของ dungeon เดียวจึงออกหลายชุด (S1 เห็น 4 ชุด) · `*-allow-overlap: true` ทำให้ collision ไม่กรองชุดที่ซ้ำ
+- ตอนนี้แต่ละ dungeon มี Point จุดเดียว · จุดเดียวมี anchor เดียว · แม้ geojson-vt ใส่จุดที่อยู่ใกล้ขอบ tile ลงใน buffer ของ tile ข้างเคียงด้วย MapLibre ข้าม anchor ที่อยู่นอก extent ของ tile นั้นเมื่อวางแบบ point placement จึงวาดแค่ใน tile ที่เป็นเจ้าของจุด · จำนวนป้ายต่อ dungeon จึงเท่ากับ 1 เสมอโดยไม่ขึ้นกับขนาดหรือรูปร่าง polygon และไม่ต้องปรับ `tolerance`/`buffer`/`maxzoom` ของ source
+- `icon-allow-overlap`/`text-allow-overlap` = `true` (และ `icon-ignore-placement` = `true` ที่ `kw-rift-crack`) คงไว้โดยตั้งใจ: (1) ชื่อ จำนวน ป้าย sponsored และ icon ของ dungeon เดียวกันวางซ้อนกันที่ anchor เดียวด้วย offset ต้องไม่ซ่อนกันเอง (2) ป้าย sponsored ต้องไม่หายเพราะชื่อถนนเบียด (style-guide 9.2 "sponsored ต้องมีป้ายชัดเจน") · ผลข้างเคียงที่ยอมรับ: dungeon สองแห่งที่อยู่ใกล้กันมากอาจมีป้ายทับกันที่ zoom ต่ำ · ถ้าเจอจริงในข้อมูลของ level-designer จะแก้ด้วย `symbol-sort-key` หรือ minzoom ไม่ใช่ปิด allow-overlap
+- ห้ามแก้ปัญหาป้ายซ้ำด้วยการปิด allow-overlap: จะซ่อนป้ายซ้ำแบบสุ่มตามลำดับ tile และซ่อนป้าย sponsored ไปด้วย
 
 ### 6.2 `kw-playarea-mask` (โซนดำ)
 
@@ -171,7 +201,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 
 ## 7. รอยแยก (dungeon)
 
-ภาพที่ต้องเห็นที่ zoom 16 บนสวนสาธารณะ: polygon ของสวนมีขอบบานเย็นเข้ม 3 px มุมหักแหลม ขอบในชมพูอ่อน 1 px พื้นในแต้มชมพูจางใต้ถนนและทางเดิน · กลาง polygon มี icon รอยแตกซิกแซกแนวตั้ง (ขอบหมึก พื้นบานเย็น ขอบในชมพู แกนครีม) สูง 36 px · เหนือ icon คือชื่อ dungeon ตัวครีมบนแถบบานเย็น · ใต้ icon คือจำนวนคนและ role ตัวหมึกบนแถบชมพู · ถ้าเป็น sponsored มีป้ายตัวครีมบนแถบดำใต้จำนวนคน
+ภาพที่ต้องเห็นที่ zoom 16 บนสวนสาธารณะ: polygon ของสวนมีขอบบานเย็นเข้ม 3 px มุมหักแหลม ขอบในชมพูอ่อน 1 px พื้นในแต้มชมพูจางใต้ถนนและทางเดิน · ที่จุดวางป้ายด้านในของ polygon (หัวข้อ 6.1) มี icon **ชุดเดียว** รอยแตกซิกแซกแนวตั้ง (ขอบหมึก พื้นบานเย็น ขอบในชมพู แกนครีม) สูง 36 px · เหนือ icon คือชื่อ dungeon ตัวครีมบนแถบบานเย็น · ใต้ icon คือจำนวนคนและ role ตัวหมึกบนแถบชมพู · ถ้าเป็น sponsored มีป้ายตัวครีมบนแถบดำใต้จำนวนคน
 
 | ส่วน | ค่า |
 | --- | --- |
@@ -259,7 +289,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 
 ## 12. ความเป็นส่วนตัวและข้อห้าม
 
-- **ตำแหน่งบนแผนที่มีแค่ของตัวเอง** (`kw-self`) · ข้อมูลผู้เล่นอื่นปรากฏได้แค่ `label_count` บนป้ายรอยแยก เป็นตัวเลขรวมระดับ dungeon และจำนวนต่อ role · **ห้ามเพิ่ม** layer แบบ `circle`, `heatmap`, cluster, หรือ symbol ที่มาจากข้อมูลรายคนของผู้อื่น ไม่ว่าจะเบลอหรือหน่วงเวลาแล้วก็ตาม (non-negotiable 4, SF-7) · tech gate และ content gate ตรวจด้วยการไล่ `sources` ใน style และการเรียก `addSource`/`addLayer` ใน client
+- **ตำแหน่งบนแผนที่มีแค่ของตัวเอง** (`kw-self`) · ข้อมูลผู้เล่นอื่นปรากฏได้แค่ `label_count` บนป้ายรอยแยก เป็นตัวเลขรวมระดับ dungeon และจำนวนต่อ role · Point ใน `kw-dungeon-labels` คือจุดวางป้ายของ **สถานที่** ที่คำนวณจาก polygon ของ dungeon ไม่ใช่ตำแหน่งของใคร และมี 1 จุดต่อ dungeon เสมอ ห้ามใส่จุดต่อผู้เล่นหรือต่อกลุ่มลงใน source นี้ · **ห้ามเพิ่ม** layer แบบ `circle`, `heatmap`, cluster, หรือ symbol ที่มาจากข้อมูลรายคนของผู้อื่น ไม่ว่าจะเบลอหรือหน่วงเวลาแล้วก็ตาม (non-negotiable 4, SF-7) · tech gate และ content gate ตรวจด้วยการไล่ `sources` ใน style และการเรียก `addSource`/`addLayer` ใน client
 - POI: whitelist `park`, `garden`, `playground`, `marketplace`, `station`, `train_station`, `bus_station`, `ferry_terminal`, `museum`, `zoo`, `aquarium`, `library`, `sports_centre`, `stadium` · **ไม่มี** `place_of_worship` หรือศาสนสถานใดๆ และไม่มี icon ของ POI (D-006) · ตัด `attraction` ออกโดยเจตนา เพราะวัดท่องเที่ยวใน OSM มักติดแท็ก `tourism=attraction` · ชื่อถนนหรือย่านที่เป็นชื่อจริงยังแสดงตามข้อมูล OSM เพราะเป็นข้อมูลนำทาง ไม่ใช่การเน้น
 - `landuse_park` รวม `cemetery` เป็นสีสวนธรรมดา ไม่มีสัญลักษณ์ใดๆ
 - ไม่มีโลโก้ แบรนด์ หรือสีของผู้ให้บริการขนส่งจริงบนแผนที่ · รางใช้สีกลาง `ink.500`
@@ -288,6 +318,10 @@ contrast ของหัวข้อ 9 ตรวจด้วย `qa/tests/unit/c
 
 ถ้า `map-style.test.ts` พบ error ให้ส่งกลับ art-director แก้ใน style JSON และไฟล์นี้ ไม่แก้ในโค้ด
 
+P1-X32 (style 0.2.0): เพิ่ม source `kw-dungeon-labels` (`geojson`, `data`, `promoteId` เหมือน `kw-dungeons`) และเปลี่ยน `source` + filter ของ 4 symbol layer เป็น `["==", ["geometry-type"], "Point"]` · จำนวน layer ยัง 38 ชั้น id เดิม · ตรวจด้วยมือว่า key ทุกตัวมีใน v8 และ JSON ถูกต้อง · ผู้เขียนไม่มี shell **orchestrator ต้องรัน `npx vitest run qa/tests/unit/map-style.test.ts` (คาด 0 error, 2/2 ผ่าน)** และถ่าย S1/S3 ซ้ำตามหัวข้อ 10.1 หลัง P1-X33 เชื่อม source ใหม่ในโค้ด (คาด: ชื่อ จำนวน ป้าย sponsored และ icon อย่างละ 1 ชุดต่อ dungeon)
+
+ข้อเสนอ static check เพิ่ม (qa-tester เป็นเจ้าของ test): ทุก layer ที่ `type = symbol` ต้องไม่มี `source = kw-dungeons` · ทุก layer ที่อ่าน `kw-dungeon-labels` ต้องเป็น `symbol` · กันบั๊กนี้กลับมาจากการแก้ style ครั้งหน้า
+
 ## 14. สมมติฐานและงานส่งต่อ
 
 สมมติฐาน
@@ -296,6 +330,9 @@ contrast ของหัวข้อ 9 ตรวจด้วย `qa/tests/unit/c
 - A-P1-F03-T12-3: เส้นจังหวัดและ mask โซนดำมาจาก GeoJSON แยก ไม่ใช้ layer `boundaries` ของ tile (หัวข้อ 6.2–6.3) · **ปิดแล้ว:** D-037 ACCEPTED ใน tech note 15.1 (ไฟล์ `data/map/playarea-mask.geojson`, `data/map/provinces.geojson`)
 - A-P1-F03-T12-4: token ใหม่ที่ใช้บนแผนที่เป็น token เดิมทั้งหมด (`ramp.water` right #3377AA ใช้กับคลองและขอบน้ำ) ไม่มี hex ใหม่ · ตาราง 3.5 ของ style-guide ยังถูก แต่ควรเพิ่มแถว `map.water-edge` = #3377AA (ยืนยัน: art-director)
 - A-P1-F03-T12-5: สัญญา property ของ `kw-dungeons` (หัวข้อ 6.1) เป็นร่างจนกว่า tech-lead จะออก API contract ของ dungeon ใน Phase 3 · **ปิดในส่วนชื่อ property:** tech note 15.2 ACCEPTED เป็น view model ฝั่ง client (adapter whitelist, `status` ไม่รู้จัก → `closed`) · ส่วนที่ยังเปิดคือรูป payload ของ server (Phase 3) ซึ่งไม่กระทบ style
+
+- A-P1-X32-1: MapLibre (6.10.0) ข้าม anchor ของ point placement ที่อยู่นอก extent ของ tile จึงไม่วางจุดที่อยู่ใน buffer ของ tile ข้างเคียงซ้ำ (พฤติกรรมของ symbol layout ใน Mapbox GL/MapLibre ทุกเวอร์ชันที่รู้จัก) (ยืนยัน: qa-tester ด้วยภาพ S1/S3 ซ้ำ และ query จำนวนป้ายต่อ `id` หลัง P1-X33)
+- A-P1-X32-2: ใน Phase 1–2 client คำนวณจุดวางป้ายเอง (หัวข้อ 6.1 ข้อ 1–5) · จุดที่หลังบ้านเลือกเองเป็นทางเลือกของ Phase 3 (ยืนยัน: tech-lead ตอนออก API contract ของ dungeon)
 
 การเปลี่ยน style: art-director เท่านั้น · ทุกครั้งที่เปลี่ยนสี ให้คำนวณหัวข้อ 9 ใหม่ และเพิ่ม `metadata.kw:styleVersion`
 

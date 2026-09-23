@@ -10,9 +10,9 @@
   <h1>Flow A — Onboarding นาที 0–3 (ก่อนถึง confirm เข้า dungeon)</h1>
   <p>อ้างอิง: design/ux/flows/F03-core-loop.md หัวข้อ 2 · ทุกจอมีปุ่มเดียวเด่นสุด ใช้งานมือเดียวได้ · ข้อความในวงเล็บคือร่างไทย ไม่ใช่ copy สุดท้าย (ของจริงเป็นของ narrative-designer P1-F03-T05) · <span class="copykey">key.name</span> = copy key ที่เสนอ · <span class="config-ref">config: key</span> = ค่าที่มาจาก config เท่านั้น ห้าม hardcode</p>
   <div class="legend">
-    <span><span class="swatch" style="background:#FFCC00"></span> ปุ่มหลัก (accent.signal)</span>
-    <span><span class="swatch" style="background:#fff"></span> การ์ด/พื้นผิว (bg.surface)</span>
-    <span><span class="swatch" style="background:#CC1177"></span> รอยแยก (rift.500)</span>
+    <span><span class="swatch" style="background:var(--accent-signal);"></span> ปุ่มหลัก (accent.signal)</span>
+    <span><span class="swatch" style="background:var(--bg-surface);"></span> การ์ด/พื้นผิว (bg.surface)</span>
+    <span><span class="swatch" style="background:var(--rift-500);"></span> รอยแยก (rift.500)</span>
     <span>ทุกปุ่ม/target ≥ 48×48 px (tokens.json touchTarget.min_px)</span>
   </div>
 </div>
@@ -74,7 +74,7 @@
     <p class="body-text"><span class="copykey">age.gateBody</span><br><span class="thaidraft">(เกมนี้สำหรับอายุ {minAge} ปีขึ้นไป เลือกปีเกิดจากรายการ)</span></p>
     <p class="caption"><span class="copykey">age.gateOptions</span> <span class="thaidraft">(เลือกปีเกิด)</span></p>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <div class="card" style="text-align:center;border-color:var(--accent-signal);">ก่อน 2011 (อายุ 15+) — เลือกอยู่</div>
+      <div class="card selected" style="text-align:center;">ก่อน 2011 (อายุ 15+) — เลือกอยู่</div>
       <div class="card" style="text-align:center;">2012–2015</div>
       <div class="card" style="text-align:center;">2016 หรือหลังจากนั้น</div>
     </div>
@@ -96,13 +96,14 @@
   <div class="screen-body">
     <h1 class="scr-title"><span class="copykey">account.loginTitle</span><br><span class="thaidraft">(เข้าสู่ระบบก่อนเริ่มเดิน)</span></h1>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:24px;">
-      <div class="btn btn-primary"><span class="copykey">account.loginGoogle</span>&nbsp;<span class="thaidraft">(ใช้ {providerName})</span></div>
+      <!-- R-6 (art gate 3.7 ไม่บังคับ): ปุ่มผู้ให้บริการทั้งสองเป็น .btn-secondary น้ำหนักเท่ากัน ห้ามใช้ accent.signal กับรายใดรายหนึ่ง (เงื่อนไข 3, 5 — ดู components.md หัวข้อ 3.1) -->
+      <div class="btn btn-secondary" style="width:100%;"><span class="copykey">account.loginGoogle</span>&nbsp;<span class="thaidraft">(ใช้ {providerName})</span></div>
       <div class="btn btn-secondary" style="width:100%;"><span class="copykey">account.loginApple</span>&nbsp;<span class="thaidraft">(ใช้ {providerName})</span></div>
     </div>
     <p class="caption" style="margin-top:16px;color:var(--state-danger);">error state: <span class="copykey">account.loginError</span> <span class="thaidraft">(เข้าสู่ระบบไม่สำเร็จ ลองอีกครั้ง)</span> — ค้างหน้านี้ ไปต่อไม่ได้จนกว่าจะสำเร็จ</p>
   </div>
 </div>
-<p class="frame-caption">mandatory-first ตาม [ASSUMPTION A-P1-F03-T15-2] จนกว่า F07 จะตัดสิน guest session</p>
+<p class="frame-caption">mandatory-first ตาม [ASSUMPTION A-P1-F03-T15-2] จนกว่า F07 จะตัดสิน guest session · ปุ่ม login จริงเป็น native SDK button ของผู้ให้บริการแต่ละราย (ธีมดำ contrast สูงสุดบน bg.paper) — สองบล็อกนี้เป็น fallback เมื่อ SDK เรนเดอร์เองไม่ได้เท่านั้น (R-6 เงื่อนไข 1–2, 4, 6 อยู่ที่ components.md หัวข้อ 3.1)</p>
 </div>
 
 <div class="frame-block">
@@ -112,7 +113,11 @@
   <div class="screen-body" style="padding:0;">
     <div style="background:var(--map-park);height:100%;position:relative;">
       <div style="position:absolute;left:20px;top:20px;width:28px;height:28px;background:var(--ink-900);border-radius:50%;border:2px solid var(--bg-surface);"></div>
-      <div style="position:absolute;right:60px;top:70px;width:36px;height:44px;background:var(--rift-500);clip-path:polygon(50% 0%,80% 20%,70% 55%,100% 70%,40% 100%,45% 60%,0% 45%,35% 35%);"></div>
+      <!-- V-02 fix (art gate 3.7d): ก้อนดำ ink.900 ใหญ่กว่าอยู่ล่างให้เป็นขอบหมึก 2px รอบก้อนสี rift.500 ทึบด้านบน -->
+      <div style="position:absolute;right:58px;top:68px;width:40px;height:48px;">
+        <div style="position:absolute;inset:0;background:var(--ink-900);clip-path:polygon(50% 0%,80% 20%,70% 55%,100% 70%,40% 100%,45% 60%,0% 45%,35% 35%);"></div>
+        <div style="position:absolute;inset:2px;background:var(--rift-500);clip-path:polygon(50% 0%,80% 20%,70% 55%,100% 70%,40% 100%,45% 60%,0% 45%,35% 35%);"></div>
+      </div>
       <div class="caption" style="position:absolute;right:20px;top:118px;background:var(--rift-500);color:var(--bg-surface);padding:2px 6px;border-radius:6px;border:2px solid var(--ink-900);">ลุมพินี — ป่าในเมือง <span class="config-ref">({zoneName} ตัวอย่างข้อมูล ไม่ใช่ copy key)</span></div>
     </div>
   </div>

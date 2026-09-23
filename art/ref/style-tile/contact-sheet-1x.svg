@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Contact sheet at true 1x size — legibility check per icon-grammar §2.3 (rarity frame compact 52 px) and §5.2 (class badge 20 px, glyph has NO ink outline at this size).
+     Same hex tokens as style-tile.svg. No external refs, no raster, no gradients. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 200" width="620" height="200" font-family="'IBM Plex Sans Thai Looped','Noto Sans Thai',sans-serif">
+  <title>Contact sheet 1x — rarity frame compact 52px, class badge 20px</title>
+  <defs>
+    <symbol id="pip6" viewBox="0 0 6 6"><path d="M3 0 L6 3 L3 6 L0 3 Z"/></symbol>
+    <symbol id="star10" viewBox="0 0 10 10"><path d="M5 0 L6.8 3.2 L10 5 L6.8 6.8 L5 10 L3.2 6.8 L0 5 L3.2 3.2 Z" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <symbol id="g-shield" viewBox="0 0 18 18"><path d="M3 2 H15 V8 C15 13 11 16 9 17 C7 16 3 13 3 8 Z"/></symbol>
+    <symbol id="g-arrow" viewBox="0 0 18 18"><g transform="rotate(-45 9 9)"><path d="M3 7 L11 7 L11 5 L16 9 L11 13 L11 11 L3 11 L5 9 Z"/></g></symbol>
+    <symbol id="g-heart" viewBox="0 0 18 18"><path d="M9 16 C2 11 2 6.5 5.5 4.5 C7.5 3.3 9 4.7 9 6 C9 4.7 10.5 3.3 12.5 4.5 C16 6.5 16 11 9 16 Z"/></symbol>
+    <symbol id="g-sparkle" viewBox="0 0 18 18"><path d="M9 0.5 C10.3 6 10.8 7.2 16 9 C10.8 10.8 10.3 12 9 17.5 C7.7 12 7.2 10.8 2 9 C7.2 7.2 7.7 6 9 0.5 Z"/></symbol>
+  </defs>
+  <rect width="620" height="200" fill="#FFF8EE"/>
+  <text x="12" y="16" font-size="11" font-weight="700" fill="#1A1A22">Rarity frame — compact 52 px (icon-grammar §4.3, §2.3)</text>
+  <g>
+    <rect x="20" y="24" width="52" height="52" rx="8" fill="#FFFFFF" stroke="#1A1A22" stroke-width="2"/>
+    <rect x="21" y="25" width="50" height="50" rx="7" fill="none" stroke="#888899" stroke-width="2"/>
+    <use href="#pip6" x="43" y="49" width="6" height="6" fill="#1A1A22"/>
+    <rect x="100" y="24" width="52" height="52" rx="8" fill="#FFFFFF" stroke="#1A1A22" stroke-width="2"/>
+    <rect x="101" y="25" width="50" height="50" rx="7" fill="none" stroke="#119933" stroke-width="2"/>
+    <use href="#pip6" x="119" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="127" y="49" width="6" height="6" fill="#1A1A22"/>
+    <rect x="180" y="24" width="52" height="52" rx="8" fill="#FFFFFF" stroke="#1A1A22" stroke-width="2"/>
+    <rect x="181" y="25" width="50" height="50" rx="7" fill="none" stroke="#2266EE" stroke-width="2"/>
+    <use href="#pip6" x="195" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="203" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="211" y="49" width="6" height="6" fill="#1A1A22"/>
+    <rect x="260" y="24" width="52" height="52" rx="8" fill="#FFFFFF" stroke="#1A1A22" stroke-width="2"/>
+    <rect x="261" y="25" width="50" height="50" rx="7" fill="none" stroke="#9933DD" stroke-width="2"/>
+    <use href="#pip6" x="271" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="279" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="287" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="295" y="49" width="6" height="6" fill="#1A1A22"/>
+    <rect x="340" y="24" width="52" height="52" rx="8" fill="#FFFFFF" stroke="#1A1A22" stroke-width="2"/>
+    <rect x="341" y="25" width="50" height="50" rx="7" fill="none" stroke="#DD6600" stroke-width="2"/>
+    <use href="#star10" x="386" y="19" width="10" height="10" fill="#DD6600" stroke="#1A1A22"/>
+    <use href="#pip6" x="343" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="351" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="359" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="367" y="49" width="6" height="6" fill="#1A1A22"/><use href="#pip6" x="375" y="49" width="6" height="6" fill="#1A1A22"/>
+  </g>
+  <g font-size="9.5" fill="#1A1A22">
+    <text x="20" y="92">Common·1</text><text x="100" y="92">Uncommon·2</text><text x="180" y="92">Rare·3</text><text x="260" y="92">Epic·4</text><text x="340" y="92">Legendary·5+star</text>
+  </g>
+
+  <text x="12" y="118" font-size="11" font-weight="700" fill="#1A1A22">Class badge — 20 px (icon-grammar §5.2: glyph ขาว ไม่มีขอบที่ขนาดนี้)</text>
+  <g>
+    <circle cx="29" cy="146" r="9" fill="#0072B2" stroke="#1A1A22" stroke-width="2"/><use href="#g-shield" x="20" y="137" width="18" height="18" fill="#FFFFFF"/>
+    <circle cx="109" cy="146" r="9" fill="#D55E00" stroke="#1A1A22" stroke-width="2"/><use href="#g-arrow" x="100" y="137" width="18" height="18" fill="#FFFFFF"/>
+    <circle cx="189" cy="146" r="9" fill="#009E73" stroke="#1A1A22" stroke-width="2"/><use href="#g-heart" x="180" y="137" width="18" height="18" fill="#FFFFFF"/>
+    <circle cx="269" cy="146" r="9" fill="#CC79A7" stroke="#1A1A22" stroke-width="2"/><use href="#g-sparkle" x="260" y="137" width="18" height="18" fill="#FFFFFF"/>
+  </g>
+  <g font-size="9.5" fill="#1A1A22">
+    <text x="14" y="176">Tanker</text><text x="90" y="176">Ranged</text><text x="170" y="176">Support</text><text x="248" y="176">Magic</text>
+  </g>
+</svg>

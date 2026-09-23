@@ -1,6 +1,6 @@
 # Motion Direction — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T27 · เจ้าของ: vfx-animator · สถานะ: ฉบับเสนอ รอ content gate (visual) P1-F03-T22 และ design gate B P1-F03-T25 · วันที่: 2026-09-23
+Task: P1-F03-T27 · แก้ไขจาก content gate (visual) P1-F03-T22 (finding V-01, V-11) ที่ P1-X34 · เจ้าของ: vfx-animator · สถานะ: แก้ตามคำตัดสิน R-1 แล้ว (D-055/D-076 = ACCEPTED) รอ re-run gate · วันที่: 2026-09-24
 แหล่งอ้างอิง: `art/direction/style-guide.md` หัวข้อ 9.1 (ตีบวก), 9.3 (รอยแยกบนแผนที่) · `art/direction/icon-grammar.md` หัวข้อ 4 (rarity 4 ช่องทาง) และ 4.5 (ข้อห้าม motion ของ rarity) · `art/direction/map-style.md` หัวข้อ 7, 8, 11 (รอยแยกเป็นภาพนิ่ง, ห้าม animation ต่อเนื่องบนแผนที่) · `audio/direction.md` และ `audio/cue-list.md` (vibration-first, ระดับความเร่งด่วน, priority) · `design/ux/flows/F03-core-loop.md` หัวข้อ 4.2–4.5, 4.8 · `design/ux/components.md` หัวข้อ 6, 7, 9 · `design/pillars.md` P4 (มือถืออยู่ในกระเป๋า, ห้าม animation ต่อเนื่องบนแผนที่), P5 (โทนแห้ง กวน ไม่ดราม่า) · `config/content/copy.th.json` (`run.*`, `qc.*`, `rarity.*`, `dungeon.*`) · GDD "โทนและภาษาในเกม", "HP การตาย และการฟื้นฟู", "ระบบตีบวก"
 ลำดับอำนาจ: GDD > pillars.md > style-guide.md/icon-grammar.md/map-style.md (ตัดสินภาพแล้ว) > audio/direction.md (ตัดสินเสียง/สั่นแล้ว) > เอกสารนี้ · เอกสารนี้ไม่แก้ timing หรือ pattern ที่ audio ตัดสินไปแล้ว มีหน้าที่ "เดินตามจังหวะเดียวกัน" เท่านั้น
 
@@ -33,12 +33,19 @@ Task: P1-F03-T27 · เจ้าของ: vfx-animator · สถานะ: ฉ�
 - Canvas 2D module ขนาดเล็ก — สงวนไว้เฉพาะ legendary reveal's "shard burst" (หัวข้อ 4) ที่ pattern เป็นเส้นเรขาคณิตยิงออกจากจุดศูนย์กลาง ถ้า CSS/WAAPI ทำภาพเดียวกันได้ (เช่นด้วย pseudo-element หลายตัว) ให้เลือกอันนั้นก่อนเสมอ
 - ห้าม animation library ภายนอก (GSAP ฯลฯ) และห้าม sprite sheet ที่ไฟล์ใหญ่เกินงบ (ดูเพดานไฟล์ท้ายหัวข้อนี้)
 
-**Property ที่ใช้ได้เท่านั้น** (compositor-only บนมือถือส่วนใหญ่ ไม่ trigger layout/paint ซ้ำทุกเฟรม): `transform` (translate/scale/rotate), `opacity` · `filter` ใช้ได้เฉพาะจุดที่ระบุไว้ชัด (legendary เท่านั้น, ความเข้มต่ำ) เพราะเป็น paint-heavy บนมือถือรุ่นล่าง · ห้ามแก้ `width/height/top/left/margin` แบบต่อเนื่องเพราะ trigger layout reflow
+**Property ที่ใช้ได้เท่านั้น** (compositor-only บนมือถือส่วนใหญ่ ไม่ trigger layout/paint ซ้ำทุกเฟรม): `transform` (translate/scale/rotate), `opacity` · ห้ามแก้ `width/height/top/left/margin` แบบต่อเนื่องเพราะ trigger layout reflow (HP bar ดูหัวข้อ 3 ใช้ `transform: scaleX()` แทน)
+
+**รายการ `filter` ที่อนุญาต (V-11) — นอกรายการนี้ห้ามใช้ทั้งหมด เพราะ `filter` เป็น paint-heavy บนมือถือรุ่นล่าง:**
+| ที่ใช้ | ค่า | เหตุผลที่อยู่ในรายการ |
+| --- | --- | --- |
+| ตาย (`run.death` §6.3) | `grayscale()` ไล่ 0→1 ตลอด 600 ms | จังหวะเดียว ไม่ loop, ความหมายคือ "หยุดทำงาน" ตรงกับโทนแห้งของ copy |
+| Legendary drop reveal เท่านั้น (§4) | ความเข้มต่ำรอบจบท้าย (เช่น `brightness()` แบบ one-shot ไม่เกิน 1 จังหวะสุดท้าย) | Legendary เป็นระดับเดียวที่อนุญาตให้ "ดัง" ตามกฎ role |
+| ทุกกรณีอื่น (รวม Uncommon) | ห้าม `filter` ทั้งหมด | Uncommon ใช้ `transform: scale()` แทน (ดูหัวข้อ 4) ไม่ใช้ `brightness()`/`opacity` เพราะทำให้สีกรอบหลุด token ชั่วขณะ |
 
 **กฎ visibility (บังคับทุก effect ไม่มีข้อยกเว้น):**
 - subscribe `visibilitychange` เสมอ hidden → `cancel()`/`pause()` ทันที ไม่ปล่อยให้เล่นค้างเบื้องหลัง
 - กลับมา visible → เริ่ม effect นั้นใหม่ตั้งแต่ต้น ไม่ไล่ตามเวลาที่หายไป (ไม่ seek ไปกลางคัน) ยกเว้น effect ที่ตั้งใจ "ค้าง" อยู่แล้วแบบไม่มี motion ต่อ (เช่น toast อันตรายที่ค้างจนกว่าผู้เล่นตัดสินใจ — กลับมาเห็นก็เห็นสถานะนิ่งเดิม ไม่ต้อง replay)
-- ห้าม `setInterval`/`requestAnimationFrame` วนไม่จบทุกกรณี (ตรงกับกฎเดียวกันของแผนที่ใน `map-style.md` หัวข้อ 11) ทุก effect เป็น finite one-shot ยกเว้นที่ระบุไว้ชัดว่าเป็น idle breathing งบต่ำมาก (หัวข้อ 8)
+- ห้าม `setInterval`/`requestAnimationFrame` วนไม่จบทุกกรณี ไม่มีข้อยกเว้น (ตรงกับกฎเดียวกันของแผนที่ใน `map-style.md` หัวข้อ 11) **ทุก effect ในเอกสารนี้เป็น finite one-shot** — v1 ไม่มี animation ใดวนไม่จบในเกมทั้งบนแผนที่และนอกแผนที่ (R-1, D-076)
 
 **prefers-reduced-motion (บังคับทุก effect มี reduced variant):**
 - ตัด `transform` (translate/scale/rotate) ทั้งหมด เหลือแค่ `opacity` cross-fade ≤150 ms หรือสลับสถานะทันที (0 motion ก็ยอมรับได้)
@@ -60,7 +67,7 @@ Task: P1-F03-T27 · เจ้าของ: vfx-animator · สถานะ: ฉ�
 | Tap feedback | ปุ่มกด, toggle | 100–150 ms | ease-out, scale 1→0.97→1 | CSS |
 | Toast เข้า/ออก | `run.tickGranted/Denied`, `run.autoPotionUsed` | เข้า 150 ms / ค้างตามเนื้อหา / ออก 200 ms | ease-out (เข้า), ease-in (ออก), translateY 8px + opacity | CSS |
 | Banner เข้า/ออก | `run.stateGrace/Suspended` | เข้า 200 ms / ออก 150 ms | ease-out, opacity + translateY 4px | CSS |
-| HP bar เปลี่ยนค่า | ทุกครั้งที่ server ส่งค่าใหม่ | 200 ms | ease-out, `.hp-fill` width tween จากค่าเก่า→ค่าใหม่ที่รู้แล้ว (ไม่เดา ไม่ interpolate ค่าที่ยังไม่รู้ ตรงกับ components.md 7) | CSS |
+| HP bar เปลี่ยนค่า | ทุกครั้งที่ server ส่งค่าใหม่ | 200 ms | ease-out, `.hp-fill` ใช้ `transform: scaleX()` + `transform-origin: left` tween จากค่าเก่า→ค่าใหม่ที่รู้แล้ว (ไม่เดา ไม่ interpolate ค่าที่ยังไม่รู้ ตรงกับ components.md 7 · compositor-only ตามหัวข้อ 2 ไม่แก้ `width`) | CSS |
 | Drop reveal — Common | `drop.rarity.common` | 220 ms | ease-out, scale 0.92→1.04→1 | CSS |
 | Drop reveal — Uncommon | `drop.rarity.uncommon` | 350 ms | ease-out, 2 จังหวะ | CSS |
 | Drop reveal — Rare | `drop.rarity.rare` | 450 ms | ease-out overshoot เบา, 3 จังหวะ | CSS |
@@ -70,7 +77,7 @@ Task: P1-F03-T27 · เจ้าของ: vfx-animator · สถานะ: ฉ�
 | Death sequence | `run.death` | รวม ≤900 ms | ดูหัวข้อ 6 | WAAPI |
 | Enhance result | success / fail | 300–400 ms | ease-linear (จำลองเครื่องพิมพ์ใบเสร็จ) | CSS |
 | Quick-command emote | `qc.*` (10 ตัว) | ≤1,200 ms ต่อตัว | ดูหัวข้อ 5 | WAAPI |
-| Rift idle breathing (การ์ด UI นอกแผนที่) | ไอคอนรอยแยกในรายการ/การ์ด | รอบละ 4,000 ms (opacity 0.85↔1.0) | linear, loop เบามาก | CSS |
+| รอยแตกกางออก (ไอคอนรอยแยกใน UI นอกแผนที่) | การ์ด dungeon ใน `S-01-map`, หัว `S-02-dungeon-confirm` | 300 ms แล้วนิ่งค้าง (one-shot ไม่ loop) | ease-out, `transform: scaleY()` 0.6→1 จากฐาน — ห้าม `opacity` กับ element ที่มีขอบหมึก | CSS |
 
 ## 4. การไล่ระดับ rarity 5 ระดับ
 
@@ -81,7 +88,7 @@ Task: P1-F03-T27 · เจ้าของ: vfx-animator · สถานะ: ฉ�
 | ระดับ | จังหวะ (อ้าง `vibration_ms`) | motion | ระยะเวลารวม | สิ่งที่ห้าม |
 | --- | --- | --- | --- | --- |
 | Common | 1 จังหวะ `[45]` | icon กรอบ rarity pop เข้า (scale 0.92→1.04→1) ไม่มี particle ไม่มี effect เพิ่มจาก toast ปกติ | 220 ms | ไม่มี motion เพิ่มเติมใด ๆ (ตั้งใจให้ "ไม่เด่น" ตาม cue-list) |
-| Uncommon | 2 จังหวะ `[45,70,45]` | icon pop + ขอบกรอบกะพริบสว่างขึ้น 2 ครั้ง (brightness pulse ผ่าน `filter: brightness()` สั้น ไม่ใช้ opacity/transparency ของภาพ icon เอง) | 350 ms | sparkle/glitter particle, loop |
+| Uncommon | 2 จังหวะ `[45,70,45]` | icon pop + กรอบขยับย้ำ 2 ครั้งด้วย `transform: scale()` 1→1.03→1 (ไม่ใช้ `filter: brightness()` เพราะทำให้สีกรอบหลุด token ชั่วขณะ, ไม่ใช้ opacity/transparency ของภาพ icon เอง — V-11) | 350 ms | sparkle/glitter particle, loop, `filter` ทุกชนิด |
 | Rare | 3 จังหวะ `[45,70,45,70,45]` | icon pop + ขอบกะพริบ 3 ครั้งไล่สว่างขึ้น + เส้นมุมตกแต่ง (แถบสามเหลี่ยม 2 มุม) ลากเข้าที่แบบ stroke reveal 80 ms ต่อมุม | 450 ms | build-up ก่อนเฉลย (ต้องเห็นกรอบเต็มทันทีที่ผลออกจาก server ไม่หน่วง) |
 | Epic | 3 จังหวะ + จบยาว `[45,60,45,60,45,60,90]` | เหมือน Rare แต่มุมตกแต่งครบ 4 มุมลากเข้าไล่ตามเข็มนาฬิกา + จังหวะสุดท้ายมีการ "ค้าง-เรือง" เบา 90 ms ปิดท้าย | 550 ms | fanfare ภาพเต็มจอ, screen flash แรง |
 | Legendary | 4 จังหวะ + จบยาว `[45,60,45,60,45,60,45,60,180]` | เหมือน Epic + ดาว 4 แฉกที่มุมกาง (scale+rotate เบา) ทีละมุม + shard burst เส้นตรงสั้น 8–12 เส้นยิงออกจากศูนย์กลาง (Canvas หรือ pseudo-element ชุดเดียว) จบด้วยกรอบทั้งหมด "นิ่งเต็มความสว่าง" ค้างไว้ | 900–1,200 ms (นี่คือ effect เดียวที่ยาวเกินเพดาน reveal ปกติได้ตามกฎ role "Legendary เป็นเสียงเดียวที่ดังได้") | มงกุฎ รัศมี ฉัตร สีทองเมทัลลิก (style guide 8.2, icon-grammar 4.5), screen shake, slow-motion ทั้งจอ, เสียง fanfare วงใหญ่ |
@@ -150,16 +157,19 @@ Task: P1-F03-T27 · เจ้าของ: vfx-animator · สถานะ: ฉ�
 
 ## 8. รอยแยกบนแผนที่ — "จังหวะ rift ช้า frame ต่ำ" อยู่ที่ไหน
 
-**ข้อขัดแย้งที่ต้องชี้แจง:** ถ้อยคำ acceptance ของ task นี้ใน board ("จังหวะ rift บนแผนที่ ช้า frame ต่ำ") อ่านตรงตัวได้ว่ารอยแยกบนแผนที่ควรมี pulse ช้า ๆ แต่ `map-style.md` (P1-F03-T12, DONE, ผ่านมือ art-director แล้ว) หัวข้อ 7 และ 11 กำหนดชัดว่า **รอยแยกเป็นภาพนิ่ง** และ **ห้าม animation ต่อเนื่องบนแผนที่ทุกกรณี ไม่มีข้อยกเว้น** ("ไม่มี icon หมุนหรือเรือง... รอยแยกเป็นภาพนิ่ง") ซึ่งตรงกับ `design/pillars.md` P4 ที่เป็น non-negotiable ("ไม่มี animation ต่อเนื่องบนแผนที่" ระบุเป็นเงื่อนไขละเมิด design gate โดยตรง)
+**สถานะ:** หัวข้อนี้เคยเสนอ idle breathing แบบวน (`opacity` 0.85↔1.0 ทุก 4,000 ms) เป็นข้อยกเว้นเดียวที่ยอมให้ loop — content gate (visual) P1-F03-T22 ปฏิเสธข้อยกเว้นนี้ (finding V-01, คำตัดสิน R-1, บันทึกเป็น D-055/D-076 = ACCEPTED พร้อมแก้) หัวข้อนี้แก้ตามคำตัดสินแล้ว: **v1 ไม่มี animation ใดวนไม่จบในเกม ไม่ว่าจะอยู่บนแผนที่หรือนอกแผนที่**
 
-**การตัดสิน (เอกสารนี้เลือกทางที่ไม่ขัด pillar/decision ที่ผ่านไปแล้ว แทนที่จะขอ HUMAN):** ตาม `studio/protocol.md` หัวข้อ 5 "Visual style: art-director, always final within the approved direction" และ map-style.md เป็นเอกสาร DONE ที่ผูกกับเหตุผลแบตเตอรี่ตรง ๆ (spike criterion) — เอกสารนี้ **ไม่แตะ MapLibre canvas เด็ดขาด** รอยแยกบนแผนที่จริงยังคงเป็นภาพนิ่ง 100% ตามเดิม
+**ข้อขัดแย้งเดิมที่ต้องชี้แจง:** ถ้อยคำ acceptance ของ task นี้ใน board ("จังหวะ rift บนแผนที่ ช้า frame ต่ำ") อ่านตรงตัวได้ว่ารอยแยกบนแผนที่ควรมี pulse ช้า ๆ แต่ `map-style.md` (P1-F03-T12, DONE, ผ่านมือ art-director แล้ว) หัวข้อ 7 และ 11 กำหนดชัดว่า **รอยแยกเป็นภาพนิ่ง** และ **ห้าม animation ต่อเนื่องบนแผนที่ทุกกรณี ไม่มีข้อยกเว้น** ("ไม่มี icon หมุนหรือเรือง... รอยแยกเป็นภาพนิ่ง") ซึ่งตรงกับ `design/pillars.md` P4 ที่เป็น non-negotiable
 
-"จังหวะ rift ช้า frame ต่ำ" ที่ acceptance ต้องการ จึงถูกย้ายไปไว้ใน **ชั้น UI ที่อยู่นอกแผนที่** (ตรงกับที่ `map-style.md` หัวข้อ 11 เขียนไว้เองว่า "เอฟเฟกต์ที่ต้องเคลื่อนไหว...อยู่นอกแผนที่ ในชั้น UI ที่เล่นครั้งเดียวแล้วหยุด...เป็นของ vfx-animator") มี 2 จุดที่ใช้ได้จริง:
+**การตัดสิน (R-1, art-director เป็นผู้มีอำนาจด้านภาพ):** (ก) รอยแยกบนแผนที่จริง (MapLibre canvas) นิ่ง 100% ไม่มีข้อยกเว้น เอกสารนี้ไม่แตะ canvas เด็ดขาด (ข) "จังหวะ rift" ที่ acceptance ต้องการ ย้ายไปเป็น motion นอกแผนที่ในชั้น UI แต่เป็น **one-shot เท่านั้น ไม่ใช่ loop** — ความหมายของรอยแยกมาจากรูปทรงซิกแซกและสี ไม่ใช่จากการเคลื่อนไหว ภาพนิ่งจึงไม่เสียข้อมูลใด ๆ
 
-1. **ไอคอนรอยแยกในการ์ด/รายการ dungeon** (การ์ดใน `S-01-map` แผงล่าง, หัว `S-02-dungeon-confirm`) — idle breathing งบต่ำมาก: `opacity` 0.85↔1.0 คาบ 4,000 ms เดียว ใช้ CSS `@keyframes` property เดียว (`opacity`) ซึ่งเป็น compositor-only แทบไม่มีต้นทุนแม้เล่นค้างไว้ · ทำงานเฉพาะตอนการ์ดนั้นอยู่ในจอจริง (`IntersectionObserver`) และหยุดที่ `visibilitychange`/`prefers-reduced-motion` เหมือน effect อื่นทุกประการ — **นี่คือ exception เดียวที่ยอมให้ loop ได้** เพราะ (ก) ไม่ได้อยู่บนแผนที่ (ข) ใช้ property เดียวที่เบาที่สุดเท่าที่มี (ค) มีเงื่อนไข visibility ครบ
-2. **ไอคอนรอยแยกในหน้า confirm เข้า** (`S-02-dungeon-confirm`) — motion แบบ "รอยแตกกางออก" ครั้งเดียวตอนเปิดหน้า (ไม่ loop): 300 ms แล้วนิ่งค้าง
+**Motion เดียวที่ใช้ได้จริง — "รอยแตกกางออก" (one-shot):**
+- ที่ใช้: ไอคอนรอยแยกตอนการ์ด dungeon ปรากฏครั้งแรกใน `S-01-map` แผงล่าง และตอนเปิดหัว `S-02-dungeon-confirm`
+- motion: `transform: scaleY()` จาก 0.6 → 1 จากฐาน (จุดหมุน `transform-origin: bottom`) ระยะเวลา 300 ms, ease-out · **ห้ามใช้ `opacity` กับไอคอนหรือ element ใดที่มีขอบหมึกหรือขอบ `rift.500`** (S7, F-AD-4) เพราะความโปร่งใสทำให้ขอบจางลงและอ่านยากกลางแดด
+- เล่นครั้งเดียวต่อการปรากฏหนึ่งครั้ง (การ์ด mount หรือหน้าเปิด) จบแล้ว **นิ่งค้างสนิท** ไม่มี loop ใด ๆ ต่อจากนั้นแม้การ์ดจะอยู่ในจอนาน · ใช้ CSS `@keyframes` ครั้งเดียว ไม่ต้องมี `IntersectionObserver` เพราะไม่มีสถานะ "กำลังวน" ที่ต้องหยุดเมื่อออกจากจอ
+- reduced-motion (`prefers-reduced-motion: reduce`): แสดงรูปทรงเต็ม (scaleY 1) ทันทีโดยไม่มี transform ใด ๆ ข้อมูล (รูปทรง สี ตำแหน่ง) เหมือนเดิมทุกประการ
 
-ส่งเป็น decision เสนอให้ art-director/game-director ยืนยันในหัวข้อ 12 (ไม่ใช่ HUMAN เพราะไม่ใช่คำถามระดับ non-negotiable ที่ขัดกัน แค่เป็นการตีความ acceptance ให้ตรงกับของที่ตัดสินไปแล้ว)
+บันทึกใน `studio/decisions/decision-log.md`: D-055 (เสนอ) และ D-076 (art-director ยืนยันการแก้ตาม R-1) — ปิดข้อขัดแย้งเดิมระหว่างถ้อยคำ acceptance ของ board กับ `map-style.md`/pillars P4 โดยไม่ต้องถาม HUMAN
 
 ## 9. ตารางโยง cue id / vibration / motion
 
@@ -198,7 +208,7 @@ art/vfx/
   quick-command/     (WAAPI: 10 emote §5, ผูกกับ glyph icon-grammar)
   hp-critical/       (WAAPI: hpLow, autoRetreat, death §6)
   enhance-receipt/   (CSS: paper-feed motion §7)
-  rift-idle/         (CSS: idle breathing การ์ด §8)
+  rift-reveal/       (CSS: รอยแตกกางออก one-shot scaleY §8)
   demo/*.html        (หน้าเดียวต่อกลุ่ม effect ให้ QA/reviewer กดดูได้โดยไม่ต้องเปิดเกมจริง)
 ```
 แต่ละ module มี `timing.json` (duration, easing, keyframe %, cue id ที่โยง) เพื่อให้ gameplay-programmer wire event → animate ได้ตรงตาราง §9 โดยไม่ต้องเดา
@@ -222,26 +232,29 @@ art/vfx/
 | 6 | enhance สำเร็จ/ล้มเหลวใช้ motion รูปแบบเดียวกัน (paper-feed) ต่างแค่เนื้อหา | motion ที่ต่างกันตามผล (ยิ่งดีขึ้น/แย่ลง) หรือภาพของแตก/บิ่น | เทียบ 2 เฟรมผลลัพธ์ว่าโครง motion เหมือนกันทุกสเต็ป |
 | 7 | quick-command emote 10 ตัวมีลายเซ็นจังหวะต่างกันชัดแม้ปิดเสียง | ใช้ motion เดียวกันแล้วหวังให้สี/glyph แยกเองทั้งหมด | ให้คนดู 64 px ปิดเสียงแยก 10 ท่าออกจากกันได้ |
 | 8 | ทุก effect มี reduced-motion variant ที่ข้อมูลครบ | ตัด motion แล้วข้อมูลบางส่วนหายไปด้วย (เช่น rarity หายเมื่อปิด motion) | เปิด `prefers-reduced-motion: reduce` แล้วไล่ทุกหน้าจอที่มี effect |
+| 9 | รอยแยกใน UI (การ์ด dungeon, หัว confirm) เล่น "รอยแตกกางออก" one-shot ครั้งเดียวแล้วนิ่งค้าง | ใส่ idle breathing, pulse, หรือ loop ใด ๆ กับไอคอนรอยแยกใน UI แม้จะอ้างว่างบต่ำแค่ไหน (ไม่มีข้อยกเว้นอีกต่อไป — R-1) | เปิดการ์ดค้างไว้นาน ๆ แล้วดูว่า animation หยุดสนิทหลัง 300 ms ไม่มี keyframe ใดยังวนต่อ |
+| 10 | ใช้ `filter` เฉพาะ 2 จุดที่อนุญาต (`grayscale()` ตอนตาย, ความเข้มต่ำแบบ one-shot ที่ Legendary) | ใช้ `filter` ที่จุดอื่นทั้งหมด (เช่น `brightness()` กับ Uncommon) หรือใช้ `opacity` กับ element ที่มีขอบหมึก/ขอบ `rift.500` | ไล่โค้ด CSS/WAAPI ทุก module เทียบตารางหัวข้อ 2 ว่าไม่มี `filter`/`opacity` นอกรายการที่อนุญาต |
 
 ## 12. สมมติฐาน คำถามค้าง และส่งต่อ
 
 ### สมมติฐาน
-- `[ASSUMPTION A-P1-F03-T27-1]`: ถ้อยคำ acceptance ของ task นี้ ("จังหวะ rift บนแผนที่ ช้า frame ต่ำ") ถูกตีความใหม่ว่าหมายถึงชั้น UI นอกแผนที่ (การ์ด/หน้า confirm) ไม่ใช่ MapLibre canvas เพราะขัดกับ `map-style.md` (DONE) และ pillars P4 ที่ห้าม animation ต่อเนื่องบนแผนที่แบบไม่มีข้อยกเว้น (ดูหัวข้อ 8) (เจ้าของยืนยัน: art-director, game-director)
-- `[ASSUMPTION A-P1-F03-T27-2]`: ท่าโพสอวตารสำหรับ quick-command emote (หัวข้อ 5) เป็นทิศทางล่วงหน้า เพราะ `art/direction/avatar-spec.md` (P1-F03-T11) ยังไม่เสร็จ (สถานะ TODO ในบอร์ด) ยืนยัน sprite จริงอีกครั้งเมื่อระบบ layer อวตาร 3 มุมพร้อม (เจ้าของยืนยัน: artist-2d)
+- `[ASSUMPTION A-P1-F03-T27-1]` — **ยืนยันแล้ว (RESOLVED):** ถ้อยคำ acceptance ของ task นี้ ("จังหวะ rift บนแผนที่ ช้า frame ต่ำ") ตีความว่าหมายถึงชั้น UI นอกแผนที่ (การ์ด/หน้า confirm) ไม่ใช่ MapLibre canvas เพราะขัดกับ `map-style.md` (DONE) และ pillars P4 · art-director ยืนยันในเนื้อหา content gate P1-F03-T22 และปรับให้เป็น one-shot ล้วน ไม่มี loop (คำตัดสิน R-1, บันทึก D-055/D-076) — ดูหัวข้อ 8 ฉบับแก้ (ยืนยันโดย: art-director)
+- `[ASSUMPTION A-P1-F03-T27-2]` — **ล้าสมัยแล้ว ใช้ avatar-spec §10 แทน:** ท่าโพสอวตารสำหรับ quick-command emote (หัวข้อ 5) เดิมเป็นทิศทางล่วงหน้าเพราะ `art/direction/avatar-spec.md` ยังไม่เสร็จ · ตอนนี้ `art/direction/avatar-spec.md` หัวข้อ 10 "Pose kit สำหรับ quick command 10 ตัว" เป็นแหล่งท่าจริง (transform ต่อคำสั่ง, `pose_hand`/`pose_prop`, ตำแหน่งอ้างอิงบน frame 128×160) — หัวข้อ 5 ของเอกสารนี้ยังคงเป็น motion concept ระดับกำกับทิศทาง ให้ยึด avatar-spec §10 เป็นรายละเอียด rig และ layer ที่ถูกต้องเมื่อขัดแย้งกัน (V-11, ยืนยันโดย: art-director/artist-2d)
 - `[ASSUMPTION A-P1-F03-T27-3]`: ระบบตีบวก (หัวข้อ 7) ยังไม่มี copy key ทางการ (เป็นของ feature ตีบวกใน phase ถัดไป ตรงกับสถานะเดียวกันที่ `audio/direction.md` หัวข้อ 11 ประกาศไว้แล้ว) หัวข้อนี้เป็นทิศทางล่วงหน้าเท่านั้น ไม่ใช่ spec สุดท้าย (เจ้าของยืนยัน: narrative-designer เมื่อ feature เริ่ม)
 - `[ASSUMPTION A-P1-F03-T27-4]`: การเลือก Canvas เทียบ CSS/WAAPI สำหรับ legendary shard burst (หัวข้อ 4) เปิดกว้างให้ gameplay-programmer ตัดสินตอน build จริงตามความสามารถของ browser target (เจ้าของยืนยัน: gameplay-programmer)
 - `[ASSUMPTION A-P1-F03-T27-5]`: raid checkpoint/warning (`raid.checkpointReached`, `raid.thirtyMinWarning`) ใช้แค่หลักทั่วไปในหัวข้อ 1–3 ของเอกสารนี้ ยังไม่มี motion เฉพาะเจาะจง เพราะเป็นขอบเขตของ F17 (Phase 6) เหมือนสถานะเดียวกับ `audio/cue-list.md` (เจ้าของยืนยัน: ทีม F17 เมื่อเริ่ม)
 
 ### ส่งต่อ
 - ถึง **producer**: ยังไม่มี build task บนบอร์ดสำหรับสร้างไฟล์ implementation จริงใน `art/vfx/` (CSS/WAAPI module ตามโครงหัวข้อ 10) และ `art/vfx/demo/*.html` — เสนอเปิดเป็นงานใหม่เมื่อ feature ที่เกี่ยวข้อง (F04 run state, F09 party, ระบบ drop) เริ่มใน Phase ถัดไป เพราะ `writes` ของ P1-F03-T27 มีแค่ไฟล์ spec นี้ไฟล์เดียว | blocking: no
-- ถึง **art-director**: ขอยืนยัน assumption 1 (หัวข้อ 8) ในเนื้อหา content gate (visual) P1-F03-T22 และ design gate B P1-F03-T25 ว่าการย้าย "จังหวะ rift" ออกจากแผนที่ไปอยู่การ์ด/หน้า confirm ตรงกับเจตนาที่ต้องการ | blocking: yes (สำหรับ P1-F03-T22, P1-F03-T25)
-- ถึง **artist-2d**: ยืนยัน motion concept ของ quick-command emote (หัวข้อ 5) ทำได้จริงกับระบบ layer อวตาร 3 มุม เมื่อ `avatar-spec.md`/`art/assets/avatar/` (P1-F03-T11, T14) เสร็จ | blocking: no
+- ถึง **art-director**: assumption 1 (หัวข้อ 8) ยืนยันแล้วใน content gate P1-F03-T22 (R-1, D-055/D-076) — ไม่มีงานค้างต่อจากนี้ | blocking: no
+- ถึง **artist-2d**: motion concept ของ quick-command emote (หัวข้อ 5) อ้างอิง pose kit จริงที่ avatar-spec §10 แล้ว (12 ไฟล์ placeholder ส่งมอบใน P1-F03-T14) ยืนยันอีกครั้งเมื่อ sprite จริง (ไม่ใช่ placeholder) พร้อม | blocking: no
 - ถึง **sound-designer**: ไม่มี cue ใหม่ที่ต้องขอ — เอกสารนี้ใช้ cue id/`vibration_ms` จาก `audio/cue-list.md` ตรงทุกตัว (ตารางหัวข้อ 9) | blocking: no
 - ถึง **gameplay-programmer**: อ่านหัวข้อ 9–10 สำหรับ event→animation mapping และสัญญา `visibilitychange`/`prefers-reduced-motion` ที่ต้อง implement เป็น pattern เดียวกันทุก module (ตรงกับ integration layer 4 ชั้นที่ `audio/direction.md` ขอไว้แล้ว ให้ผูก motion trigger จุดเดียวกับที่ผูกเสียง/สั่น) | blocking: no
 
 ### decisions
-- propose: รอยแยกไม่มี motion บนแผนที่จริงเด็ดขาด "จังหวะ rift ช้า frame ต่ำ" ย้ายไปเป็น idle breathing ของไอคอนรอยแยกในการ์ด/รายการ UI นอกแผนที่แทน (หัวข้อ 8) | authority: art-director | impact: ปิดข้อขัดแย้งระหว่างถ้อยคำ acceptance ของ board กับ `map-style.md`/pillars P4 ที่ตัดสินไปแล้ว โดยไม่ต้องถาม HUMAN และไม่กระทบงบแบตของแผนที่
+- resolved: รอยแยกไม่มี motion บนแผนที่จริงเด็ดขาด "จังหวะ rift ช้า frame ต่ำ" ย้ายไปเป็น one-shot "รอยแตกกางออก" (`scaleY` 0.6→1, 300 ms, ไม่ใช้ opacity) ของไอคอนรอยแยกในการ์ด/หน้า confirm UI นอกแผนที่ ไม่มี loop ใด ๆ (หัวข้อ 8) | authority: art-director | impact: ปิดข้อขัดแย้งระหว่างถ้อยคำ acceptance ของ board กับ `map-style.md`/pillars P4 · บันทึกเป็น D-055 (เสนอ) และ D-076 (ACCEPTED พร้อมแก้ตาม R-1) ใน `studio/decisions/decision-log.md`
+- resolved: `filter` จำกัดเหลือ 2 จุด (`grayscale()` ตอนตาย, ความเข้มต่ำแบบ one-shot ที่ Legendary) · Uncommon เปลี่ยนจาก `filter: brightness()` เป็น `transform: scale()` · HP bar เปลี่ยนจาก `width` เป็น `transform: scaleX()` (หัวข้อ 2, 3, 4) | authority: art-director | impact: ตาม V-11, ไม่มี paint-heavy filter นอกรายการที่อนุญาต และไม่มี property ที่ trigger layout reflow เหลืออยู่ในเอกสาร
 
 ### questions_for_human
-- none (ไม่มีคำถามที่ต้องรอ HUMAN — ข้อขัดแย้งเดียวที่พบแก้ได้ด้วย decision authority ของ art-director ตามหัวข้อ 8)
+- none (ไม่มีคำถามที่ต้องรอ HUMAN — ข้อขัดแย้งทั้งหมดที่พบแก้ได้ด้วย decision authority ของ art-director ตามหัวข้อ 8 และ finding V-01/V-11)
 
