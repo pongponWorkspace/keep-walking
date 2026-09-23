@@ -1,0 +1,22 @@
+# Prettier checks code and code config only. Docs, design data, and config
+# values are owned by other roles and are not reformatted by CI.
+pnpm-lock.yaml
+node_modules/
+dist/
+.wrangler/
+/reports/
+test-results/
+playwright-report/
+*.md
+*.pmtiles
+*.geojson
+config/
+data/
+design/
+studio/
+product/
+art/
+audio/
+ops/
+qa/playtest/
+.claude/

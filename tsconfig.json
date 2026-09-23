@@ -1,0 +1,18 @@
+{
+  // Catch-all typecheck for root config files and for workspaces that do not
+  // have their own tsconfig.json yet. When a workspace adds its own tsconfig
+  // and a "typecheck" script, remove it from "include" here (ADR 0001).
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"]
+  },
+  "include": [
+    "*.ts",
+    "packages/location/src/**/*.ts",
+    "tools/traces/src/**/*.ts",
+    "tools/sim/src/**/*.ts",
+    "qa/tests/**/*.ts"
+  ],
+  "exclude": ["**/node_modules", "**/dist"]
+}

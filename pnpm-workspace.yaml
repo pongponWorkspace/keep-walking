@@ -1,0 +1,18 @@
+# Workspace layout: see docs/adr/0001-repo-layout.md
+# Changing any package.json "dependencies" also changes pnpm-lock.yaml (shared path, TL-M01).
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'tools/*'
+  - 'qa/tests/*'
+
+# Pin exact versions when adding dependencies.
+saveExact: true
+
+# Supply-chain guard: only resolve versions published at least 7 days ago (minutes).
+minimumReleaseAge: 10080
+
+# Install scripts are denied by default; allow only the native builds the toolchain needs.
+allowBuilds:
+  esbuild: true
+  workerd: true

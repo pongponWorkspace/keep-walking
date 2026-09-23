@@ -1,0 +1,10 @@
+{
+  "name": "@keep-walking/tools-sim",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Balance simulator built on the pure formulas in @keep-walking/shared, reading config/balance/*.json. Owner: systems-designer. Never imported by apps/* or packages/*.",
+  "type": "module",
+  "dependencies": {
+    "@keep-walking/shared": "workspace:*"
+  }
+}

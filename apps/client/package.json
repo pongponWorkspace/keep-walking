@@ -1,0 +1,17 @@
+{
+  "name": "@keep-walking/client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mobile web client (Vite + MapLibre GL JS + PMTiles). Owner: gameplay-programmer. Scaffold: P1-F02-T09.",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {
+    "@keep-walking/location": "workspace:*",
+    "@keep-walking/shared": "workspace:*",
+    "maplibre-gl": "6.10.0",
+    "pmtiles": "4.5.0"
+  },
+  "devDependencies": {
+    "vite": "8.3.0"
+  }
+}

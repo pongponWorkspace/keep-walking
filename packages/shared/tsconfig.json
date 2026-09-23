@@ -1,0 +1,6 @@
+{
+  // No DOM and no Node types on purpose: everything here must run unchanged
+  // inside a Cloudflare Worker / Durable Object (server authority, ADR 0001).
+  "extends": "../../tsconfig.base.json",
+  "include": ["src/**/*.ts"]
+}

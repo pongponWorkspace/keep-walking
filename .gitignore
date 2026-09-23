@@ -1,0 +1,92 @@
+# Owner: tech-lead (ADR 0001). Other tasks request additions via a handoff.
+# The repo is PUBLIC (D-002). Anything not ignored here may be published.
+
+# --- Secrets and credentials (never commit) ---
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+service-account*.json
+credentials*.json
+secrets/
+
+# --- Dependencies and package-manager caches ---
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+
+# --- Build, tool, and runtime output ---
+dist/
+build/
+out/
+.vite/
+.wrangler/
+.turbo/
+.cache/
+*.tsbuildinfo
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# --- Test output ---
+/reports/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# --- Python (tools/* pins dependencies per folder, venv lives in the folder) ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Large raw GIS data (download, never commit) ---
+*.osm.pbf
+*.osm
+*.o5m
+*.tif
+*.tiff
+*.mbtiles
+tools/coverage/downloads/
+tools/coverage/raw/
+tools/coverage/cache/
+tools/coverage/.cache/
+
+# --- Map tiles: only small fixtures are committed ---
+*.pmtiles
+!tools/tiles/fixtures/**/*.pmtiles
+tools/tiles/out/
+tools/tiles/downloads/
+
+# --- Raw GPS traces and playtest data (personal location data, PDPA) ---
+data/gps-traces/raw/
+qa/playtest/results/raw/
+*.raw.gpx
+*.raw.csv
+
+# --- Generated audio (large renders) ---
+audio/out/
+
+# --- OS and editor noise ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# --- Local agent settings ---
+.claude/settings.local.json

@@ -1,0 +1,14 @@
+{
+  "name": "@keep-walking/location",
+  "version": "0.0.0",
+  "private": true,
+  "description": "LocationProvider interface and implementations (Web, Capacitor stub, Mock trace replay). Owner: location-engineer. Interface: tech-lead.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@keep-walking/shared": "workspace:*"
+  }
+}
