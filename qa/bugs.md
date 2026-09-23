@@ -2,6 +2,8 @@
 
 รูปแบบต่อรายการ: id, severity, feature, steps/trace, expected, actual, owner, status
 
+**สถานะรวม (P1-CLOSE-QA, 2026-09-24):** BUG-F01-001, BUG-F01-002, BUG-F01-003 ปิดครบทั้ง 3 รายการ (ดูหลักฐานปิดในแต่ละรายการด้านล่าง) — ไม่มี bug OPEN เหลืออยู่ในไฟล์นี้ และไม่เคยมี bug severity high ขึ้นไปที่พบตลอด Phase 1
+
 ---
 
 ## BUG-F01-001
@@ -17,8 +19,12 @@
 - actual: ไม่มี fixture หรือ unit test แยกสำหรับ 4 หมวดนี้ (มีแค่ config ที่ประกาศ tag ไว้ และผลนับจากข้อมูลจริงที่ไม่ได้ถูก assert ไว้ใน test ใด ๆ) — ถ้าคนแก้ `pipeline/tags.py` หรือ `config/balance/dungeons.json` ในอนาคตพลาดจนหมวดนี้หลุด จะไม่มี test ใดจับได้ก่อนขึ้น production
 - risk: การเดินเข้าโรงพยาบาล/ค่ายทหาร/สถานทูตในเกมมีความเสี่ยงด้านความปลอดภัยและความสัมพันธ์ระหว่างประเทศจริง ไม่ใช่แค่บั๊กเชิงข้อมูล — แม้ปัจจุบันทำงานถูกต้องบนข้อมูลจริง แต่ไม่มี safety net เชิง regression
 - owner: location-engineer
-- status: OPEN
-- not blocking: severity ต่ำกว่า high, ข้อมูลจริงปัจจุบันถูกต้อง (ตรวจแล้วในหัวข้อ QA gate report ส่วน BLOCK) — ไม่บล็อก verdict PASS ของ P1-F01-T08 แต่ต้องแก้ก่อนรอบถัดไปที่มีการแก้ `pipeline/tags.py`
+- status: **CLOSED** (fixed by P1-X29, verified by P1-CLOSE-QA regression on 2026-09-24)
+- closed_evidence:
+  1. `tools/coverage/pipeline/tests/test_blocklist_categories.py` and `tools/coverage/pipeline/tests/fixture_blocklist.py` now exist, with a dedicated case table for all four categories (health/government/military/diplomatic), e.g. `park_is_hospital → blocked_health`, `park_in_townhall → blocked_government`, `park_is_military → blocked_military`, `park_is_embassy → blocked_diplomatic`.
+  2. Re-ran independently: `cd tools/coverage && .venv/bin/python -m pytest pipeline/tests/test_blocklist_categories.py -q` → `80 passed in 0.07s`.
+  3. These 80 cases are part of the full suite verified green in this regression: `COVERAGE_PYTEST_REQUIRED=1 pnpm test` → `Test Files 62 passed (62)`, `Tests 927 passed | 2 skipped (929)`.
+- not blocking: closed, no residual risk — regression coverage now exists for all four blocklist categories.
 
 ---
 
@@ -33,8 +39,12 @@
 - expected: ตาม CLAUDE.md "โค้ด, คอมเมนต์โค้ด, ชื่อ API: ภาษาอังกฤษ" — ข้อความไทยควรอยู่ใน config/ข้อมูล ไม่ใช่ hardcode ในซอร์สโค้ด Python (ยกเว้นชื่อเขต/จังหวัดซึ่งเป็นข้อมูลจริง ไม่ใช่ log/UI copy)
 - actual: มีข้อความ UI ของหน้า heatmap และบรรทัดสรุปผลทาง CLI เป็นภาษาไทย hardcode ตรงในซอร์สโค้ด
 - owner: location-engineer
-- status: OPEN
-- not blocking: F01 เป็นเครื่องมือวิเคราะห์ offline ภายในทีม ไม่ใช่ UI ผู้เล่น ไม่ผ่าน copy.th.json/style guide 6 ข้อเพราะไม่ใช่ copy เกม (ตาม test plan หัวข้อ 1) แต่ยังถือเป็นการเบี่ยงเบนจากกติกา "โค้ดเป็นภาษาอังกฤษ" ของ CLAUDE.md จริง จึงบันทึกไว้ ไม่บล็อก verdict PASS
+- status: **CLOSED** (fixed by P1-X29, verified by P1-CLOSE-QA regression on 2026-09-24)
+- closed_evidence:
+  1. Thai UI/summary text moved out of Python source into `tools/coverage/analysis/heatmap-strings.th.json` (labels/copy for the heatmap page) and `tools/coverage/analysis/heatmap-template.html` (template with placeholders, filled at build time).
+  2. Re-ran: `grep -rnP "[ก-๙]" tools/coverage/pipeline/*.py tools/coverage/analysis/*.py tools/coverage/boundaries/*.py` → only remaining hit is a docstring in `boundaries/osm.py:27` quoting a real administrative prefix ("จังหวัด") as a data example, not hardcoded UI/log copy — acceptable (CLAUDE.md exempts real names/data, only bars UI/log copy).
+  3. `pipeline/tests/test_heatmap_text.py` (part of the 80+ new/updated tests) asserts the template's placeholder fields match the strings file; included in the green `COVERAGE_PYTEST_REQUIRED=1 pnpm test` run (927 passed | 2 skipped).
+- not blocking: closed.
 
 ---
 
@@ -51,5 +61,9 @@
 - expected: `pnpm lint` (root, ใช้ร่วมกันทุก feature รวมถึง F02) ควร exit 0 ได้โดยไม่ทำให้ไฟล์นี้เสียการทำงาน — ต้องเป็นทางแก้เชิงโครงสร้าง เช่น เพิ่ม path นี้ใน `.prettierignore` (มีบรรทัดเหตุผลกำกับเหมือนรายการอื่นในไฟล์นั้นที่ยกเว้น `config/`, `data/` ฯลฯ เพราะเจ้าของอื่นและไม่ใช่โค้ดแอป) หรือเปลี่ยนวิธี escape brace ของ template ให้ไม่ต้องพึ่งพา embedded `<script>`/`<style>` ที่ Prettier จะจัดรูปแบบใหม่ (เช่น เก็บ CSS/JS เป็นสตริง Python แยกแล้วประกอบตอน `write_text`)
 - actual: ปัจจุบัน `heatmap-template.html` ทำงานถูกต้อง (pytest ผ่าน 4/4) แต่ไม่ผ่าน `prettier --check` และไม่มีทางแก้แบบ one-line เหมือน F-01 — เป็น pre-existing gap ที่มีอยู่ก่อน QA แตะไฟล์นี้ (ไฟล์ยังไม่ commit และไม่เคยผ่าน `pnpm lint` มาก่อนตั้งแต่ถูกสร้าง ไม่ใช่ QA ทำให้เกิดใหม่) — ยืนยันด้วย `git status --porcelain` ว่าทั้งสองไฟล์เป็น `??` (untracked) ตลอดการตรวจ
 - owner: location-engineer (เจ้าของ `tools/coverage/analysis/`, P1-F01-T06) — อาจต้องปรึกษา tech-lead ถ้าเลือกแก้ที่ `.prettierignore` (ไฟล์นั้นเป็นของ root/tooling convention)
-- status: OPEN
-- not blocking: ไม่ใช่โค้ดของ F02 (client/location) ไม่กระทบ movement gate, privacy, หรือ non-negotiable ใด ๆ ของ F02 · เป็นเครื่องมือวิเคราะห์ offline ของ F01 เท่านั้น และ tech-lead เคยให้บรรทัดฐานเดียวกันไว้แล้วใน tech gate F02 (F-01: gitleaks false positive ในไฟล์ข้าง ๆ กัน — "blocking ก่อน commit ของ wave" ไม่ใช่ "blocking verdict ของ gate") จึงไม่บล็อก verdict ของ QA gate F02 แต่ **ต้องแก้ก่อน commit ของ wave นี้** เช่นเดียวกับ F-01 มิฉะนั้น job `lint` ของ CI จะแดงทันทีที่ไฟล์ทั้งสองถูก commit
+- status: **CLOSED** (fixed by P1-X31, verified by P1-CLOSE-QA regression on 2026-09-24)
+- closed_evidence:
+  1. `.prettierignore` line 39 now lists `tools/coverage/analysis/heatmap-template.html` with a reasoning comment above it (line 38, pointing at `pipeline/tests/test_heatmap_text.py` as the real correctness check instead of Prettier).
+  2. Re-ran independently: `npx prettier --check tools/coverage/analysis/heatmap-template.html tools/coverage/analysis/heatmap-strings.th.json` → `All matched files use Prettier code style!`.
+  3. Root `pnpm lint` (`eslint . --max-warnings=0 && prettier --check . && pnpm run lint:copy`) → exit 0 in this regression run.
+- not blocking: closed.

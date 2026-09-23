@@ -10,7 +10,7 @@
 | 7 | plan | P1-PLAN-ANS | orchestrator | — | 2026-09-23 18:07 | DONE — บันทึก D-003..D-006 ลง board |
 | 8 | plan | P1-PLAN-ANS-2 | orchestrator | — | 2026-09-23 18:08 | DONE — บันทึก repo URL (D-007) |
 
-## Run 1 — started 2026-09-23 18:12
+## Run 1 — started 2026-09-23 18:12 — ended 2026-09-24 03:11 (COMPLETE — AGENT SIDE, WAITING FOR HUMAN)
 | # | Wave | Task | Agent | Start | End | Result |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | plan | P1-PLAN-04 | producer | 2026-09-23 18:11 | 2026-09-23 18:17 | DONE — board rev 4, roadmap per D-010 |
@@ -127,3 +127,7 @@
 | 103 | W9 | P1-X37 | qa-tester | 02:35:10 | 02:37:08 | DONE — สคริปต์ตาบอดสีชี้ art/ref/style-tile, ภาพ 10 ไฟล์ byte เดิม, PASS |
 | 104 | W9 | P1-F03-T22 (รอบ 2) | art-director | 02:35:10 | 02:41:14 | PASS — V-01..V-03 แก้ครบ · follow-up ไม่ blocking V-18..V-22 |
 | 105 | W9 | P1-F03-T25 | game-director | 02:41:14 | 02:51:45 | PASS — 4 role ผ่าน E14 · D-039/D-056/D-059 ACCEPT, D-061 CHANGE, R-B1 ลำดับผลต่อ hit, farDungeonThreshold ≤1,970 ม. · แนะนำ HUMAN: D-020 รับ, D-038 ทาง B |
+| 106 | close | P1-CLOSE-QA (รอบ 1) | qa-tester | 02:53:12 | 03:03:28 | DONE ฝั่ง agent — ทุกคำสั่งเขียว (927 test, e2e 30), ทุก gate PASS, bug ปิดหมด · E4/E9/E10/E15/E16/E17/E18/E20 รอ HUMAN · สถานะคงเป็น TODO จนรันซ้ำหลัง T21/T24 |
+| 107 | close | P1-CLOSE-PM | producer | 03:05:10 | 03:08:59 | PARTIAL → DONE — harness บล็อก subagent เขียน report.md, orchestrator บันทึกเนื้อหาตามที่ producer ส่งมา (done by orchestrator: save only) · T25 CUT · board rev 6 สถานะ COMPLETE — AGENT SIDE, WAITING FOR HUMAN |
+| 108 | close | P1-CLOSE-PRODUCT | product-manager | 03:05:10 | 03:11:27 | SIGN-OFF (agent side) — `product/reviews/phase-1-signoff.md` · แนะนำ Go 2 ย่าน (D-081, Q-P1-30) · S1–S17 ทั้งหมดรอ field walk · handoff ไม่ blocking: qa-tester บันทึกบั๊ก high ของ P1-H06 (ปิดแล้ว) ย้อนหลังใน qa/bugs.md → ยกไป Phase 2 |
+| 109 | close | สถานะ phase | orchestrator | 03:11:27 | 03:11:27 | COMPLETE — AGENT SIDE, WAITING FOR HUMAN · resume `/run-phase 1` หลัง P1-F02-T20 เพื่อทำ T21/T24/CLOSE-QA รอบ 2 |
