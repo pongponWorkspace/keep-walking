@@ -139,3 +139,7 @@
 | 111 | R2 | P1-X38 | devops-engineer | 22:36:16 | 22:40:07 | DONE — Playwright ไม่มี webServer · เพิ่ม webServer + --with-deps + report artifact · clean clone e2e 30 passed |
 | 112 | R2 | P1-F02-T18 ปิด | orchestrator | 22:42:42 | 22:42:42 | push ed2871f · CI run 36155723116 เขียวทั้ง 4 job |
 | 113 | R2 | P1-F02-T17 | user | — | 22:48:19 | บัญชี Cloudflare พร้อม · ได้ Worker keep-walking.pongponcrb.workers.dev แทน Pages project (workflow สร้าง Pages project เอง) · รอยืนยัน secrets/2FA/ไม่มีบัตร |
+| 114 | R2 | P1-F02-T19 dry-run | user | — | 22:50 | FAIL — build.sh exit 1 ใน CI (run 36157061484) · workflow ติดป้ายผิดว่า no free host fits |
+| 115 | R2 | P1-F01-T11 | user | — | 22:59:55 | DONE — Go 3 ย่าน พระนคร + ปทุมวัน + บางรัก · 25 สถานที่ตามข้อเสนอ (D-083) · D-081 REJECTED |
+| 116 | R2 | P1-F03-T26 | user | — | 22:59:55 | DONE — H-01..H-13 ตามคำแนะนำ, pillars ยืนยัน (D-084) |
+| 117 | R2 | P1-F03-T28 | user | — | 22:59:55 | DONE — อนุมัติถ้อยคำ GDD, D-020 รับ, D-038 ทาง B, D-080 (D-084) |
