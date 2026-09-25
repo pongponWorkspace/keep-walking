@@ -41,7 +41,16 @@ permissions:
 env:
   # Fixed, non-secret: read again from infra/config/pages.json inside the job so this file stays
   # the single source of truth, but declared here so `env:` blocks below can see it too.
-  TILES_CONFIG: infra/config/pages.json
+  #
+  # NAME NOTE (P1-X40): this must NOT be called TILES_CONFIG. tools/tiles/bin/lib.sh already
+  # reads an env var named TILES_CONFIG as an override for tools/tiles/config.json (see its
+  # README.md "env TILES_CONFIG" row and tools/tiles/size-report.md). A job-level `env:` block
+  # is visible to every step, including "Build tiles", so setting TILES_CONFIG here silently
+  # redirected tools/tiles/bin/build.sh to read infra/config/pages.json instead of its own
+  # config.json and it failed on the first missing key (.tools.pmtiles.version). infra/scripts
+  # already use PAGES_CONFIG for exactly this file (infra/scripts/lib.sh) with no collision, so
+  # this workflow uses the same name.
+  PAGES_CONFIG: infra/config/pages.json
 
 jobs:
   build-and-publish:
@@ -62,17 +71,22 @@ jobs:
       - name: Read Pages project config (non-secret, infra/config/pages.json)
         id: pages_cfg
         run: |
-          echo "map_url=$(jq -r .projects.map.url "$TILES_CONFIG")" >> "$GITHUB_OUTPUT"
-          echo "client_url=$(jq -r .projects.client.url "$TILES_CONFIG")" >> "$GITHUB_OUTPUT"
+          echo "map_url=$(jq -r .projects.map.url "$PAGES_CONFIG")" >> "$GITHUB_OUTPUT"
+          echo "client_url=$(jq -r .projects.client.url "$PAGES_CONFIG")" >> "$GITHUB_OUTPUT"
 
       - name: Build tiles (tools/tiles/bin/build.sh)
         id: tiles
         env:
           TILES_PUBLIC_BASE_URL: ${{ steps.pages_cfg.outputs.map_url }}
         run: |
+          mkdir -p tools/tiles/out
           set +e
-          bash tools/tiles/bin/build.sh
-          rc=$?
+          # Full stdout+stderr also goes to tools/tiles/out/build.log (P1-X40) so the "Upload
+          # tile build logs" step below can hand it to a human when there is no run-log access
+          # (auth-less contributor, or the run log has expired). Everything build.sh itself
+          # writes still reaches the live Actions log via tee.
+          bash tools/tiles/bin/build.sh 2>&1 | tee tools/tiles/out/build.log
+          rc="${PIPESTATUS[0]}"
           set -e
           echo "rc=$rc" >> "$GITHUB_OUTPUT"
           case "$rc" in
@@ -144,6 +158,28 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: infra/scripts/publish-client.sh "${{ steps.tilebase.outputs.manifest }}" "${{ steps.tilebase.outputs.base_url }}"
+
+      - name: Upload tile build logs
+        # P1-X40: run logs are not always reachable (no auth, or the run has expired), so on
+        # any failure in this job -- the tile build itself or a later "Stop" step -- the text
+        # logs build.sh writes go into a small downloadable artifact. Never the tiles/pmtiles/
+        # XYZ output (that is GBs and is exactly what the size budget steps above exist to
+        # police); *.txt/*.json/build.log only.
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tile-build-logs
+          path: |
+            tools/tiles/out/build.log
+            tools/tiles/out/verify-bbox.txt
+            tools/tiles/out/size-report.txt
+            tools/tiles/out/size-report.json
+            tools/tiles/out/publish/manifest.json
+            tools/tiles/out/publish-over-budget/manifest.json
+            tools/tiles/out/publish-ghpages/manifest.json
+            tools/tiles/out/publish-ghpages-over-budget/manifest.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Summary
         if: always()
