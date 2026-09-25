@@ -83,6 +83,20 @@ pnpm test:e2e:install   # ดาวน์โหลด Chromium + WebKit คร�
 pnpm test:e2e
 ```
 
+`pnpm test:e2e` เพียงคำสั่งเดียวพอ ไม่ต้อง build/preview เอง (P1-X38): `playwright.config.ts` มี
+`webServer` ที่รัน `pnpm --filter @keep-walking/client build && pnpm --filter @keep-walking/client
+preview` ให้อัตโนมัติแล้วรอจน `http://localhost:4173` ตอบก่อนเริ่มเทสต์ (ทุก spec's header comment
+ที่บอกให้ build+preview เองคือ prerequisite เดิมก่อน P1-X38 — ปัจจุบันไม่จำเป็นแล้วแต่ยังรันซ้ำได้
+ปลอดภัย เพราะ `reuseExistingServer: !CI` จะใช้ preview server ที่ค้างอยู่แทนถ้ามี). ตั้ง
+`E2E_BASE_URL` เป็นค่าอื่น (เช่น ชี้ไป preview deploy จริง) เพื่อข้าม `webServer` นี้ทั้งหมด
+
+ใน CI (job `e2e`) ใช้ `pnpm exec playwright install --with-deps chromium webkit` แทน
+`pnpm test:e2e:install` ธรรมดา — แฟล็ก `--with-deps` ติดตั้ง system library ของ Ubuntu ที่ WebKit
+ต้องใช้ (apt-get ภายใน) รองรับเฉพาะ Debian/Ubuntu จึงใช้เฉพาะใน CI เท่านั้น ไม่ใส่ใน root script
+ที่ dev รันในเครื่อง (macOS/Linux distro อื่นไม่รองรับแฟล็กนี้ และเครื่อง dev มัก
+มี library พวกนี้อยู่แล้วจากการติดตั้งเบราว์เซอร์จริง). ถ้า `pnpm test:e2e` fail ใน CI, artifact
+`playwright-report` (HTML) จะถูกอัปโหลดให้ดาวน์โหลดจากหน้า run เพื่อ debug
+
 Node version มาจาก `.nvmrc` (24) และ pnpm version จาก `packageManager` ใน root `package.json` (11.24.0) — ใช้ `nvm use` หรือเทียบเท่า ก่อนรัน
 
 ### 5.1 pytest bridge, trace generator check และ dependency caching ใน CI (P1-X07)

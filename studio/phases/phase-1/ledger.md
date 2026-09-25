@@ -131,3 +131,9 @@
 | 107 | close | P1-CLOSE-PM | producer | 03:05:10 | 03:08:59 | PARTIAL → DONE — harness บล็อก subagent เขียน report.md, orchestrator บันทึกเนื้อหาตามที่ producer ส่งมา (done by orchestrator: save only) · T25 CUT · board rev 6 สถานะ COMPLETE — AGENT SIDE, WAITING FOR HUMAN |
 | 108 | close | P1-CLOSE-PRODUCT | product-manager | 03:05:10 | 03:11:27 | SIGN-OFF (agent side) — `product/reviews/phase-1-signoff.md` · แนะนำ Go 2 ย่าน (D-081, Q-P1-30) · S1–S17 ทั้งหมดรอ field walk · handoff ไม่ blocking: qa-tester บันทึกบั๊ก high ของ P1-H06 (ปิดแล้ว) ย้อนหลังใน qa/bugs.md → ยกไป Phase 2 |
 | 109 | close | สถานะ phase | orchestrator | 03:11:27 | 03:11:27 | COMPLETE — AGENT SIDE, WAITING FOR HUMAN · resume `/run-phase 1` หลัง P1-F02-T20 เพื่อทำ T21/T24/CLOSE-QA รอบ 2 |
+
+## Run 2 — started 2026-09-25 22:02 (HUMAN T18 push + fix)
+| # | Wave | Task | Agent | Start | End | Result |
+| --- | --- | --- | --- | --- | --- | --- |
+| 110 | R2 | P1-F02-T18 push แรก | orchestrator (user อนุญาตให้ push, user ล็อกอิน GitHub เอง) | 22:02 | 22:25 | push main de4e3c4 · CI run 36154940915: build-test/secret-scan/guard PASS, e2e FAIL |
+| 111 | R2 | P1-X38 | devops-engineer | 22:36:16 | 22:40:07 | DONE — Playwright ไม่มี webServer · เพิ่ม webServer + --with-deps + report artifact · clean clone e2e 30 passed |

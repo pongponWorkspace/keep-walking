@@ -8,7 +8,11 @@
 #
 # Jobs:
 #   build-test        pnpm lint / typecheck / trace-generator check / golden-vectors check / test / build
-#   e2e               pnpm test:e2e:install && pnpm test:e2e (separate job, browsers are heavy)
+#   e2e               playwright install --with-deps (Linux system libs, CI only, P1-X38) then
+#                      pnpm test:e2e (separate job, browsers are heavy). playwright.config.ts's own
+#                      `webServer` builds the client and starts `vite preview` on :4173 -- this job
+#                      never starts a server itself. On failure only, the HTML report is uploaded
+#                      as a build artifact (actions/upload-artifact, free) for diagnosis.
 #   secret-scan       gitleaks over full git history (D-002 layer 2)
 #   forbidden-files   guard against tracked secrets/raw-data/oversized files (D-002 layer 2)
 #
@@ -107,9 +111,19 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - name: Install Playwright browsers (Chromium + WebKit)
-        run: pnpm test:e2e:install
+      - name: Install Playwright browsers + Linux system deps (Chromium + WebKit)
+        # --with-deps is Debian/Ubuntu-only (apt-get under the hood) -- CI-only, not in the root
+        # `test:e2e:install` script a developer runs locally (macOS/other distros don't support the
+        # flag; local machines already have the OS libraries a real browser install needs).
+        run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm test:e2e
+      - name: Upload Playwright HTML report (only on failure, for diagnosis)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
 
   secret-scan:
     name: secret scan (gitleaks, full history)
