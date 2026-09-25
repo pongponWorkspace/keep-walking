@@ -137,3 +137,4 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | 110 | R2 | P1-F02-T18 push แรก | orchestrator (user อนุญาตให้ push, user ล็อกอิน GitHub เอง) | 22:02 | 22:25 | push main de4e3c4 · CI run 36154940915: build-test/secret-scan/guard PASS, e2e FAIL |
 | 111 | R2 | P1-X38 | devops-engineer | 22:36:16 | 22:40:07 | DONE — Playwright ไม่มี webServer · เพิ่ม webServer + --with-deps + report artifact · clean clone e2e 30 passed |
+| 112 | R2 | P1-F02-T18 ปิด | orchestrator | 22:42:42 | 22:42:42 | push ed2871f · CI run 36155723116 เขียวทั้ง 4 job |
