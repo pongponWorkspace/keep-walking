@@ -78,13 +78,20 @@ jobs:
           case "$rc" in
             0) echo "result=pages" >> "$GITHUB_OUTPUT" ;;
             3) echo "result=ghpages" >> "$GITHUB_OUTPUT" ;;
+            4) echo "result=nohost" >> "$GITHUB_OUTPUT" ;;
             *) echo "result=fail" >> "$GITHUB_OUTPUT" ;;
           esac
 
       - name: Stop -- no free-tier host fits (HUMAN decision needed)
+        if: steps.tiles.outputs.result == 'nohost'
+        run: |
+          echo "::error::tools/tiles/bin/build.sh exited 4: no free host fits this build (tech note F02-map-location-spike.md section 7.3 step 4). Do not switch to a paid host (D-001). Report BLOCKED/PARTIAL to HUMAN." >&2
+          exit 1
+
+      - name: Stop -- tile build failed (generic error, not a budget verdict)
         if: steps.tiles.outputs.result == 'fail'
         run: |
-          echo "::error::tools/tiles/bin/build.sh exited ${{ steps.tiles.outputs.rc }}: no free host fits this build (tech note F02-map-location-spike.md section 7.3 step 4). Do not switch to a paid host (D-001). Report BLOCKED/PARTIAL to HUMAN." >&2
+          echo "::error::tile build failed with exit ${{ steps.tiles.outputs.rc }} -- see the Build tiles step log for the cause (missing tool, download failure, or a bad input file). This is NOT the D-001 no-free-host-fits case (that is exit 4 only)." >&2
           exit 1
 
       - name: Stop -- only the GitHub Pages fallback fits and it was not requested

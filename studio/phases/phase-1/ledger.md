@@ -144,3 +144,4 @@
 | 116 | R2 | P1-F03-T26 | user | — | 22:59:55 | DONE — H-01..H-13 ตามคำแนะนำ, pillars ยืนยัน (D-084) |
 | 117 | R2 | P1-F03-T28 | user | — | 22:59:55 | DONE — อนุมัติถ้อยคำ GDD, D-020 รับ, D-038 ทาง B, D-080 (D-084) |
 | 118 | R2 | P1-F02-T17/T18 ยืนยัน | user | — | 23:02:42 | secret scanning เปิด, GitHub secrets ครบ · Billing มีบัตรแต่ Free plan → D-085 |
+| 119 | R2 | P1-X39 | devops-engineer | 22:53:46 | 23:04:05 | DONE — root cause: tools/coverage/out/boundaries.geojson ไม่อยู่ใน git · build.sh ข้ามเช็กนี้เมื่อไม่มีไฟล์ · workflow แยก rc=4/อื่น · clean clone 13,502 tile, test 925 ผ่าน · handoff ข้อมูล (ไม่ blocking) tech-lead/location-engineer → ยกไป Phase 2 |

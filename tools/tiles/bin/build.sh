@@ -46,11 +46,26 @@ mkdir -p "$OUT/pmtiles"
 "$TILES_DIR/bin/fetch-assets.sh"
 ASSETS="$DOWNLOADS/assets"
 
-# ---------- 2. bbox against the 6 province boundaries ----------
+# ---------- 2. bbox against the 6 province boundaries (optional, git-ignored input) ----------
+# tools/coverage/out/boundaries.geojson is the full coverage-survey pipeline's output: it needs
+# the 327 MB OSM extract (tools/coverage/params.json#pipeline.sources D1) and is .gitignored
+# (`out/` in .gitignore), so it only exists on a machine where someone has already run
+# `python -m pipeline` in tools/coverage/. A clean checkout (CI, a fresh clone) never has it.
+# This is a config sanity check on the committed area.bbox value, not a build input, so when the
+# file is absent this step is SKIPPED with a warning -- same rule tools/tiles/test/run.sh already
+# uses for the same file (see its "bbox vs provinces" check). If area.bbox is ever edited, run
+# tools/coverage locally first and re-run this script to get the strict check.
 REGION_FILE="$OUT/region-provinces.geojson"
-python3 "$TILES_DIR/bin/verify-bbox.py" --config "$CONFIG" --region-out "$REGION_FILE" >"$OUT/verify-bbox.txt" \
-  || { cat "$OUT/verify-bbox.txt" >&2; die "bbox does not cover every playable province (edit area.bbox in config.json)"; }
-cat "$OUT/verify-bbox.txt" >&2
+BOUNDARIES_FILE="$REPO_ROOT/$(cfg .area.boundariesGeojson)"
+if [[ -f "$BOUNDARIES_FILE" ]]; then
+  python3 "$TILES_DIR/bin/verify-bbox.py" --config "$CONFIG" --region-out "$REGION_FILE" >"$OUT/verify-bbox.txt" \
+    || { cat "$OUT/verify-bbox.txt" >&2; die "bbox does not cover every playable province (edit area.bbox in config.json)"; }
+  cat "$OUT/verify-bbox.txt" >&2
+elif [[ "$REGION_MODE" == provinces ]]; then
+  die "$BOUNDARIES_FILE missing and --region-mode provinces needs it (run tools/coverage locally first, or use --region-mode bbox)"
+else
+  log "skip: bbox-vs-province check ($BOUNDARIES_FILE not present -- git-ignored coverage-pipeline output, not a build input). area.bbox from config.json is used as committed."
+fi
 
 # ---------- 3. extract (network only for the first archive; lower zooms come from it) ----------
 # extract_archive <maxzoom> -> prints archive path
