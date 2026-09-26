@@ -38,7 +38,7 @@ export function soloTickExp(
   f: number,
   p: SoloTickExpParams,
 ): SoloTickExpResult {
-  const zone = zoneLevel(rangeMin, rangeMax);
+  const zone = zoneLevel(level, rangeMin, rangeMax);
   const levelsOutsideRange = Math.max(0, rangeMin - level, level - rangeMax);
   const magicBuff_pct =
     ownClass === 'magic' ? roleBuffPct(p.roles.magic, memberP(level, p.buff)) : null;

@@ -102,3 +102,41 @@
 | F05-C03-3 | เหมือนบน | ดูหน้าต่าง 6 ตัวสุดท้าย (คาบเกี่ยว gap ท้าย + เดินหลัง gap) | ระยะไต่ขึ้นต่อเนื่อง (ไม่กระโดด) และหน้าต่างสุดท้ายผ่าน — พิสูจน์ว่าเครดิตมาจากที่เดินจริงหลัง gap ไม่ใช่ระยะ 400 ม. ที่ถูกรับคืน |
 
 รันแล้วผ่านทั้งหมด: `pnpm exec vitest run qa/tests/traces/engine-movement-gate.test.ts` → **1 test file, 6 tests passed**
+
+## 6. Case ที่ยังทำไม่ได้ตอนนี้ (รอ component อื่น)
+
+| case id | รอ | แผนตอนพร้อม |
+| --- | --- | --- |
+| F05-C05 (HUD diagnostic แยกจาก tick) | P2-F04-T25 (HUD), P2-F05-T08 (`session`) | เปลี่ยน `gateWindowStep_s` แล้ว diff events ของ `sessionStep` |
+| F05-C07 (โค้ด search: ไม่มีทางให้ของนอก reward engine) | P2-F05-T08 (`src/reward`, `src/session` นิ่ง) | `grep -rn "\.bag\s*="` และ `"inventory\s*="` ใน `packages/shared/src/{reward,session}` ต้องมาจาก `rollTickLoot`/`session` เท่านั้น |
+| F05-C11 (สรุป run + storage) | P2-F04-T21 (UI), P2-F04-T25 (storage) | เหมือน F04-C11a/b |
+| F05-C12 (run 3 ชม. ×60) | P2-F05-T08 (`session`), P2-F04-T25 (game clock ×60) | trace สังเคราะห์ยาว (ของ location-engineer หรือ QA แล้วแต่ scope ตอนนั้น) เล่นผ่าน Mock ×60 |
+| F05-C10 / G11 / G12 (R-B1) | F06 engine (`src/hp`, P2-F06-T06) | อยู่ใน `qa/plans/F06-test-plan.md` (งานถัดไปของ F06) ไม่ใช่ของแผนนี้ |
+
+## 7. หลักฐานการรัน (`pnpm test`, 2026-09-27)
+
+```
+pnpm exec vitest run qa/tests/traces --reporter=verbose
+  Test Files  5 passed (5)
+  Tests  36 passed (36)
+  (build.test.ts 13, engine-checkin.test.ts 6, engine-run-state.test.ts 3,
+   engine-opening-hours.test.ts 8, engine-movement-gate.test.ts 6)
+
+pnpm exec vitest run packages/shared/src/formulas/vectors.test.ts --reporter=verbose
+  movement-gate.json / reward-window.json / partial-tick.json / tick-reward.json / run-loop.json /
+  drops.json groups: passing except the 10 tick-reward.json `soloTickExp` cases affected by the
+  same pre-existing D-112 zoneLevelFrom gap noted in F04-F1 below (unrelated to the gate/reward
+  logic itself: the exp *amount* differs, the gate/tick/drop decision logic all passes)
+
+root pnpm test: 119 test files, 1 failed · 1988 passed, 20 failed, 2 skipped (2010 tests)
+  — same 20 pre-existing failures as F04-F1, none in qa/tests/traces
+```
+
+## 8. Findings (handoff — ไม่ใช่ของ `qa/bugs.md` งานนี้ เพราะ `qa/bugs.md` ไม่อยู่ใน `writes` ของ P2-F04-T19)
+
+- เหมือน F04-F1 (D-112 `zoneLevelFrom`) — กระทบ F05-R11 (สูตร exp ต่อ tick ใช้ `combat.zoneLevelFrom`) โดยตรง ไม่ใช่แค่ F06 handoff เดียวกับที่ระบุใน `qa/plans/F04-test-plan.md` หัวข้อ 10
+- ไม่มี finding ใหม่เฉพาะ F05 นอกเหนือจากนี้ — ตัวกรอง/หน้าต่าง/partial tick/drop ที่ตรวจได้ในระดับ vector (ของเดิม) และ reference calculator (ของงานนี้) ผ่านครบ
+
+## 9. Human / out-of-scope
+
+ผลจริงเครื่องวัดของ `bench-jitter`/`table-still` (G5, E4) รออยู่ที่ P2-C03 (ทดสอบสนาม, "ห้ามแตะเกณฑ์ 50 ม., cadence ไม่ต่ำกว่า 5 วิ" ตาม D-113 F-16) — ไม่ใช่ของ T19 · out-of-scope ตามสเปค F05 หัวข้อ 6 (server validate ย้อนหลัง, offline evidence, party, trust score, raid, gold/ร้าน NPC) ไม่ต้องมี case ในแผนนี้

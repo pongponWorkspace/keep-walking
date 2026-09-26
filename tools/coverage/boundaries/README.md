@@ -39,3 +39,29 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # ครั
 ## เมื่อเปิดจังหวัดใหม่
 
 แก้รายการใน `tools/coverage/params.json#pipeline.studyArea.provinces` (Phase 3 ย้ายไป `config/content/`) แล้วรัน `python -m boundaries` · ไม่ต้องแก้ style หรือ build tile ใหม่
+
+## ย่านเปิดตัว (P2-H01) → `data/map/launch-area.geojson`
+
+geometry ของเขตที่เปิดตัว (D-083: เขตพระนคร เขตปทุมวัน เขตบางรัก) ใช้ตัดสินสถานะ "นอกย่านเปิดตัว" ที่บ้าน (F06-R50 ข้อ 2, tech note F06 หัวข้อ 9) · เป็น geometry สาธารณะแบบคงที่ ไม่มีพิกัดของผู้เล่น
+
+- รายชื่อเขตอยู่ใน `params.json#launchArea.districts` (`id` คงที่ + `osmRelationId`) · ชุด `osmRelationId` ต้องตรงกับ `analysis/launch-score.config.json#launchDistricts` (test ตรวจ)
+- สองขั้น ทั้งคู่ offline และได้ byte เดิมทุกครั้ง:
+  1. `extract`: อ่าน D1 (ตรวจ SHA-256 ไม่ดาวน์โหลดเอง) → `boundaries/launch-area.source.geojson` ความละเอียดเต็มของ OSM (ทศนิยม 7) · commit ไว้ (ราว 7 KB) เพื่อให้ขั้น build ไม่ต้องมี D1 · ตรวจว่าทุกเขตอยู่ใน `provinceIso` (TH-10)
+  2. `build`: จากไฟล์ source → เส้นขอบทุกเขตรวมกันแล้ว `line_merge` แบบเดียวกับเส้นจังหวัด (เส้นที่สองเขตใช้ร่วมกัน simplify ครั้งเดียว จึงไม่มีช่องว่างหรือทับกัน) · simplify `launchArea.simplify_m` (10 ม.) ทศนิยม 5 · หยุดถ้าพื้นที่เปลี่ยนเกิน `maxAreaChangeShare` (1%), polygon ไม่ valid, สองเขตทับกันเกิน 1 ตร.ม. หรือไฟล์เกิน `maxFileBytes` (50 KB)
+- property ต่อ feature: `id` (`phraNakhon`, `pathumWan`, `bangRak`), `osmName`, `osmNameEn`, `osmRelationId`, `provinceIso` · ชื่อที่แสดงให้ผู้เล่นมาจาก content ไม่ใช่จากไฟล์นี้
+- ลิขสิทธิ์: © OpenStreetMap contributors (ODbL 1.0) ตาม D-091 · อยู่ใน `attribution` และ `license` ของทั้งสองไฟล์
+
+```sh
+cd tools/coverage
+.venv/bin/python -m boundaries.launch extract          # ต้องมี D1 · ~6 วินาที
+.venv/bin/python -m boundaries.launch build            # ไม่ต้องมี D1 · < 1 วินาที
+.venv/bin/python -m boundaries.launch build --check    # เทียบกับไฟล์ที่ commit ไม่เขียน · exit 1 ถ้าไม่ตรง
+.venv/bin/python -m boundaries.launch extract --check  # เทียบ source กับ D1 (ต้องมี D1)
+```
+
+Test (รันผ่าน bridge เดิม `tests/pytest-bridge.test.ts` ใน root `pnpm test`):
+
+- `tests/test_launch_fixture.py`: CLI จริงบน fixture 3 × 2 เขต ขอบมีจุดหยัก 2 ม. (ต้องหายหลัง simplify) · เขตที่ติดกันใช้ขอบเดียวกัน ไม่มีช่องว่าง · `--check` จับไฟล์ที่ถูกแก้หรือหาย · relation ไม่พบ / เขตอยู่นอกจังหวัด / ไฟล์เกินขนาด / source ไม่ตรง params → หยุด
+- `tests/test_launch_outputs.py`: `build --check` กับไฟล์ที่ commit (กันไฟล์ drift) · `extract --check` เมื่อมี D1 ในเครื่อง (ไม่มีก็ skip) · ขนาด, attribution, winding, ทศนิยม, ไม่ทับกัน, อยู่ในรูของ `playarea-mask.geojson`, จุดที่รู้จัก (สนามหลวง, สวนลุมพินี, สยาม, State Tower อยู่ใน · อนุสาวรีย์ชัยฯ, จตุจักร, วงเวียนใหญ่ อยู่นอก)
+
+เมื่อเปิดเขตใหม่: เพิ่มใน `params.json#launchArea.districts` และ `analysis/launch-score.config.json#launchDistricts` แล้วรัน `extract` ตามด้วย `build`

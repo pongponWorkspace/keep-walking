@@ -1,0 +1,312 @@
+{
+  "manifestVersion": 1,
+  "cues": [
+    {
+      "id": "run.tickGranted",
+      "file": "run.tickGranted.wav",
+      "vibration_ms": [
+        45
+      ],
+      "priority": 5,
+      "tier": "normal",
+      "telemetry": "run_tick_granted",
+      "silentFallback": "toast run.tickGranted",
+      "durationMs": 45,
+      "loudness_lufs": -16.7
+    },
+    {
+      "id": "run.tickGrantedFirst",
+      "file": "run.tickGrantedFirst.wav",
+      "vibration_ms": [
+        45,
+        70,
+        45,
+        70,
+        90
+      ],
+      "priority": 5,
+      "tier": "normal",
+      "telemetry": "run_tick_granted",
+      "silentFallback": "toast run.tickGrantedFirst + run.continueCta (also fires onboarding_first_reward_granted)",
+      "durationMs": 320,
+      "loudness_lufs": -16.1
+    },
+    {
+      "id": "run.tickDenied",
+      "file": "run.tickDenied.wav",
+      "vibration_ms": [
+        20
+      ],
+      "priority": 6,
+      "tier": "soft",
+      "telemetry": "run_tick_denied",
+      "silentFallback": "toast run.tickDenied (faded style)",
+      "durationMs": 20,
+      "loudness_lufs": -17
+    },
+    {
+      "id": "run.hpLow",
+      "file": "run.hpLow.wav",
+      "vibration_ms": [
+        80,
+        80,
+        80,
+        80,
+        80
+      ],
+      "priority": 2,
+      "tier": "warning",
+      "telemetry": "run_hp_low",
+      "silentFallback": "toast run.hpLow (persists until decided)",
+      "durationMs": 400,
+      "loudness_lufs": -15.9
+    },
+    {
+      "id": "run.autoRetreat",
+      "file": "run.autoRetreat.wav",
+      "vibration_ms": [
+        100,
+        80,
+        100,
+        80,
+        100,
+        80,
+        350
+      ],
+      "priority": 1,
+      "tier": "critical",
+      "telemetry": "run_auto_retreat",
+      "silentFallback": "run.summary.autoRetreated screen (always reachable)",
+      "durationMs": 890,
+      "loudness_lufs": -16.9
+    },
+    {
+      "id": "run.death",
+      "file": "run.death.wav",
+      "vibration_ms": [
+        150,
+        120,
+        600
+      ],
+      "priority": 0,
+      "tier": "critical",
+      "telemetry": "run_death",
+      "silentFallback": "run.summary.died screen (always reachable)",
+      "durationMs": 870,
+      "loudness_lufs": -16.9
+    },
+    {
+      "id": "dungeon.confirmEnter",
+      "file": "dungeon.confirmEnter.wav",
+      "vibration_ms": [
+        30,
+        40,
+        30
+      ],
+      "priority": 5,
+      "tier": "normal",
+      "telemetry": "dungeon_entered",
+      "silentFallback": "screen transition to S-03-run",
+      "durationMs": 100,
+      "loudness_lufs": -16.4
+    },
+    {
+      "id": "raid.checkpointReached",
+      "file": "raid.checkpointReached.wav",
+      "vibration_ms": [
+        70,
+        70,
+        70,
+        70
+      ],
+      "priority": 3,
+      "tier": "warning",
+      "telemetry": null,
+      "silentFallback": "realtime boss HP bar + checkpoint banner (F17 copy key pending)",
+      "durationMs": 280,
+      "loudness_lufs": -16.4
+    },
+    {
+      "id": "raid.thirtyMinWarning",
+      "file": "raid.thirtyMinWarning.wav",
+      "vibration_ms": [
+        70,
+        90,
+        70,
+        90,
+        140
+      ],
+      "priority": 4,
+      "tier": "warning",
+      "telemetry": null,
+      "silentFallback": "raid banner: time left + boss HP % (F17 copy key pending)",
+      "durationMs": 460,
+      "loudness_lufs": -16.4
+    },
+    {
+      "id": "drop.rarity.uncommon",
+      "file": "drop.rarity.uncommon.wav",
+      "vibration_ms": [
+        45,
+        70,
+        45
+      ],
+      "priority": 5,
+      "tier": "normal",
+      "telemetry": null,
+      "silentFallback": "icon rarity channel (color/pip/border/corner) — sound is a bonus 5th channel",
+      "durationMs": 160,
+      "loudness_lufs": -16.7
+    },
+    {
+      "id": "drop.rarity.rare",
+      "file": "drop.rarity.rare.wav",
+      "vibration_ms": [
+        45,
+        70,
+        45,
+        70,
+        45
+      ],
+      "priority": 5,
+      "tier": "normal",
+      "telemetry": "loot_rarity_received",
+      "silentFallback": "icon rarity channel (double border per icon-grammar)",
+      "durationMs": 275,
+      "loudness_lufs": -16.4
+    },
+    {
+      "id": "drop.rarity.epic",
+      "file": "drop.rarity.epic.wav",
+      "vibration_ms": [
+        45,
+        60,
+        45,
+        60,
+        45,
+        60,
+        90
+      ],
+      "priority": 5,
+      "tier": "normal",
+      "telemetry": "loot_rarity_received",
+      "silentFallback": "icon rarity channel",
+      "durationMs": 405,
+      "loudness_lufs": -16.1
+    },
+    {
+      "id": "drop.rarity.legendary",
+      "file": "drop.rarity.legendary.wav",
+      "vibration_ms": [
+        45,
+        60,
+        45,
+        60,
+        45,
+        60,
+        45,
+        60,
+        180
+      ],
+      "priority": 5,
+      "tier": "normal",
+      "telemetry": "loot_rarity_received",
+      "silentFallback": "icon rarity channel",
+      "durationMs": 600,
+      "loudness_lufs": -15.9
+    },
+    {
+      "id": "run.autoPotionUsed",
+      "file": "run.autoPotionUsed.wav",
+      "vibration_ms": [
+        35
+      ],
+      "priority": 4,
+      "tier": "normal",
+      "telemetry": "run_potion_auto_used",
+      "silentFallback": "toast run.autoPotionUsed",
+      "durationMs": 35,
+      "loudness_lufs": -16.7
+    },
+    {
+      "id": "run.stateSuspended",
+      "file": "run.stateSuspended.wav",
+      "vibration_ms": [
+        60,
+        60,
+        60
+      ],
+      "priority": 3,
+      "tier": "warning",
+      "telemetry": "run_state_changed",
+      "silentFallback": "banner run.stateSuspended",
+      "durationMs": 180,
+      "loudness_lufs": -16.7
+    },
+    {
+      "id": "run.stateResumed",
+      "file": "run.stateResumed.wav",
+      "vibration_ms": [
+        30
+      ],
+      "priority": 4,
+      "tier": "normal",
+      "telemetry": "run_state_changed",
+      "silentFallback": "toast run.stateResumed",
+      "durationMs": 30,
+      "loudness_lufs": -16.7
+    },
+    {
+      "id": "dungeon.closedOrOutOfRange",
+      "file": "dungeon.closedOrOutOfRange.wav",
+      "vibration_ms": [
+        20
+      ],
+      "priority": 6,
+      "tier": "soft",
+      "telemetry": null,
+      "silentFallback": "popup dungeon.closedTitle / dungeon.outOfRangeTitle",
+      "durationMs": 20,
+      "loudness_lufs": -17
+    },
+    {
+      "id": "qc.sent",
+      "file": "qc.sent.wav",
+      "vibration_ms": [
+        15
+      ],
+      "priority": 6,
+      "tier": "soft",
+      "telemetry": null,
+      "silentFallback": "qc.* text shown on sender UI",
+      "durationMs": 15,
+      "loudness_lufs": -17
+    },
+    {
+      "id": "qc.received",
+      "file": "qc.received.wav",
+      "vibration_ms": [
+        15
+      ],
+      "priority": 6,
+      "tier": "soft",
+      "telemetry": null,
+      "silentFallback": "qc.* text shown on recipient UI",
+      "durationMs": 15,
+      "loudness_lufs": -17
+    },
+    {
+      "id": "anticheat.speedLock",
+      "file": "anticheat.speedLock.wav",
+      "vibration_ms": [
+        70
+      ],
+      "priority": 3,
+      "tier": "normal",
+      "telemetry": "anticheat_speed_lock_triggered",
+      "silentFallback": "full-screen overlay anticheat.speedLockTitle / anticheat.speedLockBody",
+      "durationMs": 70,
+      "loudness_lufs": -16.7
+    }
+  ]
+}

@@ -20,8 +20,9 @@ export const DIRECTION_COPY_KEY: Readonly<Record<CompassPoint, string>> = {
   NW: 'nav.directionNw',
 };
 
-const DEG_TO_RAD = Math.PI / 180;
-const RAD_TO_DEG = 180 / Math.PI;
+const DEGREES_PER_HALF_TURN = 180;
+const DEG_TO_RAD = Math.PI / DEGREES_PER_HALF_TURN;
+const RAD_TO_DEG = DEGREES_PER_HALF_TURN / Math.PI;
 const FULL_CIRCLE_DEG = 360;
 const COMPASS_STEP_DEG = 45;
 

@@ -8,7 +8,7 @@
 <body>
 <div class="doc-header">
   <h1>F06 Flow C — HP bar, แจ้ง 30%, auto-retreat, ตาย, ฟื้น (Recovering นอก run)</h1>
-  <p>อ้างอิง: design/ux/flows/F06-hp-damage-onboarding.md หัวข้อ 4 (แก้รอบตาม design/reviews/F05-F06-flow-approval.md B-01, B-03, N-03) · เปิด auto-retreat ตายจาก hit ไม่ได้ (F06-R17) · <b>ตาย = จบ run ทันที ไม่มีสถานะล้มในดัน</b> (D-096) ทางฟื้นทั้งหมดย้ายไปจอบ้าน · เฟรม C6/C4 ต้องตรงกับ `F04-04-run-state-summary.html`/`F05-02-run-summary-detail.html` (canon text บนหน้าสรุป)</p>
+  <p>อ้างอิง: design/ux/flows/F06-hp-damage-onboarding.md หัวข้อ 4 (แก้รอบ 2 ตาม design/reviews/F05-F06-flow-approval.md B-01, B-03, N-03 · แก้รอบ 3 ตาม R2-F1, R2-F2, R2-F3, P2-X14) · เปิด auto-retreat ตายจาก hit ไม่ได้ (F06-R17) · <b>ตาย = จบ run ทันที ไม่มีสถานะล้มในดัน</b> (D-096) ทางฟื้นทั้งหมดย้ายไปจอบ้าน · เฟรม C6/C4 ต้องตรงกับ `F04-04-run-state-summary.html`/`F05-02-run-summary-detail.html` (canon text บนหน้าสรุป)</p>
 </div>
 <div class="storyboard">
 
@@ -49,16 +49,19 @@
 </div>
 
 <div class="frame-block">
-<h3>C6. ตาย (ปิด auto-retreat) — ไปหน้าสรุปทันที ไม่มีจอกลาง</h3>
+<h3>C6. ตาย (ปิด auto-retreat) — ไปหน้าสรุปทันที ไม่มีจอกลาง (แก้ R2-F1, R2-F2)</h3>
 <div class="phone">
   <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.summary.headerLabel</span> <span class="thaidraft">(สรุป run)</span></div><div class="settings-icon">S</div></div>
   <div class="screen-body">
-    <h1 class="scr-title" style="color:var(--state-danger);"><span class="copykey">run.death</span> <span class="thaidraft">(คุณตาย ของใน run นี้หายทั้งหมด ครั้งหน้าลองกลับบ้านก่อนตาย)</span></h1>
+    <h1 class="scr-title" style="color:var(--state-danger);"><span class="copykey">run.summary.died</span> <span class="thaidraft">(HP หมด)</span></h1>
+    <p class="body-text"><span class="copykey">run.death</span> <span class="thaidraft">(คุณตาย ของใน run นี้หายทั้งหมด ครั้งหน้าลองกลับบ้านก่อนตาย)</span></p>
     <p class="body-text"><span class="copykey">run.summary.diedBody</span> <span class="thaidraft">(EXP ที่ได้ใน run นี้ยังอยู่)</span></p>
+    <p class="caption" style="margin:12px 0 4px;"><span class="copykey">run.summaryExpGained</span> <span class="thaidraft">(EXP ที่ได้ 180)</span> · <span class="copykey">run.summaryTickCount</span> <span class="thaidraft">(ผ่าน 3 จาก 5 รอบ)</span></p>
+    <p class="caption"><span class="copykey">run.summaryRewardLost</span> <span class="thaidraft">(ไม่เหลืออะไร)</span></p>
     <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">run.summaryContinue</span> <span class="thaidraft">(เดินต่อเพื่อรับเพิ่ม)</span></div>
   </div>
 </div>
-<p class="frame-caption"><b>ต่างจาก F03 เดิม:</b> ไม่มีปุ่ม "ใช้ยาฟื้น"/"รอฟื้นเอง"/"Support ชุบ" บนจอนี้ (คีย์ run.death.usePotion/waitRecover/reviveHint ไม่ใช้ในหน้านี้ของ Phase 2) — ทางฟื้นทั้งหมดอยู่ที่จอบ้าน (เฟรมถัดไป) รายละเอียดเนื้อหาเต็มดู F05-02-run-summary-detail.html</p>
+<p class="frame-caption"><b>แก้ R2-F1/R2-F2 (design/reviews/F05-F06-flow-approval.md รอบ 2):</b> เฟรมนี้เดิมมีแค่ `run.death` เป็น heading ไม่มี `run.summary.died`/แถว exp-tick/`run.summaryRewardLost` — เพิ่มให้ลำดับตรงกับ `F04-04-run-state-summary.html` เฟรม F3 และ `F05-02-run-summary-detail.html` เฟรม B4 ทุกประการ: heading → canon → diedBody → exp/tick → ของว่าง · ร่างไทยของ `run.summary.died` เปลี่ยนจาก "คุณตาย ของหายหมด" เป็น "HP หมด" ตาม `copy.th.json` (P2-F05-T09) เพื่อไม่ให้ซ้ำความหมายกับบรรทัด canon ถัดไป · <b>ต่างจาก F03 เดิม:</b> ไม่มีปุ่ม "ใช้ยาฟื้น"/"รอฟื้นเอง"/"Support ชุบ" บนจอนี้ (คีย์ `run.death.usePotion`/`waitRecover`/`reviveHint` ไม่ใช้ในหน้านี้ของ Phase 2) — ทางฟื้นทั้งหมดอยู่ที่จอบ้านผ่าน `inventory.useRevivePotionButton` (เฟรมถัดไป)</p>
 </div>
 
 <div class="frame-block">
@@ -71,10 +74,10 @@
       <div class="hp-track" style="margin-top:12px;"><div class="hp-fill low" style="width:12%;"></div></div>
       <p class="caption" style="margin-top:6px;"><span class="copykey">home.recoveringDetail</span> <span class="thaidraft">(HP กลับมา 50% ภายใน 30 นาที)</span></p>
     </div>
-    <div class="btn btn-secondary" style="margin-top:12px;width:100%;"><span class="copykey">run.death.usePotion</span> <span class="thaidraft">(ใช้ยาฟื้น)</span></div>
+    <div class="btn btn-secondary" style="margin-top:12px;width:100%;"><span class="copykey">inventory.useRevivePotionButton</span> <span class="thaidraft">(ใช้ยาฟื้น)</span></div>
   </div>
 </div>
-<p class="frame-caption">ไม่ใช้ไอคอนนาฬิกาทราย (สงวนให้ Grace/Suspended) · ฟื้นต่อเนื่องแม้แอปปิด (คำนวณจากนาฬิกาของ host) · ปุ่มยาฟื้นแสดงเฉพาะเมื่อมียาใน inventory เท่านั้น (ไม่ใช่ปุ่ม disabled) · <b>แก้ N-03:</b> "เข้า dungeon ได้ตามปกติแม้กำลังฟื้น (HP > 0)" ย้ายมาเป็นหมายเหตุของเอกสารตรงนี้ (ไม่ใช่ copy จริงในจอ ไม่มี copy key ผูกอยู่ — เดิมวางเป็น `.caption` ในจอทำให้ดูเหมือนข้อความจริง)</p>
+<p class="frame-caption">ไม่ใช้ไอคอนนาฬิกาทราย (สงวนให้ Grace/Suspended) · ฟื้นต่อเนื่องแม้แอปปิด (คำนวณจากนาฬิกาของ host) · ปุ่มยาฟื้นแสดงเฉพาะเมื่อมียาใน inventory เท่านั้น (ไม่ใช่ปุ่ม disabled) · <b>แก้ R2-F3:</b> ปุ่มนี้เดิมอ้าง `run.death.usePotion` ซึ่งสงวนไว้ให้สถานะล้มในดันของ F09 เท่านั้น (`_meta.phase2UnusedKeys` ของ `copy.th.json`) — เปลี่ยนเป็น `inventory.useRevivePotionButton` ตรงกับ flow F06 override ข้อ 8/C8/7.0 · <b>แก้ N-03:</b> "เข้า dungeon ได้ตามปกติแม้กำลังฟื้น (HP > 0)" ย้ายมาเป็นหมายเหตุของเอกสารตรงนี้ (ไม่ใช่ copy จริงในจอ ไม่มี copy key ผูกอยู่ — เดิมวางเป็น `.caption` ในจอทำให้ดูเหมือนข้อความจริง)</p>
 </div>
 
 <div class="frame-block">

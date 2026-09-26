@@ -1,0 +1,60 @@
+/* art/vfx/rarity-reveal/rarity-reveal.css
+ *
+ * Resting (non-animated) geometry for the decoration nodes rarity-reveal.js creates. Shape and
+ * position live here as static `clip-path`/`transform-origin` rules; the fold-in scale itself is
+ * the only thing rarity-reveal.js sets on `transform`, via WAAPI. Per-corner mirroring is done
+ * with a distinct `clip-path` per corner (not a static `transform: scale(-1,…)`) precisely so it
+ * never fights the WAAPI `scaleX()/scaleY()` keyframes, which take over the `transform` property
+ * outright while the animation is filling forwards.
+ *
+ * Color: every node uses `currentColor`, so the caller sets `color: var(--rarity-rare)` (etc,
+ * design/ux/tokens.json `color.rarity.*`) on the frame container once; no color literals here.
+ */
+
+.vfx-rarity-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: currentColor;
+  pointer-events: none;
+}
+
+.vfx-rarity-corner--tl {
+  top: -1px;
+  left: -1px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  transform-origin: top center;
+}
+
+.vfx-rarity-corner--tr {
+  top: -1px;
+  right: -1px;
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  transform-origin: center right;
+}
+
+.vfx-rarity-corner--br {
+  bottom: -1px;
+  right: -1px;
+  clip-path: polygon(100% 100%, 100% 0, 0 100%);
+  transform-origin: bottom center;
+}
+
+.vfx-rarity-corner--bl {
+  bottom: -1px;
+  left: -1px;
+  clip-path: polygon(0 100%, 0 0, 100% 100%);
+  transform-origin: center left;
+}
+
+.vfx-rarity-shard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 10px;
+  margin: -5px 0 0 -1px;
+  background: currentColor;
+  pointer-events: none;
+  transform-origin: center bottom;
+}

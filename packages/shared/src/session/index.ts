@@ -4,6 +4,8 @@
 export type {
   ActiveClock,
   CheckInRejectReason,
+  FromPersistedRejectReason,
+  PersistedSession,
   PlayerState,
   RawSample,
   RunBag,
@@ -28,4 +30,14 @@ export {
   createPlayer,
   tauOf,
 } from './types';
-export { createSession, sessionStep } from './reducer';
+export { createSession, purgeLocationData, sessionStep } from './reducer';
+export type { FromPersistedResult } from './persistence';
+export { fromPersisted, toPersisted } from './persistence';
+export type { CheckInPreview, OpeningView, RunView } from './selectors';
+export {
+  selectCanClearLocalData,
+  selectCheckInPreview,
+  selectOpening,
+  selectRunView,
+  selectSummary,
+} from './selectors';

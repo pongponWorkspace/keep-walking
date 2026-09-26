@@ -11,8 +11,13 @@
  * #expMultipliers, #level; classes.json#roles.magic, #buffStacking).
  */
 import { dropParamsFromConfig } from '@keep-walking/shared/formulas';
+import type { ExpMultParams, ExpParams } from '@keep-walking/shared/formulas';
 import type { JsonObject } from '@keep-walking/shared/config';
-import type { SessionConfig, SessionDungeonRecord, SessionParams } from '@keep-walking/shared/session';
+import type {
+  SessionConfig,
+  SessionDungeonRecord,
+  SessionParams,
+} from '@keep-walking/shared/session';
 import balanceSubsetJson from '../config/generated/balance-subset.generated.json';
 import type { ArtifactDungeon } from '../dungeons/artifact';
 
@@ -73,7 +78,6 @@ export function buildSessionConfig(): SessionConfig {
   const death = subset.dungeons.death as { readonly loseAllRunLoot: boolean };
   const expCurve = subset.progression.expCurve as JsonObject;
   const expMultipliers = subset.progression.expMultipliers as JsonObject;
-  const level = subset.progression.level as { readonly maxLevel: number; readonly startLevel: number };
   const magic = (subset.classes.roles as { readonly magic: { base_pct: number; cap_pct: number } })
     .magic;
   const buffStacking = subset.classes.buffStacking as {
@@ -131,19 +135,32 @@ export function buildSessionConfig(): SessionConfig {
       },
     },
     exp: {
-      exp: expCurve as unknown as import('@keep-walking/shared/formulas').ExpParams,
-      expMult: expMultipliers as unknown as import('@keep-walking/shared/formulas').ExpMultParams,
+      exp: expCurve as unknown as ExpParams,
+      expMult: expMultipliers as unknown as ExpMultParams,
       roles: { magic: { base_pct: magic.base_pct, cap_pct: magic.cap_pct } },
       buff: buffStacking,
     },
     hpSafety: { autoRetreatKeepsRunLoot: hpSafety.autoRetreatKeepsRunLoot },
     death: { loseAllRunLoot: death.loseAllRunLoot },
+    openingHours: {
+      utcOffset_min: (subset.dungeons.openingHours as { utcOffset_min: number }).utcOffset_min,
+      closingSoonNotice_s: (subset.dungeons.openingHours as { closingSoonNotice_s: number })
+        .closingSoonNotice_s,
+    },
+    combat: {
+      monsterAttack: {
+        zoneLevelFrom: (subset.combat.monsterAttack as { zoneLevelFrom: string }).zoneLevelFrom,
+      },
+    },
   } satisfies SessionConfig;
 }
 
 /** progression.level.maxLevel / startLevel — used by `session/engine.ts`'s `createPlayer` call
  * site and by the new-player bootstrap, never hardcoded. */
-export function progressionLevelConfig(): { readonly maxLevel: number; readonly startLevel: number } {
+export function progressionLevelConfig(): {
+  readonly maxLevel: number;
+  readonly startLevel: number;
+} {
   return subset.progression.level as { readonly maxLevel: number; readonly startLevel: number };
 }
 
@@ -158,6 +175,10 @@ export function buildDungeonRecord(dungeon: ArtifactDungeon): SessionDungeonReco
     drop_table_id: dungeon.drop_table_id,
     geometry: dungeon.geometry as unknown as SessionDungeonRecord['geometry'],
     area_m2: dungeon.area_m2,
+    // `ArtifactDungeon.opening_hours` (dungeons/opening-hours-display.ts) is structurally the
+    // same shape as session's `OpeningHours` (weekly + exceptions) — cast, not re-imported, so
+    // this file never touches the banned `@keep-walking/shared/run` subpath.
+    opening_hours: dungeon.opening_hours as unknown as SessionDungeonRecord['opening_hours'],
   };
 }
 

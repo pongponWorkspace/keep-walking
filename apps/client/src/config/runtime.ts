@@ -107,6 +107,13 @@ export interface BundleConfig {
   readonly mapLazyJsBudget_bytes: number;
 }
 
+/** `client.json#vibration` (P2-F04-T21, F04 flow Flow D1 / section 6): the two gameplay vibrate
+ * call sites outside the HUD probe (`ProbeConfig.vibrateTestPattern_ms`, a different button). */
+export interface VibrationConfig {
+  readonly speedLockEnter_ms: number;
+  readonly closingSoonWarning_ms: number;
+}
+
 export interface ClientRuntimeConfig {
   readonly locationWeb: LocationWebConfig;
   readonly providerQuery: ProviderQueryConfig;
@@ -118,6 +125,7 @@ export interface ClientRuntimeConfig {
   readonly navigation: NavigationConfig;
   readonly probe: ProbeConfig;
   readonly bundle: BundleConfig;
+  readonly vibration: VibrationConfig;
 }
 
 export interface RawTraceExportConfig {
@@ -311,6 +319,14 @@ function parseProbe(root: Json, path: string): ProbeConfig {
   };
 }
 
+function parseVibration(root: Json, path: string): VibrationConfig {
+  const node = obj(root['vibration'], path);
+  return {
+    speedLockEnter_ms: num(node['speedLockEnter_ms'], `${path}/speedLockEnter_ms`),
+    closingSoonWarning_ms: num(node['closingSoonWarning_ms'], `${path}/closingSoonWarning_ms`),
+  };
+}
+
 function parseBundle(root: Json, path: string): BundleConfig {
   const node = obj(root['bundle'], path);
   return {
@@ -336,6 +352,7 @@ export function parseClientConfig(input: unknown): ClientRuntimeConfig {
     navigation: parseNavigation(root, '/navigation'),
     probe: parseProbe(root, '/probe'),
     bundle: parseBundle(root, '/bundle'),
+    vibration: parseVibration(root, '/vibration'),
   };
 }
 

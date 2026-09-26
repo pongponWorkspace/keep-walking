@@ -1,0 +1,203 @@
+<!doctype html>
+<!--
+  Manual test harness for every cue in audio/manifest.json (board P2-F05-T06).
+  Not shipped to players: this is for sound-designer/qa-tester review on a real phone.
+
+  How to use:
+    1. From repo root: pnpm exec tsx audio/src/generate.ts --out audio/out   (renders audio/out/*.wav)
+    2. Serve the `audio/` folder over http (file:// blocks fetch()), e.g.:
+         cd audio && python3 -m http.server 8080
+       then open http://<your-computer-ip>:8080/demo.html on a phone on the same network.
+    3. Tap "Play" on a cue: sound and vibration (Android/Chromium only, see direction.md 2) fire
+       together. iOS Safari plays the sound but cannot vibrate — that is expected, not a bug
+       (direction.md 10: vibration is a bonus layer, never the only channel).
+-->
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cue demo — GPS Dungeon กรุงเทพฯ</title>
+    <style>
+      body {
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        background: #14141a;
+        color: #eee;
+        margin: 0;
+        padding: 16px;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 4px;
+      }
+      p.note {
+        color: #aaa;
+        font-size: 13px;
+        margin: 0 0 16px;
+      }
+      #status {
+        font-size: 13px;
+        color: #ffd479;
+        margin-bottom: 12px;
+        min-height: 18px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th,
+      td {
+        border-bottom: 1px solid #333;
+        padding: 6px 8px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        color: #9adfff;
+        position: sticky;
+        top: 0;
+        background: #14141a;
+      }
+      button {
+        background: #3a6ea5;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+      button:active {
+        background: #2b527d;
+      }
+      .tier-critical {
+        color: #ff6b6b;
+      }
+      .tier-warning {
+        color: #ffd479;
+      }
+      .tier-normal {
+        color: #9adfff;
+      }
+      .tier-soft {
+        color: #9a9a9a;
+      }
+      code {
+        color: #7fffd4;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Cue demo — audio/manifest.json</h1>
+    <p class="note">
+      สั่น = Android/Chromium เท่านั้น (direction.md หัวข้อ 2) iOS Safari ได้ยินเสียงแต่ไม่สั่น — ตามที่ตั้งใจไว้ ไม่ใช่บั๊ก
+      ต้อง serve ผ่าน http ไม่ใช่เปิดไฟล์ตรง ๆ (ดูคอมเมนต์ในซอร์ส)
+    </p>
+    <div id="status">กำลังโหลด manifest.json…</div>
+    <table>
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>tier / priority</th>
+          <th>vibration_ms</th>
+          <th>duration</th>
+          <th>loudness (approx)</th>
+          <th>silent fallback</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <script>
+      // Inline on purpose: this task's `writes` scope is `audio/demo.html` (not a separate .js
+      // file), so the whole harness lives in this one page. No build step, no framework, no
+      // network calls other than fetching manifest.json and the cue .wav files from this same
+      // folder (PDPA: no third-party requests even on a dev-only test page).
+      const statusEl = document.getElementById('status');
+      const rowsEl = document.getElementById('rows');
+
+      /** @type {AudioContext | null} */
+      let audioCtx = null;
+      function getAudioContext() {
+        if (audioCtx === null) {
+          const Ctor = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new Ctor();
+        }
+        return audioCtx;
+      }
+
+      async function playCue(cue) {
+        // Vibration first, fired immediately, never waiting on the sound (direction.md 10): visual
+        // status text below is the always-on fallback for platforms/settings where neither fires.
+        let vibrated = false;
+        if ('vibrate' in navigator) {
+          try {
+            vibrated = navigator.vibrate(cue.vibration_ms);
+          } catch {
+            vibrated = false;
+          }
+        }
+        statusEl.textContent = `${cue.id}: vibrate ${vibrated ? 'sent' : 'unsupported (expected on iOS)'} · loading sound…`;
+        try {
+          const ctx = getAudioContext();
+          if (ctx.state === 'suspended') await ctx.resume(); // autoplay policy: this is a user tap
+          const res = await fetch(cue.url);
+          if (!res.ok) throw new Error(`fetch ${cue.url}: ${String(res.status)}`);
+          const buf = await res.arrayBuffer();
+          const audioBuffer = await ctx.decodeAudioData(buf);
+          const source = ctx.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(ctx.destination);
+          source.start();
+          statusEl.textContent = `${cue.id}: playing (vibrate ${vibrated ? 'sent' : 'unsupported'})`;
+        } catch (err) {
+          statusEl.textContent = `${cue.id}: sound failed to load/decode (${String(err)}) — silent fallback is the toast/banner text in the "silent fallback" column, which is always shown regardless of audio`;
+        }
+      }
+
+      function tierClass(tier) {
+        return `tier-${tier}`;
+      }
+
+      async function main() {
+        let manifest;
+        try {
+          const res = await fetch('./manifest.json');
+          manifest = await res.json();
+        } catch (err) {
+          statusEl.textContent = `ไม่สามารถโหลด manifest.json ได้ (${String(err)}) — ต้อง serve ผ่าน http ไม่ใช่เปิดไฟล์ file:// ตรง ๆ`;
+          return;
+        }
+        const cues = [...manifest.cues].sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id));
+        statusEl.textContent = `โหลดแล้ว ${String(cues.length)} cue — 'vibrate' in navigator: ${String('vibrate' in navigator)}`;
+        for (const cue of cues) {
+          // audio/manifest.json ships `file` (relative to audio/out/); this page mirrors the same
+          // "file relative to out/" convention the client uses via asset-manifest.json's `url`.
+          cue.url = `./out/${cue.file}`;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><code>${cue.id}</code>${cue.telemetry === null ? '' : `<br><small>telemetry: ${cue.telemetry}</small>`}</td>
+            <td class="${tierClass(cue.tier)}">${cue.tier} / ${String(cue.priority)}</td>
+            <td><code>[${cue.vibration_ms.join(',')}]</code></td>
+            <td>${String(cue.durationMs)} ms</td>
+            <td>${String(cue.loudness_lufs)} LUFS</td>
+            <td>${cue.silentFallback}</td>
+            <td></td>
+          `;
+          const btn = document.createElement('button');
+          btn.textContent = 'Play';
+          btn.addEventListener('click', () => {
+            playCue(cue);
+          });
+          tr.lastElementChild.appendChild(btn);
+          rowsEl.appendChild(tr);
+        }
+      }
+
+      main();
+    </script>
+  </body>
+</html>

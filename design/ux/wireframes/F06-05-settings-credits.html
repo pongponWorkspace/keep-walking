@@ -8,7 +8,7 @@
 <body>
 <div class="doc-header">
   <h1>F06 Flow D/G — ส่วนที่ต่างจาก 06-settings-autoretreat.html เดิม + Credits ใหม่</h1>
-  <p>อ้างอิง: design/ux/flows/F06-hp-damage-onboarding.md หัวข้อ 5, 8 · toggle auto-retreat/ป้ายค้าง/popup ยืนยันปิด ยังใช้ไฟล์เดิม 06-settings-autoretreat.html ได้ทั้งหมด (ไม่วาดซ้ำที่นี่) — ไฟล์นี้วาดเฉพาะ 3 อย่างที่ต่าง: (1) หน้าย่อยความปลอดภัยไม่มีแถวยาอัตโนมัติที่ปรับได้ (2) แถวใหม่ "ลบข้อมูลในเครื่อง" (3) หน้า Credits ใหม่</p>
+  <p>อ้างอิง: design/ux/flows/F06-hp-damage-onboarding.md หัวข้อ 5, 8 (แก้รอบ 3 ตาม copy alignment ของ P2-X14: G6 ตัด `credits.osmAttribution`) · toggle auto-retreat/ป้ายค้าง/popup ยืนยันปิด ยังใช้ไฟล์เดิม 06-settings-autoretreat.html ได้ทั้งหมด (ไม่วาดซ้ำที่นี่) — ไฟล์นี้วาดเฉพาะ 3 อย่างที่ต่าง: (1) หน้าย่อยความปลอดภัยไม่มีแถวยาอัตโนมัติที่ปรับได้ (2) แถวใหม่ "ลบข้อมูลในเครื่อง" (3) หน้า Credits ใหม่</p>
 </div>
 <div class="storyboard">
 
@@ -65,19 +65,25 @@
 </div>
 
 <div class="frame-block">
-<h3>G6. S-26-credits</h3>
+<h3>G6. S-26-credits (แก้ copy alignment P2-X14: ตัด credits.osmAttribution ใช้ credits.json + credits.licenseLine แทน)</h3>
 <div class="phone">
   <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">credits.title</span> <span class="thaidraft">(เครดิตและลิขสิทธิ์)</span></div><div class="settings-icon">S</div></div>
   <div class="screen-body">
     <p class="caption" style="font-weight:700;"><span class="copykey">credits.fontsHeading</span> <span class="thaidraft">(ฟอนต์)</span></p>
-    <p class="body-text">IBM Plex Sans Thai Looped, Noto Sans Thai — SIL Open Font License</p>
+    <p class="body-text data-entry">IBM Plex Sans Thai Looped</p>
+    <p class="caption"><span class="copykey">credits.licenseLine</span> <span class="thaidraft">(สัญญาอนุญาต OFL 1.1)</span></p>
+    <p class="body-text data-entry" style="margin-top:6px;">Noto Sans Thai</p>
+    <p class="caption"><span class="copykey">credits.licenseLine</span> <span class="thaidraft">(สัญญาอนุญาต OFL 1.1)</span></p>
     <p class="caption" style="font-weight:700;margin-top:12px;"><span class="copykey">credits.mapDataHeading</span> <span class="thaidraft">(ข้อมูลแผนที่)</span></p>
-    <p class="body-text"><span class="copykey">credits.osmAttribution</span> <span class="thaidraft">(© OpenStreetMap contributors)</span> — ODbL 1.0</p>
+    <p class="body-text data-entry">© OpenStreetMap contributors</p>
+    <p class="caption"><span class="copykey">credits.licenseLine</span> <span class="thaidraft">(สัญญาอนุญาต ODbL 1.0)</span></p>
     <p class="caption" style="font-weight:700;margin-top:12px;"><span class="copykey">credits.dataSourcesHeading</span> <span class="thaidraft">(แหล่งข้อมูลอื่น)</span></p>
+    <p class="body-text data-entry">WorldPop (www.worldpop.org)</p>
+    <p class="caption"><span class="copykey">credits.licenseLine</span> <span class="thaidraft">(สัญญาอนุญาต CC BY 4.0)</span></p>
     <div class="btn btn-secondary btn-fullwidth-bottom"><span class="copykey">common.close</span> <span class="thaidraft">(ปิด)</span></div>
   </div>
 </div>
-<p class="frame-caption">หน้าลิขสิทธิ์ทางเทคนิคล้วน อ่านอย่างเดียว ไม่มีข้อมูลบุคคลจริง · credits.osmAttribution ห้ามแก้ถ้อยคำ (เงื่อนไขสัญญาอนุญาต D-091) · หัวข้อ dataSourcesHeading ลบได้ถ้าไม่มีแหล่งอื่นจริง (ASSUMPTION รอ location-engineer)</p>
+<p class="frame-caption">หน้าลิขสิทธิ์ทางเทคนิคล้วน อ่านอย่างเดียว ไม่มีข้อมูลบุคคลจริง · <b>แก้ copy alignment (P2-X14):</b> ไม่มี copy key `credits.osmAttribution` (ไม่เคยมีจริงใน `copy.th.json`) — ทุกบรรทัดที่ทำเครื่องหมาย <code>.data-entry</code> ข้างบนคือข้อมูลตรงตัวจาก `config/content/credits.json#entries[].title` (ห้ามแปล ห้ามแก้ถ้อยคำ เงื่อนไขสัญญาอนุญาต D-091) ตามด้วย `[credits.licenseLine]` ที่แทน `{licenseName}` ด้วย `entries[].licenseName` ตรงตัว · หัวข้อย่อย `dataSourcesHeading` แสดงเสมอเพราะมี entry `worldpop` จริง (ปิด ASSUMPTION A-P2-F06-T03-3) — กลุ่มที่ไม่มี entry จะไม่แสดงหัวข้อนั้นเลย</p>
 </div>
 
 </div>

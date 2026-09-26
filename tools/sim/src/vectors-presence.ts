@@ -37,6 +37,15 @@ const RS = {
     depth_m: 3,
     north_m: -12,
   },
+  /** J-P2-T30-4 / F04 R15 item 7: no_evidence exit at 100 s, first usable sample after the gap. */
+  gapReturn: {
+    lastIn_s: 100,
+    back_s: 220,
+    shortReturn: 5,
+    tail_s: 100,
+    unusableAccuracy_m: 35,
+    unusableLead_s: 5,
+  },
 } as const;
 
 const IN = CASE.origin;
@@ -339,7 +348,74 @@ export function runStateVectors(c: GateConfig): GateVectorFile {
       'P-4: return into the inner band at 160 s, 240 s in the band (> graceMax_s), then deeper: Phase 2 has no pending-run cap (A-P2-X04-1), so the return is back-dated to the first band sample and there is no Suspended. The Phase 3 pendingSetMax_s cap (J-9) changes this vector',
     ),
   );
+  gapReturnVectors(c, v, inBand);
   return { formula: 'run-state', vectors: v };
+}
+
+/**
+ * P2-X17 (J-P2-T30-4, F04 R15 item 7, tech note F06 15.1): return after a no_evidence exit.
+ * Appended after [35]; every case has the last usable sample before the gap at 100 s.
+ */
+function gapReturnVectors(
+  c: GateConfig,
+  v: GateVector[],
+  inBand: (from_s: number, to_s: number, every_s: number) => PresenceSample[],
+) {
+  const r = RS.gapReturn;
+  const N = c.run.edgeHysteresisSamples;
+  const before = stay(0, r.lastIn_s, true);
+  const push = (samples: PresenceSample[], now_s: number, note: string) =>
+    v.push(simVec(tl(c, [...before, ...samples], now_s), `P2-X17 J-P2-T30-4 · ${note}`));
+  push(
+    stay(r.back_s, r.back_s, true),
+    r.back_s,
+    '(a) 120 s gap, then ONE usable sample deep inside at 220 s: Active at 220 s without hysteresis (fewer than edgeHysteresisSamples samples), no pending run',
+  );
+  push(
+    inBand(r.back_s, r.back_s + r.tail_s, RS.every_s),
+    r.back_s + r.tail_s,
+    '(b) 120 s gap, then only inner-band samples (3 m <= edgeHysteresis_m): the band counts as inside, Active at the first band sample (220 s). Contrast [33]: after a left_polygon exit the same band return holds Grace',
+  );
+  const outThenBack = (count: number) => [
+    ...stay(r.back_s, r.back_s, false),
+    ...stay(r.back_s + RS.every_s, r.back_s + count * RS.every_s, true),
+  ];
+  const shortEnd = r.back_s + r.shortReturn * RS.every_s;
+  push(
+    outThenBack(r.shortReturn),
+    shortEnd,
+    `(c) 120 s gap, first usable sample OUTSIDE at 220 s (real exit), then ${r.shortReturn} deep inside samples (< edgeHysteresisSamples ${N}): still Grace, exitStartedAt_ms stays 100 s (R14), pendingSince_ms = 225 s`,
+  );
+  push(
+    outThenBack(N),
+    r.back_s + N * RS.every_s,
+    `(c2) as (c) with ${N} inside samples: the full hysteresis run confirms, Active back-dated to the first sample of the run (225 s)`,
+  );
+  const sus = c.run.suspendedMax_s;
+  push(
+    stay(r.lastIn_s + sus + 1, r.lastIn_s + sus + 1 + r.tail_s, true),
+    r.lastIn_s + sus + 1 + r.tail_s,
+    '(d) gap of suspendedMax_s + 1 s, first sample inside: Suspended at 280.001 s, Ended timeout at 100 s + suspendedMax_s = 1,000 s (R18, run loot kept per F05 3.5), later samples not fed to the run',
+  );
+  push(
+    stay(r.lastIn_s + sus + 1, r.lastIn_s + sus + 1 + r.tail_s, false),
+    r.lastIn_s + sus + 1 + r.tail_s,
+    '(d2) as (d) with the first sample outside: the same timeout at 1,000 s whatever side the first sample is on (R15 item 7.3)',
+  );
+  push(
+    stay(r.lastIn_s + sus, r.lastIn_s + sus, true),
+    r.lastIn_s + sus,
+    '(d3) boundary: first sample inside at exactly 100 s + suspendedMax_s (outside time = 900 s, <=): Suspended then Active at 1,000 s, no timeout',
+  );
+  const unusable: PresenceSample = {
+    ...(stay(r.back_s - r.unusableLead_s, r.back_s - r.unusableLead_s, false)[0] as PresenceSample),
+    accuracy_m: r.unusableAccuracy_m,
+  };
+  push(
+    [unusable, ...stay(r.back_s, r.back_s, true)],
+    r.back_s,
+    '(e) an outside sample with accuracy 35 m (> maxSampleAccuracy_m, not usable, R16) at 215 s, then one deep inside sample at 220 s: the first USABLE sample decides, Active at 220 s',
+  );
 }
 
 const TG = {

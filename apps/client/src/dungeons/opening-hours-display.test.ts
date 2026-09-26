@@ -47,8 +47,8 @@ describe('closingSoonAt (golden vectors)', () => {
       startedAt_ms: number;
       closingSoonNotice_s: number;
     };
-    expect(
-      closingSoonAt(input.closesAt_ms, input.startedAt_ms, input.closingSoonNotice_s),
-    ).toBe(v.expected);
+    expect(closingSoonAt(input.closesAt_ms, input.startedAt_ms, input.closingSoonNotice_s)).toBe(
+      v.expected,
+    );
   });
 });

@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "task": "P2-F05-T05",
+    "owner": "vfx-animator",
+    "source": "art/vfx/specs/motion-direction.md §8 · studio/decisions/decision-log.md D-076/D-077 · art/direction/briefs/P2-assets.md 2.11"
+  },
+  "ui.riftReveal": {
+    "cueId": null,
+    "boundIconId": "icon.ui.rift",
+    "durationMs": 300,
+    "easing": "ease-out",
+    "properties": ["transform"],
+    "usedOn": ["S-01-map dungeon card, first mount", "S-02-dungeon-confirm header, first open"],
+    "neverUsedOn": ["MapLibre canvas (static image, zero exceptions)", "icon.ui.in-run", "icon.ui.closed"],
+    "reducedMotion": { "durationMs": 0, "properties": [] }
+  }
+}

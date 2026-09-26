@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VFX demo — visibilitychange + reduced-motion checklist (P2-F05-T05)</title>
+    <link rel="stylesheet" href="./shared/demo.css" />
+    <link rel="stylesheet" href="../rarity-reveal/rarity-reveal.css" />
+  </head>
+  <body>
+    <h1>Mandatory pre-gate checklist (motion-direction §10)</h1>
+    <p class="demo-note">
+      Two checks every effect module must pass before a content gate: (1) switching tabs mid-
+      animation actually calls <code>Animation.cancel()</code> with no animation left running
+      (checked here via <code>activeCount()</code>), (2) <code>prefers-reduced-motion</code> swaps
+      to the reduced variant. This page exercises both against
+      <code>drop.rarity.legendary</code> (the longest effect in the package, easiest to catch
+      leaking mid-flight).
+    </p>
+
+    <div class="demo-row">
+      <div class="demo-card" style="min-width: 320px">
+        <h3>1. visibilitychange cancel test</h3>
+        <div class="demo-stage">
+          <div class="demo-frame" id="stage-frame" style="background: var(--rarity-legendary); color: var(--rarity-legendary)"></div>
+        </div>
+        <button id="play-legendary">Play drop.rarity.legendary (1200 ms)</button>
+        <p class="demo-note" style="margin: 8px 0">
+          Click play, then switch to another tab/app within the next second, then come back. The
+          log below must show <code>activeCount()</code> drop to 0 the instant the tab hid — not
+          when you return.
+        </p>
+        <button id="check-active">Log activeCount() now</button>
+      </div>
+
+      <div class="demo-card" style="min-width: 320px">
+        <h3>2. prefers-reduced-motion test</h3>
+        <label style="display: block; margin-bottom: 8px; font-size: 14px">
+          <input type="checkbox" id="reduced-toggle" /> Force reduced-motion fallback
+        </label>
+        <div class="demo-stage">
+          <div class="demo-frame" id="stage-frame-reduced" style="background: var(--rarity-legendary); color: var(--rarity-legendary)"></div>
+        </div>
+        <button id="play-legendary-reduced">Play drop.rarity.legendary</button>
+      </div>
+    </div>
+
+    <pre class="demo-measure" id="log" style="background: var(--bg-night); color: #fff; padding: 12px; border-radius: 8px; min-height: 160px; white-space: pre-wrap"></pre>
+
+    <script type="module">
+      import { play, activeCount } from '../dist/core/vfx.js';
+      import '../dist/rarity-reveal/rarity-reveal.js';
+
+      const log = document.getElementById('log');
+      function appendLog(msg) {
+        log.textContent += `[${performance.now().toFixed(0)}ms] ${msg}\n`;
+        log.scrollTop = log.scrollHeight;
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        appendLog(`document.visibilityState -> ${document.visibilityState} · activeCount()=${activeCount()}`);
+      });
+
+      document.getElementById('play-legendary').addEventListener('click', () => {
+        const el = document.getElementById('stage-frame');
+        const fresh = el.cloneNode(false);
+        el.replaceWith(fresh);
+        fresh.id = 'stage-frame';
+        appendLog(`play('drop.rarity.legendary') started · activeCount()=${activeCount()}`);
+        play('drop.rarity.legendary', fresh).then(() => {
+          appendLog(`settled (finished or cancelled) · activeCount()=${activeCount()}`);
+        });
+      });
+
+      document.getElementById('check-active').addEventListener('click', () => {
+        appendLog(`activeCount() = ${activeCount()}`);
+      });
+
+      const reducedToggle = document.getElementById('reduced-toggle');
+      let forceReduced = false;
+      reducedToggle.addEventListener('change', () => {
+        forceReduced = reducedToggle.checked;
+      });
+      const realMatchMedia = window.matchMedia.bind(window);
+      window.matchMedia = (query) => {
+        if (forceReduced && query.includes('prefers-reduced-motion')) {
+          return { matches: true, media: query, addListener() {}, removeListener() {} };
+        }
+        return realMatchMedia(query);
+      };
+
+      document.getElementById('play-legendary-reduced').addEventListener('click', () => {
+        const el = document.getElementById('stage-frame-reduced');
+        const fresh = el.cloneNode(false);
+        el.replaceWith(fresh);
+        fresh.id = 'stage-frame-reduced';
+        appendLog(
+          `play('drop.rarity.legendary') with forceReduced=${forceReduced} (checkbox=${reducedToggle.checked})`,
+        );
+        play('drop.rarity.legendary', fresh).then(() => appendLog('reduced-motion case settled'));
+      });
+    </script>
+  </body>
+</html>

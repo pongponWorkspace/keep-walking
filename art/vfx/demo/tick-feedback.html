@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VFX demo — Tick feedback (P2-F05-T05)</title>
+    <link rel="stylesheet" href="./shared/demo.css" />
+  </head>
+  <body>
+    <h1>Tick feedback — toast enter/exit + first-tick emphasis + level-up</h1>
+    <p class="demo-note">
+      Source: <code>art/vfx/tick-feedback/tick-feedback.js</code> · spec:
+      <code>art/vfx/specs/tick-feedback.md</code> · design/ux/flows/F05-movement-gate-reward.md
+      Flow A · design/ux/wireframes/F05-01-tick-feedback.html. Each card mounts a fresh toast,
+      plays the entrance effect, waits, then plays the shared exit helper.
+    </p>
+    <div class="demo-row" id="rows"></div>
+
+    <script type="module">
+      import { play } from '../dist/core/vfx.js';
+      import { exitToast } from '../dist/tick-feedback/tick-feedback.js';
+
+      const cases = [
+        {
+          id: 'run.tickGranted',
+          label: 'A1 — Tick ผ่าน gate',
+          text: 'เดินพอแล้ว ได้ของรอบนี้',
+          faded: false,
+        },
+        {
+          id: 'run.tickGrantedFirst',
+          label: 'A2 — Tick แรกในชีวิต',
+          text: 'ได้ของก้อนแรกแล้ว เดินมาเองทั้งนั้น',
+          faded: false,
+        },
+        {
+          id: 'run.tickDenied',
+          label: 'A3 — Tick ไม่ผ่าน gate',
+          text: 'รอบนี้เดินไม่พอ ไม่ได้ของ เดินต่อ',
+          faded: true,
+        },
+        {
+          id: 'run.levelUp',
+          label: 'A4 — Level up (ต่อท้าย toast)',
+          text: 'เดินพอแล้ว ได้ของรอบนี้ + เลเวลขึ้น',
+          faded: false,
+        },
+      ];
+
+      const rows = document.getElementById('rows');
+
+      for (const c of cases) {
+        const card = document.createElement('div');
+        card.className = 'demo-card';
+        card.innerHTML = `
+          <h3>${c.label}</h3>
+          <div style="min-height:70px; display:flex; align-items:center;">
+            <div class="demo-toast${c.faded ? ' faded' : ''}" data-toast style="opacity:0;">${c.text}</div>
+          </div>
+          <button data-play>Play ${c.id}</button>
+          <div class="demo-measure" data-measure></div>
+        `;
+        rows.appendChild(card);
+
+        const button = card.querySelector('[data-play]');
+        const measure = card.querySelector('[data-measure]');
+
+        button.addEventListener('click', async () => {
+          const toastHost = card.querySelector('[data-toast]').parentElement;
+          const fresh = document.createElement('div');
+          fresh.className = `demo-toast${c.faded ? ' faded' : ''}`;
+          fresh.textContent = c.text;
+          fresh.style.opacity = '0';
+          toastHost.replaceChildren(fresh);
+
+          const markStart = `${c.id}-start`;
+          const markEnd = `${c.id}-end`;
+          performance.mark(markStart);
+          await play(c.id, fresh);
+          performance.mark(markEnd);
+          const m = performance.measure(c.id, markStart, markEnd);
+          measure.textContent = `enter measured: ${m.duration.toFixed(1)} ms`;
+
+          setTimeout(async () => {
+            await exitToast(fresh).finished;
+            measure.textContent += '\nexited (200 ms ease-in)';
+          }, 1200);
+        });
+      }
+    </script>
+  </body>
+</html>

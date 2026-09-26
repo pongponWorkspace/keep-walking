@@ -8,13 +8,19 @@ export { sampleTimeGate, clockCheck } from './time';
 export type { DungeonSample, PresenceSample } from './sample';
 
 export type {
+  EdgeHysteresisGapParams,
   EdgeHysteresisParams,
   EdgeSide,
   PresenceObservation,
   PresenceTrackerState,
   PresenceConfirmed,
 } from './hysteresis';
-export { presenceTrackerInit, presenceStep, edgeHysteresisBatch } from './hysteresis';
+export {
+  presenceTrackerInit,
+  presencePendingSince,
+  presenceStep,
+  edgeHysteresisBatch,
+} from './hysteresis';
 
 export type {
   SpeedLockParams,

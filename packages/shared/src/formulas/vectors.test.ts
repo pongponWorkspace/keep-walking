@@ -540,9 +540,9 @@ function evaluateOwnedVector(input: Record<string, unknown>): unknown {
       return bossGearStat(n(input, 'enhance'), gearParamsOf(input));
     case 'tierForLevel':
       return tierForLevel(n(input, 'level'), arr(input, 'levelMaxForTier'));
-    // ---- damage.json ----
+    // ---- damage.json (D-112: input {playerLevel, rangeMin, rangeMax}) ----
     case 'zoneLevel':
-      return zoneLevel(n(input, 'rangeMin'), n(input, 'rangeMax'));
+      return zoneLevel(n(input, 'playerLevel'), n(input, 'rangeMin'), n(input, 'rangeMax'));
     case 'monsterAtk':
       return monsterAtk(n(input, 'zoneLevel'), {
         monsterAtkCoef: n(input, 'monsterAtkCoef'),
@@ -586,9 +586,13 @@ function evaluateOwnedVector(input: Record<string, unknown>): unknown {
     }
     // ---- run-state.json ----
     case 'edgeHysteresis': {
-      const p: EdgeHysteresisParams = {
+      // This vector file never exercises the D-104 gap rule (that is `runTimeline`'s own vectors
+      // below); a pair gap this wide never fires so the batch behaves as it did before geo folded
+      // gap-dropping into `edgeHysteresisFeed` (P2-X10).
+      const p: EdgeHysteresisParams & { maxSamplePairGap_s: number } = {
         edgeHysteresisSamples: n(obj(input, 'params'), 'edgeHysteresisSamples'),
         edgeHysteresis_m: n(obj(input, 'params'), 'edgeHysteresis_m'),
+        maxSamplePairGap_s: Number.POSITIVE_INFINITY,
       };
       const initialSide: EdgeSide = input['initialSide'] === 'in' ? 'inside' : 'outside';
       const observations = objArr(input, 'observations').map((x) => ({

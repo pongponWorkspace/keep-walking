@@ -1,0 +1,70 @@
+{
+  "_meta": {
+    "file": "config/content/credits.json",
+    "version": 1,
+    "owner": "tech-lead",
+    "task": "P2-X16 (D-117)",
+    "doc": "studio/decisions/decision-log.md D-117, D-091; data/coverage/LICENSE-DATA.md; data/dungeons/LICENSE-DATA.md; art/fonts/fonts.json; config/content/copy.th.json _meta.creditsNote and credits.*; design/ux/flows/F06-hp-damage-onboarding.md G6 (S-26-credits)",
+    "readBy": ["apps/client S-26-credits (P2-F06 client)"],
+    "_note": "Licence and attribution data, not copy (D-117). Every string under entries[] is shown verbatim, never translated, never passed through copy lint. Thai headings come from copy.th.json: the client maps entries[].group -> groups[].headingKey and renders credits.licenseLine with {licenseName} = entries[].licenseName. A group with no entries is not shown (credits.dataSourcesHeading context). Order of groups[] and entries[] is the display order. No real person or team names (flow F06 G7)."
+  },
+  "_source": {
+    "groups": "copy.th.json credits.mapDataHeading, credits.fontsHeading, credits.dataSourcesHeading (P2-F05-T09)",
+    "entries": "D-117 (narrative-designer, ACCEPTED): verbatim licence strings live in a data file · D-091 (HUMAN): polygons published under ODbL 1.0 with '© OpenStreetMap contributors' · art/fonts/fonts.json#licenses (D-057) · data/coverage/LICENSE-DATA.md 1 D2 (WorldPop used by the coverage pipeline, output in this public repo)"
+  },
+  "groups": [
+    { "id": "mapData", "headingKey": "credits.mapDataHeading" },
+    { "id": "fonts", "headingKey": "credits.fontsHeading" },
+    { "id": "dataSources", "headingKey": "credits.dataSourcesHeading" }
+  ],
+  "entries": [
+    {
+      "id": "osm",
+      "group": "mapData",
+      "title": "© OpenStreetMap contributors",
+      "licenseName": "ODbL 1.0",
+      "licenseFullName": "Open Database License (ODbL) v1.0",
+      "licenseUrl": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "attributionUrl": "https://www.openstreetmap.org/copyright",
+      "spdx": "ODbL-1.0",
+      "usedFor": "basemap tiles, dungeon polygons (data/dungeons artifact), play-area mask (data/map)",
+      "record": "data/dungeons/LICENSE-DATA.md"
+    },
+    {
+      "id": "fontPlexSansThaiLooped",
+      "group": "fonts",
+      "title": "IBM Plex Sans Thai Looped",
+      "licenseName": "OFL 1.1",
+      "licenseFullName": "SIL Open Font License 1.1",
+      "licenseUrl": "https://openfontlicense.org/open-font-license-official-text/",
+      "attributionUrl": "https://github.com/IBM/plex",
+      "spdx": "OFL-1.1",
+      "usedFor": "UI text",
+      "record": "art/fonts/fonts.json#licenses.plex"
+    },
+    {
+      "id": "fontNotoSansThai",
+      "group": "fonts",
+      "title": "Noto Sans Thai",
+      "licenseName": "OFL 1.1",
+      "licenseFullName": "SIL Open Font License 1.1",
+      "licenseUrl": "https://openfontlicense.org/open-font-license-official-text/",
+      "attributionUrl": "https://github.com/notofonts/thai",
+      "spdx": "OFL-1.1",
+      "usedFor": "map labels",
+      "record": "art/fonts/fonts.json#licenses.noto"
+    },
+    {
+      "id": "worldpop",
+      "group": "dataSources",
+      "title": "WorldPop (www.worldpop.org)",
+      "licenseName": "CC BY 4.0",
+      "licenseFullName": "Creative Commons Attribution 4.0 International",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "attributionUrl": "https://www.worldpop.org",
+      "spdx": "CC-BY-4.0",
+      "usedFor": "population per district in the coverage pipeline (launch-district choice); no WorldPop data ships in the client",
+      "record": "data/coverage/LICENSE-DATA.md"
+    }
+  ]
+}

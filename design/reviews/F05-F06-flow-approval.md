@@ -138,3 +138,104 @@ Task: P2-F06-T30 · ผู้ตรวจ: game-director · วันที่: 
 1. uiux-designer แก้ B-01..B-06 ใน flow F05/F06 และ wireframe F05-02, F06-03, F06-04 (และ F04-04 ถ้า B-01 เปลี่ยนหัวข้อ ผ่าน P2-X08)
 2. narrative-designer ยืนยันถ้อยคำของ B-01 และบรรทัดใหม่ของ B-06 ก่อนหรือพร้อมกัน (N-04, N-05 แก้รอบเดียวกันได้)
 3. gate รอบสองตรวจเฉพาะ B-01..B-06 และข้อที่ตามมา ไม่ตรวจส่วนที่ผ่านแล้วซ้ำ
+
+---
+
+# รอบ 2 — P2-F06-T30 (ตรวจซ้ำครั้งสุดท้าย)
+
+ผู้ตรวจ: game-director · วันที่: 2026-09-27 · ขอบเขต: เฉพาะ B-01..B-06, K-11 และสถานะของ N-01..N-10 ตามหัวข้อ 7 ของรอบ 1 (ส่วนที่ผ่านแล้วไม่ตรวจซ้ำ)
+ของที่ตรวจ: flow F05 หัวข้อ 9 และ Flow B · flow F06 หัวข้อ 13 และส่วนที่ตารางอ้าง (override ข้อ 8, A7, A9, C4, C6, C8, 7.0, F2, F6, G1, G3, ตารางหัวข้อ 9) · wireframe `F05-02-run-summary-detail.html`, `F06-03-hp-warning-autoretreat-death-recovering.html`, `F06-04-home-states.html`, `06-settings-autoretreat.html` (E2), `F04-04-run-state-summary.html` (F3, F3b) · `config/content/copy.th.json` (key ที่ B-01, B-03, B-04, B-06, N-04, N-05 อ้าง) · spec F06-R37
+
+## R2-1. Verdict
+
+**PASS** · B-01..B-06 และ K-11 แก้ตรงเจตนาครบในเอกสารที่เป็นตัวจริงของ build (flow F05/F06 และ copy.th.json) · เหลือเศษความไม่สอดคล้อง 5 ข้อ (R2-F1..R2-F5 หัวข้อ R2-4) ที่ไม่เปลี่ยนพฤติกรรมที่ผู้เล่นเห็นถ้า build ทำตามลำดับอำนาจของ K-7 · ทั้ง 5 ข้อไม่ blocking gate นี้ แต่ต้องปิดก่อน design gate F06 (P2-F06-T24) ซึ่งจะตรวจเฉพาะรายการนี้
+
+กติกาชั่วคราวสำหรับ build ของ P2-F06-T09/T10 จนกว่าเศษจะปิด: เมื่อ wireframe ขัดกับ flow ให้ทำตาม flow · เมื่อ `thaidraft` ในเอกสารหรือ wireframe ขัดกับ `copy.th.json` ให้ใช้ `copy.th.json` · เมื่อ spec F06-R37 ขัดกับ K-11 ให้ใช้ K-11 (ดู R2-F5)
+
+## R2-2. ผลตรวจข้อ blocking
+
+| ข้อ | สถานะ | หลักฐาน | หมายเหตุ |
+| --- | --- | --- | --- |
+| B-01 | ผ่าน (มีเศษ R2-F1, R2-F2) | flow F05 B4/B5, flow F06 C4/C6 · F04-04 F3 และ F3b, F05-02 B4 และ B5 ลำดับ หัวข้อ → canon → (diedBody) → รายการ · copy `run.summary.died` เปลี่ยนเป็น "HP หมด" โดย narrative (P2-F05-T09) เพื่อไม่ให้ซ้ำกับ canon · `run.summary.autoRetreated` บอกผลกับของ ส่วน canon บอกเหตุ | เจตนาครบ: canon อยู่บนจอที่ดูได้ทุกเมื่อ, จอเดียวไม่บอกข้อเท็จจริงซ้ำสองบรรทัด, auto-retreat กับตายใช้โครงเดียวกัน, สัญญาณตอนเกิดเหตุยังเป็นสัญญาณเดียว · `run.summaryRewardLost` เป็น empty state ของรายการ ไม่นับเป็นประโยคซ้ำ (ยอมรับ) |
+| B-02 | ผ่าน | flow F06 A9, E1 ใช้เงื่อนไข "ยังไม่มีธง `first_reward`" · context ของ `dungeon.confirmTutorialLine` ใน copy แก้ตาม (N-05) | ตรง F06-R38 และ H-E20 |
+| B-03 | ผ่าน (มีเศษ R2-F3) | flow F06 7.0 ทางลัดครบ 5 อย่างทุกสถานะรวมไม่รู้ตำแหน่ง · F06-04 เฟรม F1, F2, F3, F6 มีทางลัดครบ (เลือกพลังเป็น sheet ทับจอ ไม่ต้องวาดเป็นทางลัด) · override ข้อ 8 ยืนยัน `S-11-inventory` ไม่มีร้าน/ตลาด/ตีบวก ไม่มีปุ่มซ่อน ไม่ปลด `unlocks.npcShop` · ปุ่มยา HP ใช้ได้เฉพาะไม่มี run และ HP < maxHP | key ใหม่ `inventory.homeShortcut`, `inventory.usePotionButton`, `home.recentRunsShortcut` มีใน copy แล้ว |
+| B-04 | ผ่าน | flow F06 F6 · F06-04 เฟรม F6: `home.unknownCta` เป็น primary, `home.unknownRegisterHint` + `home.outOfAreaCta` เป็น secondary → `S-09` โหมดรายจังหวัด · ไม่เด้งเอง ไม่มีรางวัล | ถ้อยคำ hint ใน copy ต่างจาก thaidraft ของ wireframe ใช้ copy ตามกติกาชั่วคราว |
+| B-05 | ผ่าน | flow F06 F2 · F06-04 เฟรม F2: `map.navigateButton` เป็น primary, การ์ดลงทะเบียนรายเขตพร้อม `home.outOfAreaCta` เป็น secondary · F3 (นอกพื้นที่) คงปุ่มยื่นเรื่องเป็น primary | ตรงเสาหลักเรื่องเดิน |
+| B-06 | ผ่าน (มี handoff เดิมของ uiux ถึง tech-lead) | flow F06 G1 ข้อ 1–5, ตารางหัวข้อ 9 แถวใหม่ · copy `privacy.withdrawDuringRunNote` · หัวข้อสรุปใช้ `run.summary.exited` | ถอนได้ทุกเมื่อ, run จบทันทีแบบของครบ, ไม่ไหลผ่าน Grace/Suspended/timeout, การไหลตาม F04 สงวนไว้ให้สัญญาณหายโดยไม่ได้ถอน · tech note F06 ยังเขียนพฤติกรรมเดิม (handoff ของ uiux ถึง tech-lead ยังค้าง ยกต่อใน REPORT) |
+| K-11 | ผ่านในระดับ flow (มีเศษ R2-F4, R2-F5) | flow F06 A7 การ์ดแนะนำเลือกเฉพาะ dungeon ที่เปิดอยู่และช่วงเลเวลครอบ ไม่มีทางสำรองนอกช่วง | spec R37 ยังมีทางสำรองเดิม (R2-F5) |
+
+## R2-3. สถานะข้อ non-blocking
+
+| ข้อ | สถานะ | หลักฐาน / เหตุ |
+| --- | --- | --- |
+| N-01 | แก้แล้ว | flow F06 ตารางหัวข้อ 9 แถว `no_class`/`no_hp` |
+| N-02 | แก้แล้ว | flow F06 G3 ตำแหน่งตายตัวหน้าแรก `S-22` + ลิงก์จาก `S-23` |
+| N-03 | แก้แล้ว | F06-03 เฟรม Recovering ย้ายข้อความไป frame-caption |
+| N-04 | แก้ใน copy แล้ว เอกสารยังอ้าง key เดิม | narrative สร้าง `inventory.useRevivePotionButton` และสงวน `run.death.usePotion` ไว้ F09 · flow F06 override ข้อ 8, C8, 7.0 และ F06-03 เฟรม Recovering ยังวาง `run.death.usePotion` → R2-F3 |
+| N-05 | แก้แล้ว | context ของ `dungeon.confirmTutorialLine` อ้าง `first_reward` |
+| N-06 | แก้แล้ว | flow F05 B4 · F04-04 F3 caption |
+| N-07 | แก้แล้ว | flow F05 C1 |
+| N-08 | แก้บางส่วน | A7 สาขาใกล้ตรง K-11 · สาขาไกลของ onboarding (A7, F1) ยังไม่ระบุว่าระยะในแผงไกลชี้ dungeon ที่เปิดอยู่และครอบเลเวลใกล้สุด และ dungeon อื่นยังเห็นบนแผนที่ → R2-F4 |
+| N-09 | แก้แล้ว | flow F05 หัวข้อ 8 รหัส `A-P2-F05-T03-5/-6` |
+| N-10 | เลื่อน (นอก writes ของ P2-X11) | handoff ของ uiux ถึงงานถัดไปที่แตะ `ia.md`/`F03-core-loop.md` · ยอมรับการเลื่อน แต่ `ia.md` หัวข้อ 3.4/6 ยังอ้างการปลด `unlocks.npcShop` จบ run แรก จึงต้องแก้ก่อน P2-F06-T24 (ดู REPORT) |
+
+## R2-4. เศษที่เหลือ (ไม่ blocking gate นี้ ต้องปิดก่อน P2-F06-T24)
+
+- **R2-F1 (uiux) F06-03 เฟรม C6 ยังเป็นโครงเดิม**: หัวข้อจอเป็น `run.death` ไม่มี `run.summary.died`, ไม่มีแถว exp/tick และไม่มี `run.summaryRewardLost` · ขัดกับ flow F06 C6 ที่บอกเองว่าต้องแก้ทั้งสามไฟล์ให้ลำดับเดียวกัน · แก้: ลำดับ `run.summary.died` → `run.death` → `run.summary.diedBody` → แถว exp/tick → `run.summaryRewardLost` → `run.summaryContinue` ตาม F04-04 F3/F05-02 B4 · ระหว่างนี้ build ใช้ F05-02 B4
+- **R2-F2 (uiux) thaidraft ของ `run.summary.died` ค้างถ้อยคำเก่า**: flow F06 C6 และ thaidraft ใน F04-04 F3, F05-02 B4 ยังเขียน "คุณตาย ของหายหมด" ขณะที่ copy เป็น "HP หมด" แล้ว · ถ้อยคำเก่าวางคู่กับ canon ทำให้ผู้อ่านเข้าใจผิดว่าจอบอกเรื่องตายและของหายซ้ำสองบรรทัด · แก้ thaidraft ให้ตรง copy
+- **R2-F3 (uiux) ปุ่มยาฟื้นที่บ้านยังอ้าง `run.death.usePotion`**: flow F06 override ข้อ 8, C8, 7.0 และ F06-03 เฟรม Recovering · เปลี่ยนเป็น `inventory.useRevivePotionButton` ตามที่ narrative ตัดสินใน N-04 · `run.death.usePotion` ต้องไม่ปรากฏที่ใดใน Phase 2 (K-2 ข้อ 2)
+- **R2-F4 (uiux) N-08 สาขาไกลของ onboarding**: A7 สาขา `O-home` และ F1 เติมหนึ่งประโยคว่าระหว่าง onboarding ระยะในแผงไกลชี้ dungeon ที่เปิดอยู่และช่วงเลเวลครอบเลเวลผู้เล่นใกล้สุด · dungeon อื่นยังเห็นบนแผนที่พร้อมช่วงเลเวลจริงและเข้าได้ตาม R05 (ไม่ซ่อน แค่ไม่แนะนำ)
+- **R2-F5 (game-director) spec F06-R37 ยังมีทางสำรองเดิม**: "ถ้าไม่มี ใช้ dungeon ที่เปิดอยู่ใกล้สุดภายในเกณฑ์พร้อมช่วงเลเวลจริง" ยังอยู่ใน spec · ตามลำดับเอกสาร spec อยู่เหนือ flow จึงต้องแก้ spec ให้ตรง K-11 ก่อน build การ์ดแนะนำ · เป็นงานของ game-director เอง (นอก writes ของงานนี้) ขอ producer เปิด task แก้ spec · ระหว่างนี้ K-11 ของเอกสารนี้เป็นตัวจริง
+
+ข้อสังเกตนอกขอบเขตรอบ 2 (ไม่นับเป็น finding): `06-settings-autoretreat.html` เฟรม E1 ยังเป็นหน้าแรกตั้งค่าของ Phase 1 (มี `settings.accountDeleteLink` → `S-24`, ไม่มี `settings.clearLocalDataLink`/`settings.creditsLink`) · หน้าแรกของ Phase 2 คือ `F06-05-settings-credits.html` · uiux เติม caption ที่ E1 ชี้ไป F06-05 เมื่อแตะไฟล์นั้นครั้งถัดไป (K-6, K-8)
+
+## R2-5. คำตัดสิน part B รอบ 2
+
+**J-P2-T30-2 A-P2-X13-1 ขากลับที่ค้างในแถบ 5 ม. ของ Phase 2 (run-state [33], [35]): ยอมรับเป็นพฤติกรรมของ Phase 2 (ACCEPT)**
+- ข้อเท็จจริง: Phase 2 ไม่มี `pendingSetMax_s` · ขากลับที่อยู่ในแถบฝั่งในไม่นับและไม่ล้มชุด จึงค้าง Grace ได้ไม่จำกัด ([33]) หรือเมื่อเดินลึกเข้าไปภายหลังจะยืนยันและย้อน Active ไปที่ sample แรกในแถบ ([35]) · เงื่อนไข (2) ของ P-4 (timeout แบบของครบ) ใน Phase 2 ถึงได้ทางเดียวคือช่องว่างเกิน `maxSamplePairGap_s` (D-104, [34])
+- เหตุที่รับได้: (1) ไม่มีรางวัลรั่ว · ระหว่างค้าง Grace ไม่มี tick และ damage (นาฬิกา rewardWindow หยุด) · การย้อน Active ใน [35] นับเฉพาะระยะของคู่ที่อยู่ใน polygon ซึ่งเป็นการเดินในเขตจริง (F05-R05) และ tick ที่ย้อนยังต้องผ่าน gate 50 ม. ต่อ 5 นาทีเหมือนทุก tick (NN-2) · (2) ไม่มีการเสียของ · ผู้เล่นกดออกเองได้ทุกเมื่อระหว่าง Grace แบบของครบ (หลักการข้อ 3) · (3) Phase 2 เป็นต้นแบบในเครื่อง ของไม่ใช่รางวัลจริง (D-087) · (4) ที่ค้างได้ต้องยืนนิ่งในแถบกว้าง 5 ม. ต่อเนื่อง ซึ่งเกิดจริงได้น้อย และผลเสียคือผู้เล่นเห็น Grace นานกว่าที่ควร ไม่ใช่เสียของ
+- เงื่อนไข: (a) P-4 ยังเป็นแผนของ Phase 3 และต้องอยู่ใน spec F08 ก่อน engine ย้ายไป server · vector [33] และ [35] ต้องสร้างใหม่ตามที่ balance-model 19.4 ระบุ · (b) qa-tester บันทึกเป็นพฤติกรรมที่รู้แล้วใน test plan ของ Phase 2: Grace ค้างตอนยืนชิดขอบฝั่งใน ไม่ใช่บั๊ก และถ้าพบใน playtest ให้จดเวลาที่ค้างและ accuracy (ข้อมูลตั้งค่า `pendingSetMax_s` ตาม P-4 ข้อ (1)) · (c) ห้ามแก้ใน Phase 2 ด้วยการยืนยันตามเวลา (ขัดหลักการข้อ 2 และ D-103) · (d) เงื่อนไข (2) ของ P-4 ถือว่าพิสูจน์แล้วสำหรับ Phase 2 ผ่าน [34] ส่วนทางแถบรอพิสูจน์ใน Phase 3
+- หลักการ: ข้อ 2 (ตัดสินฝั่งจากหลักฐาน) แล้วข้อ 3 (ไม่มีทางที่ผู้เล่นเสียของ)
+
+**J-P2-T30-3 A-P2-X11-1 ตำแหน่งของ "run ที่ผ่านมา": ปล่อยให้ uiux เลือกตอน build (ไม่ใช่เรื่องกติกา)**
+- ข้อผูกมัดที่ต้องจริงไม่ว่าเลือกแบบไหน: (1) เข้าถึงได้หนึ่งแตะจาก `home.recentRunsShortcut` ในทุกสถานะที่บ้านรวมไม่รู้ตำแหน่ง (B-03) · (2) ไม่มีพิกัด เส้นทาง หรือแผนที่ของ run (F05-R25, NN-4) · (3) ไม่มีทางเข้าจาก `S-03-run` · (4) ไม่มีปุ่มร้าน/ตลาด/ตีบวกติดมาด้วยถ้าวางใน `S-11-inventory` (override ข้อ 8) · (5) จำนวน run ที่เก็บไว้เป็นค่า config ไม่ hardcode (NN-3) และถูกล้างโดยลบข้อมูลในเครื่อง (G4)
+- ข้อแนะนำ ไม่บังคับ: วางคู่กับ `S-11-inventory` เพราะเป็นที่ที่ผู้เล่นมาดูของที่เดินได้ ซึ่งเป็นเหตุผลให้เดินรอบหน้า
+
+**J-P2-T30-4 A-P2-F05-T08-3 ออกแบบ `no_evidence` แล้วกลับ Active ด้วย sample ฝั่งในตัวแรกที่ใช้ได้ โดยไม่ผ่าน hysteresis: ยืนยัน (ACCEPT) ตรงเจตนา F04-R13, E3, E7 และ tech note F04 5.3**
+- เหตุ: hysteresis มีไว้กรองการ "ข้ามขอบ" ที่เกิดจาก GPS drift · การออกแบบ `no_evidence` ไม่มีการข้ามขอบให้กรอง ฝั่งทางเรขาคณิตที่ยืนยันล่าสุดยังเป็นใน · F04-R13 เขียนว่า "การกลับมามีหลักฐานว่าอยู่ใน ก่อนเวลานอกเกิน `suspendedMax_s` = กลับ Active ต่อ run เดิม" และ E7 "กลับมาภายใน `suspendedMax_s` และอยู่ในเขต = Active ต่อ" · ถ้าบังคับ hysteresis ผู้เล่นที่เพิ่งเปิดจอกลับมากลางสวนจะเสียเวลาอีกหนึ่งชุดยืนยันโดยไม่มีเหตุ (หลักการข้อ 3)
+- ไม่มีรางวัลรั่ว: เวลาที่ไม่มีหลักฐานนับเป็นเวลานอกย้อนจาก sample ที่ใช้ได้ตัวสุดท้าย (R14) · คู่ที่คร่อมช่องว่างไม่นับระยะ (F05-R06) · tick หลังกลับมายังต้องผ่าน gate ปกติ (NN-2) · การปิด GPS จึงไม่ได้ประโยชน์อะไร
+- ขอบเขตของคำตัดสิน (ให้ tech-lead ยืนยันว่า engine ตรงนี้ ถ้าไม่ตรงให้ส่งกลับ): (1) "sample ฝั่งใน" คือ sample ที่ใช้ได้และอยู่ใน polygon ทางเรขาคณิต รวม sample ในแถบ 5 ม. ฝั่งใน · (2) ถ้า sample ที่ใช้ได้ตัวแรกหลังช่องว่างอยู่นอก polygon การออกเป็นการออกจริง เวลานอกเดินต่อจาก `t_last` และการกลับเข้าหลังจากนั้นต้องผ่าน hysteresis ตามปกติ (D-103) · (3) กลับมาหลังเวลานอกเกิน `suspendedMax_s` ยังจบ `timeout` ของครบตาม F04-R18 ไม่ว่า sample แรกอยู่ฝั่งไหน
+- vector ที่ต้องมี (systems-designer, ถ้ายังไม่มี): ช่องว่าง → sample ในแถบฝั่งใน → Active ที่เวลาของ sample นั้น · ช่องว่าง → sample นอก → ค้าง Grace แล้วกลับเข้าต้องครบชุด hysteresis · ช่องว่างข้าม `suspendedMax_s` → timeout · ทั้งสามกรณีระยะคร่อมช่องว่างเป็นศูนย์
+- หลักการ: ข้อ 2 (ไม่มีหลักฐานไม่มีรางวัล และตัดสินจากหลักฐาน) แล้วข้อ 3
+
+## R2-6. สิ่งที่ต้องเกิดก่อน design gate F06 (P2-F06-T24)
+
+1. uiux-designer ปิด R2-F1..R2-F4 และ N-10 (`ia.md` หัวข้อ 3.4/6, หมายเหตุหัว `F03-core-loop.md`)
+2. game-director แก้ spec F06-R37 ตาม K-11 (R2-F5)
+3. tech-lead แก้ tech note F06 ส่วนถอน consent ระหว่าง run ตาม B-06 และยืนยันขอบเขตของ J-P2-T30-4
+4. qa-tester บันทึก J-P2-T30-2 (b) เป็นพฤติกรรมที่รู้แล้วใน test plan Phase 2
+
+## REPORT
+task: P2-F06-T30 (รอบ 2)
+status: DONE
+summary: verdict: PASS · B-01..B-06 และ K-11 แก้ตรงเจตนาครบใน flow F05/F06 และ copy · N-01..N-03, N-05..N-07, N-09 แก้แล้ว, N-04/N-08 แก้บางส่วน, N-10 เลื่อน · เศษ 5 ข้อ (R2-F1..R2-F5) ไม่ blocking gate นี้ ต้องปิดก่อน P2-F06-T24 · คำตัดสิน part B 3 ข้อ (J-P2-T30-2..4)
+outputs:
+  - design/reviews/F05-F06-flow-approval.md — ต่อท้ายหัวข้อ "รอบ 2" (R2-1..R2-6) รอบ 1 คงเดิม
+acceptance:
+  - [x] verdict รอบ 2 พร้อมสถานะรายข้อ — R2-1, R2-2 (B-01..B-06, K-11), R2-3 (N-01..N-10)
+  - [x] คำตัดสิน 1–3 — R2-5 J-P2-T30-2, J-P2-T30-3, J-P2-T30-4
+  - [x] ภาษาไทย ไม่มี emoji — ทั้งหัวข้อรอบ 2
+assumptions:
+  - none
+handoffs:
+  - to: uiux-designer | need: R2-F1 (F06-03 เฟรม C6 ลำดับเดียวกับ F05-02 B4), R2-F2 (thaidraft `run.summary.died` = "HP หมด"), R2-F3 (`inventory.useRevivePotionButton` แทน `run.death.usePotion` ใน flow F06 override 8, C8, 7.0 และ F06-03), R2-F4 (N-08 สาขาไกล), N-10 (`ia.md` 3.4/6, หัว F03-core-loop.md) | why: เศษของรอบ 2 | blocking: yes (ก่อน P2-F06-T24 ไม่ใช่ก่อน build)
+  - to: producer | need: เปิด task ให้ game-director แก้ spec F06-R37 ตาม K-11 (writes: design/features/F06-hp-damage-onboarding.md) | why: R2-F5 spec อยู่เหนือ flow | blocking: yes (ก่อน build การ์ดแนะนำ onboarding)
+  - to: tech-lead | need: แก้ docs/tech/F06-hp-damage-onboarding.md ส่วนถอน consent ระหว่าง run ตาม B-06 และยืนยันขอบเขต (1)–(3) ของ J-P2-T30-4 ตรงกับ engine | why: tech note ยังเขียนพฤติกรรมเดิม | blocking: yes (ก่อน P2-F06-T24)
+  - to: systems-designer | need: vector สามกรณีของ J-P2-T30-4 ถ้ายังไม่มี · key config จำนวนสรุป run ที่เก็บไว้ (J-P2-T30-3 ข้อ 5) ถ้ายังไม่มี · สร้าง [33]/[35] ใหม่เมื่อมี `pendingSetMax_s` ใน Phase 3 | why: J-P2-T30-2, -3, -4 | blocking: no
+  - to: qa-tester | need: บันทึก Grace ค้างตอนยืนชิดขอบฝั่งในเป็นพฤติกรรมที่รู้แล้วของ Phase 2 และจดเวลาที่ค้าง + accuracy ถ้าพบ | why: J-P2-T30-2 (b) | blocking: no
+decisions:
+  - propose: J-P2-T30-2 ขากลับค้างในแถบ 5 ม. ของ Phase 2 (ค้าง Grace หรือย้อน Active) เป็นพฤติกรรมที่ยอมรับ · timeout ของครบใน Phase 2 ถึงได้ทางช่องว่าง (D-104) เท่านั้น · เพดานเป็นแผน Phase 3 ตาม P-4 | authority: game-director | impact: ไม่มีการแก้ engine Phase 2 · QA ไม่ถือเป็นบั๊ก
+  - propose: J-P2-T30-3 ตำแหน่ง "run ที่ผ่านมา" เป็นของ uiux ตอน build ภายใต้ข้อผูกมัด 5 ข้อ | authority: game-director | impact: ปิด A-P2-X11-1 ในส่วนกติกา
+  - propose: J-P2-T30-4 กลับจาก `no_evidence` ด้วย sample ฝั่งในตัวแรกที่ใช้ได้ ไม่ผ่าน hysteresis ตาม F04-R13/E7 พร้อมขอบเขต 3 ข้อ | authority: game-director | impact: ยืนยัน A-P2-F05-T08-3 · เพิ่ม vector 3 กรณี
+questions_for_human:
+  - none

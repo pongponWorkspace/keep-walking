@@ -39,6 +39,7 @@ function validClient(): Record<string, unknown> {
     navigation: { coordinateDecimals: 5, externalOpenTimeout_ms: 2500 },
     probe: { vibrateTestPattern_ms: 200 },
     bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
+    vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
   };
 }
 

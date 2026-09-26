@@ -2,7 +2,7 @@
 
 | หัวข้อ | ค่า |
 | --- | --- |
-| task | P2-F06-T04 · เจ้าของ tech-lead · วันที่ 2026-09-26 · สถานะ: ฉบับแรก (สัญญาสำหรับ P2-F06-T06, P2-F06-T08, P2-F06-T09, P2-F06-T17, qa-tester) |
+| task | P2-F06-T04 · เจ้าของ tech-lead · วันที่ 2026-09-26 · สถานะ: ฉบับแรก (สัญญาสำหรับ P2-F06-T06, P2-F06-T08, P2-F06-T09, P2-F06-T17, qa-tester) · แก้ P2-X16 2026-09-27: ถอน consent ระหว่าง run (8.4, B-06, D-116), เวลาที่เหลือถึง 50% (6.2), ยืนยัน J-P2-T30-4 (15) |
 | คู่กับ | `docs/tech/F04-dungeon-presence.md` (tech note F04: `sessionStep`, เวลา, `H`, ลำดับ 9.3, storage, telemetry) · `docs/tech/F05-movement-gate-reward.md` (tech note F05: `ActiveClock`, tick, drop, การจ่ายตอนจบ run) |
 | อ้างอิง | ADR 0003 (3.1 โมดูล, 3.2 สัญญา reducer, 3.4 C1-1/C1-5, 6.4 stream `hit`, 7 `PresenceStrategy`) · `design/features/F06-hp-damage-onboarding.md` (spec F06, R01–R58, H-E1–H-E24) · `design/systems/balance-model.md` 3.1, 3.1.1 (R-B1), 17 · `design/systems/test-vectors/{damage,run-loop}.json` · `tools/sim/src/{hit,loop}.ts` (reference) · `product/telemetry-events.md` · D-020, D-038 B, D-078, D-089, D-094, D-096, D-110 (PROPOSED) |
 | ผู้ใช้เอกสาร | backend-programmer (`src/hp`, `src/session`), gameplay-programmer (จอ run, ตั้งค่า, onboarding, จอที่บ้าน), systems-designer (key + vector), qa-tester (test plan), product-manager (telemetry) |
@@ -25,6 +25,8 @@
 | onboarding | ขั้นที่ engine รู้อยู่แล้ว (class, เข้า run ครั้งแรก, รางวัลก้อนแรก) อ่านจาก `player` · ขั้น UI (intro, อายุ, consent) อยู่ใน `kw.p2.onboarding` / `kw.p2.consent` | 8 |
 | จอไกล / นอกพื้นที่ | client คำนวณด้วย `@keep-walking/geo` (`inPlayArea`, `pointInPolygon`, `boundaryDistance_m`) + `selectOpening` · แสดงผลเท่านั้น | 9 |
 | telemetry ที่ถูกถาม | `run_tick_denied` มี `partial` (ยืนยัน) · `wake_lock_engaged_share_bucket` คิดจากเวลาที่ถืออยู่จริง | 10 |
+| ถอน consent ตำแหน่งระหว่าง run | client ส่ง input `exit` เดิม → `exitReason = manual_exit` (ไม่เพิ่มค่าใหม่) · ไม่ผ่าน Grace/Suspended/`timeout` · หยุด LocationProvider หลัง step นั้น | 8.4 |
+| เวลาที่เหลือถึง 50% (`home.recoveringDetail`) | `selectPlayerView(...).recoveryTimeLeft_ms` คิดแบบปิดจากจุดยึด HP | 6.2 |
 | `PresenceStrategy.presence()` | ยืนยันการอ่านของ backend: ตัวจำแนกขณะเดียวไม่มีสถานะ ใช้แสดงผล · in/out ของ state machine มาจาก `presenceStep` / `runTimeline` | 11 |
 
 ## 1. ขอบเขต โมดูล และข้อยกเว้น
@@ -303,6 +305,13 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 
 - `recovering = true` ตั้งแต่จบ run ด้วย `death` · ใช้อัตราเดียวกับ 6.1 (A-P1-F03-T06-15a ACCEPT ในคำตัดสิน 10 ของ spec) · ที่ VIT 0 จาก 0 ถึง `deathRecoveryTo_pct` ใช้ `deathRecoveryTo_pct / outsideDungeonRegen_pctMaxHpPerMin` นาที (50 / 1.6667 = 29.9994 นาที ≈ `deathRecoveryDuration_s` 1,800) · engine ไม่อ่าน `deathRecoveryDuration_s` ในการคำนวณ ใช้ตรวจความสอดคล้องตอนสร้าง params เท่านั้น (3.7 · ต่างกันเกิน 1 วินาที = throw) · เหตุผล: สองค่าบอกอัตราเดียวกัน ถ้าใช้ทั้งคู่จะมีสองอัตราที่ขัดกันเมื่อ systems ปรับค่าเดียว
 - พ้น Recovering เมื่อ `hpAt(t) ≥ maxHp × deathRecoveryTo_pct / 100` หรือใช้ยาชุบ · engine ตรวจทุก step ที่ไม่มี run · เวลาที่ข้ามเส้นคำนวณได้แบบปิด (`anchorAt + (line − value) / rate`) จึง event `player_recovered.at_ms` = เวลาข้ามจริง ไม่ใช่เวลาที่ step ถูกเรียก · materialize ที่เวลานั้น
+- **เวลาที่เหลือถึงเส้น (`home.recoveringDetail` `{timeLeft}`, A-P2-F05-T09-2 · P2-X16): ยืนยันว่าได้** · จุดยึดทำให้คิดแบบปิดได้ที่ `now_ms` ใดก็ได้โดยไม่มี timer และถูกต้องแม้เปิดแอปกลับมากลางทาง (R04):
+  ```
+  line_hp            = maxHp × deathRecoveryTo_pct / 100
+  recoveredAt_ms     = anchorAt_ms + max(0, line_hp − value) / regenRate_perMs      // สูตรเดียวกับ player_recovered.at_ms
+  recoveryTimeLeft_ms = recovering ? max(0, recoveredAt_ms − max(now_ms, anchorAt_ms)) : null
+  ```
+  selector: เพิ่ม field `recoveryTimeLeft_ms: number | null` และ `recoveryTo_pct` (= `deathRecoveryTo_pct` จาก params ให้ `{recoverPct}` ไม่ต้องอ่าน config แยก) ใน `selectPlayerView` (13.4) · ไม่มี selector แยก · `regenRate_perMs` ใช้ VIT ปัจจุบันของผู้เล่น (6.1) ซึ่งเปลี่ยนนอก run ไม่ได้ใน Phase 2 จึงไม่ต้อง materialize ใหม่ระหว่างนับ · ค่า `0` = ข้ามเส้นแล้วแต่ step ยังไม่ออก `player_recovered` → client ซ่อนบรรทัดนี้ (ไม่แสดง "0 นาที") · การแสดงผลปัดขึ้นเป็นนาทีด้วย `unit.minutes` (ผู้เล่นไม่เห็นเวลาน้อยกว่าจริง) · client นับถอยหลังด้วยการเรียก selector ใหม่ทุกครั้งที่ render ไม่ลบเวลาเอง · ค่านี้เป็นการแสดงผล ไม่มีผลต่อการเข้า run (R27) · ไม่ใช้ `run.death.waitRecoverDetail` ชั่วคราวตามทางสำรองของ A-P2-F05-T09-2
 - Recovering ไม่บล็อกการเข้า run (R27) · เงื่อนไขเข้าคือ HP > 0 (6.3)
 
 ### 6.3 เงื่อนไขของ `confirm` ที่ F06 เพิ่ม (เสริมลำดับ tech note F04 7.4)
@@ -403,7 +412,28 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 - ขอบเขต: ทุก key ที่ขึ้นต้น `app.privacy.localData.storageKeyPrefix` (`kw.p2.`) ตาม `clearScope = allKeysWithPrefix` · ผลคือ class, HP, inventory, onboarding, สรุป run, ความสนใจ, consent, telemetry หายทั้งหมด แล้วเขียน `local_data_cleared` เป็นบรรทัดแรกของ ring buffer ใหม่ และโหลดหน้าใหม่เข้า onboarding (F04 10.4 · มีแล้วใน `clear-local-data.ts`)
 - **ปิดระหว่าง run:** session เพิ่ม selector `selectCanClearLocalData(state) = state.run === null` · ปุ่มในตั้งค่า disabled เมื่อ `false` · ฟังก์ชัน `clearLocalData` ของ client ต้องรับผลของ selector นี้และปฏิเสธเมื่อมี run (กันการเรียกจากที่อื่น) · `lastSummary` ที่ยังไม่ปิดไม่บล็อก
 - หลังลบ: `createSession` ใหม่ → `classId: null`, HP เต็ม, auto-retreat ตามค่าเริ่ม (R22), inventory ว่าง
-- การถอน consent ตำแหน่ง (R48) ไม่ใช่การลบข้อมูล: หยุด LocationProvider, ตั้ง `consent.location = withdrawn` · ถ้ามี run อยู่ run ไม่มีหลักฐานแล้วเดินตาม F04 (Grace → Suspended → `timeout` ของครบ)
+- การถอน consent ตำแหน่ง (R48) ไม่ใช่การลบข้อมูล และ **ไม่รอ run จบ** ต่างจากปุ่มลบข้อมูล · ลำดับและผลอยู่ใน 8.4 (แทนข้อความเดิมของฉบับแรกที่ให้ run ไหลเป็น Grace → Suspended → `timeout` ซึ่ง B-06 / D-116 ยกเลิกแล้ว)
+
+### 8.4 ถอน consent ตำแหน่ง (R48 ข้อ 1–3, H-E25, B-06, J-P2-T30-1, D-116 · P2-X16)
+
+**คำตัดสิน exit_reason: ใช้ `manual_exit` เดิม ไม่เพิ่มค่าใหม่** · เหตุผล: (1) spec R48 ข้อ 3 บังคับว่าถ้าแยกค่าต้องจ่ายเท่า `manual_exit` ทุกประการ ทางที่พิสูจน์ได้ง่ายที่สุดคือใช้ input และเส้นทางโค้ดเดียวกัน (`sessionStep({ type: 'exit' })` → `endRun(..., 'manual_exit', now_ms)`) จึงไม่มีสาขาใหม่ใน `reward` / `hp` ให้ tech gate ตรวจ · (2) ไม่ต้องแก้ enum ใน `RunSummary.exitReason`, F04-R17, ตาราง F05 6 และ `product/telemetry-events.md` ซึ่ง F04-R17 ฉบับปัจจุบันเขียนไว้แล้วว่า `manual_exit` รวมการถอน consent · (3) engine ไม่ต้องรู้เรื่อง consent (consent เป็นสถานะของ client ตาม 8.1)
+
+ไม่มี input ใหม่ชื่อ `withdrawConsent` ใน `SessionInput` · client เป็นผู้ประกอบลำดับด้านล่างใน call site เดียว (`apps/client/src/privacy/withdraw-consent.ts` ที่เสนอ · ชื่อไฟล์เลือกได้ใน build ของ F06 client)
+
+ลำดับเมื่อผู้เล่นกดยืนยันการถอน (ทำใน task เดียวของ event loop ไม่มี `await` คั่นก่อนข้อ 3)
+
+1. ตั้งธงในหน่วยความจำ `locationWithdrawn = true` ก่อนทุกอย่าง · ตัวรับ sample ของ LocationProvider ตรวจธงนี้แล้ว **ทิ้ง** sample ที่มาหลังจากนี้ (ไม่ส่งเข้า `sessionStep`, ไม่เก็บ, ไม่ส่ง HUD) · กันกรณี callback ของ `watchPosition` ที่ค้างในคิวมาถึงระหว่างข้อ 2–4
+2. ถ้า `state.run !== null`: `dispatch({ type: 'exit' }, now_ms)` ครั้งเดียว · ผลคือ run จบ `manual_exit` ที่ `now_ms` ไม่ว่าสถานะเป็น Active, Grace หรือ Suspended · ของใน run เก็บครบตาม F05-R21 · หน้าต่างที่ค้างไม่จ่ายตามกติกาเดียวกับกดออกเอง · HP ย้ายไป `player` ตาม 6.1 · `RunSummary` ถูกสร้าง · ไม่เรียก `tick` ก่อน exit (ไม่มีเหตุให้เดินเส้นเวลาเพิ่ม · ผลเท่ากับกดปุ่มออก ณ วินาทีนั้น)
+3. `LocationProvider.stop()` (ยกเลิก `watchPosition` / Mock) · ปล่อย wake lock ของ run (D-063) · ล้าง sample ย้อนหลังของ HUD ในหน่วยความจำ (`hudSamplesMemoryOnly`)
+4. ล้างพิกัดที่เหลือใน state: `state = purgeLocationData(state)` (ฟังก์ชัน pure ใหม่ของ `session` · คืน state ที่ `latestSample = null`, `pre` = ค่าเริ่ม, และไม่มี sample ใดตามเพดาน tech note F04 11 · ไม่แตะ `player`, `lastSummary`, `clock.lastNow_ms`) แล้ว persist `kw.p2.session` · จากนั้นเขียน `kw.p2.consent = { schemaVersion: 1, location: 'withdrawn' }` · เหตุผล: `deleteOnRunEnd` ของ F04 11.1 ล้างเฉพาะ field ของ run ส่วน `latestSample` ระดับ session ยังค้างได้ถึง `maxAge_s` · การถอนต้องไม่เหลือพิกัดในเครื่อง (NN-7)
+5. ไปหน้าสรุป run (`run.summary.exited` ตาม flow F06 G1) ถ้ามี run · ปิดสรุปแล้วจอที่บ้านเป็น `unknown` (9.2 ข้อ 1) · ไม่มี run = ไปจอที่บ้าน `unknown` ตรง (R48 ข้อ 1)
+6. หลังจากนี้แอปไม่เรียก `getCurrentPosition` / `watchPosition` / `navigator.permissions.query` เอง · ทางเดียวที่กลับมาขอคือผู้เล่นกดปุ่มให้ consent ใหม่ในตั้งค่า (R48 "ไม่ถามซ้ำเอง") · `confirm` ถูกปฏิเสธที่ UI ก่อนถึง engine เพราะไม่มีตำแหน่ง (engine เองก็ปฏิเสธด้วย approach ที่ไม่ครบ)
+
+- popup ยืนยันตอนมี run ใช้ `privacy.withdrawDuringRunNote` · ตอนไม่มี run ไม่แสดงบรรทัดนี้ · ปุ่มถอน **ไม่ disabled ระหว่าง run** (ต่างจาก `selectCanClearLocalData` ใน 8.3)
+- ไม่มีทางใดที่การถอนไหลเป็น Grace / Suspended / `timeout`: ข้อ 1 ตัด sample ทิ้งก่อน และข้อ 2 จบ run ใน step เดียวกันก่อนที่ `processTimeline` จะมีโอกาสตัดสินช่องว่าง · กรณีเดียวที่ผลไม่ใช่ `manual_exit` คือ run จบไปแล้วก่อนกดถอน (เช่น `timeout` ที่ catch-up `tick` ตัดสินไปแล้ว) ซึ่งเป็นข้อเท็จจริงก่อนการถอน ไม่ใช่ผลของการถอน
+- reload ระหว่างข้อ 2–4 (แทบเป็นไปไม่ได้เพราะไม่มี `await`): ถ้า `session` ถูกเขียนแล้วแต่ `consent` ยังไม่เป็น `withdrawn` ตอนเปิดใหม่ run จบแล้ว ผู้เล่นเห็นสรุป แล้ว consent ยัง `granted` · ผู้เล่นถอนใหม่ได้ · ไม่มีรางวัลเกินเพราะ run จบแล้ว · ลำดับเขียนจึงเป็น session ก่อน consent โดยตั้งใจ (ถ้ากลับกัน reload จะเหลือ run ที่ไม่มีตำแหน่งแล้วไหลเป็น `timeout` ซึ่ง R48 ห้าม)
+
+**ผลต่อ telemetry (ถึง product-manager):** `dungeon_exited.exit_reason = manual_exit` สำหรับทั้งการกดออกเองและการถอน consent · แยกสองกรณีจาก `dungeon_exited` อย่างเดียวไม่ได้ · ถ้า PM ต้องการแยก ข้อเสนอของ tech-lead คือ event ของ client `location_consent_withdrawn { during_run: bool }` ยิงในข้อ 4 (ก่อน `dungeon_exited` ใน ring buffer ไม่ได้ เพราะ exit เกิดในข้อ 2 · ลำดับที่ได้คือ `dungeon_exited` → `location_consent_withdrawn` ที่ `at_ms` เดียวกัน · mapper จับคู่ได้ด้วยเวลา) · ไม่มีพิกัด ไม่มีข้อมูลตัวตน · PM ประกาศชื่อใน `product/telemetry-events.md` ก่อน client จึงจะยิง (ตามกติกา 10.1) · ถ้าไม่ประกาศ อัตรา `manual_exit` ของ Phase 2 รวมการถอนไว้ ซึ่งคาดว่าน้อยมากใน playtest
 
 ## 9. สถานะที่บ้าน: ไกล / นอกพื้นที่ / นอกย่านเปิดตัว / ไม่รู้ตำแหน่ง (R50–R55, D-064, D-073)
 
@@ -486,6 +516,8 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 | FH-14 | `level_range` ของ dungeon ขาด / ผิด | validator ของ `tools/dungeons` · engine throw ตอนสร้าง params | dungeon ไม่เข้า artifact / client ไม่เริ่ม | F04 13 |
 | FH-15 | storage เต็ม | `setItem` throw | ตาม F04 10.4 (session อยู่ในหน่วยความจำ + ธง) · `kw.p2.runClientStats` ถูกทิ้งก่อน session · property ของ `dungeon_exited` ที่มาจากตัวสะสมนี้เป็น `null` | F04 10.4 |
 | FH-16 | Mock ×10 / ×60 | — | τ มาจาก timestamp ของ sample จึงได้การตีชุดเดียวกับ ×1 | F04 17 |
+| FH-17 | ถอน consent ระหว่าง run แล้ว callback ของ `watchPosition` ที่ค้างในคิวมาถึง | ธง `locationWithdrawn` (8.4 ข้อ 1) | sample ถูกทิ้งก่อนถึง `sessionStep` · ไม่มี approach / HUD / storage จาก sample นั้น | 8.4, R48 |
+| FH-18 | เบราว์เซอร์ถอน permission เอง (ผู้เล่นปิดในตั้งค่าเบราว์เซอร์ ไม่ได้กดถอนในแอป) | `watchPosition` error `PERMISSION_DENIED` | ไม่ใช่การถอน consent ในแอป: run ไม่มีหลักฐานแล้วเดินตาม F04 (Grace → Suspended → `timeout` ของครบ, F04-R13) · จอที่บ้านเป็น `unknown` · `kw.p2.consent` ไม่เปลี่ยน · เหตุผล: R48 ข้อ 2 สงวนทางนั้นไว้ให้สัญญาณหายโดยไม่ได้ถอนในแอป · owner ยืนยันการอ่านนี้: game-director (A-P2-X16-2) | 8.4, F04-R13 |
 
 ## 13. Test hooks และ vector ที่ต้องผ่าน
 
@@ -538,8 +570,10 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 | สถานะที่บ้าน | Mock trace ที่จุดคงที่: ใกล้, ไกล (> 1,900 ม. จาก dungeon เปิด), นอก mask, นอกย่านเปิดตัว · ไม่ consent = ไม่รู้ตำแหน่ง | e2e จอไกล/นอกพื้นที่ |
 | ดูค่า | `window.__kwSession` (เฉพาะ `hud=1`) เพิ่ม `selectPlayerView` และ `selectRunView.hp` (ไม่มีพิกัด ไม่มี `nextAttemptTau_ms`) | e2e assertion |
 | ไม่มีทางเพิ่มยา | e2e / tech gate: ไม่มี query, input หรือปุ่ม debug ที่เพิ่ม inventory | B-06 |
+| ถอน consent ระหว่าง run | Mock trace เดินใน dungeon → ตั้งค่า → ถอน consent ตอน Active, ตอน Grace และตอน Suspended (อย่างละครั้ง) · assert: `lastSummary.exitReason = manual_exit`, ของครบ, ไม่มี `run_state_changed` หลังกด, Mock provider หยุด (ไม่มี sample ถูกส่งเข้า `sessionStep` หลังกด), `selectPlayerView` ใช้ได้, `kw.p2.session` ไม่มี `lat`/`lng`, `kw.p2.consent.location = withdrawn` | 8.4, spec F06 หัวข้อ 8 ข้อ 18 |
+| เวลาที่เหลือถึง 50% | ตาย → reload ที่ `start` +10 นาที → `recoveryTimeLeft_ms` ≈ 20 นาที (± 1 วิ ที่ VIT 0) · +30 นาที → `null` และไม่ Recovering | 6.2 |
 
-- selector ใหม่ของ `session`: `selectPlayerView(state, now_ms, params)` → `{ classId, level, exp, expToNext, statPointsUnspent, hp, maxHp, hpRatio, recovering, autoRetreatEnabled, inventory, firstRunEntered, firstRewardDone }` · `selectRunView(...).hp` → `{ hp, maxHp, hpRatio, shield, belowWarningLine, autoRetreatEnabled }` · `selectCanClearLocalData(state)` · ตัวเลข HP ที่แสดงใช้ `Math.ceil` (ผู้เล่นที่ยังมี HP ไม่เห็น 0 · แถบใช้ `hpRatio` ตรง)
+- selector ใหม่ของ `session`: `selectPlayerView(state, now_ms, params)` → `{ classId, level, exp, expToNext, statPointsUnspent, hp, maxHp, hpRatio, recovering, recoveryTimeLeft_ms, recoveryTo_pct, autoRetreatEnabled, inventory, firstRunEntered, firstRewardDone }` (`recoveryTimeLeft_ms` ตาม 6.2 · P2-X16) · `selectRunView(...).hp` → `{ hp, maxHp, hpRatio, shield, belowWarningLine, autoRetreatEnabled }` · `selectCanClearLocalData(state)` · ตัวเลข HP ที่แสดงใช้ `Math.ceil` (ผู้เล่นที่ยังมี HP ไม่เห็น 0 · แถบใช้ `hpRatio` ตรง)
 
 ### 13.5 vector ที่ขอเพิ่มจาก systems-designer (ไม่บล็อก P2-F06-T06 · engine test 13.3 ครอบระหว่างรอ)
 
@@ -557,6 +591,8 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 - A-P2-F06-T04-5: เหตุ `no_class`, `no_hp` ของ `checkin_rejected` (6.3) · owner: game-director (กฎ), product-manager (enum telemetry)
 - A-P2-F06-T04-6: หน้าต่างที่ค้างตอนปิดแต่ `e < partialTickMinElapsed_s` ส่ง `run_tick_denied { partial: true }` หนึ่งครั้ง (10.2) · owner: product-manager, backend-programmer
 - A-P2-F06-T04-7: key `unlocks.home.launchAreaMaskPath` (สตริง path, `null` = ยังไม่มี) แทน `seeLaunchAreaMask` ที่ spec เสนอ (9.1) · owner: systems-designer (key), location-engineer (ข้อมูล)
+- A-P2-X16-1: การถอน consent ในแอประหว่าง run ใช้ `exitReason = manual_exit` และ input `exit` เดิม (8.4) · telemetry แยกไม่ได้จนกว่า PM จะประกาศ `location_consent_withdrawn` · owner: product-manager (telemetry), game-director (ยืนยันว่าไม่ต้องแยกเชิงกติกา)
+- A-P2-X16-2: permission ที่เบราว์เซอร์ถอนเอง (ไม่ได้กดในแอป) ไม่ใช่การถอน consent ตาม R48 ข้อ 2 จึงเดินตาม F04-R13 (FH-18) · owner: game-director
 - A-P2-F06-T04-8: ข้อความ "tankerBuff = 0 ใน Phase 2" ใน acceptance ของ P2-F06-T06 อ่านว่าไม่มี Tanker คนอื่น · Tanker คนเดียวได้ buff ตัวเอง (3.4 · spec R31, vector `soloDamage`) · owner: producer (ถ้อยคำ board), game-director
 
 ### 14.2 เอกสารที่ tech-lead จะแก้ในงานถัดไป (ไม่อยู่ใน Writes ของงานนี้)
@@ -571,3 +607,38 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 - systems-designer: key `launchAreaMaskPath` · config lint: ลำดับเกณฑ์ 25 < 30 < 40, ความสอดคล้องของอัตราฟื้นหลังตาย, `revive` ไม่อยู่ใน `defaultPotionOrder`, `sourceOrder` · vector 13.5
 - product-manager: enum `checkin_rejected.reason` เพิ่ม `no_class`, `no_hp` · ยืนยัน A-P2-F06-T04-2, -6
 - qa-tester: test plan F06 ใช้ 13.3–13.4 และ failure modes 12
+- (P2-X16) backend-programmer (P2-X10): `purgeLocationData(state)` ใน `session` (8.4 ข้อ 4) · `recoveryTimeLeft_ms`, `recoveryTo_pct` ใน `selectPlayerView` (6.2) · ข้อบกพร่อง S-1, S-2 ของหัวข้อ 15.2 · engine test 15.3
+- (P2-X16) gameplay-programmer (F06 client): ลำดับถอน consent 8.4 ข้อ 1–6 ใน call site เดียว · ปุ่มถอนไม่ disabled ระหว่าง run · `home.recoveringDetail` อ่าน `recoveryTimeLeft_ms` · หน้า credits อ่าน `config/content/credits.json`
+- (P2-X16) product-manager: ตัดสินว่าจะประกาศ `location_consent_withdrawn { during_run }` หรือไม่ (8.4) · qa-tester: hook 13.4 แถวถอน consent และเวลาที่เหลือ, vector/engine test 15.3
+
+## 15. ยืนยัน J-P2-T30-4 กับสัญญา engine (F04-R15 ข้อ 7, D-118 · P2-X16)
+
+### 15.1 สัญญา (ตรงตัวกับ spec F04-R15 ข้อ 7 · เป็นสัญญาของ `session` ไม่ใช่ของ `hp`)
+
+หลังช่วงไม่มีหลักฐาน (Active → Grace ด้วย `cause = no_evidence` ที่เวลา `t_last` = sample ที่ใช้ได้ตัวสุดท้าย) ให้ `s₁` = sample ที่ใช้ได้ตัวแรกหลังช่องว่าง
+
+1. `s₁` อยู่ใน polygon ทางเรขาคณิต (รวมแถบฝั่งในที่ห่างขอบไม่เกิน `edgeHysteresis_m`) และ `s₁.t_ms − t_last ≤ suspendedMax_s` นับจาก `t_last` (ยังไม่ Ended) → Active ที่ `s₁.t_ms` ทันที ไม่ผ่านชุด hysteresis · `ActiveClock` เดินต่อจาก `s₁.t_ms` · tracker ของ presence ยังอยู่ฝั่ง `inside`
+2. `s₁` อยู่นอก polygon → เป็นการออกจริง: สถานะคง Grace/Suspended ตามเวลา · `exitStartedAt_ms` **คงเป็น `t_last`** (R14 · ไม่ย้ายไปเวลาของ `s₁` หรือเวลาที่ชุดออกยืนยัน) · `exitCause` เปลี่ยนเป็น `left_polygon` · tracker ตั้งใหม่เป็นฝั่ง `outside` ที่ `s₁` · การกลับเข้าหลังจากนี้ต้องครบชุด hysteresis ตาม R15 ข้อ 1 (ทางลัดของข้อ 1 ใช้ได้กับ `s₁` ตัวเดียวเท่านั้น)
+3. เวลานอกเกิน `suspendedMax_s` ก่อน `s₁` → Ended `timeout` ที่ `t_last + suspendedMax_s` ของครบ (R18) ไม่ว่า `s₁` อยู่ฝั่งไหน · `s₁` ไม่ถูกป้อนเข้า run ที่จบแล้ว (ป้อนเข้า approach ได้ตามปกติ)
+4. ทั้งสามกรณี: คู่ที่คร่อมช่องว่างไม่นับระยะ (F05-R06) · tick หลังกลับต้องผ่าน gate · **ผลต้องเท่ากันไม่ว่า input แรกหลังช่องว่างเป็น `tick` หรือ `sample`** (tech note F04 4.3 · หัวข้อ 4 ของเอกสารนี้)
+
+### 15.2 ผลตรวจกับโค้ด ณ commit `7fdb54c` (`packages/shared/src/session/reducer.ts` · ตรวจด้วย script นอก repo บนสำเนา HEAD และซ้ำบน working copy ที่ P2-X10 กำลังแก้ ณ 2026-09-27 ได้ผลเท่ากัน · config ของ `reducer.test.ts`: `edgeHysteresisSamples` 2, `edgeHysteresis_m` 5, `maxSamplePairGap_s` 30, ช่องว่าง 120 วิ)
+
+| ข้อ | ลำดับ input หลังช่องว่าง | ผล | สถานะ |
+| --- | --- | --- | --- |
+| 1 | `tick` แล้ว sample ในแถบ (≈ 2 ม. จากขอบ) หรือ sample ลึก | Active ที่เวลาของ sample ไม่ผ่าน hysteresis (สาขา `exitCause === 'no_evidence' && insideRun` ใน `handleSample`) | ตรงสัญญา |
+| 2 | `tick` แล้ว sample นอก (≈ 33 ม.) แล้ว sample ลึกหนึ่งตัว | Active ที่ sample ลึกตัวแรก (ชุด hysteresis ของ config test = 2 ตัว ไม่ครบ) | **ไม่ตรง (S-1)** |
+| 1–3 | sample มาก่อน `tick` | ไม่มี `no_evidence` เลย · run คง Active ข้ามช่องว่าง · ช่องว่าง 20 นาทีแล้ว sample ใน = ยัง Active ไม่มี `timeout` | **ไม่ตรง (S-2)** |
+| 3 | `tick` หลังช่องว่าง 20 นาที | `no_evidence` ที่ `t_last` → Suspended → `timeout` ที่ `t_last + 900 วิ` | ตรงสัญญา |
+
+- **S-1** สาเหตุ: หลัง `no_evidence` tracker ยังอยู่ฝั่ง `inside` และสาขาทางลัดดูแค่ `exitCause` จึงใช้ได้กับ sample ในทุกตัวหลังจากนั้น ไม่ใช่เฉพาะ `s₁` · sample นอกเพียงเริ่มชุดรอยืนยันการออก แล้ว sample ในตัวถัดไปล้มชุดและเข้าทางลัด · ต้องแก้: ตัดสิน `s₁` ครั้งเดียว ถ้านอก ทำตาม 15.1 ข้อ 2 (`exitCause := left_polygon`, `presenceTrackerInit('outside', s₁.t_ms)`, ไม่แตะ `exitStartedAt_ms`)
+- **S-2** สาเหตุ: การตรวจช่องว่างอยู่ใน `processTimeline` ซึ่ง `sessionStep` เรียก **หลัง** `handleSample` และ `handleSample` อัปเดต `lastSample_ms` ก่อน · client เรียก catch-up `tick` ตอน boot แล้ว (`apps/client/src/session/engine.ts`) จึงรอดกรณีแอปถูกปิด แต่กรณีจอล็อก / tab hidden ที่ JS หยุดแล้วกลับมา callback ของ `watchPosition` อาจมาก่อน timer ของ `tick` · ผล: นาฬิกาเดินข้ามช่องว่าง ความพยายามตีของ HP engine ถูกตัดสินในเวลาที่ไม่มีหลักฐาน (ขัด FH-01) และ `timeout` ไม่เกิด · ต้องแก้: ก่อนป้อน sample ให้ `sessionStep` ตัดสินเส้นเวลาถึง `sample.t_ms` ด้วยกติกาเดียวกับ `processTimeline` (ช่องว่างเทียบ `lastSample_ms` แล้ว `runTimers`) แล้วจึงเรียก `handleSample`
+- `runTimeline` (batch reference ของ vector `run-state.json`) ไม่มีทางลัดของข้อ 1: หลังช่องว่างตั้ง tracker เป็นฝั่ง `outside` จึงต้องครบชุด hysteresis เสมอ (ตรวจ: sample ในแถบ 2 ตัวหลังช่องว่างไม่กลับ Active) · vector [15] ผ่านเพราะ sample ขากลับอยู่ลึกและการย้อนเวลาทำให้ `at_ms` ตรงกัน · ต้องให้ `runTimeline` และ `session` ทำตาม 15.1 ชุดเดียวกัน ไม่งั้น vector กับ engine จะแยกกันเมื่อ systems-designer เพิ่ม vector สามกรณี (handoff ของ flow approval R2 ถึง systems)
+
+### 15.3 test ที่ต้องมี (backend-programmer P2-X10 · ไม่บล็อกด้วย vector ใหม่)
+
+1. ข้อ 1 ทั้งสองลำดับ (`tick` ก่อน / sample ก่อน) × (sample ในแถบ / sample ลึก) → Active ที่ `s₁.t_ms` · `run_state_changed { cause: 'returned' }` · ระยะคู่ `(t_last, s₁)` = 0
+2. ข้อ 2 ทั้งสองลำดับ: sample นอก → คง Grace, `exitStartedAt_ms = t_last` · sample ในหนึ่งตัวถัดไป **ไม่** กลับ · ครบชุดแล้วกลับที่ sample แรกของชุด
+3. ข้อ 3 ทั้งสองลำดับ: ช่องว่าง > `suspendedMax_s` → `dungeon_exited { exitReason: 'timeout' }` ที่ `t_last + suspendedMax_s` · ของครบ · HP ย้ายไป player ที่เวลานั้น (6.1)
+4. ข้อ 4: ลำดับ `tick` ก่อนกับ sample ก่อนให้ state (ยกเว้น `clock.lastNow_ms`) และ event (ยกเว้นลำดับใน step) เท่ากัน
+5. ความพยายามตี: ไม่มี `run_hit` ที่ `at_ms` อยู่ในช่วง `(t_last, s₁.t_ms)` ทุกกรณี

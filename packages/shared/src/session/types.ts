@@ -2,8 +2,14 @@
 // each interface are this task's choice; the shapes and meanings are the contract every other
 // Phase 2 task (client plumbing, HP engine, QA) builds against.
 import type { Polygon, MultiPolygon } from 'geojson';
-import type { ApproachState, PresenceTrackerState, SpeedLockState } from '../run';
-import type { GateAccumulatorState, LootParams, PlayerClass, SoloTickExpParams } from '../reward';
+import type { ApproachState, OpeningHours, PresenceTrackerState, SpeedLockState } from '../run';
+import type {
+  ClosedGateWindow,
+  GateAccumulatorState,
+  LootParams,
+  PlayerClass,
+  SoloTickExpParams,
+} from '../reward';
 
 /** Fail-closed configuration guard (tech note F04 5.4): Phase 2 has no spec for any of these being
  * `true`, so `sessionStep` refuses to run rather than guess. */
@@ -20,6 +26,8 @@ export interface SessionDungeonRecord {
   readonly drop_table_id: string;
   readonly geometry: Polygon | MultiPolygon;
   readonly area_m2: number;
+  /** Normalized opening hours (tech note F04 section 8, artifact `data/dungeons/artifact`). */
+  readonly opening_hours: OpeningHours;
 }
 
 export interface SessionConfig {
@@ -66,6 +74,11 @@ export interface SessionConfig {
   readonly exp: SoloTickExpParams;
   readonly hpSafety: { readonly autoRetreatKeepsRunLoot: boolean };
   readonly death: { readonly loseAllRunLoot: boolean };
+  /** balance.dungeons.openingHours (tech note F04 section 8). */
+  readonly openingHours: { readonly utcOffset_min: number; readonly closingSoonNotice_s: number };
+  /** D-112 fail-closed guard (balance-model 18.6): the engine refuses to run rather than compute
+   * Z with a rule it does not implement. */
+  readonly combat: { readonly monsterAttack: { readonly zoneLevelFrom: string } };
 }
 
 export interface SessionParams {
@@ -134,12 +147,22 @@ export interface RunState {
   readonly exitCause: 'left_polygon' | 'no_evidence' | null;
   readonly clock: ActiveClock;
   readonly reward: GateAccumulatorState;
+  /** F05 3.5 scratch accumulator: only non-null while a confirmed return (from Grace/Suspended) or
+   * a confirmed unlock is pending, replaying distance from the pending set's first sample so it
+   * counts once the transition backdates (tech note F04 5.2, F05 3.5). */
   readonly rewardScratch: GateAccumulatorState | null;
+  /** Windows `rewardScratch` closed while pending, not yet granted (F05 3.5): applied at
+   * `main := scratch` promotion so a set that never confirms never grants anything. */
+  readonly scratchClosed: readonly ClosedGateWindow[];
   readonly grantedCount: number;
   readonly bag: RunBag;
   readonly hp: RunHpState;
   /** Presence tracker (run/hysteresis PresenceTrackerState), lazily typed to avoid an import cycle. */
   readonly presence: PresenceTrackerState;
+  /** End of the opening-hours interval that covered `startedAt_ms` (tech note F04 8.3), or `null`
+   * when open without end within the search horizon. */
+  readonly closesAt_ms: number | null;
+  readonly notices: { readonly closingSoonSent: boolean };
 }
 
 export interface RunSummary {
@@ -241,6 +264,12 @@ export type SessionEvent =
       readonly at_ms: number;
     }
   | {
+      readonly type: 'dungeon_closing_soon';
+      readonly dungeonId: string;
+      readonly closesIn_s: number;
+      readonly at_ms: number;
+    }
+  | {
       readonly type: 'dungeon_exited';
       readonly dungeonId: string;
       readonly runId: string;
@@ -253,3 +282,14 @@ export type SessionEvent =
       readonly reason: 'future' | 'non_monotonic' | 'late' | 'invalid';
       readonly at_ms: number;
     };
+
+/** Storage-adapter envelope (tech note F04 10.1): `JSON.stringify` of this is the whole value of
+ * the `kw.p2.session` key. `toPersisted` / `fromPersisted` (P2-X10) live in `./persistence`. */
+export interface PersistedSession {
+  readonly schemaVersion: 1;
+  readonly savedAt_ms: number;
+  readonly state: SessionState;
+}
+
+/** Why `fromPersisted` discarded a stored value and started a fresh session (tech note F04 10.2). */
+export type FromPersistedRejectReason = 'schema_mismatch' | 'corrupt' | 'unknown_dungeon';

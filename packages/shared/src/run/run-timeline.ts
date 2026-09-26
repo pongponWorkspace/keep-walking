@@ -5,11 +5,19 @@
 // timer's edge erases it (tech note 4.3, acceptance 4).
 import type { GateFilterParams } from '@keep-walking/geo';
 import { filterGateSamples, MS_PER_S } from '@keep-walking/geo';
-import type { EdgeHysteresisParams, EdgeSide, PresenceTrackerState } from './hysteresis';
+import type {
+  EdgeHysteresisGapParams,
+  EdgeHysteresisParams,
+  EdgeSide,
+  PresenceTrackerState,
+} from './hysteresis';
 import { presenceStep, presenceTrackerInit } from './hysteresis';
 import type { PresenceSample } from './sample';
 
-export interface RunStateParams extends GateFilterParams, EdgeHysteresisParams {
+export interface RunStateParams
+  extends GateFilterParams,
+    EdgeHysteresisParams,
+    EdgeHysteresisGapParams {
   readonly maxSamplePairGap_s: number;
   readonly graceMax_s: number;
   readonly suspendedMax_s: number;
@@ -106,11 +114,15 @@ export function runTimeline(
     exitAt: number | null;
     status: RunStatus;
     lastUsable: number;
+    /** F04-R15 item 7 (tech note F06 15.1): a `no_evidence` exit awaiting its one-sample shortcut
+     * judgment (`null` once judged or when the exit was a genuine, hysteresis-confirmed leave). */
+    exitCause: RunStateCause | null;
   } = {
     tracker: presenceTrackerInit('inside'),
     exitAt: null,
     status: 'active',
     lastUsable: confirmAt_ms,
+    exitCause: null,
   };
   const events: RunTimelineEvent[] = [];
 
@@ -119,7 +131,8 @@ export function runTimeline(
   // gap for nested closures that alias the same object), so an inline comparison after two
   // `settle` calls in the same block wrongly reports the 'ended' branch as unreachable.
   const isEnded = (): boolean => run.status === 'ended';
-  const pendingSinceOr = (fallback: number): number => run.tracker.firstOppositeAt_ms ?? fallback;
+  const pendingSinceOr = (fallback: number): number =>
+    run.tracker.geo.pendingSince_t_ms ?? fallback;
 
   const settle = (upTo: number): void => {
     if (run.exitAt === null || run.status === 'active' || run.status === 'ended') return;
@@ -136,37 +149,50 @@ export function runTimeline(
     events.push({ type: 'run_state_changed', from: 'active', to: 'grace', cause, at_ms });
     run.exitAt = at_ms;
     run.status = 'grace';
+    run.exitCause = cause;
+  };
+
+  const toActive = (at_ms: number): void => {
+    events.push({ type: 'run_state_changed', from: run.status, to: 'active', cause: 'returned', at_ms });
+    run.exitAt = null;
+    run.status = 'active';
+    run.exitCause = null;
   };
 
   const handleGapSince = (t_ms: number): void => {
     if (t_ms - run.lastUsable <= gap_ms) return;
     dropPending(run.tracker.geo.side);
-    if (run.tracker.geo.side === 'inside') {
-      leave(run.lastUsable, 'no_evidence');
-      dropPending('outside');
-    }
+    // F04-R15 item 7: the presence tracker's confirmed side stays 'inside' (a no_evidence exit
+    // never geometrically left) -- the shortcut below judges the very next usable sample once,
+    // directly, instead of resetting to a confirmed 'outside' that would need a full hysteresis
+    // set to leave from.
+    if (run.tracker.geo.side === 'inside') leave(run.lastUsable, 'no_evidence');
   };
 
   for (const { sample } of kept) {
     handleGapSince(sample.t_ms);
     settle(Math.min(sample.t_ms, pendingSinceOr(sample.t_ms)));
     if (isEnded()) break;
-    const step = presenceStep(run.tracker, sample, p);
-    run.tracker = step.tracker;
-    if (step.confirmed !== null && step.confirmed.to === 'inside') {
-      settle(step.confirmed.at_ms);
-      if (isEnded()) break;
-      events.push({
-        type: 'run_state_changed',
-        from: run.status,
-        to: 'active',
-        cause: 'returned',
-        at_ms: step.confirmed.at_ms,
-      });
-      run.exitAt = null;
-      run.status = 'active';
-    } else if (step.confirmed !== null) {
-      leave(step.confirmed.at_ms, 'left_polygon');
+    if (run.exitCause === 'no_evidence') {
+      // F04-R15 item 7 (tech note F06 15.1): this is s1, judged exactly once, from raw
+      // containment (band included) -- no hysteresis set either way.
+      if (sample.inside) {
+        run.tracker = presenceTrackerInit('inside', sample.t_ms);
+        toActive(sample.t_ms);
+      } else {
+        run.exitCause = 'left_polygon';
+        run.tracker = presenceTrackerInit('outside', sample.t_ms);
+      }
+    } else {
+      const step = presenceStep(run.tracker, sample, p);
+      run.tracker = step.tracker;
+      if (step.confirmed !== null && step.confirmed.to === 'inside') {
+        settle(step.confirmed.at_ms);
+        if (isEnded()) break;
+        toActive(step.confirmed.at_ms);
+      } else if (step.confirmed !== null) {
+        leave(step.confirmed.at_ms, 'left_polygon');
+      }
     }
     run.lastUsable = sample.t_ms;
     settle(Math.min(sample.t_ms, pendingSinceOr(sample.t_ms)));
@@ -180,6 +206,6 @@ export function runTimeline(
     events,
     status: run.status,
     exitStartedAt_ms: run.status === 'active' || run.status === 'ended' ? null : run.exitAt,
-    pendingSince_ms: run.status === 'ended' ? null : run.tracker.firstOppositeAt_ms,
+    pendingSince_ms: run.status === 'ended' ? null : run.tracker.geo.pendingSince_t_ms,
   };
 }

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/content/credits.schema.json",
+  "title": "config/content/credits.json",
+  "description": "Licence and attribution data shown verbatim on S-26-credits (D-117). Not copy: strings are never translated or copy-linted. groups[] map to Thai headings in copy.th.json by headingKey; entries[].group must name a group id (checked by the client test, not here). Keys starting with _ are notes for people and tools.",
+  "type": "object",
+  "required": ["_meta", "_source", "groups", "entries"],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "_source": { "$ref": "../common.schema.json#/$defs/source" },
+    "groups": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "headingKey"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "headingKey": { "type": "string", "pattern": "^credits\\.[a-z][a-zA-Z0-9]*$" }
+        },
+        "patternProperties": { "^_": {} },
+        "additionalProperties": false
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "group", "title", "licenseName", "licenseUrl", "spdx"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "group": { "$ref": "#/$defs/id" },
+          "title": { "$ref": "#/$defs/text" },
+          "licenseName": { "$ref": "#/$defs/text" },
+          "licenseFullName": { "$ref": "#/$defs/text" },
+          "licenseUrl": { "$ref": "#/$defs/url" },
+          "attributionUrl": { "$ref": "#/$defs/url" },
+          "spdx": { "type": "string", "pattern": "^[A-Za-z0-9.+-]+$" },
+          "usedFor": { "$ref": "#/$defs/text" },
+          "record": { "$ref": "#/$defs/text" }
+        },
+        "patternProperties": { "^_": {} },
+        "additionalProperties": false
+      }
+    }
+  },
+  "patternProperties": { "^_": {} },
+  "additionalProperties": false,
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*$" },
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "url": { "type": "string", "pattern": "^https://\\S+$" }
+  }
+}

@@ -19,6 +19,10 @@ import type { registerRiftCrackImage } from './map/runtime-images';
 import { installSpikeHook, removeSpikeHook, sampleToSpikePosition } from './debug/spike-hook';
 import type { HudPanel } from './debug/hud-panel';
 import { getCopyText } from './copy/load';
+import { createF04App } from './f04-app';
+import { createGameClock } from './clock/game-clock';
+import { resolveReplayStartMs } from './clock/query-params';
+import { balanceOpeningHoursConfig } from './config/balance';
 
 /** The four functions `loadMapModules` hands back, typed purely from `import type` (never a value
  * import — `@typescript-eslint/consistent-type-imports` forbids `import()` type annotations, and a
@@ -64,6 +68,8 @@ async function loadMapModules(): Promise<MapModules> {
  * column and the on-page build badge now report the real short SHA once the deploy workflow
  * (P2-F05-T14) sets it, and honestly fall back to "dev" (not a literal that looks like a real
  * build id) when it does not. */
+/** tech note F04 section 12.2: `session_id` is `crypto.randomUUID()` truncated to 8 hex chars. */
+const TELEMETRY_SESSION_ID_HEX_LENGTH = 8;
 const buildProfile = readBuildProfile(import.meta.env);
 const appVersion = buildProfile.commit ?? 'dev';
 
@@ -171,6 +177,47 @@ async function initLocation(
     spikeHook.provider = provider.kind;
   }
 
+  // F04 (P2-F04-T21): the session engine + every F04 screen, wired to this same provider's
+  // samples and to a game-clock-driven tick (ADR 0003 3.2 item 3 — Mock replays x10/x60 without
+  // changing tick/hit timing relative to trace time, tech note F04 section 17).
+  // Built lazily on a fresh macrotask (`setTimeout(0)`), not inline here: `createF04App` does
+  // real synchronous work (parses the whole balance subset, builds the drop/exp params, mounts 5
+  // DOM screens) that must never share a call stack with the map's own `load` dispatch — sharing
+  // one delayed a slow device's `load` event past its test timeout (observed on the
+  // `android-chrome` Playwright device profile). `onSample` below no-ops until this is ready.
+  let f04App: ReturnType<typeof createF04App> | undefined;
+  setTimeout(() => {
+    const gameClock = createGameClock(
+      provider,
+      resolveReplayStartMs(
+        window.location.search,
+        clientConfig.providerQuery.paramNames.start,
+        balanceOpeningHoursConfig.utcOffsetMin,
+      ),
+    );
+    f04App = createF04App({
+      map: mapResult?.map,
+      hudContainer: hudElement,
+      storage: window.localStorage,
+      sessionId: crypto.randomUUID().slice(0, TELEMETRY_SESSION_ID_HEX_LENGTH),
+      appVersion,
+      platform: 'web',
+      vibrate: (pattern_ms) => navigator.vibrate?.(pattern_ms),
+      isOnline: () => navigator.onLine,
+      userAgent: navigator.userAgent,
+      maxTouchPoints: navigator.maxTouchPoints,
+      copyToClipboard: async (text) => {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+    });
+    window.setInterval(() => f04App?.onTick(gameClock.now()), clientConfig.engine.tickInterval_ms);
+  }, 0);
+
   wireProvider(provider, {
     onStateChange: (state) => {
       tracker.handleProviderState(state);
@@ -183,6 +230,7 @@ async function initLocation(
       tracker.handleSample(sample);
       layerController?.update(sample);
       hudPanel?.recordSample(sample);
+      f04App?.onSample(sample.lat, sample.lng, sample.accuracy, sample.timestamp);
       if (spikeHook !== undefined) {
         spikeHook.position = sampleToSpikePosition(sample);
       }

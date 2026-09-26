@@ -12,11 +12,15 @@ describe('loadDungeonArtifact', () => {
   });
 
   it('rejects an unknown format', () => {
-    expect(() => loadDungeonArtifact({ format: 'nope', format_version: 1, dungeons: [] })).toThrow();
+    expect(() =>
+      loadDungeonArtifact({ format: 'nope', format_version: 1, dungeons: [] }),
+    ).toThrow();
   });
 
   it('rejects a missing dungeons array', () => {
-    expect(() => loadDungeonArtifact({ format: 'kw-dungeons-client', format_version: 1 })).toThrow();
+    expect(() =>
+      loadDungeonArtifact({ format: 'kw-dungeons-client', format_version: 1 }),
+    ).toThrow();
   });
 });
 

@@ -1,6 +1,6 @@
 # Flow F05 — Tick/ของ feedback และสรุปผล run
 
-Task: P2-F06-T03 (ฉบับแก้โดย P2-X11) · เจ้าของ: uiux-designer · สถานะ: แก้ตาม `design/reviews/F05-F06-flow-approval.md` (NEEDS_CHANGES, blocking B-01) ส่งกลับ P2-F06-T30 รอบ 2 ก่อนเข้า design gate รวม F04+F05 (P2-F05-T18) และ design gate F06 (P2-F06-T24) · วันที่: 2026-09-27
+Task: P2-F06-T03 (แก้โดย P2-X11 รอบ 2, P2-X14 รอบ 3) · เจ้าของ: uiux-designer · สถานะ: แก้ตาม `design/reviews/F05-F06-flow-approval.md` รอบ 2 (PASS พร้อมเศษ R2-F1/R2-F2 ที่เป็นของ wireframe F04-04/F05-02) — รอบนี้ยืนยันปิดเศษที่เกี่ยวกับเอกสารนี้ก่อนเข้า design gate รวม F04+F05 (P2-F05-T18) และ design gate F06 (P2-F06-T24) · วันที่: 2026-09-27
 แหล่งอ้างอิง: `design/features/F05-movement-gate-reward.md` (R01–R28, สเปกหลักที่ flow นี้แปลงเป็นจอ) · `design/ux/flows/F04-dungeon-presence.md` หัวข้อ 6–7 (Flow E/F — ที่มาของ run-state pill, tick timer, หัวข้อจอสรุปต่อ `exit_reason` ที่ flow นี้ **ไม่เขียนซ้ำ** เพียงเติมเนื้อหาในตัว) · `design/reviews/F04-flow-approval.md` N-14 (ปิดในเอกสารนี้) · `design/ux/components.md` หัวข้อ 7 (HP bar เดิม), 13.6 (เส้นแบ่งขอบ HP), 13.8 (chip ระยะเส้นตรง) · `art/direction/briefs/P2-assets.md` หัวข้อ 3.9 (ไอเทมที่ drop) · `config/content/copy.th.json` (`run.tickGranted*`, `run.summary.*`, `rarity.*`) · D-059, D-089, D-094
 คู่กับ: `design/ux/flows/F06-hp-damage-onboarding.md` (HP/ตาย/auto-retreat ใช้จอเดียวกับที่นี่แต่กติกาเป็นของ F06)
 ลำดับอำนาจ: GDD > pillars.md > `design/features/F05-movement-gate-reward.md` > flow F04 (หัวข้อจอสรุป) > เอกสารนี้ (เนื้อหาเต็มของ tick/ของ) · ตัวเลขทุกตัวอ้างเป็น `config: <key>` เท่านั้น
@@ -25,6 +25,8 @@ flow F04 หัวข้อ 6–7 เป็นเจ้าของ **โคร�
 6. แอปถูกย่อ/ปิด และเน็ตหลุด
 7. รายการ copy key
 8. สมมติฐานและคำถามค้าง
+9. รอบ 2: สิ่งที่แก้ (P2-X11 ตอบ gate รอบ 1)
+10. รอบ 3: สิ่งที่แก้ (P2-X14 ตอบ gate รอบ 2)
 
 ## 1. หลักการอ่าน flow นี้
 
@@ -64,7 +66,7 @@ B5. **กรณี `auto_retreat` (แก้ B-01)**: หัวข้อ `[run.s
 
 B6. **กรณี `manual_exit`, `dungeon_closed`, `timeout`, `clock_invalid`, `emergency_close`**: รายการของครบตาม B1 (F05-R21) แถว exp/tick ตาม B2/B3 ปกติ ไม่มีความต่างอื่นจากที่ F04 กำหนดไว้แล้ว ไม่มีบรรทัด canon เพิ่ม (canon สามจังหวะของ GDD มีแค่ HP ต่ำ/auto-retreat/ตาย เท่านั้น)
 
-B6. ปุ่มเด่นเดียว `[run.summaryContinue]` ("เดินต่อเพื่อรับเพิ่ม") อยู่ตำแหน่งเดิมของ F04 (ครึ่งล่างจอ) — ไม่เปลี่ยน
+B7. ปุ่มเด่นเดียว `[run.summaryContinue]` ("เดินต่อเพื่อรับเพิ่ม") อยู่ตำแหน่งเดิมของ F04 (ครึ่งล่างจอ) — ไม่เปลี่ยน (แก้เลขหัวข้อ P2-X14: เดิมซ้ำเลข B6 กับข้อบน — ไม่กระทบเนื้อหา)
 
 ## 4. Flow C — คอมโพเนนต์ที่ใช้ซ้ำ
 
@@ -122,21 +124,30 @@ C3. **แถว exp/tick**: ใช้ `.caption`/`.numeric` เดิม ไม�
 | N-07 | หมายเหตุว่า `mat-dust`/`potion-hp-small` เป็น id สาธิต UI เท่านั้น ชื่อ/ไอคอนจริงมาจาก content หลังบ้าน | Flow C ข้อ C1 |
 | N-09 | เปลี่ยนรหัสสมมติฐานซ้ำ `A-P2-F06-T03-1/-2` เป็น `A-P2-F05-T03-5/-6` | หัวข้อ 8 |
 
+## 10. รอบ 3: สิ่งที่แก้ (P2-X14 ตอบ `design/reviews/F05-F06-flow-approval.md` รอบ 2 หัวข้อ R2-4)
+
+เศษของรอบ 2 ที่เกี่ยวกับเอกสารนี้ (R2-F1, R2-F2) เป็นเรื่องของ **wireframe** (`F04-04-run-state-summary.html`, `F05-02-run-summary-detail.html`) ไม่ใช่เนื้อหาของเอกสารนี้ เพราะ Flow B ข้อ B4/B5 ไม่เคยเขียนร่างไทยของ `run.summary.died` ไว้ตรงๆ (อ้างแค่ชื่อ key) จึงไม่มีข้อความค้างให้แก้ในไฟล์นี้ — ตารางด้านล่างยืนยันสถานะเพื่อให้มีหลักฐานครบตามที่ P2-X14 กำหนด
+
+| ข้อ | สิ่งที่แก้ | ตำแหน่ง / หลักฐาน |
+| --- | --- | --- |
+| R2-F1 | (ของ F06) เฟรม C6 ของ `F06-03-hp-warning-autoretreat-death-recovering.html` แก้ให้ลำดับตรงกับ Flow B ข้อ B4 ของเอกสารนี้อยู่แล้ว (heading → canon → diedBody → exp/tick → ของว่าง) | อ้างอิงเท่านั้น ดู `F06-hp-damage-onboarding.md` หัวข้อ 14 |
+| R2-F2 | ร่างไทยของ `run.summary.died` ในภาพประกอบเปลี่ยนเป็น "HP หมด" ตรงกับ `copy.th.json` (P2-F05-T09) — เอกสารนี้ไม่เคยเขียนร่างไทยของ key นี้ตรงๆ ใน Flow B จึงไม่กระทบ | wireframe `F04-04-run-state-summary.html` เฟรม F3, `F05-02-run-summary-detail.html` เฟรม B4 |
+| N-10 | (ของ F06/ia.md) ไม่เกี่ยวกับเอกสารนี้ | อ้างอิงเท่านั้น ดู F06/ia.md |
+| ทวนซ้ำเลขหัวข้อ | ปุ่ม `run.summaryContinue` ซ้ำเลข B6 กับกรณี `manual_exit`/`dungeon_closed` ฯลฯ — เปลี่ยนเป็น B7 (ไม่กระทบเนื้อหา) | Flow B ข้อ B7 (เดิม B6 ที่สอง) |
+
 ## REPORT
-task: P2-X11 (ส่วน F05)
+task: P2-X14 (ส่วน F05)
 status: DONE
-summary: แก้ F05 ตาม B-01 (canon text บนหน้าสรุปทั้ง death และ auto_retreat) และปิด N-06, N-07, N-09 ตาม `design/reviews/F05-F06-flow-approval.md`
+summary: ตรวจยืนยันว่าเศษรอบ 2 ที่เกี่ยวกับเอกสารนี้ (R2-F1, R2-F2) เป็นของ wireframe F04-04/F05-02 ไม่ใช่เนื้อหาของ flow นี้ — ไม่มีข้อความค้างต้องแก้ในไฟล์นี้ · แก้เลขหัวข้อ B6 ที่ซ้ำกัน (คุณภาพเอกสาร) · เพิ่มหัวข้อ 10 ยืนยันสถานะพร้อมหลักฐาน
 outputs:
-  - design/ux/flows/F05-movement-gate-reward.md — แก้ Flow B (B4 เพิ่ม `run.death`, เพิ่ม B5 ใหม่สำหรับ auto_retreat พร้อม `run.autoRetreat`, เดิม B5 เลื่อนเป็น B6) แก้ N-06/N-07/N-09 · เพิ่มหัวข้อ 9 ตารางสรุปการแก้
+  - design/ux/flows/F05-movement-gate-reward.md — แก้เลข B6→B7 ที่ซ้ำ · เพิ่มหัวข้อ 10 (รอบ 3: สิ่งที่แก้)
 acceptance:
-  - [x] B-01 (ส่วนของ F05) แก้แล้วพร้อมหลักฐานตำแหน่ง — evidence: หัวข้อ 9 ตาราง แถว B-01
-  - [x] non-blocking ที่เกี่ยวกับ F05 แก้ครบ — evidence: หัวข้อ 9 ตาราง แถว N-06, N-07, N-09
+  - [x] R2-F1/R2-F2 มีหลักฐานสถานะ (ของ wireframe ไม่ใช่ของไฟล์นี้) — evidence: หัวข้อ 10
   - [x] ภาษาไทย ไม่มี emoji — evidence: ตรวจด้วยสายตาทั้งไฟล์ที่แก้
 assumptions:
-  - none เพิ่มเติมนอกจาก A-P2-F05-T03-5/-6 ที่มีอยู่แล้ว (เปลี่ยนแค่ชื่อรหัส)
+  - none
 handoffs:
-  - to: game-director (P2-F06-T30 รอบ 2) | need: ตรวจซ้ำเฉพาะ B-01 และจุดที่แก้ตามหัวข้อ 9 | why: protocol ข้อ 6 | blocking: yes
-  - to: narrative-designer (P2-F05-T09) | need: ยืนยันว่าลำดับ heading → run.death/run.autoRetreat → body ใหม่ไม่ทำให้ข้อความซ้ำความหมายกันเอง | why: ร่างคำสุดท้ายเป็นของ narrative | blocking: no
+  - to: game-director | need: ยืนยันหัวข้อ 10 ปิดเศษ R2-F1/R2-F2 ในส่วนที่เกี่ยวกับ F05 ครบก่อน P2-F06-T24 | why: R2-6 ของ `design/reviews/F05-F06-flow-approval.md` | blocking: yes (ก่อน design gate F06)
 decisions:
   - none
 questions_for_human:

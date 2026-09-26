@@ -89,6 +89,11 @@ export interface RunTimeline {
  * their first qualifying ms <= H = min(E, P) (F04 4.3), so a return back-dated before a timer
  * cancels it: Grace -> Suspended when outside time > graceMax_s, Ended timeout when outside time >
  * suspendedMax_s with endedAt = exit + suspendedMax_s (R18).
+ * Return after no evidence (F04 R15 item 7, J-P2-T30-4, P2-X17): the first usable sample after a
+ * no_evidence exit is judged once, after the timers settle to its time. Inside (inner band
+ * included) = Active at that sample, no hysteresis. Outside = a real exit: exitStartedAt_ms stays
+ * at the last usable sample before the gap and a later return needs the full hysteresis run.
+ * Outside time > suspendedMax_s before it = Ended timeout either way (the sample is not fed).
  */
 export function runTimeline(
   samples: readonly PresenceSample[],
@@ -106,6 +111,8 @@ export function runTimeline(
   let suspended = false;
   let ended = false;
   let lastUsable = confirmAt_ms;
+  /** The next usable sample is the first one after a no_evidence exit (R15 item 7). */
+  let afterNoEvidence = false;
   const status = () => (suspended ? 'suspended' : 'grace');
   const settle = (upTo: number) => {
     if (exitAt === null || ended) return;
@@ -137,10 +144,29 @@ export function runTimeline(
       if (h.side === 'in') {
         leave(lastUsable, 'no_evidence');
         h.side = 'out';
+        afterNoEvidence = true;
       }
     }
     settle(Math.min(s.t_ms, h.firstAt_ms ?? s.t_ms));
     if (ended) break;
+    if (afterNoEvidence) {
+      afterNoEvidence = false;
+      if (s.inside) {
+        events.push({
+          type: 'run_state_changed',
+          from: status(),
+          to: 'active',
+          cause: 'returned',
+          at_ms: s.t_ms,
+        });
+        exitAt = null;
+        suspended = false;
+        h.side = 'in';
+        h.reset();
+        lastUsable = s.t_ms;
+        continue;
+      }
+    }
     const at = h.feed(s);
     if (at !== null && h.side === 'in') {
       settle(at);

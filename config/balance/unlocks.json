@@ -1,9 +1,9 @@
 {
   "_meta": {
     "file": "unlocks.json",
-    "version": 4,
+    "version": 5,
     "owner": "systems-designer",
-    "task": "P1-F03-T06, P1-H03, P1-X18, P1-X22, P2-F06-T01",
+    "task": "P1-F03-T06, P1-H03, P1-X18, P1-X22, P2-F06-T01, P2-X20",
     "doc": "design/systems/balance-model.md section 10; design/pillars.md 6.2 (U1-U8), 7.1; design/ux/ia.md section 6; design/reviews/F03-design-gate-a.md 4.5, 4.9, F-01, F-03, F-15; decision-log D-041, D-064, D-065, D-072, D-079",
     "_note": "Referenced by other docs as config: unlocks.<system>. Every unlock object uses the same condition keys and ALL listed conditions must pass (AND): minLevel (character level >= value), minCompletedRuns (count of counted runs >= value), plus optional extra keys named in that object. Counted run (F-15, design gate A): a dungeon run that has ended, for ANY cause (completed, auto_retreat, manual_exit, died, closed_by_moderator = product/telemetry-events.md dungeon_exited.exit_reason; emergency close counts too), and in which at least one reward tick passed the movement gate (ticks_granted_count >= 1). A run with zero granted ticks never counts, whatever its end cause. Exception: antiCheatHelp also unlocks on any event in unlockOnEvents (OR). Unlocks are evaluated on the server and are permanent once passed. The board text writes unlocks.home.far_dungeon_threshold_m; under the camelCase convention (ADR 0001 3.10) the key is unlocks.home.farDungeonThreshold_m"
   },
@@ -93,6 +93,8 @@
     "_farDungeonThreshold_source": "P2-F06-T01: 2,000 -> 1,900 m (-5%). D-079 (game-director, P1-F03-T25 B-01): ceiling = PRD yellow-zone real walk 3,000 m / population-weighted route factor 1.52 (D-072, P1-F01-T09) = 1,974 m, so the straight-line threshold must be <= 1,970 m; 1,900 m chosen (about 2,890 m of real walking, about 36 min at 4.8 km/h). Distance on the home screen stays straight-line and approximate (N-02, A-3). launch-criteria F-11 uses the same key",
     "outOfAreaMaskPath": "data/map/playarea-mask.geojson",
     "_outOfAreaMaskPath_source": "D-064 (mask geometry shared by client and server, packages/geo inPlayArea). P2-X06: renamed from seeOutOfAreaMask; the value is a repo path to a data file, not a config pointer (ADR 0001 3.10.6), so it is a plain string key",
+    "launchAreaMaskPath": "data/map/launch-area.geojson",
+    "_launchAreaMaskPath_source": "P2-H01 (location-engineer: 3 launch districts of D-083, phraNakhon osm 92053, pathumWan 92063, bangRak 92061, OSM D1 ODbL, simplify 10 m) · A-P2-F06-T04-7 (tech note F06 section 9: plain string repo path like outOfAreaMaskPath, replaces the seeLaunchAreaMask pointer proposed in spec F06; ADR 0001 3.10.6) · F06-R50 item 2, D-073: far + inside play area + outside this geometry = 'outside launch area' (district interest registration). Display only, evaluated on the client, never affects a reward (NN-1 unaffected). Before P2-X20 the geometry did not exist and R55 applied (everyone far saw district registration); that fallback now only covers a failed file load. Display names come from content, not from this file",
     "reevaluateDistance_m": 200,
     "distanceDisplaySteps_m": [
       { "upTo_m": 1000, "step_m": 50 },

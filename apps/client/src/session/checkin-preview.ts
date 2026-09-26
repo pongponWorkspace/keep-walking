@@ -23,8 +23,7 @@ import type {
 } from '@keep-walking/shared/session';
 
 export type CheckInPreview =
-  | { readonly ready: true }
-  | { readonly ready: false; readonly reason: CheckInRejectReason };
+  { readonly ready: true } | { readonly ready: false; readonly reason: CheckInRejectReason };
 
 /** Speculatively tries `confirm` for `dungeonId` against `state` at `now_ms`, without mutating the
  * caller's real session state. Safe to call every render (pure; no telemetry side effect belongs

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VFX demo — Rift unfold (P2-F05-T05)</title>
+    <link rel="stylesheet" href="./shared/demo.css" />
+    <style>
+      .rift-icon {
+        width: 40px;
+        height: 48px;
+        background: var(--rift-500);
+        clip-path: polygon(50% 0%, 65% 35%, 100% 40%, 70% 55%, 85% 100%, 50% 75%, 15% 100%, 30% 55%, 0% 40%, 35% 35%);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Rift unfold — <code>icon.ui.rift</code> one-shot reveal</h1>
+    <p class="demo-note">
+      Source: <code>art/vfx/rift-reveal/rift-reveal.js</code> · spec:
+      <code>art/vfx/specs/rift-reveal.md</code> · motion-direction §8 · D-076/D-077. This plays
+      only on <code>icon.ui.rift</code> — the dungeon-card / confirm-header copy of the icon, not
+      the MapLibre canvas (that copy is a static image, no motion, zero exceptions). Click
+      "Remount card" to simulate a fresh card mount (each mount is a fresh DOM node, matching the
+      real one-shot-per-appearance contract).
+    </p>
+    <div class="demo-row">
+      <div class="demo-card">
+        <h3>Dungeon card header</h3>
+        <div class="demo-stage" style="background:var(--bg-paper); border:2px solid var(--ink-900);">
+          <div class="rift-icon" id="rift"></div>
+        </div>
+        <button id="remount">Remount card (plays reveal)</button>
+        <div class="demo-measure" id="measure"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { play } from '../dist/core/vfx.js';
+      import '../dist/rift-reveal/rift-reveal.js';
+
+      const stage = document.querySelector('.demo-stage');
+      const button = document.getElementById('remount');
+      const measure = document.getElementById('measure');
+
+      function mountAndPlay() {
+        const icon = document.createElement('div');
+        icon.className = 'rift-icon';
+        stage.replaceChildren(icon);
+        performance.mark('rift-start');
+        play('ui.riftReveal', icon).then(() => {
+          performance.mark('rift-end');
+          const m = performance.measure('rift', 'rift-start', 'rift-end');
+          measure.textContent = `measured: ${m.duration.toFixed(1)} ms · holds fully unfolded afterward, no loop`;
+        });
+      }
+
+      button.addEventListener('click', mountAndPlay);
+      mountAndPlay();
+    </script>
+  </body>
+</html>

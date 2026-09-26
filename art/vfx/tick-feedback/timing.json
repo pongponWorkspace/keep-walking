@@ -1,0 +1,44 @@
+{
+  "_meta": {
+    "task": "P2-F05-T05",
+    "owner": "vfx-animator",
+    "source": "art/vfx/specs/motion-direction.md §3, §9 · design/ux/flows/F05-movement-gate-reward.md Flow A"
+  },
+  "run.tickGranted": {
+    "cueId": "run.tickGranted",
+    "durationMs": 150,
+    "easing": "ease-out",
+    "properties": ["transform", "opacity"],
+    "opacityBudgetNote": "enter-only, <=200ms, allowed under D-077",
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "run.tickDenied": {
+    "cueId": "run.tickDenied",
+    "durationMs": 150,
+    "easing": "ease-out",
+    "properties": ["opacity"],
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "run.tickGrantedFirst": {
+    "cueId": "run.tickGrantedFirst",
+    "durationMs": 480,
+    "easing": "ease-out",
+    "beatPatternMs": [45, 70, 45, 70, 90],
+    "properties": ["transform", "opacity"],
+    "note": "150ms enter identical to run.tickGranted, then a 330ms 3-beat scale pulse starting at delay=150 (480 = 150 + 330) matching the cue's vibration pattern",
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "run.levelUp": {
+    "cueId": null,
+    "durationMs": 200,
+    "easing": "ease-out",
+    "properties": ["transform", "opacity"],
+    "note": "rides on the tick cue's sound/vibration; no cue id of its own in audio/cue-list.md",
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "toast.exit (shared helper, not a registered effect)": {
+    "durationMs": 200,
+    "easing": "ease-in",
+    "properties": ["transform", "opacity"]
+  }
+}

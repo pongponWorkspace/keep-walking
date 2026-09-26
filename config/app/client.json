@@ -110,6 +110,13 @@
     "_note": "apps/client/src/debug/vibrate.ts's triggerVibrate(navigator, pattern_ms) argument for the HUD's 'Test vibrate' button only. iOS Safari has no navigator.vibrate at all (D-003): the HUD reports 'unsupported' instead of throwing.",
     "_assumption": "A-P2-F04-T10-1: 200 ms chosen as a short, single, clearly-felt pulse for a manual dev/QA probe (not tuned against a real device yet, P2-C02/P2-F04-T11). Owner: gameplay-programmer"
   },
+  "vibration": {
+    "_source": "P2-F04-T21 (design/ux/flows/F04-dungeon-presence.md Flow D1 'สั่นหนึ่งครั้งตอนเข้า lock' and section 6 'สั่น 1 ครั้ง' for the closing-soon warning). Neither flow gives an exact pattern length — a single short pulse, not a gameplay hit cue (sound-designer/vfx-animator own those in F06).",
+    "speedLockEnter_ms": 200,
+    "closingSoonWarning_ms": 200,
+    "_note": "apps/client/src/f04-app.ts's only two vibrate() call sites outside the HUD probe (client.json#probe.vibrateTestPattern_ms, a different button for a different purpose).",
+    "_assumption": "A-P2-F04-T21-1: 200 ms reuses the probe's already-approved single-pulse length rather than inventing a new untuned number; revisit once a real-device pass (P2-C03) or an art/vfx brief gives a designed pattern. Owner: gameplay-programmer"
+  },
   "bundle": {
     "_source": "ADR 0003 section 10 (N-13): JS-transfer budgets measured from apps/client/dist's Vite manifest by apps/client/scripts/measure-bundle.ts, brotli quality 11, same method for both keys.",
     "initialJsBudget_bytes": 1000000,

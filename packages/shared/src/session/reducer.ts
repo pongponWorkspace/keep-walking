@@ -2,23 +2,23 @@
 // run (presence/hysteresis/speed lock/check-in, all P2-F04-T20) -> gate (movement window, P2-
 // F05-T08 `src/reward`) -> tick -> drop, in that order, per sample or per tick.
 //
-// Known simplifications of this pass (see report to orchestrator for the follow-up owners):
-// - Backdating (F04 R14/R15: a confirmed transition applies at the *first* sample of its
-//   confirming set, and F05 3.5's scratch accumulator replays distance from that point) is not
-//   implemented; a transition here applies at the sample that confirmed it. Distance during the
-//   confirming set itself is never counted either way (F05 3.1 items 1/2), so the practical effect
-//   is a few seconds of "late" Active/Grace timing at an edge, not extra or missing reward.
+// Known simplifications of this pass (P2-X10 closed most of the P2-F05-T08 list; see report to
+// orchestrator for what is left):
 // - Presence hysteresis reuses the reward gate's own accuracy check for "usable" (not a fully
 //   separate step-1 outlier filter); the outlier *speed* re-anchor rule is not applied to presence.
-// - Opening hours (dungeon_closed / dungeon_closing_soon) are not wired in this pass: every
-//   dungeon is treated as always open. `emergencyClose` and manual `exit` already exercise the
-//   D-059 partial-tick payout path this note's section 6 describes.
+// - The settled horizon `H` (tech note F04 4.3) is approximated by `now_ms` itself: this session
+//   does not yet hold a timer's result open while a pending set could still back-date across it.
+//   In practice this only matters within one hysteresis/lock confirmation window of an edge.
 // - Hit/damage/auto-retreat/death (F06) are out of scope (P2-F06-T06); `run.hp` is a placeholder.
 import { boundaryDistance_m, pointInPolygon, MS_PER_S } from '@keep-walking/geo';
 import {
   APPROACH_INIT,
   approachStep,
   clockCheck,
+  closingSoonAt,
+  isOpenAt,
+  openingChangeAfter,
+  presencePendingSince,
   presenceStep,
   presenceTrackerInit,
   runTimers,
@@ -30,6 +30,8 @@ import {
   UnknownVerificationModeError,
 } from '../run';
 import type { CheckInContext } from '../run';
+import { assertZoneLevelRule } from '../formulas';
+import type { DropContext } from '../formulas';
 import {
   gateAccumulatorCloseThrough,
   gateAccumulatorInit,
@@ -42,7 +44,6 @@ import {
   addExp,
 } from '../reward';
 import type { GateParams } from '../reward';
-import type { DropContext } from '../formulas';
 import {
   EMPTY_BAG,
   UnsupportedConfigError,
@@ -79,6 +80,15 @@ export function createSession(now_ms: number, player: PlayerState = createPlayer
   };
 }
 
+/** Consent withdrawal (tech note F06 8.4 step 4, P2-X16/J-P2-T30-1): purges every coordinate-
+ * bearing field left at the session level once `state.run === null` (the client dispatches `exit`
+ * first, in the same task, which already purges the run's own fields via `endRun`'s F05 R21
+ * payout path). Does not touch `player`, `lastSummary`, or `clock.lastNow_ms` (D-116). Pure: the
+ * caller still has to persist the result and write `kw.p2.consent` itself. */
+export function purgeLocationData(state: SessionState): SessionState {
+  return { ...state, pre: APPROACH_INIT, lock: speedLockInit(), latestSample: null };
+}
+
 function assertSupportedConfig(cfg: SessionConfig): void {
   const rs = cfg.runState;
   if (rs.suspendedTimeCounts || rs.rewardTickDuringGrace || rs.rewardTickDuringSuspended) {
@@ -86,6 +96,8 @@ function assertSupportedConfig(cfg: SessionConfig): void {
       'suspendedTimeCounts / rewardTickDuringGrace / rewardTickDuringSuspended must be false in Phase 2 (tech note F04 5.4)',
     );
   }
+  // D-112 / balance-model 18.6: fail closed rather than compute Z with an unimplemented rule.
+  assertZoneLevelRule(cfg.combat.monsterAttack.zoneLevelFrom);
 }
 
 function gateParamsOf(cfg: SessionConfig): GateParams {
@@ -319,6 +331,10 @@ function handleConfirm(
   const record = params.dungeons[dungeonId];
   if (record === undefined) throw new InvalidSessionInputError(`unknown dungeonId "${dungeonId}"`);
   if (s.run !== null) return { state: s, events: [reject(dungeonId, 'run_active', now_ms)] };
+  const utcOffset_min = params.config.openingHours.utcOffset_min;
+  if (!isOpenAt(record.opening_hours, utcOffset_min, now_ms)) {
+    return { state: s, events: [reject(dungeonId, 'dungeon_closed', now_ms)] };
+  }
   let strategy;
   try {
     if (record.floor_level !== null) throw new UnknownVerificationModeError('floor_level');
@@ -357,10 +373,13 @@ function handleConfirm(
     clock: { closedSum_ms: 0, runningSince_ms: now_ms },
     reward: gateAccumulatorInit(),
     rewardScratch: null,
+    scratchClosed: [],
     grantedCount: 0,
     bag: EMPTY_BAG,
     hp: {},
-    presence: presenceTrackerInit('inside'),
+    presence: presenceTrackerInit('inside', now_ms),
+    closesAt_ms: openingChangeAfter(record.opening_hours, utcOffset_min, now_ms),
+    notices: { closingSoonSent: false },
   };
   return {
     state: { ...s, run },
@@ -410,6 +429,52 @@ function applyPresenceTransition(
   };
 }
 
+/**
+ * F05 3.5 scratch accumulator: while a confirmed return (Grace/Suspended -> Active) or a confirmed
+ * unlock is pending, `since_ms` (the pending set's own first, back-dated sample) is non-null and
+ * this sample replays into `run.rewardScratch` (created fresh at that first sample) instead of
+ * `run.reward`, which stays frozen. `promotedNow_ms` is this same set's confirmation instant when
+ * this very sample is the one that confirms it: `main := scratch`, and every window `scratchClosed`
+ * closed while pending is granted now, at `promotedNow_ms` (never earlier — a set that never
+ * confirms never grants anything). `since_ms === null` means no pending set right now (matched the
+ * original side again, or D-104 dropped it): any live scratch is discarded.
+ */
+function feedScratch(
+  run: RunState,
+  since_ms: number | null,
+  promotedNow_ms: number | null,
+  sample: { readonly t_ms: number; readonly lat: number; readonly lng: number; readonly accuracy_m: number },
+  insideRun: boolean,
+  gp: GateParams,
+  player: PlayerState,
+  params: SessionParams,
+  events: SessionEvent[],
+): { readonly run: RunState; readonly player: PlayerState } {
+  if (since_ms === null) {
+    if (run.rewardScratch === null) return { run, player };
+    return { run: { ...run, rewardScratch: null, scratchClosed: [] }, player };
+  }
+  const base = run.rewardScratch ?? gateAccumulatorInit();
+  const tau_ms = run.clock.closedSum_ms + (sample.t_ms - since_ms);
+  const step = gateAccumulatorStep(base, { sample, tau_ms, countable: insideRun }, gp);
+  const fed: RunState = {
+    ...run,
+    rewardScratch: step.state,
+    scratchClosed: [...run.scratchClosed, ...step.closed],
+  };
+  if (promotedNow_ms === null) return { run: fed, player };
+  const closed = fed.scratchClosed;
+  const promoted: RunState = {
+    ...fed,
+    reward: fed.rewardScratch ?? fed.reward,
+    rewardScratch: null,
+    scratchClosed: [],
+  };
+  const applied = applyClosedWindows(promoted, player, closed, params, promotedNow_ms);
+  events.push(...applied.events);
+  return { run: applied.run, player: applied.player };
+}
+
 /** input `sample` (tech note F04 9.1 steps 2-7): classify once, feed speed lock, approach,
  * presence (if a run is active) and the reward accumulator, in that order. */
 function handleSample(
@@ -440,6 +505,7 @@ function handleSample(
   for (const [id, rec] of Object.entries(params.dungeons))
     insideOf[id] = pointInPolygon(sample, rec.geometry);
 
+  const wasLocked = s.lock.locked;
   const lockStep = speedLockStep(s.lock, sample, {
     speedLock_kmh: params.config.speedLock.speedLock_kmh,
     lockSustained_s: params.config.speedLock.lockSustained_s,
@@ -449,6 +515,7 @@ function handleSample(
   });
   const lock = lockStep.state;
   let run = s.run;
+  let player = s.player;
   // R21: the reward clock stops while locked (speed lock is not "outside time", tech note F04 6).
   if (run !== null && run.status === 'active' && lockStep.confirmed !== null) {
     const at_ms = lockStep.confirmed.at_ms;
@@ -456,6 +523,25 @@ function handleSample(
       lockStep.confirmed.phase === 'enter'
         ? { ...run, clock: clockStop(run.clock, at_ms) }
         : { ...run, clock: clockStart(run.clock, at_ms) };
+  }
+  // F05 3.5: while locked, a pending unlock's samples replay through a scratch accumulator (the
+  // clock itself already resumed above when this sample is the one that confirms the unlock).
+  if (run !== null && run.status === 'active' && wasLocked) {
+    const unlockAt_ms = lockStep.confirmed?.phase === 'exit' ? lockStep.confirmed.at_ms : null;
+    const since_ms = unlockAt_ms ?? lock.runStart_ms;
+    const fed = feedScratch(
+      run,
+      since_ms,
+      unlockAt_ms,
+      sample,
+      insideOf[run.dungeonId] ?? false,
+      gateParamsOf(params.config),
+      player,
+      params,
+      events,
+    );
+    run = fed.run;
+    player = fed.player;
   }
 
   const usableAndUnlocked = accuracyOk && !lock.locked;
@@ -471,6 +557,8 @@ function handleSample(
   if (run !== null && accuracyOk) {
     const insideRun = insideOf[run.dungeonId] ?? false;
     const record = params.dungeons[run.dungeonId];
+    const wasActive = run.status === 'active';
+    const wasOutsideSide = run.presence.geo.side === 'outside';
     const obs = {
       t_ms: sample.t_ms,
       inside: insideRun,
@@ -482,30 +570,69 @@ function handleSample(
     const presence = presenceStep(run.presence, obs, {
       edgeHysteresisSamples: params.config.runState.edgeHysteresisSamples,
       edgeHysteresis_m: params.config.runState.edgeHysteresis_m,
+      maxSamplePairGap_s: params.config.movementGate.maxSamplePairGap_s,
     });
     run = { ...run, presence: presence.tracker };
     if (presence.confirmed !== null) {
       run = applyPresenceTransition(run, presence.confirmed, events);
-    } else if (run.status !== 'active' && run.exitCause === 'no_evidence' && insideRun) {
-      // A no_evidence exit never geometrically left (F04 5.3): the presence tracker's confirmed
-      // side is still 'inside', so `presenceStep` above never has a transition to confirm. Any
-      // fresh usable, inside sample is enough evidence to resume, without a hysteresis set.
-      events.push({
-        type: 'run_state_changed',
-        from: run.status,
-        to: 'active',
-        cause: 'returned',
-        at_ms: sample.t_ms,
-      });
-      run = {
-        ...run,
-        status: 'active',
-        exitStartedAt_ms: null,
-        exitCause: null,
-        clock: clockStart(run.clock, sample.t_ms),
-      };
+    } else if (run.status !== 'active' && run.exitCause === 'no_evidence') {
+      // tech note F06 15.1 (F04-R15 item 7, D-118, P2-X16/S-1): judge exactly the FIRST usable
+      // sample after a no_evidence exit, once. A no_evidence exit never geometrically left (F04
+      // 5.3), so the presence tracker's confirmed side is still 'inside' and `presenceStep` above
+      // never has a transition to confirm on its own here.
+      if (insideRun) {
+        // Rule 1: s1 is inside (band included) -> Active immediately, no hysteresis set, no
+        // missed distance to replay (no evidence means no samples happened at all).
+        events.push({
+          type: 'run_state_changed',
+          from: run.status,
+          to: 'active',
+          cause: 'returned',
+          at_ms: sample.t_ms,
+        });
+        run = {
+          ...run,
+          status: 'active',
+          exitStartedAt_ms: null,
+          exitCause: null,
+          clock: clockStart(run.clock, sample.t_ms),
+        };
+      } else {
+        // Rule 2: s1 is outside -> a genuine (evidenced) left_polygon, not backdated past t_last
+        // (exitStartedAt_ms is unchanged, R14): the tracker resets to confirmed 'outside' anchored
+        // at s1 so returning from here on needs a full hysteresis set, same as any other exit.
+        // This branch's own `run.exitCause` guard above ensures it only ever fires for s1 itself.
+        run = { ...run, exitCause: 'left_polygon', presence: presenceTrackerInit('outside', sample.t_ms) };
+      }
     }
-    if (run.status === 'active' && !lock.locked) {
+
+    // F05 3.5: while Grace/Suspended, a pending return's samples replay through a scratch
+    // accumulator so the distance counts once the return backdates (`applyPresenceTransition`
+    // above already started the clock at the same instant it promotes here).
+    let promotedThisSample = false;
+    if (!wasActive && wasOutsideSide) {
+      const returnAt_ms =
+        presence.confirmed !== null && presence.confirmed.to === 'inside'
+          ? presence.confirmed.at_ms
+          : null;
+      const since_ms = returnAt_ms ?? presencePendingSince(run.presence);
+      const fed = feedScratch(
+        run,
+        since_ms,
+        returnAt_ms,
+        sample,
+        insideRun,
+        gateParamsOf(params.config),
+        player,
+        params,
+        events,
+      );
+      run = fed.run;
+      player = fed.player;
+      promotedThisSample = returnAt_ms !== null;
+    }
+
+    if (!promotedThisSample && run.status === 'active' && !lock.locked) {
       const tau_ms = tauOf(run.clock, sample.t_ms);
       const step = gateAccumulatorStep(
         run.reward,
@@ -513,9 +640,9 @@ function handleSample(
         gateParamsOf(params.config),
       );
       run = { ...run, reward: step.state };
-      const applied = applyClosedWindows(run, s.player, step.closed, params, sample.t_ms);
+      const applied = applyClosedWindows(run, player, step.closed, params, sample.t_ms);
       run = applied.run;
-      s = { ...s, player: applied.player };
+      player = applied.player;
       events.push(...applied.events);
     }
   }
@@ -524,6 +651,7 @@ function handleSample(
     pre,
     lock,
     run,
+    player,
     latestSample: sample,
     clock: { ...s.clock, lastSample_ms: accuracyOk ? sample.t_ms : s.clock.lastSample_ms },
   };
@@ -563,6 +691,33 @@ function processTimeline(
       exitCause: 'no_evidence',
       clock: clockStop(run.clock, at_ms),
     };
+    // Any lock-pending-unlock scratch (F05 3.5) is moot the instant presence itself now blocks the
+    // clock: a later unlock alone would no longer be enough to resume it.
+    if (run.rewardScratch !== null) run = { ...run, rewardScratch: null, scratchClosed: [] };
+  }
+  const closesAt_ms = run.closesAt_ms;
+  if (closesAt_ms !== null) {
+    const noticeAt_ms = closingSoonAt(
+      closesAt_ms,
+      run.startedAt_ms,
+      params.config.openingHours.closingSoonNotice_s,
+    );
+    if (!run.notices.closingSoonSent && noticeAt_ms !== null && now_ms >= noticeAt_ms) {
+      events.push({
+        type: 'dungeon_closing_soon',
+        dungeonId: run.dungeonId,
+        closesIn_s: Math.round((closesAt_ms - noticeAt_ms) / MS_PER_S),
+        at_ms: noticeAt_ms,
+      });
+      run = { ...run, notices: { closingSoonSent: true } };
+    }
+    // R25-R31/D-059 (tech note F04 8.3, 9.3 item 6): a game-side close outranks Suspended timeout
+    // when both would fire at the same instant, so it is judged before the timer chain below.
+    if (now_ms >= closesAt_ms) {
+      const ended = endRun({ ...s, run }, run, 'dungeon_closed', closesAt_ms, params);
+      events.push(...ended.events);
+      return ended.state;
+    }
   }
   if (run.status !== 'active' && run.exitStartedAt_ms !== null) {
     const timers = runTimers(run.status, run.exitStartedAt_ms, now_ms, {
@@ -636,6 +791,12 @@ export function sessionStep(
     return { state: ended.state, events: [...events, ...ended.events] };
   }
   if (input.type === 'sample') {
+    // tech note F06 15.2 (S-2): settle the timeline up to the sample's own `t_ms` first, with the
+    // same rule `processTimeline` uses at the end of every step (gap vs. `lastSample_ms`, then the
+    // Grace/Suspended/timeout timers). Without this, a `sample` that arrives before the next
+    // `tick` (a resumed watchPosition callback racing a sleeping timer) would keep the run Active
+    // across an arbitrarily long gap and never time out.
+    s = processTimeline(s, input.sample.t_ms, params, events);
     s = handleSample(s, input.sample, now_ms, params, events);
   } else if (input.type !== 'tick') {
     throw new InvalidSessionInputError(`unknown session input type`);

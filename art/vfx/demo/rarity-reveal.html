@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VFX demo — Drop reveal, 5 rarity tiers (P2-F05-T05)</title>
+    <link rel="stylesheet" href="./shared/demo.css" />
+    <link rel="stylesheet" href="../rarity-reveal/rarity-reveal.css" />
+  </head>
+  <body>
+    <h1>Drop reveal — 5 rarity tiers</h1>
+    <p class="demo-note">
+      Source: <code>art/vfx/rarity-reveal/rarity-reveal.js</code> · spec:
+      <code>art/vfx/specs/rarity-reveal.md</code> · motion-direction §4/§9 · V-21 (Rare uses only
+      <code>transform: scale()</code> beats, no <code>filter</code>/<code>opacity</code>). Click a
+      card to play; each measures its own start→finish time via the Performance API. Toggle
+      reduced-motion below to force the <code>prefers-reduced-motion</code> fallback path
+      regardless of your OS setting (demo-only override, not part of the shipped module).
+    </p>
+    <label style="display: block; margin-bottom: 16px; font-size: 14px">
+      <input type="checkbox" id="reduced-toggle" /> Force reduced-motion fallback
+    </label>
+    <div class="demo-row" id="rows"></div>
+    <p class="demo-note" id="file-size-note"></p>
+
+    <script type="module">
+      import { play } from '../dist/core/vfx.js';
+      import '../dist/rarity-reveal/rarity-reveal.js';
+
+      const tiers = [
+        { id: 'drop.rarity.common', label: 'Common', color: 'var(--rarity-common)' },
+        { id: 'drop.rarity.uncommon', label: 'Uncommon', color: 'var(--rarity-uncommon)' },
+        { id: 'drop.rarity.rare', label: 'Rare', color: 'var(--rarity-rare)' },
+        { id: 'drop.rarity.epic', label: 'Epic', color: 'var(--rarity-epic)' },
+        { id: 'drop.rarity.legendary', label: 'Legendary', color: 'var(--rarity-legendary)' },
+      ];
+
+      const rows = document.getElementById('rows');
+      const reducedToggle = document.getElementById('reduced-toggle');
+      let forceReduced = false;
+      reducedToggle.addEventListener('change', () => {
+        forceReduced = reducedToggle.checked;
+      });
+
+      const realMatchMedia = window.matchMedia.bind(window);
+      window.matchMedia = (query) => {
+        if (forceReduced && query.includes('prefers-reduced-motion')) {
+          return { matches: true, media: query, addListener() {}, removeListener() {} };
+        }
+        return realMatchMedia(query);
+      };
+
+      for (const tier of tiers) {
+        const card = document.createElement('div');
+        card.className = 'demo-card';
+        card.innerHTML = `
+          <h3>${tier.label}</h3>
+          <div class="demo-stage">
+            <div class="demo-frame" style="background:${tier.color};color:${tier.color}" data-frame></div>
+          </div>
+          <button data-play>Play ${tier.id}</button>
+          <div class="demo-measure" data-measure></div>
+        `;
+        rows.appendChild(card);
+
+        const frame = card.querySelector('[data-frame]');
+        const button = card.querySelector('[data-play]');
+        const measure = card.querySelector('[data-measure]');
+
+        button.addEventListener('click', () => {
+          // Fresh node per play (rarity-reveal's DOM contract: corner/shard nodes are ephemeral
+          // per-mount, matching a real toast/summary-row lifecycle — see rarity-reveal.js header).
+          const fresh = frame.cloneNode(false);
+          frame.replaceWith(fresh);
+          const target = fresh;
+          const markStart = `${tier.id}-start`;
+          const markEnd = `${tier.id}-end`;
+          performance.mark(markStart);
+          play(tier.id, target).then(() => {
+            performance.mark(markEnd);
+            const m = performance.measure(tier.id, markStart, markEnd);
+            measure.textContent = `measured: ${m.duration.toFixed(1)} ms (registered durationMs budget in timing.json)`;
+          });
+        });
+      }
+
+      document.getElementById('file-size-note').textContent =
+        'File sizes are reported in the vfx-animator task report (P2-F05-T05), not computed in-page, because file:// pages cannot reliably stat sibling files.';
+    </script>
+  </body>
+</html>

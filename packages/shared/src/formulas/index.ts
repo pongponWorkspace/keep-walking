@@ -16,9 +16,11 @@ export type {
 export type { BaseCapStatus } from './party';
 export { baseCapStatus, classChangeCost, memberP, roleBuffPct, roleP } from './party';
 
-// ---- damage (balance-model section 3) ----
+// ---- damage (balance-model section 3, zone level section 18, D-112) ----
 export type { DamageInput } from './damage';
 export {
+  ZONE_LEVEL_FROM,
+  assertZoneLevelRule,
   damagePerHit,
   defReductionRatio,
   levelGapDamageMult,

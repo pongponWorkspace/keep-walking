@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "task": "P2-F05-T05",
+    "owner": "vfx-animator",
+    "source": "art/vfx/specs/motion-direction.md §4, §9 · art/reviews/F03-visual-gate.md V-21",
+    "note": "durationMs here matches the `run.<id>.durationMs` field on the registered effect. beatPatternMs is copied verbatim from audio/cue-list.md vibration_ms for the same cue id — do not hand-tune it independently of that file."
+  },
+  "drop.rarity.common": {
+    "cueId": "drop.rarity.common",
+    "durationMs": 220,
+    "easing": "ease-out",
+    "beatPatternMs": [45],
+    "properties": ["transform"],
+    "corners": 0,
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "drop.rarity.uncommon": {
+    "cueId": "drop.rarity.uncommon",
+    "durationMs": 350,
+    "easing": "ease-out",
+    "beatPatternMs": [45, 70, 45],
+    "properties": ["transform"],
+    "corners": 0,
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "drop.rarity.rare": {
+    "cueId": "drop.rarity.rare",
+    "durationMs": 450,
+    "easing": "ease-out",
+    "beatPatternMs": [45, 70, 45, 70, 45],
+    "properties": ["transform"],
+    "corners": 2,
+    "cornerDelayMs": [120, 200],
+    "cornerRevealMs": 80,
+    "note_V21": "Rare's 'border flicker' is implemented as 3 escalating transform:scale() peaks (1.03/1.06/1.10), never filter or opacity, per V-21.",
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "drop.rarity.epic": {
+    "cueId": "drop.rarity.epic",
+    "durationMs": 550,
+    "easing": "ease-out",
+    "beatPatternMs": [45, 60, 45, 60, 45, 60, 90],
+    "properties": ["transform"],
+    "corners": 4,
+    "cornerDelayMs": [100, 180, 260, 340],
+    "cornerRevealMs": 80,
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "drop.rarity.legendary": {
+    "cueId": "drop.rarity.legendary",
+    "durationMs": 1200,
+    "easing": "ease-out",
+    "beatPatternMs": [45, 60, 45, 60, 45, 60, 45, 60, 180],
+    "properties": ["transform", "filter"],
+    "corners": 4,
+    "cornerDelayMs": [90, 170, 250, 330],
+    "cornerRevealMs": 80,
+    "shardBurst": { "count": 10, "durationMs": 260, "startsAtMs": 940, "properties": ["transform"] },
+    "filterException": "brightness(1 -> 1.18) one-shot on the final beat only, per motion-direction §2 exception table",
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  }
+}

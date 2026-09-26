@@ -136,6 +136,16 @@ describe('edge hysteresis and run state', () => {
       expect(tl.status).toBe('active');
     }
   });
+  it('R15 item 7: the no-hysteresis return after no_evidence applies to the first sample only', () => {
+    const before = Array.from({ length: 21 }, (_, i) => s(i * 5, true, 15));
+    const status = (after: PresenceSample[]) =>
+      runTimeline([...before, ...after], 0, after.at(-1)?.t_ms ?? 0, c.run).status;
+    expect(status([s(220, true, 2)])).toBe('active');
+    expect(status([s(220, false, 15), s(225, true, 15)])).toBe('grace');
+    const n = c.run.edgeHysteresisSamples;
+    const back = Array.from({ length: n }, (_, i) => s(225 + i * 5, true, 15));
+    expect(status([s(220, false, 15), ...back])).toBe('active');
+  });
   it('speed lock: driving locks, drift spikes and edge jitter never lock', () => {
     expect(speedLockTransitions(trace('synthetic-driving-40kmh-01'), c.lock)[0]?.at_ms).toBe(
       84_000,
