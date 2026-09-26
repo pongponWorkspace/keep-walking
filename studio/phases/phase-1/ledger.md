@@ -154,3 +154,4 @@
 | 126 | R2 | P1-F02-T19 deploy รอบ 4 | user + orchestrator | — | 10:24:46 | run 36214493818 สำเร็จ · tiles.json ถูก (json, ACAO เดียว, max-age=300) · headless โหลดแผนที่ 0 error ป้ายไทยขึ้น · ปุ่ม spike แสดง copy key ดิบ (ตั้งใจเป็น placeholder dev) |
 | 127 | R2 | P1-X42 dispatch | narrative-designer | 10:27:47 | — | user ขอให้ปุ่มแสดงข้อความไทยแทน copy key |
 | 128 | R2 | P1-X42 | narrative-designer | — | 10:29:16 | DONE — เพิ่ม 4 copy key · orchestrator รัน lint:copy exit 0, typecheck 0, test 927 ผ่าน |
+| 129 | R2 | P1-F02-T19 deploy รอบ 5 | user + orchestrator | — | 10:39:20 | run 36215222491 (0c91e7e) สำเร็จ · headless: ปุ่ม 'เริ่มหาตำแหน่ง', 'แผนที่ตามตัว', 0 error |
