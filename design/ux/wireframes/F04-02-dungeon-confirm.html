@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F04 Flow B: popup confirm (P2-F04-T15)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F04 Flow B — เดินเข้าเขต → popup confirm (S-02-dungeon-confirm, Phase 2)</h1>
+  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 3 · <b>override เหนือ design/ux/wireframes/02-dungeon-confirm.html เดิม:</b> ไม่แสดงจำนวนคน/role เลย ไม่มีข้อยกเว้นแม้การ์ดซ้อน (D-089, GD N-04) · <span class="config-ref">config: dungeons.entry.confirmPopupRequired (=true)</span></p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>B1. Confirm ปกติ (ไม่มีบรรทัดจำนวนคน)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.confirmTitle</span><br><span class="thaidraft">(ลุมพินี — ป่าในเมือง)</span></h1>
+        <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></p>
+        <p class="caption" style="color:var(--ink-500);">(ตำแหน่งจำนวนคน/role — ซ่อนใน Phase 2, กลับมาแสดงเมื่อมี backend Phase 3)</p>
+        <div class="btn-row" style="margin-top:12px;">
+          <div class="btn btn-secondary" style="flex:1;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div>
+          <div class="btn btn-primary" style="flex:2;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ต่างจาก 02-dungeon-confirm.html เดิม: ไม่มี dungeon.confirmCount/confirmRoles เลยไม่ว่าจำนวนคนเท่าไร · ปุ่ม "เข้า" อาจ disable พร้อมสถานะ check-in (ดู F04-03-checkin-speedlock.html)</p>
+</div>
+
+<div class="frame-block">
+<h3>B2. Polygon ซ้อนกัน (ไม่มีข้อยกเว้นโชว์ 0 คนอีกต่อไป)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.overlapTitle</span><br><span class="thaidraft">(เลือกโซนที่จะเข้า)</span></h1>
+        <div class="btn-row">
+          <div class="card selected" style="flex:1;"><b>ลุมพินี — ป่าในเมือง</b><br><span class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></span></div>
+          <div class="card" style="flex:1;"><b>ตลาดคลองเตย — เขาวงกตแผงลอย</b><br><span class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.3–8)</span></span></div>
+        </div>
+        <p class="caption" style="margin-top:8px;"><span class="copykey">dungeon.overlapHint</span> <span class="thaidraft">(เลือกโซนก่อนแล้วกดเข้า)</span></p>
+        <div class="btn btn-disabled" style="margin-top:8px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption"><b>ปิดข้อยกเว้นเดิม (A-P1-F03-T16-3)</b>: ก่อนหน้านี้การ์ดซ้อนโชว์ "0 คน" ตรงๆ เพื่อเทียบกัน — Phase 2 ตัดออกหมดตาม D-089 (ไม่มีข้อยกเว้น) เหลือแค่ชื่อโซน+ช่วงเลเวล [ASSUMPTION A-P2-F04-T15-1 รอยืนยัน game-director]</p>
+</div>
+
+
+<div class="frame-block">
+<h3>B3. ใกล้ปิด (ยังเข้าได้ ไม่บล็อก)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.confirmTitle</span><br><span class="thaidraft">(สวนลุมพินี)</span></h1>
+        <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></p>
+        <p class="body-text" style="color:var(--state-danger);"><span class="copykey">dungeon.closingSoonTag</span> <span class="thaidraft">(จะปิดในอีก 12 นาที)</span></p>
+        <div class="btn-row" style="margin-top:12px;">
+          <div class="btn btn-secondary" style="flex:1;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div>
+          <div class="btn btn-primary" style="flex:2;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption"><span class="config-ref">config: dungeons.openingHours.closingSoonNotice_s</span> — ปุ่ม "เข้า" ยังกดได้ปกติ ไม่ใช่เหตุผลปฏิเสธ check-in (R28)</p>
+</div>
+
+<div class="frame-block">
+<h3>B4. ปิดอยู่ (ไม่มีปุ่มเข้า)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;filter:grayscale(50%);"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.closedTitle</span><br><span class="thaidraft">(ปิดอยู่ตอนนี้)</span></h1>
+        <p class="body-text"><span class="copykey">dungeon.closedBody</span><br><span class="thaidraft">(เปิดอีกที 06:00 พรุ่งนี้)</span></p>
+        <div class="btn btn-secondary" style="width:100%;"><span class="copykey">dungeon.closedDismiss</span> <span class="thaidraft">(กลับแผนที่)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">เกิดได้ทั้งเดินเข้าเขตครั้งแรกและกด "เข้า" แล้ว engine ปฏิเสธ · เกิน maxActiveDungeonsPerPlayer: <span class="copykey">dungeon.alreadyActive</span> <span class="thaidraft">(ยังอยู่ใน dungeon อื่น ออกจากที่นั่นก่อน)</span></p>
+</div>
+
+<div class="frame-block">
+<h3>B5. นอกระยะ (GPS drift) / offline</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <p class="body-text"><span class="copykey">dungeon.outOfRangeTitle</span><br><span class="thaidraft">(GPS ยังไม่เชื่อว่าคุณถึงแล้ว เดินลึกเข้าไปอีกหน่อย)</span></p>
+        <div class="btn btn-secondary" style="width:100%;"><span class="copykey">common.close</span> <span class="thaidraft">(ปิด)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ปิด popup กลับแผนที่ ไม่ลงโทษ · กด "เข้า" ตอน offline: <span class="copykey">common.offlineNotice</span> <span class="thaidraft">(ไม่มีเน็ต ส่งไม่ได้ตอนนี้)</span> + <span class="copykey">common.offlineRetry</span> <span class="thaidraft">(ลองอีกครั้ง)</span> ไม่ auto-confirm</p>
+</div>
+
+</div>
+</body>
+</html>

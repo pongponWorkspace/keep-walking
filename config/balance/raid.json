@@ -1,9 +1,9 @@
 {
   "_meta": {
     "file": "raid.json",
-    "version": 1,
+    "version": 2,
     "owner": "systems-designer",
-    "task": "P1-F03-T06, P1-H03 (schedule.endLocalTime)",
+    "task": "P1-F03-T06, P1-H03 (schedule.endLocalTime), P2-F06-T01 (partyMult caps)",
     "doc": "design/systems/balance-model.md section 11",
     "_note": "First draft for Phase 6. GDD values are final inputs; values marked _assumption are proposals and must be re-simulated before Phase 6 build"
   },
@@ -60,7 +60,10 @@
     "incompletePartyTargetMax": 1.2,
     "weight": 0.8,
     "incompletePartyFactor": 0.6,
-    "_assumption": "A-P1-F03-T06-17: GDD names the shape, not the formula. Proposal: partyMult = 1 + weight x (sum over 4 roles of buff_role/cap_role) / 4 x (all 4 roles present ? 1 : incompletePartyFactor). Check: one of each role at L25 = 1.41, two of each = 1.61, one of each at L60 = 1.52, three roles at L25 = 1.17. Owner: game-director"
+    "fullPartyCap": 1.6,
+    "incompletePartyCap": 1.2,
+    "_cap_source": "D-079 (game-director, P1-F03-T25 B-04): partyMult is capped at 1.6 for a full party (all 4 roles inside) and 1.2 for any other party, so the result never leaves the GDD bands 1.4-1.6 / 1.0-1.2. Caps equal fullPartyTargetMax / incompletePartyTargetMax by design; they are separate keys because the targets are simulator checks and the caps are runtime rules",
+    "_assumption": "A-P1-F03-T06-17: GDD names the shape, not the formula. Proposal: partyMult = min(cap, 1 + weight x (sum over 4 roles of buff_role/cap_role) / 4 x (all 4 roles present ? 1 : incompletePartyFactor)), cap = fullPartyCap if all 4 roles present else incompletePartyCap; no party = noPartyMult. Check (tools/sim raid vectors): one of each role at L25 = 1.41, two of each = 1.61 -> capped 1.60, one of each at L60 = 1.52, three roles at L25 = 1.17, three roles two each = 1.26 -> capped 1.20. Owner: game-director"
   },
   "bossHp": {
     "_source": "GDD > Raid Boss > HP ของบอส (bossHP = medianPOW_lastWeek x activePlayers_lastWeek x alpha x ticks; alpha 0.45 เดือนแรก แล้วขยับเป็น 0.55)",

@@ -33,7 +33,7 @@ const p = paramsFromConfig(cfg);
 const dp = dropParamsFromConfig(cfg);
 const within = (got: number, target: number, ratio: number) => Math.abs(got / target - 1) <= ratio;
 
-describe('config after P1-F03-T08', () => {
+describe('config after P1-F03-T08 and P2-F06-T01', () => {
   it('hit chance is the T07 least-squares fit 54 % (D-029)', () => {
     expect(p.attack.hitChancePerCheck_pct).toBe(54);
     expect(Math.round(fitHitChance_pct(25, 25, 45, 55, p).exact_pct)).toBe(54);
@@ -119,10 +119,21 @@ describe('economy (ratio vs economy.incomeToPotionRatio, D-005)', () => {
     const medium = economyRow(REFERENCE_SITUATION, L, 'hpMedium', false, p, dp);
     expect(ratioStatus(medium.ratio, t)).toBe('BELOW RANGE');
   });
-  it('F-12: the balanced-build VIT bonus (+107.5 %) doubles the ratio to about 5.9 (reported, not fixed)', () => {
+  it('F-12 after D-038 B: the balanced-build VIT bonus is +53.75 % at L25 (1 %/VIT) and the reference ratio is about 4.4', () => {
     const r = economyRow(REFERENCE_SITUATION, L, 'hpSmall', true, p, dp);
-    expect(r.potionEfficiency_pct).toBeCloseTo(107.5, 6);
-    expect(r.ratio).toBeGreaterThan(5.5);
+    expect(p.stats.vitPotionEfficiency_pct).toBe(1);
+    expect(r.potionEfficiency_pct).toBeCloseTo(53.75, 6);
+    expect(within(r.ratio, 4.36, 0.02)).toBe(true);
+  });
+  it('D-038 B: solo average (4 classes, VIT on, small potions) at L25 is about 2.69 and IN TARGET', () => {
+    const ratios = ROLES.map((r) => economyRow(soloSpec(r, L), L, 'hpSmall', true, p, dp).ratio);
+    const avg = mean(ratios);
+    expect(within(avg, 2.69, 0.02)).toBe(true);
+    expect(ratioStatus(avg, t)).toBe('IN TARGET');
+  });
+  it('D-038 B: the GDD reference case (x1.0, no VIT) is unchanged at 2.83', () => {
+    const r = economyRow(REFERENCE_SITUATION, L, 'hpSmall', false, p, dp);
+    expect(within(r.ratio, 2.83, 0.01)).toBe(true);
   });
   it('F-12b: with medium potions the VIT bonus is mostly wasted (heal capped at max HP)', () => {
     const rng = mulberry32(4);

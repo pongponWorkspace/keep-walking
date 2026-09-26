@@ -1,0 +1,12 @@
+{
+  "name": "@keep-walking/tools-config-lint",
+  "version": "0.0.0",
+  "private": true,
+  "description": "JSON Schema per config file (packages/shared/schemas/config/) and config convention lint (ADR 0001 3.10, D-062). Runs inside `pnpm test`. Owner: tech-lead. Never imported by apps/* or packages/*.",
+  "type": "module",
+  "dependencies": {
+    "@keep-walking/shared": "workspace:*",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  }
+}

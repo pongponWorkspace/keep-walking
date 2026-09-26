@@ -4,7 +4,7 @@
 | --- | --- |
 | สถานะ | Accepted (สัญญาร่วมตาม protocol ข้อ 9) |
 | วันที่ | 2026-09-23 |
-| task | P1-F02-T03 · เจ้าของ tech-lead · แก้ไข P1-H01 (หัวข้อ 4.2: path config จริง, ปิด A-P1-F02-T03-1) |
+| task | P1-F02-T03 · เจ้าของ tech-lead · แก้ไข P1-H01 (หัวข้อ 4.2: path config จริง, ปิด A-P1-F02-T03-1) · แก้ไข P2-F04-T05 (หัวข้อ 4.1: `gateDiagnosticWindows` แยกจาก `rewardWindow`, `format_version` 2) |
 | ไฟล์ที่เครื่องอ่าน | `packages/shared/schemas/gps-trace.schema.json` (JSON Schema 2020-12) · `packages/shared/src/trace.ts` (`validateTrace`, type) |
 | ผู้ใช้ | P1-F02-T04 (synthetic), T05 (Mock), T10 (client), T11 (export), T13 (QA trace), T14 (kit), T24 (recorded), Phase 3 server |
 | อ้างอิง | TL-M05, TL-M06, TL-S09, TL-S10, TL-N04, MF-3 · GDD "ข้อมูลตำแหน่ง", "สัญญาณขาดและแอปถูกปิด" · ADR 0001 หัวข้อ 3.1, 3.12 |
@@ -103,7 +103,7 @@
 
 | คอลัมน์ | หน่วย / ค่า | นิยาม (ดูวิธีวัดเต็มใน tech note F02 หัวข้อ 10) |
 | --- | --- | --- |
-| `format_version` | `1` | รุ่นของ CSV นี้ |
+| `format_version` | `1` หรือ `2` | รุ่นของ CSV นี้ · `2` = `1` + คอลัมน์ `*_filtered` ต่อท้าย (เพิ่มอย่างเดียว คอลัมน์เดิมความหมายไม่เปลี่ยน · client เขียน `2` ตั้งแต่ P2-F04-T25 · P2-F04-T10 เขียน `1` ได้) |
 | `session_id` | UUID v4 | สุ่มต่อ session |
 | `app_version` | git short SHA | build ที่ใช้ |
 | `tileset_id` | string | id ของ tile set จาก TileJSON (เช่น `pm4-20260923-z15`) |
@@ -127,8 +127,10 @@
 | `accuracy_median_m`, `accuracy_p90_m`, `accuracy_max_m` | เมตร | จาก `accuracy` ที่ platform รายงาน |
 | `gap_count_10s`, `gap_total_s`, `gap_pct` | จำนวน, วินาที, % | ช่วงที่ไม่มี sample นานกว่า 10 วินาที |
 | `path_length_m` | เมตร | ผลรวมระยะ haversine ระหว่าง sample ต่อเนื่อง (ไม่กรอง) |
-| `gate_windows_total`, `gate_windows_pass`, `gate_windows_pass_pct` | จำนวน, % | หน้าต่าง 5 นาทีเลื่อนทีละ 30 วินาที ที่ระยะสะสมผ่านเกณฑ์ gate (`minDistancePerWindow_m`, `window_s`, `comparison` จาก `config/balance/dungeons.json#movementGate` ตอนนี้ > 50 ม. ใน 300 วินาที) |
+| `gate_windows_total`, `gate_windows_pass`, `gate_windows_pass_pct` | จำนวน, % | `gateDiagnosticWindows` แบบดิบ (ADR 0003 หัวข้อ 5.1 · ค่าวัดของ HUD ไม่ใช่ `rewardWindow`): หน้าต่าง 5 นาทีเลื่อนทีละ 30 วินาที (`app.client.hudMeasurement.gateWindowStep_s`) ที่ระยะสะสมผ่านเกณฑ์ gate (`minDistancePerWindow_m`, `window_s`, `comparison` จาก `config/balance/dungeons.json#movementGate` ตอนนี้ > 50 ม. ใน 300 วินาที) |
 | `stationary_5min_accum_m` | เมตร | ระยะสะสมปลอมจาก jitter ใน 5 นาทีที่ยืนนิ่ง (segment `stationary`) |
+| `gate_windows_pass_filtered`, `gate_windows_pass_filtered_pct` | จำนวน, % | **`format_version` 2 เท่านั้น** · หน้าต่างชุดเดียวกับข้างบน แต่ระยะผ่านตัวกรอง outlier + resample ของ gate (ADR 0003 หัวข้อ 5.3) ด้วยค่าจาก `config/balance/dungeons.json#movementGate` |
+| `stationary_5min_accum_filtered_m` | เมตร | **`format_version` 2 เท่านั้น** · `stationary_5min_accum_m` หลังตัวกรองของ gate · ใช้เทียบกับ `minDistancePerWindow_m` ตาม N-11 |
 | `latency_median_ms`, `latency_p90_ms` | ms | เวลาที่จุดบนแผนที่ขยับ − `timestamp` ของ fix |
 
 ตัวเลขใน CSV เป็นค่าวัดสำหรับ spike เท่านั้น ไม่ใช่รางวัล และไม่ถูกส่งให้ server ใด

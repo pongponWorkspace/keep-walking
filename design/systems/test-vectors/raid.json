@@ -1,0 +1,545 @@
+{
+  "formula": "raid",
+  "vectors": [
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": false,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 0,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 0,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1,
+      "tolerance": 0,
+      "source": "GDD > Raid Boss > partyMult (ครบ role ราว 1.4-1.6 ไม่ครบ 1.0-1.2 ไม่มี party 1.0) · no party → 1.0"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 21.7195838143349,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 32.32233047033631,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.5,
+      "tolerance": 0.100001,
+      "source": "GDD > Raid Boss > partyMult (ครบ role ราว 1.4-1.6 ไม่ครบ 1.0-1.2 ไม่มี party 1.0) · full party, one per role L25"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 32.95604938271605,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 35.6252,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 43.75,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 35.6252,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.5,
+      "tolerance": 0.100001,
+      "source": "GDD > Raid Boss > partyMult (ครบ role ราว 1.4-1.6 ไม่ครบ 1.0-1.2 ไม่มี party 1.0) · full party, two per role L25 (capped)"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 21.7195838143349,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.1,
+      "tolerance": 0.100001,
+      "source": "GDD > Raid Boss > partyMult (ครบ role ราว 1.4-1.6 ไม่ครบ 1.0-1.2 ไม่มี party 1.0) · three roles L25"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 32.95604938271605,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 35.6252,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 35.6252,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.1,
+      "tolerance": 0.100001,
+      "source": "GDD > Raid Boss > partyMult (ครบ role ราว 1.4-1.6 ไม่ครบ 1.0-1.2 ไม่มี party 1.0) · three roles, two each (capped)"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": false,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 21.7195838143349,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 32.32233047033631,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · boundary: not in a party ignores buffs → noPartyMult"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 0,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 0,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · boundary: in a party but no role inside → 1 + 0 = 1.0"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 21.7195838143349,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 32.32233047033631,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.411346,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · full party one per role L25 → about 1.41 (under cap)"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 32.95604938271605,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 35.6252,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 43.75,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 35.6252,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.6,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · full party two per role L25: raw about 1.61 → capped 1.6"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 27.883278721846796,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 29.95681834744287,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 39.11811795879845,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 29.95681834744287,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.520053,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · full party one per role L60 → about 1.52"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 45,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 50,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 50,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 50,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.6,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · boundary: every buff at cap (raw 1 + weight = 1.8) → capped 1.6"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 21.7195838143349,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 23.190673264701335,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.169234,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · three roles L25 (no Support) → about 1.17"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 32.95604938271605,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 35.6252,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 35.6252,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.2,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · three roles two each: raw about 1.26 → capped 1.2"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 21.7195838143349,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 0,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 0,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.057919,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · one role only (Tanker L25) → incomplete factor applies"
+    },
+    {
+      "input": {
+        "fn": "raidPartyMult",
+        "inParty": true,
+        "roles": [
+          {
+            "role": "tanker",
+            "buff_pct": 45,
+            "cap_pct": 45
+          },
+          {
+            "role": "ranged",
+            "buff_pct": 50,
+            "cap_pct": 50
+          },
+          {
+            "role": "support",
+            "buff_pct": 50,
+            "cap_pct": 50
+          },
+          {
+            "role": "magic",
+            "buff_pct": 0,
+            "cap_pct": 50
+          }
+        ],
+        "noPartyMult": 1,
+        "weight": 0.8,
+        "incompletePartyFactor": 0.6,
+        "fullPartyCap": 1.6,
+        "incompletePartyCap": 1.2
+      },
+      "expected": 1.2,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/raid.ts) · boundary: three roles at cap → capped 1.2"
+    }
+  ]
+}

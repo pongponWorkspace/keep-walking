@@ -1,0 +1,61 @@
+district_osm_id,district,metric,before,after,delta,criterion,pass_before,pass_after
+92053,เขตพระนคร,valid_polygon_count,20,10,-10,,,
+92053,เขตพระนคร,review_required_not_counted,1,3,2,,,
+92053,เขตพระนคร,preset_largePark,6,3,-3,,,
+92053,เขตพระนคร,preset_market,4,3,-1,,,
+92053,เขตพระนคร,preset_pocketPark,10,4,-6,,,
+92053,เขตพระนคร,g1_pop_share_green,0.8173,0.6848,-0.1325,>= 0.6,pass,pass
+92053,เขตพระนคร,pop_share_yellow,0.1827,0.3152,0.1325,,,
+92053,เขตพระนคร,g4_pop_share_red,0,0,0,<= 0.05,pass,pass
+92053,เขตพระนคร,s1_pop_share_green_yellow,1,1,0,,,
+92053,เขตพระนคร,g2_valid_count_incl_multi,20,10,-10,>= 10,pass,pass
+92053,เขตพระนคร,g3_preset_count_incl_multi,3,3,0,>= 2,pass,pass
+92053,เขตพระนคร,walk_avg_m,550,660,110,,,
+92053,เขตพระนคร,walk_median_m,516,651,135,,,
+92053,เขตพระนคร,pocketPark_walk_median_m,,1028,,,,
+92053,เขตพระนคร,transit_mean_m,416,182,-234,,,
+92053,เขตพระนคร,rail_walk_mean_m,663,385,-278,,,
+92053,เขตพระนคร,bus_walk_mean_m,281,184,-97,,,
+92053,เขตพระนคร,score_transit,0.9841,0.9978,0.0137,,,
+92053,เขตพระนคร,launch_score,0.8886,0.8405,-0.0481,,,
+92053,เขตพระนคร,launch_rank,1,3,2,,,
+92063,เขตปทุมวัน,valid_polygon_count,22,18,-4,,,
+92063,เขตปทุมวัน,review_required_not_counted,0,2,2,,,
+92063,เขตปทุมวัน,preset_largePark,11,8,-3,,,
+92063,เขตปทุมวัน,preset_market,1,1,0,,,
+92063,เขตปทุมวัน,preset_pocketPark,10,9,-1,,,
+92063,เขตปทุมวัน,g1_pop_share_green,0.7203,0.6142,-0.1061,>= 0.6,pass,pass
+92063,เขตปทุมวัน,pop_share_yellow,0.2791,0.3852,0.1061,,,
+92063,เขตปทุมวัน,g4_pop_share_red,0.0006,0.0006,0,<= 0.05,pass,pass
+92063,เขตปทุมวัน,s1_pop_share_green_yellow,0.9994,0.9994,0,,,
+92063,เขตปทุมวัน,g2_valid_count_incl_multi,23,19,-4,>= 10,pass,pass
+92063,เขตปทุมวัน,g3_preset_count_incl_multi,3,3,0,>= 2,pass,pass
+92063,เขตปทุมวัน,walk_avg_m,655,726,71,,,
+92063,เขตปทุมวัน,walk_median_m,640,705,65,,,
+92063,เขตปทุมวัน,pocketPark_walk_median_m,,954,,,,
+92063,เขตปทุมวัน,transit_mean_m,461,381,-80,,,
+92063,เขตปทุมวัน,rail_walk_mean_m,756,797,41,,,
+92063,เขตปทุมวัน,bus_walk_mean_m,380,383,3,,,
+92063,เขตปทุมวัน,score_transit,0.9811,0.9846,0.0035,,,
+92063,เขตปทุมวัน,launch_score,0.8258,0.8875,0.0617,,,
+92063,เขตปทุมวัน,launch_rank,2,2,0,,,
+92061,เขตบางรัก,valid_polygon_count,6,6,0,,,
+92061,เขตบางรัก,review_required_not_counted,1,1,0,,,
+92061,เขตบางรัก,preset_largePark,0,0,0,,,
+92061,เขตบางรัก,preset_market,1,1,0,,,
+92061,เขตบางรัก,preset_pocketPark,5,5,0,,,
+92061,เขตบางรัก,g1_pop_share_green,0.743,0.7301,-0.0129,>= 0.6,pass,pass
+92061,เขตบางรัก,pop_share_yellow,0.257,0.2699,0.0129,,,
+92061,เขตบางรัก,g4_pop_share_red,0,0,0,<= 0.05,pass,pass
+92061,เขตบางรัก,s1_pop_share_green_yellow,1,1,0,,,
+92061,เขตบางรัก,g2_valid_count_incl_multi,6,6,0,>= 10,fail,fail
+92061,เขตบางรัก,g3_preset_count_incl_multi,2,2,0,>= 2,pass,pass
+92061,เขตบางรัก,walk_avg_m,640,645,5,,,
+92061,เขตบางรัก,walk_median_m,646,649,3,,,
+92061,เขตบางรัก,pocketPark_walk_median_m,,733,,,,
+92061,เขตบางรัก,transit_mean_m,352,284,-68,,,
+92061,เขตบางรัก,rail_walk_mean_m,659,659,0,,,
+92061,เขตบางรัก,bus_walk_mean_m,306,306,0,,,
+92061,เขตบางรัก,score_transit,0.9883,0.991,0.0027,,,
+92061,เขตบางรัก,launch_score,0.7247,0.7884,0.0637,,,
+92061,เขตบางรัก,launch_rank,10,4,-6,,,

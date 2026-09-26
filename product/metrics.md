@@ -1,8 +1,8 @@
 # Metrics Framework — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T19 · เจ้าของ: product-manager · สถานะ: ฉบับเสนอ รอ Design gate B (P1-F03-T25) · วันที่: 2026-09-23
-แหล่งอ้างอิง: `CLAUDE.md` ("Metrics the GDD asks for"), `design/pillars.md`, `design/ux/flows/F03-core-loop.md`, `design/ux/ia.md`, `product/prd/F01-coverage-survey.md` หัวข้อ 6, `design/systems/sim-report.md` (F-16, F-17), `docs/adr/0002-backend-stack.md` หัวข้อ 4–5 (เพดาน free tier), `product/reviews/F02-spike-criteria.md` หัวข้อ 4 (S3, ข้อสังเกต battery/screen lock)
-คู่กัน: `product/telemetry-events.md` (ชื่อ event จริงที่ programmer emit)
+Task: P1-F03-T19 (แก้ไขต่อใน P2-F04-T17) · เจ้าของ: product-manager · สถานะ: ฉบับเสนอ รอ Design/Tech/QA/Content gate ร่วม F04–F06 (P2-F05-T15..T18) และ Product gate F04–F06 (P2-F06-T25) · วันที่แก้ล่าสุด: 2026-09-26
+แหล่งอ้างอิง: `CLAUDE.md` ("Metrics the GDD asks for"), `design/pillars.md`, `design/ux/flows/F03-core-loop.md`, `design/ux/ia.md`, `product/prd/F01-coverage-survey.md` หัวข้อ 6, `product/prd/F04-dungeon-presence.md`, `product/prd/F05-movement-gate-reward.md` §4 (north star proxy), `product/prd/F06-hp-damage-onboarding.md`, `design/features/F04-dungeon-presence.md`, `design/features/F05-movement-gate-reward.md` (D-078 R-B1), `design/features/F06-hp-damage-onboarding.md`, `design/systems/sim-report.md` (F-16, F-17), `docs/adr/0002-backend-stack.md` หัวข้อ 4–5 (เพดาน free tier — Phase 3+ เท่านั้น ดูหัวข้อ 10.2), `product/reviews/F02-spike-criteria.md` หัวข้อ 4 (S3, ข้อสังเกต battery/screen lock), D-088 (telemetry ในเครื่องล้วน Phase 2), D-073 (ลงทะเบียนความสนใจรายเขต)
+คู่กัน: `product/telemetry-events.md` (ชื่อ event จริงที่ programmer emit — ฉบับ Phase 2 เปลี่ยนสถาปัตยกรรมเป็น ring buffer ในเครื่อง อ่านหัวข้อ "การเปลี่ยนสถาปัตยกรรม" ของเอกสารนั้นก่อน)
 
 หลักการอ่านเอกสารนี้: ตัวเลขเป้า/guardrail ทุกตัวเป็นสมมติฐานเริ่มต้นของ product-manager (Phase 1 ยังไม่มีผู้เล่นจริง ไม่มีข้อมูล live ให้ตั้งเป้าจากของจริง) ปรับได้เมื่อมีผล playtest/live ตาม decision authority "feature priority, metrics" ของ product-manager (protocol ข้อ 5) — เปลี่ยน pillar หรือ non-negotiable ต้องผ่าน game-director/HUMAN เสมอ ตัวเลขที่เชื่อมกับ config balance (เช่น ราคายา, อัตราปลด) อ้างเป็น `config: <key>` เพื่อไม่ให้ hardcode ซ้ำ (NN-3)
 
@@ -32,6 +32,14 @@ Task: P1-F03-T19 · เจ้าของ: product-manager · สถานะ: �
 
 หน่วยนับจริงมาจาก event `run_tick_granted` (ดู `product/telemetry-events.md`) คูณระยะเวลาที่ Active ต่อ tick — สูตรฝั่ง server เป็นของทีม backend (F05 movement gate) เอกสารนี้กำหนดแค่นิยามระดับ product
 
+### 1.1 North star proxy สำหรับ Phase 2 (client-only, D-088, PRD F05 §4)
+
+Phase 2 **ไม่มี server** (D-087/D-088) นิยามในหัวข้อ 1 ("คำนวณที่ server เท่านั้น") จึงยังทำจริงไม่ได้จนกว่า F08 (Phase 3) จะมี server รับรอง เอกสารนี้กำหนด proxy ชั่วคราวที่**รักษาหลักการเดียวกัน**ไว้ครบ (ผูกกับ movement gate เดียวกับที่ตัดสินรางวัลจริง ไม่ใช่เวลาที่แอปเปิดค้าง) โดยไม่ต้องมี server:
+
+- **นิยาม:** ผลรวมนาทีที่ run อยู่ Active และมีอย่างน้อย 1 `run_tick_granted` ในหน้าต่าง `config: dungeons.movementGate.window_s` เดียวกัน ต่อผู้เล่นต่อ session — คำนวณจาก **event เดียวกับที่ตัดสินรางวัลจริงในเครื่องนั้น** (`run_tick_granted` จาก engine เดียวกันใน `packages/shared/src/reward`) ไม่ใช่ timestamp ที่ client รายงานแยกต่างหาก
+- **วิธีเก็บผลจริงใน Phase 2 (ต่างจาก Phase 3+ ที่มี dashboard อัตโนมัติ):** เพราะ telemetry เป็น ring buffer ในเครื่องที่ export ด้วยการดาวน์โหลดเท่านั้น (D-088, `product/telemetry-events.md` หัวข้อ 8) ไม่มีการ auto-aggregate ข้าม device — product-manager/qa-tester ต้องรวบรวมไฟล์ export จากผู้เล่นแต่ละคนที่ร่วม playtest ภาคสนาม (P2-F06-T27) ด้วยมือ แล้วคำนวณ proxy นี้ต่อไฟล์ ก่อนรวมเป็นค่าเฉลี่ยของกลุ่ม — รายงานคู่กับผลแบบสอบถามเชิงคุณภาพ (P2-F06-T19) เสมอ ไม่ใช้ตัวเลขนี้เดี่ยวๆ
+- **ข้อจำกัด:** เป็น "นาทีเดินโดยประมาณ" ของ Phase 2 ไม่ปรับ scale เทียบกับนิยาม server จริงของ Phase 3 — ถ้าต่างกันมากหลังมี server ให้ประกาศช่วงเวลาที่ metric เปลี่ยนนิยามชัดเจนในรายงาน (สอดคล้องหัวข้อ 10.1 เรื่องห้ามเทียบข้ามช่วงเทคนิคต่างกัน) [ASSUMPTION A-P2-F05-T02-1 ของ PRD F05, ยืนยัน: tech-lead]
+
 ## 2. โครงสร้าง metric tree (6 หมวด)
 
 North star อยู่บนสุด แตกเป็น 6 หมวดตาม `CLAUDE.md` "Metrics the GDD asks for": Onboarding, Social, Economy, Progression, Places, Seasonality แต่ละหมวดมี metric หลัก + guardrail ของตัวเอง + event ที่ผูก (ชื่อเต็มอยู่ `product/telemetry-events.md`)
@@ -53,16 +61,22 @@ Legend สถานะ instrument (ดูตารางเต็มหัวข
 
 ### 3.1 Funnel นาที 0–10 (ตามช่วงที่ CLAUDE.md กำหนด: 0–1 / 1–3 / 3–6 / 6–8 / 8–10)
 
+**แก้จาก Phase 1 (ยืนยันโดย F06 spec, P2-F06-T02):** ลำดับจริงคือ intro → **age gate ก่อน consent ตำแหน่ง** → consent ตำแหน่ง → permission เบราว์เซอร์ → แผนที่ → เลือกพลัง (F06-R44) — สลับจากที่ Phase 1 เคยวางไว้ (consent ก่อน) **ไม่มีขั้น login ใน Phase 2 เลย** (F06 หัวข้อ 2 ข้อ 2, F07 login อยู่ Phase 3) ตัดแถว "ผ่าน age gate + login" ออก แยกเป็น "age gate" กับ "consent ตำแหน่ง" คนละแถว
+
 | ขั้น | ช่วง | Metric | เป้าเริ่มต้น (สมมติฐาน รอ playtest ปรับ) | Event |
 | --- | --- | --- | --- | --- |
-| เห็น intro → ให้ consent location | 0–1 | % ที่กด "อนุญาต" ต่อจาก intro | ≥ 70% | `onboarding_funnel_step` (step=consent_location) |
-| ผ่าน permission เบราว์เซอร์ (native prompt) | 0–1 | % ที่กด Allow ต่อจากคนที่ให้ consent แล้ว | ≥ 60% | `onboarding_funnel_step` (step=permission_browser) |
-| ผ่าน age gate + login | 0–1 | % ที่ login สำเร็จต่อจากคนที่ผ่าน permission | ≥ 90% (ตัดคนอายุต่ำกว่าเกณฑ์ออกจากฐานนับ) | `onboarding_funnel_step` (step=login) |
-| เลือกพลัง | 0–1 | % ที่เลือก class ต่อจากคน login สำเร็จ | ≥ 98% | `onboarding_funnel_step` (step=class_select) |
-| เห็นแผนที่ครั้งแรก | ปิดนาที 0–1 | % ที่ถึง `S-01-map` | = % ที่เลือกพลัง (ไม่มีขั้นคั่น) | `onboarding_funnel_step` (step=map_view) |
+| เห็น intro → ผ่าน age gate | 0–1 | % ที่ผ่านเกณฑ์อายุต่อจาก intro | ≥ 90% (ตัดคนอายุต่ำกว่าเกณฑ์ออกจากฐานนับขั้นถัดไป) | `onboarding_funnel_step` (step=age_gate_passed) |
+| ให้ consent ตำแหน่ง | 0–1 | % ที่กด "อนุญาต" ต่อจากคนที่ผ่าน age gate | ≥ 70% | `onboarding_funnel_step` (step=consent_location_accepted) |
+| ผ่าน permission เบราว์เซอร์ (native prompt) | 0–1 | % ที่กด Allow ต่อจากคนที่ให้ consent แล้ว | ≥ 60% | `onboarding_funnel_step` (step=permission_browser_allowed) |
+| เลือกพลัง | 0–1 | % ที่เลือก class ต่อจากคนที่ผ่าน permission | ≥ 98% | `onboarding_funnel_step` (step=class_selected) |
+| เห็นแผนที่ครั้งแรก | ปิดนาที 0–1 | % ที่ถึง `S-01-map` | = % ที่เลือกพลัง (ไม่มีขั้นคั่น) | `onboarding_funnel_step` (step=map_view_reached) |
 | เดินถึงขอบ dungeon (popup confirm เปิด) | 1–3 | % ที่เห็นแผนที่แล้วเดินถึงภายใน session แรก | ≥ 40% ในย่านที่ผ่านเกณฑ์ Go ของ F01 (ดูความเชื่อมโยงกับ `onboarding_nearest_dungeon_distance` หัวข้อ 3.2) | `dungeon_confirm_shown` |
-| กด "เข้า" | 3–6 | % ที่กดเข้าเมื่อ popup เปิด | ≥ 85% | `dungeon_entered` |
-| ได้ tick แรก | 8–10 | % ที่ผ่าน movement gate รอบแรก | ≥ 70% ของคนที่เข้า run (ที่เหลือคือ "เดินไม่พอรอบแรก" ไม่ใช่ drop-off เด็ดขาดเพราะ run ยังดำเนินต่อ) | `onboarding_first_reward_granted` |
+| กด "เข้า" (ไม่ถูก check-in ปฏิเสธ) | 3–6 | % ที่กดเข้าสำเร็จเมื่อ popup เปิด | ≥ 85% | `dungeon_entered` เทียบ `dungeon_confirm_shown` (ส่วนต่างคือ `checkin_rejected` — ดู PRD F04 §6 คำถามเรื่อง `no_approach_from_outside`) |
+| ได้ tick แรกที่ผ่าน gate | 8–10 | % ที่ผ่าน movement gate รอบแรก | ≥ 70% ของตัวหาร (นิยามตัวหารด้านล่าง) | `onboarding_first_reward_granted` |
+
+**นิยามตัวหารของ "≥70% ถึงรางวัลก้อนแรกใน 10 นาที" (ยืนยัน A-P2-F06-T02-2 ของ PRD F06 — ไม่มีจุดต้องแก้ตามที่ game-director เสนอ):** ตัวหาร = จำนวนเครื่อง/บัญชีที่**เริ่ม onboarding และอยู่ในสถานะ "ใกล้" ภายในย่านเปิดตัว** (ไม่ใช่ `far`/`out_of_area`/`outside_launch_district` — กลุ่มนั้นวัดแยกใน GR-2 ไม่ใช่ตัวหารนี้) tick แรกที่**ไม่ผ่าน gate** (`run_tick_denied`) นับเป็น "ยังไม่ถึง" ไม่ใช่ตัดออกจากตัวหาร (run ยังดำเนินต่อ รอ tick ถัดไปได้)
+
+**แบ่งกลุ่มผลตาม class (คำขอจาก game-director):** เวลาถึงรางวัลก้อนแรกและเวลาอยู่รอด (แถวถัดไป) ต้องรายงานแยก 4 class เสมอ — solo non-Tanker ถึง auto-retreat ที่ ~27.8 นาที (D-020) เป็นค่าที่ระบบตั้งใจให้เป็นแบบนั้น**ไม่ใช่บั๊ก** ห้ามนำตัวเลขรวมทุก class มาเทียบเป้าเดียวโดยไม่แยกกลุ่มก่อน
 
 Metric รวม **"onboarding completion rate"** = ผลคูณของทุกขั้นข้างต้น (intro → tick แรก) รายงานทุกสัปดาห์แยกตามย่านเปิดตัว
 
@@ -72,10 +86,12 @@ Metric รวม **"onboarding completion rate"** = ผลคูณของท�
 | --- | --- | --- | --- |
 | ระยะถึง dungeon ใกล้สุดตอนเปิดแอปครั้งแรก แจกแจงเป็นโซนเขียว/เหลือง/แดง | client คำนวณระยะ ส่งเฉพาะ bucket ไม่ส่งพิกัด | ไม่มีเป้าเดี่ยว ใช้เป็น distribution เทียบกับ coverage report ของ F01 | `onboarding_nearest_dungeon_distance` |
 | **Guardrail (ผูกกับเกณฑ์เปิดตัว G4/S3 ของ F01):** สัดส่วนผู้เล่นใหม่ที่เห็น `distance_band=red` ตอนเปิดแอปครั้งแรกในย่านที่เปิดตัวแล้ว | นับ `distance_band=red` จาก `onboarding_nearest_dungeon_distance` หารด้วยผู้เล่นใหม่ทั้งหมดในย่านนั้น | ≤ ค่าเดียวกับเกณฑ์ที่ HUMAN ใช้ตัดสิน Go จริงตอนปิด F01 (PRD F01 §4.1 G4 ≤5% ถ้า Go ล้วน หรือ §4.2 S3 ≤15% ถ้า Go พร้อมทางเสริม) — บันทึกค่าที่ใช้จริงไว้ในผลของ P1-F01-T11 แล้วอัปเดตเลขนี้ให้ตรงกันเสมอ (ไม่ปล่อยให้ตัวเลขเปิดตัวกับตัวเลขเฝ้าระวังหลังเปิดตัวต่างกัน) | `onboarding_nearest_dungeon_distance` |
-| อัตราปิดแอปบนหน้าจอว่างเมื่อ dungeon ไกล/นอกพื้นที่ | `onboarding_empty_screen_abandoned` หารด้วย `onboarding_empty_screen_shown` แยกตาม `reason` | ≤ 50% (สูงกว่านี้แปลว่าหน้า fallback ไม่ชวนเดินพอ ต้องปรับ copy/design ตาม pillars 7.4 — ส่ง handoff ถึง uiux-designer/narrative-designer) | `onboarding_empty_screen_shown`, `onboarding_empty_screen_abandoned` |
-| การลงทะเบียนความสนใจนอกพื้นที่ | นับจำนวนต่อจังหวัดต่อวัน | ไม่มีเป้าตัวเลขในเอกสารนี้ ใช้เป็น input ตรงของ F23 (เกณฑ์เปิดจังหวัดถัดไป) | `interest_registered_outside_area` |
+| อัตราปิดแอปบนหน้าจอว่างเมื่อ dungeon ไกล/นอกพื้นที่/นอกย่านเปิดตัว (GR-2) | `onboarding_empty_screen_abandoned` หารด้วย `onboarding_empty_screen_shown` แยกตาม `reason` (`far`\|`out_of_area`\|`outside_launch_district` — เพิ่ม `outside_launch_district` ตาม D-073 หลัง F06 spec ยืนยัน, `far_temporarily_closed` เดิมถูกตัดออกเพราะ dungeon ปิดชั่วคราวมีแผงของตัวเอง ไม่ใช่หน้าจอว่างแบบนี้) | ≤ 50% (สูงกว่านี้แปลว่าหน้า fallback ไม่ชวนเดินพอ ต้องปรับ copy/design ตาม pillars 7.4 — ส่ง handoff ถึง uiux-designer/narrative-designer) | `onboarding_empty_screen_shown`, `onboarding_empty_screen_abandoned` |
+| การลงทะเบียนความสนใจนอกพื้นที่/นอกย่านเปิดตัว | นับจำนวนแยกตาม `scope` (`province`\|`district`) และ `area_name` ต่อวัน | ไม่มีเป้าตัวเลขในเอกสารนี้ ใช้เป็น input ตรงของ F23 (เกณฑ์เปิดจังหวัด/ย่านถัดไป) | `interest_registered_outside_area` |
 
-Privacy ของทุก event ในหมวดนี้: ไม่มีพิกัด ไม่มี dungeon id เดี่ยวของผู้เล่น ยกเว้น dungeon ปลายทางที่ระบบแนะนำ (ไม่ใช่ตำแหน่งผู้เล่น) — ตรงตาม PRD F01 §6 ทุกประการ (ห้ามเปลี่ยนชื่อ event เหล่านี้)
+**เพิ่มจาก D-073 (หลัง F06 spec):** คนที่อยู่ในพื้นที่เล่นจริงแต่ย่านยังไม่เปิดตัว (เช่น อยู่ในกรุงเทพฯ แต่ไม่ใช่พระนคร/ปทุมวัน/บางรัก) เห็นหน้าจอ `reason=outside_launch_district` และลงทะเบียนความสนใจ**ระดับเขต** (`scope=district`) แยกจากคนที่อยู่นอกพื้นที่เล่นทั้งหมด (`reason=out_of_area`, `scope=province`) — สองกลุ่มนี้มีนัยต่างกันสำหรับ F23 (เขตในเมืองที่ยังไม่เปิด vs จังหวัด/พื้นที่ใหม่ทั้งหมด) ต้องรายงานแยกกันเสมอ ไม่รวมเป็นตัวเลขเดียว
+
+Privacy ของทุก event ในหมวดนี้: ไม่มีพิกัด ไม่มี dungeon id เดี่ยวของผู้เล่น ยกเว้น dungeon ปลายทางที่ระบบแนะนำ (ไม่ใช่ตำแหน่งผู้เล่น) — ชื่อ event ตรงตาม PRD F01 §6 ทุกประการ (ห้ามเปลี่ยนชื่อ event เหล่านี้ — property ขยายได้ตามที่ `product/telemetry-events.md` §2 อธิบาย)
 
 ## 4. หมวด Social
 
@@ -118,9 +134,10 @@ Privacy ของทุก event ในหมวดนี้: ไม่มีพ
 | --- | --- | --- | --- |
 | entries ต่อวันต่อ dungeon | นับ `dungeon_entered` แยกตาม `dungeon_id` | ไม่มีเป้าเดี่ยว ใช้เทียบระหว่าง dungeon เพื่อวางแผนขยาย coverage (input ของ F01/F23) | `dungeon_entered` |
 | เวลาเฉลี่ยต่อ run ต่อ dungeon | ค่าเฉลี่ย duration bucket ของ `dungeon_exited` ต่อ `dungeon_id` | ไม่มีเป้าเดี่ยว ใช้เทียบ preset (สวนใหญ่/ตลาด/สวนหย่อม ตาม `design/levels/presets.md`) | `dungeon_exited` |
-| death rate ต่อ dungeon | จำนวน `run_death` หารด้วย `dungeon_entered` ต่อ `dungeon_id` | **Guardrail:** dungeon ใดมี death rate เกิน 2 เท่าของค่าเฉลี่ยทุก dungeon ที่ level range เดียวกัน ติดต่อกัน 2 สัปดาห์ → handoff ถึง level-designer/systems-designer ตรวจ balance หรือความปลอดภัยจริงของพื้นที่ | `run_death`, `dungeon_entered` |
+| **เวลาถึง auto-retreat ต่อ class (B-07)** | เวลาเฉลี่ย/มัธยฐานจาก `dungeon_entered` ถึง `run_auto_retreat` แยกตาม `class` (ใช้ `minutes_since_run_start_bucket` ของ `run_auto_retreat` เป็นค่าประมาณ ไม่ต้องคำนวณ diff เอง) | ~45 นาที เมื่อ damage ×1.0 ไม่ใช้ยา (D-020) · solo non-Tanker ~27.8 นาที **รายงานแยก ไม่ใช่บั๊ก** (ยืนยันจาก F06 spec §6) | `dungeon_entered`, `run_auto_retreat` |
+| death rate ต่อ dungeon | จำนวน `run_death` หารด้วย `dungeon_entered` ต่อ `dungeon_id` | **Guardrail:** dungeon ใดมี death rate เกิน 2 เท่าของค่าเฉลี่ยทุก dungeon ที่ level range เดียวกัน ติดต่อกัน 2 สัปดาห์ → handoff ถึง level-designer/systems-designer ตรวจ balance หรือความปลอดภัยจริงของพื้นที่ **(หมายเหตุสำคัญ D-078/R-B1):** `run_death` เกิดขึ้นได้เฉพาะผู้เล่นที่**ปิด auto-retreat เอง**เท่านั้น (ค่าเริ่มต้นคือเปิด) — N ของ event นี้คาดว่าต่ำมากใน Phase 2 (กลุ่มเล็กที่ตั้งใจปิดเอง) ห้ามอ่าน death rate เป็นสัญญาณความยากของ dungeon โดยตรงจนกว่าจะมี N พอ (อย่างน้อยดูคู่กับ `run_hp_low`/`run_auto_retreat` ซึ่งเกิดกับทุกคน) | `run_death`, `dungeon_entered` |
 | ขนาด party เฉลี่ยต่อ dungeon | เฉลี่ย `party_size_bucket` จาก `run_tick_granted` แยกตาม `dungeon_id` | ไม่มีเป้าเดี่ยว ใช้หา dungeon ที่ "เหงา" เกินไปเพื่อวางแผนความหนาแน่น | `run_tick_granted` |
-| จำนวนรายงานซ้ำต่อ dungeon (ความปลอดภัยของสถานที่) | นับ `dungeon_report_submitted` แยกตาม `dungeon_id`/`reason_category` | **Guardrail:** dungeon ใดได้รับรายงานเกิน threshold ที่ตั้งไว้ใน `config: dungeons.safety.reportThreshold` (ให้ systems-designer เติมค่า) ภายในหน้าต่างเวลาเดียวกัน → ปิดชั่วคราวอัตโนมัติรอ moderator ตรวจ (เชื่อมกับ F13/F15 หลังบ้าน) | `dungeon_report_submitted` |
+| จำนวนรายงานซ้ำต่อ dungeon (ความปลอดภัยของสถานที่) | นับ `dungeon_report_submitted` แยกตาม `dungeon_id`/`reason_category` | **Guardrail:** dungeon ใดได้รับรายงานเกิน threshold ที่ตั้งไว้ใน `config: dungeons.safety.reportThreshold` (ยืนยันแล้วใน `config/balance/dungeons.json` = 5 ครั้ง/`reportWindow_h` = 24 ชม.) ภายในหน้าต่างเวลาเดียวกัน → ปิดชั่วคราวอัตโนมัติรอ moderator ตรวจ — **Phase 2 engine รองรับกฎนี้แล้วแต่ไม่มีทางเรียกใช้นอก test** (moderation queue เต็มรูปเป็น F13/F15, Phase 5) | `dungeon_report_submitted` |
 
 ## 8. หมวด Seasonality
 
@@ -162,7 +179,9 @@ Privacy ของทุก event ในหมวดนี้: ไม่มีพ
 - **ไม่เสนอแก้ด้วยการผ่อน movement gate หรือ auto-retreat** (NN-8 ข้อ 3 ห้ามผ่อน gate เพื่อชดเชยอย่างอื่น) — ทางแก้ที่ถูกต้องคือ UX (คำเตือนก่อนเข้า run ครั้งแรกให้ปลดล็อกจอ ตามที่ core-loop เสนอไว้แล้ว) หรือ Wake Lock API (ของ tech-lead พิจารณาใน Phase 2)
 - ส่ง handoff ให้ tech-lead/game-director ตัดสินใจเรื่อง Wake Lock ก่อน M2 ตามที่ P1-F02-T27 ระบุไว้แล้ว (ไม่ block T19 นี้ แต่ metrics.md บันทึกไว้เป็นความเสี่ยงถาวรจนกว่าจะแก้)
 
-### 10.2 ปริมาณ telemetry event ชนเพดาน free tier ของ backend
+### 10.2 ปริมาณ telemetry event ชนเพดาน free tier ของ backend (Phase 3+ เท่านั้น — Phase 2 ใช้หัวข้อ 10.2b แทน)
+
+**Phase 2 ไม่มี server รับ telemetry เลย (D-088)** หัวข้อนี้ทั้งหมดใช้ไม่ได้จนกว่า F08 (Phase 3) จะนำ server telemetry กลับมา — เก็บเนื้อหาไว้ครบเพื่อไม่ต้องออกแบบใหม่ตอนนั้น ดูข้อจำกัดจริงของ Phase 2 ที่หัวข้อ 10.2b
 
 `docs/adr/0002-backend-stack.md` หัวข้อ 4–5 ระบุเพดานที่ชนก่อนคือ **rows written 100,000/วัน** ของ Durable Object storage (และ D1 แยกอีกก้อน) คิดเป็นความจุราว 650–666 ผู้เล่น-ชั่วโมง/วัน โควตารีเซ็ต 00:00 UTC (07:00 เวลาไทย) — telemetry event ทุกตัวที่เขียนเป็น row แยกจากข้อมูล gameplay หลักจะแย่งโควตาเดียวกันนี้
 
@@ -173,6 +192,10 @@ Privacy ของทุก event ในหมวดนี้: ไม่มีพ
 4. Alert 50%/70% ที่ ADR 0002 กำหนดให้ devops-engineer ตั้งไว้ (ก่อน playtest Phase 3) ต้องแยกแสดงสัดส่วนที่มาจาก telemetry เทียบ gameplay write เพื่อ debug ได้ว่าใครกินโควตา
 
 ส่ง handoff รายละเอียดทางเทคนิคนี้ต่อ tech-lead ในรายงานท้ายเอกสาร — ไม่ block การประกาศชื่อ event ใน `product/telemetry-events.md`
+
+### 10.2b ความจุ ring buffer ในเครื่อง (Phase 2 จริง, D-088)
+
+Phase 2 เพดานที่ชนก่อนคือ**ความจุ ring buffer ในเครื่องของผู้เล่นแต่ละคน** ไม่ใช่โควตา backend — รายละเอียดเต็มอยู่ที่ `product/telemetry-events.md` หัวข้อ 8 หลักการเดียวกับ 10.2 ข้อ 1 ยังใช้ (`run_tick_granted`/`run_tick_denied` ต้องสืบจาก record เดียวกับ reward tick ไม่เขียนแยก) แต่เหตุผลเปลี่ยนจาก "ประหยัดโควตา backend" เป็น "ไม่ให้ event ความถี่สูงเบียด ring buffer จน evict event ที่มีค่าต่อการวินิจฉัยก่อนผู้เล่นจะกด export" — ไม่มี dashboard อัตโนมัติใน Phase 2 (ดูหัวข้อ 1.1) การเฝ้าดู guardrail ทุกตัวในเอกสารนี้ระหว่าง Phase 2 ทำจากไฟล์ export ที่รวบรวมด้วยมือเท่านั้น
 
 ### 10.3 ความละเอียดข้อมูลประชากรไม่เท่ากันระหว่างย่าน
 

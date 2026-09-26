@@ -14,10 +14,12 @@ import type { GddReference } from './gdd';
 import type { Role, SimParams } from './params';
 import { ROLES } from './params';
 import { fitHitChance_pct } from './scenarios';
-import type { VectorInput, VectorOutput } from './vector-eval';
+import type { VectorInput, VectorLeaf, VectorOutput } from './vector-eval';
 import { evaluateVector } from './vector-eval';
 import type { EconomyInputs } from './vectors-economy';
 import { dropsVectors, economyVectors, partyVectors } from './vectors-economy';
+import { hitResolutionVectors } from './vectors-hit';
+import { raidVectors } from './vectors-raid';
 
 export type Vector = GoldenVector<VectorInput, VectorOutput>;
 export type VectorFile = GoldenVectorFile<VectorInput, VectorOutput>;
@@ -31,8 +33,9 @@ function roundSim(value: VectorOutput): VectorOutput {
   const f = DECIMAL_BASE ** SIM_DECIMALS;
   if (typeof value === 'number') return Math.round(value * f) / f;
   if (value !== null && typeof value === 'object') {
-    const out: Record<string, number> = {};
-    for (const [k, v] of Object.entries(value)) out[k] = Math.round(v * f) / f;
+    const out: Record<string, VectorLeaf> = {};
+    for (const [k, v] of Object.entries(value))
+      out[k] = typeof v === 'number' ? Math.round(v * f) / f : v;
     return out;
   }
   return value;
@@ -957,6 +960,10 @@ export function damageVectors(p: SimParams, g: GddReference): VectorFile {
       'boundary: no damage → 0 gold',
     ),
   );
+  // R-B1 hit-resolution order (D-078): shield → floor 1 (auto-retreat on) → potion → retreat → warning.
+  v.push(
+    ...hitResolutionVectors(p, { maxHp: buildHp, damage: buildDamage, vitBonus_pct: vitBonus_pct }),
+  );
   return { formula: 'damage', vectors: v };
 }
 
@@ -969,6 +976,7 @@ export const VECTOR_FILES = [
   'drops',
   'economy',
   'party',
+  'raid',
 ] as const;
 export type VectorFileName = (typeof VECTOR_FILES)[number];
 
@@ -986,6 +994,7 @@ export function buildAllVectors(
     drops: dropsVectors(p, g, e),
     economy: economyVectors(p, g, e),
     party: partyVectors(p, g, e),
+    raid: raidVectors(p, g),
   };
 }
 

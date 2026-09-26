@@ -19,17 +19,17 @@
     },
     {
       "type": "Feature",
-      "properties": { "kind": "label", "name": "นครปฐม", "playable": true },
+      "properties": { "kind": "label", "name": "นครปฐม", "playable": true, "iso": "TH-73" },
       "geometry": { "type": "Point", "coordinates": [100.06, 13.82] }
     },
     {
       "type": "Feature",
-      "properties": { "kind": "label", "name": "ฉะเชิงเทรา", "playable": false },
+      "properties": { "kind": "label", "name": "ฉะเชิงเทรา", "playable": false, "iso": "TH-24" },
       "geometry": { "type": "Point", "coordinates": [101.20, 13.69] }
     },
     {
       "type": "Feature",
-      "properties": { "kind": "label", "name": "พระนครศรีอยุธยา", "playable": false },
+      "properties": { "kind": "label", "name": "พระนครศรีอยุธยา", "playable": false, "iso": "TH-14" },
       "geometry": { "type": "Point", "coordinates": [100.57, 14.45] }
     }
   ]

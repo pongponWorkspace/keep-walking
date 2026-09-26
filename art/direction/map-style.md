@@ -1,6 +1,6 @@
 # Map Style — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T12 (แก้ใน P1-X06: หัวข้อ 2, 5, 6.1, 9, 13, 14 ตาม tech note 15 และผลตรวจ contrast ของ QA · ไม่เปลี่ยน style JSON) · แก้ใน P1-X32 (2026-09-24): ป้ายรอยแยกย้ายไปอ่าน point source `kw-dungeon-labels` แก้บั๊กป้ายซ้ำจาก P1-H06 หัวข้อ 5 · style 0.2.0 · หัวข้อ 1, 5, 6, 6.1, 12, 13, 14 · เจ้าของ: art-director · สถานะ: ฉบับแรก (0.1.0) พร้อมให้ P1-F02-T11 โหลด · รอภาพทดสอบกับ fixture tile และกลางแดด (หัวข้อ 9) · วันที่: 2026-09-23
+Task: P1-F03-T12 (แก้ใน P1-X06: หัวข้อ 2, 5, 6.1, 9, 13, 14 ตาม tech note 15 และผลตรวจ contrast ของ QA · ไม่เปลี่ยน style JSON) · แก้ใน P1-X32 (2026-09-24): ป้ายรอยแยกย้ายไปอ่าน point source `kw-dungeon-labels` แก้บั๊กป้ายซ้ำจาก P1-H06 หัวข้อ 5 · style 0.2.0 · หัวข้อ 1, 5, 6, 6.1, 12, 13, 14 · แก้ใน P2-F05-T03 (2026-09-26): F-AD-1 ตาม D-060 (หัวข้อ 6.2, 6.3, 10.1 จอ S6) · D-089 (หัวข้อ 6.1 ซ่อนจำนวนคนใน Phase 2, หัวข้อ 7 สถานะใกล้ปิด, หัวข้อ 12 ห้ามเส้นนำทาง) · D-093 (หัวข้อ 10.2) · `rift-crack.svg` เปลี่ยนเป็น miter join (F-AD-4, V-13) · style JSON ไม่เปลี่ยน (ยัง 0.2.0) · เจ้าของ: art-director · สถานะ: ฉบับแรก (0.1.0) พร้อมให้ P1-F02-T11 โหลด · รอภาพทดสอบกับ fixture tile และกลางแดด (หัวข้อ 9) · วันที่: 2026-09-23
 แหล่งอ้างอิง: GDD "แผนที่และโซนดำ", "รายได้ของโปรเจกต์" · `art/direction/style-guide.md` (3.5, 4.4, 4.5, 9.2, 9.3) · `art/direction/icon-grammar.md` · `docs/tech/F02-map-location-spike.md` (5, 6, 6.3, 7, 8, 14) · D-006, D-031, D-032
 
 ## สารบัญ
@@ -24,7 +24,7 @@ Task: P1-F03-T12 (แก้ใน P1-X06: หัวข้อ 2, 5, 6.1, 9, 13, 1
 | ไฟล์ | คืออะไร | ใครใช้ |
 | --- | --- | --- |
 | `art/direction/map-style/kw-light.style.json` | MapLibre style v8 ตัวหลัก (โหมดกลางวัน) | `apps/client/src/map/style.ts` (P1-F02-T11) |
-| `art/direction/map-style/icons/rift-crack.svg` | icon รอยแตกของรอยแยก วาดที่ 2x (48 × 72) | client เรียก `map.addImage("kw-rift-crack", img, { pixelRatio: 2 })` |
+| `art/direction/map-style/icons/rift-crack.svg` | icon รอยแตกของรอยแยก วาดที่ 2x (48 × 72) · ตั้งแต่ P2-F05-T03 เส้นขอบใช้ `stroke-linejoin="miter"` `stroke-miterlimit="4"` (style guide 6.2 ข้อยกเว้นรอยแยก) และขยับจุดยอดบน (26, 2 → 26, 4) กับปลายล่าง (30, 70 → 30, 66) เพื่อให้ปลายแหลมของ miter ไม่ถูกตัดที่ขอบ canvas (ปลายล่างยื่นถึง y ≈ 70.3 จาก 72) · id ใน manifest `map.icon.rift-crack` (ลงทะเบียนใน P2-F05-T07) | client เรียก `map.addImage("kw-rift-crack", img, { pixelRatio: 2 })` |
 | `art/direction/map-style/samples/dungeons.sample.geojson` | polygon ของ dungeon ตัวอย่าง 3 แบบ: เปิด, sponsored, ปิด (source `kw-dungeons`) | preview, e2e, ภาพทดสอบ |
 | `art/direction/map-style/samples/dungeon-labels.sample.geojson` | จุดวางป้าย 1 จุดต่อ dungeon ของ 3 dungeon เดียวกัน `id` และ property ชุดเดียวกัน (source `kw-dungeon-labels`) | 〃 · ใช้เป็นค่าคาดหวังของ unit test ของ adapter |
 | `art/direction/map-style/samples/playarea-mask.sample.geojson` | mask โซนดำตัวอย่าง (รูของ mask = bbox ของ tile) | 〃 |
@@ -151,6 +151,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 - **สร้าง object ใหม่จาก whitelist:** ใส่เฉพาะ 6 property ในตาราง (`id`, `name`, `status`, `sponsored`, `label_sponsored`, `label_count`) · **ห้าม spread payload ของ server ลง feature** · property อื่นที่ server ส่งมาทิ้งทั้งหมด (tech gate ตรวจว่าไม่มีรหัส ชื่อ พิกัด geohash หรือเวลาที่เห็นล่าสุดของผู้เล่นคนใด, non-negotiable 4)
 - **`status` ที่ไม่รู้จัก → `"closed"`:** ค่าใดที่ไม่ใช่ `"open"` หรือ `"closed"` (รวมค่าว่างหรือไม่มี field) adapter แปลงเป็น `"closed"` และ `console.warn` · style จึงเห็นแค่สองค่านี้ ส่วน dungeon ที่สถานะไม่ชัดแสดงเป็นขอบประ `ink.500` ไม่ชวนให้เดินไปที่ที่อาจเข้าไม่ได้ · เพิ่มสถานะใหม่ต้องแก้ทั้ง style (art-director) และ adapter พร้อมกัน
 - `label_count` จำนวน 0 → สตริงว่าง (ไม่มีป้ายจำนวน) · `name` มาจาก payload ของหลังบ้าน ไม่ใช่ copy · ไม่มีอักษรไทยในโค้ด
+- **Phase 2 (D-089): `label_count` เป็นสตริงว่างเสมอ** เพราะไม่มี server และต้องซ่อนจำนวนคนทุกจุด · ห้ามใส่ "0" ตายตัว ตัวเลขปลอม หรือข้อความแทนที่ เช่น "ยังไม่มีข้อมูล" ในป้ายนี้ · layer `kw-rift-count` คงอยู่ใน style ไม่ลบ (กลับมาใช้ใน Phase 3 เมื่อ server ส่งค่าระดับ dungeon) · ค่าว่างทำให้ MapLibre ไม่วาดอะไรจึงไม่มีกรอบว่าง · ป้าย sponsored z ≥ 14 ยังวางที่ 3.0 em ใต้ icon (ช่องว่างของป้ายจำนวน 1 บรรทัด) ยอมรับใน Phase 2 ไม่แก้ style เพื่อไม่ต้องย้อนแก้ใน Phase 3
 - geometry: `Polygon` หรือ `MultiPolygon` ตาม RFC 7946 · **วงนอกทวนเข็มนาฬิกา** (ทำให้ `line-offset: -2` ของ `kw-rift-inner` อยู่ด้านในเสมอ) · adapter rewind ด้วย pure function ของโปรเจกต์ (`packages/geo` เมื่อสร้าง ระหว่างนี้อยู่ใน `apps/client/src/map/`) · ไม่เพิ่ม `@turf/rewind` โดยไม่มี handoff ถึง tech-lead (tech note 15.2 ข้อ 7)
 - ห้ามมี property ที่เป็นพิกัด รหัส หรือชื่อของผู้เล่นคนใด · `label_count` เป็นตัวเลขรวมระดับ dungeon เท่านั้น
 - ต่อไปเมื่อ artist-2d วาด glyph class 4 แบบตาม icon-grammar แล้ว จะเพิ่ม image `kw-class-tanker` ... ใน `label_count` ด้วย `format` + `image` แทนตัวย่อ (เวอร์ชันถัดไปของ style ไม่เปลี่ยนสัญญา property)
@@ -175,19 +176,31 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 ### 6.2 `kw-playarea-mask` (โซนดำ)
 
 - 1 feature `Polygon` ที่วงนอกคลุมโลก `[-180,-85]..[180,85]` และมีรู (วงใน ตามเข็มนาฬิกา) เป็นขอบรวมของจังหวัดที่เปิดเล่น (กรุงเทพฯ นนทบุรี ปทุมธานี สมุทรปราการ สมุทรสาคร นครปฐม) · เมื่อเปิดจังหวัดใหม่ แค่เปลี่ยนข้อมูล ไม่แก้ style
-- ข้อมูลรูมาจาก config/ข้อมูลของ location-engineer (`data/coverage/`) ไม่ใช่ค่าในโค้ด · ไฟล์ตัวอย่างใช้ bbox ของ tile แทน
-- ลดความละเอียดเส้นขอบก่อนส่ง (simplify ~20 ม.) เพื่อไม่ให้ mask หนักเกินบนมือถือ
+- ข้อมูลรูมาจากข้อมูลของ location-engineer (ไฟล์จริง `data/map/playarea-mask.geojson` ตาม D-037) ไม่ใช่ค่าในโค้ด · ไฟล์ตัวอย่างใช้ bbox ของ tile แทน
+- **ขอบของรู (D-060, R-2 ใน `art/reviews/F03-visual-gate.md`):** รูตามขอบ relation เขตปกครองของ OSM ของจังหวัดที่เปิดเล่น **รวมทะเล** ที่อยู่ในเขตจังหวัด (อ่าวไทยหน้าสมุทรปราการและสมุทรสาคร) · ไม่ใช้แนวชายฝั่ง (coastline) ของ OSM ตัดรู เพราะ coastline กับ relation ไม่ตรงกันและจะเกิดเศษดำเล็กๆ ตามแนวชายฝั่ง · ทะเลในรูแสดงเป็น `map.water` ตามปกติ ซึ่งบอก "เดินไม่ได้" อยู่แล้ว
+- simplify เส้นขอบรู **20 ม.** · จุดชุดนี้เป็นชุดเดียวกับเส้นจังหวัดที่แตะเขตเล่นในหัวข้อ 6.3 (สร้างจากขั้นตอนเดียวกันใน pipeline) เพื่อให้เส้นประจังหวัดทับขอบโซนดำพอดี ไม่มีร่องสว่างหรือร่องดำระหว่างสองชั้น
+- ถ้าส่วนใดของรูเลยขอบ bbox ของ tile (เช่นทะเลที่ tile ไม่ครอบ) ให้ location-engineer ตัดรูด้วย bbox ของ tile ในข้อมูล · ไม่แก้ style · เงื่อนไขตรวจคือจอ S6 ในหัวข้อ 10.1
+- ขนาดไฟล์ mask รวมอยู่ในงบเดียวกับเส้นจังหวัด (6.3)
 
 ### 6.3 `kw-provinces` (เส้นและชื่อจังหวัด)
 
 | kind | geometry | property | ใช้ที่ |
 | --- | --- | --- | --- |
 | `border` | LineString / MultiLineString | — | `kw-province-border-casing`, `kw-province-border` |
-| `label` | Point (จุดวางชื่อที่เลือกไว้แล้ว) | `name` (ชื่อจังหวัดไทย), `playable` (boolean) | `kw-province-label` |
+| `label` | Point (จุดวางชื่อที่เลือกไว้แล้ว) | `name` (ชื่อจังหวัดไทย), `playable` (boolean), `iso` (string) | `kw-province-label` (อ่านเฉพาะ `name`) |
+
+property ของ `label`
+| property | type | ค่า | style อ่านไหม |
+| --- | --- | --- | --- |
+| `kind` | string | `"label"` | อ่าน (filter) |
+| `name` | string | ชื่อจังหวัดภาษาไทยจากข้อมูล OSM | อ่าน (`text-field`) |
+| `playable` | boolean | จังหวัดนี้อยู่ในเขตเล่นหรือไม่ | ไม่อ่านใน 0.2.0 |
+| `iso` | string | รหัส ISO 3166-2 ของจังหวัด เช่น `TH-10` (กรุงเทพฯ) · เพิ่มตาม D-060 | **ไม่อ่าน** · เป็น id คงที่ให้ระบบลงทะเบียนความสนใจรายจังหวัด (GDD "แผนที่และโซนดำ") ใช้แทนชื่อไทย |
 
 - ใช้ GeoJSON แยกแทน layer `boundaries` ของ tile เพราะ tile ครอบแค่ bbox ของกรุงเทพฯ + 5 จังหวัด ส่วนเส้นจังหวัดต้องเห็นทั่วประเทศในโซนดำ (GDD "แผนที่เต็มคือประเทศไทย")
-- ความละเอียดที่แนะนำ: simplify ~200 ม. ทั้งประเทศ (77 จังหวัด) ขนาดเป้า ≤ 300 KB ก่อน gzip · ที่มา OSM (ODbL) จึงมี attribution OSM ใน source
-- `playable` ใช้ในอนาคตเพื่อแสดงจำนวนการลงทะเบียนความสนใจบนชื่อจังหวัดในโซนดำ (GDD) ผ่าน property ที่ client จัดรูปเหมือน `label_count`
+- **ความละเอียด (D-060):** เส้นที่ **ไม่แตะ** จังหวัดที่เล่นได้ simplify **350 ม.** · เส้นที่ **แตะ** จังหวัดที่เล่นได้ simplify **20 ม.** และใช้จุดชุดเดียวกับรูของ mask (6.2) · เหตุผล: 350 ม. ที่ z9 ≈ 1.2 px และเส้นเหล่านั้นอยู่กลางโซนดำซึ่งไม่มีอะไรให้เทียบ ความคลาดจึงมองไม่เห็น ส่วนเส้นที่แตะเขตเล่นต้องทับขอบโซนดำพอดี (แทนค่าเดิม "~200 ม. ทั้งประเทศ")
+- ขนาดเป้า ≤ 300 KB ก่อน gzip (ไฟล์จริงตาม D-060 ≈ 260 KB) · ที่มา OSM (ODbL) จึงมี attribution OSM ใน source
+- `playable` ใช้ในอนาคตเพื่อแสดงจำนวนการลงทะเบียนความสนใจบนชื่อจังหวัดในโซนดำ (GDD) ผ่าน property ที่ client จัดรูปเหมือน `label_count` · **Phase 2 ไม่แสดงจำนวนนี้** (D-089 และ GD N-04: ไม่แสดง 0 หรือเลขปลอม) · การใส่ข้อความเพิ่มบนชื่อจังหวัดต้องแก้ style โดย art-director พร้อม adapter
 
 ### 6.4 `kw-self` (ตำแหน่งของตัวเองเท่านั้น)
 
@@ -213,6 +226,16 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 | จำนวน/role | `Noto Sans Medium` 14 px, `ink.900` บน halo `rift.300` 3 px, ใต้ icon 1.4 em, เริ่ม z14 |
 | sponsored | `Noto Sans Medium` 14 px, `bg.paper` บน halo `ink.900` 3 px · z12–13 อยู่ใต้ icon 1.4 em · z ≥ 14 อยู่ใต้จำนวนคน 3.0 em · แสดงทุก zoom ที่ชื่อแสดง (z ≥ 12) |
 | dungeon ปิด | ขอบ `ink.500` 3 px ประ · ไม่มี icon ไม่มีพื้น · ชื่อ halo `ink.500` |
+
+**สถานะ dungeon 4 แบบบนแผนที่ (Phase 2 · รายละเอียดทุกจุดแสดงผลอยู่ใน `art/direction/briefs/P2-assets.md` หัวข้อ 3.3)**
+| สถานะ (brief) | `status` ใน source | ภาพบนแผนที่ | ที่แยกสถานะจริง |
+| --- | --- | --- | --- |
+| เปิด | `"open"` | ตามตารางด้านบน | — |
+| ใกล้ปิด (เหลือ ≤ `closingSoonNotice_s`) | `"open"` | **เหมือนเปิดทุกอย่าง** | การ์ด dungeon และ popup confirm (chip ใกล้ปิด) |
+| ปิดทำการ | `"closed"` | ขอบประ `ink.500` ไม่มี icon ไม่มีพื้น | การ์ดแสดงเวลาเปิดถัดไปก่อนปุ่มนำทาง (F04-R38) |
+| กำลังเล่นอยู่ (run ของผู้เล่นอยู่ที่นี่) | `"open"` | เหมือนเปิด · จุดตัวเองอยู่ใน polygon | header ของจอ run และการ์ด |
+
+เหตุผลที่ไม่เพิ่มค่า `status` ใน Phase 2: การเพิ่มสถานะต้องแก้ทั้ง style และ adapter พร้อมกัน (6.1) · "ใกล้ปิด" เปลี่ยนตามเวลาทุกนาที ถ้าอยู่บนแผนที่ต้องเรียก `setData` ตามนาฬิกาแม้ผู้เล่นไม่ขยับ ซึ่งขัดหัวข้อ 11 · ผู้เล่นที่ตัดสินใจเดินไปจะแตะการ์ดก่อนเสมอ จึงเห็น chip ที่นั่น · ถ้า playtest พบว่าคนเดินไปถึงแล้วเจอปิด ให้ส่งกลับ art-director พิจารณาเพิ่ม `"closing_soon"` ใน style เวอร์ชันถัดไป
 
 ข้อกำหนดป้าย sponsored (style-guide 9.2): สีของป้ายคือ `ink.900` + `bg.paper` เท่านั้น **ไม่ใช้สี rarity, สี rift (`rift.*`) หรือ `accent.signal`** · ไม่ย่อเหลือ icon · ไม่มีโลโก้ผู้สนับสนุนบนแผนที่ · ถ้อยคำจาก copy key
 เหตุผลที่ใช้ halo แทนกล่องพื้นหลัง: กล่องพื้นหลังต้องใช้ image ใน sprite ซึ่ง sprite ของ Protomaps ที่ pin ไม่มี · halo 3 px ทึบให้ผลใกล้เคียง chip และไม่เพิ่ม asset · เวอร์ชันถัดไปอาจเปลี่ยนเป็น chip ด้วย `icon-text-fit` เมื่อมี image `kw-chip-*`
@@ -268,6 +291,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 | S3 | สวนจตุจักร 100.5530, 13.8060 | 15 | ป้าย sponsored ตัวครีมบนแถบดำ ไม่ใช่สี rift/rarity |
 | S4 | ขอบเขตเล่นด้านตะวันออก 101.00, 13.80 | 9 | โซนดำด้านนอก เส้นจังหวัดประ ชื่อจังหวัด ไม่มีถนนนอกเขต |
 | S5 | แม่น้ำเจ้าพระยา 100.4950, 13.7400 | 14 | ขอบน้ำและชื่อแม่น้ำอ่านออก คลองเห็นเป็นเส้นน้ำเงินเข้ม |
+| S6 | ชายฝั่งสมุทรปราการ 100.60, 13.50 (เพิ่มตาม D-060) | 10 และ 13 (ถ่ายทั้งสอง zoom) | ทะเลในเขตจังหวัดเป็น `map.water` · **ไม่มีขอบหรือแถบดำกลางทะเล** และไม่มีเศษดำตามแนวชายฝั่ง · เส้นประจังหวัดทับขอบโซนดำพอดี ไม่มีร่องสว่างหรือร่องดำคั่น · ถ้าเห็นขอบดำตรงแนว bbox ของ tile ให้ส่ง location-engineer ตัดรูด้วย bbox (6.2) ไม่แก้ style |
 
 เกณฑ์ผ่าน: ไม่มี tofu · ข้อความไทยทุกป้ายวาดด้วย Noto Sans Thai (ตรวจใน DevTools ว่าโหลด `_faces/*.ttf`) · ไม่มี request ออกนอก host ของตัวเอง (ไม่มี CDN) · console ไม่มี error ของ style ยกเว้น image ที่ยังไม่ addImage ก่อนโหลด
 
@@ -276,6 +300,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 - เปิดจอ S1, S3, S4 ถ่ายรูปจอด้วยกล้องอีกเครื่องที่ระยะ 35–40 ซม. มุม 30° (ท่าถือเดินจริง) แล้วแปลงรูปเป็นขาวดำ
 - ผ่านเมื่อในภาพขาวดำ: (1) อ่านชื่อถนนหลัก 2 ชื่อได้ (2) แยกขอบรอยแยกออกจากสวนได้ (3) เห็นจุดตัวเองภายใน 1 วินาที (4) อ่านชื่อ dungeon และป้าย sponsored ได้ (5) แยกโซนดำกับเส้นจังหวัดได้
 - ตกข้อใด: บันทึกข้อที่ตก layer id และรูป ส่ง handoff มา art-director แก้สีหรือความหนา · ห้ามแก้ใน client
+- **สถานะตาม D-093:** การเดินทดสอบของ Phase 2 ทั้งหมดอยู่ช่วงเช้า (~07:00–09:30) และเย็น (~16:30–18:30) จึงไม่มีหลักฐานกลางแดดจัดจากสนามใน Phase 2 · การทดสอบนี้ (V-17) ยังเป็นเงื่อนไข **ก่อน closed beta** ไม่ถูกยกเลิก · ระหว่างนี้ใช้การตรวจแทนบนจอตาม `art/direction/briefs/P2-assets.md` หัวข้อ 4 (ภาพขาวดำ, จำลองแสงสะท้อน, จำลองตาบอดสี) ซึ่งตรวจได้ทุกเวลาโดยไม่ต้องออกแดด · ภาพจากเดินช่วงเย็นใช้เป็นหลักฐานของโหมดแสงน้อยและ S9 ได้ แต่ไม่แทนข้อนี้
 
 ## 11. ไม่มี animation ต่อเนื่อง
 
@@ -294,6 +319,7 @@ style ใช้ origin ปลอม `https://kw-placeholder.invalid` (TLD `.inva
 - `landuse_park` รวม `cemetery` เป็นสีสวนธรรมดา ไม่มีสัญลักษณ์ใดๆ
 - ไม่มีโลโก้ แบรนด์ หรือสีของผู้ให้บริการขนส่งจริงบนแผนที่ · รางใช้สีกลาง `ink.500`
 - ป้าย sponsored ไม่ใช้สี rarity, rift หรือ `accent.signal`
+- **ไม่มีเส้นนำทางบนแผนที่ (D-089, F04-R36):** ห้ามเพิ่ม layer `line` หรือ source ใดที่ลากจากจุดของผู้เล่นไปยัง dungeon ทั้งเส้นตรง เส้นประ เส้นทางถนน หรือ "ลูกศรยาว" · เส้นตรงบนแผนที่ดูเหมือนเดินข้ามแม่น้ำ ทางด่วน หรือทางรถไฟได้ · ทิศทางแสดงด้วยลูกศรทิศ `icon.ui.direction` ในการ์ด dungeon ซึ่งเป็นชั้น UI นอกแผนที่ (brief หัวข้อ 3.4) · ไม่มี turn-by-turn · การตรวจ: ไล่ `addSource`/`addLayer` ใน client ต้องไม่มี source ที่มีทั้งพิกัดผู้เล่นและพิกัด dungeon
 
 ## 13. การตรวจ style JSON
 
@@ -326,9 +352,9 @@ P1-X32 (style 0.2.0): เพิ่ม source `kw-dungeon-labels` (`geojson`, `da
 
 สมมติฐาน
 - A-P1-F03-T12-1: style เขียนมือตาม schema v4 เพราะไม่มี `@protomaps/basemaps` ในเครื่อง (หัวข้อ 2) (ยืนยัน: gameplay-programmer หรือ location-engineer ที่ generate theme ทางการได้)
-- A-P1-F03-T12-2: label แผนที่ใช้ Noto Sans Regular/Medium ไม่ใช่ Bold (หัวข้อ 4) (ยืนยัน: art-director แก้ style-guide 7)
+- A-P1-F03-T12-2: label แผนที่ใช้ Noto Sans Regular/Medium ไม่ใช่ Bold (หัวข้อ 4) · **ปิดแล้วใน P2-F05-T03:** style-guide 7 แก้เป็น Regular/Medium (400/500)
 - A-P1-F03-T12-3: เส้นจังหวัดและ mask โซนดำมาจาก GeoJSON แยก ไม่ใช้ layer `boundaries` ของ tile (หัวข้อ 6.2–6.3) · **ปิดแล้ว:** D-037 ACCEPTED ใน tech note 15.1 (ไฟล์ `data/map/playarea-mask.geojson`, `data/map/provinces.geojson`)
-- A-P1-F03-T12-4: token ใหม่ที่ใช้บนแผนที่เป็น token เดิมทั้งหมด (`ramp.water` right #3377AA ใช้กับคลองและขอบน้ำ) ไม่มี hex ใหม่ · ตาราง 3.5 ของ style-guide ยังถูก แต่ควรเพิ่มแถว `map.water-edge` = #3377AA (ยืนยัน: art-director)
+- A-P1-F03-T12-4: token ใหม่ที่ใช้บนแผนที่เป็น token เดิมทั้งหมด (`ramp.water` right #3377AA ใช้กับคลองและขอบน้ำ) ไม่มี hex ใหม่ · ตาราง 3.5 ของ style-guide ยังถูก แต่ควรเพิ่มแถว `map.water-edge` = #3377AA (ยืนยัน: art-director) · **ปิดแล้วใน P2-F05-T03:** เพิ่ม `color.map.water-edge` #3377AA ใน style-guide 3.5 (ค่าเดียวกับ `ramp.water` right ไม่ใช่ hex ใหม่)
 - A-P1-F03-T12-5: สัญญา property ของ `kw-dungeons` (หัวข้อ 6.1) เป็นร่างจนกว่า tech-lead จะออก API contract ของ dungeon ใน Phase 3 · **ปิดในส่วนชื่อ property:** tech note 15.2 ACCEPTED เป็น view model ฝั่ง client (adapter whitelist, `status` ไม่รู้จัก → `closed`) · ส่วนที่ยังเปิดคือรูป payload ของ server (Phase 3) ซึ่งไม่กระทบ style
 
 - A-P1-X32-1: MapLibre (6.10.0) ข้าม anchor ของ point placement ที่อยู่นอก extent ของ tile จึงไม่วางจุดที่อยู่ใน buffer ของ tile ข้างเคียงซ้ำ (พฤติกรรมของ symbol layout ใน Mapbox GL/MapLibre ทุกเวอร์ชันที่รู้จัก) (ยืนยัน: qa-tester ด้วยภาพ S1/S3 ซ้ำ และ query จำนวนป้ายต่อ `id` หลัง P1-X33)

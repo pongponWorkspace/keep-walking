@@ -1,11 +1,16 @@
 {
   "_meta": {
     "file": "telemetry.json",
-    "version": 1,
+    "version": 2,
     "owner": "tech-lead",
-    "task": "P1-X04 (keys proposed by P1-F03-T19, A-P1-F03-T19-8; authored by systems-designer); moved from config/balance/ to config/app/ in P1-X16 (D-062), keys unchanged",
-    "doc": "product/telemetry-events.md sections 1, 2, 5, 7; product/metrics.md",
-    "readBy": ["client telemetry emitter (sampling, bucketing)", "server telemetry ingest (timestamps)", "analytics (bucket labels)"],
+    "task": "P1-X04 (keys proposed by P1-F03-T19, A-P1-F03-T19-8; authored by systems-designer); moved from config/balance/ to config/app/ in P1-X16 (D-062), keys unchanged; P2-F04-T14 added localSink and export (Phase 2 on-device sink, D-088)",
+    "doc": "product/telemetry-events.md sections 1, 2, 5, 7; product/metrics.md; docs/tech/F04-dungeon-presence.md section 12",
+    "readBy": [
+      "client telemetry emitter (sampling, bucketing)",
+      "server telemetry ingest (timestamps)",
+      "analytics (bucket labels)",
+      "Phase 2 on-device telemetry sink and export (apps/client, P2-F04-T25)"
+    ],
     "_note": "Lives in config/app/ (ADR 0001 3.10.1, D-062): telemetry measures the game; no value here changes a reward, the movement gate, combat, or the economy. Full key names are app.telemetry.<path>. Bucket bounds follow the economy scale in config/balance/economy.json (read only as a reference, never merged) so a bucket stays meaningful when prices are tuned; retune them together"
   },
   "sampling": {
@@ -26,9 +31,77 @@
   },
   "goldAmountBuckets": {
     "_source": "product/telemetry-events.md 5 economy_gold_earned / economy_gold_spent amount_bucket; scale from config/balance/economy.json (npcSellPrice_gold 20-900, potions 150-2500, gddReferenceEconomy.incomePerWalkingHour_gold 1470, marketTax brackets up to 150000)",
-    "upperBounds_gold": [50, 200, 500, 1500, 5000, 20000, 60000, 150000],
+    "upperBounds_gold": [
+      50,
+      200,
+      500,
+      1500,
+      5000,
+      20000,
+      60000,
+      150000
+    ],
     "lowerBoundInclusive": false,
     "labelFormat": "<lower>-<upper>, last bucket '<lastUpper>+'",
     "_note": "Bucket i covers (upperBounds_gold[i-1], upperBounds_gold[i]]; the first covers [0, 50]; amounts above the last bound go to '150000+'. Labels: 0-50, 50-200, 200-500, 500-1500, 1500-5000, 5000-20000, 20000-60000, 60000-150000, 150000+. 50 ~ one dust sale, 200 ~ one core sale or small potion, 500-1500 ~ one walking hour, 20000 / 60000 / 150000 match the market tax bracket edges so tax behaviour can be read from the buckets"
+  },
+  "localSink": {
+    "_source": {
+      "transport": "D-088 / C2-2 (telemetry is a ring buffer on the device, exported by download only); ADR 0003 3.4",
+      "ringBufferMaxEvents": "docs/tech/F04-dungeon-presence.md 12.2 (a 3 h run emits about 36 tick events plus state changes; 3000 covers several days of playtest)",
+      "ringBufferMaxChars": "docs/tech/F04-dungeon-presence.md 12.2 (JSON length in UTF-16 code units, well under the ~5 MB localStorage quota per origin shared with kw.p2.session)",
+      "persistInterval_s": "docs/tech/F04-dungeon-presence.md 12.2 (batch writes; flush also on pagehide / visibility hidden)"
+    },
+    "transport": "localOnly",
+    "networkUploadAllowed": false,
+    "ringBufferMaxEvents": 3000,
+    "ringBufferMaxChars": 600000,
+    "evictionOrder": "oldestFirst",
+    "persistInterval_s": 10,
+    "_note": "Phase 2 only (no backend, D-085). The sink keeps events in memory and in localStorage under kw.p2.telemetry; when either bound is exceeded the oldest events are dropped. Event names and properties are exactly those of product/telemetry-events.md; the sink rejects an unknown event name (dev console warning, no throw in production). Phase 3 replaces the transport with the trace batch upload (telemetry-events.md 8.2) and removes these keys"
+  },
+  "export": {
+    "_source": {
+      "format": "D-088 / C2-2 (export as a downloaded Blob, no upload)",
+      "timeBase": "D-088 / C2-4 (relative time only, P1, P2 codes in playtest results)",
+      "forbiddenPropertyNames": "C2-3; product/telemetry-events.md rule 2; board P2-F04-T25 acceptance (lat, lng, lon, coords, accuracy)",
+      "coordinateLikeNumberGuard": "board P2-F04-T25 acceptance (pairs of numbers with >= 4 decimals inside the lat/lng range of Thailand); Thailand spans about 5.6-20.5 N, 97.3-105.7 E, rounded outwards"
+    },
+    "format": "jsonl",
+    "mimeType": "application/x-ndjson",
+    "fileNamePrefix": "kw-p2-telemetry",
+    "timeBase": "firstExportedEvent",
+    "timeField": "t_rel_ms",
+    "dropAbsoluteTimestamps": true,
+    "includesCoordinates": false,
+    "forbiddenPropertyNames": [
+      "lat",
+      "lng",
+      "lon",
+      "latitude",
+      "longitude",
+      "coords",
+      "coordinates",
+      "accuracy",
+      "accuracy_m",
+      "position",
+      "geometry",
+      "geohash",
+      "client_ts",
+      "server_ts",
+      "timestamp"
+    ],
+    "coordinateLikeNumberGuard": {
+      "minDecimals": 4,
+      "latRange_deg": [
+        5.0,
+        21.0
+      ],
+      "lngRange_deg": [
+        97.0,
+        106.0
+      ]
+    },
+    "_note": "Each exported line is {event_name, t_rel_ms, session_id, platform, app_version, properties}. t_rel_ms is measured from the first event in the file, so the file never carries a wall-clock time or date; the file name has the prefix plus a random 8-hex id, no date. Before building the Blob the exporter and its test reject any property whose name is in forbiddenPropertyNames and any numeric value (or numeric string) that matches the coordinate guard. account_id is absent in Phase 2 (no accounts)"
   }
 }

@@ -11,7 +11,7 @@
     "walkHighways": "product/prd/F01-coverage-survey.md section 8.1 (P1-H08)",
     "footOverrideValues": "A-P1-F01-T06-2: a way with access in coverageFilter.excludeAccessValues stays walkable when foot is one of these (pedestrian streets are often access=no + foot=yes)",
     "footNoValues": "product/prd/F01-coverage-survey.md section 8.1 (foot=no is not walkable)",
-    "transit": "design/levels/launch-criteria.md section 4.3 (rail 2 : bus 1, parking not scored)",
+    "transit": "design/levels/launch-criteria.md section 4.3 (rail 2 : bus 1, parking not scored) · D-069: transitDistance = min(bus, (2 x rail + bus) / 3) when rail is within railAcceptableWalk_m, else bus",
     "transit.railAcceptableWalk_m": "A-P1-F01-T06-3: launch-criteria 4.3 says 'rail within an acceptable distance' without a number; the PRD green band (800 m) is used. Owner: level-designer",
     "circuityMinStraight_m": "run-meta only: measured route factor (network / straight line to the same dungeon) uses cells at least this far in a straight line, so tiny denominators do not dominate",
     "graphBboxBuffer_m": "walk graph covers the study-area bounding box plus this margin so routes near the edge may leave the study area",
@@ -19,6 +19,9 @@
     "populationResolutionLabel": "PRD F01 section 8.2 asks for the resolution per area; WorldPop is one grid for the whole country",
     "presets": "data/dungeons/presets.json presets[].matches (class first, then size_band; level-designer P1-F03-T09)",
     "primaryPresets": "design/levels/launch-criteria.md section 4.4 (denominator 3)",
+    "launchDistricts": "D-083 (HUMAN 2026-09-25): launch districts เขตพระนคร 92053 + เขตปทุมวัน 92063 + เขตบางรัก 92061 (district_osm_id); used only by python -m analysis.compare",
+    "goCriteria": "product/prd/F01-coverage-survey.md section 4.1 G1-G4, copied for the before/after table only (python -m analysis.compare); the PRD stays the source",
+    "f11PresetId": "D-069 criterion F-11: a launch district needs a pocketPark within unlocks.home.farDungeonThreshold_m of homes; district-counts.csv column pocketPark_walk_median_m = population-weighted median network walk distance from populated cells to the nearest usable dungeon of this preset anywhere in the study area (P2-F04-T03)",
     "heatmap": "display only: population is aggregated to blocks of displayBlockCells x displayBlockCells source cells before drawing (no single 100 m cell is shown)"
   },
   "weights": {
@@ -65,6 +68,14 @@
   "populationResolutionLabel": "WorldPop R2025A constrained, 3 arc-second grid (about 100 m), same resolution in all 79 districts",
   "presetsFile": "data/dungeons/presets.json",
   "primaryPresets": ["largePark", "market", "pocketPark"],
+  "f11PresetId": "pocketPark",
+  "launchDistricts": [92053, 92063, 92061],
+  "goCriteria": {
+    "g1_pop_share_green": { "op": ">=", "value": 0.6 },
+    "g2_valid_count_incl_multi": { "op": ">=", "value": 10 },
+    "g3_preset_count_incl_multi": { "op": ">=", "value": 2 },
+    "g4_pop_share_red": { "op": "<=", "value": 0.05 }
+  },
   "heatmap": { "displayBlockCells": 3 },
   "outputs": {
     "districtCounts": "../../data/coverage/district-counts.csv",

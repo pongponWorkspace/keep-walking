@@ -1,10 +1,10 @@
 {
   "_meta": {
     "file": "privacy.json",
-    "version": 1,
+    "version": 2,
     "owner": "tech-lead",
-    "task": "P1-H05",
-    "doc": "docs/tech/gps-trace-format.md section 4; docs/tech/F02-map-location-spike.md sections 4, 11, 14",
+    "task": "P1-H05; P2-F04-T14 (onDeviceSamples, localData, externalNavigation)",
+    "doc": "docs/tech/gps-trace-format.md section 4; docs/tech/F02-map-location-spike.md sections 4, 11, 14; docs/tech/F04-dungeon-presence.md sections 10, 11, 14",
     "_note": "On-device privacy values of the client and its tools (what may leave the device and in what shape). Server-side PDPA values (positionLogTtl_s, minAge_yr) live only in config/balance/privacy.json (P1-H03, systems-designer); do not duplicate them here. Loaders must namespace by path (app.privacy vs balance.privacy). Keys starting with '_' are metadata: code skips them. null = not set yet: code must fail loudly, never guess."
   },
   "rawTraceExport": {
@@ -35,5 +35,51 @@
     "rawCoordinatesInDebugLogRequiresFlag": "hud",
     "byteCounterStoresTileUrls": false,
     "_note": "byteCounterStoresTileUrls: tech note section 11 (tile URLs reveal approximate position; counters keep byte totals per category only)"
+  },
+  "onDeviceSamples": {
+    "_source": {
+      "maxAge_s": "D-088 / C2-5 (store at most one gate window of samples); ADR 0003 5.4; docs/tech/F04-dungeon-presence.md 11",
+      "maxCount": "docs/tech/F04-dungeon-presence.md 11.2 (anchor + re-anchor candidates for the main and the scratch accumulator, plus the speed-lock anchor)",
+      "persistPreRunApproach": "docs/tech/F04-dungeon-presence.md 7.2 and 11.3 (check-in keeps times only; the pre-run anchor is memory-only)",
+      "deleteOnRunEnd": "D-088; spec F04 acceptance 11, F05 acceptance 11; GD B-08",
+      "hudSamplesMemoryOnly": "ADR 0003 5.4 (gateDiagnosticWindows keeps window_s of samples in HUD memory only)"
+    },
+    "maxAge_s": 300,
+    "maxCount": 16,
+    "persistPreRunApproach": false,
+    "deleteOnRunEnd": true,
+    "hudSamplesMemoryOnly": true,
+    "seeUpperBound": "config/balance/privacy.json#positionLogTtl_s",
+    "seeGateWindow": "config/balance/dungeons.json#movementGate.window_s",
+    "seePairGap": "config/balance/dungeons.json#movementGate.maxSamplePairGap_s",
+    "_note": "Hard cap on raw position samples (lat, lng, accuracy, time) that the session state may hold, in memory or in kw.p2.session. A sample older than now_ms - maxAge_s is purged on every step and on load; at most maxCount samples exist at once. Config lint (P2-F04-T24) checks: maxAge_s <= balance.privacy.positionLogTtl_s; maxAge_s <= balance.dungeons.movementGate.window_s (D-088); maxAge_s >= balance.dungeons.movementGate.maxSamplePairGap_s; maxCount >= 2 x (1 + balance.dungeons.movementGate.outlierReanchorSamples) + 2. When a run ends every sample-bearing field is removed before the next persist, so storage never holds coordinates of a finished run"
+  },
+  "localData": {
+    "_source": {
+      "storageKeyPrefix": "ADR 0003 3.4 C1-5 (every localStorage key / IndexedDB name of Phase 2 starts with kw.p2.)",
+      "clearScope": "C2-6 (button to delete on-device data, P2-F06-T09); docs/tech/F04-dungeon-presence.md 10.4",
+      "onQuotaExceeded": "board P2-F04-T14 acceptance (storage full: drop telemetry before run state); docs/tech/F04-dungeon-presence.md 10.3"
+    },
+    "storageKeyPrefix": "kw.p2.",
+    "clearScope": "allKeysWithPrefix",
+    "afterClear": "reloadToOnboarding",
+    "onQuotaExceeded": {
+      "evictFirst": "telemetry",
+      "neverEvictFor": "telemetry",
+      "lastResort": "keepSessionInMemoryAndFlag"
+    },
+    "_note": "Clearing removes every key with the prefix (session, telemetry, consent, settings) and reloads into onboarding. Telemetry writes never evict the session; a session write that hits the quota first trims then clears the telemetry ring buffer, and only then keeps the session in memory with a visible storage-degraded flag. Nothing here leaves the device"
+  },
+  "externalNavigation": {
+    "_source": "D-089 / A-P2-PLAN-01-3 conditions 3 and 5; spec F04 R37; docs/tech/F04-dungeon-presence.md 14",
+    "includesPlayerPosition": false,
+    "destinationSource": [
+      "entrance",
+      "label_point"
+    ],
+    "referrerPolicy": "no-referrer",
+    "requiresUserGesture": true,
+    "apiKeyAllowed": false,
+    "_note": "Descriptive guard rails for the navigation button and its tests: the URL carries only the dungeon's public destination point and walking mode, never the player's position, origin, or any game query parameter; opened from an <a> tapped by the player with rel=noopener noreferrer. The link is a top-level navigation chosen by the player, not a request of the app, so it is outside the allowed-origin list of config/app/client.json"
   }
 }

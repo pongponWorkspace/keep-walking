@@ -24,6 +24,7 @@ REASON_PRIORITY = (
     "religious_inside_heritage",
     "religious_name",
     "blocked_religious",
+    "excluded_osm_id",
     "blocked_military",
     "blocked_diplomatic",
     "blocked_health",
@@ -49,7 +50,7 @@ HERITAGE_CLASSES = frozenset({"historic", "attraction"})
 STEP_REASONS = {
     "normalize": {"invalid_geometry", "multipart_disjoint"},
     "area": set(AREA_REASONS),
-    "blocklist": set(REASON_PRIORITY[:15]),
+    "blocklist": set(REASON_PRIORITY[:16]),
     "overlap": {"duplicate_of", "nested_in"},
 }
 
@@ -202,11 +203,17 @@ def blocklist(
     tree = shapely.STRtree([b.geom_proj for b in blockers]) if blockers else None
     way_tree = shapely.STRtree([g for _, g in ways]) if ways else None
     review_ids = set(cf["reviewOsmIds"])
+    exclude_ids = set(cf["excludeOsmIds"])
+    release_ids = set(cf["releaseOsmIds"])
+    flag_tags = {k: v for k, v in cf["reviewFlagTags"].items() if not k.startswith("_")}
     min_inside = float(cf["majorWayMinInsideLength_m"])
 
     for p in pieces:
         tags, cls = p.raw.tags, p.primary_class
         p.reasons.update(access_reasons(tags, p.raw.classes, cf))
+        # D-083: a human excluded this exact OSM object permanently.
+        if p.id in exclude_ids:
+            p.reasons.add("excluded_osm_id")
 
         # R1 and self-tagged blockers of other categories (share = 1).
         for cat in p.raw.block_cats:
@@ -260,6 +267,10 @@ def blocklist(
             review.append("review_name")
         if matching_specs(tags, cf["reviewMinAreaTags"]) and p.area_m2 >= cfg.min_area_m2:
             review.append("monument_area")
+        for flag in sorted(flag_tags):
+            if matching_specs(tags, flag_tags[flag]):
+                p.flags.add(flag)
+                review.append(f"flag_{flag}")
         if p.id in review_ids:
             review.append("review_osm_id")
         if review:
@@ -345,6 +356,41 @@ def resolve_overlaps(pieces: list[Piece], cfg: Config) -> None:
         for x, y in ((a, b), (b, a)):
             x.flags.add("overlaps_candidate")
             x.related.setdefault("overlaps", []).append(y.id)
+
+
+def apply_human_ids(pieces: list[Piece], cfg: Config) -> None:
+    """D-083 statuses that need the whole piece set, run after overlaps.
+
+    1. A candidate lying at least nestedContainmentShare inside a piece a
+       human excluded by id (excludeOsmIds) gets review_required
+       (inside_excluded_osm_id): excluded pieces never swallow others in
+       resolve_overlaps, so without this a garden inside Sanam Luang would
+       surface as a fresh candidate. It is flagged, never dropped (SF-9).
+    2. releaseOsmIds clears every automatic review reason of that id (a human
+       checked it) and keeps them in related.review_released for audit. It
+       never touches exclusion reasons (config forbids an id in two lists).
+    """
+    cf = cfg.cf
+    exclude_ids, release_ids = set(cf["excludeOsmIds"]), set(cf["releaseOsmIds"])
+    nested = float(cf["nestedContainmentShare"])
+    parents = [p for p in pieces if p.id in exclude_ids and p.area_m2 > 0]
+    live = [p for p in pieces if not p.reasons and p.area_m2 > 0]
+    if parents and live:
+        tree = shapely.STRtree([p.geom_proj for p in live])
+        for a in sorted(parents, key=lambda p: p.id):
+            for idx in sorted(int(i) for i in tree.query(a.geom_proj, predicate="intersects")):
+                b = live[idx]
+                if b.id in exclude_ids:
+                    continue
+                if a.geom_proj.intersection(b.geom_proj).area / b.area_m2 >= nested:
+                    b.flags.add("review_required")
+                    b.related.setdefault("review_reasons", []).append("inside_excluded_osm_id")
+                    b.related.setdefault("excluded_parent", []).append(a.id)
+    for p in pieces:
+        if p.id in release_ids and "review_required" in p.flags:
+            p.flags.discard("review_required")
+            p.related["review_released"] = p.related.pop("review_reasons", [])
+            p.related.pop("review_parent", None)
 
 
 def assign_districts(pieces: list[Piece], study: StudyArea, cf: dict[str, Any]) -> int:

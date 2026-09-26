@@ -2,12 +2,12 @@
 
 | หัวข้อ | ค่า |
 | --- | --- |
-| สถานะ | Accepted · แก้ไขครั้งที่ 1 (P1-H01, 2026-09-23) · แก้ไขครั้งที่ 2 (P1-X27, 2026-09-24) ดูหัวข้อ 7 |
+| สถานะ | Accepted · แก้ไขครั้งที่ 1 (P1-H01, 2026-09-23) · แก้ไขครั้งที่ 2 (P1-X27, 2026-09-24) · แก้ไขครั้งที่ 3 (P2-F04-T05, 2026-09-26) ดูหัวข้อ 7 |
 | วันที่ | 2026-09-23 |
-| task | P1-F02-T01 · แก้ไข P1-H01, P1-X27 |
+| task | P1-F02-T01 · แก้ไข P1-H01, P1-X27, P2-F04-T05 |
 | ผู้เขียน / authority | tech-lead (architecture, code standards) |
 | อ้างอิง | CLAUDE.md, GDD "สถาปัตยกรรมเทคนิค", `studio/phases/phase-1/board.md` หัวข้อ 1, D-001, D-002, D-007, D-008, plan review TL-M01, TL-S04, TL-S05, TL-S11, TL-N02, TL-N05, SF-10 |
-| ADR ที่เกี่ยวข้อง | ADR 0002 (backend stack ตาม D-008) ยืนยันชื่อ `apps/api` |
+| ADR ที่เกี่ยวข้อง | ADR 0002 (backend stack ตาม D-008) ยืนยันชื่อ `apps/api` · ADR 0003 (game core client-first, `packages/geo`, lint boundary) |
 
 ADR นี้ไม่มีการผูก vendor หรือค่าใช้จ่ายใหม่: ทุกเครื่องมือเป็น open source ที่รันในเครื่อง ส่วน vendor (Cloudflare) ตัดสินแล้วใน D-008 และยืนยันใน ADR 0002
 
@@ -54,12 +54,16 @@ apps/
 packages/
   shared/            type, JSON Schema, pure formula (server-safe)         tech-lead
   location/          LocationProvider interface + Web / Capacitor / Mock   tech-lead (interface), location-engineer (impl)
-  geo/               geometry แบบ pure (server-safe)                       location-engineer (ยังไม่สร้าง)
+  geo/               geometry แบบ pure (server-safe) · leaf                location-engineer (สร้างใน P2-F04-T05 · ADR 0003)
 tools/
   coverage/          Python · OSM coverage survey                          location-engineer
   tiles/             shell + CLI pmtiles · build PMTiles                   location-engineer
   traces/            TS · validate / sanitize / แปลง trace                 location-engineer
   sim/               TS · balance simulator + golden vectors               systems-designer
+  copy-lint/         TS · lint ของ copy                                   gameplay-programmer
+  dungeons/          TS · validator + artifact ของ dungeon                 location-engineer
+  config-lint/       TS · JSON Schema + lint ของ config                    tech-lead
+  art/               TS · ไม่มี package.json ใช้ dependency ของ root         tech-lead
 qa/tests/            unit/ (Vitest) และ e2e/ (Playwright)                  qa-tester
 config/              balance/, content/, app/ (อ่านอย่างเดียวจากโค้ด)       systems-designer, narrative-designer, tech-lead (หัวข้อ 3.10.1)
 infra/               IaC, CI, monitoring                                   devops-engineer
@@ -68,7 +72,7 @@ docs/                adr/, tech/                                           tech-
 
 - workspace glob ใน `pnpm-workspace.yaml`: `apps/*`, `packages/*`, `tools/*`, `qa/tests/*` · โฟลเดอร์ที่ไม่มี `package.json` (เช่น `tools/coverage/`) ไม่ถือเป็น workspace
 - scope ของ package: `@keep-walking/<name>` · tools ใช้ชื่อ `@keep-walking/tools-<name>` เพื่อให้ lint จับได้
-- ทิศทาง import ที่อนุญาต: `apps → packages`, `tools → packages`, `packages/location → packages/shared`, `packages/shared → packages/geo` (เมื่อมี) · **ห้าม** `apps/*` หรือ `packages/*` import `tools/*` และห้าม `packages/*` import `apps/*`
+- ทิศทาง import ที่อนุญาต: `apps → packages`, `tools → packages`, `packages/location → packages/shared`, `packages/shared → packages/geo` · `packages/geo` เป็น leaf ไม่ import `@keep-walking/*` (ADR 0003 หัวข้อ 4) · **ห้าม** `apps/*` หรือ `packages/*` import `tools/*` และห้าม `packages/*` import `apps/*`
 - internal package ส่ง TS source (`"exports": { ".": "./src/index.ts" }`) ไม่มีขั้น build
 - โค้ดอ่าน `config/` ผ่าน JSON import หรือ loader ที่ validate ด้วย JSON Schema (Phase 2) · ไม่มีโค้ดใดเขียนลง `config/`
 - test ของ QA ไม่ต้องมี `package.json`: root Vitest เก็บ `qa/tests/**/*.test.ts` และ root Playwright เก็บ `qa/tests/e2e/**/*.spec.ts` ให้เอง (TL-S04)
@@ -90,7 +94,7 @@ docs/                adr/, tech/                                           tech-
 - TypeScript **6.0** (typescript-eslint 8 รองรับถึง `<6.1` · TS 7 native ยังใช้กับ typescript-eslint ไม่ได้ ทบทวนเมื่อรองรับ)
 - `tsconfig.base.json`: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `noImplicitOverride`, `noImplicitReturns`, `verbatimModuleSyntax`, `isolatedModules`, `moduleResolution: Bundler`, target ES2023
 - `packages/shared/tsconfig.json` ไม่มี DOM และไม่มี Node types โดยเจตนา: ทุกอย่างในนั้นต้องรันบน Worker / Durable Object ได้ตรงๆ · ถ้าเผลอใช้ `window` หรือ `fs` typecheck จะพัง
-- root `tsconfig.json` เป็น catch-all สำหรับ root config และ workspace ที่ยังไม่มี tsconfig ของตัวเอง (`packages/location`, `tools/traces`, `tools/sim`, `qa/tests`) · เมื่อ workspace ใดเพิ่ม tsconfig + script `typecheck` ของตัวเอง ให้ย้ายออกจาก `include` ของ root (ผ่านงาน tech-lead)
+- root `tsconfig.json` เป็น catch-all สำหรับ root config และ workspace ที่ยังไม่มี tsconfig ของตัวเอง (`packages/location`, `packages/geo/test`, `tools/traces`, `tools/sim`, `tools/dungeons`, `tools/config-lint`, `tools/art`, `qa/tests`) · `packages/geo` มี tsconfig ของตัวเองแบบเดียวกับ shared · เมื่อ workspace ใดเพิ่ม tsconfig + script `typecheck` ของตัวเอง ให้ย้ายออกจาก `include` ของ root (ผ่านงาน tech-lead)
 - `apps/client` และ `apps/api` มี tsconfig ของตัวเอง (DOM สำหรับ client, `@cloudflare/workers-types` สำหรับ api) เพราะ environment ต่างกัน
 
 ### 3.5 lint และ format
@@ -100,6 +104,7 @@ docs/                adr/, tech/                                           tech-
   - **ไฟล์สร้าง golden vector** (`tools/sim/src/vectors*.ts`): ห้ามปิด rule ทั้งไฟล์ด้วย `eslint-disable` และ **ไม่มี override** ใน `eslint.config.js` (D-062 · ดูหมายเหตุใน `eslint.config.js` หลังบล็อก `no-restricted-imports`) · ไฟล์เหล่านี้ผ่าน rule เต็มชุด: กรณีขอบที่อ้างค่า config (เพดาน, จำนวนสมาชิกสูงสุด, เกณฑ์ถอยอัตโนมัติ, เลเวลสูงสุด) อ่านจาก `SimParams` / `EconomyRefs` ไม่พิมพ์เลข เพื่อให้กรณีขอบย้ายตาม config · ค่าตัวอย่างของ input ที่ไม่ใช่ค่า balance (เลเวล 25, gap 3) เป็น const ที่ตั้งชื่อ (`CASE`) · override แบบปิด rule ทั้ง glob จะซ่อนค่า balance ที่ hardcode ในอนาคต จึงไม่ทำ
   - `eslint-disable` ของ `no-magic-numbers` นอก test เป็น finding ของ tech gate (ตรวจด้วย `grep -rn "eslint-disable.*no-magic-numbers" apps packages tools --include='*.ts'`)
   - lint จับได้เฉพาะ literal ในนิพจน์ · ค่าคงที่ที่ตั้งชื่อแล้ว (`const GATE_M = 50`) ผ่าน lint แต่ **ถือว่าผิดใน tech gate** ถ้าเป็นค่า balance หรือค่าที่มีผลต่อรางวัล · ค่าที่ยอมให้เป็น const ในโค้ดคือค่าคงที่ทางฟิสิกส์หรือหน่วย (รัศมีโลก, 1000 m ต่อ km, 60 s ต่อ min) และต้องตั้งชื่อบอกหน่วย
+- **ขอบของ game core (ADR 0003 หัวข้อ 8.2):** ห้ามเวลาจริง สุ่มไม่มี seed timer DOM storage network และ Ajv ใน `packages/shared/src`, `packages/geo/src` · geo เป็น leaf · client import `run`/`reward`/`hp` ตรงไม่ได้
 - **กัน import ข้ามขอบ:** `@typescript-eslint/no-restricted-imports` ใน `apps/**` และ `packages/**` ห้าม pattern `**/tools/**` และ `@keep-walking/tools-*` (ทดสอบแล้วว่า lint แจ้ง error ทั้งสองแบบ ดูหัวข้อ 6)
 - กฎเพิ่ม: `consistent-type-imports`, `eqeqeq`, `no-console` (ยกเว้น `warn`/`error` และยกเว้น `tools/**`)
 - `pnpm lint` = `eslint . --max-warnings=0 && prettier --check .` · warning ถือเป็น fail
@@ -107,7 +112,7 @@ docs/                adr/, tech/                                           tech-
 ### 3.6 test runner และ e2e runner
 
 - **Vitest 5** ตัวเดียวที่ root (`vitest.config.ts`) เก็บ `apps/*/src|test`, `packages/*/src|test`, `tools/*/src|test` และ `qa/tests/**` · environment `node` · coverage v8 ออกที่ `reports/coverage/` (ignore)
-  - ถ้า client ต้องการ DOM environment ให้ handoff ถึง tech-lead เพื่อเพิ่ม Vitest project และ dependency (jsdom หรือ happy-dom)
+  - DOM environment: `happy-dom` (root dev) · ไฟล์ test ที่ต้องใช้ DOM ใส่ `// @vitest-environment happy-dom` บรรทัดแรก ไม่มี Vitest project แยก (ADR 0003 หัวข้อ 8.4)
   - **pytest bridge** (P1-X05, P1-X07): include มี `tools/coverage/pipeline/tests/**/*.test.ts` และ `tools/coverage/boundaries/tests/**/*.test.ts` · แต่ละไฟล์ (`pytest-bridge.test.ts`) เรียก pytest ด้วย `tools/coverage/.venv` · ไม่มี venv ในเครื่อง → skip พร้อมคำเตือน (`pnpm test` ของ dev ที่ไม่ได้ทำงาน GIS ยังผ่าน) · env `COVERAGE_PYTEST_REQUIRED=1` → ไม่มี venv = fail แทน skip · CI ตั้งค่านี้เสมอ (3.11)
   - ประเภท test: unit สำหรับ logic, trace-replay สำหรับ location logic (อ่าน trace จาก `data/gps-traces/` ผ่าน MockLocationProvider), contract test สำหรับ API (Phase 3)
 - **Playwright 1.63** (`playwright.config.ts`) เก็บ `qa/tests/e2e/**/*.spec.ts` และ `apps/*/e2e/**/*.spec.ts`
@@ -225,7 +230,7 @@ docs/                adr/, tech/                                           tech-
 **3.10.7 การโหลดในโค้ด**
 
 - Phase 1: JSON import หรืออ่านไฟล์ แล้วเข้าถึงผ่าน helper ที่ใช้กติกา 3.10.4–3.10.6 (ข้าม `_` และ pointer, throw เมื่อ `null` ที่ไม่ประกาศ) · helper อยู่ใน `packages/shared` เมื่อมีผู้ใช้เกิน 1 ที่ (tech-lead)
-- Phase 2: JSON Schema ต่อไฟล์ (tech-lead) และ loader ที่ validate ก่อนใช้ · Ajv ใช้ได้ใน tools, test และ build step เท่านั้น เพราะ Worker ห้าม `new Function` (ดู `packages/shared/src/trace.ts`)
+- Phase 2: JSON Schema ต่อไฟล์ (tech-lead) ตรวจใน `pnpm test` ผ่าน `tools/config-lint` · loader ใน `packages/shared/src/config` เป็น typed accessor ที่ตรวจด้วยโค้ดธรรมดา ไม่ใช้ Ajv (ADR 0003 C1-4) · Ajv ใช้ได้ใน tools, test และ build step เท่านั้น เพราะ Worker ห้าม `new Function` (ดู `packages/shared/src/trace.ts`)
 - config lint (ตรวจ `_meta`, `_source` ในทุก object ที่มีค่า, regex suffix และข้อยกเว้นของ 3.10.3, ปลายทาง pointer, `null` ที่ไม่ประกาศเป็น WARN) เป็นงานของ tech-lead ใน Phase 2 (D-062) · ระหว่างนี้ tech gate ตรวจด้วยตา
 - ชื่อทุกอย่างที่ผู้เล่นเห็น (zone, dungeon, monster, item, boss) มาจาก `config/content/` หรือ back office ไม่อยู่ในโค้ด · schema ของ `copy.th.json` และ registry ตัวแปรอยู่ใน `docs/tech/copy-schema.md`
 
@@ -262,11 +267,13 @@ docs/                adr/, tech/                                           tech-
 | root (dev) | `eslint` 10.10.0, `@eslint/js` 10.0.1, `typescript-eslint` 8.70.0, `globals` 17.12.0, `eslint-config-prettier` 10.1.8, `prettier` 3.9.6 | lint / format |
 | root (dev) | `wrangler` 4.132.0 | local preview และ deploy บน Cloudflare Pages/Workers (P1-F02-T08, T19 ตาม D-008) |
 | `apps/client` | `maplibre-gl` 6.10.0, `pmtiles` 4.5.0 · dev `vite` 8.3.0 | spike แผนที่ (P1-F02-T09) · MapLibre 6.10 ESM ต้องตั้ง worker URL เองผ่าน `maplibre-gl-worker.mjs?worker&url` + `setWorkerUrl()` ใน `apps/client/src/map/worker.ts` (D-068) · bump `maplibre-gl` ต้องตรวจกติกานี้ซ้ำ |
-| `packages/shared` | `ajv` 8.20.0, `ajv-formats` 3.0.1 · dev `@types/geojson` 7946.0.16 | JSON Schema ของ trace และ config (P1-F02-T03) |
+| `packages/shared` | `@keep-walking/geo` (workspace) · dev `ajv` 8.20.0, `ajv-formats` 3.0.1, `@types/geojson` 7946.0.16 (Ajv ย้ายเป็น dev ใน P2-F04-T05) | JSON Schema ของ trace และ config ใน test (P1-F02-T03) |
 | `tools/traces` | `ajv` 8.20.0, `ajv-formats` 3.0.1 | validate trace |
 | `packages/location`, `tools/sim` | `@keep-walking/shared` (workspace) | interface และ simulator |
 | root (dev) · เพิ่มใน P1-H01 (ติดตั้งในงาน `X` ของ tech-lead) | `@maplibre/maplibre-gl-style-spec` 26.4.4 (เวอร์ชันเดียวกับที่ `maplibre-gl` 6.10.0 ดึงมาอยู่แล้วใน lockfile จึงไม่มีโค้ดใหม่) | ตรวจ style JSON ของ art-director ใน `pnpm test` (`validateStyleMin`) แทนการเรียก path ใต้ `node_modules/.pnpm/` · bump คู่กับ `maplibre-gl` เสมอ |
 | `tools/copy-lint` (workspace ใหม่ P1-H02) | `@keep-walking/shared` (workspace), `ajv` 8.20.0, `ajv-formats` 3.0.1 | copy lint (`docs/tech/copy-schema.md` หัวข้อ 8.1) |
+
+| Phase 2 (P2-F04-T05) | `happy-dom` 20.14.5, `@resvg/resvg-js` 2.6.2 (root dev) · `polylabel` 2.1.0 (`tools/dungeons`) · `@keep-walking/geo` (`apps/client`, `packages/shared`, `tools/dungeons`) · workspace ใหม่ `packages/geo`, `tools/dungeons`, `tools/config-lint` | รายละเอียดใน ADR 0003 หัวข้อ 8.1 |
 
 - ไม่มี Mapbox หรือ Google SDK · งานที่ต้องการ dependency อื่นให้ handoff ถึง tech-lead
 
@@ -290,7 +297,7 @@ docs/                adr/, tech/                                           tech-
 - ADR 0002 ยืนยัน `apps/api` และ layout ของ Worker/DO (P1-F02-T02)
 - tech note F02: `LocationProvider` interface, trace schema, ชื่อ env client ที่ล็อกแล้ว `VITE_TILES_URL`, `VITE_GLYPHS_URL`, `VITE_SPRITE_URL` (P1-F02-T03)
 - CI เรียก root scripts + e2e job แยก + gitleaks (P1-F02-T07)
-- `packages/geo/package.json` สร้างผ่านงาน tech-lead เมื่อ location-engineer ต้องการ
+- ~~`packages/geo/package.json` สร้างผ่านงาน tech-lead เมื่อ location-engineer ต้องการ~~ สร้างแล้วใน P2-F04-T05
 
 ## 5. ต้นทุน
 
@@ -347,3 +354,18 @@ docs/                adr/, tech/                                           tech-
 | 3.13 | กติกา worker URL ของ MapLibre 6.10 ESM ในแถว `apps/client` | D-068, P1-X23 |
 
 ผลต่อไฟล์ที่มีอยู่: ไม่มีไฟล์โค้ดหรือ config ที่ต้องแก้ · ทุกข้อบันทึกสิ่งที่ไฟล์ทำอยู่แล้ว
+
+### แก้ไขครั้งที่ 3 — P2-F04-T05 (2026-09-26, tech-lead)
+
+ที่มา: ADR 0003 (game core client-first) · D-087 · plan review Phase 2 B-01, C1-2, C1-4, N-02 · ไม่มี vendor หรือค่าใช้จ่ายใหม่
+
+| หัวข้อ | เปลี่ยนอะไร | เหตุผล |
+| --- | --- | --- |
+| 3.2 | `packages/geo` สร้างแล้วและเป็น leaf · เพิ่ม `tools/copy-lint`, `tools/dungeons`, `tools/config-lint`, `tools/art` (ไม่มี `package.json`) | B-01 · Writes ของ P2-F06-T07 ไม่มี lockfile |
+| 3.4 | include ของ root tsconfig และ tsconfig ของ geo | ADR 0003 8.3 |
+| 3.5 | กฎขอบของ game core | C1-2, C1-4, B-07 |
+| 3.6 | DOM test ด้วย `happy-dom` ต่อไฟล์ | P1-F02-T16, B-04 |
+| 3.10.7 | loader ของ Phase 2 ไม่ใช้ Ajv · schema ตรวจใน test | C1-4, B-06 |
+| 3.13 | dependency ของ Phase 2 · Ajv ของ shared เป็น dev | N-02 |
+
+ทวนตาม P1-X05: หัวข้อ 3.5, 3.10.1, 3.10.3, 3.11 ยังตรงกับไฟล์จริง ไม่มีการแก้เพิ่ม

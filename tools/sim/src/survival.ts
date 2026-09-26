@@ -1,6 +1,7 @@
 // Survival time and potion use (balance-model sections 3.3 and 3.4).
 // Analytic expectations are exact for the no-heal, no-shield case; the Monte Carlo engine
 // adds Support heal, Magic shield and auto-potion. All randomness comes from a seeded Rng.
+import { AUTO_RETREAT_HP_FLOOR } from './hit';
 import type { Rng } from './rng';
 import { mean, percentile, uniform } from './rng';
 
@@ -113,7 +114,12 @@ export function simulateRun(s: RunSetup, rng: Rng): RunResult {
     if (rng() < s.hitChance_pct / 100) {
       const absorbed = Math.min(shield, s.damage);
       shield -= absorbed;
-      hp -= s.damage - absorbed;
+      // R-B1 (D-078): with auto-retreat modelled (stopAt > 0) one hit never takes HP below 1,
+      // so the auto-potion still gets its chance before the retreat check.
+      hp =
+        s.stopAt_pct > 0
+          ? Math.max(AUTO_RETREAT_HP_FLOOR, hp - (s.damage - absorbed))
+          : hp - (s.damage - absorbed);
       if (s.potion !== null && hp < (s.maxHp * s.potion.threshold_pct) / 100 && hp > 0) {
         hp = Math.min(s.maxHp, hp + (s.maxHp * s.potion.heal_pctMaxHp) / 100);
         potionsUsed += 1;

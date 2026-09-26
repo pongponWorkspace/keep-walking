@@ -66,11 +66,12 @@ def zone_shares(zones: np.ndarray, weights: np.ndarray, snap_too_far: np.ndarray
 
 
 def transit_distance(rail_m: float, bus_m: float, tcfg: dict[str, Any]) -> float:
-    """launch-criteria 4.3: rail inside railAcceptableWalk_m ->
-    (railWeight x rail + busWeight x bus) / (railWeight + busWeight), else bus only."""
+    """launch-criteria 4.3 as fixed by D-069: rail inside railAcceptableWalk_m ->
+    min(bus, (railWeight x rail + busWeight x bus) / (railWeight + busWeight)),
+    else bus only. Rail can only improve the value, never make it worse."""
     if rail_m <= float(tcfg["railAcceptableWalk_m"]):
         rw, bw = float(tcfg["railWeight"]), float(tcfg["busWeight"])
-        return (rw * rail_m + bw * bus_m) / (rw + bw)
+        return min(bus_m, (rw * rail_m + bw * bus_m) / (rw + bw))
     return bus_m
 
 

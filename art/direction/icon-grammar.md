@@ -1,6 +1,7 @@
 # Icon Grammar — GPS Dungeon กรุงเทพฯ
 
 Task: P1-F03-T10 · เจ้าของ: art-director · สถานะ: ฉบับเสนอ รอ HUMAN อนุมัติทิศทางภาพ · วันที่: 2026-09-23
+แก้ใน P2-F05-T03 (2026-09-26): 3 และ 8 ข้อยกเว้น miter ของรอยแยก (F-AD-4) · 4.2/4.3 พิกัดเส้นของกรอบแบบวัดได้ (V-12) · 5.1/5.2 ขนนก Ranged และ stroke glyph 2 px (V-13) · 7.1 glyph ใหม่ของ Phase 2 (7.1.1) · 7.3 id ยาและอุปกรณ์ของ Phase 2 · 9 กฎลูกศรไม่ชนกัน · รายการ asset และสถานะของ Phase 2 อยู่ใน `art/direction/briefs/P2-assets.md`
 อ้างอิง: `art/direction/style-guide.md` (token สี, contrast, เส้น, แสงเงา, motif ที่ห้าม) · GDD "Class และ Party", "Quick command", "อุปกรณ์", "วัตถุดิบและการตีบวก", "Drop table" · `design/narrative/world.md` หัวข้อ 9, 12
 สีทุกค่าในเอกสารนี้คือ token ใน style guide หัวข้อ 3 · ค่า contrast อ้างตารางหัวข้อ 4 ของ style guide
 
@@ -63,7 +64,7 @@ Keyline ใน live area 20 × 20 (ให้ glyph ทุกตัวมีน�
 | --- | --- | --- | --- |
 | เส้นรอบนอก | 2 px `ink.900` | 2 px `ink.900` | ขอบวง 2 px `ink.900` |
 | เส้นใน | 2 px (ไม่มีเส้น 1 px ใน glyph) | 1 px `ink.700` | ไม่มี |
-| ปลายและมุมต่อ | round cap, round join | round | round |
+| ปลายและมุมต่อ | round cap, round join · **ยกเว้น glyph รอยแยก** (`icon.ui.rift`, `icon.ui.in-run`, รอยแตกใน `icon.ui.enter`) ใช้ `stroke-linejoin="miter"` `stroke-miterlimit="4"` (style guide 6.2) | round · มุมแหลมของ `mat-rift-stone` ใช้ miter | round |
 | รัศมีมุม | 2 px ขั้นต่ำ (ยกเว้นลูกศรและรอยแยกที่แหลมได้) | ตาม style guide 5 | — |
 | การเติมสี | ไม่เติม (outline) หรือเติม 1 สี token | ramp 3 ค่า + ไฮไลต์ `bg.surface` 1 จุด | พื้นสี class, glyph `bg.surface` |
 | สถานะ active / selected | เปลี่ยนจาก outline เป็นเติม `ink.900` (ไม่ใช่แค่เปลี่ยนสี) | กรอบหนาขึ้น 1 px + เงาทึบ 4 px | ขอบ `accent.signal` 3 px นอกขอบหมึก |
@@ -98,8 +99,20 @@ Keyline ใน live area 20 × 20 (ให้ glyph ทุกตัวมีน�
 6. แถว pip: ข้าวหลามตัดขนาดรวมเส้น 10 × 10 px เติมสี rarity ขอบ `ink.900` 2 px ระยะห่าง 3 px · จัดกึ่งกลางแนวนอน · จุดกึ่งกลาง pip อยู่บนขอบล่างของกรอบ (ครึ่งบนในกรอบ ครึ่งล่างนอกกรอบ) · 5 pip กว้างรวม 62 px
 7. item icon 64 × 64 วางกึ่งกลาง ตัววัตถุต้องไม่ทับแถว pip (ฐานวัตถุที่ y = 56 ของ icon)
 
+**พิกัดเส้นแบบวัดได้ (V-12 · SVG วาง stroke กึ่งกลางเส้น ครึ่งหนึ่งจึงออกนอกและครึ่งหนึ่งเข้าใน)**
+| ชั้น | element ใน viewBox `0 0 72 72` | ช่วงที่เห็นจริง (จากขอบนอก) |
+| --- | --- | --- |
+| พื้นใน | `<rect x="1" y="1" width="70" height="70" rx="11" fill="#FFFFFF"/>` | — |
+| ขอบหมึก | `<rect x="1" y="1" width="70" height="70" rx="11" fill="none" stroke="#1A1A22" stroke-width="2"/>` | 0–2 px เต็มความหนา ไม่ถูกตัดที่ขอบ viewBox |
+| แถบสี rarity หนา t (2/3/3/3/4) | rect ที่ inset i = 2 + t/2 : `x=y=i`, `width=height=72−2i`, `rx=max(12−i, 4)`, `stroke-width=t` | 2 ถึง 2+t px · ต่อจากขอบหมึกพอดี ไม่ทับ |
+| เส้นในของขอบคู่ (Rare ขึ้นไป) | rect ที่ inset 2 + t + 3 + 0.5 stroke 1 `ink.900` (Rare/Epic: inset 8.5 · Legendary: inset 9.5) | ห่างขอบในของแถบสี 3 px |
+| มุมตกแต่ง | สามเหลี่ยมและดาว stroke **2 px** `ink.900` (ไม่ใช่ 1.5) | — |
+| ลำดับวาด | พื้นใน → แถบสี → เส้นในขอบคู่ → ขอบหมึก → มุมตกแต่ง → pip | ขอบหมึกวาดหลังแถบสีเพื่อไม่ให้แถบทับครึ่งในของหมึก |
+
+ตรวจ: ในภาพ render ที่ 1x ความหนาแถบสีต้องเห็นเป็น 2/3/3/3/4 px ตามตาราง 4.1 (ต้นเหตุของ V-12 คือแถบถูกหมึกทับครึ่งหนึ่งจนเหลือ 1/2/2/2/3 px)
+
 ### 4.3 กรอบ compact 52 × 52
-- ขอบหมึก 2 px + ขอบสี rarity 2 px ทุกระดับ (ความหนาไม่ใช้เป็นตัวแยกในขนาดนี้)
+- ขอบหมึก 2 px + ขอบสี rarity 2 px ทุกระดับ (ความหนาไม่ใช้เป็นตัวแยกในขนาดนี้) · พิกัดตามหลักเดียวกับ 4.2 ใน viewBox `0 0 52 52`: หมึก `x=y=1 w=h=50 rx=8` stroke 2 · แถบสี inset 3 `w=h=46 rx=6` stroke 2 · ไม่มีขอบคู่
 - pip 6 × 6 px เติม `ink.900` (ไม่ใช่สี rarity เพื่อให้เห็นชัดที่ขนาดเล็ก) ระยะห่าง 2 px ที่ขอบล่าง
 - มุมตกแต่ง: เฉพาะ Legendary (ดาว 10 px ที่มุมขวาบนมุมเดียว) · ระดับอื่นไม่มี
 
@@ -121,14 +134,14 @@ Class ตาม GDD: Tanker, Ranged, Support, Magic · สีมาจากช�
 | Class | พื้น badge | สีข้อความชื่อ class | Glyph | silhouette ของ glyph (ต้องจำได้เมื่อระบายดำที่ 16 px) | เหตุผล |
 | --- | --- | --- | --- | --- | --- |
 | Tanker | `class.tanker` #0072B2 | `class.tanker-text` #005588 (7.50 บน paper) | โล่ | โล่กว้าง ขอบบนตรง ล่างมนลงเป็นปลายทู่ 1 จุด · กว้าง ≥ สูง × 0.85 | บังให้คนอื่น (quick command "ช่วยบังหน่อย") |
-| Ranged | `class.ranged` #D55E00 | `class.ranged-text` #AA4400 (5.63) | ลูกศร | ลูกศรเฉียงขึ้นขวา 45° หัวสามเหลี่ยมแหลม หางมีขนนก 2 แฉก · เป็น glyph เดียวที่เป็นเส้นทแยง | ตีจากระยะไกล · ห้ามรูปปืนหรือศูนย์เล็ง |
+| Ranged | `class.ranged` #D55E00 | `class.ranged-text` #AA4400 (5.63) | ลูกศร | ลูกศรเฉียงขึ้นขวา 45° หัวสามเหลี่ยมแหลม หางมีขนนก 2 แฉก (V-13: ขนนกเป็นเส้น 2 เส้นแยกจากก้านเป็นรูป V ที่ปลายหาง ทำมุม ~40° กับก้าน ยาว ≈ 1/4 ของก้าน · รอยบากอย่างเดียวไม่นับเป็นขนนก) · เป็น glyph เดียวที่เป็นเส้นทแยง | ตีจากระยะไกล · ห้ามรูปปืนหรือศูนย์เล็ง |
 | Support | `class.support` #009E73 | `class.support-text` #006644 (6.67) | หัวใจ | หัวใจอ้วน 2 โค้งบน ปลายล่างมน · เป็น glyph เดียวที่มีรอยเว้าด้านบน | ฟื้น HP ชุบคนในทีม · **ห้ามกากบาทแดงหรือกากบาทบวก** เพราะเป็นเครื่องหมายคุ้มครองของกาชาดตามกฎหมาย |
 | Magic | `class.magic` #CC79A7 | `class.magic-text` #994477 (5.78) | ประกาย 4 แฉก | ดาว 4 แฉกเว้าโค้งเข้า (แฉกยาวบนล่าง แฉกสั้นซ้ายขวา) · เป็น glyph เดียวที่มีปลายแหลม 4 จุด | เร่ง exp · **ห้ามดาว 5 หรือ 6 แฉก ดวงจันทร์เสี้ยว ยันต์ อักขระ ตาที่สาม ดอกบัว** |
 
 ### 5.2 โครง badge master 48 × 48
 1. วงกลมเส้นผ่านศูนย์กลาง 44 px กึ่งกลาง เติมสี class
 2. ขอบ `ink.900` 2 px (contrast ขอบกับพื้น class: tanker 3.33, ranged 4.47, support 5.05, magic 5.65 · กับ paper 16.39)
-3. glyph เติม `bg.surface` ขอบ `ink.900` 2 px อยู่ใน live area 28 × 28 กึ่งกลาง (glyph ขาวกับพื้น class: 5.19 / 3.87 / 3.42 / 3.06 ผ่าน 3.0 และขอบหมึกรอบ glyph ทำให้ขอบ glyph ≥ 16:1 เสมอ)
+3. glyph เติม `bg.surface` ขอบ `ink.900` **2 px ทุก glyph** (V-13: ลูกศรและประกายห้ามใช้ 1.6) อยู่ใน live area 28 × 28 กึ่งกลาง (glyph ขาวกับพื้น class: 5.19 / 3.87 / 3.42 / 3.06 ผ่าน 3.0 และขอบหมึกรอบ glyph ทำให้ขอบ glyph ≥ 16:1 เสมอ)
 4. ไม่มีไฮไลต์ ไม่มีเงา (badge เป็นสัญลักษณ์ ไม่ใช่วัตถุ)
 
 ขนาดเล็ก
@@ -189,6 +202,27 @@ kind `icon-ui` · 24 px = `icon.ui.<name>` · 16 px วาดแยก = `icon.u
 | `icon.ui.report` | รายงาน / บล็อก | ธงสามเหลี่ยมเปล่า | ธงชาติ ธงที่มีลาย |
 | `icon.ui.consent` | ความเป็นส่วนตัว / consent | โล่เล็ก + หมุดแผนที่ | แม่กุญแจ (ชนกับ speed-lock) |
 
+#### 7.1.1 UI glyph ที่เพิ่มสำหรับ Phase 2 (P2-F05-T03 · ขนาด layer และสถานะอยู่ใน brief หัวข้อ 2)
+| id สุดท้าย (24 px) | ความหมาย | glyph | สไตล์ | ห้าม |
+| --- | --- | --- | --- | --- |
+| `icon.ui.direction` | ทิศไป dungeon (ลูกศรทิศ ไม่ใช่เส้นทาง · D-089) | หัวลูกศรทรงว่าว: ปลายแหลมด้านบน ฐานเว้าเป็นรูป V · **วาดชี้ขึ้น (0°) จุดหมุนที่กึ่งกลาง (12, 12)** เพื่อให้ code หมุนได้ · สูง 20 กว้าง 14 | เติม `accent.signal` ขอบ `ink.900` 2 px (สีเดียวกับจุดตัวเองบนแผนที่ อ่านว่า "จากตัวฉัน") | ก้านหรือหาง (ชน Ranged) · ลูกศรหนาแนวนอน (ชน `qc.go-on`) · เข็มทิศมีตัว N · ดาวทิศ 8 แฉก |
+| `icon.ui.navigate` | เปิดแอปแผนที่ของเครื่อง | แผ่นแผนที่พับของ `icon.ui.map` ย่อไปมุมซ้ายล่าง + ลูกศรออกนอกกรอบที่มุมขวาบน (สัญลักษณ์ลิงก์ภายนอก) | outline | โลโก้ หมุด หรือสีของผู้ให้บริการแผนที่รายใด |
+| `icon.ui.copy` | คัดลอกชื่อสถานที่ (fallback ของนำทาง) | สี่เหลี่ยมมุมมน 2 แผ่นซ้อนเยื้อง | outline | — |
+| `icon.ui.rift` | dungeon เปิด (การ์ด, list, popup) | รอยแตกซิกแซกแนวตั้ง 3–4 หักมุม เหมือน `map.icon.rift-crack` แบบย่อ | เติม `rift.500` แกน `bg.paper` ขอบ `ink.900` 2 px · miter | วงกลมประตูมิติ อักขระ |
+| `icon.ui.in-run` | dungeon ที่ run ของผู้เล่นอยู่ | รอยแตกเดียวกับ `icon.ui.rift` | เติม `ink.900` แกน `bg.paper` (กฎ active = เติม `ink.900` ในหัวข้อ 3) · miter | — |
+| `icon.ui.closing-soon` | ใกล้ปิดทำการ | หน้าปัดของ `icon.ui.hours` + ลิ่มทึบ `ink.900` จากตำแหน่ง 11 ถึง 12 นาฬิกา (เวลาที่เหลือน้อย) | outline + ลิ่มเติม · ใช้บน chip `accent.signal` | ตัวเลขในหน้าปัด · สีแดง (ไม่ใช่อันตราย) |
+| `icon.ui.closed` | ปิดทำการ | ประตูม้วนเหล็กของตึกแถว: สี่เหลี่ยมตั้ง เส้นแนวนอน 3 เส้น มือจับที่ขอบล่าง | outline | แม่กุญแจ (สงวนให้ speed lock) · กากบาท · ตัวอักษร "CLOSED" |
+| `icon.ui.signal-wait` | รอสัญญาณ (check-in `poor_accuracy`, `not_enough_trace`) | หมุดแผนที่ + ขีดสัญญาณ 3 ขั้นสูงขึ้นทางขวา | outline · ขั้นที่ 1 เติม `ink.900` ขั้น 2–3 outline · **ภาพนิ่ง** ไม่มีขั้นวิ่ง | spinner, จุดวน, นาฬิกาทราย (ชน Grace) |
+| `icon.ui.walk-in` | เดินออกนอกเขตแล้วเดินกลับเข้ามา (`no_approach_from_outside`) | รอยเท้า 2 รอยข้ามเส้นประแนวตั้งเข้าหารอยแตกเล็กด้านขวา | outline · รอยแตกเติม `rift.500` | ลูกศรวงกลม (อ่านเป็นรีเฟรช) |
+| `icon.ui.suspended` | run สถานะ Suspended | นาฬิกาทรายของ `icon.ui.grace` นอนตะแคง (เวลาหยุด) | เติม `state.info` | — |
+| `icon.ui.exit` | ออกจาก run เอง | ประตูเปิด + ลูกศรออก (ความหมายเดียวกับ `icon.qc.retreating` วาดบน grid 24) | outline | — |
+| `icon.ui.hp-low` | HP ต่ำถึงเกณฑ์แจ้ง | หยดของ `icon.ui.hp` เติมครึ่งล่าง ครึ่งบน outline | เติม `state.danger` ครึ่งล่าง | กะโหลก · หัวใจ |
+| `icon.ui.potion-used` | ใช้ยาอัตโนมัติแล้ว | ขวดหน้าตรงก้อนกลม + หยด HP เล็กมุมขวาบน | outline · หยดเติม `state.danger` | กากบาทแดง · ขวดที่คล้ายแบรนด์ |
+| `icon.ui.recovering` | HP ฟื้นช้าหลังตาย | หยด HP outline + หน้าปัดนาฬิกาเล็กมุมขวาล่าง | outline | — |
+| `icon.ui.knocked-out` | ตาย (จอตาย) | หัว avatar ก้อนกลมนอนราบ ตาเป็นเส้นโค้งปิด 2 เส้น | outline | กะโหลก ตากากบาท หลุมศพ ไม้กางเขน ธูป เทียน น้ำตา |
+
+ทุกตัวต้องมีเวอร์ชัน 16 px (`icon.ui16.<name>`) เฉพาะที่ brief ระบุว่าใช้ inline · ตัวที่แสดง 48 px (`direction`, `speed-lock`, `signal-wait`, `walk-in`, `closed`, `knocked-out`) ใช้ไฟล์ 24 ไฟล์เดียว scale 2 เท่า แล้วให้เส้นบนจอเป็น 3 px ตามหัวข้อ 2.1 ด้วย CSS บน SVG แบบ inline: `stroke-width: 1.5` ในหน่วยของ viewBox (1.5 × 2 = 3 px) · ดังนั้นทุกเส้นในไฟล์ต้องเป็น `stroke` จริง ไม่แปลงเป็น path (สอดคล้องกับหัวข้อ 8)
+
 ### 7.2 Quick command 10 ตัว (32 px, ตาม GDD "Quick command")
 kind `icon-qc` · id ตามตาราง asset-pipeline 3.4 (copy key `qc.*` ของ narrative-designer แปลง camelCase เป็น kebab) · pose ของ avatar ที่คู่กันอยู่ใน asset-pipeline 3.4 และ avatar-spec 10
 | คำสั่ง (GDD) | copy key | id สุดท้าย | glyph | ห้าม |
@@ -219,8 +253,9 @@ kind `icon-item` · id = `icon.item.<category>-<name>` (asset-pipeline 3.3) · `
 | แก่นธาตุ | `icon.item.mat-essence` | ก้อนผลึกกลมเหลี่ยมมน | — |
 | หินรอยแยก | `icon.item.mat-rift-stone` | เศษหินหักซิกแซก `ramp.rift` | — |
 | แกนบอส | `icon.item.mat-boss-core` | ลูกบอลแข็งมีรอยแตกรอยแยก ขอบ 3 px | ผอบ พระธาตุ หรือภาชนะทรงศาสนา |
-| ยา | `icon.item.potion-<name>` | ขวดเครื่องดื่มเกลือแร่ทั่วไปไม่มีฉลาก | ขวดที่คล้ายแบรนด์จริง |
+| ยา | `icon.item.potion-<name>` · Phase 2: `potion-hp-small`, `potion-hp-medium`, `potion-hp-large`, `potion-revive` (ตรงกับ `potion.hpSmall` … `potion.revive` ใน `config/content/names.th.json`) | ขวดเครื่องดื่มเกลือแร่ทั่วไปไม่มีฉลาก ขวด `ramp.plastic` น้ำ `ramp.tonic` · **ขนาดแยกด้วยรูปทรงไม่ใช่สี:** เล็ก = ขวดเตี้ย สูง 28 px แหวนฝา 1 วง · กลาง = สูง 38 px แหวน 2 วง · ใหญ่ = สูง 48 px ขวดป่อง แหวน 3 วง · ลุกจากพื้น = ขวดกลางวางเอียง 20° มีบั้งชี้ขึ้น (chevron) 2 ชั้นนูนบนตัวขวดสี `bg.surface` ขอบ `ink.700` | ขวดที่คล้ายแบรนด์จริง · ตัวอักษรหรือตัวเลขบนขวด · กากบาทแดง · ขวดยาแบบโรงพยาบาล |
 | gold | `icon.item.currency-gold` | เหรียญทองเกลี้ยง มีวงแหวนนูน 1 วง | **รูปหน้าคนบนเหรียญ** ตราหรือลายของเหรียญจริง (เหรียญไทยจริงมีพระบรมรูป) |
+| อุปกรณ์ที่ drop ใน Phase 2 (Epic/Legendary ตาม `drops.rewardTypeByRarity`) | `icon.item.weapon-folding-umbrella`, `icon.item.armor-raincoat`, `icon.item.charm-keychain`, `icon.item.boots-rain-boots` (1 ภาพต่อช่อง ใช้ร่วมทุก tier จนกว่า content จะมีรายการอุปกรณ์จริง · ระดับบอกด้วยกรอบ rarity ไม่ใช่ตัว icon) | ของชิ้นเดียวกับชุดประดับ placeholder ของ avatar วาดเป็น item icon 64 ตามหลัก V2 | ตามแถวอาวุธ เกราะ เครื่องราง รองเท้าด้านบน |
 | badge | `icon.item.badge-<name>` (ของสะสมของผู้เล่น ไม่ใช่ `badge.class.*`) | เข็มกลัดกลมก้อนกลม · ภายในเป็น motif จาก style guide 8.1 | สัญลักษณ์ในหมวดห้ามของ style guide 8.2 |
 
 ## 8. กฎ SVG และการส่งมอบ
@@ -242,7 +277,7 @@ kind `icon-item` · id = `icon.item.<category>-<name>` (asset-pipeline 3.3) · `
 | raster | ห้ามฝัง raster ห้าม `<image>` |
 | ข้อความ | ห้าม `<text>` ห้ามแปลงตัวอักษรเป็น path ใน icon |
 | สี | hex จาก token เท่านั้น ใส่ใน attribute `fill` / `stroke` ตรง ไม่มี `opacity` ยกเว้นเงาตกกระทบของ item icon (`ink.900` ความทึบ 0.2) |
-| เส้น | ใช้ `stroke` จริง (`stroke-width="2"`, `stroke-linecap="round"`, `stroke-linejoin="round"`) ใน UI glyph เพื่อให้ uiux ปรับสีเส้นได้ · item icon แปลง stroke เป็น path ได้ |
+| เส้น | ใช้ `stroke` จริง (`stroke-width="2"`, `stroke-linecap="round"`, `stroke-linejoin="round"`) ใน UI glyph เพื่อให้ uiux ปรับสีเส้นได้ · item icon แปลง stroke เป็น path ได้ · **ข้อยกเว้นรอยแยก:** glyph และ map icon ของรอยแยกใช้ `stroke-linejoin="miter"` `stroke-miterlimit="4"` (style guide 6.2) และ SVGO ต้องไม่เปลี่ยนค่านี้ |
 | สีที่ code เปลี่ยนได้ | UI glyph แบบ outline ใช้ `stroke="currentColor"` ได้ (ค่าที่ code ส่งต้องเป็น token) · อย่างอื่นใช้ hex ตายตัว |
 | rarity frame | 1 ไฟล์ต่อระดับต่อขนาด (10 ไฟล์) ไม่รวม item icon · code ประกอบ frame + icon เอง |
 | class badge | 1 ไฟล์ต่อ class ต่อขนาด (12 ไฟล์ที่ 20/32/48) |
@@ -261,7 +296,10 @@ kind `icon-item` · id = `icon.item.<category>-<name>` (asset-pipeline 3.3) · `
 - [ ] ผ่านการจำลองตาบอดสี 4 แบบตามหัวข้อ 6.3
 - [ ] contrast ข้อความใน chip ≥ 4.5 และองค์ประกอบ ≥ 3.0 ตาม style guide หัวข้อ 4
 - [ ] ไม่มี motif ในรายการห้ามของ style guide 8.2 และคอลัมน์ "ห้าม" ในหัวข้อ 7
-- [ ] glyph ไม่ชนความหมายกัน (หัวใจ = Support เท่านั้น, ดาว 4 แฉก = Magic และมุม Legendary เท่านั้น, แม่กุญแจ = speed lock เท่านั้น)
+- [ ] glyph ไม่ชนความหมายกัน (หัวใจ = Support เท่านั้น, ดาว 4 แฉก = Magic และมุม Legendary เท่านั้น, แม่กุญแจ = speed lock เท่านั้น, นาฬิกาทราย = Grace/Suspended เท่านั้น)
+- [ ] ลูกศร 3 แบบไม่ปนกัน: ลูกศรมีก้านและขนนกเฉียง 45° = Ranged เท่านั้น · ลูกศรหนาแนวนอน = `qc.go-on` · หัวลูกศรทรงว่าวไม่มีก้าน = `icon.ui.direction` เท่านั้น
+- [ ] รอยแยกใช้ miter join · glyph อื่นใช้ round join
+- [ ] ไม่มี glyph ที่สื่อการรอด้วยการเคลื่อนไหว (spinner, จุดวน) · สถานะรอเป็นภาพนิ่ง + ข้อความ (D-076)
 - [ ] ขนาดไฟล์ไม่เกินงบ
 
 ## 10. สมมติฐานและการส่งต่อ

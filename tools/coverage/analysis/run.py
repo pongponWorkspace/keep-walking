@@ -141,6 +141,16 @@ def compute(inp: Inputs, acfg: dict[str, Any], cf: dict[str, Any], presets: list
     too_far = c_snap > snap_max
     zones = M.zone_of(walk, too_far, bands)
 
+    # D-069 / F-11: walk distance from every populated cell to the nearest
+    # usable dungeon of the F-11 preset (pocketPark), anywhere in the study area.
+    f11 = acfg["f11PresetId"]
+    pp = np.array([j for j, f in enumerate(usable) if f["properties"]["_preset"] == f11], dtype=np.int64)
+    if len(pp) and len(c_node):
+        _, _, pp_dist, _ = _route(g, pool, dx[pp], dy[pp])
+        walk_pp = c_snap + pp_dist[c_node]
+    else:
+        walk_pp = np.full(len(c_node), np.inf)
+
     transit_by_kind: dict[str, np.ndarray] = {}
     transit_counts: dict[str, int] = {}
     for kind in ("rail", "bus"):
@@ -169,17 +179,20 @@ def compute(inp: Inputs, acfg: dict[str, Any], cf: dict[str, Any], presets: list
         "transit_d": transit_d, "transit_counts": transit_counts,
         "cells": {"row": rows, "col": cols, "district": cdist, "pop": pop, "walk": walk,
                   "snap": c_snap, "too_far": too_far, "zone": zones, "nearest": nearest,
+                  "walk_pocketPark": walk_pp,
                   "euclid": euclid, "to_owner": to_owner},
         "graph": {"nodes": g.n_nodes, "edges": g.n_edges, "components": int(len(comp_sizes)),
                   "main_component_nodes": int(len(pool)),
                   "top_component_sizes": sorted(comp_sizes.tolist(), reverse=True)[:5]},
         "rows": district_rows(inp, acfg, cf, presets, class_names, usable, not_counted,
-                              transit_d, transit_by_kind, rows, cdist, pop, walk, zones, too_far),
+                              transit_d, transit_by_kind, rows, cdist, pop, walk, zones, too_far,
+                              walk_pp),
     }
 
 
 def district_rows(inp, acfg, cf, presets, class_names, usable, not_counted, transit_d,
-                  transit_by_kind, rows, cdist, pop, walk, zones, too_far) -> list[dict[str, Any]]:
+                  transit_by_kind, rows, cdist, pop, walk, zones, too_far,
+                  walk_pp) -> list[dict[str, Any]]:
     """One row per district (79). Breakdown columns (class_*, size_*,
     preset_*, valid_total_area_m2) count each candidate once, in its own
     district, so they sum to valid_polygon_count. Launch-criteria columns
@@ -234,6 +247,7 @@ def district_rows(inp, acfg, cf, presets, class_names, usable, not_counted, tran
         row["distance_method"] = "osm_walk_network"
         row["walk_avg_m"] = M.weighted_mean(walk[mask], w)
         row["walk_median_m"] = M.weighted_median(walk[mask], w)
+        row["pocketPark_walk_median_m"] = M.weighted_median(walk_pp[mask], w)
         row["g1_pop_share_green"] = shares["green"]
         row["pop_share_yellow"] = shares["yellow"]
         row["g4_pop_share_red"] = shares["red"]

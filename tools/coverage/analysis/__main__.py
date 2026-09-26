@@ -197,6 +197,7 @@ def build_meta(args, cfg, acfg, shas, cand_path, cmeta, res, gstats, bbox, grid,
                             "review_reasons": p.get("related_ids", {}).get("review_reasons")}
     return {
         "task": "P1-F01-T06",
+        "rerun_task": "P2-F04-T03",
         "analysis_version": ANALYSIS_VERSION,
         "command": "cd tools/coverage && .venv/bin/python -m analysis all --offline",
         "deterministic_outputs": ["data/coverage/district-counts.csv", "data/coverage/heatmap/*"],
@@ -244,6 +245,7 @@ def build_meta(args, cfg, acfg, shas, cand_path, cmeta, res, gstats, bbox, grid,
         },
         "transit": {"rail_points": res["transit_counts"]["rail"], "bus_points": res["transit_counts"]["bus"],
                     "rail_acceptable_walk_m": acfg["transit"]["railAcceptableWalk_m"]},
+        "outputs_sha256": output_hashes(pl, out),
         "counts": {"candidates": len(by_id), "usable": len(res["usable"]),
                    "not_counted_review_required": not_counted},
         "totals": totals,
@@ -254,6 +256,15 @@ def build_meta(args, cfg, acfg, shas, cand_path, cmeta, res, gstats, bbox, grid,
                 "platform": platform.platform(),
                 "packages": {n: metadata.version(n) for n in PACKAGES}},
     }
+
+
+def output_hashes(pl: dict[str, Any], out: dict[str, Path]) -> dict[str, str]:
+    """SHA-256 of every committed output (P2-F04-T03 acceptance: a rerun on
+    the same inputs must reproduce these). run-meta.json itself is excluded
+    because it carries run time and machine fields."""
+    files = [(TOOL_DIR / pl["outputs"][k]).resolve() for k in ("candidates", "excluded", "pointsUnmatched")]
+    files += [out["districtCounts"]] + sorted(out["heatmapDir"].glob("*"))
+    return {_rel(f): sha256_file(f) for f in files if f.is_file()}
 
 
 def _q(arr) -> dict[str, float | None]:

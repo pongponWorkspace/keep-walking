@@ -15,7 +15,7 @@ FIXED_HEAD = [
 TAIL = [
     ("valid_total_area_m2", 1), ("population", 0), ("population_cells", None),
     ("population_resolution", None), ("dungeons_per_100k", 3), ("distance_method", None),
-    ("walk_avg_m", 0), ("walk_median_m", 0),
+    ("walk_avg_m", 0), ("walk_median_m", 0), ("pocketPark_walk_median_m", 0),
     ("g1_pop_share_green", 4), ("pop_share_yellow", 4), ("g4_pop_share_red", 4),
     ("pop_share_red_snap", 4), ("s1_pop_share_green_yellow", 4),
     ("g2_valid_count_incl_multi", None), ("g3_preset_count_incl_multi", None),

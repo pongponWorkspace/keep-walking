@@ -10,6 +10,7 @@ There are no default values in code: a missing key stops the run.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -36,9 +37,12 @@ REQUIRED_FILTER_KEYS = (
     "blocklistDisabledCategories",
     "blocklistDisabledTags",
     "blocklistAreaOnlyTags",
+    "excludeOsmIds",
     "reviewOsmIds",
+    "releaseOsmIds",
     "reviewTags",
     "reviewNamePatterns",
+    "reviewFlagTags",
     "reviewMinAreaTags",
     "outdoorBuildingValues",
     "privateGardenTypes",
@@ -66,6 +70,9 @@ REQUIRED_PIPELINE_KEYS = (
 )
 
 MAJOR_WAY_ACTIONS = ("flag", "exclude", "off")
+OSM_ID_LISTS = ("excludeOsmIds", "reviewOsmIds", "releaseOsmIds")
+OSM_ID_RE = re.compile(r"^osm-[nwr][0-9]+$")
+FLAG_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 class ConfigError(Exception):
@@ -130,6 +137,33 @@ def _validate_filter(cf: dict[str, Any], where: str) -> None:
             raise ConfigError(f"{where}.sizeBandUpper_m2.{band} is missing")
     if cf["majorWayAction"] not in MAJOR_WAY_ACTIONS:
         raise ConfigError(f"{where}.majorWayAction must be one of {MAJOR_WAY_ACTIONS}")
+    _validate_osm_id_lists(cf, where)
+    flags = cf["reviewFlagTags"]
+    if not isinstance(flags, dict):
+        raise ConfigError(f"{where}.reviewFlagTags must be an object of flag name -> tag specs")
+    for name, specs in flags.items():
+        if name.startswith("_"):
+            continue
+        if not FLAG_NAME_RE.match(name) or not isinstance(specs, list) or not specs:
+            raise ConfigError(f"{where}.reviewFlagTags.{name}: name must be snake_case "
+                              "and the value a non-empty list of tag specs")
+
+
+def _validate_osm_id_lists(cf: dict[str, Any], where: str) -> None:
+    """D-083: excluded / pending / released ids keep distinct statuses, so an
+    id may sit in only one list, and every entry must look like osm-w<id>."""
+    owner: dict[str, str] = {}
+    for key in OSM_ID_LISTS:
+        ids = cf[key]
+        if not isinstance(ids, list):
+            raise ConfigError(f"{where}.{key} must be a list")
+        bad = [i for i in ids if not isinstance(i, str) or not OSM_ID_RE.match(i)]
+        if bad:
+            raise ConfigError(f"{where}.{key}: not in osm-<n|w|r><id> form: {', '.join(map(str, bad))}")
+        for i in ids:
+            if i in owner:
+                raise ConfigError(f"{where}: {i} is listed in both {owner[i]} and {key}")
+            owner[i] = key
 
 
 def load_config(

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F04 Flow C+D: check-in + speed lock (P2-F04-T15)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F04 Flow C — Check-in รอสัญญาณนิ่ง (GD B-03) · Flow D — Speed lock overlay (GD B-02)</h1>
+  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 4–5 · ปุ่ม "เข้า" ยังอยู่ในจอ popup เดิม เปลี่ยนเป็น disable พร้อมสถานะหนึ่งบรรทัดตามลำดับ speed_lock → poor_accuracy → not_enough_trace → no_approach_from_outside (R08) · ห้ามเอ่ยคำว่า anti-cheat/โกง/วิธีตรวจ (R10)</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>C1. not_enough_trace (มี countdown สด)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.confirmTitle</span><br><span class="thaidraft">(ลุมพินี — ป่าในเมือง)</span></h1>
+        <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></p>
+        <div class="btn btn-disabled" style="margin-top:12px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+        <p class="caption" style="text-align:center;margin-top:8px;">
+          <span class="copykey">dungeon.checkinNotEnoughTrace</span> <span class="thaidraft">(กำลังนับเวลาที่เดินต่อเนื่อง อีก 00:07)</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">countdown mm:ss เป็น widget ตัวเลขสดจาก engine (ไม่ใช่ client ประมาณ) นับถึง <span class="config-ref">config: anticheat.checkIn.minContinuousApproach_s</span> · ปุ่มเปิดใช้เองทันทีที่ครบ ไม่ต้องปิดเปิด popup ใหม่ (R09)</p>
+</div>
+
+<div class="frame-block">
+<h3>C2. poor_accuracy / no_approach_from_outside / speed_lock (trace)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:100%;"></div>
+    <div class="popup-overlay">
+      <div class="popup">
+        <h1 class="scr-title"><span class="copykey">dungeon.confirmTitle</span><br><span class="thaidraft">(ลุมพินี — ป่าในเมือง)</span></h1>
+        <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></p>
+        <div class="btn btn-disabled" style="margin-top:12px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+        <p class="caption" style="text-align:center;margin-top:8px;"><span class="copykey">dungeon.checkinPoorAccuracy</span> <span class="thaidraft">(สัญญาณ GPS ไม่แม่นพอ ลองออกที่โล่ง)</span></p>
+        <p class="caption" style="text-align:center;color:var(--ink-500);">ตัวอย่างอื่นในลำดับเดียวกัน (แสดงทีละบรรทัดเดียวจริง):<br><span class="copykey">dungeon.checkinNoApproach</span> <span class="thaidraft">(ต้องเดินเข้ามาจากนอกเขต ลองเดินออกแล้วกลับเข้ามา)</span><br><span class="copykey">dungeon.checkinSpeedLocked</span> <span class="thaidraft">(เพิ่งเร็วเกินเดินอยู่ช่วงที่ผ่านมา ลองเดินเข้าใหม่อีกครั้ง)</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ลำดับความสำคัญ (R08): แสดงเหตุผลเดียวที่มีลำดับสูงสุดที่ยังไม่ผ่านเท่านั้น ไม่แสดงซ้อนกันจริง (เฟรมนี้รวมไว้เพื่อเทียบโทนเท่านั้น) · ทุกข้อความพูดถึงแค่สัญญาณ GPS/การเดินเข้าเขต ไม่มีคำว่า anti-cheat</p>
+</div>
+
+<div class="frame-block">
+<h3>D1. Speed lock — overlay เต็มจอ</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="background:var(--ink-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;">
+    <p style="font-size:40px;margin:0 0 16px;">&#9888;</p>
+    <p class="body-text" style="color:var(--bg-surface);"><span class="copykey">anticheat.speedLockTitle</span><br><span class="thaidraft">(เร็วเกินเดิน ระบบล็อกไว้ก่อน)</span></p>
+    <p class="caption" style="color:var(--ink-300);margin-bottom:32px;"><span class="copykey">anticheat.speedLockBody</span><br><span class="thaidraft">(จะปลดเองเมื่อกลับมาเดินความเร็วปกติ)</span></p>
+    <div class="btn btn-secondary" style="width:100%;color:var(--bg-surface);border-color:var(--bg-surface);background:transparent;">ตั้งค่า</div>
+    <div class="btn btn-secondary btn-fullwidth-bottom" style="border-color:var(--state-danger-night);color:var(--state-danger-night);background:transparent;"><span class="copykey">run.exitButton</span> <span class="thaidraft">(ออก)</span></div>
+  </div>
+</div>
+<p class="frame-caption">ทับทุกอย่าง (แผนที่/popup confirm/จอ run รวมจอพกกระเป๋า) ไม่มีปุ่มชวนเล่นต่อ มีแค่ตั้งค่า+ออก (R23) · สั่น 1 ครั้งตอนเข้า ไม่มีเสียงวนซ้ำ · ปลดเองเมื่อช้าลงต่อเนื่อง <span class="config-ref">unlockSustained_s</span> ไม่ต้องกดอะไร</p>
+</div>
+
+</div>
+</body>
+</html>

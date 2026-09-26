@@ -51,13 +51,16 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # ครั
 | --- | --- | --- |
 | `area.minArea_m2`, `area.maxArea_m2` | `config/balance/dungeons.json` | เทียบแบบรวมขอบ `min ≤ area_m2 ≤ max` บนค่าก่อนปัด |
 | `verification.v1VerificationMode`, `v1FloorLevel` | `config/balance/dungeons.json` | เขียนลง `verification_mode` / `floor_level` ของทุก feature |
-| `coverageFilter.*` (25 คีย์) | `config/balance/dungeons.json#coverageFilter` เท่านั้น | systems-designer ย้ายมาจาก `params.json` ใน P1-H03 (ค่าเท่ากันทุกคีย์) จึงปิด A-P1-F01-T01-1 · `params.json` ไม่มี `coverageFilter` แล้ว (แหล่งเดียว) · ค่าทั้งหมดยังเป็น **ค่าเสนอ** ตาม METHOD 8.2 |
+| `coverageFilter.*` (28 คีย์ที่ pipeline อ่าน) | `config/balance/dungeons.json#coverageFilter` เท่านั้น | systems-designer ย้ายมาจาก `params.json` ใน P1-H03 (ค่าเท่ากันทุกคีย์) จึงปิด A-P1-F01-T01-1 · `params.json` ไม่มี `coverageFilter` แล้ว (แหล่งเดียว) · ค่าทั้งหมดยังเป็น **ค่าเสนอ** ตาม METHOD 8.2 |
 | `pipeline.*` | `params.json#pipeline` | แหล่งข้อมูล, ขอบเขต 6 จังหวัด + จำนวนเขตที่คาด, tag 6 ชุด, CRS, ความละเอียดตัวเลข, seed สุ่มตรวจ, เพดานขนาดไฟล์, path output |
 
-- คีย์ใดหายจาก config → หยุดด้วย `ConfigError` ทันที (มี test ยืนยัน) · แหล่งที่ใช้จริงและค่าของคีย์ที่ pipeline อ่านเขียนลง `coverage_meta.config` (เฉพาะ 25 คีย์ที่อ่านจริง หัวข้อ 5 ข้อ 10)
+- คีย์ใดหายจาก config → หยุดด้วย `ConfigError` ทันที (มี test ยืนยัน) · แหล่งที่ใช้จริงและค่าของคีย์ที่ pipeline อ่านเขียนลง `coverage_meta.config` (เฉพาะ 28 คีย์ที่อ่านจริง หัวข้อ 5 ข้อ 10)
 - หมวด `religious` ปิดไม่ได้ (D-006) · config ที่พยายามปิดจะถูกปฏิเสธ
 - ห้าม agent ใดนอกจาก systems-designer แก้ `config/balance/` · จะปรับค่าให้ส่ง handoff (test ของ pipeline สลับค่าผ่านสำเนาชั่วคราวของ `dungeons.json` เท่านั้น)
 - คีย์ที่เพิ่มจาก METHOD หัวข้อ 8.2 (ค่าเสนอเช่นกัน): `blocklistDisabledCategories`, `blocklistDisabledTags`, `blocklistAreaOnlyTags`, `reviewTags`, `reviewNamePatterns`, `reviewMinAreaTags`, `outdoorBuildingValues`, `privateGardenTypes`, `majorWayTags`, `majorWayIgnoreIfTagged`, `majorWayAction`, `majorWayMinInsideLength_m` · เดิม METHOD เขียนค่าเหล่านี้เป็นข้อความในตาราง ตอนนี้ย้ายมาเป็นคีย์เพื่อไม่ให้มีค่าคงที่ในโค้ด
+
+- คีย์ที่เพิ่มใน P2-F04-T03 (D-083, design gate F01 N-01): `excludeOsmIds` (ตัดถาวร → `reason_excluded = excluded_osm_id` · candidate ที่อยู่ข้างในอย่างน้อย `nestedContainmentShare` ได้ `review_required` เหตุผล `inside_excluded_osm_id` เพราะชิ้นที่ถูกตัดไม่กลืนชิ้นอื่น) · `reviewOsmIds` (ยังไม่ใช้จนตรวจเพิ่ม → `review_required` เหตุผล `review_osm_id` ไม่นับ ไม่ตัด) · `releaseOsmIds` (HUMAN ปล่อย → ล้างเหตุผล review อัตโนมัติทุกตัวของ id นั้น เก็บไว้ใน `related_ids.review_released` ไม่ล้างเหตุผลตัด) · `reviewFlagTags` (ชื่อธง → tag spec บนตัว candidate: `railway_station`, `fee_entry` → ติดธงนั้น + `review_required` เหตุผล `flag_<ชื่อ>`) · id หนึ่งอยู่ได้รายการเดียว และต้องอยู่ในรูป `osm-<n|w|r><id>` ไม่งั้น `ConfigError` · `_osmIdNotes` เป็นป้ายกำกับให้คนอ่าน (เลขข้อตาม coverage-report หัวข้อ 6) pipeline ไม่อ่าน
+- `reviewNamePatterns` เพิ่มคำราชาศัพท์ เฉลิมพระเกียรติ, ราชานุสรณ์, ราชานุสาวรีย์, พระบรม, ราชอุทยาน, สมเด็จ (N-01)
 
 ### 4.1 สวิตช์ของ decision ที่ยัง PROPOSED
 
@@ -255,10 +258,11 @@ cd tools/coverage
 | `dungeons_per_100k` | `valid_polygon_count` ÷ `population` × 100,000 |
 | `distance_method` | `osm_walk_network` ทุกแถว (ไม่ได้ใช้ route factor) |
 | `walk_avg_m` `walk_median_m` | ระยะเดินถึง dungeon ใกล้สุด (ไม่จำกัดเขต) เฉลี่ย/มัธยฐานถ่วงประชากร |
+| `pocketPark_walk_median_m` | (P2-F04-T03, D-069 เกณฑ์ F-11) มัธยฐานถ่วงประชากรของระยะเดินบนกราฟจากเซลล์ประชากรในเขตถึง dungeon ที่ใช้ได้ preset `f11PresetId` (pocketPark) ที่ใกล้สุด ไม่จำกัดเขต · เทียบกับ `unlocks.home.farDungeonThreshold_m` เป็นหน้าที่ของ level-designer / PM |
 | `g1_pop_share_green` `pop_share_yellow` `g4_pop_share_red` `s1_pop_share_green_yellow` | สัดส่วนประชากรในโซน ≤ 800 / 800–3,000 / > 3,000 ม. หรือ snap เกิน 150 ม. (ตัวชี้วัด G1 / G4 / S1 ใน PRD 4) |
 | `pop_share_red_snap` | ส่วนของโซนแดงที่แดงเพราะ snap เกิน 150 ม. |
 | `g2_valid_count_incl_multi` `g3_preset_count_incl_multi` | จำนวน dungeon และจำนวน preset หลัก (0–3) ในเขต โดยนับ candidate `multi_district` เข้าทุกเขตที่คร่อม (launch-criteria หัวข้อ 1) · ตัวชี้วัด G2 / G3 |
-| `transit_mean_m` `rail_walk_mean_m` `bus_walk_mean_m` `dungeons_with_rail_in_reach` | ระยะเดินจาก dungeon ถึงขนส่ง (launch-criteria 4.3): ถ้ามีรถไฟฟ้าในระยะ `railAcceptableWalk_m` (800 ม.) = (2 × ราง + 1 × รถเมล์) / 3 ไม่เช่นนั้นใช้รถเมล์อย่างเดียว · ที่จอดรถไม่ให้คะแนน |
+| `transit_mean_m` `rail_walk_mean_m` `bus_walk_mean_m` `dungeons_with_rail_in_reach` | ระยะเดินจาก dungeon ถึงขนส่ง (launch-criteria 4.3): ถ้ามีรถไฟฟ้าในระยะ `railAcceptableWalk_m` (800 ม.) = min(รถเมล์, (2 × ราง + 1 × รถเมล์) / 3) ตาม D-069 (รางไม่ทำให้แย่กว่าไม่มีราง) ไม่เช่นนั้นใช้รถเมล์อย่างเดียว · ที่จอดรถไม่ให้คะแนน |
 | `density_per_km2` `population_density_per_km2` | ค่าดิบของ densityScore / populationDensityScore |
 | `score_density` `score_walk` `score_transit` `score_preset` `score_population` `launch_score` `launch_rank` | Launch Score (หัวข้อ 10.5) |
 
@@ -310,3 +314,39 @@ dungeon ที่ใช้ได้ 730 (ไม่นับ review_required 11) 
 - ข้อมูลทางเดิน OSM ในซอยและหมู่บ้านจัดสรรไม่ครบทุกที่ · เซลล์ที่ไกลทางเดินเกิน 150 ม. ถูกนับแดงไว้ก่อน (3.35% ของประชากร)
 - WorldPop constrained ให้ประชากรรวม 21.3 ล้านในพื้นที่ศึกษา สูงกว่าทะเบียนราษฎร์ เพราะเป็นแบบจำลองที่รวมประชากรแฝง · ใช้เทียบระหว่างเขตเท่านั้น (PRD 3)
 - ไม่คิดเรือข้ามฟาก · สะพานที่ OSM tag เป็น motorway/trunk ไม่นับเป็นทางเดิน
+
+## 11. รันซ้ำหลัง D-083 (P2-F04-T03, 2026-09-26)
+
+### 11.1 คำสั่ง (offline หลังดาวน์โหลดครั้งแรก)
+
+```sh
+cd tools/coverage
+.venv/bin/python -m analysis all --offline                     # pipeline + analysis · ≈110 วินาทีบน Apple M5 (สร้างกราฟใหม่ 44 วินาทีเพราะ ANALYSIS_VERSION 1.1.0 เปลี่ยน cache key)
+git -C ../.. show cb3672c:data/coverage/district-counts.csv > /tmp/before.csv
+.venv/bin/python -m analysis.compare --before /tmp/before.csv  # เขียน data/coverage/launch-districts-before-after.csv
+```
+
+- "ก่อน" = `district-counts.csv` ที่ commit `cb3672c` (P1-F01-T06 · สูตร transit เดิม · ยังไม่มี D-083) · ย่านเปิดตัวและเกณฑ์ G1–G4 อ่านจาก `analysis/launch-score.config.json#launchDistricts`, `#goCriteria` (คัดจาก PRD F01 หัวข้อ 4.1)
+- ผลซ้ำได้: `run-meta.json#outputs_sha256` เก็บ SHA-256 ของ output ที่ commit ทุกไฟล์ · รันสองครั้งติดกันได้ SHA เท่ากันทุกไฟล์ (รวม `launch-districts-before-after.csv`)
+- pipeline 1.1.0 · analysis 1.1.0 · ข้อมูลเข้าเดิมทุกไฟล์ (D1 OSM 2026-09-01T20:20:50Z, D2 WorldPop R2025A)
+
+### 11.2 ผลรวม
+
+| | ก่อน | หลัง |
+| --- | --- | --- |
+| candidates | 741 | 726 (ตัดถาวร 15 id) |
+| dungeon ที่ใช้ได้ | 730 | 693 |
+| `review_required` ไม่นับ | 11 | 33 (pending 8 id · คำราชาศัพท์ใหม่ 16 · `fee_entry` 4 · สืบจาก split parent ที่ชื่อมีคำราชาศัพท์ 5) |
+| ประชากรโซนเขียว / แดง | 10.58% / 34.09% | 10.04% / 35.18% |
+
+### 11.3 ย่านเปิดตัว (ตัวเต็ม: `data/coverage/launch-districts-before-after.csv`)
+
+| เขต | ใช้ได้ | G1 เขียว (≥60%) | G2 (≥10) | G3 (≥2) | G4 แดง (≤5%) | pocketPark มัธยฐาน | Launch Score (อันดับ) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| พระนคร | 20 → 10 | 81.73% → 68.48% ผ่าน | 20 → **10 ผ่านพอดีเกณฑ์** | 3 → 3 | 0 → 0 | 1,028 ม. | 0.8886 (1) → 0.8405 (3) |
+| ปทุมวัน | 22 → 18 | 72.03% → 61.42% ผ่าน (ห่างเกณฑ์ 1.4 จุด) | 23 → 19 | 3 → 3 | 0.06% → 0.06% | 954 ม. | 0.8258 (2) → 0.8875 (2) |
+| บางรัก | 6 → 6 | 74.30% → 73.01% ผ่าน | 6 → 6 **ไม่ผ่าน** (เดิมก็ไม่ผ่าน) | 2 → 2 | 0 → 0 | 733 ม. | 0.7247 (10) → 0.7884 (4) |
+
+- พระนครหาย 10 แห่ง = ตัดถาวร #12–17, #20 (7) + pending #18, #19, #21 (3) · #4 ไม่นับอยู่แล้ว · ปทุมวันหาย 4 = #22, #23 ตัด + #24, #25 pending · บางรักไม่เปลี่ยน (#6 วังประมวลไม่นับอยู่แล้ว)
+- อันดับ 1 ใหม่ = เขตดินแดง (0.8879) เพราะ min-max ของ density เปลี่ยนเมื่อพระนครลดลง
+- สูตร transit D-069 ทำให้ `transit_mean_m` ลดลงหรือเท่าเดิมทุกเขต (พระนคร 416 → 182 ม. ส่วนหนึ่งเพราะชิ้นที่ถูกตัดอยู่ไกลราง)

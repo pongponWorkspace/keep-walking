@@ -1,6 +1,7 @@
 {
   "task": "P1-F01-T06",
-  "analysis_version": "1.0.0",
+  "rerun_task": "P2-F04-T03",
+  "analysis_version": "1.1.0",
   "command": "cd tools/coverage && .venv/bin/python -m analysis all --offline",
   "deterministic_outputs": [
     "data/coverage/district-counts.csv",
@@ -24,7 +25,7 @@
     },
     "candidates": {
       "path": "data/coverage/candidates.geojson",
-      "sha256": "d3937a672645a81194faa3368a0eb314bf1abb09e11444270b2c67254eb074f4"
+      "sha256": "9a0605cdacea56e12cd09e9d8b44948fb9221654643f73bd8315907c0e41e286"
     },
     "boundaries": {
       "path": "tools/coverage/out/boundaries.geojson",
@@ -101,6 +102,30 @@
         "market",
         "pocketPark"
       ],
+      "f11PresetId": "pocketPark",
+      "launchDistricts": [
+        92053,
+        92063,
+        92061
+      ],
+      "goCriteria": {
+        "g1_pop_share_green": {
+          "op": ">=",
+          "value": 0.6
+        },
+        "g2_valid_count_incl_multi": {
+          "op": ">=",
+          "value": 10
+        },
+        "g3_preset_count_incl_multi": {
+          "op": ">=",
+          "value": 2
+        },
+        "g4_pop_share_red": {
+          "op": "<=",
+          "value": 0.05
+        }
+      },
       "heatmap": {
         "displayBlockCells": 3
       }
@@ -147,7 +172,7 @@
       "ways_seen": 2871382,
       "ways_kept": 647474,
       "ways_not_walkable": 49465,
-      "cache": "hit walk-graph-48f83396bd846c62.npz"
+      "cache": "hit walk-graph-e654076421328309.npz"
     },
     "tie_break": "snap: nearest node of the largest connected component, equidistant -> lowest OSM node id; Dijkstra: equal distance -> lower source rank (sources sorted by feature id), so the nearest-dungeon label does not depend on heap order; district of a population cell = district containing the cell centre, a centre on a shared edge -> lowest district_osm_id; Launch Score rank ties -> lower district_osm_id",
     "snap_max_m": 150.0,
@@ -155,8 +180,8 @@
     "cells_snapped_too_far": 66593,
     "pop_share_snapped_too_far": 0.0335,
     "dungeon_snap_m": {
-      "p50": 36.0,
-      "p90": 97.2,
+      "p50": 37.0,
+      "p90": 99.9,
       "p100": 1506.5
     },
     "cell_snap_m": {
@@ -164,7 +189,7 @@
       "p90": 140.3,
       "p100": 4358.3
     },
-    "dungeons_snapped_farther_than_max": 32,
+    "dungeons_snapped_farther_than_max": 30,
     "population_grid": {
       "rows": 1022,
       "cols": 1377,
@@ -172,15 +197,15 @@
       "dy_deg": 0.00083333333
     },
     "measured_route_factor": {
-      "cells": 690216,
+      "cells": 690749,
       "min_straight_m": 250.0,
       "quantiles": {
-        "p25": 1.294,
-        "p50": 1.446,
-        "p75": 1.707,
-        "p90": 2.155
+        "p25": 1.293,
+        "p50": 1.445,
+        "p75": 1.705,
+        "p90": 2.153
       },
-      "pop_weighted_median": 1.52
+      "pop_weighted_median": 1.518
     },
     "fallback_used": false,
     "fallback_comparison": {
@@ -191,91 +216,91 @@
       },
       "study": {
         "network": {
-          "green": 0.1058,
-          "yellow": 0.5533,
-          "red": 0.3409
+          "green": 0.1004,
+          "yellow": 0.5478,
+          "red": 0.3518
         },
         "straight_x1.2": {
-          "green": 0.2504,
-          "yellow": 0.5791,
-          "red": 0.1705
+          "green": 0.2404,
+          "yellow": 0.5824,
+          "red": 0.1772
         },
         "straight_x1.4": {
-          "green": 0.1994,
-          "yellow": 0.579,
-          "red": 0.2216
+          "green": 0.1906,
+          "yellow": 0.5778,
+          "red": 0.2316
         },
         "straight_x1.6": {
-          "green": 0.1622,
-          "yellow": 0.566,
-          "red": 0.2718
+          "green": 0.1545,
+          "yellow": 0.562,
+          "red": 0.2835
         }
       },
       "districts": {
         "10958328": {
           "network": {
-            "green": 0.0376,
-            "yellow": 0.3533,
-            "red": 0.6091
+            "green": 0.0373,
+            "yellow": 0.3252,
+            "red": 0.6374
           },
           "straight_x1.2": {
-            "green": 0.1052,
-            "yellow": 0.6791,
-            "red": 0.2157
+            "green": 0.09,
+            "yellow": 0.69,
+            "red": 0.22
           },
           "straight_x1.4": {
-            "green": 0.0819,
-            "yellow": 0.5596,
-            "red": 0.3585
+            "green": 0.0727,
+            "yellow": 0.5422,
+            "red": 0.3851
           },
           "straight_x1.6": {
-            "green": 0.0672,
-            "yellow": 0.4651,
-            "red": 0.4677
+            "green": 0.0614,
+            "yellow": 0.4315,
+            "red": 0.5072
           }
         },
         "11580980": {
           "network": {
             "green": 0.0,
-            "yellow": 0.0083,
-            "red": 0.9917
+            "yellow": 0.0075,
+            "red": 0.9925
           },
           "straight_x1.2": {
             "green": 0.0,
-            "yellow": 0.0305,
-            "red": 0.9695
+            "yellow": 0.0191,
+            "red": 0.9809
           },
           "straight_x1.4": {
             "green": 0.0,
-            "yellow": 0.0193,
-            "red": 0.9807
+            "yellow": 0.0099,
+            "red": 0.9901
           },
           "straight_x1.6": {
             "green": 0.0,
-            "yellow": 0.016,
-            "red": 0.984
+            "yellow": 0.0078,
+            "red": 0.9922
           }
         },
         "11580981": {
           "network": {
-            "green": 0.0908,
-            "yellow": 0.3417,
-            "red": 0.5675
+            "green": 0.0468,
+            "yellow": 0.3657,
+            "red": 0.5875
           },
           "straight_x1.2": {
-            "green": 0.1646,
-            "yellow": 0.4707,
-            "red": 0.3648
+            "green": 0.0817,
+            "yellow": 0.5127,
+            "red": 0.4056
           },
           "straight_x1.4": {
-            "green": 0.1371,
-            "yellow": 0.4041,
-            "red": 0.4588
+            "green": 0.0621,
+            "yellow": 0.4211,
+            "red": 0.5168
           },
           "straight_x1.6": {
-            "green": 0.1131,
-            "yellow": 0.3513,
-            "red": 0.5356
+            "green": 0.0488,
+            "yellow": 0.3614,
+            "red": 0.5899
           }
         },
         "11580982": {
@@ -286,7 +311,7 @@
           },
           "straight_x1.2": {
             "green": 0.2013,
-            "yellow": 0.6654,
+            "yellow": 0.6653,
             "red": 0.1334
           },
           "straight_x1.4": {
@@ -302,46 +327,46 @@
         },
         "11580983": {
           "network": {
-            "green": 0.1051,
-            "yellow": 0.5268,
+            "green": 0.0979,
+            "yellow": 0.534,
             "red": 0.3681
           },
           "straight_x1.2": {
-            "green": 0.2826,
-            "yellow": 0.6561,
+            "green": 0.2704,
+            "yellow": 0.6683,
             "red": 0.0613
           },
           "straight_x1.4": {
-            "green": 0.2275,
-            "yellow": 0.6465,
+            "green": 0.2164,
+            "yellow": 0.6577,
             "red": 0.126
           },
           "straight_x1.6": {
-            "green": 0.1874,
-            "yellow": 0.6325,
+            "green": 0.1775,
+            "yellow": 0.6424,
             "red": 0.1801
           }
         },
         "11580984": {
           "network": {
-            "green": 0.0762,
-            "yellow": 0.644,
-            "red": 0.2798
+            "green": 0.071,
+            "yellow": 0.5704,
+            "red": 0.3586
           },
           "straight_x1.2": {
-            "green": 0.1936,
-            "yellow": 0.7593,
-            "red": 0.0471
+            "green": 0.1667,
+            "yellow": 0.7757,
+            "red": 0.0576
           },
           "straight_x1.4": {
-            "green": 0.1501,
-            "yellow": 0.748,
-            "red": 0.1019
+            "green": 0.1304,
+            "yellow": 0.7388,
+            "red": 0.1307
           },
           "straight_x1.6": {
-            "green": 0.1198,
-            "yellow": 0.6981,
-            "red": 0.1822
+            "green": 0.1066,
+            "yellow": 0.6637,
+            "red": 0.2297
           }
         },
         "1639285": {
@@ -368,67 +393,67 @@
         },
         "1639286": {
           "network": {
-            "green": 0.2206,
-            "yellow": 0.7604,
-            "red": 0.0191
+            "green": 0.2117,
+            "yellow": 0.7601,
+            "red": 0.0282
           },
           "straight_x1.2": {
-            "green": 0.5373,
-            "yellow": 0.4627,
+            "green": 0.5071,
+            "yellow": 0.4929,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.4508,
-            "yellow": 0.5492,
+            "green": 0.4285,
+            "yellow": 0.5715,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.38,
-            "yellow": 0.62,
+            "green": 0.3648,
+            "yellow": 0.6352,
             "red": 0.0
           }
         },
         "1639287": {
           "network": {
-            "green": 0.0589,
-            "yellow": 0.5914,
+            "green": 0.0491,
+            "yellow": 0.6012,
             "red": 0.3497
           },
           "straight_x1.2": {
-            "green": 0.2258,
-            "yellow": 0.7689,
+            "green": 0.2155,
+            "yellow": 0.7793,
             "red": 0.0053
           },
           "straight_x1.4": {
-            "green": 0.1755,
-            "yellow": 0.7668,
+            "green": 0.1666,
+            "yellow": 0.7757,
             "red": 0.0577
           },
           "straight_x1.6": {
-            "green": 0.1423,
-            "yellow": 0.7334,
+            "green": 0.1325,
+            "yellow": 0.7433,
             "red": 0.1242
           }
         },
         "1639288": {
           "network": {
-            "green": 0.2225,
-            "yellow": 0.7424,
+            "green": 0.2179,
+            "yellow": 0.747,
             "red": 0.0351
           },
           "straight_x1.2": {
-            "green": 0.4918,
-            "yellow": 0.5082,
+            "green": 0.4873,
+            "yellow": 0.5127,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.4012,
-            "yellow": 0.5988,
+            "green": 0.3945,
+            "yellow": 0.6055,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.3279,
-            "yellow": 0.6721,
+            "green": 0.3195,
+            "yellow": 0.6805,
             "red": 0.0
           }
         },
@@ -676,46 +701,46 @@
         },
         "2688300": {
           "network": {
-            "green": 0.1143,
-            "yellow": 0.7269,
+            "green": 0.0979,
+            "yellow": 0.7433,
             "red": 0.1588
           },
           "straight_x1.2": {
-            "green": 0.2587,
-            "yellow": 0.6741,
+            "green": 0.23,
+            "yellow": 0.7028,
             "red": 0.0672
           },
           "straight_x1.4": {
-            "green": 0.2011,
-            "yellow": 0.6858,
+            "green": 0.1788,
+            "yellow": 0.7081,
             "red": 0.1131
           },
           "straight_x1.6": {
-            "green": 0.161,
-            "yellow": 0.6866,
+            "green": 0.1443,
+            "yellow": 0.7033,
             "red": 0.1524
           }
         },
         "2688301": {
           "network": {
-            "green": 0.1046,
-            "yellow": 0.7244,
-            "red": 0.1709
+            "green": 0.1044,
+            "yellow": 0.7062,
+            "red": 0.1894
           },
           "straight_x1.2": {
-            "green": 0.2725,
-            "yellow": 0.6984,
+            "green": 0.271,
+            "yellow": 0.6999,
             "red": 0.0291
           },
           "straight_x1.4": {
-            "green": 0.2053,
-            "yellow": 0.7364,
-            "red": 0.0583
+            "green": 0.2047,
+            "yellow": 0.7359,
+            "red": 0.0594
           },
           "straight_x1.6": {
-            "green": 0.1606,
-            "yellow": 0.749,
-            "red": 0.0903
+            "green": 0.1603,
+            "yellow": 0.746,
+            "red": 0.0936
           }
         },
         "2689552": {
@@ -808,23 +833,23 @@
         },
         "2913007": {
           "network": {
-            "green": 0.1238,
-            "yellow": 0.5914,
+            "green": 0.1262,
+            "yellow": 0.589,
             "red": 0.2848
           },
           "straight_x1.2": {
-            "green": 0.2846,
-            "yellow": 0.5676,
+            "green": 0.2883,
+            "yellow": 0.5639,
             "red": 0.1478
           },
           "straight_x1.4": {
-            "green": 0.2291,
-            "yellow": 0.5955,
+            "green": 0.2327,
+            "yellow": 0.5919,
             "red": 0.1754
           },
           "straight_x1.6": {
-            "green": 0.1914,
-            "yellow": 0.5888,
+            "green": 0.1948,
+            "yellow": 0.5854,
             "red": 0.2199
           }
         },
@@ -853,18 +878,18 @@
         "2913009": {
           "network": {
             "green": 0.0557,
-            "yellow": 0.245,
-            "red": 0.6993
+            "yellow": 0.2434,
+            "red": 0.7009
           },
           "straight_x1.2": {
             "green": 0.1056,
-            "yellow": 0.4457,
-            "red": 0.4487
+            "yellow": 0.4439,
+            "red": 0.4506
           },
           "straight_x1.4": {
             "green": 0.085,
-            "yellow": 0.3749,
-            "red": 0.5401
+            "yellow": 0.3741,
+            "red": 0.5409
           },
           "straight_x1.6": {
             "green": 0.0712,
@@ -984,45 +1009,45 @@
         },
         "2938032": {
           "network": {
-            "green": 0.1573,
-            "yellow": 0.8292,
+            "green": 0.1534,
+            "yellow": 0.8331,
             "red": 0.0135
           },
           "straight_x1.2": {
-            "green": 0.4666,
-            "yellow": 0.5334,
+            "green": 0.4608,
+            "yellow": 0.5392,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.3665,
-            "yellow": 0.6335,
+            "green": 0.3616,
+            "yellow": 0.6384,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.286,
-            "yellow": 0.714,
+            "green": 0.2784,
+            "yellow": 0.7216,
             "red": 0.0
           }
         },
         "2938033": {
           "network": {
-            "green": 0.2802,
-            "yellow": 0.7005,
+            "green": 0.2698,
+            "yellow": 0.7109,
             "red": 0.0193
           },
           "straight_x1.2": {
-            "green": 0.4353,
-            "yellow": 0.5647,
+            "green": 0.4347,
+            "yellow": 0.5653,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.3604,
-            "yellow": 0.639,
+            "green": 0.3552,
+            "yellow": 0.6443,
             "red": 0.0005
           },
           "straight_x1.6": {
-            "green": 0.3059,
-            "yellow": 0.6812,
+            "green": 0.2961,
+            "yellow": 0.691,
             "red": 0.0129
           }
         },
@@ -1072,23 +1097,23 @@
         },
         "2938036": {
           "network": {
-            "green": 0.1444,
-            "yellow": 0.8528,
+            "green": 0.1437,
+            "yellow": 0.8535,
             "red": 0.0028
           },
           "straight_x1.2": {
-            "green": 0.3039,
-            "yellow": 0.6961,
+            "green": 0.2997,
+            "yellow": 0.7003,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.2385,
-            "yellow": 0.7615,
+            "green": 0.2331,
+            "yellow": 0.7669,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.1915,
-            "yellow": 0.8067,
+            "green": 0.1869,
+            "yellow": 0.8114,
             "red": 0.0018
           }
         },
@@ -1121,18 +1146,18 @@
             "red": 0.0003
           },
           "straight_x1.2": {
-            "green": 0.6629,
-            "yellow": 0.3371,
+            "green": 0.6569,
+            "yellow": 0.3431,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.5294,
-            "yellow": 0.4706,
+            "green": 0.5256,
+            "yellow": 0.4744,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.4282,
-            "yellow": 0.5718,
+            "green": 0.4273,
+            "yellow": 0.5727,
             "red": 0.0
           }
         },
@@ -1231,18 +1256,18 @@
             "red": 0.0634
           },
           "straight_x1.2": {
-            "green": 0.5583,
-            "yellow": 0.4417,
+            "green": 0.5371,
+            "yellow": 0.4629,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.4147,
-            "yellow": 0.5853,
+            "green": 0.3978,
+            "yellow": 0.6022,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.3184,
-            "yellow": 0.6816,
+            "green": 0.3078,
+            "yellow": 0.6922,
             "red": 0.0
           }
         },
@@ -1402,24 +1427,24 @@
         },
         "3146413": {
           "network": {
-            "green": 0.0777,
-            "yellow": 0.457,
-            "red": 0.4653
+            "green": 0.0676,
+            "yellow": 0.4381,
+            "red": 0.4943
           },
           "straight_x1.2": {
-            "green": 0.1989,
-            "yellow": 0.6756,
-            "red": 0.1254
+            "green": 0.1899,
+            "yellow": 0.6547,
+            "red": 0.1554
           },
           "straight_x1.4": {
-            "green": 0.1504,
-            "yellow": 0.6236,
-            "red": 0.226
+            "green": 0.1421,
+            "yellow": 0.6076,
+            "red": 0.2503
           },
           "straight_x1.6": {
-            "green": 0.1197,
-            "yellow": 0.5769,
-            "red": 0.3034
+            "green": 0.1122,
+            "yellow": 0.565,
+            "red": 0.3228
           }
         },
         "3146414": {
@@ -1517,18 +1542,18 @@
             "red": 0.1565
           },
           "straight_x1.2": {
-            "green": 0.2633,
-            "yellow": 0.7367,
+            "green": 0.2827,
+            "yellow": 0.7173,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.2085,
-            "yellow": 0.7823,
+            "green": 0.2253,
+            "yellow": 0.7655,
             "red": 0.0092
           },
           "straight_x1.6": {
-            "green": 0.1656,
-            "yellow": 0.7935,
+            "green": 0.1804,
+            "yellow": 0.7786,
             "red": 0.0409
           }
         },
@@ -1539,12 +1564,12 @@
             "red": 0.0591
           },
           "straight_x1.2": {
-            "green": 0.4183,
-            "yellow": 0.5817,
+            "green": 0.4181,
+            "yellow": 0.5819,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.3446,
+            "green": 0.3445,
             "yellow": 0.6498,
             "red": 0.0057
           },
@@ -1578,30 +1603,30 @@
         },
         "3147280": {
           "network": {
-            "green": 0.454,
-            "yellow": 0.546,
+            "green": 0.3534,
+            "yellow": 0.6466,
             "red": 0.0
           },
           "straight_x1.2": {
-            "green": 0.7928,
-            "yellow": 0.2072,
+            "green": 0.7359,
+            "yellow": 0.2641,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.6318,
-            "yellow": 0.3682,
+            "green": 0.5701,
+            "yellow": 0.4299,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.5059,
-            "yellow": 0.4941,
+            "green": 0.4489,
+            "yellow": 0.5511,
             "red": 0.0
           }
         },
         "3147281": {
           "network": {
-            "green": 0.1716,
-            "yellow": 0.8284,
+            "green": 0.1694,
+            "yellow": 0.8306,
             "red": 0.0
           },
           "straight_x1.2": {
@@ -1622,89 +1647,89 @@
         },
         "3147312": {
           "network": {
-            "green": 0.0235,
-            "yellow": 0.6223,
-            "red": 0.3543
+            "green": 0.0199,
+            "yellow": 0.5615,
+            "red": 0.4186
           },
           "straight_x1.2": {
-            "green": 0.0956,
-            "yellow": 0.806,
-            "red": 0.0984
+            "green": 0.0527,
+            "yellow": 0.7496,
+            "red": 0.1977
           },
           "straight_x1.4": {
-            "green": 0.0664,
-            "yellow": 0.7825,
-            "red": 0.1511
+            "green": 0.034,
+            "yellow": 0.6678,
+            "red": 0.2982
           },
           "straight_x1.6": {
-            "green": 0.0484,
-            "yellow": 0.7376,
-            "red": 0.2141
+            "green": 0.0244,
+            "yellow": 0.5892,
+            "red": 0.3863
           }
         },
         "3147313": {
           "network": {
-            "green": 0.0819,
-            "yellow": 0.6347,
-            "red": 0.2833
+            "green": 0.0602,
+            "yellow": 0.4486,
+            "red": 0.4912
           },
           "straight_x1.2": {
-            "green": 0.2205,
-            "yellow": 0.7376,
-            "red": 0.0419
+            "green": 0.1691,
+            "yellow": 0.6803,
+            "red": 0.1506
           },
           "straight_x1.4": {
-            "green": 0.175,
-            "yellow": 0.7441,
-            "red": 0.0809
+            "green": 0.1351,
+            "yellow": 0.6231,
+            "red": 0.2418
           },
           "straight_x1.6": {
-            "green": 0.1421,
-            "yellow": 0.7288,
-            "red": 0.129
+            "green": 0.1111,
+            "yellow": 0.5743,
+            "red": 0.3147
           }
         },
         "3147425": {
           "network": {
-            "green": 0.4232,
-            "yellow": 0.5708,
+            "green": 0.4024,
+            "yellow": 0.5916,
             "red": 0.006
           },
           "straight_x1.2": {
-            "green": 0.6307,
-            "yellow": 0.3693,
+            "green": 0.6125,
+            "yellow": 0.3875,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.5416,
-            "yellow": 0.4584,
+            "green": 0.4915,
+            "yellow": 0.5085,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.4514,
-            "yellow": 0.5486,
+            "green": 0.3832,
+            "yellow": 0.6168,
             "red": 0.0
           }
         },
         "3147455": {
           "network": {
-            "green": 0.3188,
-            "yellow": 0.6796,
+            "green": 0.3139,
+            "yellow": 0.6845,
             "red": 0.0016
           },
           "straight_x1.2": {
-            "green": 0.6898,
-            "yellow": 0.3102,
+            "green": 0.6838,
+            "yellow": 0.3162,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.5831,
-            "yellow": 0.4169,
+            "green": 0.5686,
+            "yellow": 0.4314,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.4851,
-            "yellow": 0.5149,
+            "green": 0.4631,
+            "yellow": 0.5369,
             "red": 0.0
           }
         },
@@ -1715,41 +1740,41 @@
             "red": 0.0005
           },
           "straight_x1.2": {
-            "green": 0.492,
-            "yellow": 0.508,
+            "green": 0.4724,
+            "yellow": 0.5276,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.3906,
-            "yellow": 0.6094,
+            "green": 0.3769,
+            "yellow": 0.6231,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.3228,
-            "yellow": 0.6772,
+            "green": 0.3111,
+            "yellow": 0.6889,
             "red": 0.0
           }
         },
         "3147500": {
           "network": {
-            "green": 0.1228,
-            "yellow": 0.6352,
-            "red": 0.2421
+            "green": 0.0964,
+            "yellow": 0.5831,
+            "red": 0.3205
           },
           "straight_x1.2": {
-            "green": 0.2861,
-            "yellow": 0.6621,
-            "red": 0.0518
+            "green": 0.2385,
+            "yellow": 0.6664,
+            "red": 0.0951
           },
           "straight_x1.4": {
-            "green": 0.2267,
-            "yellow": 0.6744,
-            "red": 0.0989
+            "green": 0.191,
+            "yellow": 0.6365,
+            "red": 0.1726
           },
           "straight_x1.6": {
-            "green": 0.1785,
-            "yellow": 0.6761,
-            "red": 0.1454
+            "green": 0.151,
+            "yellow": 0.6089,
+            "red": 0.2402
           }
         },
         "3147501": {
@@ -1776,133 +1801,133 @@
         },
         "92053": {
           "network": {
-            "green": 0.8173,
-            "yellow": 0.1827,
+            "green": 0.6848,
+            "yellow": 0.3152,
             "red": 0.0
           },
           "straight_x1.2": {
-            "green": 0.9153,
-            "yellow": 0.0847,
+            "green": 0.8407,
+            "yellow": 0.1593,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.8555,
-            "yellow": 0.1445,
+            "green": 0.7252,
+            "yellow": 0.2748,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.7751,
-            "yellow": 0.2249,
+            "green": 0.6162,
+            "yellow": 0.3838,
             "red": 0.0
           }
         },
         "92056": {
           "network": {
-            "green": 0.4836,
-            "yellow": 0.5164,
+            "green": 0.4317,
+            "yellow": 0.5683,
             "red": 0.0
           },
           "straight_x1.2": {
-            "green": 0.9326,
-            "yellow": 0.0674,
+            "green": 0.8019,
+            "yellow": 0.1981,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.7295,
-            "yellow": 0.2705,
+            "green": 0.6424,
+            "yellow": 0.3576,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.5776,
-            "yellow": 0.4224,
+            "green": 0.5296,
+            "yellow": 0.4704,
             "red": 0.0
           }
         },
         "92058": {
           "network": {
-            "green": 0.2607,
-            "yellow": 0.7393,
+            "green": 0.249,
+            "yellow": 0.751,
             "red": 0.0
           },
           "straight_x1.2": {
-            "green": 0.5894,
-            "yellow": 0.4106,
+            "green": 0.4729,
+            "yellow": 0.5271,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.4246,
-            "yellow": 0.5754,
+            "green": 0.3247,
+            "yellow": 0.6753,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.3115,
-            "yellow": 0.6885,
+            "green": 0.24,
+            "yellow": 0.76,
             "red": 0.0
           }
         },
         "92061": {
           "network": {
-            "green": 0.743,
-            "yellow": 0.257,
+            "green": 0.7301,
+            "yellow": 0.2699,
             "red": 0.0
           },
           "straight_x1.2": {
-            "green": 0.9325,
-            "yellow": 0.0675,
+            "green": 0.9156,
+            "yellow": 0.0844,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.8253,
-            "yellow": 0.1747,
+            "green": 0.8122,
+            "yellow": 0.1878,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.6998,
-            "yellow": 0.3002,
+            "green": 0.686,
+            "yellow": 0.314,
             "red": 0.0
           }
         },
         "92063": {
           "network": {
-            "green": 0.7203,
-            "yellow": 0.2791,
+            "green": 0.6142,
+            "yellow": 0.3852,
             "red": 0.0006
           },
           "straight_x1.2": {
-            "green": 0.9208,
-            "yellow": 0.0792,
+            "green": 0.8901,
+            "yellow": 0.1099,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.8826,
-            "yellow": 0.1174,
+            "green": 0.8168,
+            "yellow": 0.1832,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.8231,
-            "yellow": 0.1769,
+            "green": 0.7364,
+            "yellow": 0.2636,
             "red": 0.0
           }
         },
         "92064": {
           "network": {
-            "green": 0.3839,
-            "yellow": 0.6117,
+            "green": 0.2832,
+            "yellow": 0.7124,
             "red": 0.0045
           },
           "straight_x1.2": {
-            "green": 0.7645,
-            "yellow": 0.2355,
+            "green": 0.5739,
+            "yellow": 0.4261,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.6137,
-            "yellow": 0.3863,
+            "green": 0.4293,
+            "yellow": 0.5707,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.5073,
-            "yellow": 0.4927,
+            "green": 0.3413,
+            "yellow": 0.6587,
             "red": 0.0
           }
         },
@@ -1958,78 +1983,241 @@
     "bus_points": 5515,
     "rail_acceptable_walk_m": 800
   },
+  "outputs_sha256": {
+    "data/coverage/candidates.geojson": "9a0605cdacea56e12cd09e9d8b44948fb9221654643f73bd8315907c0e41e286",
+    "data/coverage/excluded.geojson": "db5a7039f2023be1a9438c2de71f91084cfb6b6a9e6869c08ea9badc674eb060",
+    "data/coverage/points-unmatched.geojson": "9398bf0e8117cf601d59231234949887bb37a118eab46e0add7847c2baeeb927",
+    "data/coverage/district-counts.csv": "457c1bdae7798fb5eb96f8c12e99548ac99dc4dbed3328b2f169bb7bd723345e",
+    "data/coverage/heatmap/distance-zones.png": "db034690a263d4ce6c5759806067ffc1f47d2a5868583581e16798a6d5f8b777",
+    "data/coverage/heatmap/index.html": "a9002f734c5ffbb5e936dca5029bf880ada46d0ac628d39fb0aca19bce37a2b4",
+    "data/coverage/heatmap/population-density.png": "36ca74b08013cf1d5b0c0a2a5d6fa17ba500e5e0f492dd9d1f9a0143df063b98"
+  },
   "counts": {
-    "candidates": 741,
-    "usable": 730,
+    "candidates": 726,
+    "usable": 693,
     "not_counted_review_required": {
-      "osm-w1193776536": {
-        "name": "วังประมวล",
-        "district_osm_id": 92061,
+      "osm-r16179381": {
+        "name": "อุทยานเฉลิมพระเกียรติสมเด็จพระศรีนครินทราบรมราชชนนี",
+        "district_osm_id": 3147280,
         "review_reasons": [
           "review_name"
         ]
       },
-      "osm-w1451716817": {
-        "name": null,
-        "district_osm_id": 92069,
+      "osm-w1182846804": {
+        "name": "สวนจากภูผาสู่มหานที",
+        "district_osm_id": 1639286,
         "review_reasons": [
           "inside_review_parent"
         ]
       },
-      "osm-w1511272937": {
-        "name": "ตลาดน้ำวัดไทร",
-        "district_osm_id": 3147007,
+      "osm-w1193776536": {
+        "name": "วังประมวล",
+        "district_osm_id": 92061,
         "review_reasons": [
-          "religious_name"
+          "review_name",
+          "review_osm_id"
+        ]
+      },
+      "osm-w1224439620": {
+        "name": "ป้อมผีเสื้อสมุทร",
+        "district_osm_id": 10958328,
+        "review_reasons": [
+          "flag_fee_entry"
+        ]
+      },
+      "osm-w1241150600": {
+        "name": null,
+        "district_osm_id": 11580984,
+        "review_reasons": [
+          "flag_fee_entry"
+        ]
+      },
+      "osm-w1244631352": {
+        "name": "สวนเฉลิมพระเกียรติสมเด็จย่า",
+        "district_osm_id": 2938033,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w1247208993": {
+        "name": "สวนเฉลิมพระเกียรติฯ 80 พรรษา",
+        "district_osm_id": 11580984,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w1328095238": {
+        "name": "วัน แบงค็อก พาร์ค",
+        "district_osm_id": 92063,
+        "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-w1370480464": {
+        "name": "สวนเกษตร",
+        "district_osm_id": 3147312,
+        "review_reasons": [
+          "inside_review_parent"
+        ]
+      },
+      "osm-w1370480465": {
+        "name": "สวนร้อยมาลัย",
+        "district_osm_id": 3147312,
+        "review_reasons": [
+          "inside_review_parent"
+        ]
+      },
+      "osm-w1370480493": {
+        "name": "สวนสุขภาพ",
+        "district_osm_id": 3147312,
+        "review_reasons": [
+          "inside_review_parent"
+        ]
+      },
+      "osm-w1370480502": {
+        "name": "สวนพลังงาน",
+        "district_osm_id": 3147312,
+        "review_reasons": [
+          "inside_review_parent"
+        ]
+      },
+      "osm-w168687083": {
+        "name": "สวนสมเด็จย่า ๘๔",
+        "district_osm_id": 1639286,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w191907096": {
+        "name": "สวนเฉลิมพระเกียรติ",
+        "district_osm_id": 1639288,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w198802034": {
+        "name": "สวนสาธารณะเฉลิมพระเกียรติ 6 รอบ พระชนมพรรษา",
+        "district_osm_id": 3147455,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w210643846": {
+        "name": "สวนสมเด็จสราญราษฎร์มณีรมย์",
+        "district_osm_id": 2938032,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w230891857": {
+        "name": "สวนผักกาด",
+        "district_osm_id": 92064,
+        "review_reasons": [
+          "flag_fee_entry"
+        ]
+      },
+      "osm-w23486019": {
+        "name": "สวนสราญรมย์",
+        "district_osm_id": 92053,
+        "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-w241865727": {
+        "name": "บ้าน ม.ร.ว.คึกฤทธิ์ ปราโมช",
+        "district_osm_id": 3147425,
+        "review_reasons": [
+          "flag_fee_entry"
         ]
       },
       "osm-w241879479": {
         "name": null,
         "district_osm_id": 92058,
         "review_reasons": [
-          "monument_area"
+          "monument_area",
+          "review_osm_id"
         ]
       },
-      "osm-w31987914": {
-        "name": "พระที่นั่งวิมานเมฆ",
-        "district_osm_id": 92069,
+      "osm-w243742812": {
+        "name": "สวนป่าเฉลิมพระเกียรติ",
+        "district_osm_id": 3147280,
         "review_reasons": [
-          "review_name",
-          "inside_review_parent"
+          "review_name"
         ]
       },
-      "osm-w347586838": {
-        "name": "พระที่นั่งอัมพรสถาน",
-        "district_osm_id": 92069,
+      "osm-w283724937": {
+        "name": "สวนเฉลิมพระเกียรติ 80 พรรษา",
+        "district_osm_id": 3147425,
         "review_reasons": [
-          "review_name",
-          "inside_review_parent"
+          "review_name"
         ]
       },
-      "osm-w347980908": {
-        "name": "วังเทเวศร์",
+      "osm-w349606263": {
+        "name": "สนามพระท่าพระจันทร์",
         "district_osm_id": 92053,
         "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-w538798649": {
+        "name": "ปาร์คนายเลิศ",
+        "district_osm_id": 92063,
+        "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-w544308065": {
+        "name": "สวนเฉลิมพระเกียรติฯ",
+        "district_osm_id": 11580983,
+        "review_reasons": [
           "review_name"
         ]
       },
-      "osm-w348398477": {
-        "name": "สวนอัมพร",
-        "district_osm_id": 92069,
-        "review_reasons": [
-          "inside_review_parent"
-        ]
-      },
-      "osm-w348428071": {
-        "name": "วังศุโขทัย",
-        "district_osm_id": 92069,
+      "osm-w552515447": {
+        "name": "สวนเฉลิมพระเกียรติ 80 พรรษา",
+        "district_osm_id": 2688300,
         "review_reasons": [
           "review_name"
         ]
       },
-      "osm-w584857320": {
-        "name": "สวนสาธารณะ หมู่บ้านวังทองริเวอร์ปร์ค",
-        "district_osm_id": 2913007,
+      "osm-w555016201": {
+        "name": "สวนสุขภาพเฉลิมพระเกียรติ 80 พรรษา",
+        "district_osm_id": 1639287,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w559180284": {
+        "name": "สวนสมเด็จย่า",
+        "district_osm_id": 3147313,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w733671495": {
+        "name": "สวนเฉลิมพระเกียรติ ร.9",
+        "district_osm_id": 3146413,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w751895050": {
+        "name": null,
+        "district_osm_id": 92053,
+        "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-w788490409": {
+        "name": "สวน 60 พรรษาสมเด็จพระบรมราชินีนาถ",
+        "district_osm_id": 11580981,
+        "review_reasons": [
+          "review_name"
+        ]
+      },
+      "osm-w93061578": {
+        "name": "สวน 60 พรรษา สมเด็จพระนางเจ้าฯ พระบรมราชินีนาถ",
+        "district_osm_id": 3147500,
         "review_reasons": [
           "review_name"
         ]
@@ -2038,27 +2226,28 @@
         "name": "พระราชวังสนามจันทร์",
         "district_osm_id": 18931445,
         "review_reasons": [
-          "review_name"
+          "review_name",
+          "review_osm_id"
         ]
       }
     }
   },
   "totals": {
-    "usable_dungeons": 730,
+    "usable_dungeons": 693,
     "districts": 79,
     "districts_with_usable_dungeon": 76,
     "population": 21304949,
-    "pop_share_green": 0.1058,
-    "pop_share_yellow": 0.5533,
-    "pop_share_red": 0.3409,
+    "pop_share_green": 0.1004,
+    "pop_share_yellow": 0.5478,
+    "pop_share_red": 0.3518,
     "pop_share_red_snap": 0.0335
   },
   "pipeline": {
-    "pipeline_version": "1.0.0",
+    "pipeline_version": "1.1.0",
     "final": {
-      "candidates": 741,
-      "excluded": 6287,
-      "points_unmatched": 572,
+      "candidates": 726,
+      "excluded": 6302,
+      "points_unmatched": 581,
       "district_unassigned": 0
     },
     "steps": [
@@ -2077,19 +2266,19 @@
       {
         "step": "blocklist",
         "in": 1591,
-        "out": 749,
-        "removed": 842
+        "out": 734,
+        "removed": 857
       },
       {
         "step": "overlap",
-        "in": 749,
-        "out": 741,
+        "in": 734,
+        "out": 726,
         "removed": 8
       }
     ],
     "run": {
-      "started_unix": 1790183306,
-      "duration_s": 46.0,
+      "started_unix": 1790423017,
+      "duration_s": 47.2,
       "python": "3.14.7",
       "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
       "packages": {
@@ -2102,18 +2291,18 @@
     "config": "see coverage_meta.config in data/coverage/candidates.geojson"
   },
   "output_bytes": {
-    "districtCounts": 33692,
-    "heatmapHtml": 584341,
-    "heatmapPngs": 193592
+    "districtCounts": 34105,
+    "heatmapHtml": 576850,
+    "heatmapPngs": 193519
   },
   "run": {
-    "started_unix": 1790183352,
-    "duration_s": 15.4,
+    "started_unix": 1790423065,
+    "duration_s": 18.4,
     "timings_s": {
       "load_and_verify": 0.2,
       "walk_graph": 0.0,
       "population_raster": 1.4,
-      "routing_and_metrics": 13.2,
+      "routing_and_metrics": 16.2,
       "write_outputs": 0.3
     },
     "python": "3.14.7",

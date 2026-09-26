@@ -39,12 +39,17 @@ const flag = (ok: boolean) => (ok ? 'match' : 'DIFF ');
 /** Report layout and Monte Carlo sizes (not balance values). */
 const LAYOUT = { label: 36, num: 7, wide: 9, cell: 17 };
 const MC = { gaps: 20000, incomeTicks: 1200000, potionHours: 5000, monthDays: 30 };
-/** What-if inputs for the lever table (hypotheses for a decision, never written to config). */
+/**
+ * What-if inputs for the lever table (hypotheses for a decision, never written to config).
+ * Since P2-F06-T01 the config already holds D-038 option B (1%/VIT); 2%/VIT is the pre-D-038
+ * GDD value kept for comparison, 0.5%/VIT is option C.
+ */
+const WHAT_IF_VIT_PRE_D038_PCT = 2;
 const WHAT_IF_VIT_HALF_PCT = 0.5;
 const WHAT_IF_PRICE_UP = 1.25;
 const WHAT_IF_PRICE_UP_MORE = 1.5;
 const WHAT_IF = {
-  vitPotionEfficiency_pct: [1, WHAT_IF_VIT_HALF_PCT],
+  vitPotionEfficiency_pct: [WHAT_IF_VIT_PRE_D038_PCT, WHAT_IF_VIT_HALF_PCT],
   potionPriceMult: [WHAT_IF_PRICE_UP, WHAT_IF_PRICE_UP_MORE],
 };
 /** Rows of the drop table that also get a Monte Carlo gap check (x1.0, no Ranged, Ranged L25). */
@@ -308,7 +313,7 @@ function leverSection(p: SimParams, dp: DropParams, g: GddReference, seed: numbe
       stats: { ...q.stats, vitPotionEfficiency_pct: e },
     });
   const levers: Lever[] = [
-    { label: 'A status quo (config now)', apply: (q) => q },
+    { label: 'config now (D-038 B)', apply: (q) => q },
     ...WHAT_IF.vitPotionEfficiency_pct.map((e) => ({
       label: `vitPotionEfficiency ${e}%/VIT`,
       apply: vitEff(e),

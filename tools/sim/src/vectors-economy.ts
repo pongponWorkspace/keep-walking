@@ -15,7 +15,7 @@ import type { Role, SimParams } from './params';
 import { ROLES } from './params';
 import { runSetup, survivalRow } from './scenarios';
 import { evaluateVector } from './vector-eval';
-import type { VectorInput, VectorOutput } from './vector-eval';
+import type { VectorInput, VectorLeaf, VectorOutput } from './vector-eval';
 import type { Vector, VectorFile } from './vectors';
 
 export interface EconomyRefs {
@@ -79,8 +79,9 @@ function roundSim(value: VectorOutput): VectorOutput {
   const f = DECIMAL_BASE ** SIM_DECIMALS;
   if (typeof value === 'number') return Math.round(value * f) / f;
   if (value !== null && typeof value === 'object') {
-    const out: Record<string, number> = {};
-    for (const [k, v] of Object.entries(value)) out[k] = Math.round(v * f) / f;
+    const out: Record<string, VectorLeaf> = {};
+    for (const [k, v] of Object.entries(value))
+      out[k] = typeof v === 'number' ? Math.round(v * f) / f : v;
     return out;
   }
   return value;

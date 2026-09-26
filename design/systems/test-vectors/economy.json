@@ -426,10 +426,10 @@
         "shield_pctMaxHpPerTick": 0,
         "rewardTickInterval_s": 300,
         "potionHeal_pctMaxHp": 30,
-        "potionEfficiencyBonus_pct": 107.5,
+        "potionEfficiencyBonus_pct": 53.75,
         "buyPrice_gold": 150
       },
-      "expected": 404.565832,
+      "expected": 545.999415,
       "tolerance": 0.000001,
       "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · no role buff at all (x1.6, like the old reference), hpSmall, VIT bonus on (balanced build) · uncapped analytic"
     },
@@ -483,10 +483,10 @@
         "shield_pctMaxHpPerTick": 0,
         "rewardTickInterval_s": 300,
         "potionHeal_pctMaxHp": 30,
-        "potionEfficiencyBonus_pct": 107.5,
+        "potionEfficiencyBonus_pct": 53.75,
         "buyPrice_gold": 150
       },
-      "expected": 197.934886,
+      "expected": 267.131634,
       "tolerance": 0.000001,
       "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo tanker L25, hpSmall, VIT bonus on (balanced build) · uncapped analytic"
     },
@@ -540,10 +540,10 @@
         "shield_pctMaxHpPerTick": 0,
         "rewardTickInterval_s": 300,
         "potionHeal_pctMaxHp": 30,
-        "potionEfficiencyBonus_pct": 107.5,
+        "potionEfficiencyBonus_pct": 53.75,
         "buyPrice_gold": 150
       },
-      "expected": 404.565832,
+      "expected": 545.999415,
       "tolerance": 0.000001,
       "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo ranged L25, hpSmall, VIT bonus on (balanced build) · uncapped analytic"
     },
@@ -597,10 +597,10 @@
         "shield_pctMaxHpPerTick": 0,
         "rewardTickInterval_s": 300,
         "potionHeal_pctMaxHp": 30,
-        "potionEfficiencyBonus_pct": 107.5,
+        "potionEfficiencyBonus_pct": 53.75,
         "buyPrice_gold": 150
       },
-      "expected": 308.911135,
+      "expected": 416.904459,
       "tolerance": 0.000001,
       "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo support L25, hpSmall, VIT bonus on (balanced build) · uncapped analytic"
     },
@@ -654,10 +654,10 @@
         "shield_pctMaxHpPerTick": 2.3190673264701336,
         "rewardTickInterval_s": 300,
         "potionHeal_pctMaxHp": 30,
-        "potionEfficiencyBonus_pct": 107.5,
+        "potionEfficiencyBonus_pct": 53.75,
         "buyPrice_gold": 150
       },
-      "expected": 337.508463,
+      "expected": 455.499227,
       "tolerance": 0.000001,
       "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · solo magic L25, hpSmall, VIT bonus on (balanced build) · uncapped analytic"
     },
@@ -711,10 +711,10 @@
         "shield_pctMaxHpPerTick": 2.3190673264701336,
         "rewardTickInterval_s": 300,
         "potionHeal_pctMaxHp": 30,
-        "potionEfficiencyBonus_pct": 107.5,
+        "potionEfficiencyBonus_pct": 53.75,
         "buyPrice_gold": 150
       },
-      "expected": 35.22282,
+      "expected": 47.536489,
       "tolerance": 0.000001,
       "source": "sim run P1-F03-T08 (reference implementation tools/sim/src/drops.ts, economy.ts) · full party L25 (F-13), hpSmall, VIT bonus on (balanced build) · uncapped analytic"
     },

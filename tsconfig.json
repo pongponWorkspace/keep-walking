@@ -11,8 +11,19 @@
     "*.ts",
     "packages/location/src/**/*.ts",
     "packages/location/test/**/*.ts",
+    // packages/geo/src has its own Worker-safe tsconfig; its Node-based tests (trace fixtures via
+    // fs) are checked here (ADR 0003 section 8).
+    "packages/geo/test/**/*.ts",
     "tools/traces/src/**/*.ts",
     "tools/sim/src/**/*.ts",
+    // Phase 2 tools without their own tsconfig (ADR 0003 section 8). tools/art has no package.json:
+    // it resolves @resvg/resvg-js from the root devDependencies.
+    "tools/dungeons/src/**/*.ts",
+    "tools/dungeons/test/**/*.ts",
+    "tools/config-lint/src/**/*.ts",
+    "tools/config-lint/test/**/*.ts",
+    "tools/art/src/**/*.ts",
+    "tools/art/test/**/*.ts",
     "qa/tests/**/*.ts"
   ],
   "exclude": ["**/node_modules", "**/dist"]

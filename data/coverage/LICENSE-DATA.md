@@ -22,13 +22,14 @@
 | `points-unmatched.geojson` | D1 | ODbL 1.0 (derivative database) | © OpenStreetMap contributors |
 | `district-counts.csv` | D1 + D2 | ส่วนที่มาจาก OSM (จำนวน polygon, ระยะเดิน, ขนส่ง): ODbL 1.0 · ส่วนประชากร: CC BY 4.0 จาก WorldPop | © OpenStreetMap contributors · WorldPop (www.worldpop.org) CC BY 4.0 |
 | `heatmap/index.html`, `heatmap/*.png` | D1 + D2 | ภาพเป็น produced work จาก OSM + ข้อมูล WorldPop ที่รวมช่องแล้ว | ข้อความ attribution ทั้งสองแหล่งอยู่ท้ายหน้า HTML แล้ว |
+| `launch-districts-before-after.csv` | `district-counts.csv` ก่อน/หลัง (D1 + D2) | เหมือน `district-counts.csv` | © OpenStreetMap contributors · WorldPop (www.worldpop.org) CC BY 4.0 |
 | `run-meta.json` | metadata ของการรัน (checksum, config, จำนวน) | ตาม license ของ repo | ไม่มีข้อมูลตำแหน่งรายบุคคล |
 | `LICENSE-DATA.md` | เอกสารนี้ | ตาม license ของ repo | |
 
 ## 3. ข้อควรรู้
 
 - **share-alike ของ ODbL:** ใครนำ `candidates.geojson` / `excluded.geojson` / `points-unmatched.geojson` หรือฐานข้อมูลที่ดัดแปลงจากไฟล์เหล่านี้ไปเผยแพร่ ต้องเผยแพร่ภายใต้ ODbL ด้วย · repo เป็น public จึงเป็นไปตามเงื่อนไขนี้อยู่แล้ว
-- **ก่อนนำ polygon เข้าฐานข้อมูล dungeon ของเกม (Phase 2, F14)** ต้องถาม HUMAN ก่อน เพราะฐานข้อมูลเกมจะกลายเป็น derivative database ที่อาจต้องเปิดตามเงื่อนไขเดียวกัน (METHOD หัวข้อ 3)
+- **polygon dungeon ที่ได้จาก OSM:** HUMAN ตัดสินแล้ว (D-091, 2026-09-26) ว่าเผยแพร่ใน repo public และใน client ได้ภายใต้ ODbL 1.0 พร้อม attribution "© OpenStreetMap contributors" · ต้องทวนกับนักกฎหมายใน F20 ก่อนเปิดตัวเชิงพาณิชย์
 - **ไม่มีข้อมูลส่วนบุคคล:** WorldPop เป็นแบบจำลองประชากรระดับช่อง ไม่ใช่ข้อมูลรายบุคคล · heatmap รวมช่องเป็น ≈300 ม. ก่อนแสดง · จุดใน heatmap เป็นสถานที่สาธารณะเท่านั้น · ไม่มี GPS trace ในโฟลเดอร์นี้
 - **ตัวเลขประชากรใช้เปรียบเทียบระหว่างเขตเท่านั้น** (PRD F01 หัวข้อ 3) ไม่ใช่ตัวเลขทะเบียนราษฎร์
 

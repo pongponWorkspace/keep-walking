@@ -1,0 +1,12 @@
+{
+  // Same rules as packages/shared: no DOM and no Node types, so everything here runs unchanged
+  // inside a Cloudflare Worker / Durable Object (ADR 0001 3.4, ADR 0003 C1-2).
+  // Tests that need Node APIs (fs for trace fixtures) live in test/ and are type-checked by the
+  // root tsconfig.json instead.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}

@@ -423,7 +423,7 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 | --- | --- |
 | tile ครอบแค่ bbox ของ 6 จังหวัด | เส้นจังหวัดต้องเห็นทั่วประเทศในโซนดำ (GDD "แผนที่เต็มคือประเทศไทย") · ขยาย tile ทั้งประเทศทำให้เกินงบไฟล์ของหัวข้อ 7.4 |
 | เปิดจังหวัดใหม่ = เปลี่ยนข้อมูล | ไม่ต้อง build tile ใหม่ ไม่แก้ style |
-| geometry ชุดเดียวทั้งระบบ | ขอบเขตพื้นที่เล่นชุดเดียวกันใช้ทั้ง client และ server ผ่าน pure function ใน `packages/geo` (สร้างเมื่อมีผู้ใช้ · ADR 0001 3.2) · สถานะ "นอกพื้นที่" ของหน้าแรก = ตำแหน่งอยู่นอกรูของ `data/map/playarea-mask.geojson` ตาม pointer `config/balance/unlocks.json#home.seeOutOfAreaMask` (D-064, D-043) ไม่ใช่ระยะถึง dungeon · อยู่ในพื้นที่แต่ dungeon ที่เปิดใกล้สุดไกลกว่า `unlocks.home.farDungeonThreshold_m` = สถานะ "ไกล" · client ตรวจ mask ได้เพราะแสดงผลอย่างเดียว (non-negotiable 1 ไม่กระทบ) · Phase 3 server ใช้ geometry ชุดเดียวกันสำหรับ validation ของ dungeon · ไม่มีขอบเขตสองชุดที่ต้องทำให้ตรงกัน |
+| geometry ชุดเดียวทั้งระบบ | ขอบเขตพื้นที่เล่นชุดเดียวกันใช้ทั้ง client และ server ผ่าน pure function `inPlayArea(pt, mask)` ใน `packages/geo` (leaf · สร้างใน P2-F04-T05, ทำใน P2-F04-T12 · ADR 0003 หัวข้อ 4.2) · สถานะ "นอกพื้นที่" ของหน้าแรก = ตำแหน่งอยู่นอกรูของ `data/map/playarea-mask.geojson` ตาม pointer `config/balance/unlocks.json#home.seeOutOfAreaMask` (D-064, D-043) ไม่ใช่ระยะถึง dungeon · อยู่ในพื้นที่แต่ dungeon ที่เปิดใกล้สุดไกลกว่า `unlocks.home.farDungeonThreshold_m` = สถานะ "ไกล" · client ตรวจ mask ได้เพราะแสดงผลอย่างเดียว (non-negotiable 1 ไม่กระทบ) · Phase 3 server ใช้ geometry ชุดเดียวกันสำหรับ validation ของ dungeon · ไม่มีขอบเขตสองชุดที่ต้องทำให้ตรงกัน |
 
 สัญญาของไฟล์ (P1-H07 สร้าง, location-engineer)
 
@@ -437,7 +437,10 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 - client โหลดแบบเดียวกับ trace (gps-trace-format หัวข้อ 5): `import.meta.glob` แบบ `?url` → `fetch` ขนานกับ style → `map.getSource(id).setData(...)` หลัง `load` · โหลดไม่สำเร็จ → แผนที่ยังใช้งานได้ ไม่มีโซนดำ และ `console.warn` (ไม่ crash) · e2e ใช้ไฟล์ใน repo ไม่ดาวน์โหลด
 - test ของ P1-H07: ขนาดไฟล์ · GeoJSON valid · winding ตาม RFC 7946 · จำนวน label = 77 · `playable = true` ตรงกับรายการใน params
 
-### 15.2 สัญญา property ของ `kw-dungeons` — ACCEPTED (ปิด A-P1-F03-T12-5 ในส่วนชื่อ property)
+### 15.2 สัญญา property ของ `kw-dungeons` และ `kw-dungeon-labels` — ACCEPTED (ปิด A-P1-F03-T12-5 ในส่วนชื่อ property · D-075 ACCEPTED ใน ADR 0003 หัวข้อ 11.3)
+
+view model มี 2 source ที่มี `id` และ property 6 ตัวชุดเดียวกัน: `kw-dungeons` (`Polygon`/`MultiPolygon` หนึ่ง feature ต่อ dungeon · fill และ line เท่านั้น) และ `kw-dungeon-labels` (`Point` หนึ่งจุดต่อ dungeon ห้าม `MultiPoint` · symbol เท่านั้น · ห้าม symbol layer บน `kw-dungeons`) · adapter เรียก `setData` ของทั้งสอง source ในรอบ synchronous เดียวกัน
+
 
 ตาราง property ใน `art/direction/map-style.md` หัวข้อ 6.1 (`id`, `name`, `status`, `sponsored`, `label_sponsored`, `label_count`) เป็นสัญญาของ **view model ฝั่ง client** ใช้ได้ตั้งแต่ Phase 1 จนถึงหลัง Phase 3 โดยมีกติกาเพิ่ม
 
@@ -447,7 +450,8 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 4. `status`: `"open"` | `"closed"` · ค่าอื่นจาก server → adapter แปลงเป็น `"closed"` และ `console.warn` (ปลอดภัยกว่า: ไม่ชวนเดินไปที่ที่อาจเข้าไม่ได้) · เพิ่มสถานะใหม่ต้องแก้ทั้ง style (art-director) และ adapter
 5. `name`: ชื่อจากหลังบ้านผ่าน payload (non-negotiable 3) ไม่ใช่จาก copy
 6. `label_count`: client จัดรูปด้วย `t()` (`docs/tech/copy-schema.md`) จากค่ารวมระดับ dungeon ที่ server ส่ง (จำนวนรวม + จำนวนต่อ role) เท่านั้น · จำนวน 0 → สตริงว่าง · `label_sponsored`: copy key จาก narrative-designer · ไม่มีอักษรไทยในโค้ด
-7. geometry: `Polygon`/`MultiPolygon` วงนอกทวนเข็ม · adapter rewind ด้วย pure function (`packages/geo` เมื่อสร้าง · ระหว่างนี้ `apps/client/src/map/` แล้วย้าย) · **ไม่เพิ่ม `@turf/rewind`** โดยไม่มี handoff ถึง tech-lead
+7. geometry: `Polygon`/`MultiPolygon` วงนอกทวนเข็ม · rewind ด้วย `rewindPolygon` ของ `packages/geo` (ย้ายจาก `apps/client/src/map/` ใน P2-F04-T25) · **ไม่เพิ่ม `@turf/rewind`**
+9. **จุดป้าย (D-075):** pole of inaccessibility ของ polygon ที่ใหญ่สุด คำนวณ **ตอน build** ใน `tools/dungeons` (P2-F04-T26) ด้วย `polylabel` 2.1.0 บนพิกัด equirectangular รอบจุดศูนย์กลาง (precision เป็นเมตร จาก config ตาม tech note P2-F04-T14) และใส่ใน artifact ของ dungeon · ไม่มี polylabel ใน runtime · สำเนาที่เขียนเองใน `apps/client/src/map/dungeons-source.ts` ถูกลบเมื่อ client อ่านจุดจาก artifact (P2-F04-T21) · Phase 3 หลังบ้านใช้ build step เดียวกัน
 8. ชื่อ property `label_*` แบบ snake_case คงไว้ตาม style (เป็นชื่อฝั่ง style) · property ใหม่ใช้ชื่อตัวเล็กคำเดียวหรือ `label_*` สำหรับข้อความที่จัดรูปแล้ว
 
 ส่วนที่ยังเปิด: รูปของ payload ของ server (Phase 3 API contract) และ feature-state สำหรับ dungeon ที่ผู้เล่นอยู่ข้างใน
@@ -465,4 +469,5 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 | task | วันที่ | หัวข้อ | เปลี่ยนอะไร | ที่มา |
 | --- | --- | --- | --- | --- |
 | P1-X27 | 2026-09-24 | 15.1 | สถานะ "นอกพื้นที่" อ้าง `unlocks.home.seeOutOfAreaMask` → `data/map/playarea-mask.geojson` ผ่าน `packages/geo` และ "ไกล" อ้าง `unlocks.home.farDungeonThreshold_m` แทน key ระยะทางที่ถูกลบใน P1-X18 | D-064, D-043, `config/balance/unlocks.json` v3, tech gate T-01 |
+| P2-F04-T05 | 2026-09-26 | 15.1, 15.2 | "นอกพื้นที่" ใช้ `inPlayArea` ของ `packages/geo` (leaf) · 15.2 ครอบ source `kw-dungeon-labels` และจุดป้ายตอน build ด้วย polylabel (D-075) · rewind ย้ายไป geo | ADR 0003, D-064, D-075, P1-X32 |
 | P1-X27 | 2026-09-24 | 2, 12 | เพิ่ม `apps/client/src/map/worker.ts` และ failure mode F15 (แผนที่ดำเมื่อไม่ตั้ง worker URL) | D-068, P1-X23, P1-X24 |

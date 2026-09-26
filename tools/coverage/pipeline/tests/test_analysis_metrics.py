@@ -75,10 +75,18 @@ def test_is_usable(props, usable):
 
 
 def test_transit_distance_rule():
-    t = ACFG["transit"]  # rail 2 : bus 1 when rail <= railAcceptableWalk_m (800)
+    """D-069: min(bus, (2 x rail + bus) / 3) when rail <= railAcceptableWalk_m (800)."""
+    t = ACFG["transit"]
     assert M.transit_distance(100.0, 2000.0, t) == pytest.approx((2 * 100 + 2000) / 3)
-    assert M.transit_distance(800.0, 300.0, t) == pytest.approx((1600 + 300) / 3)
+    assert M.transit_distance(800.0, 300.0, t) == 300.0  # was 633.3 before D-069
+    assert M.transit_distance(750.0, 100.0, t) == 100.0  # launch-criteria 4.3 example
     assert M.transit_distance(800.5, 300.0, t) == 300.0
+    assert M.transit_distance(300.0, 300.0, t) == pytest.approx(300.0)
+
+
+@pytest.mark.parametrize("rail,bus", [(0.0, 5.0), (400.0, 50.0), (799.0, 2500.0), (900.0, 10.0)])
+def test_transit_rail_never_worse_than_bus(rail, bus):
+    assert M.transit_distance(rail, bus, ACFG["transit"]) <= bus
 
 
 def test_weighted_median_and_min_max():
@@ -258,3 +266,16 @@ def test_print_analysis_case_table(scene, capsys):
     with capsys.disabled():
         print("\n" + "\n".join(lines))
     assert [by_pop[pop] for _, _, pop in CELLS] == expected
+
+
+def test_scene_pocket_park_walk_median(scene):
+    """D-069 F-11 column: nearest usable pocketPark only (d1 at x=500), any district."""
+    res, rows = scene
+    a, b = rows[1], rows[2]
+    # District 1: d1 is also the nearest dungeon of every cell, so both medians match.
+    assert a["pocketPark_walk_median_m"] == pytest.approx(a["walk_median_m"])
+    # District 2: cells walk back to d1 instead of d4: 2,100 m (200 pop), 3,500 m
+    # (120), 4,800 m (300); weighted median = 3,500 m (cumulative 320 >= 310),
+    # plus a few metres of cell-centre snap.
+    assert b["pocketPark_walk_median_m"] > b["walk_median_m"]
+    assert b["pocketPark_walk_median_m"] == pytest.approx(3500.0, abs=10.0)

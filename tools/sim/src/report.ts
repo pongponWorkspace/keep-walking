@@ -262,7 +262,7 @@ function survivalSection(
   );
   const shortfall = 1 - solo.mean_min / s.referenceMatchingLevel_min;
   console.log(
-    `SF-4 check: reference ${f1(ref.mean_min)} min vs GDD ${s.referenceMatchingLevel_min}; solo non-Tanker ${f1(solo.mean_min)} min = ${f1(shortfall * PCT)}% short of ${s.referenceMatchingLevel_min} → ${shortfall > s.decisionShortfall_ratio ? 'OVER 20%: decision authority HUMAN (confirm D-020)' : 'within 20%'}\n`,
+    `SF-4 check: reference ${f1(ref.mean_min)} min vs GDD ${s.referenceMatchingLevel_min}; solo non-Tanker ${f1(solo.mean_min)} min = ${f1(shortfall * PCT)}% short of ${s.referenceMatchingLevel_min} → ${shortfall > s.decisionShortfall_ratio ? 'OVER 20%: accepted by HUMAN in D-020 (2026-09-25), reported separately' : 'within 20%'}\n`,
   );
 }
 

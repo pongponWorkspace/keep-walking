@@ -12,6 +12,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@keep-walking/geo": "workspace:*",
     "@keep-walking/location": "workspace:*",
     "@keep-walking/shared": "workspace:*",
     "maplibre-gl": "6.10.0",

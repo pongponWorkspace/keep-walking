@@ -338,6 +338,7 @@ GeoJSON FeatureCollection ตาม RFC 7946 (WGS84 lon/lat) · geometry `Polygo
 | `religious_inside_heritage` | R2 |
 | `religious_name` | R3 (class `historic`, `attraction`) |
 | `blocked_religious` | R4 / กฎสัดส่วนหมวดศาสนา |
+| `excluded_osm_id` | `coverageFilter.excludeOsmIds` (HUMAN ตัดถาวรราย osm_id, D-083 · P2-F04-T03) |
 | `blocked_military` · `blocked_diplomatic` · `blocked_health` · `blocked_education` · `blocked_government` · `blocked_cemetery` | กฎสัดส่วนหัวข้อ 7.2 |
 | `access_private` · `private_garden` · `indoor` · `indoor_market` | หัวข้อ 6.1 |
 | `invalid_geometry` · `multipart_disjoint` | หัวข้อ 6.2 |

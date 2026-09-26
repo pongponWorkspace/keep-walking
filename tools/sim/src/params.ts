@@ -2,6 +2,7 @@
 // arguments (ADR 0001 section 3.8) so the same functions can be ported to packages/shared.
 import type { BalanceConfig } from './config';
 import { num, str, strArray, numArray, valueKeys } from './config';
+import type { RaidPartyMultParams } from './raid';
 
 export const ROLES = ['tanker', 'ranged', 'support', 'magic'] as const;
 export type Role = (typeof ROLES)[number];
@@ -86,6 +87,8 @@ export interface PotionParams {
 }
 export interface SafetyParams {
   autoRetreatThreshold_pct: number;
+  /** Low-HP warning line (dungeons.hpSafety), used by the R-B1 hit-resolution vectors. */
+  lowHpWarningThreshold_pct: number;
   autoPotionThreshold_pct: number;
   potionOrder: string[];
 }
@@ -127,11 +130,15 @@ export interface SimParams {
   partyMaxMembers: number;
   /** `enhance.json#rules.maxEnhanceLevel`: v1 enhance cap (P1-X05). */
   maxEnhanceLevel: number;
+  /** `raid.json#partyMult` incl. caps (D-079, P2-F06-T01). */
+  raidParty: RaidPartyMultParams;
+  /** `raid.json#partyMult` GDD bands (simulator checks only, never runtime). */
+  raidPartyTargets: { fullMin: number; fullMax: number; incompleteMin: number; incompleteMax: number };
 }
 
 /** Builds every parameter the simulator needs from config/balance. Throws on null or missing. */
 export function paramsFromConfig(cfg: BalanceConfig): SimParams {
-  const { classes, combat, progression, equipment, economy, dungeons, drops, enhance } = cfg;
+  const { classes, combat, progression, equipment, economy, dungeons, drops, enhance, raid } = cfg;
   const roles = {} as Record<Role, RoleParams>;
   for (const role of ROLES) {
     roles[role] = {
@@ -234,6 +241,7 @@ export function paramsFromConfig(cfg: BalanceConfig): SimParams {
     potions,
     safety: {
       autoRetreatThreshold_pct: num(dungeons, 'hpSafety.autoRetreatThreshold_pct'),
+      lowHpWarningThreshold_pct: num(dungeons, 'hpSafety.lowHpWarningThreshold_pct'),
       autoPotionThreshold_pct: num(economy, 'autoPotion.defaultThreshold_pct'),
       potionOrder: strArray(economy, 'autoPotion.defaultPotionOrder'),
     },
@@ -267,5 +275,18 @@ export function paramsFromConfig(cfg: BalanceConfig): SimParams {
     },
     partyMaxMembers: num(classes, 'party.maxMembers'),
     maxEnhanceLevel: num(enhance, 'rules.maxEnhanceLevel'),
+    raidParty: {
+      noPartyMult: num(raid, 'partyMult.noPartyMult'),
+      weight: num(raid, 'partyMult.weight'),
+      incompletePartyFactor: num(raid, 'partyMult.incompletePartyFactor'),
+      fullPartyCap: num(raid, 'partyMult.fullPartyCap'),
+      incompletePartyCap: num(raid, 'partyMult.incompletePartyCap'),
+    },
+    raidPartyTargets: {
+      fullMin: num(raid, 'partyMult.fullPartyTargetMin'),
+      fullMax: num(raid, 'partyMult.fullPartyTargetMax'),
+      incompleteMin: num(raid, 'partyMult.incompletePartyTargetMin'),
+      incompleteMax: num(raid, 'partyMult.incompletePartyTargetMax'),
+    },
   };
 }

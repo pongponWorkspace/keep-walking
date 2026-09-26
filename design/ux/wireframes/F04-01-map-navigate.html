@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F04 Flow A: แผนที่ + นำทาง (P2-F04-T15)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F04 Flow A — เห็นรอยแยกบนแผนที่ + นำทาง (A-3)</h1>
+  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 2 · Phase 2 ป้ายบนแผนที่ไม่มีจำนวนคน (override เหนือ F03) · ระยะเส้นตรงปัดขึ้นเป็นขั้นพร้อมคำกำกับทุกจุด (<span class="config-ref">config: unlocks.home.distanceDisplaySteps_m</span>) · ไม่วาดเส้นทางใดบนแผนที่</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>A1. ป้ายรอยแยกบนแผนที่ (เปิดอยู่ / ปิดอยู่)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span><span class="gps-pill ok"><span class="copykey">gps.pillLabel</span> <span class="thaidraft">(GPS)</span></span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;background:var(--map-land);position:relative;">
+    <div style="position:absolute;left:60px;top:120px;background:var(--rift-500);border:2px solid var(--ink-900);border-radius:6px;padding:4px 8px;color:#fff;font-size:12px;font-weight:700;">ลุมพินี — ป่าในเมือง</div>
+    <div style="position:absolute;left:180px;top:260px;background:var(--ink-300);border:2px solid var(--ink-900);border-radius:6px;padding:4px 8px;color:var(--ink-700);font-size:12px;font-weight:700;">ตลาดคลองเตย<br><span class="copykey">map.riftClosed</span> <span class="thaidraft">(ปิดอยู่)</span></div>
+    <div style="position:absolute;left:40%;top:50%;width:16px;height:16px;background:var(--accent-signal);border:2px solid var(--ink-900);border-radius:999px;"></div>
+  </div>
+</div>
+<p class="frame-caption">Phase 2: ป้ายแสดงแค่ {zoneName} จาก content ไม่มี <span class="config-ref">map.labelCount*</span> เลย (override, ไม่ใช่แค่ตอน 0 คน) · ปิดตามเวลาทำการ → ป้ายจางกว่าปกติแต่ไม่ซ่อน (เห็นว่ามีแต่เข้าไม่ได้)</p>
+</div>
+
+<div class="frame-block">
+<h3>A2. แผงระยะ+ทิศ+นำทาง (แตะป้ายหรือสถานะ "ใกล้")</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:55%;"></div>
+    <div class="drawer" style="position:relative;bottom:auto;box-shadow:none;border-radius:16px 16px 0 0;">
+      <div class="drawer-handle"></div>
+      <h2 class="scr-sub" style="font-size:18px;"><span class="copykey">dungeon.confirmTitle</span> <span class="thaidraft">(ลุมพินี — ป่าในเมือง)</span></h2>
+      <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+        <span class="numeric" style="font-size:24px;">450 ม.</span>
+        <span class="rarity-chip" style="border-color:var(--state-info);color:var(--state-info);"><span class="copykey">nav.straightLineTag</span> <span class="thaidraft">(เส้นตรง)</span></span>
+      </div>
+      <p class="caption" style="display:flex;align-items:center;gap:6px;">
+        <span style="display:inline-block;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:14px solid var(--ink-900);transform:rotate(35deg);"></span>
+        <span class="copykey">nav.directionLabel</span> <span class="thaidraft">(ทิศตะวันออกเฉียงเหนือ)</span>
+      </p>
+      <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span> · เปิดอยู่ตอนนี้</p>
+      <div class="btn btn-primary" style="margin-top:8px;"><span class="copykey">map.navigateButton</span> <span class="thaidraft">(นำทาง)</span></div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ตัวเลข 450 ม. เป็นระยะเส้นตรงปัดขึ้นเป็นขั้นแล้ว (R34) ชิป "เส้นตรง" ติดกับตัวเลขเสมอ · ลูกศรหมุนตามองศาจริง (placeholder รูปสามเหลี่ยม รอ SVG จาก artist-2d) · ไม่มีเส้นใดบนแผนที่ด้านบน (R36)</p>
+</div>
+
+
+<div class="frame-block">
+<h3>A2b. ไกล + ปิดชั่วคราว (เวลาเปิดถัดไปก่อนปุ่มนำทาง)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-land);height:55%;"></div>
+    <div class="drawer" style="position:relative;bottom:auto;box-shadow:none;border-radius:16px 16px 0 0;">
+      <div class="drawer-handle"></div>
+      <h2 class="scr-sub" style="font-size:18px;"><span class="copykey">home.farTitle</span> <span class="thaidraft">(รอยแยกใกล้สุดอยู่ไกล)</span></h2>
+      <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+        <span class="numeric" style="font-size:24px;">3.5 กม.</span>
+        <span class="rarity-chip" style="border-color:var(--state-info);color:var(--state-info);"><span class="copykey">nav.straightLineTag</span> <span class="thaidraft">(เส้นตรง)</span></span>
+      </div>
+      <p class="caption"><span class="copykey">nav.directionLabel</span> <span class="thaidraft">(ทิศใต้)</span></p>
+      <p class="body-text" style="color:var(--state-danger);"><span class="copykey">dungeon.closedTitle</span> <span class="thaidraft">(ปิดอยู่ตอนนี้)</span> · <span class="copykey">dungeon.closedBody</span> <span class="thaidraft">(เปิดอีกที 06:00 พรุ่งนี้)</span></p>
+      <div class="btn btn-primary" style="margin-top:8px;"><span class="copykey">home.farNavigate</span> <span class="thaidraft">(นำทาง)</span></div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">เวลาเปิดถัดไปต้องอยู่ "เหนือ" ปุ่มนำทางเสมอ (อ่านก่อนกดปุ่ม) · ปุ่มนำทางยังกดได้แม้ปิดอยู่ (R38) · ซ่อนบรรทัดจำนวนคน/role เสมอ (ไม่มีในสถานะไกลอยู่แล้วตาม ia.md)</p>
+</div>
+
+<div class="frame-block">
+<h3>A3. Fallback — เปิดแอปนำทางไม่ได้</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="padding:0;">
+    <div style="background:var(--map-park);height:55%;"></div>
+    <div class="popup-overlay center">
+      <div class="popup center-sheet">
+        <h1 class="scr-title"><span class="copykey">nav.fallbackTitle</span><br><span class="thaidraft">(เปิดแอปนำทางไม่ได้)</span></h1>
+        <p class="caption"><span class="copykey">nav.fallbackDestinationLabel</span> <span class="thaidraft">(ปลายทาง)</span></p>
+        <p class="body-text">ทางเข้าลุมพินีสวนป่าในเมือง ถนนวิทยุ</p>
+        <div class="btn btn-secondary" style="width:100%;"><span class="copykey">nav.fallbackCopyButton</span> <span class="thaidraft">(คัดลอกชื่อ)</span></div>
+        <p class="caption" style="text-align:center;margin-top:8px;color:var(--state-success);"><span class="copykey">nav.fallbackCopied</span> <span class="thaidraft">(คัดลอกแล้ว)</span> — โผล่สั้นๆ หลังกด แล้วปิดแผงเอง</p>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ลิงก์ deep link มีแค่ปลายทาง (จุดสาธารณะของ dungeon) โหมดเดินเท้า ไม่มีตำแหน่งผู้เล่นใน URL ไม่มี API key (R37) · fallback เมื่อ browser/OS เปิดแอปแผนที่ไม่ได้</p>
+</div>
+
+</div>
+</body>
+</html>

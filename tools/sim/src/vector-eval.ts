@@ -31,6 +31,9 @@ import type {
   SlotShare,
   StatParams,
 } from './params';
+import { resolveHit } from './hit';
+import { raidPartyMult } from './raid';
+import type { HitPotion } from './hit';
 import { evaluateEconomyVector } from './vector-eval-economy';
 import {
   expectedSurvival_min,
@@ -40,7 +43,8 @@ import {
 } from './survival';
 
 export type VectorInput = Record<string, unknown>;
-export type VectorOutput = number | string | null | Record<string, number>;
+export type VectorLeaf = number | string | boolean | null;
+export type VectorOutput = number | string | null | Record<string, VectorLeaf>;
 
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
@@ -55,6 +59,19 @@ function nOrNull(input: VectorInput, key: string): number | null {
   if (v === null) return null;
   if (typeof v !== 'number') throw new Error(`vector input "${key}" must be a number or null`);
   return v;
+}
+function bool(input: VectorInput, key: string): boolean {
+  const v = input[key];
+  if (typeof v !== 'boolean') throw new Error(`vector input "${key}" must be a boolean`);
+  return v;
+}
+function potionList(input: VectorInput, key: string): HitPotion[] {
+  const v = input[key];
+  if (!Array.isArray(v)) throw new Error(`vector input "${key}" must be an array`);
+  return v.map((x: VectorInput) => {
+    if (typeof x['id'] !== 'string') throw new Error(`vector input "${key}[].id" must be a string`);
+    return { id: x['id'], heal_pctMaxHp: n(x, 'heal_pctMaxHp'), count: n(x, 'count') };
+  });
 }
 function obj(input: VectorInput, key: string): VectorInput {
   const v = input[key];
@@ -290,6 +307,39 @@ export function evaluateVector(input: VectorInput): VectorOutput {
         n(input, 'potionEfficiencyBonus_pct'),
         n(input, 'buyPrice_gold'),
       );
+    // ---- raid.json ----
+    case 'raidPartyMult': {
+      const rolesIn = input['roles'];
+      if (!Array.isArray(rolesIn)) throw new Error('vector input "roles" must be an array');
+      return raidPartyMult(
+        bool(input, 'inParty'),
+        rolesIn.map((r: VectorInput) => ({ buff_pct: n(r, 'buff_pct'), cap_pct: n(r, 'cap_pct') })),
+        {
+          noPartyMult: n(input, 'noPartyMult'),
+          weight: n(input, 'weight'),
+          incompletePartyFactor: n(input, 'incompletePartyFactor'),
+          fullPartyCap: n(input, 'fullPartyCap'),
+          incompletePartyCap: n(input, 'incompletePartyCap'),
+        },
+      );
+    }
+    // ---- damage.json: R-B1 hit resolution (D-078) ----
+    case 'resolveHit': {
+      const r = resolveHit({
+        hp: n(input, 'hp'),
+        maxHp: n(input, 'maxHp'),
+        shield: n(input, 'shield'),
+        damage: n(input, 'damage'),
+        autoRetreatEnabled: bool(input, 'autoRetreatEnabled'),
+        autoRetreatThreshold_pct: n(input, 'autoRetreatThreshold_pct'),
+        lowHpWarningThreshold_pct: n(input, 'lowHpWarningThreshold_pct'),
+        autoPotionEnabled: bool(input, 'autoPotionEnabled'),
+        autoPotionThreshold_pct: n(input, 'autoPotionThreshold_pct'),
+        potionEfficiencyBonus_pct: n(input, 'potionEfficiencyBonus_pct'),
+        potions: potionList(input, 'potions'),
+      });
+      return { ...r };
+    }
     default: {
       // drops.json, economy.json, party.json (P1-F03-T08)
       const out = evaluateEconomyVector(input);

@@ -574,12 +574,12 @@
         "fn": "potionCostPerHour_gold",
         "hpLoss_pctPerHour": 97.16,
         "heal_pctMaxHp": 30,
-        "potionEfficiencyBonus_pct": 107.5,
+        "potionEfficiencyBonus_pct": 53.75,
         "buyPrice_gold": 150
       },
-      "expected": 234.120482,
+      "expected": 315.96748,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · small potion, VIT 53.75 → +107.5% efficiency"
+      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · small potion, VIT 53.75 → +53.75% efficiency"
     },
     {
       "input": {
@@ -592,6 +592,1140 @@
       "expected": 0,
       "tolerance": 0.000001,
       "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: no damage → 0 gold"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 100
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 900,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 900,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 normal: no shield, no event"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 0
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 1000,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 1000,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 boundary: damage 0 → nothing changes"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 150,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 100
+      },
+      "expected": {
+        "shieldAbsorbed": 100,
+        "shieldAfter": 50,
+        "hpAfterHit": 1000,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 1000,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 1: shield absorbs the whole hit"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 40,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 100
+      },
+      "expected": {
+        "shieldAbsorbed": 40,
+        "shieldAfter": 0,
+        "hpAfterHit": 940,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 940,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 1: shield absorbs part, rest hits HP"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 100,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 100
+      },
+      "expected": {
+        "shieldAbsorbed": 100,
+        "shieldAfter": 0,
+        "hpAfterHit": 1000,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 1000,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 boundary: shield equal to damage → HP unchanged, shield 0"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 0
+          }
+        ],
+        "hp": 1000,
+        "damage": 5000
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 1,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 1,
+        "outcome": "autoRetreat",
+        "lowHpWarning": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 2 edge: auto-retreat ON, one hit larger than max HP → HP 1, autoRetreat, warning"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 200,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 0
+          }
+        ],
+        "hp": 1000,
+        "damage": 5000
+      },
+      "expected": {
+        "shieldAbsorbed": 200,
+        "shieldAfter": 0,
+        "hpAfterHit": 1,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 1,
+        "outcome": "autoRetreat",
+        "lowHpWarning": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 1+2: shield first, then HP floored at 1"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 5000
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 1,
+        "potionUsed": "hpSmall",
+        "potionHealed": 300,
+        "hpAfter": 301,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 3 edge: floored at 1 then hpSmall (1 + 300) ends above the warning line 300 → continue, no warning (warning uses final HP)"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 53.75,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 5000
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 1,
+        "potionUsed": "hpSmall",
+        "potionHealed": 461.25,
+        "hpAfter": 462.25,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 3: potion heal x (1 + VIT bonus 53.75%)"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": false,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 5000
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 1,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 1,
+        "outcome": "autoRetreat",
+        "lowHpWarning": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 auto-potion OFF with potions in bag → HP 1, autoRetreat"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": false,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 5000
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 0,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 0,
+        "outcome": "died",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 2 edge: auto-retreat OFF, overkill → died, no potion, no warning"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": false,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 100,
+        "damage": 100
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 0,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 0,
+        "outcome": "died",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 boundary: auto-retreat OFF, damage equal to HP → died"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": false,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 100,
+        "damage": 99.5
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 0.5,
+        "potionUsed": "hpSmall",
+        "potionHealed": 300,
+        "hpAfter": 300.5,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 boundary: auto-retreat OFF, HP left 0.5 > 0 → alive, potion; already under warning line → no warning"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 0
+          }
+        ],
+        "hp": 400,
+        "damage": 150
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 250,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 250,
+        "outcome": "autoRetreat",
+        "lowHpWarning": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 4 boundary: final HP exactly 25% → autoRetreat (<=)"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 0
+          }
+        ],
+        "hp": 400,
+        "damage": 149
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 251,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 251,
+        "outcome": "continue",
+        "lowHpWarning": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 4 boundary: final HP 25% + 1 → continue, warning"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": false,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 0
+          }
+        ],
+        "hp": 400,
+        "damage": 150
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 250,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 250,
+        "outcome": "continue",
+        "lowHpWarning": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 auto-retreat OFF: final HP at the retreat line → continue (no retreat), warning"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 0
+          }
+        ],
+        "hp": 500,
+        "damage": 200
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 300,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 300,
+        "outcome": "continue",
+        "lowHpWarning": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 5 boundary: final HP exactly 30% from above → warning (<=)"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 0
+          }
+        ],
+        "hp": 500,
+        "damage": 199
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 301,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 301,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 5 boundary: final HP 30% + 1 → no warning"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": false,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 0
+          }
+        ],
+        "hp": 299,
+        "damage": 1
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 298,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 298,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 5: HP already under the warning line → no second warning (one per downward crossing)"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 500,
+        "damage": 100
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 400,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 400,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 3 boundary: HP exactly 40% → no potion (strict <)"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 500,
+        "damage": 100.5
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 399.5,
+        "potionUsed": "hpSmall",
+        "potionHealed": 300,
+        "hpAfter": 699.5,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 3 boundary: HP just under 40% → hpSmall"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 500,
+        "damage": 100.5
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 399.5,
+        "potionUsed": "hpMedium",
+        "potionHealed": 600,
+        "hpAfter": 999.5,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 3: hpSmall count 0 → next potion in order"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 0
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 0
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 500,
+        "damage": 100.5
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 399.5,
+        "potionUsed": "hpLarge",
+        "potionHealed": 600.5,
+        "hpAfter": 1000,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 3: heal capped at max HP (potionHealed < heal)"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 500,
+        "damage": 250
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 250,
+        "potionUsed": "hpSmall",
+        "potionHealed": 300,
+        "hpAfter": 550,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 3 before 4: potion lifts HP from the retreat line → continue, no warning"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 1000,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 0,
+        "potions": [
+          {
+            "id": "syntheticWeak",
+            "heal_pctMaxHp": 10,
+            "count": 1
+          }
+        ],
+        "hp": 1000,
+        "damage": 5000
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 1,
+        "potionUsed": "syntheticWeak",
+        "potionHealed": 100,
+        "hpAfter": 101,
+        "outcome": "autoRetreat",
+        "lowHpWarning": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 step 3 then 4 (synthetic potion, not config): potion used but HP still under retreat line → autoRetreat, warning"
+    },
+    {
+      "input": {
+        "fn": "resolveHit",
+        "maxHp": 3112.5,
+        "shield": 0,
+        "autoRetreatEnabled": true,
+        "autoRetreatThreshold_pct": 25,
+        "lowHpWarningThreshold_pct": 30,
+        "autoPotionEnabled": true,
+        "autoPotionThreshold_pct": 40,
+        "potionEfficiencyBonus_pct": 53.75,
+        "potions": [
+          {
+            "id": "hpSmall",
+            "heal_pctMaxHp": 30,
+            "count": 1
+          },
+          {
+            "id": "hpMedium",
+            "heal_pctMaxHp": 60,
+            "count": 1
+          },
+          {
+            "id": "hpLarge",
+            "heal_pctMaxHp": 100,
+            "count": 1
+          }
+        ],
+        "hp": 3112.5,
+        "damage": 100.8
+      },
+      "expected": {
+        "shieldAbsorbed": 0,
+        "shieldAfter": 0,
+        "hpAfterHit": 3011.7,
+        "potionUsed": null,
+        "potionHealed": 0,
+        "hpAfter": 3011.7,
+        "outcome": "continue",
+        "lowHpWarning": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F06-T01 (reference implementation tools/sim/src/hit.ts, R-B1 D-078) · R-B1 normal: L25 balanced build, damage x1.0, full HP"
     }
   ]
 }

@@ -2,21 +2,28 @@
   "name": "@keep-walking/shared",
   "version": "0.0.0",
   "private": true,
-  "description": "Shared types, schemas, and pure formula functions. Runs unchanged on the server (Workers). Owner: tech-lead.",
+  "description": "Shared types, schemas, and pure engine code (formulas, config accessor, run, reward, hp, session). Runs unchanged on the server (Workers). Contract owner: tech-lead (ADR 0003). Folder owners: see studio/phases/phase-2/board.md section 1.",
   "type": "module",
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
+    "./formulas": "./src/formulas/index.ts",
+    "./config": "./src/config/index.ts",
+    "./run": "./src/run/index.ts",
+    "./reward": "./src/reward/index.ts",
+    "./hp": "./src/hp/index.ts",
+    "./session": "./src/session/index.ts",
     "./schemas/*": "./schemas/*"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "ajv": "8.20.0",
-    "ajv-formats": "3.0.1"
+    "@keep-walking/geo": "workspace:*"
   },
   "devDependencies": {
-    "@types/geojson": "7946.0.16"
+    "@types/geojson": "7946.0.16",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
   }
 }

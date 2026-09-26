@@ -1,9 +1,9 @@
 {
   "_meta": {
     "file": "progression.json",
-    "version": 1,
+    "version": 2,
     "owner": "systems-designer",
-    "task": "P1-F03-T06",
+    "task": "P1-F03-T06, P2-F06-T01",
     "doc": "design/systems/balance-model.md section 4"
   },
   "level": {
@@ -41,12 +41,13 @@
     "vit": 0
   },
   "statPerPoint": {
-    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (ATK +4, DEF +3, HP +150, VIT +1.5% ความเร็วฟื้น HP และ +2% ประสิทธิภาพยา)",
+    "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (ATK +4, DEF +3, HP +150, VIT +1.5% ความเร็วฟื้น HP และ +2% ประสิทธิภาพยา) · vitPotionEfficiency_pct changed by D-038 option B (HUMAN 2026-09-25), GDD wording change approved in D-084",
     "atk": 4,
     "def": 3,
     "hp": 150,
     "vitHpRegenSpeed_pct": 1.5,
-    "vitPotionEfficiency_pct": 2
+    "vitPotionEfficiency_pct": 1,
+    "_change": "P2-F06-T01: vitPotionEfficiency_pct 2 -> 1 per VIT point (D-038 B, HUMAN 2026-09-25). Target: solo average (4 classes, balanced build, VIT on, small potions) at level 25 income/potion ratio about 2.69 (design/systems/sim-report.md section 11). The GDD reference case (damage x1.0, no VIT) is unchanged at 2.83. vitHpRegenSpeed_pct is not affected"
   },
   "hpRecovery": {
     "_source": "GDD > HP การตาย และการฟื้นฟู > การออกจาก dungeon; เมื่อตาย (ฟื้นจาก 0 ถึง 50% ใช้เวลา 30 นาที)",

@@ -1,7 +1,7 @@
 # Balance Model — GPS Dungeon Bangkok
 
-- งาน: P1-F03-T06 · เจ้าของ: systems-designer · สถานะ: ฉบับแรก (Phase 1) · ปรับตามคำตัดสินหลัง T06 ใน P1-X22 (เป็นบันทึก ไม่เปลี่ยนค่า config)
-- คำตัดสินที่สะท้อนแล้ว: D-029 (hit chance 54), D-041 (ลำดับปลด), D-059 PROPOSED (รางวัลปิดฉุกเฉิน), D-061 PROPOSED (`dungeons.safety`), D-062 (`telemetry.json` อยู่ `config/app/`), D-064 ("นอกพื้นที่" = นอก mask), D-065 (ร้าน NPC) · ตัวเลขผลรันล่าสุดอยู่ที่ `design/systems/sim-report.md`
+- งาน: P1-F03-T06 · เจ้าของ: systems-designer · สถานะ: ฉบับแรก (Phase 1) · ปรับตามคำตัดสินหลัง T06 ใน P1-X22 (เป็นบันทึก ไม่เปลี่ยนค่า config) · P2-F06-T01 (Phase 2): D-038 B, farDungeonThreshold_m, R-B1, cap ของ partyMult (หัวข้อ 15)
+- คำตัดสินที่สะท้อนแล้ว: D-020 ACCEPTED (นิยาม 45 นาที), D-038 B ACCEPTED (VIT ต่อยา +1%), D-078 (R-B1 ลำดับผลต่อ hit), D-079 (เพดานระยะไกลและ partyMult), D-029 (hit chance 54), D-041 (ลำดับปลด), D-059 PROPOSED (รางวัลปิดฉุกเฉิน), D-061 PROPOSED (`dungeons.safety`), D-062 (`telemetry.json` อยู่ `config/app/`), D-064 ("นอกพื้นที่" = นอก mask), D-065 (ร้าน NPC) · ตัวเลขผลรันล่าสุดอยู่ที่ `design/systems/sim-report.md`
 - แหล่งความจริง: GDD (`เกม GPS Dungeon กรุงเทพฯ — Design Document.md`) · decision D-004, D-005
 - ค่าทุกตัวอยู่ใน `config/balance/*.json` เอกสารนี้อธิบายสูตรและเหตุผลเท่านั้น โค้ดห้ามถือเลขเอง
 - ผู้ใช้ต่อ: P1-F03-T07 และ T08 (simulator + golden test vectors), P1-F03-T09 (preset), gameplay/backend-programmer, liveops-operator
@@ -132,8 +132,40 @@ damagePerHit = monsterATK × (1 − defRed) × tankerTerm × gapMult × failMult
 
 - ทุก `45–75 วินาที` (สุ่มแบบ uniform) ระบบทอยว่าโดนตีไหม โอกาส `combat.attackCheck.hitChancePerCheck_pct` = 54% (A-4 · ค่าตั้งต้น T06 คือ 50% · T07 fit ใหม่เป็น 54 ด้วย least-squares ต่อแถว 45 และ 55 นาทีของ GDD · D-029 ACCEPTED)
 - โล่ Magic ดูดซับ damage ก่อน HP (A-13) · heal ของ Support ทำงานเฉพาะเมื่อมี Support ในดัน (A-12)
-- HP ≤ 30% → สั่น + push ครั้งเดียวต่อการลงผ่านเกณฑ์ · HP ≤ ยาอัตโนมัติ 40% → ใช้ยาเล็กก่อน (A-15b) · HP ≤ 25% และเปิด auto-retreat (default) → ถอนอัตโนมัติ เก็บของครบ run จบ · HP = 0 → ตาย ของใน run หายหมด
+- HP ≤ 30% → สั่น + push ครั้งเดียวต่อการลงผ่านเกณฑ์ · HP ต่ำกว่า (<) ยาอัตโนมัติ 40% → ใช้ยาเล็กก่อน (A-15b) · HP ≤ 25% และเปิด auto-retreat (default) → ถอนอัตโนมัติ เก็บของครบ run จบ · HP = 0 → ตาย ของใน run หายหมด (ตายได้เฉพาะเมื่อปิด auto-retreat) · ลำดับที่แน่นอนต่อ hit อยู่ในหัวข้อ 3.1.1 (R-B1)
 - ออกจาก dungeon แล้วฟื้น 1.6667% maxHP/นาที × (1 + 1.5% × VIT) (A-15a) · ตายแล้วฟื้นจาก 0 ถึง 50% ใน 30 นาที · ยาชุบชีวิตฟื้นเป็น 50% ทันที
+
+### 3.1.1 ลำดับผลต่อ hit หนึ่งครั้ง (R-B1, D-078 · P2-F06-T01)
+
+ใช้ทุกครั้งที่การทอยตีโดน (ไม่ใช้ตอน speed lock, Grace หรือ Suspended เพราะไม่มีการตี) · reference implementation: `tools/sim/src/hit.ts` ฟังก์ชัน `resolveHit` · vector: `design/systems/test-vectors/damage.json` ที่ `input.fn = "resolveHit"` (26 ตัว)
+
+```
+1. โล่      : absorbed = min(shield, damage) · shield −= absorbed · toHp = damage − absorbed
+2. HP       : auto-retreat เปิด → hpAfterHit = max(1, hp − toHp)        hit เดียวไม่พา HP ต่ำกว่า 1
+              auto-retreat ปิด → hpAfterHit = max(0, hp − toHp)        ถ้า 0 → ตาย จบทันที (ไม่ใช้ยา ไม่เตือน ของใน run หาย)
+3. ยาอัตโนมัติ: เปิดอยู่ AND hpAfterHit < maxHP × autoPotion.defaultThreshold_pct (40) AND มียาในกระเป๋า
+              → ดื่ม 1 ขวด ขวดแรกที่ count > 0 ตาม defaultPotionOrder (เล็ก → กลาง → ใหญ่, A-15b)
+              heal = maxHP × heal_pct × (1 + vitPotionEfficiency_pct × VIT / 100) / 100 · ไม่เกิน maxHP
+4. ถอยอัตโนมัติ: เปิดอยู่ AND hpAfter ≤ maxHP × autoRetreatThreshold_pct (25) → autoRetreat (เก็บของครบ run จบ)
+5. เตือน HP ต่ำ: hp ก่อนโดน > maxHP × lowHpWarningThreshold_pct (30) AND hpAfter ≤ เส้นนั้น → เตือน (สั่น · push เลื่อน Phase 8)
+              อ่านจาก HP สุดท้ายหลังดื่มยา · ครั้งเดียวต่อการลงผ่านเส้น
+ผลลัพธ์     : { shieldAbsorbed, shieldAfter, hpAfterHit, potionUsed, potionHealed, hpAfter, outcome: continue | autoRetreat | died, lowHpWarning }
+```
+
+| เงื่อนไขขอบ | ผล (maxHP 1,000 · vector) |
+| --- | --- |
+| hit ใหญ่กว่า maxHP, auto-retreat เปิด, ไม่มียา | HP 1 → autoRetreat + เตือน |
+| เหมือนกัน แต่มียาเล็ก | HP 1 → ยาเล็ก → 301 → เล่นต่อ ไม่เตือน (301 > 300) |
+| hit ใหญ่กว่า maxHP, auto-retreat ปิด | ตาย ไม่ดื่มยาแม้มียา |
+| HP เหลือ 250 พอดี (25%) ไม่มียา | autoRetreat (≤) |
+| HP เหลือ 400 พอดี (40%) | ไม่ดื่มยา (<) |
+| HP เหลือ 300 พอดี จากเหนือเส้น | เตือน (≤) · ถ้าก่อนโดนอยู่ใต้เส้นแล้ว ไม่เตือนซ้ำ |
+| ยาเล็กหมด | ใช้ยากลางแทน · ยาใหญ่ถูกตัดที่ maxHP |
+| ดื่มยาแล้วยังต่ำกว่า 25% (ยาสมมติ 10%) | autoRetreat |
+
+- ข้อสมมติ (A-P2-F06-T01-1, เจ้าของ game-director): ดื่มยา **1 ขวดต่อ hit** เหมือน simulator ของ Phase 1 · การเลือกขนาดแบบ "ยาเล็กสุดที่พา HP พ้นเกณฑ์" (D-079 ข้อ 3) เป็นงาน Phase 4 · ถ้าตายจะไม่มีการเตือน HP ต่ำ (event ตายแทน)
+- ถ้าเปิด auto-retreat ผู้เล่นตายจาก hit ไม่ได้เลย (HP ต่ำสุด 1 แล้วถอยทันทีถ้ายาไม่พาพ้น 25%) · ตายได้ทางเดียวคือปิด auto-retreat ในหน้าตั้งค่า · telemetry `run_death` ต้องสะท้อนข้อนี้ (D-078)
+- Monte Carlo ของ `survival.ts` ใช้พื้น HP 1 เดียวกันเมื่อจำลอง auto-retreat (`stopAt_pct > 0`) · ตัวเลขทุกแถวของ report ไม่เปลี่ยน เพราะ damage ต่อ hit ทุกแถวของ report (สูงสุด 5.2% maxHP ที่ solo ×1.6) ไม่เคยข้ามจากเหนือ 25% ถึง 0 ในครั้งเดียว · กรณีที่ข้ามได้จริงคือเลเวลต่ำกว่าช่วงมาก (×1.25^gap) หรือสัปดาห์ล้มบอส (×2) ซึ่ง vector ขอบครอบไว้
 
 ### 3.2 สมมติฐาน "build สมดุล" สำหรับ simulator
 
@@ -161,7 +193,7 @@ damagePerHit = monsterATK × (1 − defRed) × tankerTerm × gapMult × failMult
 
 ```
 hpLossPerHour_pct = (3600 / meanCheckInterval_s) × hitChance × damagePerHit / maxHP × 100
-potionCostPerHour = hpLossPerHour_pct / (heal_pct × (1 + 2% × VIT)) × buyPrice
+potionCostPerHour = hpLossPerHour_pct / (heal_pct × (1 + vitPotionEfficiency_pct × VIT / 100)) × buyPrice      (1% ต่อแต้มตั้งแต่ D-038 B, เดิม 2%)
 ```
 
 (ตัวเลขย่อหน้านี้เป็นของ T06 ที่ hit chance 50% · ที่ 54% ผลของ T08 คือยาเล็กล้วน 525 และยากลางล้วน 699 gold/ชม. ดู sim-report หัวข้อ 3 แถว 20–21)
@@ -204,7 +236,7 @@ statPoints(L) = 3 × L                                   (เลเวล 60 = 1
 ATK = 20 + 4 × ptsATK + gearATK
 DEF = 20 + 3 × ptsDEF + gearDEF
 HP  = 300 + 150 × ptsHP
-VIT = ptsVIT + gearVIT  →  ฟื้น HP เร็วขึ้น 1.5% ต่อแต้ม, ประสิทธิภาพยา +2% ต่อแต้ม
+VIT = ptsVIT + gearVIT  →  ฟื้น HP เร็วขึ้น 1.5% ต่อแต้ม, ประสิทธิภาพยา +1% ต่อแต้ม (D-038 B, P2-F06-T01 · GDD เดิม +2% แก้ถ้อยคำตาม D-084)
 ```
 
 ตรวจ build สุดขั้วเลเวล 60 กับ GDD: ATK 740, DEF 560 (ลด damage 65.1%), HP 27,300 ตรงทั้งสามค่า · ตัวเลขนี้ยืนยันว่า "3 แต้มต่อเลเวล" นับเลเวล 1 ด้วย (3 × 60 = 180) ไม่ใช่ 3 × 59
@@ -401,7 +433,7 @@ outsideTime ≤ 180 → Grace · 180 < outsideTime ≤ 900 → Suspended · > 90
 
 | สถานะ | นิยาม | config | ที่มา |
 | --- | --- | --- | --- |
-| "ไกล" | อยู่ใน play area และ dungeon ที่เปิดอยู่ใกล้สุดเกิน 2,000 ม. | `unlocks.home.farDungeonThreshold_m` | A-20b (GDD: 650 ม. ใช้ได้, 3 กม. พัง) · ประเมินใหม่เมื่อขยับเกิน `reevaluateDistance_m` 200 ม. (A-P1-H03-5) |
+| "ไกล" | อยู่ใน play area และ dungeon ที่เปิดอยู่ใกล้สุดเกิน 1,900 ม. (ระยะเส้นตรง) | `unlocks.home.farDungeonThreshold_m` | D-079 เพดาน 3,000 / route factor 1.52 = 1,974 → ≤ 1,970 เลือก 1,900 (P2-F06-T01, เดิม 2,000 ตาม A-20b) · D-072 · GDD: 650 ม. ใช้ได้, 3 กม. พัง · ประเมินใหม่เมื่อขยับเกิน `reevaluateDistance_m` 200 ม. (A-P1-H03-5) |
 | "นอกพื้นที่" | ตำแหน่งอยู่นอก play area ตาม mask ไม่ใช่ระยะถึง dungeon | `unlocks.home.seeOutOfAreaMask` → `data/map/playarea-mask.geojson` | D-064 · key เดิม `outOfServiceAreaThreshold_m` (20,000 ม.) ถูกตัดใน P1-X18 ห้ามนำกลับ |
 
 - ร้าน NPC ใช้ id `NPC` ถาวร ไม่มีเลข U (pillars 6.2 คำตัดสินเรื่องรหัส P1-X21): ไม่อยู่ในรายการห้ามสอนของ GDD และต้องซื้อยาได้เร็ว (หลักการข้อ 3)
@@ -416,14 +448,15 @@ POW_i          = (baseATK_i + gearATK_i) × (1 + level_i / 60) × roleMult_role
                  baseATK = ATK จาก stat (20 + 4 × ptsATK) · roleMult: Ranged 1.3, Magic 1.25, Tanker 0.8, Support 0.75
 presenceMult   = 1.0 ถ้าผ่าน movement gate (dungeons.json) · 0.3 ถ้าอยู่ในวงแต่ไม่ขยับ
 survivalMult   = 1.0 (HP > 70%) · 0.7 (30% < HP ≤ 70%) · 0.4 (HP ≤ 30%) · 0 (ล้ม)       (A-17c ขอบเขต)
-partyMult      = 1 + 0.8 × (Σ_role buff_role / cap_role) / 4 × (ครบ 4 role ? 1 : 0.6)      ไม่มี party = 1.0   (A-17)
+partyMult      = min(cap, 1 + 0.8 × (Σ_role buff_role / cap_role) / 4 × (ครบ 4 role ? 1 : 0.6))   ไม่มี party = 1.0   (A-17)
+                 cap = fullPartyCap 1.6 ถ้าครบ 4 role · incompletePartyCap 1.2 ถ้าไม่ครบ   (D-079, P2-F06-T01)
 contribution_i = POW_i × presenceMult_i × survivalMult_i × partyMult_i                         ต่อ raid tick 10 วินาที
 bossDamage_i   = bossATK × (1 − DEF_i / (DEF_i + 300)) × tankerTerm                            bossATK = null (A-18)
 bossHP         = medianPOW_lastWeek × activePlayers_lastWeek × α × 720
                  α = 0.45 ใน 30 วันแรก แล้ว 0.55 · หลังล้มไม่สำเร็จ bossHP สัปดาห์ถัดไป × 0.85
 ```
 
-- ตรวจ partyMult ที่เสนอ: ครบ role คนละ 1 เลเวล 25 = 1.41, คนละ 2 = 1.61, คนละ 1 เลเวล 60 = 1.52, 3 role เลเวล 25 = 1.17 · อยู่ในเป้า GDD 1.4–1.6 และ 1.0–1.2 ยกเว้นขอบบน (1.61 และ 3 role คนละ 2 = 1.26) ให้ Phase 6 จูน
+- ตรวจ partyMult (vector `design/systems/test-vectors/raid.json` 15 ตัว): ครบ role คนละ 1 เลเวล 25 = 1.411, คนละ 2 = 1.61 → cap 1.60, คนละ 1 เลเวล 60 = 1.520, buff ถึง cap ทุก role = 1.8 → cap 1.60, 3 role เลเวล 25 = 1.169, 3 role คนละ 2 = 1.26 → cap 1.20, role เดียว (Tanker เลเวล 25) = 1.058 · cap ทำให้ผลอยู่ในแถบ GDD 1.4–1.6 / 1.0–1.2 เสมอ (เดิมขอบบนหลุด) · weight และ factor ยังเป็น A-17 ให้ Phase 6 จูน
 - ชั้นรางวัล: checkpoint 25 / 50 / 75 / 100% × อันดับ contribution (ต่ำกว่ามัธยฐาน ×0.6, มัธยฐาน–p75 ×1.0, p75–p95 ×1.5, p95 ขึ้นไป ×2.2)
 - ล้มไม่สำเร็จ: monsterATK ×2 ทั้งสัปดาห์ (A-16), drop ×1.6–2.0 (A-16b), เตือนเมื่อเหลือ 1,800 วินาทีและลด HP ยังไม่ถึง 75%
 
@@ -468,13 +501,13 @@ bossHP         = medianPOW_lastWeek × activePlayers_lastWeek × α × 720
 | 15b | ยาอัตโนมัติ default | 40%, ยาเล็กก่อน | economy | game-director, uiux-designer |
 | 16 | "แข็งแกร่งขึ้น 2 เท่า" | monsterATK × 2 เท่านั้น | combat | game-director |
 | 16b | drop หลังล้มบอสไม่สำเร็จ | 1.6 + 0.4 × HP บอสที่เหลือ | drops | game-director |
-| 17 | สูตร partyMult ของ raid | หัวข้อ 11 | raid | game-director |
+| 17 | สูตร partyMult ของ raid | หัวข้อ 11 · cap 1.6 / 1.2 ยืนยันแล้ว (D-079) สูตรภายในยังเป็นค่าสมมติ | raid | game-director |
 | 17c | ขอบ survivalMult ที่ 30% | 30% พอดี = 0.4 | raid | game-director |
 | 18 | bossATK | null (Phase 6) | raid | systems-designer |
 | 19a | วิธีคิดภาษีขั้นบันได | ส่วนเพิ่ม (marginal) | economy | game-director |
 | 19b | เพดานมูลค่าโอนต่อวัน | 1,000 gold × เลเวล | economy | game-director |
 | 20 | เลเวลปลดระบบ | หัวข้อ 10 (ลำดับรับแล้วใน D-041 · เลเวลยังเป็นค่าสมมติ) | unlocks | game-director |
-| 20b | ระยะ "ไกล" | 2,000 ม. · "นอกพื้นที่" ไม่ใช่ระยะแล้ว (D-064 ใช้ mask พื้นที่เล่น) | unlocks | game-director |
+| 20b | ระยะ "ไกล" | 1,900 ม. เส้นตรง (D-079 ยืนยันเพดาน ≤ 1,970 · P2-F06-T01) · "นอกพื้นที่" ไม่ใช่ระยะแล้ว (D-064 ใช้ mask พื้นที่เล่น) | unlocks | game-director (ยืนยันแล้ว D-079) |
 | 21 | น้ำหนัก offline sample | 0.5 | anticheat | tech-lead, backend-programmer |
 | 21b | "ติดต่อกัน" ของ audit p99 | 3 วัน | anticheat | liveops-operator |
 | 22 | ปัดจำนวน Common ที่เป็นเศษ | สุ่มตามเศษ ด้วย RNG ฝั่ง server | drops | systems-designer, backend-programmer |
@@ -506,3 +539,16 @@ income/h at mult 1.0: 1488.0  ratio vs 600: 2.48
 - T07: สร้าง `tools/sim/` อ่าน config อย่างเดียว · vector `buff-stacking`, `exp-curve`, `gear`, `damage` รวมขอบ (สมาชิก 0 คน, ถึง cap, เลเวล 1 และ 60, DEF 0) · fit `hitChancePerCheck_pct` และตัดสิน F-1 ตาม SF-4
 - T08: drop Monte Carlo, ค่ายาจาก damage model (หัวข้อ 3.4) แยกตาม class และมี/ไม่มี Tanker, อัตราส่วนเทียบ `economy.incomeToPotionRatio`, party ต่อหัว 1.8–2.2, streak ตีบวก · ตัดสิน F-2
 - ทุกครั้งที่แก้ base หรือ cap ต้องรันตัวตรวจกฎ base/cap ใหม่ (หัวข้อ 2.3)
+
+## 15. การเปลี่ยนแปลงใน Phase 2 (P2-F06-T01)
+
+| key | เดิม | ใหม่ | ต่าง | อำนาจ | หลักฐาน |
+| --- | --- | --- | --- | --- | --- |
+| `progression.json#statPerPoint.vitPotionEfficiency_pct` | 2 | 1 | −50% | HUMAN (D-038 ทาง B, 2026-09-25) · ถ้อยคำ GDD แก้ตาม D-084 | คนเล่นคนเดียวเฉลี่ย 4 class VIT on ยาเล็ก เลเวล 25 = 2.69 (MC, report หัวข้อ 8) / 2.70 (report หัวข้อ 6) · IN TARGET · sim-report หัวข้อ 11 |
+| `unlocks.json#home.farDungeonThreshold_m` | 2,000 | 1,900 | −5% | game-director (D-079 เพดาน ≤ 1,970 · D-072) · ค่าแน่นอน systems-designer | 3,000 ม. เดินจริง / route factor ถ่วงประชากร 1.52 = 1,974 ม. เส้นตรง · 1,900 × 1.52 = 2,888 ม. เดินจริง |
+| `raid.json#partyMult.fullPartyCap` | ไม่มี | 1.6 | ใหม่ | game-director (D-079) | vector `raid.json`: คนละ 2 role ครบ 1.61 → 1.60 · buff ถึง cap 1.80 → 1.60 |
+| `raid.json#partyMult.incompletePartyCap` | ไม่มี | 1.2 | ใหม่ | game-director (D-079) | vector `raid.json`: 3 role คนละ 2 1.26 → 1.20 |
+
+- ไม่แตะ: `dungeons.json` (location-engineer แก้ `coverageFilter` ในรอบเดียวกัน) · key ของ gate / run state / check-in ไปทำใน P2-F05-T20
+- ผลต่อเวลาอยู่รอด: ไม่เปลี่ยน (VIT ต่อยาไม่กระทบการเสีย HP) · เลเวลตรงโซนไม่ใช้ยา 44.4 นาทีถึง auto-retreat (D-020) · มี Tanker เลเวล 25 55.6 นาที · คนเดียวที่ไม่ใช่ Tanker 27.8 นาที
+- R-B1 (หัวข้อ 3.1.1) เป็นกติกาใหม่ ไม่มีค่า config ใหม่ ใช้ `dungeons.hpSafety` และ `economy.autoPotion` เดิม

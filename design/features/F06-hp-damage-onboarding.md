@@ -1,0 +1,252 @@
+# F06 — HP, Damage และ 10 นาทีแรก
+
+Task: P2-F06-T02 · เจ้าของ: game-director · สถานะ: ร่าง (รอ flow P2-F06-T03, design gate P2-F06-T24) · วันที่: 2026-09-26
+แหล่งอ้างอิง: GDD "หลักการที่ใช้ตัดสินทุกข้อขัดแย้ง", "HP การตาย และการฟื้นฟู" (damage มาจากไหน, การออกจาก dungeon, ระบบกันตาย, เมื่อตาย, ข้อความที่ผู้เล่นเห็น, ผลข้างเคียงที่ตั้งใจ), "Class และ Party" (Buff และ debuff ต่อ role, การเปลี่ยน class), "10 นาทีแรกของคนใหม่", "Progression > ตัวเลขตั้งต้น > Stat", "ราคา NPC และยา", "แผนที่และโซนดำ", "ความปลอดภัยผู้เล่นและ PDPA" (อายุขั้นต่ำ 15 ปี, ข้อมูลตำแหน่ง, มาตรการด้านสังคม) · `design/pillars.md` (P2, P4, NN-6, NN-7, NN-8, หัวข้อ 6–7) · `design/ux/flows/F03-core-loop.md` (Flow A, C 4.2–4.5, D, E) · `product/prd/F06-hp-damage-onboarding.md` · `design/systems/balance-model.md` 3.1, 3.1.1 · D-020, D-038 B, D-039, D-064, D-072, D-073, D-078, D-079, D-083, D-087, D-088, D-089, D-092, D-094
+คู่กับ: `design/features/F04-dungeon-presence.md` (run state, speed lock, นำทาง) · `design/features/F05-movement-gate-reward.md` (gate, tick, drop, R-B1, การจ่ายต่อ exit_reason)
+ตัวเลขทุกตัวเป็น `config: <key>` · key "เสนอ:" เป็นข้อเสนอให้ systems-designer (P2-F05-T01) · ค่าที่ยกมาเป็นตัวอย่างอธิบายเจตนาเท่านั้น
+
+## 1. ผู้เล่นทำอะไร เห็นอะไร รู้สึกอะไร
+
+- เปิดแอปครั้งแรก เห็นประโยคเดียวว่ากรุงเทพฯ มีปัญหา ตอบอายุ ให้สิทธิ์ตำแหน่ง เห็นแผนที่กับรอยแยกใกล้ตัว เลือกพลังหนึ่งในสี่ แล้วเกมบอกแค่ว่ารอยแยกอยู่ทางไหน ไกลแค่ไหน ทั้งหมดไม่ถึงนาที
+- เดินไปถึง กดเข้า เห็นบรรทัดเดียว "เดินต่อไปเพื่อรับรางวัล" เก็บมือถือ เดินไปเรื่อยๆ ราวห้านาทีมือถือสั่น ได้ของก้อนแรก เป็นของจากการเดินจริงเหมือนทุก tick หลังจากนั้น แค่ฉลองให้เด่นกว่า
+- มีแถบ HP ค่อยๆ ลด ไม่มีใครอธิบาย เพราะไม่ต้องอธิบาย ถ้าเก็บยาได้ เกมกินให้เอง ถ้า HP ต่ำ มือถือสั่นเตือนหนึ่งครั้ง ถ้าต่ำอีก เกมพากลับบ้านพร้อมของครบ
+- คนที่ปิดระบบพากลับเองแล้วตาย เสียของใน run นั้นทั้งหมด แต่ exp อยู่ แล้วรอฟื้นหรือใช้ยาชุบ
+- คนที่อยู่ไกล อยู่นอกพื้นที่ หรืออยู่นอกย่านที่เปิด ไม่เจอจอว่าง ได้ดูตัวละคร อ่านว่าพลังแต่ละแบบทำอะไร ลงทะเบียนว่าอยากให้เปิดแถวบ้าน และเห็นระยะจริงถ้าอยากเดินไป
+- ความรู้สึกที่ต้องการ: "มาถึงแล้วได้เล่น เกมไม่ฆ่าเราตอนเก็บมือถือ" (P2) และ "เข้าใจเกมโดยไม่ต้องอ่าน" (GDD "10 นาทีแรกของคนใหม่")
+
+## 2. ขอบเขต Phase 2 และหลักที่ต้องถือ
+
+1. HP, damage, ยา, class และ onboarding state เป็น pure reducer ใน `packages/shared` (src/hp ใน session เดียวกับ run/reward) รับเวลาจาก host (`now_ms`) · ผลเป็นต้นแบบใน `kw.p2.*` ไม่ใช่รางวัลจริง ไม่ย้ายเข้า account (D-087, NN-1) · Phase 3 ย้ายไป server โดยกฎไม่เปลี่ยน
+2. ไม่มีข้อมูลออกจากเครื่อง ไม่มี login ไม่มี account ใน Phase 2 (D-088) · ขั้น login ของ Flow A ไม่มีใน Phase 2
+3. Phase 2 ไม่มี party, อุปกรณ์, gold, ร้าน NPC, หน้าลงแต้ม stat · ผู้เล่นมี stat พื้นฐานเท่านั้น (3.7)
+4. **gate เดียว:** ยาทุกขวดและรางวัลก้อนแรกมาจาก tick ที่ผ่าน `config: dungeons.movementGate.*` เท่านั้น (F05-R14, R15, D-089)
+5. **กฎคู่ NN-8:** auto-retreat เปิดเป็นค่าเริ่มต้นทุกครั้งที่มี run · ทุกการเปลี่ยนที่ทำให้ auto-retreat อ่อนลงต้องประเมินผลต่อ gate ในเอกสารเดียวกัน
+
+## 3. กฎ (ทดสอบได้)
+
+### 3.1 HP และการฟื้น
+
+- F06-R01 maxHP = `config: progression.baseStats.hp` + `config: progression.statPerPoint.hp` × แต้ม HP ที่ลงแล้ว · Phase 2 ไม่มีการลงแต้มและไม่มีอุปกรณ์ maxHP จึงเท่า `baseStats.hp` ตลอด
+- F06-R02 HP ต่อเนื่องข้าม run · เข้า run ด้วย HP ปัจจุบัน ไม่เติมเต็มตอนเข้า
+- F06-R03 ระหว่าง run ไม่มีการฟื้นเอง (ยกเว้น heal ของ Support ใน 3.6) · นอก run HP ฟื้นเองต่อเนื่องที่ `config: progression.hpRecovery.outsideDungeonRegen_pctMaxHpPerMin` × (1 + `config: progression.statPerPoint.vitHpRegenSpeed_pct` × VIT / 100) จนเต็ม · เริ่มนับที่เวลาจบ run ของทุก exit_reason (`config: dungeons.exit.regenStartsOnExit`) · ไม่มีปุ่มนอนพัก
+- F06-R04 การฟื้นคิดจากเวลาที่ผ่านไปตามนาฬิกาของ host รวมช่วงที่แอปปิด · ถ้าเวลาย้อน HP ไม่ลด และตั้งจุดเริ่มนับใหม่ที่เวลาปัจจุบัน · เวลาที่เดินหน้าผิดปกติ Phase 2 ยอมรับ (ไม่ใช่รางวัล) Phase 3 ใช้เวลา server
+- F06-R05 เข้า run ได้ทุกเมื่อที่ HP > 0 ไม่มีเกณฑ์ HP ขั้นต่ำ (หลักการข้อ 3) · popup confirm แสดง HP ปัจจุบัน และถ้า HP ≤ `config: dungeons.hpSafety.autoRetreatThreshold_pct` ขณะเปิด auto-retreat บอกว่าโดนตีครั้งแรกจะถูกพากลับ (ถ้อยคำของ narrative-designer)
+
+### 3.2 การตี (GDD "damage มาจากไหน")
+
+- F06-R06 การทอยตีเกิดเฉพาะตอน Active ที่ไม่ lock (F04-R12, R21, D-094) · ไม่มีการตีใน Grace, Suspended, speed lock, ก่อน confirm หรือนอก run
+- F06-R07 จังหวะ: หลัง confirm สุ่มเวลาถึงการทอยครั้งถัดไปแบบ `config: combat.attackCheck.intervalDistribution` ในช่วง `intervalMin_s`–`intervalMax_s` · เวลานับเฉพาะเวลา Active ที่ไม่ lock (หยุดและเดินต่อแบบเดียวกับ rewardWindow ไม่รีเซ็ตเมื่อกลับ Active) · ทุกการทอยตัดสินโดนหรือไม่ด้วย `config: combat.attackCheck.hitChancePerCheck_pct` · ทั้งเวลาและผลโดนดึงจาก RNG stream `hit` ของ run ตามลำดับใน ADR 0003
+- F06-R08 damage ต่อครั้ง = สูตรใน `design/systems/balance-model.md` 3.1: `monsterATK` จาก `config: combat.monsterAttack.*` ที่ระดับโซน Z (`config: combat.monsterAttack.zoneLevelFrom`) × (1 − DEF/(DEF + `config: combat.defense.defSoftcap`)) × ตัวคูณ Tanker ของผู้เล่นเอง (3.6) × ตัวคูณห่างเลเวล × ตัวคูณสัปดาห์ล้มบอส · Phase 2 ตัวคูณสัปดาห์ล้มบอสเป็นกลางเสมอ
+- F06-R09 ห่างเลเวล: ผู้เล่นเลเวลต่ำกว่าเลเวลต่ำสุดของช่วงโซน damage คูณ `config: combat.levelGapDamage.damageMultPerLevelBelowRange` ต่อระดับที่ห่างตาม `mode` ไม่มีเพดาน (`maxMult`) · เลเวลสูงกว่าช่วงไม่ลด damage (GDD ระบุเฉพาะฝั่งต่ำ) · ใช้เลเวล ณ วินาทีที่ทอย (F05-R16)
+- F06-R10 tick กับการทอยที่ตรงเวลาเดียวกัน: tick ก่อน (F05-R19) · ยาที่ drop ใน tick นั้นใช้ได้ทันทีกับ hit นั้น
+
+### 3.3 ผลต่อ hit: ยา, แจ้ง 30%, auto-retreat, ตาย (R-B1 · D-078 · F05-R18)
+
+- F06-R11 ทุก hit คิดตามลำดับของ F05-R18 และ `resolveHit` ใน balance-model 3.1.1 เท่านั้น ไม่มีทางอื่นที่ HP เปลี่ยนระหว่าง run นอกจาก hit, heal ของ Support และยา
+- F06-R12 ยาอัตโนมัติ (`config: economy.autoPotion.enabledByDefault`) ดื่ม **หนึ่งขวดต่อ hit** เมื่อ HP หลัง hit ต่ำกว่า (<) `config: economy.autoPotion.defaultThreshold_pct` และมียา · เลือกจากถุงของ run ก่อน แล้วค่อย inventory (เสนอ: `economy.autoPotion.sourceOrder`) · ในแต่ละแหล่งเลือกขวดแรกที่มีตาม `config: economy.autoPotion.defaultPotionOrder` · heal ตาม `config: economy.potions.<ชนิด>.heal_pctMaxHp` × (1 + `config: progression.statPerPoint.vitPotionEfficiency_pct` × VIT / 100) ไม่เกิน maxHP (ยืนยัน A-P2-F06-T01-1)
+- F06-R13 ยาชุบชีวิต (`economy.potions.revive`) ไม่อยู่ในลำดับยาอัตโนมัติ และไม่มีการใช้ยาเองระหว่าง run ใน Phase 2
+- F06-R14 แจ้ง HP ต่ำเมื่อ HP ก่อน hit > `config: dungeons.hpSafety.lowHpWarningThreshold_pct` และ HP สุดท้ายหลังยา ≤ เส้นนั้น (ยืนยัน A-P2-F06-T01-2) · ครั้งเดียวต่อการลงผ่านเส้น · ติดอาวุธใหม่เมื่อ HP ขึ้นเหนือเส้น (ยา, heal) · ไม่แจ้งตอนเข้า run ที่ HP ต่ำกว่าเส้นอยู่แล้ว · ตายไม่มีการแจ้ง
+- F06-R15 ช่องทางแจ้ง Phase 2: สั่น (ถ้าเครื่องรองรับ) + เสียง + ภาพบนจอ run และจอพกกระเป๋า ตาม fire-together ของ sound-designer · push ของ `config: dungeons.hpSafety.lowHpWarningChannels` เลื่อน Phase 8 · เครื่องที่ไม่มี vibrate (iOS บนเว็บ) ใช้เสียง + ภาพ **ห้ามแก้ด้วยการลดเกณฑ์หรือปิด auto-retreat** (pillars Q5, NN-8)
+- F06-R16 auto-retreat: เปิดอยู่และ HP สุดท้าย ≤ `config: dungeons.hpSafety.autoRetreatThreshold_pct` → run จบ `auto_retreat` ทันที เก็บของครบ (`autoRetreatKeepsRunLoot`) · ถ้าเกิดพร้อมเงื่อนไขแจ้ง 30% engine ส่งได้ทั้งสองธง แต่ผู้เล่นเห็น/ได้ยินสัญญาณเดียวคือ auto-retreat (F05-R18 ข้อ 5)
+- F06-R17 ผล: เปิด auto-retreat ตายจาก hit ไม่ได้ (HP ต่ำสุด 1) · ตายได้ทางเดียวคือปิด auto-retreat ในหน้าตั้งค่า
+- F06-R18 copy สามจังหวะ (HP ต่ำ, auto-retreat, ตาย) ตาม GDD "ข้อความที่ผู้เล่นเห็น" ใช้ได้ตั้งแต่นาทีแรก ไม่มีหน้าอธิบายระบบ · ถ้อยคำเป็นของ narrative-designer
+
+### 3.4 ตั้งค่า auto-retreat (NN-6, Flow E)
+
+- F06-R19 ค่าเริ่มต้น = เปิด (`config: dungeons.hpSafety.autoRetreatEnabledByDefault`) · ปิดได้ทางเดียวคือหน้าย่อย "การเดินและความปลอดภัย" ในตั้งค่า พร้อม popup ยืนยันที่บอกผลตรงๆ (ตายแล้วของใน run หาย) · ไม่มีทางปิดจากจอ run, จอพกกระเป๋า, popup confirm หรือ onboarding
+- F06-R20 เปิดกลับไม่ต้องยืนยัน · การเปลี่ยนทั้งสองทางมีผลตั้งแต่ hit ถัดไป รวมระหว่าง run
+- F06-R21 ขณะปิดอยู่ จอ run และจอพกกระเป๋ามีป้ายเล็กค้างว่าปิดอยู่ตลอด
+- F06-R22 ลบข้อมูลในเครื่อง (3.9) คืนค่าเป็นเปิด · Phase 2 ไม่มีตัวเลือกปรับเกณฑ์ยาอัตโนมัติหรือปิดยาอัตโนมัติ (เลื่อน Phase 4 พร้อมการเลือกขนาดยา D-079 ข้อ 3)
+
+### 3.5 ตายและฟื้น (GDD "เมื่อตาย")
+
+- F06-R23 ตาย = HP ถึง 0 ขณะปิด auto-retreat → run จบ `death` ทันที · ของใน run หายทั้งหมด (`config: dungeons.death.loseAllRunLoot`) exp อยู่ เลเวลไม่ลด (F05-R20, R21) · ยาที่พกมาจาก inventory และยังไม่ใช้ไม่ใช่ของใน run จึงไม่หาย
+- F06-R24 **Phase 2 ไม่มีสถานะ "ล้มในดัน"** · Support ชุบเพื่อน (`config: dungeons.death.supportReviveOnlyInsideSameDungeon`) และการใช้ยาชุบเพื่อเล่นต่อใน run เดิมเลื่อน Phase 3 (F09) · flow F03 4.5 ข้อ 3(ข)(ค) และข้อ 4 จึงไม่ใช้ใน Phase 2 (ดูคำตัดสิน 10.1)
+- F06-R25 หลังตายผู้เล่นอยู่ในสถานะ **Recovering** ตั้งแต่ HP 0 จนถึง `config: progression.hpRecovery.deathRecoveryTo_pct` · ฟื้นเองที่อัตราเดียวกับ R03 ซึ่งพาจาก 0 ถึงเป้าใน `config: progression.hpRecovery.deathRecoveryDuration_s` เมื่อ VIT = 0 · พ้นเป้าแล้วฟื้นต่อที่อัตราเดิมจนเต็ม
+- F06-R26 ยาชุบชีวิต: ใช้เองได้เฉพาะตอน Recovering และไม่มี run → HP = `config: economy.potions.revive.reviveToHp_pct` ทันที · ยา HP ใช้เองได้นอก run ทุกเมื่อที่ HP < maxHP (รวมตอน Recovering) ตามสูตร heal ของ R12 · ยาทุกขวดที่ใช้ได้มาจาก inventory ที่มาจาก drop เท่านั้น (F05-R14)
+- F06-R27 Recovering ไม่บล็อกการเข้า run (R05) · ถ้ามี HP > 0 เข้าได้ · ระหว่าง run ไม่มีการฟื้นเองตาม R03
+- F06-R28 ออกได้ทุกเมื่อโดยไม่ต้องเดินออก (`config: dungeons.exit.manualExitAnytime`) เก็บของครบ (F04-R17, F05-R21)
+
+### 3.6 Class 4 แบบ (GDD "Class และ Party")
+
+- F06-R29 เลือกหนึ่งใน Tanker, Ranged, Support, Magic ครั้งเดียวในนาที 0–1 (3.8) · ไม่มีค่าตั้งต้นที่เลือกให้ ต้องแตะเลือกเอง · ข้ามไม่ได้ แต่ถ้าปิดแอปก่อนเลือก sheet ขึ้นใหม่ตอนเปิดครั้งถัดไป
+- F06-R30 Phase 2 เปลี่ยน class ไม่ได้ (U5 `config: unlocks.classChange` ยังไม่ปลด และไม่มี gold) · ทางเดียวคือลบข้อมูลในเครื่อง · playtest ที่ต้องลองหลาย class ใช้เครื่องหรือโปรไฟล์เบราว์เซอร์แยก
+- F06-R31 ผลของ class ตอนเล่นคนเดียว (D-039: ได้ buff ของตัวเอง ขาด role อื่นตามตาราง GDD) ค่าทั้งหมดจาก `config: classes.roles.*` และ `classes.buffStacking` ที่ P ของผู้เล่นคนเดียว
+  1. Tanker: damage ที่ตัวเองรับลดตาม buff ของตัวเอง ไม่มีโทษขาด Tanker
+  2. Ranged, Support, Magic: damage คูณ `classes.roles.tanker.missingDebuffMult` (เหตุผลที่ solo non-Tanker ถึง auto-retreat เร็วกว่า · หัวข้อ 6)
+  3. Ranged: drop ตาม buff ของตัวเอง · class อื่นใช้ตัวคูณขาด Ranged (F05-R12)
+  4. Magic: exp ตาม buff ของตัวเอง (class อื่นใช้ตัวคูณขาด Magic) และโล่ตาม `classes.roles.magic.shieldPerRewardTick_pctMaxHpPerBuffPct` ที่ได้ **เฉพาะ tick ที่ผ่าน gate** ไม่ซ้อน (ตั้งค่าใหม่แทนค่าเดิม) ดูดซับก่อน HP (F05-R18 ข้อ 1) หมดเมื่อ run จบ
+  5. Support: heal ตัวเองต่อนาทีตาม `classes.roles.support.inDungeonHealBase_pctMaxHpPerMin` × (1 + buff) เฉพาะเวลา Active ที่ไม่ lock ไม่เกิน maxHP · class อื่นไม่มี heal ในดัน · ชุบเพื่อนเลื่อน Phase 3
+- F06-R32 การ์ดเลือก class และหน้าอ่าน role มีคำอธิบายผลหนึ่งบรรทัดต่อ class ไม่มีสูตร ไม่มีตัวเลข % ไม่อธิบาย stacking หรือ debuff ของ party (U6)
+
+### 3.7 เลเวลและแต้ม stat (GD N-03)
+
+- F06-R33 exp จาก tick ที่ผ่าน gate (F05-R11) · เลเวลขึ้นแสดงเป็นสัญญาณสั้นหนึ่งครั้ง ไม่มีปุ่มหรือลิงก์ไปหน้า stat
+- F06-R34 แต้ม stat สะสมเงียบตาม `config: progression.statPoints.*` ไม่กระจายอัตโนมัติ ไม่หาย · **Phase 2 ไม่มีหน้าลงแต้ม** แม้ผ่าน `config: unlocks.statAllocation` (หน้าจอเป็นของ F10 Phase 4 ซึ่งปลดตาม unlock เดิมพร้อมคำอธิบายหนึ่งจอ) · ระบบไม่เอ่ยถึงแต้มที่ค้างในทุกจอของ Phase 2
+- F06-R35 ผลที่ต้องรับ: stat ของผู้เล่น Phase 2 คือ `progression.baseStats` ตลอด เลเวลมีผลต่อ exp, ตัวคูณห่างเลเวล และ P ของ buff ตัวเองเท่านั้น
+
+### 3.8 Onboarding นาที 0–10 (GDD "10 นาทีแรกของคนใหม่", pillars 6.1)
+
+| ช่วง | Phase 2 ทำอะไร | สิ่งที่ไม่มี |
+| --- | --- | --- |
+| 0–1 | intro ประโยคเดียว → age gate → consent ตำแหน่ง → permission เบราว์เซอร์ → แผนที่จริง → sheet เลือก class ทับแผนที่ (3.9) | login, lore, ชื่อตัวละครแบบพิมพ์ |
+| 1–3 | รอยแยกที่แนะนำ (R37) ระยะเส้นตรงปัดขึ้นพร้อมคำกำกับ ช่วงเลเวล ปุ่มนำทาง (F04-R34–R37) | การสอนอื่นใด |
+| 3–6 | popup confirm (F04) → เข้า run → บรรทัดเดียว "เดินต่อไปเพื่อรับรางวัล" ก่อน/บนจอพกกระเป๋า | จำนวนคนและ role (3.11), tooltip HP bar หรือ tick timer |
+| 6–8 | **ข้ามทั้งช่วง** (Phase 2 ไม่มี Nearby Party) ไม่มีแผงว่าง | แผง party |
+| 8–10 | tick แรกที่ผ่าน gate = รางวัลก้อนแรก ปิดด้วย "เดินต่อเพื่อรับเพิ่ม" · ไม่ผ่านบอกแค่ว่าเดินไม่พอ | ของแถม, การเร่ง tick, เกณฑ์ที่ลดลง |
+
+- F06-R36 onboarding state เก็บใน `kw.p2.*`: ขั้นที่ผ่านแล้ว (intro, age, consent, class, first_run_entered, first_reward) · เปิดแอปใหม่กลางทางกลับไปขั้นแรกที่ยังไม่ผ่าน ไม่เริ่มใหม่ทั้งหมด · สถานะไม่รู้ตำแหน่งไม่ทำให้ onboarding ติด (ผู้เล่นยังเลือก class ได้)
+- F06-R37 รอยแยกที่แนะนำ = dungeon ที่ **เปิดอยู่** ใกล้สุดซึ่งช่วงเลเวลครอบเลเวลผู้เล่น ภายใน `config: unlocks.home.farDungeonThreshold_m` · ถ้าไม่มี ใช้ dungeon ที่เปิดอยู่ใกล้สุดภายในเกณฑ์พร้อมช่วงเลเวลจริง · ห้ามแนะนำ dungeon ที่ปิด (F04-R33, D-089) · ถ้าไม่มี dungeon เปิดในเกณฑ์ ไปสถานะที่บ้าน (3.10) และ onboarding ค้างที่ขั้นนี้จนกลับมาใกล้
+- F06-R38 บรรทัด tutorial แสดงตอนเริ่ม run ทุก run จนกว่าจะได้รางวัลก้อนแรก แล้วไม่แสดงอีก · ไม่มีบทเรียนอื่นใน run (N-3)
+- F06-R39 **รางวัลก้อนแรก = tick ปกติของ F05** ที่ผ่าน gate ครั้งแรกในชีวิตผู้เล่น ไม่ว่า run ที่เท่าไร (D-089, F05-R15) · engine ไม่มีสาขาของ onboarding · client อ่านธง "เป็น tick ที่ผ่านครั้งแรก" จาก state เพื่อเลือก effect และ copy ที่เด่นกว่า เท่านั้น · ของและ exp เท่ากับ tick อื่นทุกประการ
+- F06-R40 onboarding จบเมื่อได้รางวัลก้อนแรก แม้ run นั้นจบด้วย `death` ภายหลัง · หลังจบไม่มีจอสรุป onboarding ไม่มี badge
+- F06-R41 HP bar, แจ้ง 30%, ยาอัตโนมัติ และ auto-retreat ทำงานตั้งแต่ run แรกโดยไม่มีคำอธิบาย (pillars 6.1) · ถ้าเกิดใน 10 นาทีแรกใช้ copy สามจังหวะตามปกติ
+- F06-R42 ใน 10 นาทีแรกไม่มีทางไปหน้าหรือ copy ของ U1–U8 และร้าน NPC (pillars 6.2) · เลเวลขึ้นไม่ชี้ไปแต้ม stat (R33)
+- F06-R43 เป้าความปลอดภัยของ run แรก: ใน dungeon ที่ช่วงเลเวลครอบเลเวล 1 ผู้เล่นเลเวล 1 ทุก class ไม่มียา ต้องมีมัธยฐานเวลาถึง auto-retreat อย่างน้อยสองเท่าของ `movementGate.window_s` · systems-designer ยืนยันด้วย sim ใน P2-F05-T01 · ถ้าไม่ผ่านส่งกลับ game-director ห้ามแก้ด้วยการลดเกณฑ์ auto-retreat หรือลด gate (NN-8)
+
+### 3.9 Age gate, consent ตำแหน่ง, ข้อมูลในเครื่อง (NN-7, D-087, D-088, D-092)
+
+- F06-R44 ลำดับนาที 0–1: intro → **age gate ก่อน consent ตำแหน่ง** → consent ตำแหน่ง → permission เบราว์เซอร์ → แผนที่ → class · เหตุผล: ไม่ขอ consent และสิทธิ์ตำแหน่งจากคนที่อายุต่ำกว่าเกณฑ์ (คำตัดสิน 10.2) · เป้าเวลาทั้งช่วงไม่เกินราวหนึ่งนาที แต่ละขั้นเป็นจอเดียวปุ่มเด่นเดียว
+- F06-R45 age gate: เลือกช่วงอายุหรือปีเกิดจากรายการ (ไม่พิมพ์) แล้วกดยืนยันแยก · ผ่านเมื่อตามเกณฑ์ `config: privacy.minAge_yr` แบบ `minAgeComparison` · เก็บในเครื่องเฉพาะธงว่าผ่าน ไม่เก็บปีเกิดหรือช่วงอายุ
+- F06-R46 ต่ำกว่าเกณฑ์: จอ "ยังเปิดใช้ไม่ได้" ตาม scaffold `config: unlocks.parentalConsent.enabled` (ปิด) · ไม่มีฟอร์ม ไม่เก็บข้อมูลใด ไม่ขอตำแหน่ง ปุ่มเดียวกลับจอแรก · แบบฟอร์มผู้ปกครองของผู้ร่วม playtest อายุ 15–17 (D-092) เป็นกระดาษนอกแอป ไม่ใช่ feature
+- F06-R47 consent ตำแหน่งเป็นจอของตัวเอง แยกจาก consent อื่น · Phase 2 ไม่มี consent อื่นในแอป เพราะไม่มีข้อมูลออกจากเครื่อง (D-088) · ถ้าในอนาคตมีการส่งข้อมูลใดออก ต้องเป็น consent แยกอีกจอ
+- F06-R48 ปฏิเสธ consent หรือ permission → สถานะไม่รู้ตำแหน่ง (3.10) และยังเลือก class ได้ · ถอน consent ได้ในตั้งค่า มีปุ่มเดียวกลับไปให้ใหม่ ไม่ถามซ้ำเอง
+- F06-R49 ตั้งค่ามีปุ่ม "ลบข้อมูลในเครื่อง" พร้อม confirm ใช้ได้เมื่อไม่มี run · ลบทุก key `kw.p2.*` (class, HP, inventory, onboarding, สรุป run, ความสนใจที่ลงทะเบียน, telemetry) แล้วกลับจอแรก · หน้า Credits/ลิขสิทธิ์เข้าถึงได้จากตั้งค่า
+
+### 3.10 สถานะที่บ้าน: ไกล / นอกพื้นที่ / นอกย่านเปิดตัว / ไม่รู้ตำแหน่ง (pillars 7, D-064, D-072, D-073)
+
+- F06-R50 นิยามตาม pillars 7.1 (ฉบับ P2-F06-T02) · ประเมินเมื่อเปิดแอปและเมื่อตำแหน่งเปลี่ยนเกิน `config: unlocks.home.reevaluateDistance_m` · คำนวณบน client ได้เพราะเป็นการแสดงผล
+  1. **ไกล:** อยู่ในรูของ mask และ dungeon ที่เปิดอยู่ใกล้สุดห่างเกิน `config: unlocks.home.farDungeonThreshold_m` (ระยะเส้นตรงก่อนปัด · F04-R35) · รวม "ไกลชั่วคราว" ที่ dungeon ในเกณฑ์ปิดทั้งหมด (แสดงเวลาเปิดถัดไป)
+  2. **นอกย่านเปิดตัว:** ไกล และตำแหน่งอยู่นอกพื้นที่ย่านเปิดตัว (เสนอ: `unlocks.home.seeLaunchAreaMask` ชี้ geometry ของย่านเปิดตัว D-083) · เป็นสถานะย่อยของไกล ไม่ใช่สถานะใหม่ของ run
+  3. **นอกพื้นที่:** อยู่นอกรูของ mask `config: unlocks.home.seeOutOfAreaMask` เท่านั้น ไม่ใช่ระยะ (D-064)
+  4. **ไม่รู้ตำแหน่ง:** ไม่มี consent/permission, GPS ปิด หรือ accuracy แย่ตาม `config: location.homeState.*`
+- F06-R51 ทุกสถานะที่บ้านมีสิ่งให้ทำ: ดูอวตารของตัวเอง (3 มุมบนแผ่น bg.surface ตาม avatar-spec) · อ่านหน้า role 4 แบบ (R32) · เลือก class ถ้ายังไม่เลือก · ดูของใน inventory และสรุป run ที่ผ่านมา · ใช้ยานอก run (R26) · ตั้งค่า
+- F06-R52 สิ่งที่เพิ่มต่อสถานะ
+  1. ไกล: ระยะเส้นตรงปัดขึ้นพร้อมคำกำกับ, ทิศ, ปุ่มนำทางเด่นสุด (F04-R34–R38) · ไม่หลอกว่าใกล้
+  2. นอกย่านเปิดตัว: ทุกอย่างของไกล + ลงทะเบียนความสนใจ **รายเขต** เลือกเขตจากรายการใน content (ชื่อจากหลังบ้าน NN-3) กรอบ "ช่วยกันปลุกย่านเรา" (D-073)
+  3. นอกพื้นที่: แผนที่โซนดำ นำทางไม่ได้ + ลงทะเบียนความสนใจ **รายจังหวัด** ปุ่มเด่นสุด (GDD "แผนที่และโซนดำ")
+  4. ไม่รู้ตำแหน่ง: ปุ่มเดียวเด่นสุดกลับไปให้ consent + ลงทะเบียนความสนใจรายจังหวัด
+- F06-R53 การลงทะเบียนความสนใจ: เลือกจากรายการเท่านั้น ไม่มีช่องพิมพ์ ไม่เก็บพิกัด เก็บในเครื่องเท่านั้น (D-088) · ไม่มีรางวัล badge หรือของใด (pillars 7.3) · เปลี่ยนหรือถอนได้
+- F06-R54 ไม่มีรางวัลใดในสถานะที่บ้าน ไม่มี dungeon เสมือน ไม่นำเข้าก้าวจากแอปอื่น (pillars 7.3)
+- F06-R55 ถ้า geometry ย่านเปิดตัวยังไม่พร้อม: ทุกคนในสถานะไกลเห็นการลงทะเบียนรายเขต (ไม่มีผลเสีย เพราะไม่มีรางวัล) [ASSUMPTION A-P2-F06-T02-1]
+
+### 3.11 ซ่อนจำนวนคน (D-089, GD N-04)
+
+- F06-R56 Phase 2 ไม่แสดงจำนวนผู้เล่นหรือ role ของผู้เล่นอื่นในทุกจอ: popup confirm (นาที 3–6), จอ run, แผนที่, หน้าที่บ้าน · และไม่แสดงจำนวนผู้ลงทะเบียนต่อจังหวัดหรือต่อเขต
+- F06-R57 "ซ่อน" = ไม่มี element นั้นบนจอ · ห้ามแสดง 0, เลขปลอม, placeholder หรือ copy ที่บอกว่ามีหรือไม่มีคนอยู่ · layout ต้องไม่เหลือช่องว่างที่ชวนให้เดาว่ามีตัวเลขหาย
+- F06-R58 ตำแหน่งที่จะแสดงเมื่อมี backend (Phase 3 F09, F23) ให้ flow ระบุเป็นหมายเหตุ ไม่ใช่ UI ที่ซ่อนด้วย CSS
+
+## 4. สถานะและ transition
+
+HP state (นอก run): `Healthy` (HP > 0 ไม่ Recovering) · `Recovering` (หลังตายจนถึง `deathRecoveryTo_pct`) · ใน run ใช้สถานะของ F04 และ HP เปลี่ยนตาม 3.2–3.3
+
+| # | จาก | ไป | เงื่อนไข | ผล |
+| --- | --- | --- | --- | --- |
+| H1 | Active (HP > เส้น 30%) | Active + แจ้ง | hit ลงผ่านเส้น 30% (R14) | สั่น/เสียง/ภาพหนึ่งครั้ง |
+| H2 | Active | Ended `auto_retreat` | เปิด auto-retreat และ HP สุดท้าย ≤ 25% (R16) | เก็บของครบ · ฟื้นเริ่ม |
+| H3 | Active | Ended `death` | ปิด auto-retreat และ HP = 0 (R23) | ของใน run หาย · Recovering |
+| H4 | Recovering | Healthy | ฟื้นถึง `deathRecoveryTo_pct` หรือใช้ยาชุบ (R26) | — |
+| H5 | Healthy/Recovering | Active | confirm สำเร็จและ HP > 0 (R05, R27) | ฟื้นหยุด |
+| H6 | Ended ทุกเหตุ | Healthy/Recovering | จบ run | ฟื้นเริ่มที่เวลาจบ (R03) |
+
+Onboarding: `O-intro` → `O-age` → (`O-underage` จบ) / `O-consent` → `O-permission` → `O-map` → `O-class` → `O-nearest` (ใกล้) หรือ `O-home` (ไกล/นอกพื้นที่/ไม่รู้ตำแหน่ง, กลับ `O-nearest` เมื่อใกล้) → `O-first-run` → `O-done` (tick แรกที่ผ่าน) · ปฏิเสธ consent ข้าม `O-permission` ไป `O-map` ที่สถานะไม่รู้ตำแหน่ง
+
+## 5. Edge case
+
+| # | กรณี | ผลที่ต้องเกิด |
+| --- | --- | --- |
+| H-E1 | GPS drift ออกนอกขอบ / Grace / Suspended | ไม่มีการทอยตี นาฬิกาการตีหยุด (R06, R07) · กลับ Active นับต่อจากที่ค้าง |
+| H-E2 | จอล็อก / หน้าเว็บ hidden / แอปถูกปิดขณะ HP ต่ำ (รวมตอนปิด auto-retreat) | ไม่มีหลักฐาน = ไม่ Active = ไม่มีการตี (F04-R13) · กลับภายใน `suspendedMax_s` เล่นต่อด้วย HP เดิม · เกินนั้นจบ `timeout` ของครบ ฟื้นเริ่มที่เวลาจบตาม F04-R18 |
+| H-E3 | speed lock | ไม่มีการตี (F04-R21) |
+| H-E4 | ปิดทำการกลาง run / `clock_invalid` | จบตาม F04 ของครบ · ฟื้นเริ่มที่เวลาจบ (clock_invalid ใช้เวลาเหตุการณ์ล่าสุด) · HP ไม่เปลี่ยนจากการจบ |
+| H-E5 | เน็ตหลุด | Phase 2 ไม่มีผล (ไม่มี server) |
+| H-E6 | เลเวล 1 เข้าโซนที่ต่ำสุดของช่วงสูงกว่าหลายระดับ | เข้าได้ damage คูณตาม R09 ไม่มีเพดาน · hit เดียวอาจพา HP ถึง 1 แล้วถอย (R17) · onboarding ไม่แนะนำแห่งนี้ถ้ามีแห่งที่ครอบเลเวลในเกณฑ์ (R37) |
+| H-E7 | เลเวลสูงกว่าช่วง | damage ไม่ลด (R09) · exp ลดตาม F05 |
+| H-E8 | tick ครบวินาทีเดียวกับ hit และ tick นั้น drop ยา | tick ก่อน ยาเข้าถุงของ run แล้ว hit ใช้ยานั้นได้ (R10, R12) |
+| H-E9 | tick ครบวินาทีเดียวกับ hit ที่ทำให้ตาย | tick ก่อน exp ของ tick อยู่ ของของ tick หายพร้อมของใน run (F05 G11) |
+| H-E10 | hit ใหญ่พา HP จากเหนือ 30% ต่ำกว่า 25% มียาเล็ก ยาพาพ้น 30% | ดื่มยา เล่นต่อ ไม่แจ้ง (vector ของ balance-model 3.1.1) |
+| H-E11 | เข้า run ที่ HP ≤ 25% | เข้าได้พร้อมคำบอก (R05) · hit แรกไม่มียา → auto-retreat · tick ที่ครบก่อน hit แรกได้ตามปกติ |
+| H-E12 | ปิด auto-retreat กลาง run แล้ว HP ถึง 0 | ตาย (R20, R23) |
+| H-E13 | เปิด auto-retreat กลับขณะ HP ≤ 25% | ไม่ถอนทันที ถอนที่ hit ถัดไป (R20) |
+| H-E14 | ยาในถุงของ run และใน inventory มีพร้อมกัน | ใช้ถุงของ run ก่อน (R12) · ตายแล้วยา inventory ที่ยังไม่ใช้อยู่ครบ |
+| H-E15 | Support heal ดัน HP ขึ้นเหนือ 30% แล้วโดนตีลงอีก | แจ้งอีกครั้ง (R14 ติดอาวุธใหม่) |
+| H-E16 | Magic ได้ tick ที่ไม่ผ่าน gate | ไม่ได้โล่ (R31 ข้อ 4, F05-R10) |
+| H-E17 | ใช้ยาชุบระหว่างมี run | ใช้ไม่ได้ (R26) · Phase 2 ไม่มีสถานะล้มในดัน |
+| H-E18 | ปิดแอปก่อนเลือก class / กลาง age gate | เปิดใหม่กลับขั้นที่ยังไม่ผ่าน (R36) |
+| H-E19 | เปิดแอปครั้งแรกกลางสวน | check-in บอกให้เดินออกแล้วเข้า (F04 E4) · onboarding ค้างที่ `O-nearest` ไม่ลงโทษ |
+| H-E20 | tick แรกของชีวิตไม่ผ่าน gate | บอกแค่ว่าเดินไม่พอ ไม่มีทางลัด (F05 G16) · tick ที่ผ่านครั้งแรกภายหลังคือรางวัลก้อนแรก (R39) |
+| H-E21 | อยู่ในย่านเปิดตัวแต่ dungeon ใกล้สุดปิดหมด | ไกลชั่วคราว แสดงเวลาเปิดถัดไป · ไม่มีการลงทะเบียนรายเขต (R52) |
+| H-E22 | อยู่นอกย่านเปิดตัวแต่ใกล้ dungeon ข้ามเขต (ภายในเกณฑ์) | สถานะใกล้ เล่นปกติ (R50 ข้อ 2 ต้องไกลก่อน) |
+| H-E23 | ลบข้อมูลในเครื่องระหว่าง run | ปุ่มใช้ไม่ได้จนกว่า run จบ (R49) |
+| H-E24 | party ออก/เข้า | ไม่อยู่ใน Phase 2 |
+
+## 6. เวลาอยู่รอด (D-020) และข้อมูลสำหรับ kit / แบบสอบถาม
+
+- นิยาม "อยู่ได้ราว 45 นาที" ของ GDD = เวลาถึง auto-retreat ที่ damage ×1.0 เลเวลตรงโซน build สมดุล ไม่ใช้ยา (D-020 ACCEPTED) · ค่าจาก sim ปัจจุบัน 44.4 นาที เป็น vector ของ P2-F06-T06
+- **คนเล่นคนเดียวที่ไม่ใช่ Tanker ถึง auto-retreat ราว 27.8 นาที** (ถึง HP 0 ราว 37.0 นาที) เพราะโทษขาด Tanker · Tanker คนเดียวอยู่ได้นานกว่าราวสองเท่า · kit ผู้สังเกต (P2-F06-T18) และแบบสอบถาม (P2-F06-T19) ต้องแยกผลตาม class และไม่อ่าน auto-retreat ของ non-Tanker ก่อน 45 นาทีว่าเป็นบั๊ก
+- ผู้เล่น Phase 2 ไม่ตรงกับ build สมดุล (ไม่มีอุปกรณ์ ไม่ลงแต้ม R34–R35) · handoff ให้ systems-designer คำนวณเวลาถึง auto-retreat ต่อ class ที่เลเวล 1–5 ในโซนที่ครอบเลเวล ทั้งไม่มียาและมียาตามอัตรา drop จริง ใช้เป็นช่องใน kit (N-03 ข้อ 6) และตรวจ R43
+
+## 7. Out-of-scope
+
+- Support ชุบเพื่อน, สถานะล้มในดัน, ยาชุบใน dungeon, Nearby Party, จำนวนคน/role (Phase 3 F09) · login, account (F07)
+- push แจ้ง HP (Phase 8) · ร้าน NPC, gold, ซื้อยา, ปรับเกณฑ์หรือปิดยาอัตโนมัติ, เลือกขนาดยา, ใช้ยาเองใน run (Phase 4 F11) · อุปกรณ์, หน้าลงแต้ม stat, สร้างตัวละคร (F10) · เปลี่ยน class (U5)
+- parental consent ในแอปจริง (F20) · raid, สัปดาห์ล้มบอส · การส่งข้อมูลความสนใจออกจากเครื่อง (F23)
+
+## 8. Acceptance criteria (สิ่งที่สังเกตได้)
+
+1. trace ที่ Active ตลอด: ช่วงห่างของการทอยอยู่ใน `intervalMin_s`–`intervalMax_s` ทุกครั้ง · seed เดียวกันให้ลำดับ hit เดียวกัน · trace ที่มี Grace 2 นาทีไม่มีการทอยในช่วงนั้นและนาฬิกาการตีเดินต่อหลังกลับ · speed lock ไม่มีการทอย
+2. damage ต่อ hit ตรง vector `damage.json` (สูตร, ห่างเลเวลแบบ compound ไม่มีเพดาน, เลเวลสูงกว่าช่วงไม่ลด) · เปลี่ยนค่าใน `combat.json` แล้วผลเปลี่ยนตาม
+3. `resolveHit` ทั้ง 26 vector ผ่านใน engine · เปิด auto-retreat ไม่มี trace ใดจบ `death`
+4. vector survival: เลเวลตรงโซน damage ×1.0 ไม่ใช้ยา ≈ 44.4 นาทีถึง auto-retreat · solo non-Tanker ≈ 27.8 นาที (D-020) · ผล sim ของ R43 ผ่านเกณฑ์
+5. ยาอัตโนมัติดื่มหนึ่งขวดต่อ hit ตาม R12 (ถุงของ run ก่อน, ลำดับชนิด, heal รวม VIT 1%/แต้ม) · ยาชุบไม่ถูกดื่มอัตโนมัติ · ไม่มียาใดเข้า inventory จากทางอื่นนอก tick ที่ผ่าน gate (ค้นโค้ดไม่พบ)
+6. แจ้ง HP ต่ำเกิดครั้งเดียวต่อการลงผ่านเส้น ไม่เกิดตอนตาย · ตอน auto-retreat ผู้เล่นได้สัญญาณเดียว · บน iOS มีเสียงและภาพแทนการสั่น
+7. auto-retreat ปิดได้เฉพาะหน้าย่อยในตั้งค่าหลัง confirm · ไม่มี element ปิดบนจอ run/จอพกกระเป๋า/onboarding · ป้ายค้างขณะปิด · ลบข้อมูลในเครื่องแล้วกลับเป็นเปิด
+8. ตาย: ของใน run หาย exp อยู่ ยา inventory ที่ไม่ได้ใช้อยู่ · เข้า Recovering · ฟื้น 0 → `deathRecoveryTo_pct` ใช้ `deathRecoveryDuration_s` ตามนาฬิกา (รวมตอนแอปปิด) · ยาชุบพา HP ถึง `reviveToHp_pct` ทันทีเฉพาะนอก run
+9. HP ไม่ฟื้นระหว่าง run (ยกเว้น Support) และฟื้นหลังจบ run ทุก exit_reason · นาฬิกาย้อนไม่ทำให้ HP ลด
+10. เลือก class ได้ครั้งเดียวในนาที 0–1 บน sheet ทับแผนที่ ไม่มีค่าเลือกให้ · ผลต่อ damage/drop/exp/โล่/heal ตรง R31 ใน vector · โล่ Magic ได้เฉพาะ tick ที่ผ่าน gate
+11. เลเวลขึ้นไม่มีทางไปหน้า stat · แต้ม stat สะสมถูกต้องตาม `statPoints` และไม่มีจอใดเอ่ยถึง
+12. onboarding ตามตาราง 3.8 · ลำดับ intro → age → consent → permission → map → class · ต่ำกว่าเกณฑ์อายุไม่เก็บข้อมูลและไม่ขอตำแหน่ง · ไม่มีขั้น login · รอยแยกที่แนะนำเป็นแห่งที่เปิดอยู่เสมอ
+13. รางวัลก้อนแรกเท่ากับ tick ปกติทุกประการ (vector เทียบ tick แรกกับ tick ที่สอง seed เดียวกัน) · ต่างเฉพาะ effect/copy · engine ไม่มีสาขา onboarding
+14. flow นาที 0–10 ไม่มีทางไปหน้าหรือ copy ของ U1–U8 และร้าน NPC (checklist ร่วม product-manager, A-P2-F06-T02-1 ของ PRD)
+15. จอไกล/นอกพื้นที่/นอกย่านเปิดตัว/ไม่รู้ตำแหน่ง มีสิ่งให้ทำตาม R51–R52 · ลงทะเบียนความสนใจไม่มีช่องพิมพ์ ไม่มีพิกัดใน storage และไม่มีรางวัล
+16. ไม่มีจำนวนคน, role ของผู้อื่น หรือจำนวนลงทะเบียน (รวม 0 และ placeholder) บนจอใดของ Phase 2
+17. ทุกตัวเลขอ่านจาก config key ในหัวข้อ 9 (config lint)
+
+## 9. Config key
+
+มีแล้ว: `combat.monsterAttack.*`, `combat.defense.defSoftcap`, `combat.attackCheck.*`, `combat.levelGapDamage.*` · `dungeons.hpSafety.*`, `dungeons.death.*`, `dungeons.exit.*` · `economy.potions.*`, `economy.autoPotion.*` · `progression.baseStats`, `statPerPoint` (รวม `vitPotionEfficiency_pct` = 1%/แต้ม ตาม D-038 B), `statPoints`, `hpRecovery.*` · `classes.roles.*`, `classes.buffStacking` · `unlocks.home.*` (`farDungeonThreshold_m` ตาม P2-F06-T01), `unlocks.statAllocation`, `unlocks.classChange`, `unlocks.parentalConsent.enabled` · `privacy.minAge_yr`, `minAgeComparison` · `location.homeState.*`
+
+ข้อเสนอให้ systems-designer (P2-F05-T01) และเจ้าของข้อมูล:
+
+| key / ข้อมูลที่เสนอ | กรอบจาก design | เจ้าของ |
+| --- | --- | --- |
+| `economy.autoPotion.sourceOrder` = ถุงของ run ก่อน inventory | R12 | systems-designer |
+| `_note` ของ `classes.roles.magic` ว่าโล่ได้เฉพาะ tick ที่ผ่าน gate และไม่ซ้อน | R31 ข้อ 4 | systems-designer |
+| `_note` ของ `economy.potions.revive.usableInsideDungeon` ว่าไม่มีผลใน Phase 2 | R24, R26 | systems-designer |
+| ยาใน drop table ทุก preset: ยาเล็กพอให้ run ราว 30 นาทีที่ผ่าน gate ได้ยาเฉลี่ยราวหนึ่งขวด ยาชุบหายากกว่ามาก (ยังต้องเห็น auto-retreat ใน playtest) | R12, R26, B-06 | systems-designer (vector) |
+| `unlocks.home.seeLaunchAreaMask` → geometry ย่านเปิดตัว (เช่น `data/map/launch-area.geojson`) | R50 ข้อ 2 | location-engineer (ข้อมูล), systems-designer (key) |
+| รายชื่อเขตสำหรับลงทะเบียนความสนใจใน content | R52 ข้อ 2 | narrative-designer / level-designer |
+
+## 10. คำตัดสินในเอกสารนี้ (ส่ง orchestrator ลง decision log · authority game-director)
+
+รูปแบบ: หลักการที่ใช้ตามลำดับ GDD
+1. **Phase 2 ตาย = จบ run ทันที ไม่มีสถานะล้มในดัน · ยาชุบใช้นอก run** (GDD ให้ Support ชุบและยาชุบใน dungeon ได้ แต่ Phase 2 ไม่มี party) · ข้อ 1 ไม่เกี่ยว · ข้อ 2 ไม่กระทบ · ข้อ 3 ตรวจแล้ว: การตายเกิดได้เฉพาะคนที่ปิด auto-retreat เอง ของหายตามข้อความ GDD อยู่แล้ว สิ่งที่เพิ่มคือต้องเดินออกแล้วเข้าใหม่ · ข้อ 4, 5 ไม่เกี่ยว · สถานะล้มในดันออกแบบใน F09 พร้อม Support ชุบ เป็นการเลื่อน phase ไม่ใช่เปลี่ยน GDD
+2. **age gate มาก่อน consent ตำแหน่ง** (flow F03 วาง consent ก่อน) · GDD นาที 0–1 ไม่กำหนดลำดับ · หลักการ 5 ข้อไม่ครอบ ใช้ NN-7 (ไม่ขอ consent/สิทธิ์ตำแหน่งจากผู้ที่อายุต่ำกว่าเกณฑ์ เก็บข้อมูลให้น้อยที่สุด) · จำนวนแตะเท่าเดิม · HUMAN ทวนกฎหมายใน F20 ตามเดิม
+3. **แต้ม stat สะสมเงียบ ไม่กระจายอัตโนมัติ และ Phase 2 ไม่มีหน้าลงแต้ม** (N-03) · ข้อ 3: ผลต่อการอยู่รอดตอนเลเวล 1–3 เล็ก (แต้มน้อย) ตรวจด้วย R43 · ตรง pillars U4 ("แต้มสะสมไว้ ไม่หาย") · กระจายอัตโนมัติจะทำให้จอปลด U4 ต้อง reset ซึ่งอธิบายยากกว่า
+4. **ยาอัตโนมัติใช้ถุงของ run ก่อน inventory** · ข้อ 3: ยาในถุงของ run คือของที่จะหายถ้าตาย ใช้ก่อนจึงลดความเสียหาย · ข้อ 2 ไม่กระทบ (ยาทุกขวดมาจาก gate)
+5. **โล่ Magic ได้เฉพาะ tick ที่ผ่าน gate** (ปิด A-P1-F03-T06-13 ส่วนจังหวะ) · ข้อ 2: ผลบวกจาก tick ต้องมาจากการเดิน และ F05-R10 ว่า tick ที่ไม่ผ่านไม่ให้อะไร
+6. **เข้า run ได้ทุก HP > 0 ไม่มีเกณฑ์ขั้นต่ำ** · ข้อ 3 ("มาถึงแล้วเล่นไม่ได้" ห้าม) · ผลตามธรรมชาติคือ hit แรกพากลับ ซึ่ง popup บอกล่วงหน้า
+7. **นาฬิกาการตีนับเฉพาะเวลา Active ไม่ lock และเดินต่อหลังหยุด** · ข้อ 3: ไม่มีการตีขณะเล่นไม่ได้ · ไม่รีเซ็ตเพื่อไม่ให้การเดินออกแล้วเข้าเป็นวิธีหนีการตี
+8. **"นอกย่านเปิดตัว" = สถานะไกล + อยู่นอก geometry ย่านเปิดตัว** ลงทะเบียนรายเขต (D-073) · ข้อ 5 และ 7.3: ไม่มีรางวัล ไม่มีพิกัด · คนที่อยู่ใกล้ dungeon ข้ามเขตเล่นปกติ
+9. **Phase 2 เปลี่ยน class ไม่ได้** · ตรง U5 และไม่มี gold ให้จ่ายตามสูตร GDD
+10. **ยืนยันสมมติฐานของ systems-designer:** A-P2-F06-T01-1 (หนึ่งขวดต่อ hit, ขวดแรกที่มีตาม `defaultPotionOrder`, ตายไม่แจ้ง) ACCEPT พร้อมเพิ่มลำดับแหล่งตามข้อ 4 · A-P2-F06-T01-2 (แจ้งเมื่อ HP ก่อน hit > 30% และ HP สุดท้าย ≤ 30% · ยา < 40% · ถอย ≤ 25%) ACCEPT พร้อมกฎติดอาวุธใหม่และสัญญาณเดียวตอนถอย (R14, R16) · A-P1-F03-T06-15a (ฟื้นหลังตายใช้อัตราเดียวกับหลังออกปกติ และฟื้นต่อจนเต็ม) ACCEPT
+
+การประเมิน SF-13 (ผลของ D-083 ต่อ pillars, preset, หน้าที่บ้าน) อยู่ใน `design/pillars.md` หัวข้อ 7.5
+
+## 11. สมมติฐานและคำถามค้าง
+
+- [ASSUMPTION A-P2-F06-T02-1: geometry ย่านเปิดตัวอาจยังไม่มีใน Phase 2 · ระหว่างนั้นทุกคนในสถานะไกลเห็นการลงทะเบียนรายเขต (R55) · owner: location-engineer]
+- [ASSUMPTION A-P2-F06-T02-2: ตัวหารของเป้า "≥70% ได้รางวัลก้อนแรกใน 10 นาที" คือผู้เล่นที่เริ่ม onboarding ในย่านเปิดตัวและสถานะใกล้ ตาม A-P2-F06-T02-2 ของ PRD · ผู้เล่นที่ run แรกมี tick แรกไม่ผ่านนับเป็นไม่ถึง ไม่ใช่ drop-off · owner: product-manager]
+- [ASSUMPTION A-P2-F06-T02-3: อวตารใน Phase 2 เป็นรูปลักษณ์ตั้งต้นเดียวจาก avatar-spec (ยังไม่มีหน้าสร้างตัวละคร) · owner: art-director]
+- คำถาม playtest (P2-F06-T19): ผู้เล่น non-Tanker รู้สึกว่าถูกพากลับเร็วเกินไหม · ผู้เล่นสังเกตแจ้ง 30% ได้ไหมตอนมือถืออยู่ในกระเป๋า (แยก Android/iOS) · คนที่เจอจอไกลครั้งแรกทำอะไรต่อ
+- คำถาม (Phase 3 F09): ถ้ามีสถานะล้มในดัน ของใน run หายตอนล้มหรือตอนออกโดยไม่ถูกชุบ

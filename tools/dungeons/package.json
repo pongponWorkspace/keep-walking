@@ -1,0 +1,18 @@
+{
+  "name": "@keep-walking/tools-dungeons",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dungeon data validator (design/levels/dungeon-rules.md) and client artifact build (polygon, polylabel label point, navigation target, property whitelist, normalized opening hours). Owner: location-engineer. Never imported by apps/* or packages/*.",
+  "type": "module",
+  "dependencies": {
+    "@keep-walking/geo": "workspace:*",
+    "@keep-walking/shared": "workspace:*",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "polylabel": "2.1.0"
+  },
+  "devDependencies": {
+    "@types/geojson": "7946.0.16",
+    "@types/polylabel": "2.0.0"
+  }
+}

@@ -23,8 +23,8 @@ from .output import (
     dumps_collection, piece_feature, point_feature, write_text,
 )
 from .process import (
-    STEP_REASONS, assign_districts, attach_pois, blocklist, compute_area, extract,
-    normalize, resolve_overlaps,
+    STEP_REASONS, apply_human_ids, assign_districts, attach_pois, blocklist, compute_area,
+    extract, normalize, resolve_overlaps,
 )
 from .tags import compile_patterns
 
@@ -93,6 +93,7 @@ def run_pipeline(
     compute_area(pieces, cfg)
     blocklist(pieces, blockers, ways, cfg, patterns)
     resolve_overlaps(pieces, cfg)
+    apply_human_ids(pieces, cfg)
     unassigned = assign_districts(pieces, study, cf)
     unmatched = attach_pois(pieces, pois, proj, pl["poiTags"])
 

@@ -1,0 +1,17 @@
+{
+  "name": "@keep-walking/geo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pure, server-safe geometry: haversine, gate filter + resample, reward/diagnostic windows, point-in-polygon with hysteresis, play area mask. Leaf package: no @keep-walking/* dependency (ADR 0003). Owner: location-engineer. Contract: tech-lead.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/geojson": "7946.0.16"
+  }
+}

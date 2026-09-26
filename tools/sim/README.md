@@ -34,6 +34,8 @@
 | `src/vectors.ts`, `src/vector-files.ts`, `src/gen-vectors.ts` | สร้างและตรวจ golden vectors |
 | `src/report.ts` | CLI รายงาน |
 | `src/rng.ts` | PRNG แบบใส่ seed (mulberry32) |
+| `src/hit.ts`, `src/vectors-hit.ts` | R-B1 ลำดับผลต่อ hit (D-078) `resolveHit` + vector ใน `damage.json` (P2-F06-T01) |
+| `src/raid.ts`, `src/vectors-raid.ts` | partyMult ของ raid พร้อม cap 1.6 / 1.2 (D-079) + `raid.json` (P2-F06-T01) |
 
 ## รูปแบบ golden vectors
 
@@ -49,10 +51,11 @@
 | `class-change.json` | `classChangeCost` |
 | `exp-curve.json` | `expToNext`, `expPerTick`, `ticksPerLevel`, `ticksPerLevelCurve`, `walkMinutesPerLevel`, `walkMinutesPerLevelCurve`, `ticksBetween`, `walkHoursBetween`, `expMultiplier` |
 | `gear.json` | `gearStat`, `bossGearStat`, `tierForLevel`, `characterStats`, `defReduction_pct` |
-| `damage.json` | `zoneLevel`, `monsterAtk`, `defReduction_pct`, `damagePerHit`, `hitsToThreshold`, `expectedSurvival_min`, `survivalMinutes`, `hpLossPerHour_pct`, `potionCostPerHour_gold` |
+| `damage.json` | `zoneLevel`, `monsterAtk`, `defReduction_pct`, `damagePerHit`, `hitsToThreshold`, `expectedSurvival_min`, `survivalMinutes`, `hpLossPerHour_pct`, `potionCostPerHour_gold`, `resolveHit` (R-B1, output มี boolean/string) |
 | `drops.json` | `meanDaysBetween`, `dropRates` |
 | `economy.json` | `incomePerHour_gold`, `incomeToPotionRatio`, `ratioStatus`, `netHpLossPerHour_pct`, `potionCostNet_gold` |
 | `party.json` | `partyPerHeadRatio`, `partyEffects` |
+| `raid.json` | `raidPartyMult` |
 
 กฎ tolerance ของ vector ที่มาจาก GDD: ตารางทศนิยม 1 ตำแหน่ง 0.05 · ตาราง tick 0.5 · ยอดรวม "ราว" 3% · ชั่วโมงถึงเลเวล 30 4% (F-4) · gear 1 แต้ม (D-022) · เวลาอยู่รอด "ราว" 10% · Tanker เลเวล 50 × 1 = เลเวล 1 × 2 ที่ 0.5 จุด (F-5) · ความถี่ drop "ราว" 10% (Epic 3 ชม./วัน = 2.5 ± 0.5) · รายได้ 3% · party 1.8–2.2 = 2.0 ± 0.2
 
