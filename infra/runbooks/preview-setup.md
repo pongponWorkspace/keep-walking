@@ -122,8 +122,19 @@ curl -sS -D - -o /dev/null -H "Accept-Encoding: gzip, br" "<MAP_URL>/tiles/<TILE
 curl -sS -D - -o /dev/null "<MAP_URL>/tiles/<TILESET_ID>/20/1/1.mvt"
 # expect: HTTP/2 404
 
-# 4. TileJSON and manifest are reachable and short-cached.
+# 4. TileJSON and manifest are reachable, short-cached, and (P1-X41) get their OWN header
+#    values, not the tile rule's: content-type application/json (not application/x-protobuf),
+#    and exactly ONE access-control-allow-origin value (not "*, *"). tiles.json lives under
+#    /tiles/<id>/, the same prefix the tile rule (/tiles/*) matches -- infra/pages/keep-walking-map/
+#    _headers detaches the tile rule's headers before setting tiles.json's own (P1-X41);
+#    infra/scripts/lint-headers.sh checks this statically, this curl is the live confirmation.
 curl -sS -D - -o /dev/null "<MAP_URL>/tiles/<TILESET_ID>/tiles.json"
+# expect: HTTP/2 200, content-type: application/json, cache-control: public, max-age=300,
+#         exactly one access-control-allow-origin header with value "*" (grep -c below must
+#         print 1, not 2)
+curl -sSI "<MAP_URL>/tiles/<TILESET_ID>/tiles.json" | grep -ic '^access-control-allow-origin:'
+# expect: 1
+
 curl -sS -D - -o /dev/null "<MAP_URL>/manifest.json"
 # expect: HTTP/2 200, cache-control: public, max-age=300
 
@@ -253,6 +264,7 @@ cost decision").
 | curl on a real tile gets `200` with `content-length` bigger than the `Range` request | expected on Cloudflare Pages today (D-031) -- this is not the fallback's `.pmtiles` path | confirm you used the XYZ `.mvt` URL, not a `pmtiles://` one, for the main path |
 | client shows "tiles not configured" | `VITE_TILES_URL` empty or wrong | check the `publish-client` step log for the exact value it exported, and the manifest's `layout`/`tileset_id` |
 | GitHub Pages deploy step fails with a permissions/environment error | repo Pages source is not set to "GitHub Actions" | do section 2.1 once |
+| client's map fails to load; browser console shows a CORS error on `.../tiles/<id>/tiles.json` (`Access-Control-Allow-Origin` has multiple values); `curl -sI` on that same URL shows `content-type: application/x-protobuf` and/or `access-control-allow-origin: *, *` | **P1-X41, fixed:** `/tiles/*` and the more specific `/tiles/*/tiles.json` rule in `infra/pages/keep-walking-map/_headers` both match a tiles.json request (`*` is a splat, it matches across `/`); Cloudflare Pages applies every matching rule and concatenates same-named header values instead of letting the more specific rule win | already fixed: the `tiles.json` rule now starts with `! Content-Type` / `! Cache-Control` / `! Access-Control-Allow-Origin` / `! Timing-Allow-Origin` / `! X-Robots-Tag` (Cloudflare's detach directive) before setting its own single value of each. If this regresses, run `infra/scripts/lint-headers.sh` (or `bash infra/scripts/test/test-lint-headers.sh`) locally first -- both fail loudly and name the exact duplicated header before you need a real deploy to notice |
 | "Build tiles" step fails immediately with `[tiles] ERROR: config value .tools.pmtiles.version missing in infra/config/pages.json` (or any `.tools.*`/`.area.*`/`.schema.*` key "missing in infra/config/pages.json") | fixed P1-X40, do not reintroduce: `tools/tiles/bin/lib.sh` reads the env var `TILES_CONFIG` as an override for `tools/tiles/config.json` (documented in `tools/tiles/README.md` and `tools/tiles/size-report.md`). `deploy-preview.yml` used to declare a job-level `env: TILES_CONFIG: infra/config/pages.json` for its own unrelated "which Pages project URLs" lookup; a job-level `env:` is visible to every step, so it silently redirected `build.sh` to read the Pages-project config file instead of its own, and it died on the first missing tile-build key. This is not a Linux/runner issue -- it reproduces identically on macOS (`TILES_CONFIG=infra/config/pages.json bash tools/tiles/bin/build.sh`) | the workflow's variable is named `PAGES_CONFIG` now (same name `infra/scripts/lib.sh` already used, no collision). If you add a new workflow-level `env:` entry, never name it `TILES_CONFIG` -- that name is reserved for `tools/tiles`'s own config override |
 | no access to the raw Actions run log to see the `[tiles] ERROR: ...` line (no repo auth, or the run expired) | — | download the `tile-build-logs` artifact from the run's Summary page (Actions -> the run -> Artifacts). It is uploaded automatically `if: failure()` and contains `tools/tiles/out/build.log` (full stdout+stderr of `build.sh`) plus whatever of `verify-bbox.txt`, `size-report.txt`/`.json`, and `manifest.json` existed at the point of failure. Never contains tile/pmtiles data, only text logs and small JSON, retained 14 days |
 

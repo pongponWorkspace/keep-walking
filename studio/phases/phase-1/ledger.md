@@ -147,3 +147,7 @@
 | 119 | R2 | P1-X39 | devops-engineer | 22:53:46 | 23:04:05 | DONE — root cause: tools/coverage/out/boundaries.geojson ไม่อยู่ใน git · build.sh ข้ามเช็กนี้เมื่อไม่มีไฟล์ · workflow แยก rc=4/อื่น · clean clone 13,502 tile, test 925 ผ่าน · handoff ข้อมูล (ไม่ blocking) tech-lead/location-engineer → ยกไป Phase 2 |
 | 120 | R2 | P1-F02-T19 dry-run รอบ 2 | user | — | 23:05 | FAIL — build.sh exit 1 อีก (run 36158481205) · ข้อความใหม่ระบุ error ทั่วไป ไม่ใช่ D-001 → P1-X40 |
 | 121 | R2 | P1-X40 | devops-engineer | 23:08 | 23:16:56 | DONE — root cause จาก log ที่ user ส่ง: env TILES_CONFIG ชนกัน · เปลี่ยนเป็น PAGES_CONFIG + artifact log · test 927 ผ่าน |
+| 122 | R2 | P1-F02-T19 deploy จริง รอบ 1 | user | — | 23:39:12 | build tile ผ่าน (13,502 / 14,283 ไฟล์, PASS งบ) · wrangler ล้ม: Authentication error 10000 + 9109 'Cannot use the access token from location' → token ตั้ง Client IP Address Filtering ไว้ · HUMAN แก้ token |
+| 123 | R2 | P1-F02-T19 deploy จริง รอบ 2 | user | — | 23:54:03 | FAIL เหมือนเดิม: 10000 + 9109 (IP 4.236.158.52) · token ที่ใช้ใน secret ยังถูกจำกัด IP · แนะนำสร้าง token ใหม่แล้วแทน secret |
+| 124 | R2 | P1-F02-T19 deploy จริง รอบ 3 | user + orchestrator | — | 10:01:54 | deploy สำเร็จ (run 36213296019, token ใหม่) · curl: tile 200 + CORS + immutable + br, 404 จริง, manifest ถูก · tiles.json header ซ้อน → headless Chromium บล็อก CORS → P1-X41 |
+| 125 | R2 | P1-X41 | devops-engineer | 09:5x | 10:13:55 | DONE — detach header ใน tiles.json · lint-headers + test 9/9 · test 927 ผ่าน · ต่อ CI ยกไป Phase 2 |

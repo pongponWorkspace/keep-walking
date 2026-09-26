@@ -1,0 +1,21 @@
+# Synthetic fixture (P1-X41): same two rules as bad-overlap/_headers, but the more specific rule
+# detaches every header the broader rule set before setting its own value -- the mechanism this
+# task applied to the real infra/pages/keep-walking-map/_headers. Must pass the lint check.
+/tiles/*
+  Content-Type: application/x-protobuf
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex
+
+/tiles/*/tiles.json
+  ! Content-Type
+  ! Cache-Control
+  ! Access-Control-Allow-Origin
+  ! Timing-Allow-Origin
+  ! X-Robots-Tag
+  Content-Type: application/json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex

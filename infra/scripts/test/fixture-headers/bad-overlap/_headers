@@ -1,0 +1,16 @@
+# Synthetic fixture (P1-X41): reproduces the exact overlap bug this task fixed, so
+# test-lint-headers.sh can prove infra/scripts/lint-headers.py actually detects it (and does not
+# just always pass). Deliberately has NO `! Header-Name` detach -- do not "fix" this file, it is
+# meant to fail the lint check.
+/tiles/*
+  Content-Type: application/x-protobuf
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex
+
+/tiles/*/tiles.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+  Timing-Allow-Origin: *
+  X-Robots-Tag: noindex

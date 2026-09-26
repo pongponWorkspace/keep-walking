@@ -1,0 +1,4 @@
+# Synthetic fixture (P1-X41): an indented directive with no colon and no leading `!`, to prove
+# lint-headers.py reports a parse error (exit 1) instead of silently ignoring a broken rule.
+/tiles/*
+  this line is not a valid directive

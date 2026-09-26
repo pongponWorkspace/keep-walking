@@ -1,5 +1,5 @@
-# Owner: devops-engineer (P1-F02-T08). Cloudflare Pages `_headers` for the map project
-# (keep-walking-map): tiles, glyphs, sprites, font-faces, tiles.json, manifest.json.
+# Owner: devops-engineer (P1-F02-T08, fixed P1-X41). Cloudflare Pages `_headers` for the map
+# project (keep-walking-map): tiles, glyphs, sprites, font-faces, tiles.json, manifest.json.
 # Rules: tech note docs/tech/F02-map-location-spike.md section 7.5. Format:
 # https://developers.cloudflare.com/pages/configuration/headers/ (max 100 rules, checked 2026-09-23:
 # this file has 6 -- well under the cap).
@@ -7,6 +7,30 @@
 # This file is copied into the publish directory by infra/scripts/publish-tiles.sh, it is never
 # committed alongside real tile data (tiles are built at deploy time, never in git, tech note 7.5
 # "tile ไม่ถูก commit").
+#
+# P1-X41: Cloudflare Pages applies EVERY rule whose pattern matches a request path, in the order
+# the rules appear in this file. If two matching rules set the same header name, Cloudflare does
+# not let the later/more-specific one win -- it concatenates both values with ", " (confirmed by
+# curl evidence: a path matched by both `/tiles/*` and `/tiles/*/tiles.json` came back with
+# `access-control-allow-origin: *, *` and a doubled `cache-control`). `/tiles/*`'s trailing `*` is
+# a splat that matches across `/` (proven by this same file: `/glyphs/*.pbf` already has to reach
+# into the nested `glyphs/<font name>/<range>.pbf` path to apply its Content-Type today), so it
+# also matches `/tiles/<id>/tiles.json`, not just the real `.mvt` tile files.
+#
+# Fix mechanism chosen: the `! Header-Name` detach directive (Cloudflare docs, same page as
+# above, "the value of a header can be removed for a more specific path by prefixing the header
+# name with `!`"). Every rule below that could otherwise collide with an earlier, broader rule
+# first un-sets every header name the broader rule set, then sets its own single value -- so no
+# path ever accumulates two values for one header. This was preferred over trying to make the
+# path patterns themselves non-overlapping (e.g. `/tiles/*/*/*/*.mvt`): Cloudflare's own docs
+# only give a single-wildcard-as-splat example, multi-wildcard pattern matching for one path is
+# not documented, and `!` detach is the mechanism the docs describe specifically for this
+# "a more specific rule needs a different value" case.
+#
+# infra/scripts/lint-headers.sh (infra/scripts/test/test-lint-headers.sh) parses this file and
+# every rule pair below for the same overlap, over a fixed list of representative paths (real
+# tile, tiles.json, manifest.json, glyph pbf, font-face ttf, sprite json/png) -- run it after any
+# edit to this file.
 
 # Vector tiles: MVT/protobuf, immutable (URL embeds tileset_id, so a new build = a new path,
 # tech note 7.5). Cloudflare compresses application/x-protobuf on the fly (tech note 7.1 source list).
@@ -25,7 +49,12 @@
   Timing-Allow-Origin: *
   X-Robots-Tag: noindex
 
-# Font faces (Noto Sans Thai TTF, self-hosted per tech note section 6).
+# Font faces (Noto Sans Thai TTF, self-hosted per tech note section 6). Does not overlap
+# `/glyphs/*.pbf` above: that rule only matches paths ending in the literal `.pbf` extension,
+# and every file this rule matches ends in `.ttf` -- P1-X41 audit, checked by
+# infra/scripts/lint-headers.sh's `/glyphs/_faces/*.ttf` representative path. If a `.pbf` file
+# is ever added directly under `/glyphs/_faces/`, re-run the lint check: it would then match
+# both rules and need the same `!` detach treatment as tiles.json below.
 /glyphs/_faces/*
   Content-Type: font/ttf
   Cache-Control: public, max-age=31536000, immutable
@@ -42,7 +71,18 @@
 
 # TileJSON: short cache, it can point at a new tileset_id after a rebuild without a URL change
 # if a future task decides to keep one stable TileJSON path (Phase 1 uses a versioned path today).
+# `/tiles/*` above already matches this same path (P1-X41) -- detach every header it set before
+# setting this rule's own single value, including the ones where the desired value happens to be
+# the same string (Access-Control-Allow-Origin, Timing-Allow-Origin, X-Robots-Tag): without the
+# `!` line first, Cloudflare still concatenates "*, *" / "noindex, noindex" even when both rules
+# agree on the value.
 /tiles/*/tiles.json
+  ! Content-Type
+  ! Cache-Control
+  ! Access-Control-Allow-Origin
+  ! Timing-Allow-Origin
+  ! X-Robots-Tag
+  Content-Type: application/json
   Cache-Control: public, max-age=300
   Access-Control-Allow-Origin: *
   Timing-Allow-Origin: *
