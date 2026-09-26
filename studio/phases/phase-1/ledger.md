@@ -152,3 +152,5 @@
 | 124 | R2 | P1-F02-T19 deploy จริง รอบ 3 | user + orchestrator | — | 10:01:54 | deploy สำเร็จ (run 36213296019, token ใหม่) · curl: tile 200 + CORS + immutable + br, 404 จริง, manifest ถูก · tiles.json header ซ้อน → headless Chromium บล็อก CORS → P1-X41 |
 | 125 | R2 | P1-X41 | devops-engineer | 09:5x | 10:13:55 | DONE — detach header ใน tiles.json · lint-headers + test 9/9 · test 927 ผ่าน · ต่อ CI ยกไป Phase 2 |
 | 126 | R2 | P1-F02-T19 deploy รอบ 4 | user + orchestrator | — | 10:24:46 | run 36214493818 สำเร็จ · tiles.json ถูก (json, ACAO เดียว, max-age=300) · headless โหลดแผนที่ 0 error ป้ายไทยขึ้น · ปุ่ม spike แสดง copy key ดิบ (ตั้งใจเป็น placeholder dev) |
+| 127 | R2 | P1-X42 dispatch | narrative-designer | 10:27:47 | — | user ขอให้ปุ่มแสดงข้อความไทยแทน copy key |
+| 128 | R2 | P1-X42 | narrative-designer | — | 10:29:16 | DONE — เพิ่ม 4 copy key · orchestrator รัน lint:copy exit 0, typecheck 0, test 927 ผ่าน |
