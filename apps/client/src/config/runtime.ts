@@ -34,6 +34,10 @@ export interface ProviderQueryConfig {
     readonly speed: string;
     readonly loop: string;
     readonly hud: string;
+    /** `loc=mock` only: game clock replay-start test hook (F04-dungeon-presence.md section 17). */
+    readonly start: string;
+    /** `loc=mock` only: RNG `runSeed` test hook (ADR 0003 section 6). */
+    readonly seed: string;
   };
   readonly allowedProviders: readonly LocationProviderKind[];
   readonly allowedMockSpeeds: readonly MockSpeed[];
@@ -41,7 +45,9 @@ export interface ProviderQueryConfig {
 
 export interface ProviderQueryDefaults {
   readonly provider: LocationProviderKind;
-  readonly speed: MockSpeed;
+  /** Default Mock playback-speed multiplier. Renamed from `speed` (tech-lead/config-lint): the
+   * URL query param itself is still named `speed` (`ProviderQueryConfig.paramNames.speed`). */
+  readonly speedMult: MockSpeed;
   readonly loop: boolean;
   readonly hud: boolean;
 }
@@ -68,12 +74,30 @@ export interface HudMeasurementConfig {
   readonly bytesPerMegabyte: number;
 }
 
+export interface EngineConfig {
+  /** Client tick timer interval (ADR 0003 3.2 item 5); the reducer itself has no timer. */
+  readonly tickInterval_ms: number;
+}
+
+export interface StorageRuntimeConfig {
+  /** Throttle for `kw.p2.session` writes when the last step returned no event (F04 section 10.1). */
+  readonly sessionPersistInterval_s: number;
+}
+
+export interface NavigationConfig {
+  readonly coordinateDecimals: number;
+  readonly externalOpenTimeout_ms: number;
+}
+
 export interface ClientRuntimeConfig {
   readonly locationWeb: LocationWebConfig;
   readonly providerQuery: ProviderQueryConfig;
   readonly providerQueryDefaultsByMode: ProviderQueryDefaultsByMode;
   readonly mapView: MapViewConfig;
   readonly hudMeasurement: HudMeasurementConfig;
+  readonly engine: EngineConfig;
+  readonly storage: StorageRuntimeConfig;
+  readonly navigation: NavigationConfig;
 }
 
 export interface RawTraceExportConfig {
@@ -183,6 +207,8 @@ function parseProviderQuery(root: Json, path: string): ProviderQueryConfig {
       speed: str(names['speed'], `${path}/paramNames/speed`),
       loop: str(names['loop'], `${path}/paramNames/loop`),
       hud: str(names['hud'], `${path}/paramNames/hud`),
+      start: str(names['start'], `${path}/paramNames/start`),
+      seed: str(names['seed'], `${path}/paramNames/seed`),
     },
     allowedProviders,
     allowedMockSpeeds,
@@ -192,7 +218,7 @@ function parseProviderQuery(root: Json, path: string): ProviderQueryConfig {
 function parseDefaults(node: Json, path: string): ProviderQueryDefaults {
   return {
     provider: providerKind(node['provider'], `${path}/provider`),
-    speed: mockSpeed(node['speed'], `${path}/speed`),
+    speedMult: mockSpeed(node['speedMult'], `${path}/speedMult`),
     loop: bool(node['loop'], `${path}/loop`),
     hud: bool(node['hud'], `${path}/hud`),
   };
@@ -201,7 +227,10 @@ function parseDefaults(node: Json, path: string): ProviderQueryDefaults {
 function parseProviderQueryDefaultsByMode(root: Json, path: string): ProviderQueryDefaultsByMode {
   const node = obj(root['providerQueryDefaultsByMode'], path);
   return {
-    development: parseDefaults(obj(node['development'], `${path}/development`), `${path}/development`),
+    development: parseDefaults(
+      obj(node['development'], `${path}/development`),
+      `${path}/development`,
+    ),
     production: parseDefaults(obj(node['production'], `${path}/production`), `${path}/production`),
   };
 }
@@ -230,15 +259,46 @@ function parseHudMeasurement(root: Json, path: string): HudMeasurementConfig {
   };
 }
 
+function parseEngine(root: Json, path: string): EngineConfig {
+  const node = obj(root['engine'], path);
+  return {
+    tickInterval_ms: num(node['tickInterval_ms'], `${path}/tickInterval_ms`),
+  };
+}
+
+function parseStorage(root: Json, path: string): StorageRuntimeConfig {
+  const node = obj(root['storage'], path);
+  return {
+    sessionPersistInterval_s: num(
+      node['sessionPersistInterval_s'],
+      `${path}/sessionPersistInterval_s`,
+    ),
+  };
+}
+
+function parseNavigation(root: Json, path: string): NavigationConfig {
+  const node = obj(root['navigation'], path);
+  return {
+    coordinateDecimals: num(node['coordinateDecimals'], `${path}/coordinateDecimals`),
+    externalOpenTimeout_ms: num(node['externalOpenTimeout_ms'], `${path}/externalOpenTimeout_ms`),
+  };
+}
+
 /** Pure so tests can pass a fixture without touching the real JSON import (env.ts convention). */
 export function parseClientConfig(input: unknown): ClientRuntimeConfig {
   const root = obj(input, '/');
   return {
     locationWeb: parseLocationWeb(root, '/locationWeb'),
     providerQuery: parseProviderQuery(root, '/providerQuery'),
-    providerQueryDefaultsByMode: parseProviderQueryDefaultsByMode(root, '/providerQueryDefaultsByMode'),
+    providerQueryDefaultsByMode: parseProviderQueryDefaultsByMode(
+      root,
+      '/providerQueryDefaultsByMode',
+    ),
     mapView: parseMapView(root, '/mapView'),
     hudMeasurement: parseHudMeasurement(root, '/hudMeasurement'),
+    engine: parseEngine(root, '/engine'),
+    storage: parseStorage(root, '/storage'),
+    navigation: parseNavigation(root, '/navigation'),
   };
 }
 
@@ -253,12 +313,18 @@ export function parsePrivacyConfig(input: unknown): AppPrivacyConfig {
         rawTraceExport['coordinateDecimals'],
         '/rawTraceExport/coordinateDecimals',
       ),
-      relativeTimeOnly: bool(rawTraceExport['relativeTimeOnly'], '/rawTraceExport/relativeTimeOnly'),
+      relativeTimeOnly: bool(
+        rawTraceExport['relativeTimeOnly'],
+        '/rawTraceExport/relativeTimeOnly',
+      ),
       requiresExplicitOptIn: bool(
         rawTraceExport['requiresExplicitOptIn'],
         '/rawTraceExport/requiresExplicitOptIn',
       ),
-      autoUploadAllowed: bool(rawTraceExport['autoUploadAllowed'], '/rawTraceExport/autoUploadAllowed'),
+      autoUploadAllowed: bool(
+        rawTraceExport['autoUploadAllowed'],
+        '/rawTraceExport/autoUploadAllowed',
+      ),
     },
     summaryExport: {
       isDefaultExport: bool(summaryExport['isDefaultExport'], '/summaryExport/isDefaultExport'),

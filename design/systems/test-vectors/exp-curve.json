@@ -257,7 +257,7 @@
       },
       "expected": 1222.221504,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact total ticks 1→60 at multiplier 1.0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact total ticks 1→60 at multiplier 1.0"
     },
     {
       "input": {
@@ -274,7 +274,7 @@
       },
       "expected": 2037.035839,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · F-2: solo without Magic (x0.6)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · F-2: solo without Magic (x0.6)"
     },
     {
       "input": {
@@ -289,7 +289,7 @@
       },
       "expected": 60,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 1"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: level 1"
     },
     {
       "input": {
@@ -304,7 +304,7 @@
       },
       "expected": 9509.359155,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal"
     },
     {
       "input": {
@@ -319,7 +319,7 @@
       },
       "expected": 106614.926235,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal"
     },
     {
       "input": {
@@ -334,7 +334,7 @@
       },
       "expected": 472090.951006,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 59 (last level with expToNext)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: level 59 (last level with expToNext)"
     },
     {
       "input": {
@@ -364,7 +364,7 @@
       },
       "expected": 30,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary"
     },
     {
       "input": {
@@ -379,7 +379,7 @@
       },
       "expected": 948.683298,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal"
     },
     {
       "input": {
@@ -394,7 +394,7 @@
       },
       "expected": 3750,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal"
     },
     {
       "input": {
@@ -409,7 +409,7 @@
       },
       "expected": 13942.740046,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary"
     },
     {
       "input": {
@@ -426,7 +426,7 @@
       },
       "expected": 2,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 1 = 2 ticks"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: level 1 = 2 ticks"
     },
     {
       "input": {
@@ -443,7 +443,7 @@
       },
       "expected": 8.863681,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: zone above player level"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal: zone above player level"
     },
     {
       "input": {
@@ -457,7 +457,7 @@
       },
       "expected": 0.6,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · no Magic → x0.6"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · no Magic → x0.6"
     },
     {
       "input": {
@@ -471,7 +471,7 @@
       },
       "expected": 1.232,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · Magic L25 x1 → x1.232"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · Magic L25 x1 → x1.232"
     },
     {
       "input": {
@@ -485,7 +485,7 @@
       },
       "expected": 1.5,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · Magic at cap → x1.5"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · Magic at cap → x1.5"
     },
     {
       "input": {
@@ -499,7 +499,7 @@
       },
       "expected": 1.5,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: buff above cap clamps to x1.5"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: buff above cap clamps to x1.5"
     },
     {
       "input": {
@@ -513,7 +513,7 @@
       },
       "expected": 0.92,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · gap 1 → x0.92 (magicBuff 0 = Magic present with 0%)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · gap 1 → x0.92 (magicBuff 0 = Magic present with 0%)"
     },
     {
       "input": {
@@ -527,7 +527,7 @@
       },
       "expected": 0.25,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: gap 17 → floor 0.25"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: gap 17 → floor 0.25"
     },
     {
       "input": {
@@ -541,7 +541,7 @@
       },
       "expected": 0.467213,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · no Magic and gap 3"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · no Magic and gap 3"
     }
   ]
 }

@@ -1,6 +1,6 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './app.css';
-import { readMapEnv, withTestEnvOverrides } from './env';
+import { readBuildProfile, readMapEnv, withTestEnvOverrides } from './env';
 import { createMap } from './map';
 import { clientConfig, appPrivacyConfig } from './config/runtime';
 import {
@@ -21,10 +21,14 @@ import { registerRiftCrackImage } from './map/runtime-images';
 import { installSpikeHook, removeSpikeHook, sampleToSpikePosition } from './debug/spike-hook';
 import type { HudPanel } from './debug/hud-panel';
 
-/** Set by CI/T08 from the deployed git short SHA (`gps-trace-format.md` 4.1 `app_version`); no such
- * build-time value exists yet, so the summary CSV honestly reports "dev" rather than a literal that
- * looks like a real build id (handoff: tech-lead/devops-engineer for a `VITE_APP_VERSION` define). */
-const APP_VERSION_PLACEHOLDER = 'dev';
+/** `VITE_KW_PROFILE`/`VITE_KW_COMMIT` (TL B-10, P2-F04-T25): read once at module load, from build
+ * time only. `commit` replaces the old `APP_VERSION_PLACEHOLDER = 'dev'` (P1-F02-T10's own
+ * handoff to tech-lead/devops-engineer for a `VITE_APP_VERSION` define) — the CSV's `app_version`
+ * column and the on-page build badge now report the real short SHA once the deploy workflow
+ * (P2-F05-T14) sets it, and honestly fall back to "dev" (not a literal that looks like a real
+ * build id) when it does not. */
+const buildProfile = readBuildProfile(import.meta.env);
+const appVersion = buildProfile.commit ?? 'dev';
 
 const container = document.getElementById('map');
 if (container === null) {
@@ -33,6 +37,14 @@ if (container === null) {
 const hud = document.getElementById('hud');
 if (hud === null) {
   throw new Error('client shell: #hud element missing from index.html');
+}
+const buildBadge = document.getElementById('build-badge');
+if (buildBadge !== null) {
+  // playtest builds always show it (tech note F04 section 17: "แสดง version + short SHA"); a dev
+  // build only shows it once a real commit is set, so a bare `pnpm dev` stays uncluttered.
+  if (buildProfile.profile === 'playtest' || buildProfile.commit !== undefined) {
+    buildBadge.textContent = `${buildProfile.profile} ${appVersion}`;
+  }
 }
 
 const env = withTestEnvOverrides(readMapEnv(import.meta.env), window.location.search);
@@ -65,7 +77,7 @@ async function initLocation(
       movementGate: balanceMovementGateConfig,
       checkIn: balanceCheckInConfig,
       sessionId: crypto.randomUUID(),
-      appVersion: APP_VERSION_PLACEHOLDER,
+      appVersion,
       tilesetId: mapResult?.tilesetId,
       rawTraceTrim_m: appPrivacyConfig.rawTraceExport.rawTraceTrim_m,
       coordinateDecimals: appPrivacyConfig.rawTraceExport.coordinateDecimals,

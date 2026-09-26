@@ -3,7 +3,7 @@
     "file": "classes.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06",
+    "task": "P1-F03-T06; magic/support Phase 2 notes P2-F05-T01",
     "convention": "camelCase keys, unit suffix in key (_pct, _s, _m, _h, _gold, Mult = dimensionless multiplier), plain numbers, GDD section in _source next to the values",
     "doc": "design/systems/balance-model.md section 2"
   },
@@ -54,7 +54,8 @@
       "missingDebuffMult": 0,
       "inDungeonHealBase_pctMaxHpPerMin": 0.5,
       "reviveToHp_pct": 30,
-      "_assumption": "A-P1-F03-T06-12: GDD gives no base heal rate or revive HP. With a Support present, heal = 0.5% maxHP/min x (1 + supportBuff); a Support revives a downed member to 30% HP. Owner: game-director"
+      "_assumption": "A-P1-F03-T06-12: GDD gives no base heal rate or revive HP. With a Support present, heal = 0.5% maxHP/min x (1 + supportBuff); a Support revives a downed member to 30% HP. Owner: game-director",
+      "_note": "Spec F06 R31 item 5: in Phase 2 the solo Support heals only themselves, continuously over Active unlocked time (no heal in Grace, Suspended, speed lock), capped at max HP. reviveToHp_pct is not used in Phase 2 (no downed state, F06 R24; Support revive moves to Phase 3 F09)"
     },
     "magic": {
       "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Magic เพิ่ม exp และสร้างโล่กัน damage)",
@@ -64,7 +65,8 @@
       "missingDebuffEffect": "expMult",
       "missingDebuffMult": 0.6,
       "shieldPerRewardTick_pctMaxHpPerBuffPct": 0.1,
-      "_assumption": "A-P1-F03-T06-13: GDD gives no shield size. Proposal: each 5-min reward tick grants a shield of (0.1 x magicBuff_pct)% maxHP that absorbs damage and does not stack. Owner: game-director"
+      "_assumption": "A-P1-F03-T06-13: GDD gives no shield size. Proposal: each 5-min reward tick grants a shield of (0.1 x magicBuff_pct)% maxHP that absorbs damage and does not stack. Owner: game-director",
+      "_note": "Spec F06 R31 item 4 and decision 5 (D-096, closes the timing part of A-P1-F03-T06-13): the shield is granted only on a reward tick that passed the movement gate (a denied tick gives nothing, F05 R10), including a passing D-059 partial tick (size not scaled by f). It does not stack: each grant REPLACES the current shield with the new amount. It absorbs damage before HP (F05 R18 step 1) and ends with the run. Solo in Phase 2 the Magic player gets the shield of their own buff (D-039): magicBuff = roleBuffPct(magic, P = 1 + level / 50)"
     }
   },
   "levelGapContribution": {

@@ -3,14 +3,17 @@
     "file": "copy-rules.json",
     "version": 1,
     "owner": "narrative-designer",
-    "task": "P1-X03, P1-F03-T04 (D-050 buttonFullWidth)",
+    "task": "P1-X03, P1-F03-T04 (D-050 buttonFullWidth), P2-F04-T16 (areas client + anticheat)",
+    "_areasNote": "P2-F04-T16: client = copy of the client shell and dev-only previews (client.mapSpike.*, closes the 4 WARN S1 from P1-X42). anticheat = speed lock overlay (F04 flow D, GD B-02). The area name is a team term inside keys only; no player-facing text may say anti-cheat (pillars 6.2 U7).",
     "doc": "docs/tech/copy-schema.md section 6; design/narrative/style-guide.md 4.2, 4.3, 4.4",
     "_note": "Machine-readable copy rules read by the copy lint (P1-H02) and the client formatter. Limits are display cells as defined in copy-schema 4.1. Variables are NOT here: the variable registry is copy.th.json#_variables. The Thai description in copy.th.json#_meta.limits must match these numbers (copy gate checks by eye)."
   },
   "areas": [
     "account",
     "age",
+    "anticheat",
     "class",
+    "client",
     "common",
     "consent",
     "dungeon",

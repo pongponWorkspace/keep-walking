@@ -11,7 +11,7 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 - ข้อมูลไม่ออกจากเครื่องโดยอัตโนมัติ — event ทุกตัวเขียนลง **ring buffer ในเครื่อง** เท่านั้น
 - ทางเดียวที่ข้อมูลออกจากเครื่องคือผู้เล่นกด **export เป็นไฟล์ดาวน์โหลด** (ไม่มี auto-upload, ไม่มี beacon เป็นระยะ)
 - ไม่มีบัญชี/login ใน Phase 2 (F07 login อยู่ Phase 3) จึงไม่มี `account_id`
-- Export ต้องไม่มี wall-clock timestamp ที่แม่นยำ (เหตุผล: `dungeon_id` + wall-clock บอกได้ว่าใครอยู่ที่ไหนเวลาไหน และไฟล์ export อาจถูกใช้เป็นหลักฐานทดสอบที่หลุดเข้า repo สาธารณะได้) — ใช้เวลาสัมพัทธ์จากต้น run แทน (C2-2..C2-4)
+- Export ต้องไม่มี wall-clock timestamp ที่แม่นยำ (เหตุผล: `dungeon_id` + wall-clock บอกได้ว่าใครอยู่ที่ไหนเวลาไหน และไฟล์ export อาจถูกใช้เป็นหลักฐานทดสอบที่หลุดเข้า repo สาธารณะได้) — ใช้เวลาสัมพัทธ์จากบรรทัดแรกของไฟล์ export แทน (`t_rel_ms`, C2-2..C2-4, หัวข้อ 1.2)
 
 เอกสารนี้แก้ทุกจุดที่เคยอิงสถาปัตยกรรมแบบมี server ให้ตรงกับด้านบน รายละเอียดทางเทคนิคเต็ม (โครง sink, การ evict, รูปแบบไฟล์ export) เป็นของ tech-lead ใน `docs/tech/F04-dungeon-presence.md`/`F05-movement-gate-reward.md` (P2-F04-T14) — เอกสารนี้กำหนดแค่ชื่อ event, property, และกติกาความเป็นส่วนตัวที่ผูกมัด
 
@@ -40,31 +40,30 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 
 ## 1. Envelope กลาง
 
-Phase 2 มีสองชั้น: ค่าที่เก็บ**ในเครื่อง** (ring buffer, ไม่ออกจากเครื่อง) กับค่าที่อยู่ใน**ไฟล์ export** (ผู้เล่นกดดาวน์โหลดเอง) สองชั้นนี้ไม่เหมือนกันทุกฟิลด์ตามกติกาข้อ 6
+**ยึดตาม `docs/tech/F04-dungeon-presence.md` หัวข้อ 12 (P2-F04-T14, สัญญาที่ build จริงแล้ว)** — Phase 2 มีสองชั้น: ค่าที่เก็บ**ในเครื่อง** (ring buffer, ไม่ออกจากเครื่อง) กับค่าที่อยู่ใน**ไฟล์ export** (ผู้เล่นกดดาวน์โหลดเอง) สองชั้นนี้ไม่เหมือนกันทุกฟิลด์ตามกติกาข้อ 6
 
-### 1.1 ในเครื่อง (ring buffer)
+### 1.1 ในเครื่อง (ring buffer, `config/app/telemetry.json#localSink`)
 
 | Field | ประเภท | คำอธิบาย | Privacy |
 | --- | --- | --- | --- |
-| `event_name` | string | ชื่อ event ตามเอกสารนี้เป๊ะ | — |
+| `event_name` | string | ชื่อ event ตามเอกสารนี้เป๊ะ (ไม่รู้จัก = ไม่เก็บ + warning ใน dev) | — |
 | `client_ts_ms` | int (epoch ms, นาฬิกาเครื่อง) | ใช้คำนวณภายในเท่านั้น (เช่น `emptyScreenAbandonTimeout_s`, ลำดับเหตุการณ์, ระยะเวลา page hidden) **ห้ามอยู่ในไฟล์ export** (กติกาข้อ 6) | ไม่ออกจากเครื่อง |
-| `session_id` | string (opaque) | สุ่มใหม่ทุก session ของแอป (ตามกฎเดียวกับ `config/app/privacy.json#summaryExport.sessionIdRegeneratedPerSession`) ใช้เชื่อม event ภายใน session เดียวกัน ไม่ใช่ระบุตัวตน | pseudonymous, ไม่ผูกบัญชี (ไม่มีบัญชีใน Phase 2) |
-| `run_id` | string (opaque) \| null | สุ่มใหม่ทุกครั้งที่เข้า run (F04 T3) `null` สำหรับ event ที่เกิดก่อนมี run (onboarding, empty screen) | pseudonymous |
+| `session_id` | string (opaque, 8 hex จาก `crypto.randomUUID`) | สุ่มใหม่ทุกครั้งที่โหลดหน้า ใช้เชื่อม event ภายใน session เดียวกัน ไม่ใช่ระบุตัวตน | pseudonymous, ไม่ผูกบัญชี (ไม่มีบัญชีใน Phase 2) |
 | `platform` | enum `web_android` \| `web_ios` | ใช้แยกผลตาม A-P1-PLAN-01-6 | ไม่ใช่ PII |
 | `app_version` | string | เวอร์ชัน build ของ client | — |
 | `properties` | object | เฉพาะของแต่ละ event (หัวข้อ 2–7) | ตามแต่ละ event |
 
-**ไม่มี field `account_id`** ใน Phase 2 (ไม่มีบัญชี/login จน F07 มาใน Phase 3 — ตอนนั้นเอกสารนี้จะเพิ่ม field กลับพร้อม migration note ไม่ใช่ตอนนี้) **ไม่มี field `server_ts`** (ไม่มี server รับ) **ไม่มี `device_id`, advertising id, IP address**
+**ไม่มี field `run_id`** — engine มี `run.runId` ภายใน (`docs/tech/F04-dungeon-presence.md` §2.3) แต่ mapper ของ client**ไม่ยกมาใส่ envelope ของ telemetry** ต้องเชื่อมโยง event ของ run เดียวกันด้วยลำดับ `dungeon_entered` → ... → `dungeon_exited` ภายใน `session_id` เดียวกันแทน (ปกติของการอ่าน log ที่เรียงตามเวลาอยู่แล้ว) **ไม่มี field `account_id`** ใน Phase 2 (ไม่มีบัญชี/login จน F07 มาใน Phase 3) **ไม่มี field `server_ts`** (ไม่มี server รับ) **ไม่มี `device_id`, advertising id, IP address**
 
-### 1.2 ในไฟล์ export (สิ่งที่ผู้เล่นดาวน์โหลด/QA อาจได้เห็น)
+### 1.2 ในไฟล์ export (`config/app/telemetry.json#export`, รูปแบบ JSONL, `.jsonl`)
 
 | Field | ประเภท | คำอธิบาย |
 | --- | --- | --- |
 | `event_name` | string | เหมือนในเครื่อง |
-| `t_offset_s` | number (วินาที, ปัดเป็นจำนวนเต็ม) | **แทนที่ `client_ts_ms` ทั้งหมด** — ถ้า `run_id` ไม่ null: วินาทีนับจากจุดเริ่ม run นั้น (F04 T3/rewardWindow แรก) ถ้า `run_id` เป็น null: วินาทีนับจากจุดเริ่ม session (เปิดแอป) — ไม่มีทางคำนวณย้อนกลับเป็น wall-clock จริงได้จากไฟล์นี้อย่างเดียว |
-| `session_id`, `run_id`, `platform`, `app_version`, `properties` | เหมือนในเครื่อง | |
+| `t_rel_ms` | int (มิลลิวินาที) | **แทนที่ `client_ts_ms` ทั้งหมด** = `client_ts_ms − client_ts_ms ของบรรทัดแรกในไฟล์ export นั้น` ไฟล์จึงไม่มี wall-clock หรือวันที่ใดๆ เลย (ชื่อไฟล์เองก็ไม่มีวันที่ — `kw-p2-telemetry-<8 hex สุ่ม>.jsonl`) |
+| `session_id`, `platform`, `app_version`, `properties` | เหมือนในเครื่อง | |
 
-ไม่มี `client_ts_ms` ในไฟล์นี้เด็ดขาด (กติกาข้อ 6, C2-2) — รูปแบบไฟล์จริง (CSV/JSON, ชื่อคอลัมน์) เป็นของ tech-lead (P2-F04-T14) เอกสารนี้กำหนดแค่ field ที่ต้องมี/ห้ามมี
+ไม่มี `client_ts_ms` ในไฟล์นี้เด็ดขาด (กติกาข้อ 6, C2-4) ก่อนสร้างไฟล์ ตัว export ตัด property ที่ชื่อผิด (`app.telemetry.export.forbiddenPropertyNames`: `lat`, `lng`, `lon`, `latitude`, `longitude`, `coords`, `coordinates`, `accuracy`, `accuracy_m`, `position`, `geometry`, `geohash`, `client_ts`, `server_ts`, `timestamp`) และตัดค่าตัวเลข/สตริงตัวเลขที่ทศนิยม ≥4 หลักและอยู่ในช่วงพิกัดไทย (`latRange_deg` 5.0–21.0, `lngRange_deg` 97.0–106.0) ทิ้งอัตโนมัติ (นับจำนวนที่ตัดใน HUD ไม่ export ค่านั้น) — allowlist ต้นทางของด่านนี้คือชื่อ property ทุกตัวในเอกสารนี้เอง (กติกาข้อ 7)
 
 ## 2. หมวด Onboarding
 
@@ -116,11 +115,11 @@ Phase 2 มีสองชั้น: ค่าที่เก็บ**ในเ�
 
 ### ควบคุมข้อมูลในเครื่อง (D-088, C2-6)
 
-### `local_data_deleted`
-- **ยิงเมื่อ:** ผู้เล่นกดยืนยันปุ่ม "ลบข้อมูลในเครื่อง" (P2-F06-T09) — ยิง**ก่อน**ฟังก์ชันของ P2-F04-T25 ล้าง `kw.p2.*` และ ring buffer ทั้งหมด
-- **properties:** `trigger` (enum `settings_button` — ค่าเดียวใน Phase 2 เผื่ออนาคตมีทางลบอื่น)
-- **privacy:** ไม่มีพิกัด ไม่มี property อื่น
-- **หมายเหตุพิเศษ:** event นี้ถูกล้างไปพร้อม ring buffer ทันทีหลังยิง (เป็นเหตุการณ์สุดท้ายก่อนล้างตัวเอง) จึงไม่ปรากฏในไฟล์ export ครั้งถัดไปโดยธรรมชาติของการลบจริง — มีไว้ให้ e2e/QA ดักจับ (spy) ตอนทดสอบว่าฟังก์ชันลบถูกเรียกจริงตาม C2-6 **ไม่ใช่** เพื่อคำนวณ aggregate metric (Phase 2 ไม่มีทางรู้ "อัตราการลบข้อมูล" จาก telemetry เพราะข้อมูลลบตัวเองทุกครั้งที่กด — สอดคล้องกับเจตนาของปุ่มนี้)
+### `local_data_cleared`
+- **ยิงเมื่อ:** ผู้เล่นกดยืนยันปุ่ม "ลบข้อมูลในเครื่อง" (P2-F06-T09/F06-R49) — ตามลำดับจริงของ `docs/tech/F04-dungeon-presence.md` §10.4: ลบทุก key ที่ขึ้นต้น `app.privacy.localData.storageKeyPrefix` ก่อน แล้วเขียน ring buffer ใหม่ที่มี event นี้เป็น**บรรทัดแรกบรรทัดเดียว** จากนั้นโหลดหน้าใหม่เข้า onboarding
+- **properties:** ไม่มี (object ว่าง)
+- **privacy:** ไม่มีพิกัด ไม่มี property ใดเลย
+- **หมายเหตุพิเศษ (แก้จากฉบับก่อน):** event นี้**ไม่ได้ถูกล้างไปพร้อมกัน** — มันคือเมล็ดพันธุ์ของ ring buffer ใหม่ จึงเป็นบรรทัดแรกของไฟล์ export ครั้งถัดไปเสมอ (ต่างจากที่ร่างก่อนหน้านี้เข้าใจผิดว่าถูกลบตัวเองด้วย) ใช้ทั้งเป็นสัญญาณ e2e/QA และเป็นจุดอ้างอิงว่า session ไหนเริ่มหลังการลบข้อมูล (แต่ยังนับ "อัตราการลบ" แบบ aggregate ข้ามผู้เล่นไม่ได้ เพราะแต่ละไฟล์ export เห็นเฉพาะเครื่องตัวเอง)
 
 ## 3. หมวด Places / core loop (run state)
 
@@ -131,14 +130,15 @@ Phase 2 มีสองชั้น: ค่าที่เก็บ**ในเ�
 - **properties:** `dungeon_id`, `roles_present` (list ของ role ที่มีคนอยู่ — **Phase 2 เป็น `[]` เสมอ** เพราะไม่มี Nearby Party จริง (F09/Phase 3, D-089 ซ่อนจำนวนคนทุกจุด) เก็บ schema ไว้ล่วงหน้า), `overlap` (bool — จริงใน Phase 2, มาจาก F04-R03), `vs_boss_choice_available` (bool — **Phase 2 เป็น `false` เสมอ**, raid card choice เป็น F16–F18/Phase 6)
 - **privacy:** `dungeon_id` คือสถานที่ ไม่ใช่พิกัดผู้เล่น
 
-### `checkin_rejected` *(ใหม่ — F04-R07/R08, GD B-03)*
-- **ยิงเมื่อ:** ผู้เล่นกด "เข้า" แต่ engine ปฏิเสธ check-in (popup ยังเปิดอยู่ ปุ่มยัง disable)
-- **properties:** `dungeon_id`, `reason` (enum `speed_lock`\|`poor_accuracy`\|`not_enough_trace`\|`no_approach_from_outside` — ลำดับความสำคัญเดียวกับที่ engine ตัดสินใน F04-R08 คือ speed_lock มาก่อนเสมอถ้าเข้าเงื่อนไขพร้อมกัน)
+### `checkin_rejected` *(F04-R07/R08, GD B-03 — reason ยึดตาม `docs/tech/F04-dungeon-presence.md` §2.5)*
+- **ยิงเมื่อ:** ผู้เล่นกด "เข้า" แต่ engine ปฏิเสธ check-in ที่ `confirm` (popup ยังเปิดอยู่ ปุ่มยัง disable)
+- **properties:** `dungeon_id`, `reason` (enum `speed_lock`\|`poor_accuracy`\|`not_enough_trace`\|`no_approach_from_outside`\|`dungeon_closed`\|`run_active`\|`unsupported_mode`)
 - **privacy:** ไม่มีพิกัด ไม่เอ่ยคำว่า anti-cheat/โกงใน copy ที่ผู้เล่นเห็น (F04-R10) แต่ telemetry เก็บ reason ตรงๆ ได้เพราะเป็น internal event ไม่ใช่ copy
+- **แก้จากร่างก่อน:** ขยาย `reason` จาก 4 เป็น 7 ค่าให้ตรงกับ engine จริง — เพิ่ม `dungeon_closed` (dungeon ปิดพอดีตอนกด), `run_active` (มี run อื่นอยู่แล้ว, F04-R01), `unsupported_mode` (`verification_mode` อื่นนอก `continuous_gps`, ADR 0003 §7 — ไม่ควรเกิดใน Phase 2 เพราะ dungeon นำร่องทั้งหมดเป็น `continuous_gps` แต่ใส่ไว้กันโค้ดพัง)
 - **ใช้ตอบคำถามค้าง:** PRD F04 §6 ข้อ "สัดส่วนคนที่เจอ `no_approach_from_outside` ครั้งแรกและเวลาที่เสียไป" (คำนวณจากคู่ `checkin_rejected` ก่อนหน้ากับ `dungeon_entered` ที่สำเร็จของ `dungeon_id` เดียวกัน)
 
 ### `dungeon_entered`
-- **ยิงเมื่อ:** engine ยืนยันเข้า run สำเร็จ (Flow B5, F04 T3) — `run_id` ใหม่เริ่มที่ event นี้
+- **ยิงเมื่อ:** engine ยืนยันเข้า run สำเร็จ (Flow B5, F04 T3) — event นี้คือจุดเริ่มของ run ใหม่ (engine มี `run.runId` ภายใน แต่ envelope ของ telemetry ไม่มี field แยก ดูหัวข้อ 1.1)
 - **properties:** `dungeon_id`, `entry_type` (enum `normal`\|`overlap_choice`\|`raid_choice` — `raid_choice` เป็น schema ล่วงหน้า Phase 6 เข้าไม่ถึงใน Phase 2), `party_size_at_entry_bucket` (enum `1`, `2`, `3`, `4+` — **Phase 2 เป็น `1` เสมอ**)
 - **privacy:** ไม่มีพิกัด
 
@@ -158,16 +158,34 @@ Phase 2 มีสองชั้น: ค่าที่เก็บ**ในเ�
 - **แก้จาก Phase 1:** `exit_reason` เปลี่ยนจาก `completed`\|`auto_retreat`\|`died`\|`manual_exit`\|`closed_by_moderator` เป็นชุดที่ตรงกับ F04-R17 ทุกตัว (ไม่มี "completed" เพราะ run ไม่มีเพดานเวลา F05-R28 — จบได้แค่ตามเหตุในตาราง) `suspended_by_reports` เป็น schema ล่วงหน้า (F13–F15/Phase 5, engine รองรับ D-059 แล้วแต่ไม่มีทางเรียกนอก test ใน Phase 2 ตาม F04 §6) เพิ่ม `partial_tick_applied`, `page_hidden_total_s_bucket`, `wake_lock_engaged_share_bucket` แทนการเปิด event แยกต่อการ toggle (ประหยัดความจุ ring buffer ตามหัวข้อ 8 ข้อ 1) เพิ่ม `class` ตามคำขอ segment ผลตาม class
 - **privacy:** ไม่มีพิกัด
 
+### `run_state_changed` *(ใหม่ — ยึดตาม `docs/tech/F04-dungeon-presence.md` §2.5, ครอบเฉพาะวงจร Active/Grace/Suspended)*
+- **ยิงเมื่อ:** run เปลี่ยนสถานะระหว่าง `active`/`grace`/`suspended` (F04 transition T6, T7, T8 — **ไม่ครอบ** T1–T5 ก่อนมี run และ T9–T10 ที่จบเป็น `dungeon_exited` และ T11–T12 ที่เป็น `anticheat_speed_lock_triggered`) — ยิงด้วยเวลาที่ backdate แล้วตาม F04-R14
+- **properties:** `dungeon_id`, `from` (enum `active`\|`grace`\|`suspended`), `to` (enum เดียวกัน), `cause` (enum `left_polygon`\|`no_evidence`\|`returned`\|`grace_expired`)
+- **privacy:** ไม่มีพิกัด
+- **ใช้ทำอะไร:** ตอบคำถาม PRD F04 §4 "อัตราการสลับ state ถี่ผิดปกติระหว่างเดินเลียบขอบจริง" ด้วย event อัตโนมัติแทนการพึ่งบันทึกผู้สังเกตอย่างเดียว (นับจำนวน `run_state_changed` ต่อ run ต่อนาที เทียบเกณฑ์ "ไม่เกิน 1 ครั้งต่อ 5 นาทีต่อการเดินเลียบขอบต่อเนื่อง")
+
+### `dungeon_closing_soon_notified` *(ใหม่ — F04-R29)*
+- **ยิงเมื่อ:** แจ้งเตือนใกล้ปิด (ครั้งเดียวต่อ run ตามที่ engine ส่ง `dungeon_closing_soon`)
+- **properties:** `dungeon_id`
+- **privacy:** ไม่มีพิกัด — ไม่เก็บ `closes_in_s` เพราะเป็นค่าคงที่เดียวกับ `config: dungeons.openingHours.closingSoonNotice_s` เสมอ (ไม่มีข้อมูลใหม่)
+
+### `navigation_link_opened` *(ใหม่ — F04-R37, D-089 เงื่อนไข A-3/D-089)*
+- **ยิงเมื่อ:** ผู้เล่นกดปุ่มนำทางเปิดแอปแผนที่ภายนอก
+- **properties:** `dungeon_id`, `target` (enum `google_maps`\|`apple_maps`\|`copy_fallback`), `fallback_auto` (bool — จริงเมื่อ client เลือก fallback ให้เองเพราะเปิด deep link ไม่สำเร็จ)
+- **privacy:** ไม่มีพิกัด ไม่มีตำแหน่งผู้เล่นใน URL (F04-R37 — ลิงก์มีแค่ปลายทางสาธารณะ)
+
 ### `run_tick_granted`
 - **ยิงเมื่อ:** ผ่าน movement gate ในหน้าต่าง `config: dungeons.movementGate.window_s` (multi-purpose event — ฐานของ north star proxy Phase 2 ตาม `product/metrics.md` §1.1, GR-11, และของ Places/Social/Economy ในอนาคตเพื่อไม่เพิ่มจำนวน event ตามหัวข้อ 8)
-- **properties:** `dungeon_id`, `party_size_bucket` (enum `1`, `2`, `3`, `4+` — **Phase 2 เป็น `1` เสมอ**), `full_role` (bool — **Phase 2 เป็น `false` เสมอ** ไม่มี party จริง), `roles_present` (list — **Phase 2 เป็น `[]` เสมอ**), `partial_tick` (bool — จริงเมื่อเป็น tick บางส่วนของ D-059 ที่ผ่านเกณฑ์ย่อ F05-R22), `class` (enum เหมือนด้านบน)
+- **properties:** `dungeon_id`, `party_size_bucket` (enum `1`, `2`, `3`, `4+` — **Phase 2 เป็น `1` เสมอ**), `full_role` (bool — **Phase 2 เป็น `false` เสมอ** ไม่มี party จริง), `roles_present` (list — **Phase 2 เป็น `[class ตัวเอง]` เสมอ** เช่น `["tanker"]` ไม่ใช่ `[]` เพราะ "role ที่อยู่ในดันตอนนี้" นับตัวเองด้วย — ต่างจาก `dungeon_confirm_shown.roles_present` ที่เป็น `[]` เพราะยังไม่เข้า), `partial` (bool — จริงเมื่อเป็น tick บางส่วนของ D-059 ที่ผ่านเกณฑ์ย่อ F05-R22, ชื่อ property ตรงกับ field ภายในของ engine เป๊ะ), `class` (enum เหมือนด้านบน — ซ้ำกับสมาชิกเดียวใน `roles_present` โดยตั้งใจ เพื่อ segment ง่ายโดยไม่ต้อง parse list)
 - **privacy:** ไม่มีพิกัด ไม่มีระยะทางจริง (แค่ผ่าน/ไม่ผ่าน)
 - **นี่คือ event ที่ north star proxy ของ Phase 2 คำนวณจากโดยตรง** (`product/metrics.md` §1.1, PRD F05 §4) — ต้องมาจาก reducer เดียวกับที่ตัดสินรางวัลจริงเท่านั้น (`packages/shared/src/reward`) ห้ามมี write path แยก
+- **แก้จากร่างก่อน:** เปลี่ยนชื่อ `partial_tick` → `partial` และแก้ `roles_present` จาก `[]` เป็น `[class ตัวเอง]` ให้ตรงกับ `docs/tech/F04-dungeon-presence.md` §12.3 (mapper ที่ tech-lead ระบุไว้แล้ว)
 
 ### `run_tick_denied`
 - **ยิงเมื่อ:** ไม่ผ่าน movement gate ในหน้าต่างนั้น (`design/features/F05-movement-gate-reward.md` F05-R08 — ไม่ใช่การลงโทษ)
-- **properties:** `dungeon_id`, `class`
+- **properties:** `dungeon_id`, `class`, `partial` (bool — จริงเมื่อเป็นหน้าต่างที่ถูกประเมินแบบย่อของ D-059 และยังไม่ผ่านเกณฑ์ย่อ F05-R22 เช่นกรณี E10 ปิดตอนหน้าต่างค้าง 59 วินาที)
 - **privacy:** ไม่มีพิกัด
+- **แก้จากร่างก่อน:** เพิ่ม `partial` ตามคำขอของ tech-lead ให้สมมาตรกับ `run_tick_granted` (ตารางเหตุการณ์ของ engine ในเอกสารเทคนิคระบุแค่ `dungeonId`, `tickIndex` สำหรับ event นี้ แต่ tech-lead ยืนยันเพิ่มเติมโดยตรงว่าต้องมี `partial` ด้วยทั้งสอง event)
 
 ### `run_hp_low`
 - **ยิงเมื่อ:** HP ถึง `config: dungeons.hpSafety.lowHpWarningThreshold_pct` (F06-R14 — ครั้งเดียวต่อการลงผ่านเส้น, ติดอาวุธใหม่เมื่อขึ้นเหนือเส้น)
@@ -195,18 +213,24 @@ Phase 2 มีสองชั้น: ค่าที่เก็บ**ในเ�
 - **properties:** `dungeon_id`, `item_id` (enum `hpSmall`\|`hpMedium`\|`hpLarge` ตาม `config: economy.autoPotion.defaultPotionOrder` — ของจาก content ไม่ใช่ตำแหน่ง)
 - **privacy:** ไม่มีพิกัด
 
-### `anticheat_speed_lock_triggered` *(ใหม่ — F04-R20/R22/R24, GD B-02)*
-- **ยิงเมื่อ:** เข้าหรือออกสถานะ speed lock (overlay ซ้อนได้ทุกสถานะที่ไม่ใช่ Ended รวมตอน Browsing/ConfirmOpen ก่อนมี run — F04 หัวข้อ 4)
-- **properties:**
-  | key | ประเภท | ค่าที่เป็นไปได้ |
-  | --- | --- | --- |
-  | `transition` | enum | `locked`\|`unlocked` |
-  | `location_context` | enum | `inside_polygon`\|`outside_polygon` — อยู่ในหรือไม่ในเขต dungeon ใดๆ ตอน transition |
-  | `dungeon_id` | string \| null | มีค่าเฉพาะ `location_context=inside_polygon` (สถานที่ ไม่ใช่ตำแหน่งผู้เล่น) |
-  | `run_state_at_trigger` | enum | `browsing`\|`confirm_pending`\|`active`\|`grace`\|`suspended` |
+### `anticheat_speed_lock_triggered` *(F04-R20/R22/R24, GD B-02 — property ยึดตาม `docs/tech/F04-dungeon-presence.md` §2.5)*
+- **ยิงเมื่อ:** เข้าหรือออกสถานะ speed lock (overlay ซ้อนได้ทุกสถานะที่ไม่ใช่ Ended รวมตอน Browsing/ConfirmOpen ก่อนมี run — F04 หัวข้อ 4, engine T11/T12)
+- **properties:** `phase` (enum `enter`\|`exit`), `in_run` (bool — มี run อยู่ตอน trigger หรือไม่), `dungeon_id` (string \| null — มีค่าเมื่ออยู่ในเขต dungeon ใดๆ ตอน trigger, null เมื่ออยู่นอกทุก polygon)
 - **privacy:** ไม่มีพิกัด `dungeon_id` เป็นสถานที่ไม่ใช่ตำแหน่งผู้เล่น
-- **เหตุผลของ `location_context`:** ตอบคำถามค้างของ game-director ใน F04 §10 ("จักรยานในสวนถูก lock ตาม GDD เป็นความตั้งใจ · product-manager เฝ้าจำนวน lock ภายใน polygon ใน playtest") — คำนวณสัดส่วน `location_context=inside_polygon` ได้ตรงจาก event นี้โดยไม่ต้องมี property อื่นเพิ่ม
-- **ใช้ปลด unlock:** `config: unlocks.antiCheatHelp.unlockOnEvents` มี `speedLockTriggered` อ้างถึง event นี้ (ชื่อ internal ของ engine ต่างจากชื่อ telemetry แต่หมายถึงเหตุการณ์เดียวกัน — ยืนยัน: tech-lead ตอนต่อ reducer จริงกับ sink)
+- **แก้จากร่างก่อน:** เปลี่ยนจาก `transition`/`location_context`/`run_state_at_trigger` (3 property ที่ผมออกแบบเอง) เป็น `phase`/`in_run`/`dungeon_id` ให้ตรงกับ field ภายในของ engine เป๊ะ (ลด translation table ตามที่ tech-lead ขอ) — **`dungeon_id != null` ตอบคำถามค้างของ game-director ได้ตรงอยู่แล้ว** ("จักรยานในสวนถูก lock เป็นความตั้งใจ · เฝ้าจำนวน lock ภายใน polygon") โดยไม่ต้องมี property แยกต่างหาก
+- **ใช้ปลด unlock:** `config: unlocks.antiCheatHelp.unlockOnEvents` มี `speedLockTriggered` อ้างถึง event นี้ (ชื่อ internal ของ engine)
+
+### `session_state_discarded` *(ใหม่ — `docs/tech/F04-dungeon-presence.md` §10.2)*
+- **ยิงเมื่อ:** เปิดแอปแล้วอ่าน state ที่เก็บในเครื่องไม่ได้ ต้องทิ้งแล้วเริ่มใหม่
+- **properties:** `reason` (enum `corrupt`\|`schema_mismatch`\|`unknown_dungeon`)
+- **privacy:** ไม่มีพิกัด
+- **หมายเหตุ:** ผู้เล่นเสีย progress ต้นแบบของ Phase 2 เท่านั้น (ไม่ใช่รางวัลจริง, C1-5) event นี้ช่วย QA แยกว่า "หายเพราะบั๊ก storage" กับ "หายเพราะลบข้อมูลเอง" (`local_data_cleared`)
+
+### `storage_quota_exceeded` *(ใหม่ — `docs/tech/F04-dungeon-presence.md` §10.4)*
+- **ยิงเมื่อ:** เขียน `localStorage` ล้มเหลว (`QuotaExceededError` เช่น Safari private mode ที่ quota 0)
+- **properties:** `evicted` (enum `telemetry_half`\|`telemetry_all`\|`none` — ระดับการลดที่ engine พยายามก่อนจะยอมเก็บ session ไว้ในหน่วยความจำอย่างเดียวและตั้งธง `storageDegraded`)
+- **privacy:** ไม่มีพิกัด
+- **หมายเหตุ:** event นี้เองก็เสี่ยงเขียนไม่สำเร็จถ้า storage เต็มจริง — เป็นความพยายามที่ดีที่สุด (best-effort) ไม่ใช่การรับประกันว่าจะเห็นทุกครั้งที่ storage เต็ม
 
 ### `run_gps_status_changed`
 - **ยิงเมื่อ:** state ของ `LocationProvider` เปลี่ยน ตรงกับ `gps.*` copy key ใน `design/ux/flows/F03-core-loop.md` §9.5
@@ -278,24 +302,19 @@ Phase 2 มีสองชั้น: ค่าที่เก็บ**ในเ�
 
 ### `wake_lock_state_changed` *(ใหม่ — P2-F06-T14, D-063)*
 - **ยิงเมื่อ:** สถานะ Wake Lock เปลี่ยน (ขอตอนเข้า run, ปล่อยตอนออก run/พับแอป, หรือถูกระบบดึงคืนเอง)
-- **properties:** `state` (enum `granted`\|`request_denied`\|`released`\|`unsupported`)
-- **privacy:** ไม่มีพิกัด — ผูกกับ `run_id` ผ่าน envelope (หัวข้อ 1) ไม่ต้องมี property ซ้ำ
+- **properties:** `state` (enum `granted`\|`request_denied`\|`released`\|`unsupported`), `dungeon_id` (nullable — dungeon ของ run ที่กำลังขอ/ปล่อย ถ้ามี ใช้เชื่อมกับ `dungeon_entered`/`dungeon_exited` แทนที่จะมี `run_id` แยก เพราะ envelope ไม่มี field นั้น หัวข้อ 1.1)
+- **privacy:** ไม่มีพิกัด
 - **หมายเหตุ:** ความถี่ต่ำ (ไม่กี่ครั้งต่อ run) จึงไม่ต้องรวมกับ `dungeon_exited` แบบ `page_hidden_total_s_bucket` — เก็บเป็น event แยกเพื่อรู้สัดส่วนอุปกรณ์ที่ขอไม่ผ่าน (`request_denied`/`unsupported`) ซึ่งเป็นข้อมูลระดับอุปกรณ์ ไม่ใช่ระดับ run
 
 ## 8. Ring buffer ในเครื่องและข้อกำหนดการ export (แทนที่หัวข้อเพดาน free tier ของ Phase 1)
 
-Phase 1 เขียนหัวข้อนี้โดยสมมติว่ามี backend รับ telemetry (เพดาน rows written 100,000/วันของ Durable Object) **Phase 2 ไม่มี server รับ telemetry เลย** (D-088) เพดานที่แทนที่คือ**ความจุ ring buffer ในเครื่อง** เอกสารนี้กำหนดเงื่อนไขที่ tech-lead/backend-programmer ต้องออกแบบตาม ไม่ใช่ตัดสินสถาปัตยกรรมเอง:
+Phase 1 เขียนหัวข้อนี้โดยสมมติว่ามี backend รับ telemetry (เพดาน rows written 100,000/วันของ Durable Object) **Phase 2 ไม่มี server รับ telemetry เลย** (D-088) เพดานที่แทนที่คือ**ความจุ ring buffer ในเครื่อง** ซึ่ง tech-lead ได้ตัดสินและ implement ไว้แล้วใน `docs/tech/F04-dungeon-presence.md` §12 และ `config/app/telemetry.json#localSink`/`#export`:
 
-1. **`run_tick_granted`/`run_tick_denied` ห้ามเป็น record เขียนแยกจาก reward tick ของเกม** — ต้อง derive จาก record เดียวกันของ reducer (`packages/shared/src/reward`) เหตุผลเปลี่ยนจาก "เพดาน backend" เป็น "ห้ามให้ event ความถี่สูงที่สุดในระบบ (ทุก `window_s` ต่อผู้เล่นที่กำลังเล่น) เบียดพื้นที่ ring buffer จน evict event ที่มีค่าต่อการวินิจฉัยมากกว่า" (`checkin_rejected`, `anticheat_speed_lock_triggered`, event หมวด Onboarding) ก่อนที่ผู้เล่นจะกด export
-2. **เสนอ key ใหม่ให้ tech-lead ใน P2-F04-T14 (`config/app/telemetry.json`):**
-   | key ที่เสนอ | ใช้ทำอะไร |
-   | --- | --- |
-   | `telemetry.ringBuffer.maxEntriesHighFrequency` | เพดานจำนวน entry ของหมวดความถี่สูง (`run_tick_granted`, `run_tick_denied`) — evict เก่าสุดก่อน (FIFO) เมื่อเต็ม |
-   | `telemetry.ringBuffer.maxEntriesDiagnostic` | เพดานแยกของหมวดที่เหลือทั้งหมด (onboarding, places ที่ไม่ใช่ tick, guardrail) — แยก buffer จาก tick โดยเจตนา ตามข้อ 1 |
-   | `telemetry.export.timeBase` | ค่าคงที่ `run_start` — ยืนยันว่า export ใช้เวลาสัมพัทธ์จากต้น run เสมอ (กติกาข้อ 6) ไม่ใช่ค่าที่ปรับได้จริง แต่ประกาศเป็น config เพื่อให้ config lint ตรวจว่าไม่มีที่อื่นเขียนทับ |
-3. **Export บอกจำนวนที่หายไปจาก eviction** — ถ้ามี entry ถูก evict ก่อน export ไฟล์ export ต้องมี meta field ระดับไฟล์ (ไม่ใช่ event) เช่น `ring_buffer_events_dropped_count` เพื่อให้ QA รู้ว่าข้อมูลหายไปบางส่วน ไม่ใช่ค่าจริงครบ 100%
-4. **ไม่มี auto-upload หรือ beacon เป็นระยะใดๆ** — export เป็นไฟล์ดาวน์โหลดคือทางเดียวที่ข้อมูลออกจากเครื่อง (D-088, C2-1: origin ที่อนุญาตใน `config/app/client.json` ไม่มี origin ของ telemetry ingest)
-5. **เมื่อ Phase 3 นำ server telemetry กลับมา (F08):** ข้อกำหนดเดิมของ Phase 1 เรื่องเพดาน backend rows written (`docs/adr/0002-backend-stack.md` หัวข้อ 4–5, ~650–666 ผู้เล่น-ชั่วโมง/วัน) และ pipeline batch export ยังใช้ได้ทั้งหมด — เอกสารนี้ไม่ได้ลบทิ้ง แค่ระงับจนกว่าจะมี server ให้ apply จริง [ASSUMPTION A-P2-F04-T17-4: รายละเอียด pipeline ของ Phase 3 กลับมาทบทวนตอน F08 เริ่ม ไม่ใช่ตอนนี้ ยืนยัน: tech-lead]
+1. **`run_tick_granted`/`run_tick_denied` ห้ามเป็น record เขียนแยกจาก reward tick ของเกม** — derive จาก record เดียวกันของ reducer (`packages/shared/src/reward`) เหตุผล: ไม่ให้ event ความถี่สูงที่สุดในระบบ (ทุก `window_s` ต่อผู้เล่นที่กำลังเล่น) เบียดพื้นที่ ring buffer จน evict event ที่มีค่าต่อการวินิจฉัยมากกว่า (`checkin_rejected`, `anticheat_speed_lock_triggered`, event หมวด Onboarding) ก่อนที่ผู้เล่นจะกด export
+2. **ค่าจริงที่ใช้แล้ว** (`config/app/telemetry.json#localSink`): `ringBufferMaxEvents` = 3000, `ringBufferMaxChars` = 600,000 (ความยาว JSON), `evictionOrder` = `oldestFirst` (ทิ้งเก่าสุดก่อนเมื่อเกินเพดานใดเพดานหนึ่ง), `persistInterval_s` = 10 (เขียนลง `localStorage` ไม่ถี่กว่านี้ บวกทุกครั้งที่ `pagehide`/hidden), `networkUploadAllowed` = `false` — เป็น buffer เดียว (ไม่แยกความถี่สูง/วินิจฉัยตามที่ผมเคยเสนอ) tech-lead เลือกความเรียบง่ายของ implementation แทน ข้อ 1 ยังคุมความเสี่ยงได้เพราะ `run_tick_granted`/`run_tick_denied` ไม่ได้เขียนถี่ผิดปกติอยู่แล้ว (คนหนึ่งคนได้มากสุด 1 event ต่อ `window_s` ต่อ run)
+3. **Export** (`config/app/telemetry.json#export`): รูปแบบ JSONL, `mimeType: application/x-ndjson`, ชื่อไฟล์ `kw-p2-telemetry-<8 hex สุ่ม>.jsonl` (ไม่มีวันที่) แต่ละบรรทัดมีแค่ `event_name`, `t_rel_ms`, `session_id`, `platform`, `app_version`, `properties` (หัวข้อ 1.2) — ด่านก่อนสร้างไฟล์ตัด `forbiddenPropertyNames` และค่าคล้ายพิกัดทิ้งอัตโนมัติ (นับจำนวนที่ตัดใน HUD)
+4. **ไม่มี auto-upload หรือ beacon เป็นระยะใดๆ** — export เป็นไฟล์ดาวน์โหลดคือทางเดียวที่ข้อมูลออกจากเครื่อง (D-088, C2-1: ไม่มี origin ของ telemetry ingest ใน `config/app/client.json`)
+5. **เมื่อ Phase 3 นำ server telemetry กลับมา (F08):** ข้อกำหนดเดิมของ Phase 1 เรื่องเพดาน backend rows written (`docs/adr/0002-backend-stack.md` หัวข้อ 4–5, ~650–666 ผู้เล่น-ชั่วโมง/วัน) และ pipeline batch export ยังใช้ได้ทั้งหมด — เอกสารนี้ไม่ได้ลบทิ้ง แค่ระงับจนกว่าจะมี server ให้ apply จริง (`config/app/telemetry.json#localSink._note`: "Phase 3 replaces the transport ... and removes these keys") [ASSUMPTION A-P2-F04-T17-4: รายละเอียด pipeline ของ Phase 3 กลับมาทบทวนตอน F08 เริ่ม ไม่ใช่ตอนนี้ ยืนยัน: tech-lead]
 
 ## 9. ตารางสรุปทุก event ตาม phase
 
@@ -307,21 +326,26 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 | `onboarding_empty_screen_shown` | Onboarding | 2 (reason ใหม่) | — |
 | `onboarding_empty_screen_abandoned` | Onboarding | 2 (reason ใหม่) | — |
 | `interest_registered_outside_area` | Onboarding | 2 (ขยาย scope/area_name) | — |
-| `local_data_deleted` | Onboarding (ควบคุมข้อมูล) | 2 | ใหม่ — เพื่อ e2e เท่านั้น |
+| `local_data_cleared` | Onboarding (ควบคุมข้อมูล) | 2 | ไม่มี property — เป็นบรรทัดแรกของ export ครั้งถัดไป |
 | `dungeon_confirm_shown` | Places | 2 | — |
-| `checkin_rejected` | Places | 2 | ใหม่ |
+| `checkin_rejected` | Places | 2 | reason 7 ค่า ตรง engine |
 | `dungeon_entered` | Places | 2 | — |
 | `dungeon_exited` | Places | 2 (exit_reason ใหม่ + property เพิ่ม) | — |
-| `run_tick_granted` | Places/north star proxy | 2 | ฐาน north star proxy |
-| `run_tick_denied` | Places/north star proxy | 2 | — |
+| `run_state_changed` | Places | 2 | ใหม่ — เฉพาะวงจร active/grace/suspended |
+| `dungeon_closing_soon_notified` | Places | 2 | ใหม่ |
+| `navigation_link_opened` | Places | 2 | ใหม่ |
+| `run_tick_granted` | Places/north star proxy | 2 | ฐาน north star proxy, `partial` |
+| `run_tick_denied` | Places/north star proxy | 2 | `partial` |
 | `run_hp_low` | Places | 2 (+class) | — |
 | `run_auto_retreat` | Places | 2 (+class, +minutes_since_run_start_bucket) | — |
 | `run_death` | Places | 2 (นิยามแก้ตาม D-078) | เกิดเฉพาะปิด auto-retreat |
 | `auto_retreat_setting_changed` | Places | 2 | ใหม่ |
 | `run_potion_auto_used` | Places | 2 | ใหม่ |
-| `anticheat_speed_lock_triggered` | Places | 2 | ใหม่ |
+| `anticheat_speed_lock_triggered` | Places | 2 | `phase`/`in_run`/`dungeon_id` ตรง engine |
 | `run_gps_status_changed` | Places | 2 | — |
 | `dungeon_report_submitted` | Places | 2 (queue เต็มรูปรอ F13/F15) | — |
+| `session_state_discarded` | Places (ความน่าเชื่อถือ) | 2 | ใหม่ |
+| `storage_quota_exceeded` | Places (ความน่าเชื่อถือ) | 2 | ใหม่ |
 | `battery_sample` | Guardrail (แบต) | 2 (`web_android` เท่านั้น) | — |
 | `wake_lock_state_changed` | Guardrail (จอ) | 2 | ใหม่ |
 | `party_formed` | Social | 3 (F09) | — |
@@ -341,9 +365,11 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 - A-P2-F04-T17-4: pipeline server telemetry ของ Phase 3 (F08) กลับมาทบทวนรายละเอียดตอน F08 เริ่ม ไม่ใช่ตอนนี้ (ยืนยัน: tech-lead)
 - A-P2-F04-T17-5: `amount_bucket` ของ event หมวด Economy ใช้ bucket แทนตัวเลขจริงเพื่อลด cardinality ยกเว้น `economy_potion_price_observed`/`market_trade_completed` ที่ใช้ราคาจริง (ราคาสาธารณะของไอเทม ไม่ใช่ transaction ต่อบัญชี) — สืบทอดจาก A-P1-F03-T19-5 ไม่เปลี่ยน (ยืนยัน: tech-lead, systems-designer)
 - A-P2-F04-T17-6: `dungeon_report_submitted.reason_category` เป็น enum ที่ยังไม่ถูกกำหนดค่าจริง (รอ F13) — สืบทอดจาก A-P1-F03-T19-6 ไม่เปลี่ยน (ยืนยัน: narrative-designer, game-director)
-- A-P2-F04-T17-7: `run_state_at_trigger` ของ `anticheat_speed_lock_triggered` และ `location_context` ต้องตรงกับ state machine จริงของ reducer ใน `packages/shared`/`packages/geo` (P2-F04-T05/T20) — ถ้าโครงสร้าง state ต่างจากนี้ ให้ tech-lead handoff กลับมาแก้ชื่อ enum แทนที่จะเปลี่ยนฝั่ง telemetry เงียบๆ (ยืนยัน: tech-lead, gameplay-programmer, backend-programmer)
+- A-P2-F04-T17-7 (**ปิดแล้ว**): `docs/tech/F04-dungeon-presence.md` §2.5/§12.3 (P2-F04-T14) ยืนยัน field ภายในของ engine สำหรับ `anticheat_speed_lock_triggered` = `phase`/`inRun`/`dungeonId` แล้ว — เอกสารนี้ปรับตามในหัวข้อ 3 (เดิมออกแบบ `transition`/`location_context`/`run_state_at_trigger` เอง ตอนที่ยังไม่มี tech note)
+- A-P2-F04-T17-8: `run_state_changed` ครอบเฉพาะวงจร active/grace/suspended (T6–T8 ของ F04) ไม่ครอบ T1–T5/T11–T12 ตามที่ engine ออกแบบไว้จริง — ถ้า QA/game-director ต้องการเห็น T1–T5 (Browsing→ConfirmOpen→CheckInPending) ด้วย ต้องเป็น event เพิ่มคนละตัว ไม่ใช่ขยาย enum นี้ (ยืนยัน: tech-lead, qa-tester)
+- A-P2-F04-T17-9: `run_tick_denied.partial` ไม่อยู่ในตาราง `SessionEvent` ของ tech note (§2.5 ระบุแค่ `dungeonId`, `tickIndex`) แต่ tech-lead ขอเพิ่มโดยตรงในข้อความ handoff — ยึดตามคำขอโดยตรงนั้น (ใหม่กว่าตาราง) ถ้า mapper จริงพบว่า engine ไม่ส่ง `partial` มาด้วยสำหรับ tick ที่ไม่ผ่าน ให้ tech-lead handoff กลับมาแก้ (ยืนยัน: tech-lead, backend-programmer)
+
+**ข้อแตกต่างจากชื่อที่ tech-lead เสนอในข้อความ handoff (ตามที่อนุญาตให้ "keep your choice and list the difference"):** ไม่มี — ทุกชื่อ event และ property ที่ tech-lead ระบุ (`checkin_rejected`, `run_state_changed`, `anticheat_speed_lock_triggered`, `dungeon_closing_soon_notified`, `navigation_link_opened`, `session_state_discarded`, `storage_quota_exceeded`, `local_data_cleared`, `partial`) ถูกนำมาใช้ตรงตัวในเอกสารฉบับนี้แล้ว ส่วนที่ต่างจากร่างเดิมของผมเอง (ก่อนเห็น tech note) คือ property ของ `anticheat_speed_lock_triggered` (ดู A-P2-F04-T17-7) และ `roles_present`/`partial` ของ `run_tick_granted` ซึ่งแก้ตามตารางแล้วเช่นกัน
 
 ### คำถามค้าง (ไม่ขวาง Phase 2)
-- Q-T17-1: โครงสร้าง ring buffer ควรแยกเป็นสอง buffer ตามข้อเสนอในหัวข้อ 8 ข้อ 2 หรือใช้ buffer เดียวพร้อม priority/weight ต่อ event — ส่งต่อ tech-lead ตัดสินใจเชิงสถาปัตยกรรมใน P2-F04-T14 (ไม่ใช่ของ product-manager)
-- Q-T17-2: รูปแบบไฟล์ export จริง (CSV คอลัมน์เดียวกับ GPS trace export หรือ JSON แยกไฟล์) ส่งต่อ tech-lead — ข้อกำหนดของ product-manager มีแค่ field ที่ต้องมี/ห้ามมีตามหัวข้อ 1.2
 - Q-T17-3: `wake_lock_engaged_share_bucket` ควรคำนวณจากเวลาที่ "ขอสำเร็จ" หรือเวลาที่ "ถืออยู่จริงไม่ถูกระบบดึงคืน" (สองค่าต่างกันถ้าเบราว์เซอร์ปล่อย wake lock เองตอน tab ไม่ active) — ส่งต่อ gameplay-programmer/tech-lead ยืนยันตอน build P2-F06-T14

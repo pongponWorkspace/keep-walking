@@ -1,0 +1,688 @@
+{
+  "formula": "check-in",
+  "vectors": [
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 60000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.73005846, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.73011691, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.73017537, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.73023382, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.73029228, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.73035073, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.73040919, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.73046765, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.7305261, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 50000, "lat": 13.73058456, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 55000, "lat": 13.73064301, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 60000, "lat": 13.73070147, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 65000, "lat": 13.73075993, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73081838, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73087684, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73093529, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73099375, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.7310522, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "reason": null,
+        "readyIn_s": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · walked in from outside for exactly minContinuousApproach_s (60 s), last sample inside, accuracy 6 m: ok"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 55000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.73005846, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.73011691, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.73017537, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.73023382, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.73029228, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.73035073, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.73040919, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.73046765, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.7305261, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 50000, "lat": 13.73058456, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 55000, "lat": 13.73064301, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 60000, "lat": 13.73070147, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 65000, "lat": 13.73075993, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73081838, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73087684, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73093529, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73099375, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.7310522, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "not_enough_trace",
+        "readyIn_s": 5
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · same walk at 55 s: not_enough_trace, readyIn_s 5 (R09 countdown)"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 60000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.73005846, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.73011691, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.73017537, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.73023382, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.73029228, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.73035073, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.73040919, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.73046765, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.7305261, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 50000, "lat": 13.73058456, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 55000, "lat": 13.73064301, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 60000, "lat": 13.73070147, "lng": 100.5415, "accuracy_m": 35, "inside": true },
+          { "t_ms": 65000, "lat": 13.73075993, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73081838, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73087684, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73093529, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73099375, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.7310522, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "poor_accuracy",
+        "readyIn_s": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · E6: last sample accuracy 35 m: poor_accuracy"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 60000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.73005846, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.73011691, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.73017537, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.73023382, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.73029228, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.73035073, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.73040919, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.73046765, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.7305261, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 50000, "lat": 13.73058456, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 55000, "lat": 13.73064301, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 60000, "lat": 13.73070147, "lng": 100.5415, "accuracy_m": 30, "inside": true },
+          { "t_ms": 65000, "lat": 13.73075993, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73081838, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73087684, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73093529, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73099375, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.7310522, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "poor_accuracy",
+        "readyIn_s": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · E6: accuracy exactly maxAccuracy_m (30 m) is rejected (strict less-than)"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 60000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.73005846, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.73011691, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.73017537, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.73023382, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.73029228, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.73035073, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.73040919, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.73046765, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.7305261, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 50000, "lat": 13.73058456, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 55000, "lat": 13.73064301, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 60000, "lat": 13.73070147, "lng": 100.5415, "accuracy_m": 29.9, "inside": true },
+          { "t_ms": 65000, "lat": 13.73075993, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73081838, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73087684, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73093529, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73099375, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.7310522, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "reason": null,
+        "readyIn_s": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · accuracy 29.9 m: ok"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 90000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.73005846, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.73011691, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.73017537, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.73023382, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 55000, "lat": 13.73064301, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 60000, "lat": 13.73070147, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 65000, "lat": 13.73075993, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73081838, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73087684, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73093529, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73099375, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.7310522, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "not_enough_trace",
+        "readyIn_s": 25
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · a pair gap > maxSamplePairGap_s breaks the approach: the run restarts inside, not_enough_trace"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 90000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 5000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 10000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 15000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 20000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 25000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 30000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 35000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 40000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 45000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 50000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 55000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 60000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 65000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "no_approach_from_outside",
+        "readyIn_s": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · E4: app opened in the middle of the park, 90 s of samples all inside: no_approach_from_outside"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 65000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 50000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 55000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 60000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 65000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 95000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 100000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 105000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 110000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 115000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 120000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 125000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 130000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 135000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 140000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 145000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 150000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "not_enough_trace",
+        "readyIn_s": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · E5 teleport: the jump fix is dropped by the outlier filter, so the latest fix breaks the run: not_enough_trace with no countdown"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 90000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 50000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 55000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 60000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 65000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 95000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 100000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 105000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 110000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 115000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 120000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 125000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 130000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 135000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 140000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 145000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 150000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "not_enough_trace",
+        "readyIn_s": 55
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · E5 teleport after re-anchor (5 consistent drops): run restarted inside, not_enough_trace"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 150000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 50000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 55000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 60000, "lat": 13.74169116, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 65000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 95000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 100000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 105000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 110000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 115000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 120000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 125000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 130000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 135000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 140000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 145000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 150000, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "no_approach_from_outside",
+        "readyIn_s": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · E5 teleport 85 s later: no_approach_from_outside (no outside sample in the new run)"
+    },
+    {
+      "input": {
+        "fn": "checkIn",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "now_ms": 90000,
+        "samples": [
+          { "t_ms": 0, "lat": 13.73, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 5000, "lat": 13.73053959, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 10000, "lat": 13.73107918, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 15000, "lat": 13.73161878, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 20000, "lat": 13.73215837, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 25000, "lat": 13.73269796, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 30000, "lat": 13.73323755, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 35000, "lat": 13.73377715, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 40000, "lat": 13.73431674, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 45000, "lat": 13.73485633, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 50000, "lat": 13.73539592, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 55000, "lat": 13.73593551, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 60000, "lat": 13.73647511, "lng": 100.5415, "accuracy_m": 6, "inside": false },
+          { "t_ms": 65000, "lat": 13.73647511, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 70000, "lat": 13.73653356, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 75000, "lat": 13.73659202, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 80000, "lat": 13.73665047, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 85000, "lat": 13.73670893, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 90000, "lat": 13.73676739, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 95000, "lat": 13.73682584, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 100000, "lat": 13.7368843, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 105000, "lat": 13.73694275, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 110000, "lat": 13.73700121, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 115000, "lat": 13.73705966, "lng": 100.5415, "accuracy_m": 6, "inside": true },
+          { "t_ms": 120000, "lat": 13.73711812, "lng": 100.5415, "accuracy_m": 6, "inside": true }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "reason": "speed_lock",
+        "readyIn_s": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · still speed-locked after driving (unlock needs 60 s slow): speed_lock comes first (R08 order)"
+    },
+    {
+      "input": {
+        "fn": "checkInTimeline",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "trace": "data/gps-traces/synthetic/synthetic-walk-in-01.trace.json",
+        "polygon": "data/gps-traces/synthetic/polygons/test-rect-benchasiri.geojson",
+        "every": 1,
+        "phase": 0
+      },
+      "expected": [
+        { "t_ms": 0, "ok": false, "reason": "not_enough_trace", "readyIn_s": 60 },
+        { "t_ms": 60000, "ok": false, "reason": "no_approach_from_outside", "readyIn_s": null },
+        { "t_ms": 124000, "ok": true, "reason": null, "readyIn_s": null }
+      ],
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · walk-in trace (acceptance 3): result at every sample, listed when it changes; ok from the first fix inside"
+    },
+    {
+      "input": {
+        "fn": "checkInTimeline",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "trace": "data/gps-traces/synthetic/synthetic-teleport-spoof-01.trace.json",
+        "polygon": "data/gps-traces/synthetic/polygons/test-rect-benchasiri.geojson",
+        "every": 1,
+        "phase": 0
+      },
+      "expected": [
+        { "t_ms": 0, "ok": false, "reason": "not_enough_trace", "readyIn_s": 60 },
+        { "t_ms": 60000, "ok": false, "reason": "no_approach_from_outside", "readyIn_s": null },
+        { "t_ms": 90000, "ok": false, "reason": "not_enough_trace", "readyIn_s": null },
+        { "t_ms": 154000, "ok": false, "reason": "no_approach_from_outside", "readyIn_s": null }
+      ],
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · teleport-spoof trace (acceptance 3, E5): never ok"
+    },
+    {
+      "input": {
+        "fn": "checkInTimeline",
+        "params": {
+          "window_s": 300,
+          "minDistancePerWindow_m": 50,
+          "comparison": "greaterThan",
+          "sampleCadence_s": 5,
+          "maxSamplePairGap_s": 30,
+          "maxSampleAccuracy_m": 30,
+          "outlierSpeed_kmh": 60,
+          "outlierReanchorSamples": 5,
+          "speedLock_kmh": 25,
+          "lockSustained_s": 15,
+          "unlockSustained_s": 60,
+          "minContinuousApproach_s": 60,
+          "maxAccuracy_m": 30,
+          "teleportIntoPolygonAllowed": false
+        },
+        "trace": "data/gps-traces/synthetic/synthetic-warmup-accuracy-01.trace.json",
+        "polygon": "data/gps-traces/synthetic/polygons/test-rect-benchasiri.geojson",
+        "every": 1,
+        "phase": 0
+      },
+      "expected": [
+        { "t_ms": 0, "ok": false, "reason": "poor_accuracy", "readyIn_s": null },
+        { "t_ms": 46000, "ok": false, "reason": "not_enough_trace", "readyIn_s": 59 },
+        { "t_ms": 118000, "ok": false, "reason": "no_approach_from_outside", "readyIn_s": null }
+      ],
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · warmup-accuracy trace: poor_accuracy until the first fix under 30 m, then waits for the approach (outside the test polygon: never ok)"
+    }
+  ]
+}

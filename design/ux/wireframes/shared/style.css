@@ -61,7 +61,8 @@ body { padding: 24px; }
   min-width: var(--touch-min); min-height: var(--touch-min);
 }
 .headerbar .context-label { font-size: 14px; font-weight: 700; text-align: center; flex: 1; }
-.gps-pill { font-size: 10px; border: 2px solid var(--ink-900); border-radius: var(--radius-chip); padding: 1px 6px; margin-left: 4px; background: var(--bg-surface); color: var(--ink-900); }
+/* V-22 fix (art gate F03-visual-gate.md รอบ 2, P2-F04-T06): font-size เดิม 10px อ่านไม่ออกกลางแดด แก้เป็น 14px ขั้นต่ำ (ทับ components.md 2.1) */
+.gps-pill { font-size: 14px; font-weight: 700; border: 2px solid var(--ink-900); border-radius: var(--radius-chip); padding: 2px 8px; margin-left: 4px; background: var(--bg-surface); color: var(--ink-900); }
 /* V-02 fix (art gate 3.7a): ห้ามพื้นอ่อนนอก token — ใช้ bg.surface เดิม + ขอบ/ข้อความสี state แทน */
 .gps-pill.ok { border-color: var(--state-success); color: var(--state-success); }
 .gps-pill.bad { border-color: var(--state-danger); color: var(--state-danger); }
@@ -110,8 +111,9 @@ p.body-text { font-size: 16px; font-weight: 500; line-height: 1.5; margin: 0 0 1
 .toast { position: absolute; left: var(--space-4); right: var(--space-4); background: var(--bg-surface); border: var(--border-ink) solid var(--ink-900); border-radius: var(--radius-card); padding: var(--space-3) var(--space-4); font-size: 14px; box-shadow: 0 4px 0 var(--ink-900); z-index: 30; }
 .toast.neutral { top: 12px; }
 .toast.danger { border-color: var(--state-danger); color: var(--state-danger); }
-/* V-02 fix (art gate 3.7b): "จาง" ต้องเป็นทึบ 100% ไม่ใช้ opacity บนข้อความ/ขอบ — ใช้ขอบ ink.300 + ข้อความ ink.700 + ไม่มีเงาแทน */
-.toast.faded { box-shadow: none; border-color: var(--ink-300); color: var(--ink-700); }
+/* V-02 fix (art gate 3.7b): "จาง" ต้องเป็นทึบ 100% ไม่ใช้ opacity บนข้อความ/ขอบ — ใช้ขอบ + ข้อความ ink.700 + ไม่มีเงาแทน */
+/* V-20 fix (art gate F03-visual-gate.md รอบ 2, P2-F04-T06): ขอบ ink.300 เดิมได้แค่ 2.80:1 กับ bg.surface ต่ำกว่า S3 (≥3.0) — แก้เป็น ink.500 (7.30:1) */
+.toast.faded { box-shadow: none; border-color: var(--ink-500); color: var(--ink-700); }
 .banner { position: absolute; left: 0; right: 0; top: 0; text-align: center; font-size: 13px; padding: 6px; background: var(--bg-surface); border-bottom: 2px solid var(--ink-900); z-index: 10; }
 /* V-02 fix (art gate 3.7a): ห้ามพื้นอ่อนนอก token — ใช้ bg.surface เดิม + ขอบล่าง/ข้อความสี state แทน */
 .banner.info { border-bottom-color: var(--state-info); color: var(--state-info); }
@@ -127,10 +129,15 @@ p.body-text { font-size: 16px; font-weight: 500; line-height: 1.5; margin: 0 0 1
 .class-badge { width: 32px; height: 32px; border-radius: 999px; border: var(--border-ink) solid var(--ink-900); display: flex; align-items: center; justify-content: center; color: var(--bg-surface); font-weight: 700; font-size: 12px; }
 .rarity-chip { display: inline-flex; align-items: center; gap: 4px; border-radius: var(--radius-chip); border: var(--border-ink) solid var(--ink-900); padding: 2px 10px; font-size: 12px; font-weight: 700; }
 .pip { width: 6px; height: 6px; background: currentColor; transform: rotate(45deg); display: inline-block; }
+/* V-15 (P2-F04-T06, components.md 13.7): ป้าย sponsored — style guide 9.2, ห้ามใช้สี rarity/rift/accent.signal */
+.chip-sponsored { display: inline-flex; align-items: center; gap: 4px; border-radius: var(--radius-chip); background: var(--ink-900); border: 2px solid var(--bg-surface); color: var(--bg-paper); padding: 2px 10px; font-size: 14px; font-weight: 700; }
+/* components.md 13.8: chip ระยะเส้นตรง ("เส้นตรง") ติดกับตัวเลขระยะทุกจุดที่แสดงระยะ */
+.chip-distance { display: inline-flex; align-items: center; border-radius: var(--radius-chip); border: 1px solid var(--ink-700); color: var(--ink-700); padding: 1px 8px; font-size: 12px; font-weight: 700; }
 
 /* ---------- HP bar ---------- */
 .hp-track { width: 100%; height: 20px; background: var(--ink-100); border: var(--border-ink) solid var(--ink-900); border-radius: 999px; overflow: hidden; }
-.hp-fill { height: 100%; background: var(--state-success); }
+/* components.md 13.6 (art brief 4.3): เส้นแบ่ง ink.900 2px ที่ปลายส่วนที่เติมเสมอ — HP อ่านจากตำแหน่งเส้น ไม่ใช่สีแดงอย่างเดียว (state.danger บน ink.100 ใต้แสงสะท้อนจำลองได้แค่ 1.497 ต่ำกว่าเกณฑ์เล็กน้อย) */
+.hp-fill { height: 100%; background: var(--state-success); border-right: 2px solid var(--ink-900); box-sizing: border-box; }
 .hp-fill.low { background: var(--state-danger); }
 
 /* ---------- annotation callouts ---------- */

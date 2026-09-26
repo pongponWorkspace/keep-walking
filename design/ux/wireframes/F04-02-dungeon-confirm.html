@@ -8,12 +8,12 @@
 <body>
 <div class="doc-header">
   <h1>F04 Flow B — เดินเข้าเขต → popup confirm (S-02-dungeon-confirm, Phase 2)</h1>
-  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 3 · <b>override เหนือ design/ux/wireframes/02-dungeon-confirm.html เดิม:</b> ไม่แสดงจำนวนคน/role เลย ไม่มีข้อยกเว้นแม้การ์ดซ้อน (D-089, GD N-04) · <span class="config-ref">config: dungeons.entry.confirmPopupRequired (=true)</span></p>
+  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 3 (แก้รอบ 2 ตาม design/reviews/F04-flow-approval.md B-01, B-07, N-01, N-05, N-06, N-10, N-15) · <b>override เหนือ design/ux/wireframes/02-dungeon-confirm.html เดิม:</b> ไม่แสดงจำนวนคน/role เลย ไม่มีข้อยกเว้นแม้การ์ดซ้อน (D-089, GD N-04) · <span class="config-ref">config: dungeons.entry.confirmPopupRequired (=true)</span></p>
 </div>
 <div class="storyboard">
 
 <div class="frame-block">
-<h3>B1. Confirm ปกติ (ไม่มีบรรทัดจำนวนคน)</h3>
+<h3>B1. Confirm ปกติ — เปิดพร้อมสถานะ check-in ทันที (แก้ B-01)</h3>
 <div class="phone">
   <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
   <div class="screen-body" style="padding:0;">
@@ -22,20 +22,17 @@
       <div class="popup">
         <h1 class="scr-title"><span class="copykey">dungeon.confirmTitle</span><br><span class="thaidraft">(ลุมพินี — ป่าในเมือง)</span></h1>
         <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></p>
-        <p class="caption" style="color:var(--ink-500);">(ตำแหน่งจำนวนคน/role — ซ่อนใน Phase 2, กลับมาแสดงเมื่อมี backend Phase 3)</p>
-        <div class="btn-row" style="margin-top:12px;">
-          <div class="btn btn-secondary" style="flex:1;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div>
-          <div class="btn btn-primary" style="flex:2;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
-        </div>
+        <div class="btn btn-disabled" style="margin-top:12px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+        <p class="caption" style="text-align:center;margin-top:8px;"><span class="copykey">dungeon.checkinNotEnoughTrace</span> <span class="thaidraft">(กำลังนับเวลาที่เดินต่อเนื่อง อีก 00:07)</span></p>
       </div>
     </div>
   </div>
 </div>
-<p class="frame-caption">ต่างจาก 02-dungeon-confirm.html เดิม: ไม่มี dungeon.confirmCount/confirmRoles เลยไม่ว่าจำนวนคนเท่าไร · ปุ่ม "เข้า" อาจ disable พร้อมสถานะ check-in (ดู F04-03-checkin-speedlock.html)</p>
+<p class="frame-caption">แก้ B-01: popup ไม่เปิดว่างๆ รอกด "เข้า" อีกต่อไป — เปิดพร้อมผล <code>selectCheckInPreview</code> ทันทีตั้งแต่เฟรมแรก (เฟรมนี้แสดงตัวอย่างกรณียังไม่ผ่าน ปุ่มเปิดใช้เองอัตโนมัติเมื่อผ่าน ไม่ต้องปิดเปิด popup ใหม่ ดูรายละเอียดครบใน F04-03-checkin-speedlock.html) · แก้ N-01: ไม่มีบรรทัด/ช่องว่างสำรองสำหรับจำนวนคนเลยในเลย์เอาต์นี้ (ไม่ใช่แค่ไม่ render) · แก้ N-10: กด "ยกเลิก" กลับแผนที่แล้วเปิดใหม่ได้ด้วยปุ่ม <span class="copykey">map.reopenConfirmButton</span> <span class="thaidraft">(เข้าโซนนี้)</span> ที่ครึ่งล่างจอสถานะ "อยู่ในเขต"</p>
 </div>
 
 <div class="frame-block">
-<h3>B2. Polygon ซ้อนกัน (ไม่มีข้อยกเว้นโชว์ 0 คนอีกต่อไป)</h3>
+<h3>B2. Polygon ซ้อนกัน (ไม่มีข้อยกเว้นโชว์ 0 คนอีกต่อไป, ไม่พรีเซเล็ก)</h3>
 <div class="phone">
   <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
   <div class="screen-body" style="padding:0;">
@@ -44,8 +41,8 @@
       <div class="popup">
         <h1 class="scr-title"><span class="copykey">dungeon.overlapTitle</span><br><span class="thaidraft">(เลือกโซนที่จะเข้า)</span></h1>
         <div class="btn-row">
-          <div class="card selected" style="flex:1;"><b>ลุมพินี — ป่าในเมือง</b><br><span class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></span></div>
-          <div class="card" style="flex:1;"><b>ตลาดคลองเตย — เขาวงกตแผงลอย</b><br><span class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.3–8)</span></span></div>
+          <div class="card" style="flex:1;"><b>สวนตัวอย่าง — ป่าในเมือง</b><br><span class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></span></div>
+          <div class="card" style="flex:1;"><b>ตลาดตัวอย่าง — เขาวงกตแผงลอย</b><br><span class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.3–8)</span></span></div>
         </div>
         <p class="caption" style="margin-top:8px;"><span class="copykey">dungeon.overlapHint</span> <span class="thaidraft">(เลือกโซนก่อนแล้วกดเข้า)</span></p>
         <div class="btn btn-disabled" style="margin-top:8px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
@@ -53,7 +50,7 @@
     </div>
   </div>
 </div>
-<p class="frame-caption"><b>ปิดข้อยกเว้นเดิม (A-P1-F03-T16-3)</b>: ก่อนหน้านี้การ์ดซ้อนโชว์ "0 คน" ตรงๆ เพื่อเทียบกัน — Phase 2 ตัดออกหมดตาม D-089 (ไม่มีข้อยกเว้น) เหลือแค่ชื่อโซน+ช่วงเลเวล [ASSUMPTION A-P2-F04-T15-1 รอยืนยัน game-director]</p>
+<p class="frame-caption"><b>ปิดข้อยกเว้นเดิม (A-P1-F03-T16-3, ยืนยันแล้วโดย game-director J-2)</b>: ก่อนหน้านี้การ์ดซ้อนโชว์ "0 คน" ตรงๆ เพื่อเทียบกัน — Phase 2 ตัดออกหมดตาม D-089 (ไม่มีข้อยกเว้น) เหลือแค่ชื่อโซน+ช่วงเลเวล · แก้ N-05: ไม่มีการ์ดใดถูกเลือกไว้ล่วงหน้า (ทั้งสองการ์ดเป็น <code>.card</code> ธรรมดา ไม่มี <code>.selected</code>) ปุ่ม "เข้า" เป็น <code>.btn-disabled</code> จนกว่าจะแตะเลือก · แสดงเฉพาะแห่งที่เปิดอยู่เท่านั้น ถ้าเหลือแห่งเดียวใช้เฟรม B1 แทน · แก้ N-15: ชื่อ "สวนตัวอย่าง"/"ตลาดตัวอย่าง" เป็นชื่อสมมติเพื่อสาธิต UI overlap เท่านั้น (คู่เดิม "ลุมพินี"+"ตลาดคลองเตย" เป็นไปไม่ได้ทางภูมิศาสตร์และ "ตลาดคลองเตย" ไม่อยู่ในย่านนำร่อง) — คู่ dungeon จริงที่ซ้อนกันเป็นหน้าที่ยืนยันของ location-engineer/level-designer</p>
 </div>
 
 
@@ -94,24 +91,26 @@
     </div>
   </div>
 </div>
-<p class="frame-caption">เกิดได้ทั้งเดินเข้าเขตครั้งแรกและกด "เข้า" แล้ว engine ปฏิเสธ · เกิน maxActiveDungeonsPerPlayer: <span class="copykey">dungeon.alreadyActive</span> <span class="thaidraft">(ยังอยู่ใน dungeon อื่น ออกจากที่นั่นก่อน)</span></p>
+<p class="frame-caption">เกิดได้ทั้งเดินเข้าเขตครั้งแรกและกด "เข้า" แล้ว engine ปฏิเสธ · เกิน maxActiveDungeonsPerPlayer: <span class="copykey">dungeon.alreadyActive</span> <span class="thaidraft">(ยังอยู่ใน dungeon อื่น ออกจากที่นั่นก่อน)</span> · แก้ N-06: <code>verification_mode</code> ที่ engine ไม่รองรับ (<code>unsupported_mode</code>) แสดงจอนี้เหมือนกันทุกประการโดยใช้ <span class="copykey">dungeon.closedEmergencyBody</span> (ไม่มีเวลาเปิด) — ไม่เกิดกับข้อมูลที่ผ่าน validator แต่ client ต้องมีจอรองรับ (fail closed)</p>
 </div>
 
 <div class="frame-block">
-<h3>B5. นอกระยะ (GPS drift) / offline</h3>
+<h3>B5. นอกระยะ (GPS drift) — บรรทัดสถานะใต้ปุ่ม ไม่ใช่ popup แยก (แก้ B-07)</h3>
 <div class="phone">
   <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
   <div class="screen-body" style="padding:0;">
     <div style="background:var(--map-park);height:100%;"></div>
     <div class="popup-overlay">
       <div class="popup">
-        <p class="body-text"><span class="copykey">dungeon.outOfRangeTitle</span><br><span class="thaidraft">(GPS ยังไม่เชื่อว่าคุณถึงแล้ว เดินลึกเข้าไปอีกหน่อย)</span></p>
-        <div class="btn btn-secondary" style="width:100%;"><span class="copykey">common.close</span> <span class="thaidraft">(ปิด)</span></div>
+        <h1 class="scr-title"><span class="copykey">dungeon.confirmTitle</span><br><span class="thaidraft">(ลุมพินี — ป่าในเมือง)</span></h1>
+        <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></p>
+        <div class="btn btn-disabled" style="margin-top:12px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
+        <p class="caption" style="text-align:center;margin-top:8px;"><span class="copykey">dungeon.outOfRangeTitle</span> <span class="thaidraft">(GPS ยังไม่เชื่อว่าคุณถึงแล้ว เดินลึกเข้าไปอีกหน่อย)</span></p>
       </div>
     </div>
   </div>
 </div>
-<p class="frame-caption">ปิด popup กลับแผนที่ ไม่ลงโทษ · กด "เข้า" ตอน offline: <span class="copykey">common.offlineNotice</span> <span class="thaidraft">(ไม่มีเน็ต ส่งไม่ได้ตอนนี้)</span> + <span class="copykey">common.offlineRetry</span> <span class="thaidraft">(ลองอีกครั้ง)</span> ไม่ auto-confirm</p>
+<p class="frame-caption">แก้ B-07/J-7: ไม่ใช่ popup แยกที่มีแต่ปุ่มปิดอีกต่อไป — เป็นบรรทัดสถานะใต้ปุ่ม "เข้า" เดียวกับ Flow C ใช้เมื่อ <code>no_approach_from_outside</code> และ sample ล่าสุดอยู่นอก polygon จริง (ลำดับ R08 ไม่เปลี่ยน เป็นแค่หมวดย่อยของข้อ 4) · popup ปิดเองกลับแผนที่ไม่ลงโทษเมื่ออยู่นอกต่อเนื่องครบเกณฑ์ hysteresis เดียวกับ R15 ไม่ปิดจาก sample เดียวที่ส่ายขอบสวน · แก้ B-02: ออฟไลน์ไม่มีผลใดต่อปุ่ม "เข้า" อีกต่อไป (ลบข้อความ common.offlineNotice/offlineRetry เดิมออก — Phase 2 ไม่มี server ให้ request ล้ม)</p>
 </div>
 
 </div>

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/anticheat.schema.json",
+  "title": "config/balance/anticheat.json",
+  "type": "object",
+  "required": ["_meta", "checkIn", "speedLock", "offlineEvidence", "trustScore", "outputAudit"],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "checkIn": {
+      "type": "object",
+      "required": ["minContinuousApproach_s", "maxAccuracy_m", "teleportIntoPolygonAllowed"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "minContinuousApproach_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "maxAccuracy_m": {
+          "$ref": "../common.schema.json#/$defs/positiveMeters",
+          "description": "spec F04 check-in"
+        },
+        "teleportIntoPolygonAllowed": {
+          "const": false,
+          "description": "GDD anti-cheat: no teleport check-in"
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "speedLock": {
+      "type": "object",
+      "required": ["speedLock_kmh", "action", "lockSustained_s", "unlockSustained_s"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "speedLock_kmh": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "GDD speed lock"
+        },
+        "action": { "type": "string", "minLength": 1 },
+        "lockSustained_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "unlockSustained_s": { "$ref": "../common.schema.json#/$defs/seconds" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "offlineEvidence": {
+      "type": "object",
+      "required": ["seeMaxAge", "trustWeightVsLive"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "seeMaxAge": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "trustWeightVsLive": { "type": "number" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "trustScore": {
+      "type": "object",
+      "required": ["min", "max", "initial", "lowThreshold", "lowTrustCanTrade", "seeDropEffect"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "min": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "minimum": 0 },
+        "initial": { "type": "integer", "minimum": 0 },
+        "lowThreshold": { "type": "integer", "minimum": 0 },
+        "lowTrustCanTrade": { "type": "boolean" },
+        "seeDropEffect": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "outputAudit": {
+      "type": "object",
+      "required": ["flagPercentile", "consecutiveDaysToFlag"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "flagPercentile": { "type": "integer", "minimum": 0 },
+        "consecutiveDaysToFlag": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

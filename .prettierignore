@@ -10,7 +10,7 @@ playwright-report/
 *.md
 *.pmtiles
 *.geojson
-config/
+/config/
 data/
 design/
 studio/
@@ -32,6 +32,9 @@ tools/tiles/downloads/
 # Generated files that must stay byte-exact (sizes and sha256 are recorded in manifests;
 # `pnpm format` must never rewrite them). Regenerate with the owning tool instead.
 tools/tiles/fixtures/
+# Client config subset written by apps/client/scripts/generate-config.ts and compared byte-for-byte
+# by apps/client/src/config/generated.test.ts (P2-X04).
+apps/client/src/config/generated/
 
 # Python str.format() templates (BUG-F01-003). Braces in <style>/<script> are escaped as
 # contiguous `{{`/`}}`; prettier splits them across lines and breaks .format(). Guarded by

@@ -24,7 +24,8 @@ import {
   soloSpec,
 } from './economy';
 import { ROLES, paramsFromConfig } from './params';
-import { mean, mulberry32 } from './rng';
+import { mulberry32 } from '@keep-walking/shared/formulas';
+import { mean } from './stats';
 import { fitHitChance_pct } from './scenarios';
 import { VECTOR_DIR } from './vector-files';
 

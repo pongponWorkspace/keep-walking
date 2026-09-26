@@ -1,0 +1,203 @@
+{
+  "_meta": {
+    "note": "Test fixture of tools/dungeons (P2-F04-T26). Fictional polygons and keys; not real dungeons."
+  },
+  "format": "kw-dungeons-source",
+  "format_version": 1,
+  "dungeons": [
+    {
+      "id": "fx-yard",
+      "status": "published",
+      "name_key": "fx.yard",
+      "search_name_key": "fx.yard.search",
+      "name_real": "Fixture Yard",
+      "osm_id": null,
+      "geometry_source": "manual",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketPark.default",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [100.559676, 13.734685],
+            [100.560324, 13.734685],
+            [100.560324, 13.735315],
+            [100.559676, 13.735315],
+            [100.559676, 13.734685]
+          ]
+        ]
+      },
+      "entrance": {
+        "point": [100.56, 13.735315],
+        "evidence": "field_photo"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [360, 720],
+            [720, 1080]
+          ],
+          "2": [[360, 1080]],
+          "3": [[360, 1080]],
+          "4": [[360, 1080]],
+          "5": [[360, 1080]],
+          "6": [],
+          "7": []
+        },
+        "exceptions": [
+          {
+            "date": "2026-12-31",
+            "intervals": [],
+            "note": "closed for a fixture holiday"
+          },
+          {
+            "date": "2026-10-13",
+            "intervals": [[480, 600]]
+          }
+        ],
+        "osm": "sunrise-sunset",
+        "reason": "OSM sunrise-sunset is outside the grammar; shortest daylight of the year"
+      }
+    },
+    {
+      "id": "fx-park",
+      "status": "published",
+      "name_key": "fx.park",
+      "search_name_key": "fx.park.search",
+      "name_real": "Fixture Park",
+      "osm_id": "osm-w1",
+      "osm_tags": {
+        "leisure": "park",
+        "opening_hours": "05:00-21:00"
+      },
+      "geometry_source": "osm",
+      "preset": "largePark",
+      "level_range": {
+        "min": 20,
+        "max": 35
+      },
+      "drop_table_id": "largePark.default",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [100.559306, 13.73054],
+            [100.560694, 13.73054],
+            [100.560694, 13.72946],
+            [100.559306, 13.72946],
+            [100.559306, 13.73054]
+          ],
+          [
+            [100.559907, 13.72991],
+            [100.560093, 13.72991],
+            [100.560093, 13.73009],
+            [100.559907, 13.73009],
+            [100.559907, 13.72991]
+          ]
+        ]
+      },
+      "entrance": {
+        "point": [100.56, 13.72946],
+        "evidence": "osm_footway"
+      },
+      "opening_hours": {
+        "source": "osm",
+        "osm": "05:00-21:00"
+      }
+    },
+    {
+      "id": "fx-market",
+      "status": "published",
+      "name_key": "fx.market",
+      "search_name_key": "fx.market.search",
+      "name_real": "Fixture Walking Street",
+      "osm_id": "osm-w2",
+      "osm_tags": {
+        "amenity": "marketplace"
+      },
+      "geometry_source": "osm_edited",
+      "preset": "market",
+      "level_range": {
+        "min": 10,
+        "max": 20
+      },
+      "drop_table_id": "market.default",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [100.564722, 13.72973],
+              [100.565278, 13.72973],
+              [100.565278, 13.73027],
+              [100.564722, 13.73027],
+              [100.564722, 13.72973]
+            ]
+          ],
+          [
+            [
+              [100.56574, 13.72973],
+              [100.566296, 13.72973],
+              [100.566296, 13.73027],
+              [100.56574, 13.73027],
+              [100.56574, 13.72973]
+            ]
+          ]
+        ]
+      },
+      "entrance": null,
+      "opening_hours": {
+        "source": "osm",
+        "osm": "Fr,Sa 16:00-02:00; Su 16:00-22:00",
+        "exceptions": [
+          {
+            "date": "2026-10-23",
+            "intervals": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "fx-draft",
+      "status": "draft",
+      "name_key": null,
+      "search_name_key": null,
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketPark.default",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [100.56963, 13.73464],
+            [100.57037, 13.73464],
+            [100.57037, 13.73536],
+            [100.56963, 13.73536],
+            [100.56963, 13.73464]
+          ]
+        ]
+      },
+      "entrance": null,
+      "opening_hours": {
+        "source": "manual_required",
+        "osm": "Mo-Fr 08:00-17:00; PH off"
+      }
+    }
+  ]
+}

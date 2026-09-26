@@ -5,13 +5,21 @@ import { defaultsForMode, selectProvider } from './select';
 const CONFIG: ClientRuntimeConfig = {
   locationWeb: { enableHighAccuracy: true, timeout_ms: 15000, maximumAge_ms: 0 },
   providerQuery: {
-    paramNames: { provider: 'loc', trace: 'trace', speed: 'speed', loop: 'loop', hud: 'hud' },
+    paramNames: {
+      provider: 'loc',
+      trace: 'trace',
+      speed: 'speed',
+      loop: 'loop',
+      hud: 'hud',
+      start: 'start',
+      seed: 'seed',
+    },
     allowedProviders: ['web', 'mock', 'capacitor'],
     allowedMockSpeeds: [1, 10, 60],
   },
   providerQueryDefaultsByMode: {
-    development: { provider: 'mock', speed: 1, loop: true, hud: false },
-    production: { provider: 'web', speed: 1, loop: false, hud: false },
+    development: { provider: 'mock', speedMult: 1, loop: true, hud: false },
+    production: { provider: 'web', speedMult: 1, loop: false, hud: false },
   },
   mapView: { maxZoom: 18 },
   hudMeasurement: {
@@ -26,6 +34,9 @@ const CONFIG: ClientRuntimeConfig = {
     batteryMinSegment_s: 1200,
     bytesPerMegabyte: 1000000,
   },
+  engine: { tickInterval_ms: 1000 },
+  storage: { sessionPersistInterval_s: 5 },
+  navigation: { coordinateDecimals: 5, externalOpenTimeout_ms: 2500 },
 };
 
 describe('defaultsForMode', () => {

@@ -29,7 +29,7 @@
       },
       "expected": 30,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 1 +0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 1 +0"
     },
     {
       "input": {
@@ -59,7 +59,7 @@
       },
       "expected": 54,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 1 +10"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 1 +10"
     },
     {
       "input": {
@@ -89,7 +89,7 @@
       },
       "expected": 66,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 1 +15"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 1 +15"
     },
     {
       "input": {
@@ -119,7 +119,7 @@
       },
       "expected": 79,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 2 +0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 2 +0"
     },
     {
       "input": {
@@ -149,7 +149,7 @@
       },
       "expected": 143,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 2 +10"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 2 +10"
     },
     {
       "input": {
@@ -179,7 +179,7 @@
       },
       "expected": 174,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 2 +15"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 2 +15"
     },
     {
       "input": {
@@ -209,7 +209,7 @@
       },
       "expected": 140,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 3 +0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 3 +0"
     },
     {
       "input": {
@@ -239,7 +239,7 @@
       },
       "expected": 251,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 3 +10"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 3 +10"
     },
     {
       "input": {
@@ -269,7 +269,7 @@
       },
       "expected": 307,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 3 +15"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 3 +15"
     },
     {
       "input": {
@@ -299,7 +299,7 @@
       },
       "expected": 209,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 4 +0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 4 +0"
     },
     {
       "input": {
@@ -329,7 +329,7 @@
       },
       "expected": 376,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 4 +10"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 4 +10"
     },
     {
       "input": {
@@ -359,7 +359,7 @@
       },
       "expected": 460,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 4 +15"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 4 +15"
     },
     {
       "input": {
@@ -389,7 +389,7 @@
       },
       "expected": 286,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 5 +0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 5 +0"
     },
     {
       "input": {
@@ -419,7 +419,7 @@
       },
       "expected": 514,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 5 +10"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 5 +10"
     },
     {
       "input": {
@@ -449,7 +449,7 @@
       },
       "expected": 628,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact formula value for tier 5 +15"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact formula value for tier 5 +15"
     },
     {
       "input": {
@@ -464,7 +464,7 @@
       },
       "expected": 32,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: tier 1 +1"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal: tier 1 +1"
     },
     {
       "input": {
@@ -480,7 +480,7 @@
       },
       "expected": 343,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boss gear tier 5 x1.2 at +0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boss gear tier 5 x1.2 at +0"
     },
     {
       "input": {
@@ -496,7 +496,7 @@
       },
       "expected": 754,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: boss gear at +15 (v1 cap, A-7a)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: boss gear at +15 (v1 cap, A-7a)"
     },
     {
       "input": {
@@ -512,7 +512,7 @@
       },
       "expected": 1,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-5 tier boundaries"
     },
     {
       "input": {
@@ -528,7 +528,7 @@
       },
       "expected": 1,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-5 tier boundaries"
     },
     {
       "input": {
@@ -544,7 +544,7 @@
       },
       "expected": 2,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-5 tier boundaries"
     },
     {
       "input": {
@@ -560,7 +560,7 @@
       },
       "expected": 3,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-5 tier boundaries"
     },
     {
       "input": {
@@ -576,7 +576,7 @@
       },
       "expected": 4,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-5 tier boundaries"
     },
     {
       "input": {
@@ -592,7 +592,7 @@
       },
       "expected": 5,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-5 tier boundaries"
     },
     {
       "input": {
@@ -608,7 +608,7 @@
       },
       "expected": 5,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-5 tier boundaries"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-5 tier boundaries"
     },
     {
       "input": {
@@ -866,7 +866,7 @@
         "defReduction_pct": 18.311777
       },
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · balanced build L1: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · balanced build L1: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
     },
     {
       "input": {
@@ -928,7 +928,7 @@
         "defReduction_pct": 48.827292
       },
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · balanced build L25: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · balanced build L25: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
     },
     {
       "input": {
@@ -990,7 +990,7 @@
         "defReduction_pct": 66.063348
       },
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · balanced build L60: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · balanced build L60: points split 4 ways, every slot tier-by-level +0 (sim assumption, balance-model 3.2)"
     },
     {
       "input": {
@@ -1052,7 +1052,7 @@
         "defReduction_pct": 6.25
       },
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: level 1, nothing allocated = base stats"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: level 1, nothing allocated = base stats"
     }
   ]
 }

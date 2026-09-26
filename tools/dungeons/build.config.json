@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "file": "build.config.json",
+    "version": 1,
+    "owner": "location-engineer",
+    "task": "P2-F04-T26",
+    "doc": "docs/tech/F04-dungeon-presence.md sections 8 and 13; tools/dungeons/README.md",
+    "_note": "Build and validator settings of tools/dungeons. Not balance values (tech note 13.1): rule thresholds that are balance live in config/balance/dungeons.json and are read from there (area, coverageFilter, verification). Every path is relative to the repo root."
+  },
+  "coordinateDecimals": 6,
+  "labelPoint": {
+    "precision_m": 1,
+    "projection": "equirectangular"
+  },
+  "area": {
+    "_note": "Same projection as tools/coverage (METHOD 5, EPSG:32647) so area_m2 matches candidates.geojson. outOfRange error: published pilot records must sit inside area.minArea_m2..maxArea_m2 (board P2-F04-T26); the back office 'warn' of dungeons.json#area.outOfRangeAction is a drawing aid, not a publish rule.",
+    "projection": "utm47n",
+    "decimals": 1,
+    "outOfRange": "error"
+  },
+  "paths": {
+    "source": "data/dungeons/dungeons.json",
+    "artifact": "data/dungeons/artifact/dungeons.client.v1.json",
+    "schema": "packages/shared/schemas/dungeon.schema.json",
+    "presets": "data/dungeons/presets.json",
+    "balanceDungeons": "config/balance/dungeons.json",
+    "names": "config/content/names.th.json",
+    "dropTables": { "file": "config/balance/drops.json", "key": "dropTables" },
+    "candidates": "data/coverage/candidates.geojson",
+    "excludedZones": "data/coverage/excluded.geojson",
+    "majorWays": null
+  },
+  "validator": {
+    "_note": {
+      "maxOverlap_m2": "Tolerance for floating point slivers only. dungeon-rules.md 2 point B: published dungeons never overlap.",
+      "excludedZoneReasons": "reason_excluded values of data/coverage/excluded.geojson that mark a zone a dungeon must not overlap (blocklist, religious, D-083 exclusions, private land). area_too_small / area_too_large / nested_in are ordinary parks, and indoor / indoor_market are halls inside a market or park: none of them is a zone.",
+      "entranceMaxBoundaryDistance_m": "dungeon-rules.md 4 point B: the pinned entrance sits on the real polygon edge. Tolerance for pin placement on imagery; PROPOSED, systems-designer may move it to config/balance.",
+      "extraReviewFlagTags": "level-designer request (pilot-dungeons.md 2 and 9): building=civic and location=roof need a review. Merged with coverageFilter.reviewFlagTags; handoff asks systems-designer to add them there so point A uses them too.",
+      "inheritedCandidateFlags": "Flags on the matching candidate (by osm_id) that stay review flags until the record acknowledges them (point B: redraw around the shrine, off the major road).",
+      "bounds": "[minLng, minLat, maxLng, maxLat] around Bangkok and the five vicinity provinces; a coordinate outside is a data error (swapped lat/lng).",
+      "nameKeyMissing": "error | warn: a published name_key / search_name_key that is not in config/content/names.th.json."
+    },
+    "maxOverlap_m2": 1,
+    "excludedZoneReasons": [
+      "excluded_osm_id",
+      "blocked_religious",
+      "religious_self",
+      "religious_inside_heritage",
+      "religious_name",
+      "blocked_health",
+      "blocked_education",
+      "blocked_government",
+      "blocked_military",
+      "blocked_diplomatic",
+      "blocked_cemetery",
+      "access_private",
+      "private_garden"
+    ],
+    "entranceMaxBoundaryDistance_m": 20,
+    "extraReviewFlagTags": {
+      "civic_building": ["building=civic"],
+      "roof": ["location=roof"]
+    },
+    "inheritedCandidateFlags": [
+      "crosses_major_way",
+      "contains_religious_feature",
+      "review_required"
+    ],
+    "bounds": [99.5, 13.0, 101.5, 14.6],
+    "nameKeyMissing": "error"
+  },
+  "attribution": ["© OpenStreetMap contributors, ODbL 1.0"]
+}

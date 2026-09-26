@@ -3,7 +3,7 @@
 // assumptions documented in tools/sim/README.md, not balance values.
 import { balancedBuild } from './build';
 import type { CharacterStats } from './build';
-import { damagePerHit, memberP, roleBuffPct } from './formulas';
+import { damagePerHit, memberP, roleBuffPct } from '@keep-walking/shared/formulas';
 import type { SimParams } from './params';
 import {
   expectedSurvival_min,

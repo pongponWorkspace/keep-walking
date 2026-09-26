@@ -133,7 +133,12 @@ export interface SimParams {
   /** `raid.json#partyMult` incl. caps (D-079, P2-F06-T01). */
   raidParty: RaidPartyMultParams;
   /** `raid.json#partyMult` GDD bands (simulator checks only, never runtime). */
-  raidPartyTargets: { fullMin: number; fullMax: number; incompleteMin: number; incompleteMax: number };
+  raidPartyTargets: {
+    fullMin: number;
+    fullMax: number;
+    incompleteMin: number;
+    incompleteMax: number;
+  };
 }
 
 /** Builds every parameter the simulator needs from config/balance. Throws on null or missing. */

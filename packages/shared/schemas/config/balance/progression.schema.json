@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/progression.schema.json",
+  "title": "config/balance/progression.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "level",
+    "expCurve",
+    "expMultipliers",
+    "statPoints",
+    "baseStats",
+    "statPerPoint",
+    "hpRecovery",
+    "rewardTick"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "level": {
+      "type": "object",
+      "required": ["maxLevel", "startLevel"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "maxLevel": { "type": "integer", "minimum": 0 },
+        "startLevel": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "expCurve": {
+      "type": "object",
+      "required": ["expToNextCoef", "expToNextExponent", "expPerTickCoef", "expPerTickExponent"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "expToNextCoef": { "type": "integer", "minimum": 0 },
+        "expToNextExponent": { "type": "number" },
+        "expPerTickCoef": { "type": "integer", "minimum": 0 },
+        "expPerTickExponent": { "type": "number" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "expMultipliers": {
+      "type": "object",
+      "required": [
+        "magicBuffMaxMult",
+        "noMagicMult",
+        "levelGapMultPerLevel",
+        "levelGapMultFloor",
+        "levelGapMode"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "magicBuffMaxMult": { "type": "number" },
+        "noMagicMult": { "type": "number" },
+        "levelGapMultPerLevel": { "type": "number" },
+        "levelGapMultFloor": { "type": "number" },
+        "levelGapMode": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "statPoints": {
+      "type": "object",
+      "required": ["pointsPerLevel", "pointsFormula"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "pointsPerLevel": { "type": "integer", "minimum": 0 },
+        "pointsFormula": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "baseStats": {
+      "type": "object",
+      "required": ["atk", "def", "hp", "vit"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "atk": { "type": "integer", "minimum": 0 },
+        "def": { "type": "integer", "minimum": 0 },
+        "hp": { "type": "integer", "minimum": 0 },
+        "vit": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "statPerPoint": {
+      "type": "object",
+      "required": ["atk", "def", "hp", "vitHpRegenSpeed_pct", "vitPotionEfficiency_pct"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "atk": { "type": "integer", "minimum": 0 },
+        "def": { "type": "integer", "minimum": 0 },
+        "hp": { "type": "integer", "minimum": 0 },
+        "vitHpRegenSpeed_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+        "vitPotionEfficiency_pct": { "$ref": "../common.schema.json#/$defs/pct" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "hpRecovery": {
+      "type": "object",
+      "required": [
+        "deathRecoveryTo_pct",
+        "deathRecoveryDuration_s",
+        "outsideDungeonRegen_pctMaxHpPerMin"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "deathRecoveryTo_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+        "deathRecoveryDuration_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "outsideDungeonRegen_pctMaxHpPerMin": { "$ref": "../common.schema.json#/$defs/pctOf" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "rewardTick": {
+      "type": "object",
+      "required": ["seeFile"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "seeFile": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

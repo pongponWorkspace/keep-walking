@@ -93,9 +93,24 @@ describe('computePathLengthM', () => {
 });
 
 describe('computeGateWindows', () => {
-  const gate = { minDistancePerWindow_m: 50, window_s: 300, comparison: 'greaterThan' as const };
+  const gate = {
+    minDistancePerWindow_m: 50,
+    window_s: 300,
+    comparison: 'greaterThan' as const,
+    filter: undefined,
+  };
+  const gateWithFilter = {
+    ...gate,
+    filter: {
+      maxSampleAccuracy_m: 30,
+      outlierSpeed_kmh: 30,
+      outlierReanchorSamples: 5,
+      sampleCadence_s: 5,
+      maxSamplePairGap_s: 30,
+    },
+  };
 
-  it('passes a window where the walked distance exceeds the threshold', () => {
+  it('passes a window where the walked distance exceeds the threshold (no filter configured)', () => {
     // Walks ~0.001 deg lat every 30s for 6 minutes (well over 50 m per 5-minute window).
     const samples: HudSample[] = [];
     for (let t = 0; t <= 360; t += 30) {
@@ -105,9 +120,11 @@ describe('computeGateWindows', () => {
     expect(stats.windowsTotal).toBeGreaterThan(0);
     expect(stats.windowsPass).toBe(stats.windowsTotal);
     expect(stats.windowsPassPct).toBe(100);
+    expect(stats.windowsPassFiltered).toBeUndefined();
+    expect(stats.windowsPassFilteredPct).toBeUndefined();
   });
 
-  it('fails every window when standing still', () => {
+  it('fails every window when standing still (no filter configured)', () => {
     const samples: HudSample[] = [];
     for (let t = 0; t <= 360; t += 30) {
       samples.push(sample(t, 13.73, 100.54));
@@ -123,7 +140,36 @@ describe('computeGateWindows', () => {
       windowsTotal: 0,
       windowsPass: 0,
       windowsPassPct: 0,
+      windowsPassFiltered: undefined,
+      windowsPassFilteredPct: undefined,
     });
+  });
+
+  it('also fills in the filtered columns via geo gateDiagnosticWindows once gate.filter is set', () => {
+    const samples: HudSample[] = [];
+    for (let t = 0; t <= 360; t += 5) {
+      samples.push(sample(t, 13.73 + t * 0.00002, 100.54));
+    }
+    const stats = computeGateWindows(samples, gateWithFilter, 30);
+    expect(stats.windowsTotal).toBeGreaterThan(0);
+    expect(stats.windowsPassFiltered).toBe(stats.windowsTotal);
+    expect(stats.windowsPassFilteredPct).toBe(100);
+  });
+
+  it('lets a raw window pass on an unfiltered drift spike while the filtered window does not', () => {
+    // A near-stationary walk (well under 50 m per window) plus one 300 m round-trip spike: the
+    // raw sum includes the spike (passes), the filtered pipeline drops it as an outlier (fails) —
+    // this is exactly why gate_windows_pass and gate_windows_pass_filtered can disagree (ADR 0003
+    // 5.3, synthetic-drift-spike-01).
+    const samples: HudSample[] = [];
+    for (let t = 0; t <= 300; t += 5) {
+      samples.push(sample(t, 13.73, 100.54));
+    }
+    samples.push(sample(152, 13.7327, 100.54)); // ~300 m north, mid-window, then back at t=155
+    samples.sort((a, b) => a.timestamp - b.timestamp);
+    const stats = computeGateWindows(samples, gateWithFilter, 30);
+    expect(stats.windowsPass).toBeGreaterThan(0);
+    expect(stats.windowsPassFiltered).toBe(0);
   });
 });
 

@@ -4,6 +4,11 @@
   "private": true,
   "description": "Dungeon data validator (design/levels/dungeon-rules.md) and client artifact build (polygon, polylabel label point, navigation target, property whitelist, normalized opening hours). Owner: location-engineer. Never imported by apps/* or packages/*.",
   "type": "module",
+  "scripts": {
+    "dungeons:build": "tsx src/cli.ts",
+    "dungeons:check": "tsx src/cli.ts --check",
+    "dungeons:validate": "tsx src/cli.ts --validate"
+  },
   "dependencies": {
     "@keep-walking/geo": "workspace:*",
     "@keep-walking/shared": "workspace:*",

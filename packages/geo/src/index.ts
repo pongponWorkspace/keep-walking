@@ -59,8 +59,4 @@ export type {
   EdgeSide,
   EdgeTransition,
 } from './hysteresis';
-export {
-  edgeHysteresisInit,
-  edgeHysteresisStep,
-  validateEdgeHysteresisParams,
-} from './hysteresis';
+export { edgeHysteresisInit, edgeHysteresisStep, validateEdgeHysteresisParams } from './hysteresis';

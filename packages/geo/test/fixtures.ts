@@ -37,6 +37,9 @@ export const DIAG: DiagnosticParams = { ...FILTER, ...GATE, windowStep_s: 30 };
 /** Hysteresis fixture: 10 fixes at 1 Hz (<= graceMax_s / 6) and 5 m (<= ~1/3 of 31 m). */
 export const HYST: EdgeHysteresisParams = { edgeHysteresisSamples: 10, edgeHysteresis_m: 5 };
 
+/** speedLock_kmh of the current config, used only to read the driving trace. */
+export const SPEED_LOCK_KMH = 25;
+
 /** graceMax_s of the current config, used only to read the edge-walk expectations. */
 export const GRACE_MAX_S = 180;
 

@@ -1,0 +1,3634 @@
+{
+  "formula": "run-loop",
+  "vectors": [
+    {
+      "input": {
+        "fn": "hitAttempt",
+        "runSeed": 20260926,
+        "index": 0,
+        "params": {
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54
+        }
+      },
+      "expected": {
+        "interval_s": 60.578608,
+        "hit": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · ADR 0003 6.4: stream \"hit\" index 0, draw 1 interval uniform(45, 75), draw 2 hit < 54%"
+    },
+    {
+      "input": {
+        "fn": "hitAttempt",
+        "runSeed": 20260926,
+        "index": 1,
+        "params": {
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54
+        }
+      },
+      "expected": {
+        "interval_s": 65.464147,
+        "hit": true
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · ADR 0003 6.4: stream \"hit\" index 1, draw 1 interval uniform(45, 75), draw 2 hit < 54%"
+    },
+    {
+      "input": {
+        "fn": "hitAttempt",
+        "runSeed": 20260926,
+        "index": 2,
+        "params": {
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54
+        }
+      },
+      "expected": {
+        "interval_s": 53.64649,
+        "hit": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · ADR 0003 6.4: stream \"hit\" index 2, draw 1 interval uniform(45, 75), draw 2 hit < 54%"
+    },
+    {
+      "input": {
+        "fn": "hitAttempt",
+        "runSeed": 20260926,
+        "index": 3,
+        "params": {
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54
+        }
+      },
+      "expected": {
+        "interval_s": 54.762121,
+        "hit": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · ADR 0003 6.4: stream \"hit\" index 3, draw 1 interval uniform(45, 75), draw 2 hit < 54%"
+    },
+    {
+      "input": {
+        "fn": "hitAttempt",
+        "runSeed": 20260926,
+        "index": 12,
+        "params": {
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54
+        }
+      },
+      "expected": {
+        "interval_s": 74.259427,
+        "hit": false
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · ADR 0003 6.4: stream \"hit\" index 12, draw 1 interval uniform(45, 75), draw 2 hit < 54%"
+    },
+    {
+      "input": {
+        "fn": "soloDamage",
+        "level": 1,
+        "ownClass": "tanker",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "def": 20,
+        "params": {
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": 9.824619,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · Phase 2 base DEF, level 1 in 1-5, solo tanker: Tanker own buff (P = 1.02), others x1.6"
+    },
+    {
+      "input": {
+        "fn": "soloDamage",
+        "level": 1,
+        "ownClass": "ranged",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "def": 20,
+        "params": {
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": 18.770254,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · Phase 2 base DEF, level 1 in 1-5, solo ranged: Tanker own buff (P = 1.02), others x1.6"
+    },
+    {
+      "input": {
+        "fn": "soloDamage",
+        "level": 1,
+        "ownClass": "support",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "def": 20,
+        "params": {
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": 18.770254,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · Phase 2 base DEF, level 1 in 1-5, solo support: Tanker own buff (P = 1.02), others x1.6"
+    },
+    {
+      "input": {
+        "fn": "soloDamage",
+        "level": 1,
+        "ownClass": "magic",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "def": 20,
+        "params": {
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": 18.770254,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · Phase 2 base DEF, level 1 in 1-5, solo magic: Tanker own buff (P = 1.02), others x1.6"
+    },
+    {
+      "input": {
+        "fn": "soloDamage",
+        "level": 1,
+        "ownClass": "ranged",
+        "rangeMin": 1,
+        "rangeMax": 35,
+        "def": 20,
+        "params": {
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": 192.782128,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in PN-2 1-35: Z = 18 for everyone in range, about 64% of max HP per hit (finding F-18)"
+    },
+    {
+      "input": {
+        "fn": "soloDamage",
+        "level": 1,
+        "ownClass": "ranged",
+        "rangeMin": 20,
+        "rangeMax": 30,
+        "def": 20,
+        "params": {
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": 20503.347492,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in 20-30: 1.25^19 below the range, unbounded (A-2)"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 3,
+        "limit_s": 21600,
+        "failedTicks": [],
+        "ownClass": "ranged",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 300,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": true,
+        "inventory": {
+          "hpSmall": 1,
+          "revive": 1
+        },
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true
+      },
+      "expected": {
+        "exitReason": "auto_retreat",
+        "end_s": 1914.314515,
+        "ticksEvaluated": 6,
+        "ticksGranted": 6,
+        "attempts": 31,
+        "hitsLanded": 22,
+        "potionsFromRunBag": 1,
+        "potionsFromInventory": 1,
+        "firstPotionDrop_s": 300,
+        "lowHpWarnings": 1,
+        "hpEnd": 67.054416,
+        "levelEnd": 3,
+        "expEnd": 225.496856,
+        "expGained": 561.184462,
+        "runBag": {
+          "elementDust": 8,
+          "elementCore": 3,
+          "riftStone": 1
+        },
+        "kept": {
+          "elementDust": 8,
+          "elementCore": 3,
+          "riftStone": 1
+        },
+        "lost": {},
+        "inventoryEnd": {
+          "revive": 1,
+          "elementDust": 8,
+          "elementCore": 3,
+          "riftStone": 1
+        },
+        "events": [
+          { "t_s": 69.707682, "type": "attempt", "i": 0, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 136.796382, "type": "attempt", "i": 1, "landed": true, "damage": 18.770254, "hpAfter": 281.229746, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 190.549908, "type": "attempt", "i": 2, "landed": true, "damage": 18.770254, "hpAfter": 262.459492, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 255.583793, "type": "attempt", "i": 3, "landed": false, "damage": 0, "hpAfter": 262.459492, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1,elementCore:1,hpSmall:1" },
+          { "t_s": 329.432339, "type": "attempt", "i": 4, "landed": false, "damage": 0, "hpAfter": 262.459492, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 376.24591, "type": "attempt", "i": 5, "landed": true, "damage": 18.770254, "hpAfter": 243.689239, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 445.224072, "type": "attempt", "i": 6, "landed": true, "damage": 18.770254, "hpAfter": 224.918985, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 505.19286, "type": "attempt", "i": 7, "landed": true, "damage": 18.770254, "hpAfter": 206.148731, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 565.575488, "type": "attempt", "i": 8, "landed": true, "damage": 18.770254, "hpAfter": 187.378477, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 600, "type": "tick", "k": 1, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1,elementCore:1" },
+          { "t_s": 611.812836, "type": "attempt", "i": 9, "landed": true, "damage": 18.770254, "hpAfter": 168.608223, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 685.000371, "type": "attempt", "i": 10, "landed": false, "damage": 0, "hpAfter": 168.608223, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 744.115385, "type": "attempt", "i": 11, "landed": false, "damage": 0, "hpAfter": 168.608223, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 796.667173, "type": "attempt", "i": 12, "landed": false, "damage": 0, "hpAfter": 168.608223, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 842.307228, "type": "attempt", "i": 13, "landed": true, "damage": 18.770254, "hpAfter": 149.83797, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 900, "type": "tick", "k": 2, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:2,elementCore:1" },
+          { "t_s": 910.020284, "type": "attempt", "i": 14, "landed": true, "damage": 18.770254, "hpAfter": 131.067716, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 984.760069, "type": "attempt", "i": 15, "landed": false, "damage": 0, "hpAfter": 131.067716, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1036.513867, "type": "attempt", "i": 16, "landed": true, "damage": 18.770254, "hpAfter": 202.297462, "shieldAfter": 0, "potion": "runBag:hpSmall", "warning": false, "outcome": "continue" },
+          { "t_s": 1101.638427, "type": "attempt", "i": 17, "landed": true, "damage": 18.770254, "hpAfter": 183.527208, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1175.135687, "type": "attempt", "i": 18, "landed": true, "damage": 18.770254, "hpAfter": 164.756954, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1200, "type": "tick", "k": 3, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 1243.908052, "type": "attempt", "i": 19, "landed": true, "damage": 18.770254, "hpAfter": 145.986701, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1302.750385, "type": "attempt", "i": 20, "landed": true, "damage": 18.770254, "hpAfter": 127.216447, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1374.170736, "type": "attempt", "i": 21, "landed": true, "damage": 18.770254, "hpAfter": 198.446193, "shieldAfter": 0, "potion": "inventory:hpSmall", "warning": false, "outcome": "continue" },
+          { "t_s": 1433.090028, "type": "attempt", "i": 22, "landed": true, "damage": 18.770254, "hpAfter": 179.675939, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1486.887647, "type": "attempt", "i": 23, "landed": true, "damage": 18.770254, "hpAfter": 160.905685, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1500, "type": "tick", "k": 4, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:2,riftStone:1" },
+          { "t_s": 1556.975796, "type": "attempt", "i": 24, "landed": true, "damage": 18.770254, "hpAfter": 142.135432, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1627.488799, "type": "attempt", "i": 25, "landed": false, "damage": 0, "hpAfter": 142.135432, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1675.636348, "type": "attempt", "i": 26, "landed": true, "damage": 18.770254, "hpAfter": 123.365178, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1730.848747, "type": "attempt", "i": 27, "landed": true, "damage": 18.770254, "hpAfter": 104.594924, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1789.680799, "type": "attempt", "i": 28, "landed": true, "damage": 18.770254, "hpAfter": 85.82467, "shieldAfter": 0, "potion": null, "warning": true, "outcome": "continue" },
+          { "t_s": 1800, "type": "tick", "k": 5, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 1858.221834, "type": "attempt", "i": 29, "landed": false, "damage": 0, "hpAfter": 85.82467, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1914.314515, "type": "attempt", "i": 30, "landed": true, "damage": 18.770254, "hpAfter": 67.054416, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "autoRetreat" }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · auto-retreat ON (default): run-bag potion first, then the inventory potion (sourceOrder, F06 R12); ends auto_retreat with every run-bag item kept (autoRetreatKeepsRunLoot); revive never auto-drunk"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 3,
+        "limit_s": 21600,
+        "failedTicks": [],
+        "ownClass": "ranged",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 300,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": false,
+        "inventory": {
+          "hpSmall": 1,
+          "revive": 1
+        },
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true
+      },
+      "expected": {
+        "exitReason": "death",
+        "end_s": 2352.259789,
+        "ticksEvaluated": 7,
+        "ticksGranted": 7,
+        "attempts": 38,
+        "hitsLanded": 26,
+        "potionsFromRunBag": 1,
+        "potionsFromInventory": 1,
+        "firstPotionDrop_s": 300,
+        "lowHpWarnings": 1,
+        "hpEnd": 0,
+        "levelEnd": 3,
+        "expEnd": 319.0276,
+        "expGained": 654.715205,
+        "runBag": {
+          "elementDust": 8,
+          "elementCore": 3,
+          "riftStone": 1
+        },
+        "kept": {},
+        "lost": {
+          "elementDust": 8,
+          "elementCore": 3,
+          "riftStone": 1
+        },
+        "inventoryEnd": {
+          "revive": 1
+        },
+        "events": [
+          { "t_s": 69.707682, "type": "attempt", "i": 0, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 136.796382, "type": "attempt", "i": 1, "landed": true, "damage": 18.770254, "hpAfter": 281.229746, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 190.549908, "type": "attempt", "i": 2, "landed": true, "damage": 18.770254, "hpAfter": 262.459492, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 255.583793, "type": "attempt", "i": 3, "landed": false, "damage": 0, "hpAfter": 262.459492, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1,elementCore:1,hpSmall:1" },
+          { "t_s": 329.432339, "type": "attempt", "i": 4, "landed": false, "damage": 0, "hpAfter": 262.459492, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 376.24591, "type": "attempt", "i": 5, "landed": true, "damage": 18.770254, "hpAfter": 243.689239, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 445.224072, "type": "attempt", "i": 6, "landed": true, "damage": 18.770254, "hpAfter": 224.918985, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 505.19286, "type": "attempt", "i": 7, "landed": true, "damage": 18.770254, "hpAfter": 206.148731, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 565.575488, "type": "attempt", "i": 8, "landed": true, "damage": 18.770254, "hpAfter": 187.378477, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 600, "type": "tick", "k": 1, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1,elementCore:1" },
+          { "t_s": 611.812836, "type": "attempt", "i": 9, "landed": true, "damage": 18.770254, "hpAfter": 168.608223, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 685.000371, "type": "attempt", "i": 10, "landed": false, "damage": 0, "hpAfter": 168.608223, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 744.115385, "type": "attempt", "i": 11, "landed": false, "damage": 0, "hpAfter": 168.608223, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 796.667173, "type": "attempt", "i": 12, "landed": false, "damage": 0, "hpAfter": 168.608223, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 842.307228, "type": "attempt", "i": 13, "landed": true, "damage": 18.770254, "hpAfter": 149.83797, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 900, "type": "tick", "k": 2, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:2,elementCore:1" },
+          { "t_s": 910.020284, "type": "attempt", "i": 14, "landed": true, "damage": 18.770254, "hpAfter": 131.067716, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 984.760069, "type": "attempt", "i": 15, "landed": false, "damage": 0, "hpAfter": 131.067716, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1036.513867, "type": "attempt", "i": 16, "landed": true, "damage": 18.770254, "hpAfter": 202.297462, "shieldAfter": 0, "potion": "runBag:hpSmall", "warning": false, "outcome": "continue" },
+          { "t_s": 1101.638427, "type": "attempt", "i": 17, "landed": true, "damage": 18.770254, "hpAfter": 183.527208, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1175.135687, "type": "attempt", "i": 18, "landed": true, "damage": 18.770254, "hpAfter": 164.756954, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1200, "type": "tick", "k": 3, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 1243.908052, "type": "attempt", "i": 19, "landed": true, "damage": 18.770254, "hpAfter": 145.986701, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1302.750385, "type": "attempt", "i": 20, "landed": true, "damage": 18.770254, "hpAfter": 127.216447, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1374.170736, "type": "attempt", "i": 21, "landed": true, "damage": 18.770254, "hpAfter": 198.446193, "shieldAfter": 0, "potion": "inventory:hpSmall", "warning": false, "outcome": "continue" },
+          { "t_s": 1433.090028, "type": "attempt", "i": 22, "landed": true, "damage": 18.770254, "hpAfter": 179.675939, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1486.887647, "type": "attempt", "i": 23, "landed": true, "damage": 18.770254, "hpAfter": 160.905685, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1500, "type": "tick", "k": 4, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:2,riftStone:1" },
+          { "t_s": 1556.975796, "type": "attempt", "i": 24, "landed": true, "damage": 18.770254, "hpAfter": 142.135432, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1627.488799, "type": "attempt", "i": 25, "landed": false, "damage": 0, "hpAfter": 142.135432, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1675.636348, "type": "attempt", "i": 26, "landed": true, "damage": 18.770254, "hpAfter": 123.365178, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1730.848747, "type": "attempt", "i": 27, "landed": true, "damage": 18.770254, "hpAfter": 104.594924, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1789.680799, "type": "attempt", "i": 28, "landed": true, "damage": 18.770254, "hpAfter": 85.82467, "shieldAfter": 0, "potion": null, "warning": true, "outcome": "continue" },
+          { "t_s": 1800, "type": "tick", "k": 5, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 1858.221834, "type": "attempt", "i": 29, "landed": false, "damage": 0, "hpAfter": 85.82467, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1914.314515, "type": "attempt", "i": 30, "landed": true, "damage": 18.770254, "hpAfter": 67.054416, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1970.568565, "type": "attempt", "i": 31, "landed": false, "damage": 0, "hpAfter": 67.054416, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 2036.735989, "type": "attempt", "i": 32, "landed": false, "damage": 0, "hpAfter": 67.054416, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 2100, "type": "tick", "k": 6, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "" },
+          { "t_s": 2107.272098, "type": "attempt", "i": 33, "landed": true, "damage": 18.770254, "hpAfter": 48.284163, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 2167.865018, "type": "attempt", "i": 34, "landed": false, "damage": 0, "hpAfter": 48.284163, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 2230.143762, "type": "attempt", "i": 35, "landed": true, "damage": 18.770254, "hpAfter": 29.513909, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 2283.357986, "type": "attempt", "i": 36, "landed": true, "damage": 18.770254, "hpAfter": 10.743655, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 2352.259789, "type": "attempt", "i": 37, "landed": true, "damage": 18.770254, "hpAfter": 0, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "died" }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · same seed, auto-retreat OFF: same draws until the retreat point, then death at HP 0: run loot lost (loseAllRunLoot), exp kept, inventory revive kept (D-094, F05 R21, TL N-14)"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 11,
+        "limit_s": 1800,
+        "failedTicks": [
+          1,
+          2
+        ],
+        "ownClass": "magic",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 300,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": true,
+        "inventory": {},
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.36,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true
+      },
+      "expected": {
+        "exitReason": "auto_retreat",
+        "end_s": 1095.902456,
+        "ticksEvaluated": 3,
+        "ticksGranted": 1,
+        "attempts": 18,
+        "hitsLanded": 13,
+        "potionsFromRunBag": 0,
+        "potionsFromInventory": 0,
+        "firstPotionDrop_s": null,
+        "lowHpWarnings": 1,
+        "hpEnd": 61.168632,
+        "levelEnd": 2,
+        "expEnd": 122.810677,
+        "expGained": 182.810677,
+        "runBag": {
+          "elementDust": 1
+        },
+        "kept": {
+          "elementDust": 1
+        },
+        "lost": {},
+        "inventoryEnd": {
+          "elementDust": 1
+        },
+        "events": [
+          { "t_s": 71.00491, "type": "attempt", "i": 0, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 142.672494, "type": "attempt", "i": 1, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 210.089169, "type": "attempt", "i": 2, "landed": true, "damage": 18.770254, "hpAfter": 281.229746, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 267.254953, "type": "attempt", "i": 3, "landed": true, "damage": 18.770254, "hpAfter": 262.459492, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 182.810677, "level": 2, "shield": 5.181931, "loot": "elementDust:1" },
+          { "t_s": 320.086108, "type": "attempt", "i": 4, "landed": true, "damage": 18.770254, "hpAfter": 248.87117, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 394.850716, "type": "attempt", "i": 5, "landed": true, "damage": 18.770254, "hpAfter": 230.100916, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 449.801082, "type": "attempt", "i": 6, "landed": true, "damage": 18.770254, "hpAfter": 211.330662, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 499.356236, "type": "attempt", "i": 7, "landed": true, "damage": 18.770254, "hpAfter": 192.560408, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 571.776538, "type": "attempt", "i": 8, "landed": true, "damage": 18.770254, "hpAfter": 173.790155, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 600, "type": "tick", "k": 1, "granted": false, "exp": 0, "level": 2, "shield": 0, "loot": "" },
+          { "t_s": 638.612078, "type": "attempt", "i": 9, "landed": false, "damage": 0, "hpAfter": 173.790155, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 685.318121, "type": "attempt", "i": 10, "landed": true, "damage": 18.770254, "hpAfter": 155.019901, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 737.989572, "type": "attempt", "i": 11, "landed": true, "damage": 18.770254, "hpAfter": 136.249647, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 808.484874, "type": "attempt", "i": 12, "landed": true, "damage": 18.770254, "hpAfter": 117.479393, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 875.844977, "type": "attempt", "i": 13, "landed": true, "damage": 18.770254, "hpAfter": 98.709139, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 900, "type": "tick", "k": 2, "granted": false, "exp": 0, "level": 2, "shield": 0, "loot": "" },
+          { "t_s": 923.669517, "type": "attempt", "i": 14, "landed": true, "damage": 18.770254, "hpAfter": 79.938886, "shieldAfter": 0, "potion": null, "warning": true, "outcome": "continue" },
+          { "t_s": 978.756135, "type": "attempt", "i": 15, "landed": false, "damage": 0, "hpAfter": 79.938886, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1048.757304, "type": "attempt", "i": 16, "landed": false, "damage": 0, "hpAfter": 79.938886, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1095.902456, "type": "attempt", "i": 17, "landed": true, "damage": 18.770254, "hpAfter": 61.168632, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "autoRetreat" }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · Magic shield only on granted ticks (k = 1, 2 fail the gate: no loot, no exp, no shield, no drop draw; the next granted tick uses drop index 1), replaced not stacked (F06 R31.4)"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 5,
+        "limit_s": 21600,
+        "failedTicks": [],
+        "ownClass": "support",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 300,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": true,
+        "inventory": {},
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.36,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true
+      },
+      "expected": {
+        "exitReason": "auto_retreat",
+        "end_s": 1735.320675,
+        "ticksEvaluated": 5,
+        "ticksGranted": 5,
+        "attempts": 29,
+        "hitsLanded": 15,
+        "potionsFromRunBag": 0,
+        "potionsFromInventory": 0,
+        "firstPotionDrop_s": null,
+        "lowHpWarnings": 1,
+        "hpEnd": 62.949261,
+        "levelEnd": 3,
+        "expEnd": 131.966113,
+        "expGained": 467.653718,
+        "runBag": {
+          "elementDust": 3,
+          "elementCore": 1
+        },
+        "kept": {
+          "elementDust": 3,
+          "elementCore": 1
+        },
+        "lost": {},
+        "inventoryEnd": {
+          "elementDust": 3,
+          "elementCore": 1
+        },
+        "events": [
+          { "t_s": 53.085778, "type": "attempt", "i": 0, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 127.361962, "type": "attempt", "i": 1, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 191.765534, "type": "attempt", "i": 2, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 259.537031, "type": "attempt", "i": 3, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 320.39443, "type": "attempt", "i": 4, "landed": true, "damage": 18.770254, "hpAfter": 281.229746, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 392.21549, "type": "attempt", "i": 5, "landed": false, "damage": 0, "hpAfter": 283.486429, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 455.721061, "type": "attempt", "i": 6, "landed": true, "damage": 18.770254, "hpAfter": 266.711578, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 506.904505, "type": "attempt", "i": 7, "landed": true, "damage": 18.770254, "hpAfter": 249.549554, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 552.106832, "type": "attempt", "i": 8, "landed": true, "damage": 18.770254, "hpAfter": 232.199599, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 598.500728, "type": "attempt", "i": 9, "landed": true, "damage": 18.770254, "hpAfter": 214.887083, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 600, "type": "tick", "k": 1, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 653.709386, "type": "attempt", "i": 10, "landed": false, "damage": 0, "hpAfter": 216.621789, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 715.786884, "type": "attempt", "i": 11, "landed": false, "damage": 0, "hpAfter": 218.57232, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 783.368057, "type": "attempt", "i": 12, "landed": true, "damage": 18.770254, "hpAfter": 201.925528, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 834.66505, "type": "attempt", "i": 13, "landed": true, "damage": 18.770254, "hpAfter": 184.767072, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 897.389289, "type": "attempt", "i": 14, "landed": true, "damage": 18.770254, "hpAfter": 167.967671, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 900, "type": "tick", "k": 2, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "" },
+          { "t_s": 954.763252, "type": "attempt", "i": 15, "landed": false, "damage": 0, "hpAfter": 169.770413, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1018.494162, "type": "attempt", "i": 16, "landed": false, "damage": 0, "hpAfter": 171.772896, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1078.789565, "type": "attempt", "i": 17, "landed": false, "damage": 0, "hpAfter": 173.667432, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1125.388377, "type": "attempt", "i": 18, "landed": false, "damage": 0, "hpAfter": 175.131609, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1189.906481, "type": "attempt", "i": 19, "landed": true, "damage": 18.770254, "hpAfter": 158.388573, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1200, "type": "tick", "k": 3, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "" },
+          { "t_s": 1244.940238, "type": "attempt", "i": 20, "landed": false, "damage": 0, "hpAfter": 160.121544, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1296.452222, "type": "attempt", "i": 21, "landed": true, "damage": 18.770254, "hpAfter": 142.974155, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1371.030305, "type": "attempt", "i": 22, "landed": false, "damage": 0, "hpAfter": 145.323708, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1439.177966, "type": "attempt", "i": 23, "landed": true, "damage": 18.770254, "hpAfter": 128.700419, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1500, "type": "tick", "k": 4, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1,elementCore:1" },
+          { "t_s": 1511.986592, "type": "attempt", "i": 24, "landed": false, "damage": 0, "hpAfter": 130.994225, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1572.747849, "type": "attempt", "i": 25, "landed": true, "damage": 18.770254, "hpAfter": 114.13823, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1622.839645, "type": "attempt", "i": 26, "landed": true, "damage": 18.770254, "hpAfter": 96.946099, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1680.847235, "type": "attempt", "i": 27, "landed": true, "damage": 18.770254, "hpAfter": 80.003351, "shieldAfter": 0, "potion": null, "warning": true, "outcome": "continue" },
+          { "t_s": 1735.320675, "type": "attempt", "i": 28, "landed": true, "damage": 18.770254, "hpAfter": 62.949261, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "autoRetreat" }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · Support heals itself over active time (F06 R31.5), no potion drops (no-potion case)"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 2,
+        "limit_s": 1800,
+        "failedTicks": [],
+        "ownClass": "tanker",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 300,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": true,
+        "inventory": {},
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.36,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true
+      },
+      "expected": {
+        "exitReason": "manual_exit",
+        "end_s": 1800,
+        "ticksEvaluated": 6,
+        "ticksGranted": 6,
+        "attempts": 30,
+        "hitsLanded": 16,
+        "potionsFromRunBag": 0,
+        "potionsFromInventory": 0,
+        "firstPotionDrop_s": null,
+        "lowHpWarnings": 0,
+        "hpEnd": 143.335883,
+        "levelEnd": 3,
+        "expEnd": 225.496856,
+        "expGained": 561.184462,
+        "runBag": {
+          "elementDust": 4
+        },
+        "kept": {
+          "elementDust": 4
+        },
+        "lost": {},
+        "inventoryEnd": {
+          "elementDust": 4
+        },
+        "events": [
+          { "t_s": 48.167124, "type": "attempt", "i": 0, "landed": true, "damage": 9.824619, "hpAfter": 290.175381, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 101.352537, "type": "attempt", "i": 1, "landed": false, "damage": 0, "hpAfter": 290.175381, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 156.51791, "type": "attempt", "i": 2, "landed": false, "damage": 0, "hpAfter": 290.175381, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 206.32037, "type": "attempt", "i": 3, "landed": true, "damage": 9.824619, "hpAfter": 280.350762, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 279.752758, "type": "attempt", "i": 4, "landed": true, "damage": 9.824619, "hpAfter": 270.526144, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 338.360523, "type": "attempt", "i": 5, "landed": true, "damage": 9.795115, "hpAfter": 260.731029, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 397.29792, "type": "attempt", "i": 6, "landed": false, "damage": 0, "hpAfter": 260.731029, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 457.230322, "type": "attempt", "i": 7, "landed": false, "damage": 0, "hpAfter": 260.731029, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 512.160921, "type": "attempt", "i": 8, "landed": false, "damage": 0, "hpAfter": 260.731029, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 565.210694, "type": "attempt", "i": 9, "landed": false, "damage": 0, "hpAfter": 260.731029, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 600, "type": "tick", "k": 1, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 611.531852, "type": "attempt", "i": 10, "landed": true, "damage": 9.795115, "hpAfter": 250.935914, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 679.243423, "type": "attempt", "i": 11, "landed": true, "damage": 9.795115, "hpAfter": 241.1408, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 737.432849, "type": "attempt", "i": 12, "landed": true, "damage": 9.795115, "hpAfter": 231.345685, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 810.236153, "type": "attempt", "i": 13, "landed": false, "damage": 0, "hpAfter": 231.345685, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 869.371705, "type": "attempt", "i": 14, "landed": true, "damage": 9.795115, "hpAfter": 221.55057, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 900, "type": "tick", "k": 2, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 915.962171, "type": "attempt", "i": 15, "landed": true, "damage": 9.795115, "hpAfter": 211.755456, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 982.459934, "type": "attempt", "i": 16, "landed": false, "damage": 0, "hpAfter": 211.755456, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1042.4598, "type": "attempt", "i": 17, "landed": true, "damage": 9.795115, "hpAfter": 201.960341, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1110.882266, "type": "attempt", "i": 18, "landed": true, "damage": 9.795115, "hpAfter": 192.165226, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1178.63507, "type": "attempt", "i": 19, "landed": false, "damage": 0, "hpAfter": 192.165226, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1200, "type": "tick", "k": 3, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "" },
+          { "t_s": 1226.373807, "type": "attempt", "i": 20, "landed": false, "damage": 0, "hpAfter": 192.165226, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1277.79306, "type": "attempt", "i": 21, "landed": false, "damage": 0, "hpAfter": 192.165226, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1337.222207, "type": "attempt", "i": 22, "landed": true, "damage": 9.765869, "hpAfter": 182.399358, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1407.341444, "type": "attempt", "i": 23, "landed": true, "damage": 9.765869, "hpAfter": 172.633489, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1460.09684, "type": "attempt", "i": 24, "landed": false, "damage": 0, "hpAfter": 172.633489, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1500, "type": "tick", "k": 4, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1" },
+          { "t_s": 1529.012841, "type": "attempt", "i": 25, "landed": false, "damage": 0, "hpAfter": 172.633489, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1601.767562, "type": "attempt", "i": 26, "landed": true, "damage": 9.765869, "hpAfter": 162.86762, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1671.814381, "type": "attempt", "i": 27, "landed": true, "damage": 9.765869, "hpAfter": 153.101752, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1727.507929, "type": "attempt", "i": 28, "landed": true, "damage": 9.765869, "hpAfter": 143.335883, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 1791.985806, "type": "attempt", "i": 29, "landed": false, "damage": 0, "hpAfter": 143.335883, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 1800, "type": "tick", "k": 5, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "" }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · Tanker level 1 with potion drops, manual exit at 30 min (limit_s): run bag kept"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 20260926,
+        "limit_s": 300,
+        "failedTicks": [],
+        "ownClass": "ranged",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 100,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": true,
+        "inventory": {},
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 300,
+          "intervalMax_s": 300,
+          "hitChance_pct": 100,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true
+      },
+      "expected": {
+        "exitReason": "manual_exit",
+        "end_s": 300,
+        "ticksEvaluated": 1,
+        "ticksGranted": 1,
+        "attempts": 1,
+        "hitsLanded": 1,
+        "potionsFromRunBag": 1,
+        "potionsFromInventory": 0,
+        "firstPotionDrop_s": 300,
+        "lowHpWarnings": 0,
+        "hpEnd": 171.229746,
+        "levelEnd": 2,
+        "expEnd": 33.530744,
+        "expGained": 93.530744,
+        "runBag": {
+          "elementDust": 1,
+          "elementCore": 1
+        },
+        "kept": {
+          "elementDust": 1,
+          "elementCore": 1
+        },
+        "lost": {},
+        "inventoryEnd": {
+          "elementDust": 1,
+          "elementCore": 1
+        },
+        "events": [
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1,elementCore:1,hpSmall:1" },
+          { "t_s": 300, "type": "attempt", "i": 0, "landed": true, "damage": 18.770254, "hpAfter": 171.229746, "shieldAfter": 0, "potion": "runBag:hpSmall", "warning": false, "outcome": "continue" }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · synthetic timing (interval fixed at window_s, hit chance 100%): the first attempt lands at the same instant as tick 0, the tick runs first (F05 R19), its hpSmall drop enters the run bag and the hit drinks it at once (F06 R10, H-E8)"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 20260926,
+        "limit_s": 300,
+        "failedTicks": [],
+        "ownClass": "ranged",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 70,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": true,
+        "inventory": {},
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 300,
+          "intervalMax_s": 300,
+          "hitChance_pct": 100,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true
+      },
+      "expected": {
+        "exitReason": "auto_retreat",
+        "end_s": 300,
+        "ticksEvaluated": 1,
+        "ticksGranted": 1,
+        "attempts": 1,
+        "hitsLanded": 1,
+        "potionsFromRunBag": 0,
+        "potionsFromInventory": 0,
+        "firstPotionDrop_s": null,
+        "lowHpWarnings": 0,
+        "hpEnd": 51.229746,
+        "levelEnd": 2,
+        "expEnd": 33.530744,
+        "expGained": 93.530744,
+        "runBag": {
+          "elementDust": 1,
+          "elementCore": 1
+        },
+        "kept": {
+          "elementDust": 1,
+          "elementCore": 1
+        },
+        "lost": {},
+        "inventoryEnd": {
+          "elementDust": 1,
+          "elementCore": 1
+        },
+        "events": [
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 93.530744, "level": 2, "shield": 0, "loot": "elementDust:1,elementCore:1" },
+          { "t_s": 300, "type": "attempt", "i": 0, "landed": true, "damage": 18.770254, "hpAfter": 51.229746, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "autoRetreat" }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · synthetic timing: run entered at 23% HP (F06 R05, H-E11), tick 0 at the same instant is paid first, then the first hit ends the run by auto-retreat with that loot kept"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 9,
+        "limit_s": 21600,
+        "failedTicks": [],
+        "ownClass": "ranged",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 300,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 35,
+        "autoRetreatEnabled": true,
+        "inventory": {},
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true
+      },
+      "expected": {
+        "exitReason": "auto_retreat",
+        "end_s": 179.888781,
+        "ticksEvaluated": 0,
+        "ticksGranted": 0,
+        "attempts": 3,
+        "hitsLanded": 2,
+        "potionsFromRunBag": 0,
+        "potionsFromInventory": 0,
+        "firstPotionDrop_s": null,
+        "lowHpWarnings": 1,
+        "hpEnd": 1,
+        "levelEnd": 1,
+        "expEnd": 0,
+        "expGained": 0,
+        "runBag": {},
+        "kept": {},
+        "lost": {},
+        "inventoryEnd": {},
+        "events": [
+          { "t_s": 58.395786, "type": "attempt", "i": 0, "landed": true, "damage": 192.782128, "hpAfter": 107.217872, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue" },
+          { "t_s": 128.063409, "type": "attempt", "i": 1, "landed": false, "damage": 0, "hpAfter": 107.217872, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss" },
+          { "t_s": 179.888781, "type": "attempt", "i": 2, "landed": true, "damage": 192.782128, "hpAfter": 1, "shieldAfter": 0, "potion": null, "warning": true, "outcome": "autoRetreat" }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · PN-2 1-35 at level 1: auto-retreat after a few hits (finding F-18, R43 not met)"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "tanker",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 5,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.36,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 0.6,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 33.958417,
+        "median_min": 43.423041,
+        "p90_min": 52.703511,
+        "mean_min": 43.497169,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0,
+        "potionsUsedPerRun": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · R43 (spec F06): level 1 tanker, 1-5 dungeon, no potions, runSeed 1..200: median minutes to auto-retreat must be >= 2 x movementGate.window_s (10 min)"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "tanker",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 5,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.36,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 0.6,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 17,
+              "qtyMult": 1,
+              "chanceMult": 1,
+              "items": [
+                { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1,
+              "qtyMult": 1,
+              "chanceMult": 1,
+              "items": [
+                { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 40.967944,
+        "median_min": 79.65955,
+        "p90_min": 165.978745,
+        "mean_min": 95.177382,
+        "endedShare": 0.995,
+        "potionBeforeEndShare": 0.795,
+        "potionsUsedPerRun": 3.07
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 tanker, 1-5 dungeon, with potion drops (B-06): potionBeforeEndShare = share of runs that got a potion before auto-retreat"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "ranged",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 5,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.7036386229960384,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 1.1727310383267306,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 16.339281,
+        "median_min": 22.007613,
+        "p90_min": 28.193765,
+        "mean_min": 22.202106,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0,
+        "potionsUsedPerRun": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · R43 (spec F06): level 1 ranged, 1-5 dungeon, no potions, runSeed 1..200: median minutes to auto-retreat must be >= 2 x movementGate.window_s (10 min)"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "ranged",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 5,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.7036386229960384,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 1.1727310383267306,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 17,
+              "qtyMult": 1,
+              "chanceMult": 1,
+              "items": [
+                { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1,
+              "qtyMult": 1,
+              "chanceMult": 1,
+              "items": [
+                { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 17.175037,
+        "median_min": 28.771175,
+        "p90_min": 48.565205,
+        "mean_min": 31.656649,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0.555,
+        "potionsUsedPerRun": 1.02
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 ranged, 1-5 dungeon, with potion drops (B-06): potionBeforeEndShare = share of runs that got a potion before auto-retreat"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "support",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 5,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.36,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 0.6,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 19.623383,
+        "median_min": 27.734443,
+        "p90_min": 35.663952,
+        "mean_min": 27.890331,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0,
+        "potionsUsedPerRun": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · R43 (spec F06): level 1 support, 1-5 dungeon, no potions, runSeed 1..200: median minutes to auto-retreat must be >= 2 x movementGate.window_s (10 min)"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "support",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 5,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.36,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 0.6,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 17,
+              "qtyMult": 1,
+              "chanceMult": 1,
+              "items": [
+                { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1,
+              "qtyMult": 1,
+              "chanceMult": 1,
+              "items": [
+                { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 21.11683,
+        "median_min": 37.596084,
+        "p90_min": 72.728691,
+        "mean_min": 43.569843,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0.62,
+        "potionsUsedPerRun": 1.425
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 support, 1-5 dungeon, with potion drops (B-06): potionBeforeEndShare = share of runs that got a potion before auto-retreat"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "magic",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 5,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.36,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 0.6,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 18.009903,
+        "median_min": 25.933534,
+        "p90_min": 32.625037,
+        "mean_min": 25.623247,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0,
+        "potionsUsedPerRun": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · R43 (spec F06): level 1 magic, 1-5 dungeon, no potions, runSeed 1..200: median minutes to auto-retreat must be >= 2 x movementGate.window_s (10 min)"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "magic",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 5,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.36,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 0.6,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 17,
+              "qtyMult": 1,
+              "chanceMult": 1,
+              "items": [
+                { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1,
+              "qtyMult": 1,
+              "chanceMult": 1,
+              "items": [
+                { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 18.88897,
+        "median_min": 33.645138,
+        "p90_min": 59.878906,
+        "mean_min": 37.688684,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0.595,
+        "potionsUsedPerRun": 1.22
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 magic, 1-5 dungeon, with potion drops (B-06): potionBeforeEndShare = share of runs that got a potion before auto-retreat"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "ranged",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 35,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.7036386229960384,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 1.1727310383267306,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 1.7590965574900959,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 2.016671,
+        "median_min": 3.481088,
+        "p90_min": 6.648451,
+        "mean_min": 3.985976,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0,
+        "potionsUsedPerRun": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · PN-2 1-35, level 1 Ranged, no potions: R43 NOT met (finding F-18, sent to game-director)"
+    },
+    {
+      "input": {
+        "fn": "runLoopStats",
+        "firstSeed": 1,
+        "runs": 200,
+        "loop": {
+          "limit_s": 21600,
+          "failedTicks": [],
+          "ownClass": "tanker",
+          "level": 1,
+          "exp": 0,
+          "maxHp": 300,
+          "hp": 300,
+          "def": 20,
+          "vit": 0,
+          "rangeMin": 1,
+          "rangeMax": 35,
+          "autoRetreatEnabled": true,
+          "inventory": {},
+          "table": [
+            {
+              "rarity": "common",
+              "chance_pct": null,
+              "qtyMult": 0.36,
+              "chanceMult": 1,
+              "items": [
+                { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+              ]
+            },
+            {
+              "rarity": "uncommon",
+              "chance_pct": 25,
+              "qtyMult": 1,
+              "chanceMult": 0.6,
+              "items": [
+                { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "rare",
+              "chance_pct": 6,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "epic",
+              "chance_pct": 1.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            },
+            {
+              "rarity": "legendary",
+              "chance_pct": 0.2,
+              "qtyMult": 1,
+              "chanceMult": 0.8999999999999999,
+              "items": [
+                { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+                { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+              ]
+            }
+          ],
+          "params": {
+            "window_s": 300,
+            "intervalMin_s": 45,
+            "intervalMax_s": 75,
+            "hitChance_pct": 54,
+            "monster": {
+              "monsterAtkCoef": 3,
+              "monsterAtkExponent": 1.3,
+              "defSoftcap": 300,
+              "damageMultPerLevelBelowRange": 1.25,
+              "monsterAtkMultAfterFailedRaid": 2,
+              "tankerMissingDebuffMult": 1.6
+            },
+            "buff": {
+              "pPerMemberBase": 1,
+              "pLevelDivisor": 50
+            },
+            "roles": {
+              "tanker": {
+                "base_pct": 16,
+                "cap_pct": 45
+              },
+              "support": {
+                "base_pct": 25,
+                "cap_pct": 50
+              },
+              "magic": {
+                "base_pct": 17,
+                "cap_pct": 50
+              }
+            },
+            "supportHealBase_pctMaxHpPerMin": 0.5,
+            "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+            "exp": {
+              "expToNextCoef": 60,
+              "expToNextExponent": 2.2,
+              "expPerTickCoef": 30,
+              "expPerTickExponent": 1.5,
+              "maxLevel": 60,
+              "startLevel": 1
+            },
+            "expMult": {
+              "magicBuffMaxMult": 1.5,
+              "noMagicMult": 0.6,
+              "levelGapMultPerLevel": 0.92,
+              "levelGapMultFloor": 0.25
+            },
+            "autoRetreatThreshold_pct": 25,
+            "lowHpWarningThreshold_pct": 30,
+            "autoPotionEnabled": true,
+            "autoPotionThreshold_pct": 40,
+            "vitPotionEfficiency_pct": 1,
+            "potionHeal_pct": {
+              "hpSmall": 30,
+              "hpMedium": 60,
+              "hpLarge": 100
+            },
+            "potionOrder": [
+              "hpSmall",
+              "hpMedium",
+              "hpLarge"
+            ],
+            "sourceOrder": [
+              "runBag",
+              "inventory"
+            ]
+          },
+          "recordEvents": false
+        }
+      },
+      "expected": {
+        "runs": 200,
+        "p10_min": 3.221868,
+        "median_min": 5.191295,
+        "p90_min": 8.767868,
+        "mean_min": 5.736572,
+        "endedShare": 1,
+        "potionBeforeEndShare": 0,
+        "potionsUsedPerRun": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · PN-2 1-35, level 1 Tanker, no potions: R43 NOT met (finding F-18)"
+    }
+  ]
+}

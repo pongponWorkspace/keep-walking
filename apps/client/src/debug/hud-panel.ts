@@ -224,6 +224,9 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
       gateWindowsPass: gate.windowsPass,
       gateWindowsPassPct: gate.windowsPassPct,
       stationary5MinAccumM: undefined,
+      gateWindowsPassFiltered: gate.windowsPassFiltered,
+      gateWindowsPassFilteredPct: gate.windowsPassFilteredPct,
+      stationary5MinAccumFilteredM: undefined,
       latencyMedianMs: percentile(
         [...latenciesMs].sort((a, b) => a - b),
         MEDIAN_PERCENTILE,

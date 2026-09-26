@@ -1,22 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import {
-  appPrivacyConfig,
-  clientConfig,
-  parseClientConfig,
-  parsePrivacyConfig,
-} from './runtime';
+import { appPrivacyConfig, clientConfig, parseClientConfig, parsePrivacyConfig } from './runtime';
 
 function validClient(): Record<string, unknown> {
   return {
     locationWeb: { enableHighAccuracy: true, timeout_ms: 15000, maximumAge_ms: 0 },
     providerQuery: {
-      paramNames: { provider: 'loc', trace: 'trace', speed: 'speed', loop: 'loop', hud: 'hud' },
+      paramNames: {
+        provider: 'loc',
+        trace: 'trace',
+        speed: 'speed',
+        loop: 'loop',
+        hud: 'hud',
+        start: 'start',
+        seed: 'seed',
+      },
       allowedProviders: ['web', 'mock', 'capacitor'],
       allowedMockSpeeds: [1, 10, 60],
     },
     providerQueryDefaultsByMode: {
-      development: { provider: 'mock', speed: 1, loop: true, hud: false },
-      production: { provider: 'web', speed: 1, loop: false, hud: false },
+      development: { provider: 'mock', speedMult: 1, loop: true, hud: false },
+      production: { provider: 'web', speedMult: 1, loop: false, hud: false },
     },
     mapView: { maxZoom: 18 },
     hudMeasurement: {
@@ -31,6 +34,9 @@ function validClient(): Record<string, unknown> {
       batteryMinSegment_s: 1200,
       bytesPerMegabyte: 1000000,
     },
+    engine: { tickInterval_ms: 1000 },
+    storage: { sessionPersistInterval_s: 5 },
+    navigation: { coordinateDecimals: 5, externalOpenTimeout_ms: 2500 },
   };
 }
 
@@ -50,10 +56,25 @@ function validPrivacy(): Record<string, unknown> {
 describe('parseClientConfig', () => {
   it('parses a well-formed config', () => {
     const parsed = parseClientConfig(validClient());
-    expect(parsed.locationWeb).toEqual({ enableHighAccuracy: true, timeout_ms: 15000, maximumAge_ms: 0 });
+    expect(parsed.locationWeb).toEqual({
+      enableHighAccuracy: true,
+      timeout_ms: 15000,
+      maximumAge_ms: 0,
+    });
     expect(parsed.providerQuery.paramNames.provider).toBe('loc');
     expect(parsed.providerQueryDefaultsByMode.development.provider).toBe('mock');
     expect(parsed.providerQueryDefaultsByMode.production.provider).toBe('web');
+    expect(parsed.providerQuery.paramNames.start).toBe('start');
+    expect(parsed.providerQuery.paramNames.seed).toBe('seed');
+    expect(parsed.engine).toEqual({ tickInterval_ms: 1000 });
+    expect(parsed.storage).toEqual({ sessionPersistInterval_s: 5 });
+    expect(parsed.navigation).toEqual({ coordinateDecimals: 5, externalOpenTimeout_ms: 2500 });
+  });
+
+  it('fails loudly when engine.tickInterval_ms is missing', () => {
+    const broken = validClient();
+    delete (broken['engine'] as Record<string, unknown>)['tickInterval_ms'];
+    expect(() => parseClientConfig(broken)).toThrow(/tickInterval_ms/);
   });
 
   it('fails loudly when a key is missing', () => {
@@ -72,7 +93,7 @@ describe('parseClientConfig', () => {
     const broken = validClient();
     (broken['providerQueryDefaultsByMode'] as Record<string, unknown>)['development'] = {
       provider: 'bogus',
-      speed: 1,
+      speedMult: 1,
       loop: true,
       hud: false,
     };
@@ -117,6 +138,9 @@ describe('the real committed config files', () => {
     expect(clientConfig.providerQuery.allowedProviders).toContain('mock');
     expect(clientConfig.mapView.maxZoom).toBeGreaterThan(0);
     expect(clientConfig.hudMeasurement.bytesPerMegabyte).toBe(1000000);
+    expect(clientConfig.engine.tickInterval_ms).toBeGreaterThan(0);
+    expect(clientConfig.storage.sessionPersistInterval_s).toBeGreaterThan(0);
+    expect(clientConfig.navigation.coordinateDecimals).toBeGreaterThan(0);
     expect(appPrivacyConfig.rawTraceExport.rawTraceTrim_m).toBeGreaterThan(0);
     expect(appPrivacyConfig.summaryExport.includesCoordinates).toBe(false);
   });

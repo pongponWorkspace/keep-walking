@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/unlocks.schema.json",
+  "title": "config/balance/unlocks.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "market",
+    "npcShop",
+    "enhance",
+    "raid",
+    "statAllocation",
+    "classChange",
+    "partyDetail",
+    "antiCheatHelp",
+    "lore",
+    "parentalConsent",
+    "home"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "_source": { "$ref": "../common.schema.json#/$defs/source" },
+    "market": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns", "seeTradeAccountAgeRule"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 },
+        "seeTradeAccountAgeRule": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "npcShop": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns", "seeNpcPricing", "seePotionPrices"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 },
+        "seeNpcPricing": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "seePotionPrices": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "enhance": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "raid": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns", "gatesPhysicalParticipation"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 },
+        "gatesPhysicalParticipation": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "statAllocation": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "classChange": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "partyDetail": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns", "minNearbyPartyJoins"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 },
+        "minNearbyPartyJoins": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "antiCheatHelp": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns", "unlockOnEvents"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 },
+        "unlockOnEvents": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "lore": {
+      "type": "object",
+      "required": ["unlockId", "minLevel", "minCompletedRuns"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "unlockId": { "type": "string", "minLength": 1 },
+        "minLevel": { "type": "integer", "minimum": 0 },
+        "minCompletedRuns": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "parentalConsent": {
+      "type": "object",
+      "required": ["enabled", "seeMinAge"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "enabled": { "type": "boolean" },
+        "seeMinAge": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "home": {
+      "type": "object",
+      "required": [
+        "farDungeonThreshold_m",
+        "seeOutOfAreaMask",
+        "reevaluateDistance_m",
+        "distanceDisplaySteps_m",
+        "seeAccuracy"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "farDungeonThreshold_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "seeOutOfAreaMask": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "reevaluateDistance_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "distanceDisplaySteps_m": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["upTo_m", "step_m"],
+            "properties": {
+              "upTo_m": { "type": ["number", "null"] },
+              "step_m": { "$ref": "../common.schema.json#/$defs/meters" }
+            },
+            "patternProperties": { "^_": {} }
+          }
+        },
+        "_nullMeans": { "$ref": "../common.schema.json#/$defs/nullMeans" },
+        "seeAccuracy": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/enhance.schema.json",
+  "title": "config/balance/enhance.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "rules",
+    "successRateByTargetLevel_pct",
+    "failureOutcomeByTargetLevel",
+    "pity",
+    "costByTargetLevel",
+    "bossGearMaterial"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "rules": {
+      "type": "object",
+      "required": ["itemCanBreak", "itemCanBeDestroyed", "levelIndexing", "maxEnhanceLevel"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "itemCanBreak": { "const": false, "description": "non-negotiable 6: items never break" },
+        "itemCanBeDestroyed": {
+          "const": false,
+          "description": "non-negotiable 6: items never break"
+        },
+        "levelIndexing": { "type": "string", "minLength": 1 },
+        "maxEnhanceLevel": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "successRateByTargetLevel_pct": {
+      "type": "object",
+      "required": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"],
+      "properties": {
+        "1": { "type": "integer", "minimum": 0 },
+        "2": { "type": "integer", "minimum": 0 },
+        "3": { "type": "integer", "minimum": 0 },
+        "4": { "type": "integer", "minimum": 0 },
+        "5": { "type": "integer", "minimum": 0 },
+        "6": { "type": "integer", "minimum": 0 },
+        "7": { "type": "integer", "minimum": 0 },
+        "8": { "type": "integer", "minimum": 0 },
+        "9": { "type": "integer", "minimum": 0 },
+        "10": { "type": "integer", "minimum": 0 },
+        "11": { "type": "integer", "minimum": 0 },
+        "12": { "type": "integer", "minimum": 0 },
+        "13": { "type": "integer", "minimum": 0 },
+        "14": { "type": "integer", "minimum": 0 },
+        "15": { "type": "integer", "minimum": 0 },
+        "_source": { "$ref": "../common.schema.json#/$defs/source" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "failureOutcomeByTargetLevel": {
+      "type": "object",
+      "required": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"],
+      "properties": {
+        "1": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "2": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "3": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "4": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "5": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "6": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "7": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "8": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "9": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "10": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "11": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "12": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "13": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "14": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "15": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+        "_source": { "$ref": "../common.schema.json#/$defs/source" }
+      },
+      "patternProperties": { "^_": {} },
+      "propertyNames": { "pattern": "^(_.*|[1-9][0-9]*)$" },
+      "additionalProperties": { "enum": ["none", "materialsLost", "dropOneLevel"] },
+      "description": "non-negotiable 6: no break outcome exists"
+    },
+    "pity": {
+      "type": "object",
+      "required": [
+        "bonusPerConsecutiveFail_pct",
+        "bonusMode",
+        "maxBonus_pct",
+        "resetOnSuccess",
+        "scope"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "bonusPerConsecutiveFail_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+        "bonusMode": { "type": "string", "minLength": 1 },
+        "maxBonus_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+        "resetOnSuccess": { "type": "boolean" },
+        "scope": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "costByTargetLevel": {
+      "type": "object",
+      "required": ["bands"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "bands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["fromLevel", "toLevel", "elementDust", "elementCore", "riftStone", "gold"],
+            "properties": {
+              "fromLevel": { "type": "integer", "minimum": 0 },
+              "toLevel": { "type": "integer", "minimum": 0 },
+              "elementDust": { "type": "integer", "minimum": 0 },
+              "elementCore": { "type": "integer", "minimum": 0 },
+              "riftStone": { "type": "integer", "minimum": 0 },
+              "gold": { "type": "integer", "minimum": 0 }
+            },
+            "patternProperties": { "^_": {} }
+          }
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "bossGearMaterial": {
+      "type": "object",
+      "required": ["bossCoreRequiredForBossGear", "bossCorePerAttempt"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "bossCoreRequiredForBossGear": { "type": "boolean" },
+        "bossCorePerAttempt": { "type": ["number", "null"] }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

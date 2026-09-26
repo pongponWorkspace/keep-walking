@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/drops.schema.json",
+  "title": "config/balance/drops.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "baseChancePerRewardTick_pct",
+    "quantityPerDrop",
+    "rewardTypeByRarity",
+    "multipliers",
+    "smallDungeon",
+    "gddReferenceFrequency"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "baseChancePerRewardTick_pct": {
+      "type": "object",
+      "required": ["common", "uncommon", "rare", "epic", "legendary"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "common": { "type": "number", "minimum": 0, "maximum": 100 },
+        "uncommon": { "type": "number", "minimum": 0, "maximum": 100 },
+        "rare": { "type": "number", "minimum": 0, "maximum": 100 },
+        "epic": { "type": "number", "minimum": 0, "maximum": 100 },
+        "legendary": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "quantityPerDrop": {
+      "type": "object",
+      "required": [
+        "commonMin",
+        "commonMax",
+        "commonDistribution",
+        "uncommon",
+        "rare",
+        "epic",
+        "legendary",
+        "fractionalQuantityRounding"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "commonMin": { "type": "integer", "minimum": 0 },
+        "commonMax": { "type": "integer", "minimum": 0 },
+        "commonDistribution": { "type": "string", "minLength": 1 },
+        "uncommon": { "type": "integer", "minimum": 0 },
+        "rare": { "type": "integer", "minimum": 0 },
+        "epic": { "type": "integer", "minimum": 0 },
+        "legendary": { "type": "integer", "minimum": 0 },
+        "fractionalQuantityRounding": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "rewardTypeByRarity": {
+      "type": "object",
+      "required": ["common", "uncommon", "rare", "epic", "legendary"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "common": { "type": "string", "minLength": 1 },
+        "uncommon": { "type": "string", "minLength": 1 },
+        "rare": { "type": "string", "minLength": 1 },
+        "epic": { "type": "string", "minLength": 1 },
+        "legendary": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "multipliers": {
+      "type": "object",
+      "required": [
+        "rangedBuffMaxMult",
+        "noRangedMult",
+        "rangedAppliesTo",
+        "smallDungeonRareAndAboveMult",
+        "smallDungeonCommonQuantityMult",
+        "failedRaidWeekMinMult",
+        "failedRaidWeekMaxMult",
+        "lowTrustMult",
+        "lowTrustBlocksEpicAndAbove",
+        "stacking"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "rangedBuffMaxMult": { "type": "number" },
+        "noRangedMult": { "type": "number" },
+        "rangedAppliesTo": { "type": "string", "minLength": 1 },
+        "smallDungeonRareAndAboveMult": { "type": "number" },
+        "smallDungeonCommonQuantityMult": { "type": "number" },
+        "failedRaidWeekMinMult": { "type": "number" },
+        "failedRaidWeekMaxMult": { "type": "integer", "minimum": 0 },
+        "lowTrustMult": { "type": "number" },
+        "lowTrustBlocksEpicAndAbove": { "type": "boolean" },
+        "stacking": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "smallDungeon": {
+      "type": "object",
+      "required": ["smallDungeonMaxArea_m2"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "smallDungeonMaxArea_m2": { "$ref": "../common.schema.json#/$defs/squareMeters" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "gddReferenceFrequency": {
+      "type": "object",
+      "required": [
+        "casualMinutesPerDay",
+        "casualEpicEvery_days",
+        "casualLegendaryEvery_days",
+        "heavyMinutesPerDay",
+        "heavyEpicEveryMin_days",
+        "heavyEpicEveryMax_days",
+        "heavyLegendaryEvery_days"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "casualMinutesPerDay": { "type": "integer", "minimum": 0 },
+        "casualEpicEvery_days": { "$ref": "../common.schema.json#/$defs/days" },
+        "casualLegendaryEvery_days": { "$ref": "../common.schema.json#/$defs/days" },
+        "heavyMinutesPerDay": { "type": "integer", "minimum": 0 },
+        "heavyEpicEveryMin_days": { "$ref": "../common.schema.json#/$defs/days" },
+        "heavyEpicEveryMax_days": { "$ref": "../common.schema.json#/$defs/days" },
+        "heavyLegendaryEvery_days": { "$ref": "../common.schema.json#/$defs/days" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

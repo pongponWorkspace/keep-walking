@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/dungeon.schema.json",
+  "title": "Dungeon source records (kw-dungeons-source v1) and client artifact (kw-dungeons-client v1)",
+  "description": "Root = data/dungeons/dungeons.json (level-designer, P2-F04-T13). $defs/artifactFile = data/dungeons/artifact/dungeons.client.v1.json built by tools/dungeons (P2-F04-T26). Contract: docs/tech/F04-dungeon-presence.md sections 8 and 13, design/levels/dungeon-rules.md. Rules that need config or geometry (area, overlap, preset ids, drop tables, v1 verification values) are checked by tools/dungeons, not by this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "format_version", "dungeons"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "_meta": { "type": "object" },
+    "format": { "const": "kw-dungeons-source" },
+    "format_version": { "const": 1 },
+    "geometry_files": {
+      "description": "GeoJSON FeatureCollections next to dungeons.json whose features carry properties.id; a record without inline geometry takes the feature with the same id.",
+      "type": "array",
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9._-]+\\.geojson$" }
+    },
+    "dungeons": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": { "$ref": "#/$defs/sourceRecord" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "minLength": 1, "maxLength": 64 },
+    "contentKey": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+$", "maxLength": 128 },
+    "configId": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+$", "maxLength": 128 },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$" },
+    "lngLat": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        { "type": "number", "minimum": -180, "maximum": 180 },
+        { "type": "number", "minimum": -90, "maximum": 90 }
+      ]
+    },
+    "ring": { "type": "array", "minItems": 4, "items": { "$ref": "#/$defs/lngLat" } },
+    "polygonCoords": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ring" } },
+    "geometry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "coordinates"],
+          "properties": {
+            "type": { "const": "Polygon" },
+            "coordinates": { "$ref": "#/$defs/polygonCoords" },
+            "bbox": { "type": "array" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "coordinates"],
+          "properties": {
+            "type": { "const": "MultiPolygon" },
+            "coordinates": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/polygonCoords" }
+            },
+            "bbox": { "type": "array" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "levelRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer", "minimum": 1 },
+        "max": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "interval": {
+      "description": "[start_min, end_min) local minutes after midnight, 0 <= start < end <= 1440",
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        { "type": "integer", "minimum": 0, "maximum": 1439 },
+        { "type": "integer", "minimum": 1, "maximum": 1440 }
+      ]
+    },
+    "dayIntervals": { "type": "array", "maxItems": 24, "items": { "$ref": "#/$defs/interval" } },
+    "weekly": {
+      "description": "ISO weekday keys 1 (Monday) .. 7 (Sunday), all seven required. [] = closed all day.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["1", "2", "3", "4", "5", "6", "7"],
+      "properties": {
+        "1": { "$ref": "#/$defs/dayIntervals" },
+        "2": { "$ref": "#/$defs/dayIntervals" },
+        "3": { "$ref": "#/$defs/dayIntervals" },
+        "4": { "$ref": "#/$defs/dayIntervals" },
+        "5": { "$ref": "#/$defs/dayIntervals" },
+        "6": { "$ref": "#/$defs/dayIntervals" },
+        "7": { "$ref": "#/$defs/dayIntervals" }
+      }
+    },
+    "exception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "intervals"],
+      "properties": {
+        "date": { "$ref": "#/$defs/date" },
+        "intervals": { "$ref": "#/$defs/dayIntervals" },
+        "note": { "type": "string", "maxLength": 500 }
+      }
+    },
+    "exceptions": { "type": "array", "maxItems": 400, "items": { "$ref": "#/$defs/exception" } },
+    "osmHoursText": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "openingHoursSource": {
+      "description": "osm: raw OSM text in the restricted grammar (ADR 0003 9.2), converted at build. manual: level-designer table (required when the text is outside the grammar: PH, SH, sunrise, comments). manual_required: not filled yet; a published record with it fails the build (F04-R26).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "osm"],
+          "properties": {
+            "source": { "const": "osm" },
+            "osm": { "$ref": "#/$defs/osmHoursText" },
+            "exceptions": { "$ref": "#/$defs/exceptions" },
+            "note": { "type": "string", "maxLength": 1000 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "weekly", "reason"],
+          "properties": {
+            "source": { "const": "manual" },
+            "weekly": { "$ref": "#/$defs/weekly" },
+            "exceptions": { "$ref": "#/$defs/exceptions" },
+            "osm": { "$ref": "#/$defs/osmHoursText" },
+            "reason": { "type": "string", "minLength": 1, "maxLength": 1000 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source"],
+          "properties": {
+            "source": { "const": "manual_required" },
+            "osm": { "$ref": "#/$defs/osmHoursText" },
+            "note": { "type": "string", "maxLength": 1000 }
+          }
+        }
+      ]
+    },
+    "entrance": {
+      "description": "Public entrance pin on the polygon edge (dungeon-rules.md 4 point B). Becomes nav_destination (source entrance). null = not pinned: the build falls back to label_point and flags the record.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["point", "evidence"],
+      "properties": {
+        "point": { "$ref": "#/$defs/lngLat" },
+        "evidence": { "enum": ["osm_footway", "field_photo", "field_visit", "pending"] },
+        "note": { "type": "string", "maxLength": 1000 }
+      }
+    },
+    "reviewAck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["flag", "ref"],
+      "properties": {
+        "flag": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+        "ref": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "note": { "type": "string", "maxLength": 1000 }
+      }
+    },
+    "sourceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status",
+        "name_key",
+        "search_name_key",
+        "preset",
+        "level_range",
+        "drop_table_id",
+        "verification_mode",
+        "floor_level",
+        "entrance",
+        "opening_hours"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "status": { "enum": ["draft", "review", "published", "retired"] },
+        "name_key": { "oneOf": [{ "$ref": "#/$defs/contentKey" }, { "type": "null" }] },
+        "search_name_key": { "oneOf": [{ "$ref": "#/$defs/contentKey" }, { "type": "null" }] },
+        "name_real": { "type": ["string", "null"], "maxLength": 300 },
+        "osm_id": {
+          "oneOf": [{ "type": "string", "pattern": "^osm-[nwr][0-9]+$" }, { "type": "null" }]
+        },
+        "osm_tags": {
+          "type": "object",
+          "maxProperties": 500,
+          "additionalProperties": { "type": "string", "maxLength": 2000 }
+        },
+        "geometry_source": { "enum": ["osm", "osm_edited", "manual"] },
+        "preset": { "$ref": "#/$defs/configId" },
+        "level_range": { "$ref": "#/$defs/levelRange" },
+        "drop_table_id": { "$ref": "#/$defs/configId" },
+        "verification_mode": { "enum": ["continuous_gps", "entry_exit"] },
+        "floor_level": { "type": ["integer", "null"] },
+        "geometry": { "$ref": "#/$defs/geometry" },
+        "entrance": { "oneOf": [{ "$ref": "#/$defs/entrance" }, { "type": "null" }] },
+        "opening_hours": { "$ref": "#/$defs/openingHoursSource" },
+        "temporary": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["expires_on"],
+              "properties": { "expires_on": { "$ref": "#/$defs/date" } }
+            },
+            { "type": "null" }
+          ]
+        },
+        "review_acknowledged": {
+          "type": "array",
+          "maxItems": 50,
+          "items": { "$ref": "#/$defs/reviewAck" }
+        },
+        "notes": { "type": "string", "maxLength": 4000 }
+      }
+    },
+    "artifactHours": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "weekly", "exceptions"],
+      "properties": {
+        "source": { "enum": ["osm", "manual"] },
+        "weekly": { "$ref": "#/$defs/weekly" },
+        "exceptions": { "$ref": "#/$defs/exceptions" }
+      }
+    },
+    "artifactDungeon": {
+      "description": "Whitelist of tech note 13.2. No name_real, OSM tags, osm_id, raw hours text, coverage flags, author or draft state.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name_key",
+        "preset",
+        "level_range",
+        "drop_table_id",
+        "verification_mode",
+        "floor_level",
+        "area_m2",
+        "bbox",
+        "geometry",
+        "label_point",
+        "nav_destination",
+        "search_name_key",
+        "opening_hours"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name_key": { "$ref": "#/$defs/contentKey" },
+        "preset": { "$ref": "#/$defs/configId" },
+        "level_range": { "$ref": "#/$defs/levelRange" },
+        "drop_table_id": { "$ref": "#/$defs/configId" },
+        "verification_mode": { "const": "continuous_gps" },
+        "floor_level": { "type": "null" },
+        "area_m2": { "type": "number", "exclusiveMinimum": 0 },
+        "bbox": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "type": "number" }
+        },
+        "geometry": { "$ref": "#/$defs/geometry" },
+        "label_point": { "$ref": "#/$defs/lngLat" },
+        "nav_destination": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["point", "source"],
+          "properties": {
+            "point": { "$ref": "#/$defs/lngLat" },
+            "source": { "enum": ["entrance", "label_point"] }
+          }
+        },
+        "search_name_key": { "$ref": "#/$defs/contentKey" },
+        "opening_hours": { "$ref": "#/$defs/artifactHours" }
+      }
+    },
+    "artifactFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "format_version", "source_sha256", "attribution", "dungeons"],
+      "properties": {
+        "format": { "const": "kw-dungeons-client" },
+        "format_version": { "const": 1 },
+        "source_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "attribution": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "dungeons": { "type": "array", "items": { "$ref": "#/$defs/artifactDungeon" } }
+      }
+    }
+  }
+}

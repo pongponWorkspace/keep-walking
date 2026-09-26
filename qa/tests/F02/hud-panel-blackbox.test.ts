@@ -209,6 +209,12 @@ const FULL_ROW: SummaryRow = {
   gateWindowsPass: 5,
   gateWindowsPassPct: 83.33,
   stationary5MinAccumM: undefined,
+  // format_version 2 (ADR 0003 5.3, gps-trace-format.md 4.1): same 6 windows, but pass count is
+  // measured after the gate's outlier-filter + resample pipeline, so it can only be <= the raw
+  // gateWindowsPass (5) above, never higher.
+  gateWindowsPassFiltered: 4,
+  gateWindowsPassFilteredPct: 66.67, // 4 / 6 * 100
+  stationary5MinAccumFilteredM: 3.2,
   latencyMedianMs: 250,
   latencyP90Ms: 600,
 };

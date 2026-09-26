@@ -3,7 +3,7 @@
     "file": "economy.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06; _nullMeans P1-X04",
+    "task": "P1-F03-T06; _nullMeans P1-X04; autoPotion.sourceOrder, revive note P2-F05-T01",
     "doc": "design/systems/balance-model.md section 8"
   },
   "npcSellPrice_gold": {
@@ -28,7 +28,12 @@
     "hpSmall": { "heal_pctMaxHp": 30, "buyPrice_gold": 150 },
     "hpMedium": { "heal_pctMaxHp": 60, "buyPrice_gold": 400 },
     "hpLarge": { "heal_pctMaxHp": 100, "buyPrice_gold": 1000 },
-    "revive": { "reviveToHp_pct": 50, "buyPrice_gold": 2500, "usableInsideDungeon": true },
+    "revive": {
+      "reviveToHp_pct": 50,
+      "buyPrice_gold": 2500,
+      "usableInsideDungeon": true,
+      "_usableInsideDungeon_note": "No effect in Phase 2 (spec F06 R24, R26, D-096): Phase 2 has no downed state, death ends the run at once, and a revive potion is used by hand outside a run while Recovering. The key stays true for the GDD rule (Phase 3 F09 downed state)"
+    },
     "purchaseCurrency": "gold"
   },
   "autoPotion": {
@@ -36,6 +41,8 @@
     "enabledByDefault": true,
     "defaultThreshold_pct": 40,
     "defaultPotionOrder": ["hpSmall", "hpMedium", "hpLarge"],
+    "sourceOrder": ["runBag", "inventory"],
+    "_sourceOrder_source": "Spec F06 R12 and decision 4 (D-096, game-director): drink from the run bag first, then the inventory; inside each source take the first potion with count > 0 in defaultPotionOrder. Run-bag potions are run loot and are lost on death (D-094), so they go first. One potion per hit (A-P2-F06-T01-1 accepted). revive is never in the auto order (F06 R13)",
     "_assumption": "A-P1-F03-T06-15b: GDD leaves the threshold to the player. Default 40% (above the 30% warning and the 25% auto-retreat), smallest potion first. Owner: game-director, uiux-designer"
   },
   "incomeToPotionRatio": {

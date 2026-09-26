@@ -164,7 +164,7 @@
       },
       "expected": 0,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 0 members inside the dungeon → 0 (missing debuff applies instead)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 0 members inside the dungeon → 0 (missing debuff applies instead)"
     },
     {
       "input": {
@@ -180,7 +180,7 @@
       },
       "expected": 16.253716,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one member at level 1"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one member at level 1"
     },
     {
       "input": {
@@ -196,7 +196,7 @@
       },
       "expected": 27.883279,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one member at level 60"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one member at level 60"
     },
     {
       "input": {
@@ -219,7 +219,7 @@
       },
       "expected": 44.980281,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 8 members (party max) at level 60, below cap"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 8 members (party max) at level 60, below cap"
     },
     {
       "input": {
@@ -448,7 +448,7 @@
       },
       "expected": 0,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 0 members inside the dungeon → 0 (missing debuff applies instead)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 0 members inside the dungeon → 0 (missing debuff applies instead)"
     },
     {
       "input": {
@@ -464,7 +464,7 @@
       },
       "expected": 17.273104,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one member at level 1"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one member at level 1"
     },
     {
       "input": {
@@ -480,7 +480,7 @@
       },
       "expected": 29.956818,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one member at level 60"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one member at level 60"
     },
     {
       "input": {
@@ -503,7 +503,7 @@
       },
       "expected": 49.966662,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 8 members (party max) at level 60, below cap"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 8 members (party max) at level 60, below cap"
     },
     {
       "input": {
@@ -732,7 +732,7 @@
       },
       "expected": 0,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 0 members inside the dungeon → 0 (missing debuff applies instead)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 0 members inside the dungeon → 0 (missing debuff applies instead)"
     },
     {
       "input": {
@@ -748,7 +748,7 @@
       },
       "expected": 25.344182,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one member at level 1"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one member at level 1"
     },
     {
       "input": {
@@ -764,7 +764,7 @@
       },
       "expected": 39.118118,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one member at level 60"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one member at level 60"
     },
     {
       "input": {
@@ -787,7 +787,7 @@
       },
       "expected": 49.999748,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 8 members (party max) at level 60, below cap"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 8 members (party max) at level 60, below cap"
     },
     {
       "input": {
@@ -1016,7 +1016,7 @@
       },
       "expected": 0,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 0 members inside the dungeon → 0 (missing debuff applies instead)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 0 members inside the dungeon → 0 (missing debuff applies instead)"
     },
     {
       "input": {
@@ -1032,7 +1032,7 @@
       },
       "expected": 17.273104,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one member at level 1"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one member at level 1"
     },
     {
       "input": {
@@ -1048,7 +1048,7 @@
       },
       "expected": 29.956818,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one member at level 60"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one member at level 60"
     },
     {
       "input": {
@@ -1071,7 +1071,7 @@
       },
       "expected": 49.966662,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 8 members (party max) at level 60, below cap"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 8 members (party max) at level 60, below cap"
     },
     {
       "input": {
@@ -1304,7 +1304,7 @@
       },
       "expected": 39.773374,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: mixed levels"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal: mixed levels"
     },
     {
       "input": {
@@ -1318,7 +1318,7 @@
       },
       "expected": 1.02,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · level 1 → 1.02"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · level 1 → 1.02"
     },
     {
       "input": {
@@ -1332,7 +1332,7 @@
       },
       "expected": 1.5,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · level 25 → 1.5"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · level 25 → 1.5"
     },
     {
       "input": {
@@ -1346,7 +1346,7 @@
       },
       "expected": 2,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · level 50 → 2.0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · level 50 → 2.0"
     },
     {
       "input": {
@@ -1360,7 +1360,7 @@
       },
       "expected": 2.2,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · level 60 → 2.2"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · level 60 → 2.2"
     },
     {
       "input": {
@@ -1374,7 +1374,7 @@
       },
       "expected": 0.988622,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-14: 5 levels outside range → x0.92^5"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-14: 5 levels outside range → x0.92^5"
     },
     {
       "input": {
@@ -1388,7 +1388,7 @@
       },
       "expected": 0.375,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-14: gap 17 hits floor 0.25"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-14: gap 17 hits floor 0.25"
     },
     {
       "input": {
@@ -1402,7 +1402,7 @@
       },
       "expected": 0.375,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-14: gap 30 stays at floor"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-14: gap 30 stays at floor"
     },
     {
       "input": {
@@ -1418,7 +1418,7 @@
       },
       "expected": "PASS",
       "tolerance": 0,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · config role tanker (Support = EXCEPTION per D-004)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · config role tanker (Support = EXCEPTION per D-004)"
     },
     {
       "input": {
@@ -1434,7 +1434,7 @@
       },
       "expected": "PASS",
       "tolerance": 0,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · config role ranged (Support = EXCEPTION per D-004)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · config role ranged (Support = EXCEPTION per D-004)"
     },
     {
       "input": {
@@ -1450,7 +1450,7 @@
       },
       "expected": "EXCEPTION",
       "tolerance": 0,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · config role support (Support = EXCEPTION per D-004)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · config role support (Support = EXCEPTION per D-004)"
     },
     {
       "input": {
@@ -1466,7 +1466,7 @@
       },
       "expected": "PASS",
       "tolerance": 0,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · config role magic (Support = EXCEPTION per D-004)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · config role magic (Support = EXCEPTION per D-004)"
     },
     {
       "input": {
@@ -1480,7 +1480,7 @@
       },
       "expected": "FAIL",
       "tolerance": 0,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: Support (config base/cap) without the D-004 exception → FAIL"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: Support (config base/cap) without the D-004 exception → FAIL"
     },
     {
       "input": {
@@ -1496,7 +1496,7 @@
       },
       "expected": "PASS",
       "tolerance": 0,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: exactly 2/5 → PASS"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: exactly 2/5 → PASS"
     },
     {
       "input": {
@@ -1512,7 +1512,7 @@
       },
       "expected": "FAIL",
       "tolerance": 0,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: 1/5 → FAIL"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: 1/5 → FAIL"
     }
   ]
 }

@@ -27,8 +27,9 @@ import {
 import type { GddReference } from './gdd';
 import type { SimParams } from './params';
 import { ROLES } from './params';
-import { mean, mulberry32, percentile } from './rng';
-import type { Rng } from './rng';
+import { mulberry32 } from '@keep-walking/shared/formulas';
+import { mean, percentile } from './stats';
+import type { Rng } from '@keep-walking/shared/formulas';
 import { economyRefsFromConfig } from './vectors-economy';
 
 const f1 = (x: number) => x.toFixed(1);

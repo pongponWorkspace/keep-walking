@@ -4,10 +4,10 @@
 // documented in tools/sim/README.md, not balance values.
 import type { DropContext, DropParams } from './drops';
 import { NEUTRAL_CONTEXT, incomePerHourCtx_gold, rangedTerm } from './drops';
-import { expMultiplier, memberP, roleBuffPct } from './formulas';
+import { expMultiplier, memberP, roleBuffPct } from '@keep-walking/shared/formulas';
 import type { Role, SimParams } from './params';
 import { ROLES } from './params';
-import type { Rng } from './rng';
+import type { Rng } from '@keep-walking/shared/formulas';
 import type { TankerCase } from './scenarios';
 import { meanInterval_s, potionEfficiency_pct, runSetup, survivalRow } from './scenarios';
 import { hpLossPerHour_pct, potionCostMonteCarlo, potionCostPerHour_gold } from './survival';

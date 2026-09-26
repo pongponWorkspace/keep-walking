@@ -24,7 +24,9 @@ export function secondsToWholeMs(name: string, value_s: number, msPerS: number):
   requirePositive(name, value_s);
   const ms = value_s * msPerS;
   if (!Number.isInteger(ms)) {
-    throw new RangeError(`${name} must be a whole number of milliseconds, got ${String(value_s)} s`);
+    throw new RangeError(
+      `${name} must be a whole number of milliseconds, got ${String(value_s)} s`,
+    );
   }
   return ms;
 }

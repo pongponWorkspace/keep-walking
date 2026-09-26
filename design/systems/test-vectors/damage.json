@@ -9,7 +9,7 @@
       },
       "expected": 20,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
     },
     {
       "input": {
@@ -19,7 +19,7 @@
       },
       "expected": 23,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
     },
     {
       "input": {
@@ -29,7 +29,7 @@
       },
       "expected": 1,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
     },
     {
       "input": {
@@ -39,7 +39,7 @@
       },
       "expected": 58,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
     },
     {
       "input": {
@@ -50,7 +50,7 @@
       },
       "expected": 3,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · monsterATK = 3 x Z^1.3"
     },
     {
       "input": {
@@ -61,7 +61,7 @@
       },
       "expected": 59.857869,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · monsterATK = 3 x Z^1.3"
     },
     {
       "input": {
@@ -72,7 +72,7 @@
       },
       "expected": 196.989585,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · monsterATK = 3 x Z^1.3"
     },
     {
       "input": {
@@ -83,7 +83,7 @@
       },
       "expected": 362.910257,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · monsterATK = 3 x Z^1.3"
     },
     {
       "input": {
@@ -94,7 +94,7 @@
       },
       "expected": 614.777381,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · monsterATK = 3 x Z^1.3"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · monsterATK = 3 x Z^1.3"
     },
     {
       "input": {
@@ -104,7 +104,7 @@
       },
       "expected": 0,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: DEF 0 → 0%"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: DEF 0 → 0%"
     },
     {
       "input": {
@@ -133,7 +133,7 @@
       },
       "expected": 196.989585,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: DEF 0, damage x1.0 → equals monsterATK"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: DEF 0, damage x1.0 → equals monsterATK"
     },
     {
       "input": {
@@ -152,7 +152,7 @@
       },
       "expected": 100.804905,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · L25 balanced build DEF, damage x1.0 (D-020 reference)"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · L25 balanced build DEF, damage x1.0 (D-020 reference)"
     },
     {
       "input": {
@@ -171,7 +171,7 @@
       },
       "expected": 78.930241,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · with Tanker buff 21.7%"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · with Tanker buff 21.7%"
     },
     {
       "input": {
@@ -190,7 +190,7 @@
       },
       "expected": 161.287848,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · no Tanker inside → missing debuff x1.6"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · no Tanker inside → missing debuff x1.6"
     },
     {
       "input": {
@@ -209,7 +209,7 @@
       },
       "expected": 157.507664,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-2: 2 levels below range → x1.25^2"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-2: 2 levels below range → x1.25^2"
     },
     {
       "input": {
@@ -228,7 +228,7 @@
       },
       "expected": 100.804905,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: above range → no gap multiplier"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: above range → no gap multiplier"
     },
     {
       "input": {
@@ -247,7 +247,7 @@
       },
       "expected": 201.60981,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · A-16: week after a failed raid → monsterATK x2"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-16: week after a failed raid → monsterATK x2"
     },
     {
       "input": {
@@ -266,7 +266,7 @@
       },
       "expected": 630.030657,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · combined: no Tanker, 3 below range, failed raid week"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · combined: no Tanker, 3 below range, failed raid week"
     },
     {
       "input": {
@@ -285,7 +285,7 @@
       },
       "expected": 55.442698,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: Tanker buff at cap 45%"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: Tanker buff at cap 45%"
     },
     {
       "input": {
@@ -296,7 +296,7 @@
       },
       "expected": 3,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: exact multiple, 750/250 = 3 hits reach 25%"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: exact multiple, 750/250 = 3 hits reach 25%"
     },
     {
       "input": {
@@ -307,7 +307,7 @@
       },
       "expected": 4,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: HP 0 needs 4 hits"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: HP 0 needs 4 hits"
     },
     {
       "input": {
@@ -318,7 +318,7 @@
       },
       "expected": 1,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: one hit larger than max HP → 1"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: one hit larger than max HP → 1"
     },
     {
       "input": {
@@ -329,7 +329,7 @@
       },
       "expected": 24,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: L25 build to auto-retreat"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal: L25 build to auto-retreat"
     },
     {
       "input": {
@@ -340,7 +340,7 @@
       },
       "expected": 31,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · normal: L25 build to HP 0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · normal: L25 build to HP 0"
     },
     {
       "input": {
@@ -351,7 +351,7 @@
       },
       "expected": 48,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · E[time] = hits / p x mean interval"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · E[time] = hits / p x mean interval"
     },
     {
       "input": {
@@ -423,7 +423,7 @@
       },
       "expected": 44.444444,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact: reference to auto-retreat 25%"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact: reference to auto-retreat 25%"
     },
     {
       "input": {
@@ -447,7 +447,7 @@
       },
       "expected": 57.407407,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · D-020: reference to HP 0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-020: reference to HP 0"
     },
     {
       "input": {
@@ -471,7 +471,7 @@
       },
       "expected": 55.555556,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · exact: Tanker L25 to auto-retreat"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · exact: Tanker L25 to auto-retreat"
     },
     {
       "input": {
@@ -495,7 +495,7 @@
       },
       "expected": 74.074074,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · Tanker L25 to HP 0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · Tanker L25 to HP 0"
     },
     {
       "input": {
@@ -519,7 +519,7 @@
       },
       "expected": 27.777778,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · F-1: solo Ranged/Support/Magic (x1.6) to auto-retreat"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · F-1: solo Ranged/Support/Magic (x1.6) to auto-retreat"
     },
     {
       "input": {
@@ -543,7 +543,7 @@
       },
       "expected": 37.037037,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · F-1: solo Ranged/Support/Magic (x1.6) to HP 0"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · F-1: solo Ranged/Support/Magic (x1.6) to HP 0"
     },
     {
       "input": {
@@ -555,7 +555,7 @@
       },
       "expected": 97.156627,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · expected HP loss per walking hour"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · expected HP loss per walking hour"
     },
     {
       "input": {
@@ -567,7 +567,7 @@
       },
       "expected": 485.8,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · small potion, no VIT bonus"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · small potion, no VIT bonus"
     },
     {
       "input": {
@@ -579,7 +579,7 @@
       },
       "expected": 315.96748,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · small potion, VIT 53.75 → +53.75% efficiency"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · small potion, VIT 53.75 → +53.75% efficiency"
     },
     {
       "input": {
@@ -591,7 +591,7 @@
       },
       "expected": 0,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts) · boundary: no damage → 0 gold"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · boundary: no damage → 0 gold"
     },
     {
       "input": {

@@ -11,12 +11,17 @@
     "_source": "GDD > Anti-cheat > มาตรการเป็นชั้น > ชั้น 1 (GPS sample ต่อเนื่องอย่างน้อย 60 วินาทีที่เดินเข้ามาจากข้างนอก, accuracy น้อยกว่า 30 เมตร)",
     "minContinuousApproach_s": 60,
     "maxAccuracy_m": 30,
-    "teleportIntoPolygonAllowed": false
+    "teleportIntoPolygonAllowed": false,
+    "_note": "P2-F05-T20 review: values unchanged. maxAccuracy_m is compared strictly (accuracy < 30 passes, 30 is rejected, spec F04 E6). 'Continuous' = no sample pair further apart than dungeons.json#movementGate.maxSamplePairGap_s, no sample dropped by the gate outlier filter (movementGate.maxSampleAccuracy_m, outlierSpeed_kmh) and no sample while speed-locked (tech note F04 7.2-7.3). The approach must contain a usable sample outside the selected polygon and end on a sample inside it. Vectors: design/systems/test-vectors/check-in.json"
   },
   "speedLock": {
     "_source": "GDD > Anti-cheat > ชั้น 1; ความปลอดภัยผู้เล่นและ PDPA > ความปลอดภัยทางกายภาพ (speed lock 25 กม./ชม. ล็อกการเล่น ไม่ใช่แค่เตือน)",
     "speedLock_kmh": 25,
-    "action": "lockPlay"
+    "action": "lockPlay",
+    "lockSustained_s": 15,
+    "unlockSustained_s": 60,
+    "_sustained_source": "P2-F05-T20 · spec F04 R20 (lock before a car is at full speed, but a single GPS spike must not lock a walker) and R22 (unlock after longer than one red light). Speed = unfiltered pairs with accuracy <= movementGate.maxSampleAccuracy_m; a pair gap > movementGate.maxSamplePairGap_s breaks the run. lockSustained_s 15: a one-fix spike gives two fast pairs spanning 2 s at 1 Hz and 10 s at 0.2 Hz, both below 15; synthetic-driving-40kmh-01 locks at 84 s (the car passes 25 km/h at about 80 s). unlockSustained_s 60: the 45 s red light of the same trace stays locked. Both transitions are back-dated to the first sample of the run (tech note F04 6, D-094), so the long unlock costs no reward-clock time. Evidence: tools/sim report-gate section 4",
+    "_assumption": "A-P2-F05-T20-2: 15 s / 60 s are proposals from synthetic traces. Bangkok red lights are often longer than 60 s, so the lock may drop and return at a long light; harmless because both edges are back-dated and a stopped car adds no distance. Owner: game-director (safety intent), systems-designer (values)"
   },
   "offlineEvidence": {
     "_source": "GDD > สถาปัตยกรรมเทคนิค > สัญญาณขาดและแอปถูกปิด (sample ที่ upload ทีหลังมีน้ำหนักต่ำกว่าใน trust score)",

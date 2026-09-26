@@ -17,6 +17,8 @@
 <div class="phone">
   <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
   <div class="screen-body" style="background:var(--ink-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0;">
+    <p class="body-text" style="color:var(--bg-surface);font-weight:700;max-width:80%;margin:0 0 16px;"><span class="copykey">dungeon.confirmTutorialLine</span><br><span class="thaidraft">(เดินต่อไปเพื่อรับรางวัล)</span></p>
+    <p class="caption" style="color:var(--ink-300);margin:0 0 24px;">— แสดงครั้งแรกในเกมเท่านั้น (N-3 แก้ใน P2-F04-T06) —</p>
     <p class="numeric" style="font-size:64px;color:var(--bg-surface);margin:0;">78%</p>
     <p class="caption" style="color:var(--bg-surface);"><span class="copykey">run.pocketHp</span> <span class="thaidraft">(HP {hpPct}%)</span></p>
     <p class="numeric" style="font-size:28px;color:var(--bg-surface);margin-top:24px;">03:12</p>
@@ -25,7 +27,7 @@
     <p class="caption" style="color:var(--ink-300);margin-top:32px;max-width:70%;"><span class="copykey">run.pocketWakeHint</span> <span class="thaidraft">(ปัดขึ้นค้างเพื่อดูปุ่ม)</span> — แสดงครั้งแรกของบัญชีเท่านั้น</p>
   </div>
 </div>
-<p class="frame-caption">ไม่มีปุ่มใดบนจอนี้เลย (กันแตะพลาดในกระเป๋า) · Wake Lock ขอทันทีหลัง server ยืนยัน B5 ปล่อยเมื่อจบ run ทุกทาง (components.md 12.2) · เสียง/สั่นของ HP ต่ำ/auto-retreat/ตาย/tick ยังทำงานเพราะหน้าเว็บยัง foreground · ออกด้วยปัดขึ้นค้าง (swipe-up-hold) → กลับสู่ C1 ด้านล่าง พร้อมปุ่ม <span class="copykey">run.pocketEnterButton</span> <span class="thaidraft">(กลับไปจอพกกระเป๋า)</span> ให้กดกลับเข้าเอง</p>
+<p class="frame-caption"><b>แก้ N-1/N-3 (P2-F04-T06, board P1-F03-T24):</b> เดิม <span class="copykey">dungeon.confirmTutorialLine</span> ถูกวางไว้เฉพาะที่ C1 (หลังปัดออกจากจอพกกระเป๋า) แต่จอพกกระเป๋าเป็นค่าเริ่มต้นทันทีที่เข้า run (ทิศทาง A, F-04) — ผู้เล่นที่ไม่เคยปัดออกมาเลยจะไม่เห็นบทเรียนเดียวของเกม ย้าย/คัดลอกมาแสดงบนจอพกกระเป๋าเองครั้งแรกแทน (เข้าเงื่อนไข "ก่อนหรือบนจอพกกระเป๋า" ของ acceptance) · ไม่มีปุ่มใดบนจอนี้เลย (กันแตะพลาดในกระเป๋า) · Wake Lock ขอทันทีหลัง server ยืนยัน B5 ปล่อยเมื่อจบ run ทุกทาง (components.md 12.2) · เสียง/สั่นของ HP ต่ำ/auto-retreat/ตาย/tick ยังทำงานเพราะหน้าเว็บยัง foreground · ออกด้วยปัดขึ้นค้าง (swipe-up-hold) → กลับสู่ C1 ด้านล่าง พร้อมปุ่ม <span class="copykey">run.pocketEnterButton</span> <span class="thaidraft">(กลับไปจอพกกระเป๋า)</span> ให้กดกลับเข้าเอง</p>
 </div>
 
 <div class="frame-block">
@@ -36,7 +38,9 @@
     <div class="toast neutral" style="top:16px;">
       <span class="copykey">run.screenLockNotice</span> <span class="thaidraft">(จอดับ ระยะก็หยุดนับ เปิดจอไว้ระหว่างเดิน)</span>
     </div>
-    <div class="hp-track" style="margin-top:64px;"><div class="hp-fill" style="width:78%;"></div></div>
+    <p class="body-text" style="margin-top:76px;font-weight:700;text-align:center;"><span class="copykey">dungeon.confirmTutorialLine</span><br><span class="thaidraft">(เดินต่อไปเพื่อรับรางวัล)</span></p>
+    <p class="caption" style="text-align:center;">— run แรกในเกมเท่านั้น (N-3, ไม่มีจอพกกระเป๋าให้แสดงในทางสำรอง B จึงแสดงทับจอ run ปกติแทน) —</p>
+    <div class="hp-track" style="margin-top:16px;"><div class="hp-fill" style="width:78%;"></div></div>
     <p class="numeric" style="text-align:right;">78%</p>
   </div>
 </div>
@@ -61,7 +65,7 @@
     <div class="btn btn-secondary btn-fullwidth-bottom" style="border-color:var(--state-danger);color:var(--state-danger);"><span class="copykey">run.exitButton</span> <span class="thaidraft">(ออก)</span></div>
   </div>
 </div>
-<p class="frame-caption">ครั้งแรกในเกม: overlay ทับสั้น "<span class="copykey">dungeon.confirmTutorialLine</span> <span class="thaidraft">(เดินต่อไปเพื่อรับรางวัล)</span>" — tutorial บรรทัดเดียวของทั้งเกม · ปุ่ม "กลับไปจอพกกระเป๋า" ไม่แสดงถ้าอยู่ในทางสำรอง B (C0b, ไม่มี Wake Lock ให้กลับไป)</p>
+<p class="frame-caption"><b>แก้ N-3:</b> ครั้งแรกในเกม ข้อความ "<span class="copykey">dungeon.confirmTutorialLine</span> <span class="thaidraft">(เดินต่อไปเพื่อรับรางวัล)</span>" — tutorial บรรทัดเดียวของทั้งเกม — แสดงไปแล้วครั้งหนึ่งบนจอพกกระเป๋า (C0) ก่อนหน้านี้ ไม่ต้องแสดงซ้ำที่นี่อีก (คงข้อความ overlay ทับสั้นไว้เฉพาะกรณีทางสำรอง B ที่ไม่มีจอพกกระเป๋าให้แสดงเลย ดู C0b) · ปุ่ม "กลับไปจอพกกระเป๋า" ไม่แสดงถ้าอยู่ในทางสำรอง B (C0b, ไม่มี Wake Lock ให้กลับไป)</p>
 </div>
 
 <div class="frame-block">

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/privacy.schema.json",
+  "title": "config/balance/privacy.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "positionLogTtl_s",
+    "positionLogPurpose",
+    "minAge_yr",
+    "minAgeComparison",
+    "seeParentalConsent"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "_source": { "$ref": "../common.schema.json#/$defs/source" },
+    "positionLogTtl_s": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 86400,
+      "description": "non-negotiable 7 (PDPA): position_log TTL at most 24 h"
+    },
+    "positionLogPurpose": { "enum": ["antiCheatOnly"], "description": "PDPA purpose limitation" },
+    "minAge_yr": { "type": "integer", "minimum": 15, "description": "non-negotiable 7: age 15+" },
+    "minAgeComparison": { "enum": ["greaterThanOrEqual"], "description": "age gate comparison" },
+    "seeParentalConsent": { "$ref": "../common.schema.json#/$defs/pointer" }
+  },
+  "patternProperties": { "^_": {} }
+}

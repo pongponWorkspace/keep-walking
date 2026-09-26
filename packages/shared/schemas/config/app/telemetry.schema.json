@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/app/telemetry.schema.json",
+  "title": "config/app/telemetry.json",
+  "type": "object",
+  "required": ["_meta", "sampling", "timestamps", "goldAmountBuckets", "localSink", "export"],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "sampling": {
+      "type": "object",
+      "required": ["batterySampleInterval_s", "emptyScreenAbandonTimeout_s"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "batterySampleInterval_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "emptyScreenAbandonTimeout_s": { "$ref": "../common.schema.json#/$defs/seconds" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["clockSkewTolerance_s", "seeOfflineEvidence"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "clockSkewTolerance_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "seeOfflineEvidence": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "goldAmountBuckets": {
+      "type": "object",
+      "required": ["upperBounds_gold", "lowerBoundInclusive", "labelFormat"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "upperBounds_gold": {
+          "type": "array",
+          "items": { "$ref": "../common.schema.json#/$defs/gold" }
+        },
+        "lowerBoundInclusive": { "type": "boolean" },
+        "labelFormat": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "localSink": {
+      "type": "object",
+      "required": [
+        "transport",
+        "networkUploadAllowed",
+        "ringBufferMaxEvents",
+        "ringBufferMaxChars",
+        "evictionOrder",
+        "persistInterval_s"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "transport": { "type": "string", "minLength": 1 },
+        "networkUploadAllowed": { "type": "boolean" },
+        "ringBufferMaxEvents": { "type": "integer", "minimum": 0 },
+        "ringBufferMaxChars": { "type": "integer", "minimum": 0 },
+        "evictionOrder": { "type": "string", "minLength": 1 },
+        "persistInterval_s": { "$ref": "../common.schema.json#/$defs/seconds" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "export": {
+      "type": "object",
+      "required": [
+        "format",
+        "mimeType",
+        "fileNamePrefix",
+        "timeBase",
+        "timeField",
+        "dropAbsoluteTimestamps",
+        "includesCoordinates",
+        "forbiddenPropertyNames",
+        "coordinateLikeNumberGuard"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "format": { "type": "string", "minLength": 1 },
+        "mimeType": { "type": "string", "minLength": 1 },
+        "fileNamePrefix": { "type": "string", "minLength": 1 },
+        "timeBase": { "type": "string", "minLength": 1 },
+        "timeField": { "type": "string", "minLength": 1 },
+        "dropAbsoluteTimestamps": { "const": true, "description": "C2-4: relative time only" },
+        "includesCoordinates": {
+          "const": false,
+          "description": "C2-3; non-negotiable 4 and 7: no position in telemetry"
+        },
+        "forbiddenPropertyNames": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "allOf": [
+            { "contains": { "const": "lat" } },
+            { "contains": { "const": "lng" } },
+            { "contains": { "const": "lon" } },
+            { "contains": { "const": "coords" } },
+            { "contains": { "const": "accuracy" } }
+          ],
+          "description": "C2-3 (board P2-F04-T25 list)"
+        },
+        "coordinateLikeNumberGuard": {
+          "type": "object",
+          "required": ["minDecimals", "latRange_deg", "lngRange_deg"],
+          "properties": {
+            "minDecimals": { "type": "integer", "minimum": 0 },
+            "latRange_deg": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+            "lngRange_deg": { "type": "array", "items": { "type": "integer", "minimum": 0 } }
+          },
+          "patternProperties": { "^_": {} }
+        }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

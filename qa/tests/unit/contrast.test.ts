@@ -523,6 +523,131 @@ const CASES_MAP_STYLE_9: ContrastCase[] = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// art/direction/briefs/P2-assets.md §4.1 "Contrast คำนวณ (อัตโนมัติ)" — new
+// Phase-2 UI elements (dungeon-status chips, HP bar, direction icon). The
+// brief states every pair reuses tokens already documented in style-guide §4,
+// so the hex/ratio values below are transcribed from the existing style-guide
+// pairs; these cases exist to trace the brief's own table into the suite
+// (brief §4.1: "qa-tester เพิ่มเป็น case ใน test contrast"), independent of
+// the style-guide-section cases above.
+// ---------------------------------------------------------------------------
+const PA41 = 'P2-assets §4.1';
+const CASES_P2_ASSETS_4_1: ContrastCase[] = [
+  {
+    id: `ink.900 on accent.signal, chip ใกล้ปิด (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.900'),
+    bgHex: hex('accent.signal'),
+    expected: 11.43,
+    kind: 'text',
+  },
+  {
+    id: `ink.700 on bg.surface, chip ปิดทำการ (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.700'),
+    bgHex: hex('bg.surface'),
+    expected: 12.37,
+    kind: 'text',
+  },
+  {
+    id: `ink.500 dashed border on bg.surface, chip ปิดทำการ (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.500'),
+    bgHex: hex('bg.surface'),
+    expected: 7.3,
+    kind: 'nonText',
+  },
+  {
+    id: `ink.100 on bg.night, chip ปิดทำการกลางคืน (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.100'),
+    bgHex: hex('bg.night'),
+    expected: 12.88,
+    kind: 'text',
+  },
+  {
+    id: `ink.300 border on bg.night, chip ปิดทำการกลางคืน (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.300'),
+    bgHex: hex('bg.night'),
+    expected: 6.17,
+    kind: 'nonText',
+  },
+  {
+    id: `ink.900 border on bg.surface, chip กำลังเล่นอยู่ (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.900'),
+    bgHex: hex('bg.surface'),
+    expected: 17.29,
+    kind: 'nonText',
+  },
+  {
+    id: `bg.paper on bg.night, chip กำลังเล่นอยู่ (${PA41})`,
+    section: PA41,
+    fgHex: hex('bg.paper'),
+    bgHex: hex('bg.night'),
+    expected: 16.39,
+    kind: 'text',
+  },
+  {
+    id: `state.info on bg.paper, header Grace/Suspended (${PA41})`,
+    section: PA41,
+    fgHex: hex('state.info'),
+    bgHex: hex('bg.paper'),
+    expected: 5.93,
+    kind: 'text',
+  },
+  {
+    id: `state.info-on-night on bg.night, header Grace/Suspended (${PA41})`,
+    section: PA41,
+    fgHex: hex('state.info-on-night'),
+    bgHex: hex('bg.night'),
+    expected: 9.59,
+    kind: 'text',
+  },
+  {
+    id: `bg.surface on state.info, header Grace/Suspended (${PA41})`,
+    section: PA41,
+    fgHex: hex('bg.surface'),
+    bgHex: hex('state.info'),
+    expected: 6.25,
+    kind: 'text',
+  },
+  {
+    id: `ink.500 on ink.100, ปุ่ม "เข้า" ที่ยังกดไม่ได้ (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.500'),
+    bgHex: hex('ink.100'),
+    expected: 5.44,
+    kind: 'text',
+  },
+  {
+    id: `state.danger bar on ink.100 rail, แถบ HP (${PA41})`,
+    section: PA41,
+    fgHex: hex('state.danger'),
+    bgHex: hex('ink.100'),
+    expected: 4.1,
+    kind: 'nonText',
+  },
+  {
+    id: `ink.900 border of icon.ui.direction arrow on bg.surface (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.900'),
+    bgHex: hex('bg.surface'),
+    expected: 17.29,
+    kind: 'nonText',
+  },
+  {
+    id: `accent.signal fill with ink.900 border, icon.ui.direction (${PA41})`,
+    section: PA41,
+    fgHex: hex('ink.900'),
+    bgHex: hex('accent.signal'),
+    expected: 11.43,
+    kind: 'nonText',
+  },
+];
+
 const ALL_CASES: ContrastCase[] = [
   ...CASES_4_1,
   ...CASES_4_2,
@@ -530,6 +655,7 @@ const ALL_CASES: ContrastCase[] = [
   ...CASES_4_4,
   ...CASES_4_5,
   ...CASES_MAP_STYLE_9,
+  ...CASES_P2_ASSETS_4_1,
 ];
 
 // Sanity: no duplicate ids (would hide a missing case behind a passing twin).
@@ -543,7 +669,8 @@ describe('contrast test data', () => {
     expect(CASES_4_4.length).toBe(6);
     expect(CASES_4_5.length).toBe(31);
     expect(CASES_MAP_STYLE_9.length).toBe(35);
-    expect(ALL_CASES.length).toBe(119);
+    expect(CASES_P2_ASSETS_4_1.length).toBe(14); // P2-X01: brief §4.1's 8 table rows, 14 pairs
+    expect(ALL_CASES.length).toBe(133);
   });
 });
 
@@ -600,8 +727,10 @@ describe('design/ux/tokens.json copies style-guide §3 hex byte-for-byte', () =>
     colorRows.push({ tokenPath: m[1] as string, hex: m[2] as string });
   }
 
-  it('parsed exactly 41 `color.*` rows from style-guide §3.1/3.2/3.3/3.5', () => {
-    expect(colorRows.length).toBe(41);
+  // 41 -> 42 in P2-X01: style-guide §3.5 added `color.map.water-edge` to close
+  // A-P1-F03-T12-4 (art/direction/briefs/P2-assets.md §4.1, style-guide §3.5).
+  it('parsed exactly 42 `color.*` rows from style-guide §3.1/3.2/3.3/3.5', () => {
+    expect(colorRows.length).toBe(42);
   });
 
   for (const { tokenPath, hex: expectedHex } of colorRows) {
@@ -611,8 +740,13 @@ describe('design/ux/tokens.json copies style-guide §3 hex byte-for-byte', () =>
     });
   }
 
+  // Widened in P2-X01 (art/direction/style-guide.md §3.4 note): the plain
+  // [a-z]+ regex missed the skin-1..6 / hair-1..6 avatar ramps added in §3.4.1
+  // (names contain digits and a dash). [a-z0-9-]+ still rejects anything that
+  // is not a bare `ramp.<name>` row, so a stray `ramp.tonic` typo etc. keeps
+  // failing the byte-for-byte check below instead of silently matching.
   const rampRowPattern =
-    /\|\s*`ramp\.([a-z]+)`\s*\|\s*(#[0-9A-Fa-f]{6})\s*\|\s*(#[0-9A-Fa-f]{6})\s*\|\s*(#[0-9A-Fa-f]{6})\s*\|/g;
+    /\|\s*`ramp\.([a-z0-9-]+)`\s*\|\s*(#[0-9A-Fa-f]{6})\s*\|\s*(#[0-9A-Fa-f]{6})\s*\|\s*(#[0-9A-Fa-f]{6})\s*\|/g;
   const rampRows: Array<{ name: string; top: string; left: string; right: string }> = [];
   for (const m of section3.matchAll(rampRowPattern)) {
     rampRows.push({
@@ -623,8 +757,12 @@ describe('design/ux/tokens.json copies style-guide §3 hex byte-for-byte', () =>
     });
   }
 
-  it('parsed exactly 10 `ramp.*` rows from style-guide §3.4', () => {
-    expect(rampRows.length).toBe(10);
+  // 10 -> 23 in P2-X01: style-guide §3.4 added `ramp.tonic` (11 material
+  // ramps total) and §3.4.1 added the 12 avatar skin-1..6 / hair-1..6 ramps
+  // (11 + 12 = 23). Both sub-sections are inside the §3 slice this test
+  // parses, so widening the regex above picks up all of them in one pass.
+  it('parsed exactly 23 `ramp.*` rows from style-guide §3.4/3.4.1', () => {
+    expect(rampRows.length).toBe(23);
   });
 
   for (const row of rampRows) {

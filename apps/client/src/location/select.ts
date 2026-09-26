@@ -111,7 +111,7 @@ export function selectProvider(
   return {
     provider: readProvider(params, config, defaults.provider),
     traceId: readTraceId(params, config),
-    speed: readSpeed(params, config, defaults.speed),
+    speed: readSpeed(params, config, defaults.speedMult),
     loop: readBoolean(params, config.providerQuery.paramNames.loop, defaults.loop),
     hud: readBoolean(params, config.providerQuery.paramNames.hud, defaults.hud),
   };

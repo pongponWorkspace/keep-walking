@@ -42,6 +42,9 @@ function row(overrides: Partial<SummaryRow> = {}): SummaryRow {
     gateWindowsPass: 21,
     gateWindowsPassPct: 95.4,
     stationary5MinAccumM: undefined,
+    gateWindowsPassFiltered: 20,
+    gateWindowsPassFilteredPct: 90.9,
+    stationary5MinAccumFilteredM: undefined,
     latencyMedianMs: 400,
     latencyP90Ms: 900,
     ...overrides,
@@ -49,6 +52,26 @@ function row(overrides: Partial<SummaryRow> = {}): SummaryRow {
 }
 
 describe('buildSummaryCsv', () => {
+  it('writes format_version 2 and the three filtered columns, positioned right after stationary_5min_accum_m (gps-trace-format.md 4.1)', () => {
+    const csv = buildSummaryCsv([row()]);
+    const [headerLine, dataLine] = csv.split('\n');
+    const header = (headerLine ?? '').split(',');
+    expect(header[0]).toBe('format_version');
+    expect(header.indexOf('gate_windows_pass_filtered')).toBe(
+      header.indexOf('stationary_5min_accum_m') + 1,
+    );
+    expect(header.indexOf('gate_windows_pass_filtered_pct')).toBe(
+      header.indexOf('gate_windows_pass_filtered') + 1,
+    );
+    expect(header.indexOf('stationary_5min_accum_filtered_m')).toBe(
+      header.indexOf('gate_windows_pass_filtered_pct') + 1,
+    );
+    const cells = (dataLine ?? '').split(',');
+    expect(cells[0]).toBe('2');
+    expect(cells[header.indexOf('gate_windows_pass_filtered')]).toBe('20');
+    expect(cells[header.indexOf('stationary_5min_accum_filtered_m')]).toBe('');
+  });
+
   it('never emits a coordinate-shaped column (lat/lng/geohash) — privacy.json summaryExport guard rail', () => {
     const csv = buildSummaryCsv([row()]);
     const [header] = csv.split('\n');

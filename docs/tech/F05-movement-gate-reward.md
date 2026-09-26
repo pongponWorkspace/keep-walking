@@ -141,12 +141,16 @@ interface ActiveClock {
 | `death` | ทิ้งทั้งหมด (`death.loseAllRunLoot`) | เก็บ | ทิ้ง |
 
 - **ถุงของ run** = ของที่ได้ใน run นี้และยังไม่ใช้ · ยาที่พกเข้ามาก่อน run ไม่อยู่ในถุง (R20) · `session` แยก `run.bag` กับ `player.inventory` ตั้งแต่เริ่ม
-- **tick บางส่วน** (R22) ที่ `endAt_ms` (= `closesAt_ms` หรือเวลาของ `emergencyClose`):
+- **ลำดับตอนปิด** (`dungeon_closed` / `emergency_close` ที่ `endAt_ms` = `closesAt_ms` หรือเวลาของ `emergencyClose` · systems-designer ยืนยัน A-P2-F04-T14-6 / -7 ใน `design/systems/balance-model.md` 16.8):
+  1. `endAt_ms` เป็น **นาฬิกาหยุด** ของระยะ: τ หยุดที่ `τ(endAt)` · sample ที่ `t > endAt_ms` ไม่ใช้กับระยะใดเลย (แม้ engine จะได้รับ sample นั้นก่อนประมวล `dungeon_closed` เพราะ `H`) · ไม่ interpolate ถึงหรือเลย `endAt_ms`
+  2. หน้าต่างที่ปลาย `(k+1) × window_s × 1000 ≤ τ(endAt)` ตัดสิน **ตามปกติ** ก่อน (หัวข้อ 4 · ระยะเต็มเกณฑ์ · ไม่ย่อด้วย f) ตามลำดับ k · จุด grid ที่ปลายหน้าต่างใช้ได้เมื่อมีค่าจากคู่ sample ที่ `b.t ≤ endAt_ms`
+  3. ส่วนที่เหลือเป็นหน้าต่างที่ค้าง → tick บางส่วนด้านล่าง
+- **tick บางส่วน** (R22):
   - `e_ms = τ(endAt) − windowStartTau` (เวลา Active ที่สะสมในหน้าต่างที่ค้าง · ถ้านาฬิกาหยุดอยู่ใช้ τ ที่ค้าง · E11)
   - `e < partialTickMinElapsed_s × 1000` → ไม่จ่าย (G10: 59 วิ ไม่จ่าย 60 วิ ประเมิน)
   - `f = e / (window_s × 1000)` · ผ่านเมื่อ `distance_m > minDistancePerWindow_m × f` (`greaterThan`, `partialTickGateScaling: proportional`)
-  - ระยะนับถึงจุด grid สุดท้ายที่ `τ_i ≤ τ(endAt)` (ไม่ interpolate เลยปลาย)
-  - ผ่าน: exp × f · `rollTickLoot(runSeed, grantedCount, table, mult, f)`: โอกาสทุก rarity × f และจำนวน Common × f ปัดแบบ `quantityPerDrop.fractionalQuantityRounding` (A-P2-F04-T01-4 ของ systems) · `grantedCount += 1` · event `run_tick_granted { partial: true, f }`
+  - ระยะนับถึงจุด grid สุดท้ายที่ `τ_i ≤ τ(endAt)` และจุดนั้นต้องมีค่าจากคู่ sample ที่นับได้ซึ่ง **จบก่อนหรือตรง** `endAt_ms` (`b.t ≤ endAt_ms`) · จุด grid ที่ต้องใช้คู่ที่คร่อม `endAt_ms` ไม่มีค่า · ผลจึงไม่ขึ้นกับจังหวะเรียก `sessionStep` (vector `partial-tick` "ระยะถึงจุด grid ก่อนปิด")
+  - ผ่าน: exp × f · `rollTickLoot(runSeed, grantedCount, table, mult, f)` โดย `grantedCount` = index ถัดไปของ stream `drop` (จำนวน tick ที่ผ่านแล้วรวมหน้าต่างจากข้อ 2 · ไม่เปิด stream ใหม่ · vector: ผ่านมา 3 ครั้ง → index 3, f = 0.2): โอกาสทุก rarity × f และจำนวน Common × f ปัดแบบ `quantityPerDrop.fractionalQuantityRounding` (A-P2-F04-T01-4 ของ systems) · `grantedCount += 1` · event `run_tick_granted { partial: true, f }`
   - ไม่ผ่าน: `run_tick_denied { partial: true }` · ไม่ดึงเลขสุ่ม
 - run ที่มี tick ผ่านอย่างน้อยหนึ่งครั้ง (รวมบางส่วน) = run ที่นับ (R23) · `RunSummary.ticksGranted > 0`
 - หลังจ่าย: ลบทุก field ที่มีพิกัด (`main`, `scratch`, anchor) แล้วสร้าง `RunSummary` (tech note F04 9.1 ขั้น 10)
@@ -214,7 +218,7 @@ sample เข้า ─► ด่านเวลา ─► จัดชั้น
 ## 11. สมมติฐานและงานต่อ
 
 - A-P2-F04-T14-3 (ซ้ำจาก tech note F04): คู่ที่เร็วกว่า `speedLock_kmh` ไม่นับ (3.1 ข้อ 5) · owner game-director
-- A-P2-F04-T14-6: tick บางส่วนใช้ index ถัดไปของ stream `drop` เหมือน tick ปกติ (ไม่ใช้ stream ใหม่) · owner systems-designer (vector)
-- A-P2-F04-T14-7: ระยะของ tick บางส่วนนับถึงจุด grid สุดท้ายก่อนเวลาปิด (6) · owner systems-designer
+- A-P2-F04-T14-6: ปิดแล้ว · systems-designer ยืนยันใน P2-F05-T20 (balance-model 16.8, vector `partial-tick`) · เขียนเป็นสัญญาในหัวข้อ 6 (P2-X04)
+- A-P2-F04-T14-7: ปิดแล้ว · ยืนยันพร้อมขยาย (จุด grid ต้องมีค่าจากคู่ที่จบก่อนหรือตรงเวลาปิด · `endAt` เป็นนาฬิกาหยุด) · หัวข้อ 6 (P2-X04)
 - ADR 0003 5.2 ข้อ 6 (ข) ต้องแก้ถ้อยคำตามหัวข้อ 4 · tech-lead (งานถัดไป)
 - `run_tick_granted.partial` เป็นข้อเสนอถึง product-manager (P2-F04-T17)

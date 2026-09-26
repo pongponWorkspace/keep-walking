@@ -14,13 +14,13 @@ import {
   ticksBetween,
   ticksPerLevel,
   ticksPerLevelCurve,
-} from './formulas';
+} from '@keep-walking/shared/formulas';
 import { dropParamsFromConfig } from './drops';
 import { loadGddReference } from './gdd';
 import { runEconomyReport } from './report-economy';
 import { ROLES, paramsFromConfig } from './params';
 import type { SimParams } from './params';
-import { mulberry32 } from './rng';
+import { mulberry32 } from '@keep-walking/shared/formulas';
 import { fitHitChance_pct, runSetup, survivalRow } from './scenarios';
 import type { TankerCase } from './scenarios';
 import { survivalMonteCarlo } from './survival';

@@ -4,6 +4,10 @@
   "private": true,
   "description": "JSON Schema per config file (packages/shared/schemas/config/) and config convention lint (ADR 0001 3.10, D-062). Runs inside `pnpm test`. Owner: tech-lead. Never imported by apps/* or packages/*.",
   "type": "module",
+  "scripts": {
+    "lint": "tsx src/cli.ts",
+    "scaffold": "tsx src/scaffold.ts"
+  },
   "dependencies": {
     "@keep-walking/shared": "workspace:*",
     "ajv": "8.20.0",

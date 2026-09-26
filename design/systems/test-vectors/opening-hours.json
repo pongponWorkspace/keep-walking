@@ -1,0 +1,1164 @@
+{
+  "formula": "opening-hours",
+  "vectors": [
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791755999999
+      },
+      "expected": false,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Mon 04:59:59.999 Bangkok: closed"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791756000000
+      },
+      "expected": true,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Mon 05:00 Bangkok: open (start minute included)"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791813599999
+      },
+      "expected": true,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Mon 20:59:59.999: open"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791813600000
+      },
+      "expected": false,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Mon 21:00: closed (closing minute is already closed, R25)"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791860400000
+      },
+      "expected": false,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Tue 2026-10-13 10:00: closed by the exception date"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791946800000
+      },
+      "expected": false,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Wed 10:00: closed all day ([])"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1792083540000
+      },
+      "expected": true,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Thu 23:59: open (24 h day)"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1792251000000
+      },
+      "expected": true,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Sat 22:30: open (22:00-02:00 split at midnight by tools/dungeons)"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1792263540000
+      },
+      "expected": true,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Sun 01:59: open"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1792263600000
+      },
+      "expected": false,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Sun 02:00: closed"
+    },
+    {
+      "input": {
+        "fn": "isOpenAt",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1792085400000
+      },
+      "expected": false,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Fri 00:30 Bangkok = Thu 17:30 UTC: closed; evaluating in UTC (device time zone bug) would read Thursday and say open"
+    },
+    {
+      "input": {
+        "fn": "openingChangeAfter",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791781200000
+      },
+      "expected": 1791813600000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Mon 12:00 → closes Mon 21:00 (closesAt_ms of a run started now)"
+    },
+    {
+      "input": {
+        "fn": "openingChangeAfter",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791752400000
+      },
+      "expected": 1791756000000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Mon 04:00 → opens Mon 05:00"
+    },
+    {
+      "input": {
+        "fn": "openingChangeAfter",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1792251000000
+      },
+      "expected": 1792263600000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Sat 22:30 → closes Sun 02:00 (intervals touching at midnight merge)"
+    },
+    {
+      "input": {
+        "fn": "openingChangeAfter",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791946800000
+      },
+      "expected": 1791997200000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Wed 10:00 (closed) → opens Thu 00:00"
+    },
+    {
+      "input": {
+        "fn": "openingChangeAfter",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "2": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "3": [],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                300,
+                1260
+              ]
+            ],
+            "6": [
+              [
+                1320,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                120
+              ]
+            ]
+          },
+          "exceptions": [
+            {
+              "date": "2026-10-13",
+              "intervals": []
+            }
+          ]
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1792040400000
+      },
+      "expected": 1792083600000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · Thu 12:00 (24 h) → closes Fri 00:00"
+    },
+    {
+      "input": {
+        "fn": "openingChangeAfter",
+        "hours": {
+          "weekly": {
+            "1": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "2": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "3": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "4": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "5": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "6": [
+              [
+                0,
+                1440
+              ]
+            ],
+            "7": [
+              [
+                0,
+                1440
+              ]
+            ]
+          }
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791781200000
+      },
+      "expected": null,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · open every day all day: null"
+    },
+    {
+      "input": {
+        "fn": "openingChangeAfter",
+        "hours": {
+          "weekly": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": [],
+            "5": [],
+            "6": [],
+            "7": []
+          }
+        },
+        "utcOffset_min": 420,
+        "t_ms": 1791781200000
+      },
+      "expected": null,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · closed every day: null"
+    },
+    {
+      "input": {
+        "fn": "closingSoonAt",
+        "closesAt_ms": 1791813600000,
+        "startedAt_ms": 1791812400000,
+        "closingSoonNotice_s": 600
+      },
+      "expected": 1791813000000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · run started 20:40, closes 21:00: notice at 20:50 (closingSoonNotice_s before)"
+    },
+    {
+      "input": {
+        "fn": "closingSoonAt",
+        "closesAt_ms": 1791813600000,
+        "startedAt_ms": 1791813000000,
+        "closingSoonNotice_s": 600
+      },
+      "expected": null,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · run started exactly at the notice time: no notice (the popup already warned, R28)"
+    },
+    {
+      "input": {
+        "fn": "closingSoonAt",
+        "closesAt_ms": 1791813600000,
+        "startedAt_ms": 1791813300000,
+        "closingSoonNotice_s": 600
+      },
+      "expected": null,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · run started 20:55: no notice"
+    },
+    {
+      "input": {
+        "fn": "closingSoonAt",
+        "closesAt_ms": null,
+        "startedAt_ms": 1791812400000,
+        "closingSoonNotice_s": 600
+      },
+      "expected": null,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · no closing time within the horizon: no notice"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 0,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 0,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 0 m shows 0"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 650,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 650,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 650 m (GDD rift example) shows 650"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 651,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 700,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 651 m rounds up to 700, never below the truth (R34)"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 1000,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 1000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 1,000 m is in the first band: 1,000"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 1000.5,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 1100,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 1,000.5 m moves to the 100 m band: 1,100"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 1901,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 2000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 1,901 m shows 2,000"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 10000,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 10000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 10,000 m shows 10,000"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 10000.1,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 11000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 10,000.1 m moves to the 1 km band: 11,000"
+    },
+    {
+      "input": {
+        "fn": "displayDistance",
+        "distance_m": 12345,
+        "steps": [
+          { "upTo_m": 1000, "step_m": 50 },
+          { "upTo_m": 10000, "step_m": 100 },
+          { "upTo_m": null, "step_m": 1000 }
+        ]
+      },
+      "expected": 13000,
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · 12,345 m shows 13,000"
+    }
+  ]
+}

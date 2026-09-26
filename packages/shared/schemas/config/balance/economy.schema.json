@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/economy.schema.json",
+  "title": "config/balance/economy.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "npcSellPrice_gold",
+    "npcPricing",
+    "potions",
+    "autoPotion",
+    "incomeToPotionRatio",
+    "gddReferenceEconomy",
+    "partyReward",
+    "playtimeGap",
+    "marketTax",
+    "market"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "npcSellPrice_gold": {
+      "type": "object",
+      "required": ["elementDust", "elementCore", "riftStone", "equipment"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "elementDust": { "type": "integer", "minimum": 0 },
+        "elementCore": { "type": "integer", "minimum": 0 },
+        "riftStone": { "type": "integer", "minimum": 0 },
+        "equipment": { "type": ["number", "null"] },
+        "_nullMeans": { "$ref": "../common.schema.json#/$defs/nullMeans" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "npcPricing": {
+      "type": "object",
+      "required": [
+        "npcPriceToMarketValueMin_pct",
+        "npcPriceToMarketValueMax_pct",
+        "npcDailySellLimit"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "npcPriceToMarketValueMin_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+        "npcPriceToMarketValueMax_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+        "npcDailySellLimit": { "type": ["number", "null"] },
+        "_nullMeans": { "$ref": "../common.schema.json#/$defs/nullMeans" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "potions": {
+      "type": "object",
+      "required": ["hpSmall", "hpMedium", "hpLarge", "revive", "purchaseCurrency"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "hpSmall": {
+          "type": "object",
+          "required": ["heal_pctMaxHp", "buyPrice_gold"],
+          "properties": {
+            "heal_pctMaxHp": { "$ref": "../common.schema.json#/$defs/pctOf" },
+            "buyPrice_gold": { "$ref": "../common.schema.json#/$defs/gold" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "hpMedium": {
+          "type": "object",
+          "required": ["heal_pctMaxHp", "buyPrice_gold"],
+          "properties": {
+            "heal_pctMaxHp": { "$ref": "../common.schema.json#/$defs/pctOf" },
+            "buyPrice_gold": { "$ref": "../common.schema.json#/$defs/gold" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "hpLarge": {
+          "type": "object",
+          "required": ["heal_pctMaxHp", "buyPrice_gold"],
+          "properties": {
+            "heal_pctMaxHp": { "$ref": "../common.schema.json#/$defs/pctOf" },
+            "buyPrice_gold": { "$ref": "../common.schema.json#/$defs/gold" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "revive": {
+          "type": "object",
+          "required": ["reviveToHp_pct", "buyPrice_gold", "usableInsideDungeon"],
+          "properties": {
+            "reviveToHp_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "buyPrice_gold": { "$ref": "../common.schema.json#/$defs/gold" },
+            "usableInsideDungeon": { "type": "boolean" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "purchaseCurrency": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "autoPotion": {
+      "type": "object",
+      "required": ["enabledByDefault", "defaultThreshold_pct", "defaultPotionOrder"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "enabledByDefault": { "type": "boolean" },
+        "defaultThreshold_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+        "defaultPotionOrder": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "incomeToPotionRatio": {
+      "type": "object",
+      "required": ["targetMin", "targetMax", "minAccepted"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "targetMin": { "type": "number" },
+        "targetMax": { "type": "integer", "minimum": 0 },
+        "minAccepted": { "type": "number" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "gddReferenceEconomy": {
+      "type": "object",
+      "required": ["incomePerWalkingHour_gold", "potionCostPerHour_gold"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "incomePerWalkingHour_gold": { "$ref": "../common.schema.json#/$defs/gold" },
+        "potionCostPerHour_gold": { "$ref": "../common.schema.json#/$defs/gold" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "partyReward": {
+      "type": "object",
+      "required": ["fullPartyPerHeadToSoloMin", "fullPartyPerHeadToSoloMax"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "fullPartyPerHeadToSoloMin": { "type": "number" },
+        "fullPartyPerHeadToSoloMax": { "type": "number" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "playtimeGap": {
+      "type": "object",
+      "required": ["expectedDailyRewardGapMax"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "expectedDailyRewardGapMax": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "marketTax": {
+      "type": "object",
+      "required": ["brackets", "bracketMode", "resetTimezone", "resetLocalTime"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "brackets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["fromDailySales_gold", "toDailySales_gold", "tax_pct"],
+            "properties": {
+              "fromDailySales_gold": { "$ref": "../common.schema.json#/$defs/gold" },
+              "toDailySales_gold": { "type": ["number", "null"] },
+              "tax_pct": { "$ref": "../common.schema.json#/$defs/pct" }
+            },
+            "patternProperties": { "^_": {} }
+          }
+        },
+        "_nullMeans": { "$ref": "../common.schema.json#/$defs/nullMeans" },
+        "bracketMode": { "type": "string", "minLength": 1 },
+        "resetTimezone": { "type": "string", "minLength": 1 },
+        "resetLocalTime": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "market": {
+      "type": "object",
+      "required": [
+        "listingOnly",
+        "anonymous",
+        "directGoldTrade",
+        "tradeableCategories",
+        "priceBandVsAvg_pct",
+        "priceBandAvgWindow_days",
+        "minAccountAgeToTrade_days",
+        "dailyTransferCapPerLevel_gold"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "listingOnly": { "type": "boolean" },
+        "anonymous": { "type": "boolean" },
+        "directGoldTrade": { "type": "boolean" },
+        "tradeableCategories": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "priceBandVsAvg_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+        "priceBandAvgWindow_days": { "$ref": "../common.schema.json#/$defs/days" },
+        "minAccountAgeToTrade_days": { "$ref": "../common.schema.json#/$defs/days" },
+        "dailyTransferCapPerLevel_gold": { "$ref": "../common.schema.json#/$defs/gold" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

@@ -1,7 +1,7 @@
 # Balance Model — GPS Dungeon Bangkok
 
-- งาน: P1-F03-T06 · เจ้าของ: systems-designer · สถานะ: ฉบับแรก (Phase 1) · ปรับตามคำตัดสินหลัง T06 ใน P1-X22 (เป็นบันทึก ไม่เปลี่ยนค่า config) · P2-F06-T01 (Phase 2): D-038 B, farDungeonThreshold_m, R-B1, cap ของ partyMult (หัวข้อ 15)
-- คำตัดสินที่สะท้อนแล้ว: D-020 ACCEPTED (นิยาม 45 นาที), D-038 B ACCEPTED (VIT ต่อยา +1%), D-078 (R-B1 ลำดับผลต่อ hit), D-079 (เพดานระยะไกลและ partyMult), D-029 (hit chance 54), D-041 (ลำดับปลด), D-059 PROPOSED (รางวัลปิดฉุกเฉิน), D-061 PROPOSED (`dungeons.safety`), D-062 (`telemetry.json` อยู่ `config/app/`), D-064 ("นอกพื้นที่" = นอก mask), D-065 (ร้าน NPC) · ตัวเลขผลรันล่าสุดอยู่ที่ `design/systems/sim-report.md`
+- งาน: P1-F03-T06 · เจ้าของ: systems-designer · สถานะ: ฉบับแรก (Phase 1) · ปรับตามคำตัดสินหลัง T06 ใน P1-X22 (เป็นบันทึก ไม่เปลี่ยนค่า config) · P2-F06-T01 (Phase 2): D-038 B, farDungeonThreshold_m, R-B1, cap ของ partyMult (หัวข้อ 15) · P2-F05-T20: gate, run state, check-in, speed lock, เวลาทำการ (หัวข้อ 16) · P2-F05-T01: exp ต่อ tick, drop table ต่อ preset รวมยา, ไอเทมพร้อม `assets.icon`, ค่า F06, `dungeons.safety` ตาม D-061 ที่แก้, run loop ที่ใส่ seed (หัวข้อ 17)
+- คำตัดสินที่สะท้อนแล้ว: D-020 ACCEPTED (นิยาม 45 นาที), D-038 B ACCEPTED (VIT ต่อยา +1%), D-078 (R-B1 ลำดับผลต่อ hit), D-079 (เพดานระยะไกลและ partyMult), D-029 (hit chance 54), D-041 (ลำดับปลด), D-059 ACCEPTED (รางวัลปิดฉุกเฉิน), D-061 ACCEPTED พร้อมแก้ (`dungeons.safety` หัวข้อ 17.6), D-089 (ยามาจาก drop เท่านั้น), D-094, D-096 (กฎ F05/F06), D-062 (`telemetry.json` อยู่ `config/app/`), D-064 ("นอกพื้นที่" = นอก mask), D-065 (ร้าน NPC) · ตัวเลขผลรันล่าสุดอยู่ที่ `design/systems/sim-report.md`
 - แหล่งความจริง: GDD (`เกม GPS Dungeon กรุงเทพฯ — Design Document.md`) · decision D-004, D-005
 - ค่าทุกตัวอยู่ใน `config/balance/*.json` เอกสารนี้อธิบายสูตรและเหตุผลเท่านั้น โค้ดห้ามถือเลขเอง
 - ผู้ใช้ต่อ: P1-F03-T07 และ T08 (simulator + golden test vectors), P1-F03-T09 (preset), gameplay/backend-programmer, liveops-operator
@@ -27,9 +27,9 @@
 | `progression.json` | เลเวลสูงสุด, exp curve, ตัวคูณ exp, stat point, stat พื้นฐาน, การฟื้น HP | 4 |
 | `equipment.json` | gearStat, 4 ช่อง, ของบอส, tier ตามเลเวล | 5 |
 | `enhance.json` | โอกาสสำเร็จ, ผลล้มเหลว (ไม่มีแตก), สะสมความล้มเหลว, ค่าวัตถุดิบและ gold | 6 |
-| `drops.json` | โอกาสต่อ tick, จำนวน, ตัวคูณ, dungeon เล็ก | 7 |
+| `drops.json` | โอกาสต่อ tick, จำนวน, ตัวคูณ, dungeon เล็ก · `items` (ไอเทมที่ drop ได้ พร้อม `assets.icon`, `nameKey`) และ `dropTables` ต่อ preset รวมยา (P2-F05-T01) | 7, 17 |
 | `economy.json` | ราคา NPC, ยา, ยาอัตโนมัติ, เป้าอัตราส่วน, ภาษีขั้นบันได, กฎตลาด | 8 |
-| `dungeons.json` | พื้นที่ 3,000–150,000 ตร.ม., สถานะ run, reward tick, movement gate, auto-retreat, แจ้ง HP, ปิดฉุกเฉิน (`emergencyClose`), พัก dungeon จากรายงาน (`safety`) | 9 |
+| `dungeons.json` | พื้นที่ 3,000–150,000 ตร.ม., สถานะ run, reward tick, movement gate, auto-retreat, แจ้ง HP, ปิดฉุกเฉิน (`emergencyClose`), พัก dungeon จากรายงาน (`safety` ตาม D-061 ที่แก้) | 9, 16, 17 |
 | `unlocks.json` | เงื่อนไขปลดต่อระบบ (U1–U8 และร้าน NPC), นิยาม run ที่นับ, ระยะ "ไกล", อ้าง mask "นอกพื้นที่" | 10 |
 | `raid.json` | POW, presence/survival/party mult, HP บอส, checkpoint, อันดับ contribution | 11 |
 | `anticheat.json` | check-in, speed lock, trust score, offline evidence, audit ผลลัพธ์ | 12 |
@@ -54,6 +54,10 @@
 | F-8 | ตีบวก "ไปได้เรื่อยๆ" | ไม่มีเพดาน | ตารางวัตถุดิบและตาราง gear หยุดที่ +15 | ขัดกันเล็กน้อย | v1 เพดาน +15 (A-P1-F03-T06-7a) |
 | F-9 | ความแรงของบอส | หัวข้อ Raid 15–25% · หัวข้อ Progression 20% | — | ไม่ขัดกัน 20% อยู่ในช่วง | ใช้ 20% |
 | F-10 | กฎ base/cap | 1/3–2/5 | Support 25/50 = 0.50 | ยกเว้นโดยเจตนาตาม D-004 ไม่เสนอซ้ำ | — |
+| F-16 | นั่งม้านั่งยังได้ tick (P2-F05-T20) | "นั่งพักบนม้านั่งยังได้อยู่" | trace `synthetic-bench-jitter-01` หลังกรอง + resample 5 วินาที = 53.4–56.5 ม. ต่อหน้าต่าง (เกณฑ์ > 50) · resample 10 วินาที = 32.8–43.0 ม. ไม่ผ่านเลย | ผ่านแต่ขอบบาง (7–13%) และขนาด jitter ของ trace เป็นค่าสมมติ (sigma 1.5 ม.) · มือถือจริงอาจตกทั้งสองทาง | ไม่แก้เกณฑ์ 50 ม. เงียบ (NN-2) · รอ P2-C03 วัดเครื่องจริง ถ้าม้านั่งไม่ผ่านหรือโต๊ะนิ่งผ่าน ส่ง game-director (board กฎข้อ 4) · `sampleCadence_s` เป็นคันโยกเดียวที่ควรขยับ (ห้ามต่ำกว่าช่วง sample ของเครื่อง 0.2 Hz = 5 วินาที เพราะผล 1 Hz กับ 0.2 Hz จะต่างกัน) |
+| F-17 | เปิด GPS ใหม่แล้วเดินเข้าเขต (P2-F05-T20) | check-in ต่อเนื่อง 60 วินาที | trace `synthetic-warmup-accuracy-01` ที่ `outlierSpeed_kmh` 30 (ค่า fixture ของ geo) ทิ้ง fix 52 ตัว ลำดับไม่ถึง 60 วินาทีภายใน 5 นาที | jitter ของ fix 1 Hz ช่วง warm-up ถึง 134 กม./ชม. ตัวกรองความเร็วที่ต่ำเกินทำให้ check-in ไม่ผ่านเลย | ตั้ง 60 กม./ชม.: ครบที่ 118 วินาที (ideal ราว 106) · spike และ teleport ยังถูกทิ้งทั้งหมด · ระยะรางวัลไม่เพิ่มเพราะคู่ที่เร็วกว่า 25 กม./ชม. ไม่นับอยู่แล้ว |
+| F-18 | dungeon ที่ช่วงเลเวลกว้างและครอบเลเวล 1 (P2-F05-T01) | เลเวลตรงโซนอยู่ราว 45 นาที · spec F06 R43: เลเวล 1 ไม่มียา มัธยฐานถึง auto-retreat ≥ 2 × `window_s` (10 นาที) | Z = กลางช่วงปัด (A-1) ดังนั้น PN-2 ช่วง 1–35 มี Z = 18 · เลเวล 1 base stat โดน 192.8 ต่อครั้ง (64% ของ HP 300) · มัธยฐานถึง auto-retreat 3.2 นาที (non-Tanker) / 5.1 นาที (Tanker) · ช่วง 1–5 ผ่าน (21.7–43.1 นาที) · 1–9 ผ่าน (12.6) · 1–10 ไม่ผ่าน (8.8) | R43 ไม่ผ่านใน PN-2 · onboarding แนะนำ PN-2 ได้ถ้าเป็นแห่งที่เปิดใกล้สุด (F06 R37) | ห้ามแก้ด้วยเกณฑ์ auto-retreat หรือ gate (NN-8) · ส่ง game-director: (ก) level-designer ตั้งช่วงที่ครอบเลเวล 1 ให้ max ≤ 9 (Z ≤ 5) หรือ (ข) เปลี่ยน A-1 เป็น Z = เลเวลผู้เล่นที่ถูกบีบเข้าในช่วง (ต้องทำ vector ใหม่ทั้งหมด) · หลักฐาน report-loop หัวข้อ 4 |
+| F-19 | ยาจาก drop ของ Phase 2 เทียบเป้าเศรษฐกิจ (P2-F05-T01) | รายได้ราว 2.5–3 เท่าของค่ายา (D-005, HUMAN) | ยาเล็ก 17% + ยาชุบ 1% ต่อ tick มีมูลค่า 606 gold/ชม. ที่ราคาซื้อ NPC ≈ ค่ายาทั้งหมดของ GDD (600) | Phase 2 ไม่มี gold จึงไม่กระทบ · ถ้าคงไว้ถึง Phase 4 ค่ายาสุทธิเกือบเป็นศูนย์ อัตราส่วนหลุดเป้าด้านบน | roll ยาเป็นของ Phase 2 (A-P2-F05-T01-1) · ต้องทบทวนก่อนเปิดร้าน NPC (Phase 4) · ถ้าจะคงไว้ต้องเป็น decision HUMAN |
 
 ## 2. Class, party และ buff stacking
 
@@ -387,13 +391,15 @@ listing เท่านั้น, ไม่ระบุตัวตน, ห้�
 | แจ้งเตือน HP | `hpSafety.lowHpWarningThreshold_pct` | 30% สั่น + push |
 | offline evidence | `offlineEvidence.maxOfflineEvidenceAge_s` | 1,800 วินาที |
 | ปิดฉุกเฉิน: tick ค้างขั้นต่ำ | `emergencyClose.partialTickMinElapsed_s` | 60 วินาที (ต่ำกว่านี้ tick ค้างไม่จ่าย) · D-059 PROPOSED |
-| พัก dungeon จากรายงาน | `safety.reportThreshold` / `reportWindow_h` | ผู้เล่นต่างกัน 5 คนภายใน 24 ชม. → `suspendPendingModerator` · D-061 PROPOSED (A-P1-X04-3) |
+| พัก dungeon จากรายงาน | `safety.*` | หมวด "ที่นี่อันตราย" จากผู้เล่นต่างกัน 5 คนที่อยู่ที่นั่นจริง trust ไม่ต่ำ จากอย่างน้อย 2 กลุ่มอิสระ ภายใน 24 ชม. → `suspendPendingModerator` · D-061 ที่แก้ (หัวข้อ 17.6) |
 
 ```
-distance(window)  = Σ ระยะระหว่าง sample ที่ผ่านการกรองใน 300 วินาทีล่าสุด (กรอง accuracy และ speed ตาม anticheat.json)
-tickGranted       = state == Active  AND  distance(window) > 50
-outsideTime ≤ 180 → Grace · 180 < outsideTime ≤ 900 → Suspended · > 900 → Ended
+distance(rewardWindow k) = Σ haversine ของคู่จุด grid (ทุก 5 วินาทีของเวลา Active) ที่อยู่ใน chain เดียวกัน   (รายละเอียดหัวข้อ 16.2)
+tickGranted              = distance(rewardWindow k) > 50        หน้าต่าง k ครอบ τ ∈ (300k, 300(k+1)] วินาทีของเวลา Active
+outsideTime ≤ 180 → Grace · 180 < outsideTime ≤ 900 → Suspended · > 900 → Ended               (ขอบเป็น ms หัวข้อ 16.4)
 ```
+
+- ค่าของตัวกรอง, resample, hysteresis, speed lock, เวลาทำการ และ vector อยู่ในหัวข้อ 16 (P2-F05-T20) · ฉบับก่อนหน้าเขียน "300 วินาทีล่าสุด" (หน้าต่างเลื่อน) ซึ่งเป็นแบบของ HUD (`gateDiagnosticWindows`) เท่านั้น ไม่ใช่หน้าต่างตัดสินรางวัล (ADR 0003 5.1–5.2)
 
 ```
 ปิดฉุกเฉิน (dungeons.emergencyClose, D-059 PROPOSED · A-P1-X04-1)
@@ -401,7 +407,7 @@ outsideTime ≤ 180 → Grace · 180 < outsideTime ≤ 900 → Suspended · > 90
   tick ที่ค้างตอนปิด   : elapsed < 60 วิ → 0
                         ไม่งั้น จ่าย elapsed / 300 ของหนึ่ง tick ถ้า distance(ช่วงที่ค้าง) > 50 × elapsed / 300 (greaterThan)
   คำนวณฝั่ง server · ไม่มีทางลัดข้าม gate (NN-2)
-พัก dungeon จากรายงาน (dungeons.safety, D-061 PROPOSED): ผู้เล่นในดันได้รางวัลตามกฎปิดฉุกเฉินข้างบน
+พัก dungeon จากรายงาน (dungeons.safety, D-061 ที่แก้ หัวข้อ 17.6): ผู้เล่นในดันได้รางวัลตามกฎปิดฉุกเฉินข้างบน
 ```
 
 - ใช้ `>` ตาม GDD "เกิน 50 เมตร" (`movementGate.comparison = greaterThan`) · ระยะเท่ากับ 50.0 พอดีไม่ผ่าน
@@ -468,7 +474,7 @@ bossHP         = medianPOW_lastWeek × activePlayers_lastWeek × α × 720
 | --- | --- |
 | เดินเข้ามาต่อเนื่องก่อน check-in | ≥ 60 วินาที ห้าม teleport เข้ากลาง polygon |
 | accuracy ตอน check-in | < 30 ม. |
-| speed lock | 25 กม./ชม. ล็อกการเล่น |
+| speed lock | 25 กม./ชม. ล็อกการเล่น · เข้าเมื่อเร็วต่อเนื่อง 15 วินาที ปลดเมื่อช้าต่อเนื่อง 60 วินาที ย้อนผลทั้งสองขอบ (หัวข้อ 16.5, P2-F05-T20) |
 | น้ำหนัก sample ที่ upload ทีหลัง | 0.5 ของ sample สด (A-21) |
 | trust score | 0–100 เริ่ม 70 ต่ำกว่า 40 = ต่ำ → drop ×0.5, ไม่มี Epic ขึ้นไป, trade ไม่ได้ (A-11) |
 | audit ผลลัพธ์ | เกิน p99 ของ cohort 3 วันติด → ตั้งธง (A-21b) |
@@ -552,3 +558,303 @@ income/h at mult 1.0: 1488.0  ratio vs 600: 2.48
 - ไม่แตะ: `dungeons.json` (location-engineer แก้ `coverageFilter` ในรอบเดียวกัน) · key ของ gate / run state / check-in ไปทำใน P2-F05-T20
 - ผลต่อเวลาอยู่รอด: ไม่เปลี่ยน (VIT ต่อยาไม่กระทบการเสีย HP) · เลเวลตรงโซนไม่ใช้ยา 44.4 นาทีถึง auto-retreat (D-020) · มี Tanker เลเวล 25 55.6 นาที · คนเดียวที่ไม่ใช่ Tanker 27.8 นาที
 - R-B1 (หัวข้อ 3.1.1) เป็นกติกาใหม่ ไม่มีค่า config ใหม่ ใช้ `dungeons.hpSafety` และ `economy.autoPotion` เดิม
+
+## 16. Movement gate, run state, check-in, speed lock และเวลาทำการ (P2-F05-T20)
+
+แหล่ง: GDD "Core loop ใน Dungeon > Movement gate", "การเข้าและออก", "สัญญาณขาดและแอปถูกปิด", "Anti-cheat > ชั้น 1", "ความปลอดภัยทางกายภาพ", "เวลาทำการ" · ADR 0003 หัวข้อ 5–7, 9.2 · tech note F04 หัวข้อ 4–8 และ F05 หัวข้อ 2–6 · spec F04 R07–R31, F05 R01–R22 · reference: `tools/sim/src/gate.ts`, `presence.ts`, `opening-hours.ts`, `rng-contract.ts` (เขียนแยกจาก `packages/geo` เพื่อให้ vector ตรวจ geo ได้จริง) · หลักฐาน: `pnpm exec tsx tools/sim/src/report-gate.ts`
+
+### 16.1 ค่าใหม่ใน config
+
+| key | ค่า | เหตุผลย่อ (ข้อความเต็มอยู่ข้าง key ใน config) |
+| --- | --- | --- |
+| `dungeons.movementGate.sampleCadence_s` | 5 | 300 หารลงตัว · โต๊ะนิ่ง 0/3 หน้าต่าง ม้านั่ง 3/3 (ขอบบาง F-16) · 10 วินาทีม้านั่งตกหมด · เท่าช่วง sample ของเครื่อง 0.2 Hz จึงได้ grid เดียวกับ 1 Hz |
+| `dungeons.movementGate.maxSamplePairGap_s` | 30 | ยาวพอสำหรับ 0.2 Hz และสัญญาณหายใต้ต้นไม้ (soi trace ช่องว่างยาวสุด 25 วินาที) · = `graceMax_s` / 6 · ช่องว่าง 5 นาทีห่าง 400 ม. ได้ 0 ม. · เป็นเกณฑ์ "ไม่มีหลักฐาน" ด้วย |
+| `dungeons.movementGate.maxSampleAccuracy_m` | 30 | ไม่เข้มกว่า check-in (`< 30`) เพราะ gate ใช้ `≤ 30` · แยก key ตาม ADR 0003 5.5 แต่ตั้งใจให้เท่ากัน |
+| `dungeons.movementGate.outlierSpeed_kmh` | 60 | เป็นไปไม่ได้สำหรับคนเดิน แต่สูงกว่า jitter 1 Hz ช่วง warm-up (F-17) · ใช้ชื่อตาม ADR 0003 5.5 (ไม่ใช้ `maxPlausibleSpeed_kmh` ที่ spec เสนอ) |
+| `dungeons.movementGate.outlierReanchorSamples` | 5 | ยาวกว่า spike 3 fix ของ drift-spike S2 · 5 วินาทีที่ 1 Hz, 25 วินาทีที่ 0.2 Hz |
+| `dungeons.runState.edgeHysteresisSamples` | 6 | 6 × 5 วินาที = 30 วินาที = `graceMax_s` / 6 (กรอบ F04 R15 ข้อ 4) |
+| `dungeons.runState.edgeHysteresis_m` | 5 | ≤ 1/3 ของรัศมี 31 ม. และต่ำกว่าครึ่งของแถบริมน้ำกว้าง 20 ม. (ถ้า 10 ม. แถบ 20 ม. จะกลับ Active ไม่ได้เลย) |
+| `dungeons.runState.clockSkewTolerance_s` | 5 | sample จากอนาคตเกิน 5 วินาทีถูกทิ้ง · `now_ms` ถอยเกิน 5 วินาที = `clock_invalid` |
+| `dungeons.openingHours.utcOffset_min` | 420 | กรุงเทพฯ UTC+7 ไม่มี DST · ห้ามใช้ timezone ของเครื่อง |
+| `dungeons.openingHours.closingSoonNotice_s` | 600 | ≥ หนึ่งหน้าต่าง (300) + เดินออกจาก dungeon ใหญ่สุดราว 3 นาที · หน้าต่างที่ค้างตอนปิดจ่ายตาม D-059 จึงไม่เสีย tick |
+| `anticheat.speedLock.lockSustained_s` | 15 | spike เดียวให้คู่เร็ว 2 คู่ (2 วินาทีที่ 1 Hz, 10 วินาทีที่ 0.2 Hz) ไม่ถึง · 10 วินาทีจะล็อกคนเดินที่ 0.2 Hz บน drift-spike (report หัวข้อ 4) · รถใน trace ล็อกที่ 84 วินาที |
+| `anticheat.speedLock.unlockSustained_s` | 60 | ไฟแดง 45 วินาทีใน trace ยังล็อก · 40 วินาทีจะปลดสลับล็อกที่ไฟแดง · ย้อนผลจึงไม่เสียเวลานาฬิกา |
+| `unlocks.home.distanceDisplaySteps_m` | ≤ 1,000 ม. ทีละ 50 · ≤ 10,000 ม. ทีละ 100 · เกินนั้นทีละ 1,000 | ปัดขึ้นเสมอ (R34, acceptance 10) |
+
+- ค่าเดิมที่ตรวจแล้วไม่เปลี่ยน: `anticheat.checkIn.*` (60 วินาที, `< 30` ม., ห้าม teleport), `runState.graceMax_s` 180 / `suspendedMax_s` 900, สวิตช์ `rewardTickDuring*` / `suspendedTimeCounts` = false
+- กฎ config ที่ tech-lead จะ lint ใน P2-F04-T24 ผ่านแล้ว: `rewardTickInterval_s` (300) = `window_s` (300) · `connectionLostEndsRunAfter_s` (900) = `suspendedMax_s` (900) · `gateConfigProblems()` ใน `tools/sim/src/params-gate.ts` ตรวจเพิ่ม: `window_s % sampleCadence_s = 0`, `outlierSpeed_kmh > speedLock_kmh`, `maxSamplePairGap_s < graceMax_s`, กรอบ R15 ข้อ 4 ทั้งสองข้อ
+
+### 16.2 สูตรของ rewardWindow (ADR 0003 5.2–5.3, tech note F05 2–4)
+
+```
+τ(t)          = เวลาที่นาฬิกาเดินสะสมจาก confirm ถึง t      นาฬิกาเดินเมื่อ run ยืนยันเป็น in และไม่ lock (หลัง backdate)
+หน้าต่าง k    = τ ∈ (k·300, (k+1)·300] วินาที · ไม่ทับกัน · หยุด/เดินต่อ ไม่รีเซ็ต · ตัดสินเมื่อมี sample ที่ใช้ได้ที่ τ ≥ ปลายหน้าต่าง
+ขั้น 1 ตัวกรอง  : ทิ้ง accuracy > 30 · ทิ้งถ้าความเร็วจาก anchor > 60 กม./ชม. · ทิ้งเร็วติดกันที่สอดคล้องกันครบ 5 ตัว → ตัวที่ 5 เป็น anchor ใหม่ (คู่ข้ามการกระโดด = 0)
+คู่ที่นับได้ (a,b): ทั้งคู่อยู่ใน polygon · อยู่ในช่วงนาฬิกาเดินช่วงเดียวกัน · b.t − a.t ≤ 30 วินาที · ความเร็วคู่ ≤ 25 กม./ชม. · b ไม่ใช่ re-anchor
+                คู่ที่ไม่นับเพิ่ม chain · จุด grid ที่อยู่คนละ chain ไม่นับระยะระหว่างกัน
+ขั้น 2 grid    : จุด g_i ที่ τ = 5i วินาที · มีค่าเมื่อมีคู่ที่นับได้คร่อม · interpolate เชิงเส้นใน lat/lng ตาม τ
+ขั้น 3 สะสม    : ระยะ(k) = Σ haversine(g_i, g_{i+1}) ที่ทั้งคู่มีค่าและ chain เดียวกัน โดย g_{i+1} อยู่ในหน้าต่าง k (หน้าต่างของจุดปลาย)
+ผ่าน           : ระยะ(k) > 50 (greaterThan · 50.0 พอดีไม่ผ่าน · comparison อื่น = fail closed)
+```
+
+- sample ก่อน confirm ไม่นับ (`t < startedAt_ms` ไม่เข้าตัวสะสม) · ขอบหน้าต่างเป็นจุด grid เสมอ คู่ sample ที่คร่อมขอบจึงถูกจุด grid ที่ขอบแบ่ง (vector `reward-window` ข้อ 4: 20 ม. แบ่ง 10 / 10)
+- ผลไม่ขึ้นกับความถี่ sample: เมื่อ sample ตรงจุด grid (confirm ที่ sample, 0.2 Hz) ผลเท่ากันทุกบิตกับ 1 Hz · sample ไม่ตรง grid ต่างไม่เกิน 3% บน park-loop (interpolation ตัดโค้ง)
+- ตรวจไขว้กับ `packages/geo` (P2-F04-T12, 85 test): ผลตรงกันทุกบิตบน table-still, bench-jitter, park-loop, boundary-50m, screen-lock ทั้ง 1 Hz และ 0.2 Hz · ต่างเฉพาะ drift-spike (หน้าต่าง 1: geo 495.2 ม. เทียบ 443.7 ม.) เพราะ geo ยังไม่มีเงื่อนไข "ความเร็วคู่ ≤ `speedLock_kmh`" (tech note F05 3.1 ข้อ 5) · ส่ง handoff แล้ว
+
+### 16.3 Hysteresis ที่ขอบ polygon (ตอบ A-P2-F04-T14-1 และ A-P2-F04-T12-2)
+
+```
+ชุดที่รอยืนยัน = sample ที่ใช้ได้ติดกันที่อยู่ฝั่งตรงข้ามสถานะที่ยืนยัน · sample ฝั่งเดิม (ลึกเท่าไรก็ได้) ล้มชุด · ช่องว่าง > 30 วินาทีล้มชุด
+นับ            = sample ในชุดที่ห่างขอบ > 5 ม. · sample ในแถบ ≤ 5 ม. ไม่นับและไม่ล้มชุด
+ยืนยัน         = นับครบ 6 (ต้องครบทั้งจำนวนและระยะ ไม่ใช่อย่างใดอย่างหนึ่ง) · มีผลย้อนไปที่ sample แรกของชุด (รวม sample ในแถบ)
+ใช้กฎเดียวกันทั้งขาออกและขากลับ · edgeHysteresis_m = 0 → นับอย่างเดียว · edgeHysteresisSamples = 1 → ระยะอย่างเดียว
+```
+
+- **แก้สมมติฐานของ tech-lead (A-P2-F04-T14-1):** ไม่ใช่ "ครบจำนวนหรือเกินระยะอย่างใดอย่างหนึ่ง" · แบบ "อย่างใดอย่างหนึ่ง" ทำให้ edge-walk ออกผิด 7 ครั้ง (ทุก drift ที่ยาวเกิน 6 วินาที) ขณะที่กฎนี้เหลือ drift 3 ครั้งที่ 1 Hz และ 1 ครั้งที่ 0.2 Hz ทุกครั้งสั้นกว่า 180 วินาที
+- **ยืนยันการอ่านของ location-engineer (A-P2-F04-T12-2) พร้อมแก้หนึ่งข้อ:** geo ย้อนผลไปที่ sample แรกที่ "นับ" แต่ spec F04 R14 ให้ย้อนไปที่ sample แรกของชุด (sample ในแถบรวมด้วย) · บน edge-walk ต่างกัน 1–7 วินาทีของเวลานอก (เช่น ออกครั้งที่ 2: 853 เทียบ 860 วินาที)
+- ผลบน edge-walk (report หัวข้อ 3): ออกจริง 2 ครั้ง → Grace 140 วินาที และ Suspended ที่ 180.001 วินาที ตามที่ trace คาด · ค่าอื่นที่ลอง: N 10 หรือ d 10 ม. ที่ 0.2 Hz การกลับเข้าหลังออกครั้งแรกไม่ถูกยืนยันจนจบ trace (ผู้เล่นค้าง Suspended ทั้งที่เดินอยู่ในเขต) จึงไม่ใช้
+- ช่องว่างล้มชุด (ข้อเสนอแก้ tech note F04 5.2): ถ้าไม่ล้ม ชุดกลับเข้าที่ค้างครึ่งทางจะตรึง `H` ข้ามช่วงแอปปิด 20 นาทีแล้วกลับ Active ย้อนหลังได้ (vector `run-state` "half-built return run")
+
+### 16.4 Run state และขอบเวลา (spec F04 R12–R18, tech note F04 4.3, 5.3–5.4)
+
+```
+เวลานอก       = t − exitStartedAt · exitStartedAt = sample แรกของชุดที่ยืนยันการออก หรือ sample ที่ใช้ได้ตัวสุดท้าย (ไม่มีหลักฐาน: ช่องว่าง > 30 วินาที)
+Suspended     เมื่อ เวลานอก > 180 000 ms  → event ที่ exitStartedAt + 180 001 ms
+Ended timeout เมื่อ เวลานอก > 900 000 ms  → endedAt = exitStartedAt + 900 000 ms (R18)
+timer ทำงานเมื่อ ms แรกที่เข้าเงื่อนไข ≤ H = min(E, P) · P = sample แรกของชุดที่รอยืนยัน → การกลับเข้าที่ย้อนไปก่อนขอบยกเลิก timer
+```
+
+| เวลานอก (sample แรกนอก → sample แรกของชุดกลับเข้า) | ผล (vector `run-state`) |
+| --- | --- |
+| 179 วินาที (2:59) · ชุดกลับเข้ายืนยันหลังขอบ 180 แต่ย้อนผล | Grace → Active · ไม่มี Suspended |
+| 180 วินาทีพอดี | Grace → Active (`≤`) |
+| 181 วินาที (3:01) | Suspended ที่ +180.001 → Active |
+| 899 / 900 วินาที (14:59 / 15:00) | Suspended → Active |
+| 901 วินาที (15:01) | Ended `timeout` ที่ +900 วินาที · sample หลังจากนั้นไม่มีผล |
+| ปิดแอป 5 นาทีแล้วเปิดในเขต | `no_evidence` ที่ sample สุดท้าย → Suspended → Active (run อยู่) |
+| ปิดแอป 16 นาที | Ended `timeout` ที่ sample สุดท้าย + 900 วินาที |
+| ช่องว่าง 25 วินาที | ไม่ออก |
+
+- นาฬิกา: sample ที่ `t_ms > now_ms + 5 000` = `future` · `t ≤ lastSample` = `non_monotonic` · `t ≤ settled` = `late` · `now_ms < lastNow − 5 000` = `invalid` (จบ `clock_invalid`) · ถอยไม่เกิน 5 วินาที = `held`
+
+### 16.5 Speed lock (spec F04 R20–R22, tech note F04 6)
+
+```
+ความเร็วคู่ = haversine / Δt ของ sample ติดกันที่ accuracy ≤ 30 (ไม่ผ่านตัวกรอง outlier) · คู่ห่าง > 30 วินาทีไม่ให้ความเร็วและล้มชุด
+เข้า lock  : คู่ติดกัน > 25 กม./ชม. ยาวรวม (sample สุดท้าย − sample แรกของคู่แรก) ≥ 15 วินาที → มีผลที่ sample แรกของคู่แรก
+ปลด lock   : คู่ติดกัน ≤ 25 กม./ชม. ยาวรวม ≥ 60 วินาที → มีผลที่ sample แรกของชุดช้า
+```
+
+- trace: driving-40kmh ล็อกที่ 84 วินาที (0.2 Hz: 85) ไฟแดง 45 วินาทียังล็อก · drift-spike, edge-walk ไม่ล็อก · trace ขับรถจบ 45 วินาทีหลังจอด สั้นกว่า 60 วินาที จึงแสดงการปลดไม่ได้ (handoff ถึง location-engineer ให้ต่อ trace อีก ≥ 90 วินาที) · vector สังเคราะห์ครอบ 59 / 60 วินาทีแล้ว
+
+### 16.6 Check-in (spec F04 R07–R08, tech note F04 7.2–7.3)
+
+- ลำดับเหตุผล: `speed_lock` → `poor_accuracy` (`accuracy ≥ 30`, 30 พอดีปฏิเสธ) → `not_enough_trace` (`L.t − chainStart < 60 000`, `readyIn_s = ceil(60 − Δ/1000)`) → `no_approach_from_outside`
+- ลำดับล้มเมื่อ: ตัวกรองขั้น 1 ทิ้ง (accuracy หรือความเร็ว) · ช่องว่าง > 30 วินาที · sample ระหว่าง lock
+- trace: walk-in ผ่านที่ 124 วินาที (fix แรกในเขต) · teleport-spoof ไม่ผ่านตลอด · warmup-accuracy `poor_accuracy` ถึง 46 วินาที ลำดับครบ 60 วินาทีที่ 118 วินาที (F-17)
+
+### 16.7 เวลาทำการ (spec F04 R25–R30, tech note F04 8.2–8.3)
+
+```
+local = t_ms + 420 × 60 000 · วัน = floor(local / 86 400 000) · ISO weekday = ((วัน + 3) mod 7) + 1 · เปิดเมื่อ start×60 000 ≤ msOfDay < end×60 000
+closesAt  = เวลาถัดไปที่สถานะเปลี่ยน (ช่วงที่ต่อกันข้ามเที่ยงคืนรวมกัน) · ค้นไม่เกิน 8 วัน
+แจ้งใกล้ปิด = closesAt − 600 000 ถ้ามากกว่า startedAt (เข้าหลังจุดนั้นไม่แจ้งซ้ำ)
+```
+
+- vector `opening-hours` ครอบ: ขอบ 05:00 / 21:00 ทั้งสองฝั่ง, วันยกเว้น, วันปิดทั้งวัน, 24 ชม., 22:00–02:00 ข้ามคืน (ปิดจริง 02:00 วันถัดไป), เปิดตลอด / ปิดตลอด = `null`, Fri 00:30 กรุงเทพฯ (ถ้าประเมินด้วย UTC จะอ่านเป็นพฤหัสแล้วเปิดผิด) และระยะบนหน้าจอบ้านที่ปัดขึ้น
+
+### 16.8 D-059 tick บางส่วน และสัญญา RNG
+
+```
+e = τ(endAt) − k·300 (เวลา Active ในหน้าต่างที่ค้าง) · e < 60 วินาที → ไม่จ่าย ไม่ดึงเลขสุ่ม
+f = e / 300 · ผ่านเมื่อ ระยะ > 50 × f (greaterThan)
+ระยะ = คู่จุด grid ที่ τ ≤ τ(endAt) ซึ่งมีค่าจากคู่ sample ที่ t ≤ endAt ทั้งคู่ (endAt ทำหน้าที่เหมือนนาฬิกาหยุด · sample หลังปิดไม่ใช้ · ไม่ interpolate ถึงหรือเลย endAt)
+หน้าต่างที่ปลาย ≤ τ(endAt) ตัดสินตามปกติก่อน แล้วส่วนที่เหลือเป็นหน้าต่างค้าง
+ผ่าน: exp × f · loot = rollTickLoot(runSeed, dropIndex = จำนวน tick ที่ผ่านแล้ว, table, f) · โอกาสทุก rarity × f · จำนวน Common × f แล้วปัดแบบ stochastic
+```
+
+- **ยืนยัน A-P2-F04-T14-6:** tick บางส่วนใช้ index ถัดไปของ stream `drop` (ไม่เปิด stream ใหม่) · vector: tick ผ่านมาแล้ว 3 ครั้ง → index 3, f = 0.2
+- **ยืนยันพร้อมขยาย A-P2-F04-T14-7:** นับถึงจุด grid สุดท้ายก่อนปิด และจุดนั้นต้องมีค่าจากคู่ที่จบก่อนหรือตรงเวลาปิด · กันผลต่างตามจังหวะเรียก step (engine อาจได้ sample หลังปิดแล้วก่อนประมวล `dungeon_closed` เพราะ `H`)
+- **ยืนยัน A-P2-F04-T01-4:** ย่อ exp, โอกาสทุก rarity และจำนวน Common ด้วย f เดียวกัน · Monte Carlo 100,000 stream (runSeed 7): Uncommon 30% × 0.2 ได้ 6.05% (คาด 6%), Common เฉลี่ย 2 × 0.2 ได้ 0.399 ชิ้น (คาด 0.4) (`gate.test.ts`)
+- **ยืนยัน A-P2-F04-T01-3:** Phase 2 ไม่มีเพดานช่องเก็บของ (`config/balance` ไม่มี key เพดาน inventory) · ถ้า F10/F11 ตั้งเพดานใน Phase 4 ต้องเป็น key ใหม่ และ tick ที่ของเกินเพดานต้องไม่ทิ้งของเงียบ (ถือของไว้ในถุงของ run หรือแจ้งผู้เล่น) · ข้อนี้เป็นเงื่อนไขของ spec F10/F11
+- ลำดับการดึงต่อ reward tick ตาม ADR 0003 6.3: (1) หนึ่งครั้งต่อ rarity แบบโอกาสตามลำดับตาราง `u < min(100, chance × chanceMult × f)/100` (2) หนึ่งครั้งต่อ rarity ที่ได้ (Common ก่อน) เลือก item ตาม weight (3) ต่อ item: หนึ่งครั้งเลือกจำนวนฐานถ้ามีช่วง แล้วหนึ่งครั้ง stochasticRound · item ที่ปัดเป็น 0 ไม่อยู่ในผล · vector ใช้ตารางตัวอย่าง (id `example.*`) · ตาราง drop จริงต่อ preset เป็นงาน P2-F05-T01 ใช้ fn เดียวกัน
+- `deriveSeed` = FNV-1a 32 บิตของ `"${runSeed}:${streamTag}:${index}"` · ตรวจกับค่ามาตรฐาน FNV (`""` = 0x811c9dc5, `"a"` = 0xe40c292c, `"foobar"` = 0xbf9cf968) · first draw สม่ำเสมอ (200,000 stream ต่อ seed: สัดส่วน < 0.06 = 0.0602–0.0607)
+
+### 16.9 Vector ที่เพิ่ม (รวม 142 ข้อ · `gen-vectors --check` เขียว)
+
+| ไฟล์ | ข้อ | `input.fn` | ครอบ |
+| --- | --- | --- | --- |
+| `movement-gate.json` | 20 | `gateWindows`, `passesGate` | table-still 0, bench-jitter ≥ 1, park-loop, 1 Hz เทียบ 0.2 Hz (ตรง grid / ไม่ตรง grid), drift-spike, boundary-50m หลังกรอง, edge-walk, spike บนเครื่องนิ่ง, ช่องว่าง 5 นาที 400 ม., คู่เร็วกว่า lock, accuracy 30 / 30.1, 50 ม. พอดี |
+| `reward-window.json` | 14 | `gateWindows`, `tauAt`, `windowIndexOf` | ไม่ทับกัน, เริ่มที่ confirm, หยุดใน Grace และเลื่อน tick 2 นาที, คู่คร่อมขอบ, G8 แอปปิดที่ 4:59, ขอบ τ |
+| `partial-tick.json` | 20 | `partialTick`, `gateWindows` (`endAt_ms`), `deriveSeed`, `streamDraws`, `rollTickLoot` | 59 / 60 วินาที, 10 ม. พอดีที่ f 0.2, G9, ระยะถึงจุด grid ก่อนปิด, index ถัดไป, ย่อด้วย f |
+| `run-state.json` | 32 | `edgeHysteresis`, `runTimeline`, `sampleTimeGate`, `clockCheck` | กฎ hysteresis 8 ข้อ, 179/180/181, 899/900/901, ชุดกลับเข้าที่ล้ม, แอปปิด 5 / 16 นาที, ไม่มีหลักฐาน, ชุดค้างข้ามช่องว่าง, edge-walk 1 Hz / 0.2 Hz, ด่านเวลา |
+| `check-in.json` | 14 | `checkIn`, `checkInTimeline` | ผ่านที่ 60 วินาทีพอดี, นับถอยหลัง, 35 / 30 / 29.9 ม., ช่องว่าง, E4, teleport 3 จังหวะ, speed lock ก่อน, trace walk-in / teleport / warm-up |
+| `speed-lock.json` | 11 | `speedLock` | 14 / 15 วินาที, 59 / 60 วินาที, ช่องว่าง, accuracy แย่, trace ขับรถ / drift / edge-walk |
+| `opening-hours.json` | 31 | `isOpenAt`, `openingChangeAfter`, `closingSoonAt`, `displayDistance` | หัวข้อ 16.7 |
+
+- รูปแบบ: เหมือนไฟล์เดิม (`input` มี parameter ครบ · `tolerance` 1e-6 · ตัวเลขปัด 6 ตำแหน่ง) · sample อยู่ใน `input.samples` หรืออ้าง trace ที่ commit แล้ว (`input.trace`, `polygon`, `every`, `phase`: เก็บทุก sample ลำดับที่ `phase + n × every`, `t_ms` = `t` ของ trace, `inside` = point-in-polygon ของ `polygon` หรือ `true` เมื่อ `polygon` เป็น `null`) · `boundaryDistance_m` ที่ไม่ระบุ = ไกลไม่จำกัด
+- `gateWindows` คืน `windows[{k, distance_m, passed, endAt_ms}]`, `open{k, elapsed_ms, distance_m}`, `droppedAccuracy`, `droppedSpeed` · `clock` = ช่วงนาฬิกาเดินเวลาจริง (ปลายรวม) ที่ backdate แล้ว · `runTimeline` คืน events ที่นิ่งแล้ว ณ `now_ms` (ไม่ผูกกับรูปภายในของ state) เพื่อให้ engine ที่ทำแบบทีละ step ตรวจได้ด้วยการป้อน sample ทีละตัวแล้วเทียบ events
+
+### 16.10 สมมติฐานของงานนี้
+
+- A-P2-F05-T20-1: ค่าตัวกรองทั้ง 5 ตัวมาจาก trace สังเคราะห์ · เครื่องจริง (P2-C03) อาจทำให้ต้องขยับ `sampleCadence_s` · owner systems-designer, game-director
+- A-P2-F05-T20-2: lock 15 วินาที / ปลด 60 วินาที · ไฟแดงกรุงเทพฯ ยาวกว่า 60 วินาทีได้ lock อาจปลดแล้วกลับมา ไม่มีผลต่อรางวัลเพราะย้อนผลทั้งสองขอบ · owner game-director
+- A-P2-F05-T20-3: vector ของ run state / check-in / speed lock เป็นแบบ batch (sample ทั้งชุด → ผลที่นิ่งแล้ว) ไม่ใช่ลำดับ `{now_ms, input}` ผ่าน `sessionStep` ตามที่ tech note F05 หัวข้อ 10 อยากได้ เพราะ `sessionStep` ยังไม่มี · backend แปลงเป็นลำดับ step ได้โดยป้อน sample ทีละตัวที่ `now_ms = t` แล้วเรียก `tick` ที่ `now_ms` ของ vector · owner tech-lead, backend-programmer
+
+## 17. Dungeon loop: exp ต่อ tick, drop table ต่อ preset, ยา, ค่า F06 และ run loop ที่ใส่ seed (P2-F05-T01)
+
+แหล่ง: spec F05 R10–R23 (`design/features/F05-movement-gate-reward.md`), spec F06 R06–R43 (`design/features/F06-hp-damage-onboarding.md`), ADR 0003 หัวข้อ 6 (สัญญา RNG), tech note F05 หัวข้อ 5–6, D-059, D-061 ที่แก้, D-089, D-094, D-096 · reference: `tools/sim/src/loot.ts`, `loop.ts`, `loop-scenarios.ts` · หลักฐาน: `pnpm exec tsx tools/sim/src/report-loop.ts` (ผลอยู่ที่ `sim-report.md` หัวข้อ 12)
+
+### 17.1 exp ต่อ tick ที่ผ่าน gate (F05 R11, R16, R22)
+
+```
+Z          = round((levelRange.min + levelRange.max) / 2)                 combat.monsterAttack.zoneLevelFrom (A-1)
+gap        = max(0, levelRange.min − L, L − levelRange.max)                ทั้งสองฝั่ง (A-3)
+magicTerm  = 1 + magicBuff/100 (สูงสุด 1.5) ถ้าผู้เล่นเป็น Magic           magicBuff = roleBuffPct(magic, P = 1 + L/50) · D-039
+           = noMagicMult (0.6) ถ้าไม่ใช่
+exp        = expPerTick(Z) × magicTerm × max(0.25, 0.92^gap) × f         f = 1 · tick บางส่วน D-059: f = e / window_s
+```
+
+- ไม่ปัด: exp เก็บเป็นค่าจริง client แสดงค่าปัดลง · ไม่มี key การปัดใหม่ (ไม่มีค่าให้ปรับ)
+- ขึ้นเลเวลทันทีและต่อกันได้ในครั้งเดียว: `while exp ≥ expToNext(L): exp −= expToNext(L); L += 1` · ถึงเลเวล 60 exp = 0 และไม่บวกเพิ่ม
+- ลำดับใน tick ที่ผ่าน: loot → โล่ Magic (ใช้เลเวลก่อน tick นี้) → exp และเลเวล · เลเวลใหม่ใช้กับ hit และ tick ถัดไป (F05 R16, G13)
+- exp ไม่ใช่ของใน run ตายแล้วไม่หาย (D-094) · config: `dungeons.json#rewardTick._grants_note` + pointer `seeExpCurve`
+- ตัวอย่าง (vector `soloTickExp`): ช่วง 1–5 (Z = 3) เลเวล 1: non-Magic 93.5, Magic 182.8 (buff ตัวเอง 17.3%) · Z = 25 non-Magic 2,250 · ตาราง Z 1–60 อยู่ใน report-loop หัวข้อ 1
+
+### 17.2 ไอเทมที่ drop และ `assets.icon` (`drops.json#items`)
+
+| id | kind | rarity (กรอบ) | nameKey | assets.icon |
+| --- | --- | --- | --- | --- |
+| `elementDust` | material | common | `material.elementDust` | `icon.item.mat-dust` |
+| `elementCore` | material | uncommon | `material.elementCore` | `icon.item.mat-essence` (ยืนยัน A-P2-F05-T03-5) |
+| `riftStone` | material | rare | `material.riftStone` | `icon.item.mat-rift-stone` |
+| `hpSmall` | potion | uncommon | `potion.hpSmall` | `icon.item.potion-hp-small` |
+| `hpMedium`, `hpLarge` | potion | rare, epic | `potion.hpMedium`, `potion.hpLarge` | `icon.item.potion-hp-medium`, `-large` (ไม่อยู่ใน drop table ของ Phase 2) |
+| `revive` | potion | epic | `potion.revive` | `icon.item.potion-revive` |
+| `equipWeapon`, `equipArmor`, `equipCharm`, `equipBoots` | equipment | ตาม roll (epic/legendary) | `equipment.weapon` ฯลฯ (ยังไม่มีใน names.th.json · handoff narrative) | ไอคอนเดียวต่อช่องทุก tier (ยืนยัน A-P2-F05-T03-3) |
+
+- id ของไอเทมเป็น key ของตารางตัวเองด้วย: material → `economy.npcSellPrice_gold.<id>`, potion → `economy.potions.<id>`, equipment → `equipment.slots.<slot>` · ชื่อไทยอยู่ใน content เท่านั้น (NN-3)
+- อุปกรณ์ Epic/Legendary เป็นของ tier ของ dungeon (A-8) · Phase 2 ไม่มีการสวมใส่ (F06 R35) tier จึงยังไม่ถูกเก็บในถุง
+- กรอบของยา (A-P2-F05-T01-2): ตามแถบโอกาส ยาเล็ก 17% ใกล้ Uncommon (25%) · ยาชุบ 1% ใกล้ Epic (1.2%) · art-director/game-director ยืนยันเพราะ effect ของ Epic เป็นจังหวะฉลองใหญ่
+
+### 17.3 drop table ต่อ preset (`drops.json#dropTables`)
+
+- key = `drop_table_id`: `largeParkDefault`, `marketDefault`, `pocketParkDefault` (หนึ่งตารางต่อ preset ใน `data/dungeons/presets.json`) · ใช้ camelCase ตาม config-lint (`largePark.default` ใน fixture ของ tools/dungeons ใช้ไม่ได้ เพราะ key มีจุด)
+- `rolls` ประเมินตามลำดับ array · 5 แถวแรกเป็น `roll: "rarity"` common → legendary · ตามด้วย `roll: "bonus"` ของยา
+
+```
+roll rarity  : chance = baseChancePerRewardTick_pct.<rarity> (common = ได้เสมอ) · จำนวน = quantityPerDrop.<rarity>
+               ตัวคูณตามหัวข้อ 7: shared = rangedTerm × failTerm × trustTerm บนทุกแถว rarity และจำนวน Common
+               dungeon เล็ก (area_m2 < 20,000): rare/epic/legendary × 1.5 · จำนวน Common × 0.6 · trust ต่ำ: epic+ = 0
+roll bonus   : chance_pct และ qty ของแถวเอง · applyDropMultipliers = false → ไม่มีตัวคูณ
+ทุกแถว       : chance × f และจำนวน Common × f ในtick บางส่วน (D-059, D-094)
+เลือกไอเทม   : ตาม weight ใน pool (ADR 0003 6.3 ข้อ 2) · กรอบ = items.<id>.rarity หรือ rarity ของ roll ถ้าเป็น byRoll
+```
+
+- "dungeon เล็กของน้อยแต่ rare สูงกว่า" มาจากกฎพื้นที่ ไม่ใช่ preset (presets.md 6): pocketPark เล็กเสมอ (size band ≤ 10,000 ตร.ม.) · largePark และ market เล็กเมื่อต่ำกว่า 20,000 ตร.ม. · สามตารางมีเนื้อหาเท่ากันใน Phase 2 (GDD มี drop table เดียว) แยกเป็นตารางเพื่อให้ปรับต่อ preset ได้โดยไม่แก้โค้ด
+- ผลต่อ tick (report-loop หัวข้อ 2): คนเดียวไม่ใช่ Ranged ไม่เล็ก dust 1.20, core 0.150, rift 0.036, อุปกรณ์ 0.008 · เล็ก dust 0.72, rift 0.054 · Ranged เลเวล 1 เล็ก dust 1.41, core 0.293, rift 0.106 · ตรง `dropRates` ทุกตัว (test `loop.test.ts`)
+- กฎความสอดคล้องที่ gen-vectors ตรวจก่อนเขียน (`dropTableProblems`): ทุก preset มีตาราง, แถว rarity ครบ 5 ตามลำดับ, แถว bonus อยู่หลังทั้งหมด, ไอเทมมีจริงและ rarity ตรงแถว, weight เป็นจำนวนเต็มบวก, bonus มีแต่ยา, ทุกตารางมียาในลำดับยาอัตโนมัติ (B-06), icon ขึ้นต้น `icon.item.`
+
+### 17.4 ยาใน Phase 2 (D-089, GD B-06, spec F06 หัวข้อ 9)
+
+| แถว bonus | chance_pct ต่อ tick ที่ผ่าน | ความถี่ (12 tick/ชม.) | เหตุผล |
+| --- | --- | --- | --- |
+| `potionHpSmall` → `hpSmall` × 1 | 17 | 1 ขวดต่อ 29.4 นาทีเดิน (2.0/ชม.) | game-director ขอ "ราวหนึ่งขวดต่อ 30 นาทีของ tick ที่ผ่าน" |
+| `potionRevive` → `revive` × 1 | 1 | 1 ขวดต่อ 8.3 ชม.เดิน | "หายากกว่ามาก" · ใช้ได้เฉพาะคนที่ปิด auto-retreat แล้วตาย (F06 R26) |
+
+- ไม่มีชุดยาตั้งต้น ไม่มีของขวัญ ไม่มีทางอื่นนอก tick ที่ผ่าน gate (D-089) · เหมือนกันทุก preset
+- ไม่มีตัวคูณ Ranged หรือ dungeon เล็ก (A-P2-F05-T01-1) เพื่อให้ทุก class ได้ยาเท่ากัน · roll ยาเป็นของ Phase 2 ต้องทบทวนก่อนร้าน NPC (F-19)
+- ลำดับยาอัตโนมัติ: `economy.autoPotion.sourceOrder` = `["runBag", "inventory"]` แล้วตาม `defaultPotionOrder` ในแต่ละแหล่ง · 1 ขวดต่อ hit · ยาชุบไม่อยู่ในลำดับ (F06 R12–R13, D-096)
+- vector "มีโอกาสได้ยาก่อนถึง auto-retreat": `runLoopStats` เลเวล 1 ช่วง 1–5 ที่มียา: สัดส่วน run ที่ได้ยาก่อนจบ Ranged 0.555, Support 0.62, Magic 0.595, Tanker 0.795 (200 seed) · และ `runLoop` seed 3 ที่ยาจาก tick แรกถูกดื่มก่อนถอย
+
+### 17.5 ค่า F06 ที่ engine ใช้ (ครบและอ้าง GDD)
+
+| กฎ | config key | ค่า | แหล่ง |
+| --- | --- | --- | --- |
+| ช่วงสุ่มการตี | `combat.attackCheck.intervalMin_s` / `intervalMax_s`, `intervalDistribution` | 45 / 75 วินาที, uniform | GDD "damage มาจากไหน" |
+| โอกาสโดนต่อครั้ง | `combat.attackCheck.hitChancePerCheck_pct` | 54 | A-4, D-029 (fit ของ D-020) |
+| นาฬิกาการตี + ลำดับการดึง | `combat.attackCheck._note` | เฉพาะเวลา Active ไม่ lock หยุดแล้วนับต่อ · attempt i = stream `hit` index i: interval แล้วผลโดน | F06 R06–R07, D-094, D-096, ADR 0003 6.4 |
+| ตัวคูณห่างเลเวล | `combat.levelGapDamage.damageMultPerLevelBelowRange`, `mode`, `maxMult` | ×1.25 ต่อระดับ compound ไม่มีเพดาน · สูงกว่าช่วงไม่ลด | GDD · A-2 · F06 R09 |
+| เกณฑ์ยาอัตโนมัติ | `economy.autoPotion.defaultThreshold_pct`, `defaultPotionOrder`, `sourceOrder` | < 40% · เล็ก → กลาง → ใหญ่ · ถุงของ run ก่อน | GDD "ระบบกันตาย" · A-15b · D-096 |
+| แจ้ง HP ต่ำ | `dungeons.hpSafety.lowHpWarningThreshold_pct` | ≤ 30% ครั้งเดียวต่อการลงผ่าน | GDD · A-P2-F06-T01-2 (D-096) |
+| auto-retreat | `dungeons.hpSafety.autoRetreatThreshold_pct`, `autoRetreatEnabledByDefault`, `autoRetreatKeepsRunLoot` | ≤ 25%, เปิด, เก็บครบ | GDD |
+| ตาย | `dungeons.death.loseAllRunLoot` | ของใน run หายทั้งหมด · exp อยู่ | GDD "เมื่อตาย" · D-094 |
+| ฟื้นหลังตาย | `progression.hpRecovery.deathRecoveryTo_pct`, `deathRecoveryDuration_s` | 0 → 50% ใน 1,800 วินาที | GDD "เมื่อตาย" |
+| ยาชุบ | `economy.potions.revive.reviveToHp_pct`, `usableInsideDungeon` (+ `_usableInsideDungeon_note`) | 50% · Phase 2 ใช้นอก run เท่านั้น key ไม่มีผล | GDD · F06 R24, R26 |
+| โล่ Magic | `classes.roles.magic.shieldPerRewardTick_pctMaxHpPerBuffPct` (+ `_note`) | 0.1 × buff% ของ maxHP เฉพาะ tick ที่ผ่าน gate แทนค่าเดิม ไม่ซ้อน | A-13 · F06 R31.4 · D-096 |
+| heal Support | `classes.roles.support.inDungeonHealBase_pctMaxHpPerMin` (+ `_note`) | 0.5% × (1 + buff) ต่อนาทีของเวลา Active | A-12 · F06 R31.5 |
+
+ไม่มีค่าใดเปลี่ยนจาก GDD ในงานนี้ (ไม่มีรายการเกิน ±20%) · ค่าใหม่ทั้งหมดเป็นค่าที่ GDD ไม่มี (ยาใน drop, `sourceOrder`, กฎ `safety`)
+
+### 17.6 `dungeons.safety` ตาม D-061 ที่แก้ (B-02, design/reviews/F03-design-gate-b.md 4.3)
+
+```
+นับรายงาน  : หมวดใน autoSuspendCategories (["dangerous"] = "ที่นี่อันตราย") เท่านั้น
+             ผู้รายงานอยู่ที่ dungeon นั้นจริงในหน้าต่าง (check-in ผ่านหรือมี run ที่นั่น) · reporterMustBePresent
+             trust ≥ anticheat.trustScore.lowThreshold (40) · seeReporterMinTrustScore
+พักอัตโนมัติ: ผู้เล่นต่างกัน ≥ reportThreshold (5) ภายใน reportWindow_h (24) AND จำนวนกลุ่ม ≥ minIndependentGroups (2)
+             กลุ่ม = party ณ ตอนรายงาน (คนเดียว = 1 กลุ่ม) · independentGroupDefinition = partyAtReportTime
+ผล         : suspendPendingModerator · แจ้ง moderator ทันที · เปิดกลับได้โดย moderator เท่านั้น
+             ผู้เล่นข้างในได้รางวัลตาม emergencyClose (D-059, gate ยังใช้)
+หมวดอื่น   : "เข้าไม่ได้" (inaccessible), "ปิดถาวร" (permanentlyClosed) → moderatorQueue พร้อมสถิติรายงานซ้ำ
+ช่องทาง    : เลือกหมวดเท่านั้น ไม่มีข้อความอิสระ (NN-4) · คำนวณที่ server (Phase 5 F13/F15)
+```
+
+- แก้ `_assumption` เดิมที่อ้างว่า party เล็กปิด dungeon ไม่ได้ (ผิด เพราะ party มีได้ 8 คน) · ตอนนี้ party เดียวพักไม่ได้เลยเพราะนับเป็น 1 กลุ่ม
+
+### 17.7 run loop ที่ใส่ seed (reference `runLoop`)
+
+ลำดับต่อ run (Active ตลอด ไม่มี Grace/Suspended/lock ใน reference นี้ · τ = เวลา run):
+
+```
+attempt i  : rng = mulberry32(deriveSeed(runSeed, "hit", i)) · τ_i = τ_{i−1} + uniform(45, 75) · landed = rng() < 0.54
+tick k     : ที่ τ = window_s × (k + 1) · ผ่าน gate (ยกเว้น k ใน failedTicks) → rollTickLoot(runSeed, grantedCount, table, 1)
+             → ถุงของ run · โล่ Magic · exp · grantedCount += 1 · ไม่ผ่าน: ไม่ให้อะไร ไม่ดึงเลขสุ่ม
+เวลาชนกัน  : tick ก่อน attempt (F05 R19) · ยาที่ drop ใน tick นั้นใช้กับ hit นั้นได้ (H-E8)
+hit        : damage ที่เลเวล ณ ตอนนั้น · resolveHit (หัวข้อ 3.1.1) · ยาเรียงตาม sourceOrder × defaultPotionOrder
+heal       : Support ฟื้นต่อเนื่องตามเวลา Active ถึง maxHP
+จบ         : autoRetreat → auto_retreat (ของครบ) · died → death (ถุงของ run หาย, exp อยู่, ยาใน inventory ที่ไม่ได้ใช้อยู่)
+             limit_s → manual_exit (ของครบ)
+```
+
+- output: `exitReason`, `end_s`, จำนวน tick/attempt/hit, ยาที่ใช้แยกแหล่ง, `firstPotionDrop_s`, `lowHpWarnings`, HP/เลเวล/exp ตอนจบ, `runBag`, `kept`, `lost`, `inventoryEnd`, `events` (tick: `k, granted, exp, level, shield, loot` · attempt: `i, landed, damage, hpAfter, shieldAfter, potion` เป็น `"<source>:<id>"`, `warning, outcome`)
+- `runLoopStats` = `runLoop` ของ runSeed `firstSeed … firstSeed + runs − 1` แล้วเอา p10/มัธยฐาน/p90 แบบ nearest-rank · ผลซ้ำได้ทุกเครื่อง
+
+### 17.8 เวลาถึง auto-retreat ของผู้เล่น Phase 2 (N-03 ข้อ 6, F06 R43)
+
+base stat (HP 300, DEF 20, VIT 0) ไม่มีอุปกรณ์ ไม่ลงแต้ม · ช่วง 1–5 (Z = 3) · dungeon เล็ก · 2,000 seed · เลเวล 1–5 ได้ผลเท่ากันภายใน 1 นาที (damage เท่ากันในช่วง, buff ต่างกันเล็กน้อย) ตารางเต็มใน sim-report หัวข้อ 12.3
+
+| class | damage/hit | ไม่มียา มัธยฐาน (p10–p90) | มียาจาก drop มัธยฐาน (p10–p90) | ได้ยาก่อนจบ |
+| --- | --- | --- | --- | --- |
+| Tanker | 9.8 | 43.1 (34.9–52.3) | 78.5 (41.0–192.1) · 1.5% ไม่ถอยใน 6 ชม. | 0.787 |
+| Ranged | 18.8 | 21.7 (16.8–28.0) | 27.2 (17.8–48.8) | 0.518 |
+| Support | 18.8 | 27.5 (19.9–36.0) | 36.8 (22.1–70.9) | 0.601 |
+| Magic | 18.8 | 25.5 (18.4–32.0) | 32.4 (19.7–59.3) | 0.567 |
+
+- R43 (มัธยฐาน ≥ 10 นาที) ผ่านทุก class ในช่วง 1–5 · ไม่ผ่านใน PN-2 (1–35) และช่วง 1–10 (F-18)
+- D-020 ยังผ่านหลัง D-038 B: build สมดุลเลเวล 25 damage ×1.0 ไม่ใช้ยา 44.4 นาที (vector GDD ใน `damage.json`) · มี Tanker 55.6 · คนเดียวไม่ใช่ Tanker 27.8
+- Tanker ที่ได้ยาจาก drop มัธยฐาน 78.5 นาที: ใน playtest 30–60 นาที Tanker ส่วนใหญ่จะไม่เห็น auto-retreat · non-Tanker ยังเห็น (มัธยฐาน 27–37 นาที) · kit ผู้สังเกตต้องแยกตาม class
+
+### 17.9 Vector ที่เพิ่ม (`gen-vectors --check` เขียว)
+
+| ไฟล์ | ข้อ | `input.fn` | ครอบ |
+| --- | --- | --- | --- |
+| `tick-reward.json` | 30 | `soloTickExp`, `addExp`, `lootTable`, `rollTickLoot` | exp ต่อ tick 4 class ช่วง 1–5, gap, PN-2, Magic, f = 0.4, พื้น 0.25, เลเวล 60 · ขึ้นเลเวลต่อกัน · ตารางจริงต่อ preset ที่ resolve แล้ว 5 บริบท · loot บนตารางจริง index 0–5 และ f = 0.4 (index 0 = รางวัลก้อนแรก เหมือน tick อื่นทุกประการ F06 R39) |
+| `run-loop.json` | 29 | `hitAttempt`, `soloDamage`, `runLoop`, `runLoopStats` | ลำดับการดึงของ stream hit · damage ของ Phase 2 · ตายเทียบ auto-retreat seed เดียวกัน · ลำดับแหล่งยา · โล่ Magic กับ tick ที่ไม่ผ่าน · Support heal · tick ก่อน hit ที่เวลาเดียวกัน · เข้า run ที่ HP 23% · PN-2 · R43 ต่อ class มี/ไม่มียา |
+
+- รูปแบบเหมือนไฟล์ของ P2-F05-T20 (`input` มี parameter ครบ, tolerance 1e-6, ปัด 6 ตำแหน่ง) · `lootTable` รับ entry ดิบของ `drops.json#dropTables` จึง port parse รูปเดียวกับ config
+- ชื่อ fn คงที่ (backend เพิ่มใน dispatcher ของ `packages/shared`)
+
+### 17.10 `tools/sim` ใช้สูตรจาก `packages/shared` (TL B-05)
+
+- ลบ `tools/sim/src/formulas.ts` และ `rng.ts` · สูตร, `mulberry32`, `uniform`, `deriveSeed`, `fnv1a32`, `streamRng`, `dropRates`, `rangedTerm`, `failedRaidTerm`, `stochasticRound`, `dropParamsFromConfig`, `hitsToThreshold`, `expectedSurvival_min`, `hitChanceForTarget_pct`, `hpLossPerHour_pct`, `potionCostPerHour_gold` import จาก `@keep-walking/shared/formulas`
+- คงไว้ใน tools: Monte Carlo (`simulateRun`, `survivalMonteCarlo`, `potionCostMonteCarlo`, `simulateDropGaps`, `simulateIncome`), สถิติ (`stats.ts`), report, และ reference ที่ shared ยังไม่มี (`rollTickLoot`, `resolveHit`, `runLoop`) ซึ่ง backend port ใน P2-F05-T08 / P2-F06-T06
+- vector เดิมทุกไฟล์ค่าไม่เปลี่ยน (เปลี่ยนเฉพาะข้อความ `source` ที่ชี้ reference)
+
+### 17.11 สมมติฐานของงานนี้
+
+- A-P2-F05-T01-1: roll ยาไม่มีตัวคูณ Ranged/dungeon เล็ก และเป็นของ Phase 2 (ทบทวนก่อน Phase 4) · owner game-director
+- A-P2-F05-T01-2: กรอบของยาตามแถบโอกาส (ยาเล็ก uncommon, ยาชุบ epic, ยากลาง rare, ยาใหญ่ epic) · owner art-director, game-director
+- A-P2-F05-T01-3: exp ไม่ปัด (ค่าจริง, client แสดงค่าปัดลง) · ถึงเลเวลสูงสุดไม่สะสม exp · owner systems-designer, backend-programmer
+- A-P2-F05-T01-4: โล่ Magic ของ tick คำนวณจากเลเวลก่อน exp ของ tick นั้น และขนาดไม่ย่อด้วย f ใน tick บางส่วน · owner game-director
+- A-P2-F05-T01-5: id ของ drop table เป็น camelCase (`largeParkDefault` …) ไม่ใช่ `largePark.default` · owner location-engineer, level-designer

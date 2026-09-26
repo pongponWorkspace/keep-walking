@@ -8,9 +8,16 @@
  * silently drop one (config/app/privacy.json#summaryExport is the guard-rail note tech-lead left for
  * this task). A missing measurement is an empty CSV cell (gps-trace-format.md 4.1: "ค่าว่าง =
  * วัดไม่ได้"), never a coordinate, a device model, or a full user agent string.
+ *
+ * `format_version` 2 (P2-F04-T25, gps-trace-format.md 4.1 row `format_version`): three columns
+ * added at the end, append-only, no existing column's meaning changes: `gate_windows_pass_filtered`
+ * / `_pct` and `stationary_5min_accum_filtered_m` (ADR 0003 section 5.3's outlier-filter + resample
+ * pipeline, via `debug/stats.ts`'s `computeGateWindows`). A row whose `MovementGateConfig.filter`
+ * was not configured yet leaves those three cells empty, same "ค่าว่าง = วัดไม่ได้" convention as
+ * every other not-yet-measured column.
  */
 
-export const SUMMARY_CSV_FORMAT_VERSION = 1;
+export const SUMMARY_CSV_FORMAT_VERSION = 2;
 
 /** One row of the summary CSV. Every field the doc lists; `undefined` becomes an empty cell. */
 export interface SummaryRow {
@@ -52,6 +59,11 @@ export interface SummaryRow {
   readonly gateWindowsPass: number;
   readonly gateWindowsPassPct: number;
   readonly stationary5MinAccumM: number | undefined;
+  /** `format_version` 2 only (ADR 0003 5.3). `undefined` when `MovementGateConfig.filter` is not
+   * configured yet, same as every other not-yet-measured column. */
+  readonly gateWindowsPassFiltered: number | undefined;
+  readonly gateWindowsPassFilteredPct: number | undefined;
+  readonly stationary5MinAccumFilteredM: number | undefined;
   readonly latencyMedianMs: number | undefined;
   readonly latencyP90Ms: number | undefined;
 }
@@ -95,6 +107,9 @@ const COLUMNS: readonly (keyof SummaryRow)[] = [
   'gateWindowsPass',
   'gateWindowsPassPct',
   'stationary5MinAccumM',
+  'gateWindowsPassFiltered',
+  'gateWindowsPassFilteredPct',
+  'stationary5MinAccumFilteredM',
   'latencyMedianMs',
   'latencyP90Ms',
 ];
@@ -138,6 +153,9 @@ const HEADER_SNAKE_CASE: Readonly<Record<keyof SummaryRow, string>> = {
   gateWindowsPass: 'gate_windows_pass',
   gateWindowsPassPct: 'gate_windows_pass_pct',
   stationary5MinAccumM: 'stationary_5min_accum_m',
+  gateWindowsPassFiltered: 'gate_windows_pass_filtered',
+  gateWindowsPassFilteredPct: 'gate_windows_pass_filtered_pct',
+  stationary5MinAccumFilteredM: 'stationary_5min_accum_filtered_m',
   latencyMedianMs: 'latency_median_ms',
   latencyP90Ms: 'latency_p90_ms',
 };

@@ -98,7 +98,10 @@ export function edgeObservation(
   pt: LatLng,
   geometry: PolygonGeometry,
 ): { readonly inside: boolean; readonly boundaryDistance_m: number } {
-  return { inside: pointInPolygon(pt, geometry), boundaryDistance_m: boundaryDistance_m(pt, geometry) };
+  return {
+    inside: pointInPolygon(pt, geometry),
+    boundaryDistance_m: boundaryDistance_m(pt, geometry),
+  };
 }
 
 /** Twice the signed planar area of a ring in degrees²: > 0 counter-clockwise. */

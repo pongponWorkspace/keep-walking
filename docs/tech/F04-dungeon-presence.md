@@ -202,7 +202,7 @@ E = t ของ sample ที่ใช้ได้ล่าสุด            
 P = t ของ sample แรกของชุดที่รอยืนยันทุกชุด (ออก, กลับเข้า, lock, ปลด lock) · ไม่มีชุดรอ = +∞
 ```
 
-- `H` ไม่ลดลง (`clock.settled_ms = max(เดิม, H)`) · ความหน่วงของ `H` จาก `now_ms` ไม่เกิน `max(เวลายืนยัน hysteresis, lockSustained_s, unlockSustained_s, maxSamplePairGap_s)` · ช่วงหน่วงนี้ UI แสดงสถานะที่นิ่งแล้ว (`pendingTransition` = true ได้)
+- `H` ไม่ลดลง (`clock.settled_ms = max(เดิม, H)`) · ความหน่วงของ `H` จาก `now_ms` โดยปกติไม่เกิน `max(เวลายืนยัน hysteresis, lockSustained_s, unlockSustained_s, maxSamplePairGap_s)` · ข้อยกเว้นจาก D-103 (5.2): sample ฝั่งตรงข้ามที่อยู่ในแถบ `edgeHysteresis_m` ไม่นับและไม่ล้มชุด ผู้เล่นที่ยืนอยู่ในแถบนานจึงตรึง `P` ได้ไม่จำกัดเวลา (ผลไม่ผิด เพราะเมื่อชุดล้มหรือยืนยัน timer และหน้าต่างที่ค้างถูกตัดสินย้อนตามจริง แต่ UI เห็น tick / Suspended ช้าลง) [ASSUMPTION A-P2-X04-1: ยอมรับได้ใน Phase 2 · ถ้าต้องมีเพดานเป็นกฎใหม่ของ systems-designer / game-director] · ช่วงหน่วงนี้ UI แสดงสถานะที่นิ่งแล้ว (`pendingTransition` = true ได้)
 - ก่อนมี run `H` ใช้กับ lock และ approach เท่านั้น
 - ผลของหน้าต่างจึงขึ้นกับ sample เท่านั้น ไม่ขึ้นกับจังหวะที่ `sessionStep` ถูกเรียก (ตรงเจตนา ADR 0003 5.2 ข้อ 6 · รายละเอียดใน F05 หัวข้อ 4)
 
@@ -226,9 +226,11 @@ P = t ของ sample แรกของชุดที่รอยืนยั
 ### 5.2 ชุดยืนยันและ backdating (R14, R15)
 
 - สถานะที่ยืนยันแล้วมีสองค่า: `in` (Active หรือ Active ที่ lock) และ `out` (Grace / Suspended)
-- **ชุดที่รอยืนยัน** = sample ที่ใช้ได้ติดกันที่สังเกตได้ตรงข้ามกับสถานะที่ยืนยัน · เก็บเฉพาะ `count`, `firstAt_ms` (เวลาของ sample แรกในชุด) · sample ที่ใช้ได้ที่ตรงกับสถานะเดิมล้มชุด · sample ที่ไม่ใช้ได้ไม่ล้มและไม่นับ
-- **ยืนยัน** เมื่อ `count ≥ edgeHysteresisSamples` หรือ sample ล่าสุดของชุดอยู่ห่างขอบเกิน `edgeHysteresis_m` (`boundaryDistance_m`) อย่างใดอย่างหนึ่ง [ASSUMPTION A-P2-F04-T14-1: "และ/หรือ" ใน R15 ข้อ 1 = อย่างใดอย่างหนึ่งพอ · ให้ systems-designer ยืนยันด้วย vector เลียบขอบ/drift ใน P2-F05-T20]
-- เมื่อยืนยัน transition มีผลที่ `firstAt_ms` ของชุด (ไม่ใช่เวลาที่ยืนยัน) · event `run_state_changed.at_ms = firstAt_ms`
+- **ชุดที่รอยืนยัน** = sample ที่ใช้ได้ติดกันที่สังเกตได้ตรงข้ามกับสถานะที่ยืนยัน · เก็บเฉพาะ `count`, `firstAt_ms` (เวลาของ sample ฝั่งตรงข้ามตัวแรกในชุด ไม่ว่าจะอยู่ในแถบหรือไม่) · sample ที่ใช้ได้ที่ตรงกับสถานะเดิม (ลึกเท่าไรก็ได้) ล้มชุด · sample ที่ไม่ใช้ได้ไม่ล้มและไม่นับ
+- **นับ** = sample ฝั่งตรงข้ามในชุดที่ `boundaryDistance_m > edgeHysteresis_m` · sample ฝั่งตรงข้ามที่อยู่ในแถบ (`boundaryDistance_m ≤ edgeHysteresis_m`) เป็นกลาง: ไม่นับและไม่ล้มชุด (แต่ถ้าเป็นตัวแรกของชุดก็ตั้ง `firstAt_ms`)
+- **ยืนยัน** เมื่อ `count ≥ edgeHysteresisSamples` (ต้องครบทั้งจำนวนและระยะในเวลาเดียวกัน ไม่ใช่อย่างใดอย่างหนึ่ง) · ใช้กฎเดียวกันทั้งขาออก (`in → out`) และขากลับ (`out → in`) · กรณีขอบของ config: `edgeHysteresis_m = 0` → นับทุก sample ฝั่งตรงข้าม (จำนวนอย่างเดียว) · `edgeHysteresisSamples = 1` → sample เดียวที่เกินแถบพอ (ระยะอย่างเดียว) · อ้างอิง: `design/systems/balance-model.md` 16.3 และ vector `edgeHysteresis` 8 ข้อใน `design/systems/test-vectors/run-state.json` (D-103 · เสนอโดย systems-designer · game-director ยืนยันใน F04 flow gate รอบ 2 · tech note นี้ถือเป็นสัญญาปัจจุบันแล้ว ถ้า game-director ไม่ยืนยันจะแก้ทั้ง vector และหัวข้อนี้พร้อมกัน) · แทนที่ A-P2-F04-T14-1 ("อย่างใดอย่างหนึ่ง") ซึ่งถูก systems-designer ปฏิเสธด้วย edge-walk (ออกผิด 7 ครั้ง เทียบ 3 ครั้งที่ 1 Hz)
+- **ช่องว่างล้มชุด** (D-104 · tech-lead ยอมรับ): ถ้าคู่ sample ที่ใช้ได้ติดกันห่าง `> maxSamplePairGap_s × 1000` ms (หรือ `now_ms − t_last` เกินค่านี้ที่ `tick`) ชุดที่รอยืนยันถูกล้างก่อนประมวล sample ถัดไป · sample หลังช่องว่างเริ่มชุดใหม่ (`firstAt_ms` = sample นั้น) · ถ้าสถานะเป็น `in` ช่องว่างเดียวกันทำให้ออกแบบ `no_evidence` ตาม 5.3 · เหตุผล: ชุดกลับเข้าที่ค้างครึ่งทางจะตรึง `P` (4.3) ข้ามช่วงแอปปิดยาวแล้วกลับ Active ย้อนหลังได้ ขัด R18 (vector `runTimeline` "half-built return run followed by a 20-minute gap")
+- เมื่อยืนยัน transition มีผลที่ `firstAt_ms` ของชุด (ไม่ใช่เวลาที่ยืนยัน และไม่ใช่ sample แรกที่ "นับ") · event `run_state_changed.at_ms = firstAt_ms` · `packages/geo` ที่ย้อนไป sample แรกที่นับต้องแก้ตาม (handoff ของ P2-F05-T20 ถึง location-engineer)
 - ชุดที่ล้มไม่ทิ้งร่องรอย: เวลาในช่วงนั้นเป็นของสถานะเดิม
 - ผลต่อ rewardWindow: ออก = นาฬิกาหยุดย้อนที่ `firstAt_ms` · กลับเข้า = นาฬิกาเดินต่อตั้งแต่ `firstAt_ms` และคู่ sample ภายในชุดที่เข้าเงื่อนไข F05 R05 นับระยะย้อนหลัง · วิธีทำโดยไม่เก็บรายการ sample อยู่ใน F05 หัวข้อ 3.5 (ตัวสะสม scratch)
 
@@ -450,7 +452,7 @@ boot → อ่าน kw.p2.session
 | เวลาปิดทำการอยู่ในช่วงที่หาย | Ended `dungeon_closed` ที่ `closesAt_ms` ถ้ามาก่อน timeout (9.3) · tick บางส่วนคิดจากเวลา Active ที่สะสมถึง `t_last` | — |
 | นาฬิกาเครื่องถูกตั้งย้อนระหว่างปิด | `clock_invalid` (4.4) | — |
 
-- run ไม่ถูกลบเพราะแอปถูกปิด (E7) · `balance.dungeons.offlineEvidence.connectionLostEndsRunAfter_s` (900) ของ Phase 3 มีค่าเท่า `suspendedMax_s` · Phase 2 ใช้ `suspendedMax_s` ตัวเดียวตาม R12 (config lint ของ P2-F04-T24 เตือนถ้าสองค่าไม่เท่ากัน)
+- run ไม่ถูกลบเพราะแอปถูกปิด (E7) · `balance.dungeons.offlineEvidence.connectionLostEndsRunAfter_s` (900) ของ Phase 3 มีค่าเท่า `suspendedMax_s` · Phase 2 ใช้ `suspendedMax_s` ตัวเดียวตาม R12 (config lint ของ P2-F04-T24 รายงานเป็น ERROR ถ้าสองค่าไม่เท่ากัน ทำให้ `pnpm test` ล้ม · D-105)
 - เน็ตหลุด (E8) ไม่มีผลต่อ engine · banner offline เป็นของ client
 
 ### 10.4 storage เต็มและการลบข้อมูลในเครื่อง
@@ -550,8 +552,8 @@ client UI (onboarding, nav, gps)  ─┼→ mapper (ตาราง 12.3, allowl
   "attribution": ["© OpenStreetMap contributors, ODbL 1.0"],
   "dungeons": [
     {
-      "id": "pn-1",
-      "name_key": "zone.pn1",
+      "id": "chatuchakPark",
+      "name_key": "dungeon.chatuchakPark",
       "preset": "largePark",
       "level_range": { "min": 20, "max": 35 },
       "drop_table_id": "largePark.default",
@@ -562,7 +564,7 @@ client UI (onboarding, nav, gps)  ─┼→ mapper (ตาราง 12.3, allowl
       "geometry": { "type": "Polygon", "coordinates": [[[100.5, 13.75], "..."]] },
       "label_point": [100.5015, 13.7515],
       "nav_destination": { "point": [100.5009, 13.7501], "source": "entrance" },
-      "search_name_key": "zone.pn1.search",
+      "search_name_key": "dungeon.chatuchakPark.search",
       "opening_hours": { "source": "osm", "weekly": { "1": [[300, 1260]], "...": [] }, "exceptions": [] }
     }
   ]
@@ -572,7 +574,7 @@ client UI (onboarding, nav, gps)  ─┼→ mapper (ตาราง 12.3, allowl
 | field | กฎ |
 | --- | --- |
 | `id` | `^[a-z0-9-]+$` ไม่ซ้ำ · ค่าเดียวที่ telemetry อ้าง (`dungeon_id`) |
-| `name_key`, `search_name_key` | pointer ไป `config/content/names.th.json` (narrative) · ไม่มีชื่อไทยใน artifact · `search_name_key` = ชื่อจริงที่ค้นในแอปแผนที่ได้ (ไม่มีคำขยาย) ใช้กับ fallback 14.3 · handoff ถึง narrative-designer |
+| `name_key`, `search_name_key` | pointer ไป `config/content/names.th.json` (narrative) · รูป key ที่ narrative-designer เลือก: `dungeon.<id>` และ `dungeon.<id>.search` (ไม่ใช่ `zone.*`) · ค่าในตัวอย่างเป็นตัวอย่างรูปแบบเท่านั้น (geometry สมมติ) · ไม่มีชื่อไทยใน artifact · `search_name_key` = ชื่อจริงที่ค้นในแอปแผนที่ได้ (ไม่มีคำขยาย) ใช้กับ fallback 14.3 · handoff ถึง narrative-designer |
 | `preset`, `level_range`, `drop_table_id` | ต้องมีใน config (validator ตรวจ `drop_table_id`) |
 | `verification_mode`, `floor_level` | v1 = `continuous_gps`, `null` เท่านั้น (ADR 0003 7) |
 | `area_m2` | คำนวณตอน build · engine ใช้กับ `balance.drops.smallDungeon.smallDungeonMaxArea_m2` |
@@ -683,7 +685,7 @@ client ห้าม import ไฟล์ `config/balance/*.json` ทั้งไ�
 
 ## 18. สมมติฐาน การแก้ ADR และงานต่อ
 
-- A-P2-F04-T14-1: hysteresis ยืนยันเมื่อครบจำนวน **หรือ** เกินระยะจากขอบ (5.2) · owner systems-designer / game-director
+- A-P2-F04-T14-1: ปิดแล้ว (P2-X04) · แทนด้วย D-103 (ครบทั้งจำนวนและระยะ แถบเป็นกลาง ย้อนไป sample ฝั่งตรงข้ามตัวแรก) และ D-104 (ช่องว่างล้มชุด) ใน 5.2 · D-103 รอ game-director ยืนยันใน F04 flow gate รอบ 2
 - A-P2-F04-T14-2: ปลด lock backdate ไปที่ sample แรกของชุดช้า (6) ตาม D-094 "transition ย้อนผล" · owner game-director
 - A-P2-F04-T14-3: คู่ที่เร็วกว่า `speedLock_kmh` ไม่นับระยะ (6, F05 R05 ข้อ 5) เป็นผลทางเทคนิคของ R21 + backdating ไม่ใช่กฎใหม่ · owner game-director
 - A-P2-F04-T14-4: ชื่อ event ที่ "รอ P2-F04-T17" ในหัวข้อ 12.3 · owner product-manager

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/location.schema.json",
+  "title": "config/balance/location.json",
+  "type": "object",
+  "required": ["_meta", "homeState"],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "homeState": {
+      "type": "object",
+      "required": ["maxAccuracy_m", "sustainedPoorAccuracy_s", "seeCheckInAccuracy"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "maxAccuracy_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "sustainedPoorAccuracy_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "seeCheckInAccuracy": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

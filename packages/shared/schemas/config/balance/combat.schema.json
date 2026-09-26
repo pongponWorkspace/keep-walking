@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/combat.schema.json",
+  "title": "config/balance/combat.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "monsterAttack",
+    "defense",
+    "attackCheck",
+    "levelGapDamage",
+    "raidFailPenalty",
+    "deathProtection"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "monsterAttack": {
+      "type": "object",
+      "required": ["monsterAtkCoef", "monsterAtkExponent", "zoneLevelFrom"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "monsterAtkCoef": { "type": "integer", "minimum": 0 },
+        "monsterAtkExponent": { "type": "number" },
+        "zoneLevelFrom": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "defense": {
+      "type": "object",
+      "required": ["defSoftcap"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "defSoftcap": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "attackCheck": {
+      "type": "object",
+      "required": [
+        "intervalMin_s",
+        "intervalMax_s",
+        "intervalDistribution",
+        "hitChancePerCheck_pct"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "intervalMin_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "intervalMax_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "intervalDistribution": { "type": "string", "minLength": 1 },
+        "hitChancePerCheck_pct": { "$ref": "../common.schema.json#/$defs/pct" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "levelGapDamage": {
+      "type": "object",
+      "required": ["damageMultPerLevelBelowRange", "mode", "maxMult"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "damageMultPerLevelBelowRange": { "type": "number" },
+        "mode": { "type": "string", "minLength": 1 },
+        "maxMult": { "type": ["number", "null"] },
+        "_nullMeans": { "$ref": "../common.schema.json#/$defs/nullMeans" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "raidFailPenalty": {
+      "type": "object",
+      "required": ["monsterAtkMultAfterFailedRaid"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "monsterAtkMultAfterFailedRaid": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "deathProtection": {
+      "type": "object",
+      "required": ["seeFile"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "seeFile": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

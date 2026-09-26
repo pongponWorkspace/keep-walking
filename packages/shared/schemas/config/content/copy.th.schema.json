@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/content/copy.th.schema.json",
+  "title": "config/content/copy.th.json",
+  "description": "Delegates to packages/shared/schemas/copy.schema.json (docs/tech/copy-schema.md section 2, owned with tools/copy-lint). Word rules S1-S14 stay in tools/copy-lint.",
+  "$ref": "https://keep-walking.invalid/schemas/copy.schema.json"
+}

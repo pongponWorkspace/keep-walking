@@ -1,0 +1,444 @@
+{
+  "anticheat": {
+    "checkIn": {
+      "_note": "P2-F05-T20 review: values unchanged. maxAccuracy_m is compared strictly (accuracy < 30 passes, 30 is rejected, spec F04 E6). 'Continuous' = no sample pair further apart than dungeons.json#movementGate.maxSamplePairGap_s, no sample dropped by the gate outlier filter (movementGate.maxSampleAccuracy_m, outlierSpeed_kmh) and no sample while speed-locked (tech note F04 7.2-7.3). The approach must contain a usable sample outside the selected polygon and end on a sample inside it. Vectors: design/systems/test-vectors/check-in.json",
+      "_source": "GDD > Anti-cheat > มาตรการเป็นชั้น > ชั้น 1 (GPS sample ต่อเนื่องอย่างน้อย 60 วินาทีที่เดินเข้ามาจากข้างนอก, accuracy น้อยกว่า 30 เมตร)",
+      "maxAccuracy_m": 30,
+      "minContinuousApproach_s": 60,
+      "teleportIntoPolygonAllowed": false
+    },
+    "speedLock": {
+      "_assumption": "A-P2-F05-T20-2: 15 s / 60 s are proposals from synthetic traces. Bangkok red lights are often longer than 60 s, so the lock may drop and return at a long light; harmless because both edges are back-dated and a stopped car adds no distance. Owner: game-director (safety intent), systems-designer (values)",
+      "_source": "GDD > Anti-cheat > ชั้น 1; ความปลอดภัยผู้เล่นและ PDPA > ความปลอดภัยทางกายภาพ (speed lock 25 กม./ชม. ล็อกการเล่น ไม่ใช่แค่เตือน)",
+      "_sustained_source": "P2-F05-T20 · spec F04 R20 (lock before a car is at full speed, but a single GPS spike must not lock a walker) and R22 (unlock after longer than one red light). Speed = unfiltered pairs with accuracy <= movementGate.maxSampleAccuracy_m; a pair gap > movementGate.maxSamplePairGap_s breaks the run. lockSustained_s 15: a one-fix spike gives two fast pairs spanning 2 s at 1 Hz and 10 s at 0.2 Hz, both below 15; synthetic-driving-40kmh-01 locks at 84 s (the car passes 25 km/h at about 80 s). unlockSustained_s 60: the 45 s red light of the same trace stays locked. Both transitions are back-dated to the first sample of the run (tech note F04 6, D-094), so the long unlock costs no reward-clock time. Evidence: tools/sim report-gate section 4",
+      "action": "lockPlay",
+      "lockSustained_s": 15,
+      "speedLock_kmh": 25,
+      "unlockSustained_s": 60
+    }
+  },
+  "classes": {
+    "baseCapRule": {
+      "_intentionalExceptions_source": "studio/decisions/decision-log.md D-004 (Support 25/50 = 0.50 is an intentional exception)",
+      "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (กฎการปรับค่า base ราว 1/3 ถึง 2/5 ของ cap)",
+      "intentionalExceptions": [
+        "support"
+      ],
+      "maxBaseToCapRatio": 0.4,
+      "minBaseToCapRatio": 0.3333
+    },
+    "buffStacking": {
+      "_source": "GDD > Class และ Party > สูตร buff stacking (buff = cap x (1 - (1 - base/cap)^P), P = sum(1 + level/50))",
+      "pLevelDivisor": 50,
+      "pPerMemberBase": 1
+    },
+    "party": {
+      "_source": "GDD > Class และ Party > สูตร buff stacking",
+      "countOnlyMembersInsideDungeon": true,
+      "duplicateRolesAllowed": true,
+      "maxMembers": 8
+    },
+    "roles": {
+      "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (per-role _source below)",
+      "magic": {
+        "_assumption": "A-P1-F03-T06-13: GDD gives no shield size. Proposal: each 5-min reward tick grants a shield of (0.1 x magicBuff_pct)% maxHP that absorbs damage and does not stack. Owner: game-director",
+        "_note": "Spec F06 R31 item 4 and decision 5 (D-096, closes the timing part of A-P1-F03-T06-13): the shield is granted only on a reward tick that passed the movement gate (a denied tick gives nothing, F05 R10), including a passing D-059 partial tick (size not scaled by f). It does not stack: each grant REPLACES the current shield with the new amount. It absorbs damage before HP (F05 R18 step 1) and ends with the run. Solo in Phase 2 the Magic player gets the shield of their own buff (D-039): magicBuff = roleBuffPct(magic, P = 1 + level / 50)",
+        "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Magic เพิ่ม exp และสร้างโล่กัน damage)",
+        "base_pct": 17,
+        "buffEffect": "expMult",
+        "cap_pct": 50,
+        "missingDebuffEffect": "expMult",
+        "missingDebuffMult": 0.6,
+        "shieldPerRewardTick_pctMaxHpPerBuffPct": 0.1
+      },
+      "ranged": {
+        "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Ranged เพิ่มของที่ได้)",
+        "base_pct": 17,
+        "buffEffect": "dropMult",
+        "cap_pct": 50,
+        "missingDebuffEffect": "dropMult",
+        "missingDebuffMult": 0.6
+      },
+      "support": {
+        "_assumption": "A-P1-F03-T06-12: GDD gives no base heal rate or revive HP. With a Support present, heal = 0.5% maxHP/min x (1 + supportBuff); a Support revives a downed member to 30% HP. Owner: game-director",
+        "_note": "Spec F06 R31 item 5: in Phase 2 the solo Support heals only themselves, continuously over Active unlocked time (no heal in Grace, Suspended, speed lock), capped at max HP. reviveToHp_pct is not used in Phase 2 (no downed state, F06 R24; Support revive moves to Phase 3 F09)",
+        "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Support heal เร็วขึ้น และชุบเพื่อนที่ HP หมดได้)",
+        "base_pct": 25,
+        "buffEffect": "inDungeonHealRateBonus",
+        "cap_pct": 50,
+        "inDungeonHealBase_pctMaxHpPerMin": 0.5,
+        "missingDebuffEffect": "noInDungeonHeal",
+        "missingDebuffMult": 0,
+        "reviveToHp_pct": 30
+      },
+      "tanker": {
+        "_source": "GDD > Class และ Party > Buff และ debuff ต่อ role (Tanker ลด damage ที่ party ได้รับ)",
+        "base_pct": 16,
+        "buffEffect": "damageTakenReduction",
+        "cap_pct": 45,
+        "missingDebuffEffect": "damageTakenMult",
+        "missingDebuffMult": 1.6
+      }
+    }
+  },
+  "combat": {
+    "attackCheck": {
+      "_assumption": "A-P1-F03-T06-4 (refit P1-F03-T07, D-029 ACCEPTED): GDD gives no hit chance. 54% is the least-squares fit (53.95%) of the level-25 balanced build (tier-3 gear +0, Z = L) to both GDD survival rows: 45 min to auto-retreat at damage x1.0 (D-020) and 55 min with one Tanker L25. Fit alone per row: 53.3% / 54.5%. Result at 54%: 44.4 / 55.6 min. Changed from 50 (+8%, inside the systems-designer +-20% authority). Owner: systems-designer",
+      "_note": "Spec F06 R06-R07, R10 (D-094, D-096) and ADR 0003 6.4: attempts happen only in Active unlocked time. The interval clock counts only that time, pauses in Grace, Suspended and speed lock, and resumes where it stopped (never reset by leaving and coming back). Attempt i (0, 1, 2, ... per run) uses RNG stream 'hit' index i: draw 1 = interval uniform(intervalMin_s, intervalMax_s) since the previous attempt (the first one since confirm), draw 2 = hit when u < hitChancePerCheck_pct / 100. A reward tick due at the same active instant is processed first (F05 R19). Vectors: design/systems/test-vectors/run-loop.json (hitAttempt, runLoop)",
+      "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (ทุก 45-75 วินาที ระบบสุ่มว่ามอนสเตอร์เข้ามาตีหรือเปล่า)",
+      "hitChancePerCheck_pct": 54,
+      "intervalDistribution": "uniform",
+      "intervalMax_s": 75,
+      "intervalMin_s": 45
+    },
+    "deathProtection": {
+      "_source": "GDD > HP การตาย และการฟื้นฟู > ระบบกันตาย (values live in dungeons.json > hpSafety)",
+      "seeFile": "dungeons.json#hpSafety"
+    },
+    "defense": {
+      "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน; Raid Boss > ตัวเลขตั้งต้น (K = 300, DEF 300 ลด damage 50%)",
+      "defSoftcap": 300
+    },
+    "levelGapDamage": {
+      "_assumption": "A-P1-F03-T06-2: 'x1.25 per level' read as 1.25^gap (not 1 + 0.25 x gap), no cap because the GDD says nobody adjusts it for you. Gap counts from the range minimum. Owner: game-director",
+      "_note": "Spec F06 R09: a level above the range does not reduce damage (the GDD names the lower side only). The level used is the level at the instant of the attempt (F05 R16)",
+      "_nullMeans": {
+        "maxMult": "unbounded"
+      },
+      "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (เลเวลต่ำกว่าช่วงของโซน damage x1.25 ต่อระดับที่ห่าง)",
+      "damageMultPerLevelBelowRange": 1.25,
+      "maxMult": null,
+      "mode": "compound"
+    },
+    "monsterAttack": {
+      "_assumption": "A-P1-F03-T06-1: GDD defines Z as the zone level but a dungeon stores a level range (e.g. 15-25). Z = round((min + max) / 2). Owner: game-director, level-designer",
+      "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (monsterATK = 3 x Z^1.3, Z = zone level)",
+      "monsterAtkCoef": 3,
+      "monsterAtkExponent": 1.3,
+      "zoneLevelFrom": "levelRangeMidpointRounded"
+    }
+  },
+  "drops": {
+    "baseChancePerRewardTick_pct": {
+      "_note": "Each rarity is rolled independently per reward tick. A reward tick exists only when the movement gate passes (dungeons.json#movementGate)",
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (โอกาสต่อ 1 reward tick ก่อนตัวคูณ)",
+      "common": 100,
+      "epic": 1.2,
+      "legendary": 0.2,
+      "rare": 6,
+      "uncommon": 25
+    },
+    "multipliers": {
+      "_failedRaidWeek_assumption": "A-P1-F03-T06-16b: mult = 1.6 + 0.4 x (boss HP fraction left at the end), so a near-kill gives 1.6 and an untouched boss gives 2.0. Owner: game-director",
+      "_lowTrust_source": "GDD > Anti-cheat > มาตรการเป็นชั้น > ชั้น 4; threshold lives in anticheat.json#trustScore",
+      "_rangedAppliesTo_assumption": "A-P1-F03-T06-9: Ranged 'เพิ่มของที่ได้' multiplies Common quantity and the chance of every other rarity; chances are clamped at 100%. Owner: game-director",
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table > ตัวคูณ",
+      "failedRaidWeekMaxMult": 2,
+      "failedRaidWeekMinMult": 1.6,
+      "lowTrustBlocksEpicAndAbove": true,
+      "lowTrustMult": 0.5,
+      "noRangedMult": 0.6,
+      "rangedAppliesTo": "allRarities",
+      "rangedBuffMaxMult": 1.5,
+      "smallDungeonCommonQuantityMult": 0.6,
+      "smallDungeonRareAndAboveMult": 1.5,
+      "stacking": "multiplicative"
+    },
+    "quantityPerDrop": {
+      "_fractionalQuantityRounding_assumption": "A-P1-F03-T06-22: after multipliers a fractional Common quantity (e.g. 1.2) rounds up with probability equal to the fraction, using server RNG, so the mean matches the formula. Owner: systems-designer, backend-programmer",
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > Drop table (Common ได้ 1-3 ชิ้น)",
+      "commonDistribution": "uniformInteger",
+      "commonMax": 3,
+      "commonMin": 1,
+      "epic": 1,
+      "fractionalQuantityRounding": "stochastic",
+      "legendary": 1,
+      "rare": 1,
+      "uncommon": 1
+    },
+    "rewardTypeByRarity": {
+      "_assumption": "A-P1-F03-T06-8: Common/Uncommon/Rare drops are materials (1 unit each for Uncommon and Rare); Epic and Legendary are equipment of the dungeon's tier. With this reading 12 ticks/h give 1,488 gold/h at NPC prices (GDD: about 1,470). Owner: game-director",
+      "_source": "GDD > Progression > วัตถุดิบและการตีบวก (ผงธาตุ Common, แก่นธาตุ Uncommon, หินรอยแยก Rare)",
+      "common": "elementDust",
+      "epic": "equipment",
+      "legendary": "equipment",
+      "rare": "riftStone",
+      "uncommon": "elementCore"
+    },
+    "smallDungeon": {
+      "_assumption": "A-P1-F03-T06-10: GDD does not define 'small'. A dungeon with area below 20,000 m2 (the pocket-park tier) is small. Owner: level-designer",
+      "_source": "GDD > พื้นที่เล่นและ Dungeon > การกำหนด dungeon (dungeon เล็กให้ของน้อยชิ้นกว่าแต่ rare rate สูงกว่า)",
+      "smallDungeonMaxArea_m2": 20000
+    }
+  },
+  "dungeons": {
+    "death": {
+      "_source": "GDD > HP การตาย และการฟื้นฟู > เมื่อตาย",
+      "loseAllRunLoot": true,
+      "supportReviveOnlyInsideSameDungeon": true
+    },
+    "emergencyClose": {
+      "_assumption": "A-P1-X04-1: 'pro-rated' means the partial tick scaled by elapsed time with the gate distance scaled the same way, plus a 60 s floor. Owner: game-director (gate rules), backend-programmer (implementation)",
+      "_note": "Copy gate F-07 / non-negotiable 2. The emergency close never skips the movement gate. (1) Reward ticks completed before the close were already judged by the normal gate; only ticks that passed are paid. (2) The unfinished tick at close pays elapsed_s / movementGate.window_s of one tick, and only if the distance accumulated in that partial window is greater than movementGate.minDistancePerWindow_m x elapsed_s / movementGate.window_s (the same 50 m per 300 s rate, same comparison greaterThan). (3) If elapsed_s < partialTickMinElapsed_s the partial tick pays nothing (a few seconds of GPS jitter could otherwise pass a threshold under 10 m). Computed on the server like every other reward",
+      "_source": "GDD > ระบบหลังบ้าน > Validation ตอนวาด dungeon (ปุ่มปิดฉุกเฉิน moderator คนเดียว คนข้างในได้รางวัลตามสัดส่วน)",
+      "partialTickGateScaling": "proportional",
+      "partialTickMinElapsed_s": 60,
+      "proRatedRewardOnClose": true,
+      "proRatedRewardPassesMovementGate": true,
+      "seeMovementGate": "dungeons.json#movementGate",
+      "singleModeratorAllowed": true
+    },
+    "entry": {
+      "_source": "GDD > พื้นที่เล่นและ Dungeon > การเข้าและออก (อยู่ได้ทีละ 1 dungeon, popup confirm ก่อนเข้าเสมอ)",
+      "confirmPopupRequired": true,
+      "maxActiveDungeonsPerPlayer": 1,
+      "respectOpeningHours": true
+    },
+    "exit": {
+      "_source": "GDD > HP การตาย และการฟื้นฟู > การออกจาก dungeon (กดออกได้ทุกเมื่อ ระบบเริ่มฟื้น HP ทันที)",
+      "manualExitAnytime": true,
+      "regenStartsOnExit": true
+    },
+    "hpSafety": {
+      "_copyVariables": {
+        "autoRetreatPct": "autoRetreatThreshold_pct",
+        "hpWarnPct": "lowHpWarningThreshold_pct"
+      },
+      "_note": "P1-H03: copy variables {autoRetreatPct} and {hpWarnPct} (style-guide 4.1) read these keys; the formatter prints the integer as is (25, 30)",
+      "_source": "GDD > HP การตาย และการฟื้นฟู > ระบบกันตาย",
+      "autoRetreatEnabledByDefault": true,
+      "autoRetreatKeepsRunLoot": true,
+      "autoRetreatThreshold_pct": 25,
+      "lowHpWarningChannels": [
+        "vibrate",
+        "push"
+      ],
+      "lowHpWarningThreshold_pct": 30
+    },
+    "levelRange": {
+      "_source": "GDD > พื้นที่เล่นและ Dungeon > ระดับเลเวลที่เหมาะสม (กำหนดเป็นช่วง เช่น 15-25 ไม่บล็อกการเข้า)",
+      "blockEntryOutsideRange": false,
+      "exampleRangeWidth_levels": 10,
+      "rangeRequired": true
+    },
+    "movementGate": {
+      "_assumption": "A-P2-F05-T20-1: all five filter values are proposals from synthetic traces only; real-device jitter (P2-C03, TL N-11) may move sampleCadence_s. If a phone lying still passes the gate after filtering, the orchestrator opens a fix task for systems-designer and informs game-director before P2-F05-T16 (board rule 4). Owner: systems-designer, game-director",
+      "_filter_source": "P2-F05-T20 · ADR 0003 5.3 / 5.5 (names), spec F05 section 8 and F04 section 8 (limits). Evidence: tools/sim report-gate sections 1-2",
+      "_maxSampleAccuracy_source": "Spec F05 section 8: not stricter than anticheat.checkIn.maxAccuracy_m (30, strict less-than). Gate keeps accuracy <= 30 (equal is kept), so it is never stricter than check-in. Separate key by ADR 0003 5.5; intentionally the same number",
+      "_maxSamplePairGap_source": "GD B-04: long enough for a 0.2 Hz device (5 s) and short GPS dropouts under trees (soi trace gaps up to 25 s), much shorter than runState.graceMax_s (180 s = 6 x 30 s), short enough that a 5-minute gap walked 400 m adds 0 m. Also the no-evidence limit (F04 R13) and the settled-horizon lag of the engine",
+      "_outlierReanchorSamples_source": "Longer than the 3-fix spike of synthetic-drift-spike-01 (S2, 300 m at accuracy 12 m) so a spike never becomes the anchor; 5 s at 1 Hz, 25 s at 0.2 Hz before a real relocation (GPS back after a building) is accepted",
+      "_outlierSpeed_source": "Impossible for a walker, yet above GPS jitter at 1 Hz: synthetic-warmup-accuracy-01 (accuracy settling from 30 to 6 m) has 1 Hz jitter pairs up to 134 km/h; at 30 km/h (the location-engineer fixture) 52 of its fixes are dropped and the check-in approach never reaches 60 s in the 5-minute trace, at 60 km/h 4 are dropped and the approach completes at 118 s (ideal about 106 s). Spikes stay caught: drift-spike S2 1,080 km/h, S3 snap-back 216 km/h at 1 Hz, teleport 4,904 km/h. Separate from anticheat.speedLock.speedLock_kmh (25): the speed lock uses unfiltered pairs, and a pair faster than speedLock_kmh adds no gate distance anyway (tech note F05 3.1 item 5), so a higher outlierSpeed_kmh never adds reward distance. Evidence: tools/sim report-gate section 2",
+      "_sampleCadence_source": "window_s % sampleCadence_s = 0 (300 / 5). On the 1 Hz synthetic traces: table-still 0/3 reward windows pass (max 3.3 m), bench-jitter 3/3 pass (53.4-56.5 m, narrow margin, finding F-16), park-loop 6/6 (388-398 m). 10 s fails bench-jitter (0/3). 5 s equals the 0.2 Hz sample period, so a 0.2 Hz device and a 1 Hz device on the same walk give the same grid (vector movement-gate 1 Hz vs 0.2 Hz)",
+      "_source": "GDD > Core loop ใน Dungeon > Movement gate (ระยะทางสะสมเกิน 50 เมตรใน 5 นาที ใช้ทั้ง dungeon และ raid ไม่มีข้อยกเว้น)",
+      "appliesTo": [
+        "dungeon",
+        "raid"
+      ],
+      "comparison": "greaterThan",
+      "exceptions": [],
+      "maxSampleAccuracy_m": 30,
+      "maxSamplePairGap_s": 30,
+      "minDistancePerWindow_m": 50,
+      "outlierReanchorSamples": 5,
+      "outlierSpeed_kmh": 60,
+      "sampleCadence_s": 5,
+      "window_s": 300
+    },
+    "openingHours": {
+      "_closingSoonNotice_source": "Spec F04 section 8: early enough to finish a tick and walk out. 600 s >= movementGate.window_s (300 s, one full reward window) + about 3 min to walk out of the largest dungeon (area.maxArea_m2 150,000 m2 = radius about 220 m at 1.3 m/s). A window still open at closing time is paid by D-059 (emergencyClose partial tick), so the notice never costs a tick",
+      "_source": "GDD > พื้นที่เล่นและ Dungeon > เวลาทำการ; ความปลอดภัยทางกายภาพ (ไม่ให้มีคนไปปีนรั้วตอนดึก) · spec F04 R25-R30 · ADR 0003 9.2 · tech note F04 8.2-8.3 · P2-F05-T20",
+      "_utcOffset_source": "Asia/Bangkok = UTC+07:00 all year, no daylight saving. Runtime evaluates local time as now_ms + utcOffset_min x 60,000 and never uses the device time zone",
+      "closingSoonNotice_s": 600,
+      "utcOffset_min": 420
+    },
+    "rewardTick": {
+      "_grants_note": "P2-F05-T01 (spec F05 R10-R17, D-094): a tick that passed the movement gate grants exp and one loot roll at once; a denied tick grants nothing and draws no random number. exp = expPerTick(Z) x expMultiplier (Magic term, level-gap term) x f, where Z = combat.json#monsterAttack.zoneLevelFrom, f = 1 for a normal tick and e / movementGate.window_s for a D-059 partial tick. exp is kept unrounded (the client shows the floor); level-ups apply at once and may chain; at progression.json#level.maxLevel no exp is added. exp is not run loot (kept on death). Loot = rollTickLoot(runSeed, grantedCount, dropTables[drop_table_id], multipliers, f) into the run bag. Formulas: design/systems/balance-model.md section 17; vectors: design/systems/test-vectors/tick-reward.json",
+      "_source": "GDD > Core loop ใน Dungeon > Reward tick (ให้ของเป็นขั้นทุก 5 นาที)",
+      "rewardTickInterval_s": 300,
+      "seeDropTables": "drops.json#dropTables",
+      "seeExpCurve": "progression.json#expCurve"
+    },
+    "runState": {
+      "_clockSkewTolerance_source": "P2-F05-T20 · spec F04 E10 (not so long that it becomes extra play time), tech note F04 4.2 / 4.4: a sample more than 5 s in the future is rejected, now_ms going back more than 5 s ends the run with clock_invalid. 5 s covers fix-timestamp vs Date.now differences and small NTP steps on one device clock",
+      "_edgeHysteresis_rule": "Confirmed reading (answers A-P2-F04-T14-1 and A-P2-F04-T12-2): pending run = consecutive usable samples observed on the other side of the polygon edge; a usable sample on the confirmed side resets it. A sample counts only when boundaryDistance_m > edgeHysteresis_m; samples inside that band neither count nor reset. The change is confirmed after edgeHysteresisSamples counted samples (both conditions together, not either) and takes effect at the FIRST sample of the pending run, band samples included (F04 R14). Same rule outward and inward. edgeHysteresis_m = 0 means count only; edgeHysteresisSamples = 1 means distance only. A sample pair gap > movementGate.maxSamplePairGap_s drops a pending run",
+      "_edgeHysteresis_source": "P2-F05-T20 · spec F04 R15 (GD B-05) limits: distance <= about 1/3 of the 31 m radius of the smallest dungeon and below half of a 20 m riverside strip; confirmation time (samples x movementGate.sampleCadence_s = 6 x 5 = 30 s) <= graceMax_s / 6 = 30 s. Evidence: tools/sim report-gate section 3 (edge-walk trace: the 2 real exits give Grace 140 s and Suspended at 180.001 s; drift exits all < 180 s)",
+      "_note": "Outside time <= 180 s = Grace; 180-900 s = Suspended; > 900 s = Ended. The same 15-minute limit ends a run on connection loss (GDD > สถาปัตยกรรมเทคนิค > สัญญาณขาดและแอปถูกปิด)",
+      "_source": "GDD > พื้นที่เล่นและ Dungeon > การเข้าและออก (Active / Grace ไม่เกิน 3 นาที / Suspended 3-15 นาที / Ended เกิน 15 นาที)",
+      "clockSkewTolerance_s": 5,
+      "edgeHysteresisSamples": 6,
+      "edgeHysteresis_m": 5,
+      "graceMax_s": 180,
+      "rewardTickDuringGrace": false,
+      "rewardTickDuringSuspended": false,
+      "suspendedMax_s": 900,
+      "suspendedTimeCounts": false
+    },
+    "verification": {
+      "_note": "v1 is outdoor only (CLAUDE.md non-negotiable 5): v1FloorLevel null means there is no floor, not 'not set yet' (ADR 0001 3.10.5)",
+      "_nullMeans": {
+        "v1FloorLevel": "none"
+      },
+      "_source": "GDD > ระบบหลังบ้าน > เตรียมไว้สำหรับ dungeon ในอาคาร",
+      "v1FloorLevel": null,
+      "v1VerificationMode": "continuous_gps"
+    }
+  },
+  "economy": {
+    "autoPotion": {
+      "_assumption": "A-P1-F03-T06-15b: GDD leaves the threshold to the player. Default 40% (above the 30% warning and the 25% auto-retreat), smallest potion first. Owner: game-director, uiux-designer",
+      "_source": "GDD > HP การตาย และการฟื้นฟู > ระบบกันตาย (ยาอัตโนมัติ เปิด ถ้ามียาในกระเป๋า ใช้ยาเองเมื่อ HP ต่ำกว่าเกณฑ์ที่ตั้ง)",
+      "_sourceOrder_source": "Spec F06 R12 and decision 4 (D-096, game-director): drink from the run bag first, then the inventory; inside each source take the first potion with count > 0 in defaultPotionOrder. Run-bag potions are run loot and are lost on death (D-094), so they go first. One potion per hit (A-P2-F06-T01-1 accepted). revive is never in the auto order (F06 R13)",
+      "defaultPotionOrder": [
+        "hpSmall",
+        "hpMedium",
+        "hpLarge"
+      ],
+      "defaultThreshold_pct": 40,
+      "enabledByDefault": true,
+      "sourceOrder": [
+        "runBag",
+        "inventory"
+      ]
+    },
+    "potions": {
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา",
+      "hpLarge": {
+        "buyPrice_gold": 1000,
+        "heal_pctMaxHp": 100
+      },
+      "hpMedium": {
+        "buyPrice_gold": 400,
+        "heal_pctMaxHp": 60
+      },
+      "hpSmall": {
+        "buyPrice_gold": 150,
+        "heal_pctMaxHp": 30
+      },
+      "purchaseCurrency": "gold",
+      "revive": {
+        "_usableInsideDungeon_note": "No effect in Phase 2 (spec F06 R24, R26, D-096): Phase 2 has no downed state, death ends the run at once, and a revive potion is used by hand outside a run while Recovering. The key stays true for the GDD rule (Phase 3 F09 downed state)",
+        "buyPrice_gold": 2500,
+        "reviveToHp_pct": 50,
+        "usableInsideDungeon": true
+      }
+    }
+  },
+  "location": {
+    "homeState": {
+      "_assumption": "A-P1-H03-6: the home screen is usually opened indoors, where phone GPS commonly reports 30-100 m. Using the 30 m check-in threshold would push many honest players into the 'unknown location' panel at home. A 100 m radius is 5% of the 2,000 m far threshold, so it cannot flip near/far in any meaningful way. The state becomes 'unknown location' (or the gps.lowAccuracy label) only after every fix for 30 s in a row is worse than 100 m, so one bad fix does not flash the panel. Re-check against field-walk results (P1-F02-T27). Owner: location-engineer, uiux-designer",
+      "_note": "Key name in pillars, IA and flow: location.minAccuracy_m. Renamed because 'min accuracy in metres' reads as the opposite of what it is (a maximum radius) and would sit next to anticheat maxAccuracy_m with the same meaning. Not the same concept as check-in: check-in (30 m) decides whether a walk-in counts; this value decides which home panel to show",
+      "_source": "pillars 7.1 (ไม่รู้ตำแหน่ง: accuracy แย่กว่า config: location.minAccuracy_m ต่อเนื่อง); flow F03 D3, section 7 (สถานะ accuracy ต่ำ); GDD > 10 นาทีแรกของคนใหม่ (หน้าที่บ้าน)",
+      "maxAccuracy_m": 100,
+      "seeCheckInAccuracy": "anticheat.json#checkIn.maxAccuracy_m",
+      "sustainedPoorAccuracy_s": 30
+    }
+  },
+  "privacy": {
+    "minAgeComparison": "greaterThanOrEqual",
+    "minAge_yr": 15
+  },
+  "progression": {
+    "baseStats": {
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (ค่าพื้นฐานตอนเลเวล 1 ATK 20, DEF 20, HP 300)",
+      "atk": 20,
+      "def": 20,
+      "hp": 300,
+      "vit": 0
+    },
+    "expCurve": {
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve (expToNext(L) = 60 x L^2.2, expPerTick(Z) = 30 x Z^1.5)",
+      "expPerTickCoef": 30,
+      "expPerTickExponent": 1.5,
+      "expToNextCoef": 60,
+      "expToNextExponent": 2.2
+    },
+    "expMultipliers": {
+      "_assumption": "A-P1-F03-T06-3: 'x0.92 per level' read as 0.92^gap with floor 0.25 (reached at gap 17), gap counted on both sides of the dungeon range. Owner: game-director",
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > Exp curve > ตัวคูณ exp",
+      "levelGapMode": "compound",
+      "levelGapMultFloor": 0.25,
+      "levelGapMultPerLevel": 0.92,
+      "magicBuffMaxMult": 1.5,
+      "noMagicMult": 0.6
+    },
+    "hpRecovery": {
+      "_assumption": "A-P1-F03-T06-15a: regen after a normal exit uses the same rate as death recovery (50% per 30 min = 1.6667%/min), scaled by (1 + VIT regen bonus). Owner: game-director",
+      "_source": "GDD > HP การตาย และการฟื้นฟู > การออกจาก dungeon; เมื่อตาย (ฟื้นจาก 0 ถึง 50% ใช้เวลา 30 นาที)",
+      "deathRecoveryDuration_s": 1800,
+      "deathRecoveryTo_pct": 50,
+      "outsideDungeonRegen_pctMaxHpPerMin": 1.6667
+    },
+    "level": {
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น (เลเวลสูงสุด 60 ตรงกับตัวหาร level/60 ในสูตร POW)",
+      "maxLevel": 60,
+      "startLevel": 1
+    },
+    "rewardTick": {
+      "_source": "GDD > Core loop ใน Dungeon > Reward tick (value lives in dungeons.json to keep one source)",
+      "seeFile": "dungeons.json#rewardTick"
+    },
+    "statPerPoint": {
+      "_change": "P2-F06-T01: vitPotionEfficiency_pct 2 -> 1 per VIT point (D-038 B, HUMAN 2026-09-25). Target: solo average (4 classes, balanced build, VIT on, small potions) at level 25 income/potion ratio about 2.69 (design/systems/sim-report.md section 11). The GDD reference case (damage x1.0, no VIT) is unchanged at 2.83. vitHpRegenSpeed_pct is not affected",
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (ATK +4, DEF +3, HP +150, VIT +1.5% ความเร็วฟื้น HP และ +2% ประสิทธิภาพยา) · vitPotionEfficiency_pct changed by D-038 option B (HUMAN 2026-09-25), GDD wording change approved in D-084",
+      "atk": 4,
+      "def": 3,
+      "hp": 150,
+      "vitHpRegenSpeed_pct": 1.5,
+      "vitPotionEfficiency_pct": 1
+    },
+    "statPoints": {
+      "_note": "180 at level 60 means points = 3 x level (level 1 already has 3). This reproduces the GDD extremes ATK 740, DEF 560, HP 27,300",
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > Stat (3 แต้มต่อเลเวล รวม 180 แต้มที่เลเวล 60)",
+      "pointsFormula": "pointsPerLevel x level",
+      "pointsPerLevel": 3
+    }
+  },
+  "unlocks": {
+    "antiCheatHelp": {
+      "_assumption": "A-P1-H03-4: unlocks the anti-cheat help topics when level and run thresholds pass, OR at once when the player first meets a speed lock or a rejected check-in, so the explanation is there exactly when an honest player needs it. Event ids are proposals until product/telemetry-events.md names them. Privacy policy is always reachable (PDPA) and is not part of this unlock. Owner: game-director, product-manager",
+      "_eventIdStatus": "MISMATCH (F-15): product/telemetry-events.md (P1-F03-T19) defines no event for a speed lock or a rejected check-in; the nearest events are run_tick_denied (gate not passed, explicitly 'not a punishment', so it must not unlock this) and run_gps_status_changed. unlockOnEvents ids stay as server-side proposals until product-manager adds the telemetry events; when added, replace these ids with the exact telemetry names (snake_case convention there, e.g. proposed anticheat_speed_lock_triggered, checkin_rejected). Handoff: product-manager",
+      "_source": "pillars 6.2 U7 (ปลดแค่หัวข้อในหน้าช่วยเหลือ ไม่มี tutorial); ia.md section 6 (เกิดเหตุการณ์จริง หรือผ่านเกณฑ์) · values are assumption A-P1-H03-4",
+      "minCompletedRuns": 3,
+      "minLevel": 10,
+      "unlockId": "U7",
+      "unlockOnEvents": [
+        "speedLockTriggered",
+        "checkInRejected"
+      ]
+    },
+    "home": {
+      "_assumption": "A-P1-F03-T06-20b: position inside the play area and nearest open dungeon farther than farDungeonThreshold_m (1,900 m straight line since P2-F06-T01, D-079; the GDD's 650 m example works, 3 km fails) = 'far', however far (distance is still shown and navigable). Owner: game-director. A-P1-H03-5: re-evaluate the home state on app open and whenever the position moved more than 200 m since the last evaluation (about 10% of the far threshold, about 2.5 min walk, well above the 30 m check-in accuracy so GPS drift does not flip the panel). Display only, never affects a reward. Owner: uiux-designer, location-engineer",
+      "_distanceDisplaySteps_source": "P2-F05-T20 · spec F04 R34 and acceptance 10 (the distance on screen is never less than the real straight-line distance, and is labelled approximate): shown distance = ceil(distance / step_m) x step_m using the first band with distance <= upTo_m (null = no upper bound). 650 m shows 650, 651 m shows 700, 1,901 m shows 2,000, 12,345 m shows 13,000. Display only, never affects a reward",
+      "_farDungeonThreshold_source": "P2-F06-T01: 2,000 -> 1,900 m (-5%). D-079 (game-director, P1-F03-T25 B-01): ceiling = PRD yellow-zone real walk 3,000 m / population-weighted route factor 1.52 (D-072, P1-F01-T09) = 1,974 m, so the straight-line threshold must be <= 1,970 m; 1,900 m chosen (about 2,890 m of real walking, about 36 min at 4.8 km/h). Distance on the home screen stays straight-line and approximate (N-02, A-3). launch-criteria F-11 uses the same key",
+      "_note": "'Outside area' (D-064, F-03) is NOT a distance: it is 'position outside the play area' = outside the holes of data/map/playarea-mask.geojson (same geometry the server uses in Phase 3, D-043; opening a province changes data only). The former key outOfServiceAreaThreshold_m (20,000 m to nearest dungeon) was removed in P1-X18 and must not be reintroduced. Mask check may run on the client because it is display only (NN-1 unaffected)",
+      "_nullMeans": {
+        "distanceDisplaySteps_m[].upTo_m": "unbounded"
+      },
+      "_source": "GDD > 10 นาทีแรกของคนใหม่ (ตัวอย่างรอยแยก 650 ม. และปัญหา dungeon ใกล้สุดอยู่ 3 กิโลหรือนอกกรุงเทพ); pillars 7.1; GDD > แผนที่และโซนดำ; D-064; design gate A 4.5",
+      "distanceDisplaySteps_m": [
+        {
+          "step_m": 50,
+          "upTo_m": 1000
+        },
+        {
+          "step_m": 100,
+          "upTo_m": 10000
+        },
+        {
+          "step_m": 1000,
+          "upTo_m": null
+        }
+      ],
+      "farDungeonThreshold_m": 1900,
+      "reevaluateDistance_m": 200,
+      "seeAccuracy": "location.json#homeState.maxAccuracy_m",
+      "seeOutOfAreaMask": "data/map/playarea-mask.geojson"
+    },
+    "parentalConsent": {
+      "_note": "Scaffold switch. false = a player below the minimum age sees the 'not available yet' screen only: no form, no data collected, one button back to the app start. Setting true needs HUMAN approval after legal review (GDD: ควรปรึกษานักกฎหมายก่อนเปิดจริง) and a built consent flow; it is not a tuning value",
+      "_source": "GDD > ความปลอดภัยผู้เล่นและ PDPA > อายุขั้นต่ำ 15 ปี (ออกแบบระบบให้รองรับ parental consent flow ไว้ตั้งแต่แรกแม้จะยังไม่เปิดใช้); CLAUDE.md non-negotiable 7; flow F03 A step 4",
+      "enabled": false,
+      "seeMinAge": "privacy.json#minAge_yr"
+    }
+  }
+}

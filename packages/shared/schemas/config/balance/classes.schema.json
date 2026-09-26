@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/classes.schema.json",
+  "title": "config/balance/classes.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "party",
+    "buffStacking",
+    "baseCapRule",
+    "roles",
+    "levelGapContribution",
+    "classChange"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "party": {
+      "type": "object",
+      "required": ["maxMembers", "countOnlyMembersInsideDungeon", "duplicateRolesAllowed"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "maxMembers": { "type": "integer", "minimum": 0 },
+        "countOnlyMembersInsideDungeon": { "type": "boolean" },
+        "duplicateRolesAllowed": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "buffStacking": {
+      "type": "object",
+      "required": ["pPerMemberBase", "pLevelDivisor"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "pPerMemberBase": { "type": "integer", "minimum": 0 },
+        "pLevelDivisor": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "baseCapRule": {
+      "type": "object",
+      "required": ["minBaseToCapRatio", "maxBaseToCapRatio", "intentionalExceptions"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "minBaseToCapRatio": { "type": "number" },
+        "maxBaseToCapRatio": { "type": "number" },
+        "intentionalExceptions": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "roles": {
+      "type": "object",
+      "required": ["tanker", "ranged", "support", "magic"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "tanker": {
+          "type": "object",
+          "required": [
+            "buffEffect",
+            "base_pct",
+            "cap_pct",
+            "missingDebuffEffect",
+            "missingDebuffMult"
+          ],
+          "properties": {
+            "_source": { "$ref": "../common.schema.json#/$defs/source" },
+            "buffEffect": { "type": "string", "minLength": 1 },
+            "base_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "cap_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "missingDebuffEffect": { "type": "string", "minLength": 1 },
+            "missingDebuffMult": { "type": "number" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "ranged": {
+          "type": "object",
+          "required": [
+            "buffEffect",
+            "base_pct",
+            "cap_pct",
+            "missingDebuffEffect",
+            "missingDebuffMult"
+          ],
+          "properties": {
+            "_source": { "$ref": "../common.schema.json#/$defs/source" },
+            "buffEffect": { "type": "string", "minLength": 1 },
+            "base_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "cap_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "missingDebuffEffect": { "type": "string", "minLength": 1 },
+            "missingDebuffMult": { "type": "number" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "support": {
+          "type": "object",
+          "required": [
+            "buffEffect",
+            "base_pct",
+            "cap_pct",
+            "missingDebuffEffect",
+            "missingDebuffMult",
+            "inDungeonHealBase_pctMaxHpPerMin",
+            "reviveToHp_pct"
+          ],
+          "properties": {
+            "_source": { "$ref": "../common.schema.json#/$defs/source" },
+            "buffEffect": { "type": "string", "minLength": 1 },
+            "base_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "cap_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "missingDebuffEffect": { "type": "string", "minLength": 1 },
+            "missingDebuffMult": { "type": "integer", "minimum": 0 },
+            "inDungeonHealBase_pctMaxHpPerMin": { "$ref": "../common.schema.json#/$defs/pctOf" },
+            "reviveToHp_pct": { "$ref": "../common.schema.json#/$defs/pct" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "magic": {
+          "type": "object",
+          "required": [
+            "buffEffect",
+            "base_pct",
+            "cap_pct",
+            "missingDebuffEffect",
+            "missingDebuffMult",
+            "shieldPerRewardTick_pctMaxHpPerBuffPct"
+          ],
+          "properties": {
+            "_source": { "$ref": "../common.schema.json#/$defs/source" },
+            "buffEffect": { "type": "string", "minLength": 1 },
+            "base_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "cap_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+            "missingDebuffEffect": { "type": "string", "minLength": 1 },
+            "missingDebuffMult": { "type": "number" },
+            "shieldPerRewardTick_pctMaxHpPerBuffPct": {
+              "$ref": "../common.schema.json#/$defs/pctOf"
+            }
+          },
+          "patternProperties": { "^_": {} }
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "levelGapContribution": {
+      "type": "object",
+      "required": ["pMultPerLevelOutsideRange", "pMultFloor"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "pMultPerLevelOutsideRange": { "type": "number" },
+        "pMultFloor": { "type": "number" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "classChange": {
+      "type": "object",
+      "required": [
+        "costCoef_gold",
+        "costLevelDivisor",
+        "costExponent",
+        "cooldown_h",
+        "cooldownReducibleWithGold",
+        "freeRestoreWindow_h",
+        "levelKept",
+        "statPointsReset"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "costCoef_gold": { "$ref": "../common.schema.json#/$defs/gold" },
+        "costLevelDivisor": { "type": "integer", "minimum": 0 },
+        "costExponent": { "type": "integer", "minimum": 0 },
+        "cooldown_h": { "$ref": "../common.schema.json#/$defs/hours" },
+        "cooldownReducibleWithGold": { "type": "boolean" },
+        "freeRestoreWindow_h": { "$ref": "../common.schema.json#/$defs/hours" },
+        "levelKept": { "type": "boolean" },
+        "statPointsReset": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

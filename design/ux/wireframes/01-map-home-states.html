@@ -38,7 +38,7 @@
   </div>
   <div class="bottombar"><div class="tab active"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div></div>
 </div>
-<p class="frame-caption">threshold: <span class="config-ref">config: unlocks.home.farDungeonThreshold_m (=2000)</span> · แผงหายเองเมื่อเดินเข้าใกล้ ไม่ต้องกดปิด</p>
+<p class="frame-caption">threshold: <span class="config-ref">config: unlocks.home.farDungeonThreshold_m</span> (ค่าปัจจุบันใน config = 1,900 ม. — เลขตัวอย่าง (=2000) ที่เขียนไว้ตอน T17 ล้าสมัยแล้ว ตาม `config/balance/unlocks.json`, D-079/B-01) · แผงหายเองเมื่อเดินเข้าใกล้ ไม่ต้องกดปิด</p>
 </div>
 
 <div class="frame-block">
@@ -106,7 +106,9 @@
       <div class="card">สมุทรปราการ</div>
     </div>
     <p class="caption" style="margin-top:8px;">เลือกจากรายการเท่านั้น ไม่มีช่องพิมพ์ (IA หลักการ 5) · ไม่เก็บพิกัด · ว่าง (โหลดรายชื่อไม่ได้): <span class="copykey">interest.empty</span> <span class="thaidraft">(ยังโหลดรายชื่อจังหวัดไม่ได้)</span> · offline: <span class="copykey">interest.pending</span> <span class="thaidraft">(รอส่ง)</span></p>
-    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">interest.confirm</span>&nbsp;<span class="thaidraft">(ยืนยัน)</span></div>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">interest.confirm</span>&nbsp;<span class="thaidraft">(ยื่นเรื่อง)</span></div>
+    <!-- แก้ตาม design/reviews/F03-copy-gate.md R4-1 (P2-F04-T06): ร่างไทยเดิม "(ยืนยัน)" ไม่ตรงศัพท์กลาง "ยื่นเรื่อง" ที่ใช้ทั้งหน้านี้ (เช่น home.outOfAreaCta, home.interestLink ด้านบน) -->
+
   </div>
 </div>
 <p class="frame-caption">ยืนยันแล้ว → toast <span class="copykey">interest.confirmed</span> <span class="thaidraft">(ยื่นเรื่องแล้ว {provinceName}เปิดเมื่อไรจะแจ้ง)</span> → กลับ S-01-map สถานะเดิม ไม่มีรางวัลตอบแทน</p>

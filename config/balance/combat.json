@@ -3,7 +3,7 @@
     "file": "combat.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06; hit chance refit P1-F03-T08; _nullMeans P1-X04",
+    "task": "P1-F03-T06; hit chance refit P1-F03-T08; _nullMeans P1-X04; F06 notes P2-F05-T01",
     "doc": "design/systems/balance-model.md section 3"
   },
   "monsterAttack": {
@@ -23,7 +23,8 @@
     "intervalMax_s": 75,
     "intervalDistribution": "uniform",
     "hitChancePerCheck_pct": 54,
-    "_assumption": "A-P1-F03-T06-4 (refit P1-F03-T07, D-029 ACCEPTED): GDD gives no hit chance. 54% is the least-squares fit (53.95%) of the level-25 balanced build (tier-3 gear +0, Z = L) to both GDD survival rows: 45 min to auto-retreat at damage x1.0 (D-020) and 55 min with one Tanker L25. Fit alone per row: 53.3% / 54.5%. Result at 54%: 44.4 / 55.6 min. Changed from 50 (+8%, inside the systems-designer +-20% authority). Owner: systems-designer"
+    "_assumption": "A-P1-F03-T06-4 (refit P1-F03-T07, D-029 ACCEPTED): GDD gives no hit chance. 54% is the least-squares fit (53.95%) of the level-25 balanced build (tier-3 gear +0, Z = L) to both GDD survival rows: 45 min to auto-retreat at damage x1.0 (D-020) and 55 min with one Tanker L25. Fit alone per row: 53.3% / 54.5%. Result at 54%: 44.4 / 55.6 min. Changed from 50 (+8%, inside the systems-designer +-20% authority). Owner: systems-designer",
+    "_note": "Spec F06 R06-R07, R10 (D-094, D-096) and ADR 0003 6.4: attempts happen only in Active unlocked time. The interval clock counts only that time, pauses in Grace, Suspended and speed lock, and resumes where it stopped (never reset by leaving and coming back). Attempt i (0, 1, 2, ... per run) uses RNG stream 'hit' index i: draw 1 = interval uniform(intervalMin_s, intervalMax_s) since the previous attempt (the first one since confirm), draw 2 = hit when u < hitChancePerCheck_pct / 100. A reward tick due at the same active instant is processed first (F05 R19). Vectors: design/systems/test-vectors/run-loop.json (hitAttempt, runLoop)"
   },
   "levelGapDamage": {
     "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (เลเวลต่ำกว่าช่วงของโซน damage x1.25 ต่อระดับที่ห่าง)",
@@ -31,7 +32,8 @@
     "mode": "compound",
     "maxMult": null,
     "_nullMeans": { "maxMult": "unbounded" },
-    "_assumption": "A-P1-F03-T06-2: 'x1.25 per level' read as 1.25^gap (not 1 + 0.25 x gap), no cap because the GDD says nobody adjusts it for you. Gap counts from the range minimum. Owner: game-director"
+    "_assumption": "A-P1-F03-T06-2: 'x1.25 per level' read as 1.25^gap (not 1 + 0.25 x gap), no cap because the GDD says nobody adjusts it for you. Gap counts from the range minimum. Owner: game-director",
+    "_note": "Spec F06 R09: a level above the range does not reduce damage (the GDD names the lower side only). The level used is the level at the instant of the attempt (F05 R16)"
   },
   "raidFailPenalty": {
     "_source": "GDD > Raid Boss > เมื่อล้มบอสไม่สำเร็จ (dungeon ทั้งเกมแข็งแกร่งขึ้น 2 เท่าตลอดสัปดาห์ถัดไป)",

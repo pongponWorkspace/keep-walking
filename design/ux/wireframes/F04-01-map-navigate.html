@@ -8,7 +8,7 @@
 <body>
 <div class="doc-header">
   <h1>F04 Flow A — เห็นรอยแยกบนแผนที่ + นำทาง (A-3)</h1>
-  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 2 · Phase 2 ป้ายบนแผนที่ไม่มีจำนวนคน (override เหนือ F03) · ระยะเส้นตรงปัดขึ้นเป็นขั้นพร้อมคำกำกับทุกจุด (<span class="config-ref">config: unlocks.home.distanceDisplaySteps_m</span>) · ไม่วาดเส้นทางใดบนแผนที่</p>
+  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 2 (แก้รอบ 2 ตาม design/reviews/F04-flow-approval.md B-04, B-05, B-06, N-08, N-09, N-15) · Phase 2 ป้ายบนแผนที่ไม่มีจำนวนคน (override เหนือ F03) · ระยะเส้นตรงปัดขึ้นเป็นขั้นพร้อมคำกำกับทุกจุด (<span class="config-ref">config: unlocks.home.distanceDisplaySteps_m</span>) · ไม่วาดเส้นทางใดบนแผนที่</p>
 </div>
 <div class="storyboard">
 
@@ -18,11 +18,11 @@
   <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span><span class="gps-pill ok"><span class="copykey">gps.pillLabel</span> <span class="thaidraft">(GPS)</span></span></div><div class="settings-icon">S</div></div>
   <div class="screen-body" style="padding:0;background:var(--map-land);position:relative;">
     <div style="position:absolute;left:60px;top:120px;background:var(--rift-500);border:2px solid var(--ink-900);border-radius:6px;padding:4px 8px;color:#fff;font-size:12px;font-weight:700;">ลุมพินี — ป่าในเมือง</div>
-    <div style="position:absolute;left:180px;top:260px;background:var(--ink-300);border:2px solid var(--ink-900);border-radius:6px;padding:4px 8px;color:var(--ink-700);font-size:12px;font-weight:700;">ตลาดคลองเตย<br><span class="copykey">map.riftClosed</span> <span class="thaidraft">(ปิดอยู่)</span></div>
+    <div style="position:absolute;left:180px;top:260px;background:var(--ink-300);border:2px solid var(--ink-900);border-radius:6px;padding:4px 8px;color:var(--ink-700);font-size:12px;font-weight:700;">คลองโอ่งอ่าง<br><span class="copykey">map.riftClosed</span> <span class="thaidraft">(ปิดอยู่)</span></div>
     <div style="position:absolute;left:40%;top:50%;width:16px;height:16px;background:var(--accent-signal);border:2px solid var(--ink-900);border-radius:999px;"></div>
   </div>
 </div>
-<p class="frame-caption">Phase 2: ป้ายแสดงแค่ {zoneName} จาก content ไม่มี <span class="config-ref">map.labelCount*</span> เลย (override, ไม่ใช่แค่ตอน 0 คน) · ปิดตามเวลาทำการ → ป้ายจางกว่าปกติแต่ไม่ซ่อน (เห็นว่ามีแต่เข้าไม่ได้)</p>
+<p class="frame-caption">Phase 2: ป้ายแสดงแค่ {zoneName} จาก content ไม่มี <span class="config-ref">map.labelCount*</span> เลย (override, ไม่ใช่แค่ตอน 0 คน) · ปิดตามเวลาทำการ → ป้ายจางกว่าปกติแต่ไม่ซ่อน (เห็นว่ามีแต่เข้าไม่ได้) · แก้ N-15: ชื่อตัวอย่างที่สองเปลี่ยนจาก "ตลาดคลองเตย" (นอกย่านนำร่อง) เป็น "คลองโอ่งอ่าง" (อยู่ในย่านนำร่องพระนคร, <span class="config-ref">names.th.json#dungeon.khlongOngAng</span>) — เป็นหมุดคนละที่กับลุมพินี ไม่ใช่คู่ overlap</p>
 </div>
 
 <div class="frame-block">
@@ -39,15 +39,17 @@
         <span class="rarity-chip" style="border-color:var(--state-info);color:var(--state-info);"><span class="copykey">nav.straightLineTag</span> <span class="thaidraft">(เส้นตรง)</span></span>
       </div>
       <p class="caption" style="display:flex;align-items:center;gap:6px;">
-        <span style="display:inline-block;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:14px solid var(--ink-900);transform:rotate(35deg);"></span>
+        <span style="display:inline-block;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:14px solid var(--ink-900);transform:rotate(45deg);" title="snap 8 ทิศ ไม่หมุนต่อเนื่อง (B-04, D-097)"></span>
         <span class="copykey">nav.directionLabel</span> <span class="thaidraft">(ทิศตะวันออกเฉียงเหนือ)</span>
       </p>
       <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span> · เปิดอยู่ตอนนี้</p>
       <div class="btn btn-primary" style="margin-top:8px;"><span class="copykey">map.navigateButton</span> <span class="thaidraft">(นำทาง)</span></div>
+      <p class="caption" style="text-align:center;margin-top:6px;"><span class="copykey">nav.returnBeforeArrive</span> <span class="thaidraft">(ใกล้ถึงแล้วสลับกลับมาเปิดเกมค้างไว้ก่อนเดินเข้าเขต)</span></p>
+      <p class="caption" style="text-align:center;color:var(--ink-500);text-decoration:underline;">เปิดแผงถ้าแตะนี้ไม่ได้ (ทางเข้า fallback ด้วยตัวเอง — ดูเฟรม A3)</p>
     </div>
   </div>
 </div>
-<p class="frame-caption">ตัวเลข 450 ม. เป็นระยะเส้นตรงปัดขึ้นเป็นขั้นแล้ว (R34) ชิป "เส้นตรง" ติดกับตัวเลขเสมอ · ลูกศรหมุนตามองศาจริง (placeholder รูปสามเหลี่ยม รอ SVG จาก artist-2d) · ไม่มีเส้นใดบนแผนที่ด้านบน (R36)</p>
+<p class="frame-caption">แก้ B-04/D-097: ลูกศร snap 8 ทิศ ชี้ <span class="config-ref">nav_destination.point</span> เดียวกับปลายทางนำทาง (ไม่ใช่ขอบ polygon ใกล้สุด) อัปเดตเฉพาะ sample ใหม่ ไม่หมุนตามองศาต่อเนื่อง (placeholder รูปสามเหลี่ยม รอ SVG จาก artist-2d) · ตัวเลข 450 ม. เป็นระยะถึง<b>ขอบ polygon</b>ปัดขึ้นเป็นขั้นแล้ว (R34, คนละจุดกับที่ลูกศรชี้โดยเจตนา — J-5) · แก้ B-06: เพิ่มบรรทัด nav.returnBeforeArrive ใต้ปุ่ม · ไม่มีเส้นใดบนแผนที่ด้านบน (R36)</p>
 </div>
 
 
@@ -67,14 +69,15 @@
       <p class="caption"><span class="copykey">nav.directionLabel</span> <span class="thaidraft">(ทิศใต้)</span></p>
       <p class="body-text" style="color:var(--state-danger);"><span class="copykey">dungeon.closedTitle</span> <span class="thaidraft">(ปิดอยู่ตอนนี้)</span> · <span class="copykey">dungeon.closedBody</span> <span class="thaidraft">(เปิดอีกที 06:00 พรุ่งนี้)</span></p>
       <div class="btn btn-primary" style="margin-top:8px;"><span class="copykey">home.farNavigate</span> <span class="thaidraft">(นำทาง)</span></div>
+      <p class="caption" style="text-align:center;margin-top:6px;"><span class="copykey">nav.returnBeforeArrive</span> <span class="thaidraft">(ใกล้ถึงแล้วสลับกลับมาเปิดเกมค้างไว้ก่อนเดินเข้าเขต)</span></p>
     </div>
   </div>
 </div>
-<p class="frame-caption">เวลาเปิดถัดไปต้องอยู่ "เหนือ" ปุ่มนำทางเสมอ (อ่านก่อนกดปุ่ม) · ปุ่มนำทางยังกดได้แม้ปิดอยู่ (R38) · ซ่อนบรรทัดจำนวนคน/role เสมอ (ไม่มีในสถานะไกลอยู่แล้วตาม ia.md)</p>
+<p class="frame-caption">เวลาเปิดถัดไปต้องอยู่ "เหนือ" ปุ่มนำทางเสมอ (อ่านก่อนกดปุ่ม) · ปุ่มนำทางยังกดได้แม้ปิดอยู่ (R38) · ซ่อนบรรทัดจำนวนคน/role เสมอ (ไม่มีในสถานะไกลอยู่แล้วตาม ia.md) · แก้ B-06: nav.returnBeforeArrive แสดงทั้งสถานะไกลนี้ด้วย ไม่ใช่แค่สถานะใกล้</p>
 </div>
 
 <div class="frame-block">
-<h3>A3. Fallback — เปิดแอปนำทางไม่ได้</h3>
+<h3>A3. Fallback — เปิดแอปนำทางไม่ได้ / offline / เปิดเอง (แก้ B-05)</h3>
 <div class="phone">
   <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
   <div class="screen-body" style="padding:0;">
@@ -85,12 +88,16 @@
         <p class="caption"><span class="copykey">nav.fallbackDestinationLabel</span> <span class="thaidraft">(ปลายทาง)</span></p>
         <p class="body-text">ทางเข้าลุมพินีสวนป่าในเมือง ถนนวิทยุ</p>
         <div class="btn btn-secondary" style="width:100%;"><span class="copykey">nav.fallbackCopyButton</span> <span class="thaidraft">(คัดลอกชื่อ)</span></div>
-        <p class="caption" style="text-align:center;margin-top:8px;color:var(--state-success);"><span class="copykey">nav.fallbackCopied</span> <span class="thaidraft">(คัดลอกแล้ว)</span> — โผล่สั้นๆ หลังกด แล้วปิดแผงเอง</p>
+        <p class="caption" style="margin-top:12px;"><span class="copykey">nav.fallbackCoordinateLabel</span> <span class="thaidraft">(พิกัดปลายทาง)</span></p>
+        <input readonly value="13.73101, 100.54105" style="width:100%;border:2px solid var(--ink-900);border-radius:8px;padding:8px;font-family:monospace;font-size:14px;margin-bottom:8px;">
+        <div class="btn btn-secondary" style="width:100%;"><span class="copykey">nav.fallbackCopyCoordinateButton</span> <span class="thaidraft">(คัดลอกพิกัด)</span></div>
+        <p class="caption" style="text-align:center;margin-top:8px;color:var(--state-success);"><span class="copykey">nav.fallbackCopied</span> <span class="thaidraft">(คัดลอกแล้ว)</span> — toast หายเองสั้นๆ (แค่ toast ยืนยัน ไม่ใช่ทั้งแผง)</p>
+        <div class="btn btn-secondary" style="width:100%;margin-top:12px;border-style:dashed;"><span class="copykey">common.close</span> <span class="thaidraft">(ปิด)</span></div>
       </div>
     </div>
   </div>
 </div>
-<p class="frame-caption">ลิงก์ deep link มีแค่ปลายทาง (จุดสาธารณะของ dungeon) โหมดเดินเท้า ไม่มีตำแหน่งผู้เล่นใน URL ไม่มี API key (R37) · fallback เมื่อ browser/OS เปิดแอปแผนที่ไม่ได้</p>
+<p class="frame-caption">แก้ B-05 ตาม tech note 14.2–14.3: fallback เปิดเองเมื่อ (1) แตะ "นำทาง" แล้วหน้าไม่เข้าสถานะ hidden ภายใน <span class="config-ref">config: app.client.navigation.externalOpenTimeout_ms</span> (2) <code>navigator.onLine === false</code> — แสดงคู่ลิงก์ตั้งแต่แรก (3) ผู้เล่นกดลิงก์รองใน A2 เอง · แสดง<b>ทั้งชื่อและพิกัด</b>พร้อมปุ่มคัดลอกแยกกัน คัดลอกไม่ได้ → <code>&lt;input readonly&gt;</code> ที่เลือกข้อความไว้แล้ว · <b>แผงปิดเมื่อผู้เล่นกดปิดเท่านั้น</b> ไม่ปิดอัตโนมัติหลังคัดลอก (กันคัดลอกพิกัดไม่ทันและกันปิดก่อนอ่านชื่อครบ) · ลิงก์ deep link มีแค่ปลายทาง (จุดสาธารณะของ dungeon) โหมดเดินเท้า ไม่มีตำแหน่งผู้เล่นใน URL ไม่มี API key (R37)</p>
 </div>
 
 </div>

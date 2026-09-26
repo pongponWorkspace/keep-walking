@@ -22,7 +22,7 @@ import {
   ticksPerLevelCurve,
   tierForLevel,
   zoneLevel,
-} from './formulas';
+} from '@keep-walking/shared/formulas';
 import type {
   ExpParams,
   GearParams,
@@ -35,6 +35,8 @@ import { resolveHit } from './hit';
 import { raidPartyMult } from './raid';
 import type { HitPotion } from './hit';
 import { evaluateEconomyVector } from './vector-eval-economy';
+import { evaluateGateVector } from './vector-eval-gate';
+import { evaluateLoopVector } from './vector-eval-loop';
 import {
   expectedSurvival_min,
   hitsToThreshold,
@@ -343,8 +345,15 @@ export function evaluateVector(input: VectorInput): VectorOutput {
     default: {
       // drops.json, economy.json, party.json (P1-F03-T08)
       const out = evaluateEconomyVector(input);
-      if (out === undefined) throw new Error(`unknown vector fn: ${String(fn)}`);
-      return out;
+      if (out !== undefined) return out;
+      // movement-gate, reward-window, partial-tick, run-state, check-in, speed-lock,
+      // opening-hours (P2-F05-T20): nested outputs (lists of windows / events).
+      const gate = evaluateGateVector(input);
+      if (gate !== undefined) return gate as VectorOutput;
+      // tick-reward, run-loop (P2-F05-T01): exp, drop tables, hit attempts, whole runs.
+      const loop = evaluateLoopVector(input);
+      if (loop === undefined) throw new Error(`unknown vector fn: ${String(fn)}`);
+      return loop as VectorOutput;
     }
   }
 }

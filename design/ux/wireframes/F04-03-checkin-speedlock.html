@@ -8,7 +8,7 @@
 <body>
 <div class="doc-header">
   <h1>F04 Flow C — Check-in รอสัญญาณนิ่ง (GD B-03) · Flow D — Speed lock overlay (GD B-02)</h1>
-  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 4–5 · ปุ่ม "เข้า" ยังอยู่ในจอ popup เดิม เปลี่ยนเป็น disable พร้อมสถานะหนึ่งบรรทัดตามลำดับ speed_lock → poor_accuracy → not_enough_trace → no_approach_from_outside (R08) · ห้ามเอ่ยคำว่า anti-cheat/โกง/วิธีตรวจ (R10)</p>
+  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 4–5 (แก้รอบ 2 ตาม design/reviews/F04-flow-approval.md B-01, B-03, N-03, N-04, N-12) · popup เปิดพร้อมสถานะ check-in ตั้งแต่เฟรมแรก (ไม่ใช่หลังกด "เข้า") ปุ่ม "เข้า" disable พร้อมสถานะหนึ่งบรรทัดตามลำดับ speed_lock → poor_accuracy → not_enough_trace → no_approach_from_outside (R08) · ห้ามเอ่ยคำว่า anti-cheat/โกง/วิธีตรวจ (R10)</p>
 </div>
 <div class="storyboard">
 
@@ -54,18 +54,30 @@
 </div>
 
 <div class="frame-block">
-<h3>D1. Speed lock — overlay เต็มจอ</h3>
+<h3>D1a. Speed lock — ก่อนมี run (ปุ่มเดียว, แก้ B-03)</h3>
 <div class="phone">
-  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">run.headerZoneLabel</span> <span class="thaidraft">(ลุมพินี)</span></div><div class="settings-icon">S</div></div>
-  <div class="screen-body" style="background:var(--ink-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;">
-    <p style="font-size:40px;margin:0 0 16px;">&#9888;</p>
+  <div class="screen-body" style="background:var(--ink-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;height:100%;">
+    <p style="font-size:40px;margin:0 0 16px;" title="โทนแห้ง ไม่ใช่สัญลักษณ์อันตราย (N-12) — placeholder รอ SVG icon.ui.speed-lock จริง">&#128274;</p>
     <p class="body-text" style="color:var(--bg-surface);"><span class="copykey">anticheat.speedLockTitle</span><br><span class="thaidraft">(เร็วเกินเดิน ระบบล็อกไว้ก่อน)</span></p>
     <p class="caption" style="color:var(--ink-300);margin-bottom:32px;"><span class="copykey">anticheat.speedLockBody</span><br><span class="thaidraft">(จะปลดเองเมื่อกลับมาเดินความเร็วปกติ)</span></p>
-    <div class="btn btn-secondary" style="width:100%;color:var(--bg-surface);border-color:var(--bg-surface);background:transparent;">ตั้งค่า</div>
+    <div class="btn btn-secondary btn-fullwidth-bottom" style="color:var(--bg-surface);border-color:var(--bg-surface);background:transparent;"><span class="copykey">anticheat.speedLockSettings</span> <span class="thaidraft">(ไปตั้งค่า)</span></div>
+  </div>
+</div>
+<p class="frame-caption">แก้ B-03: ก่อนมี run มี<b>ปุ่มเดียว</b>คือ "ไปตั้งค่า" ไม่มีปุ่มปิด/กลับแผนที่อีกต่อไป (ปุ่มแบบนั้นเท่ากับปุ่มเล่นต่อในทางปฏิบัติ ขัด R21/R23) — ไม่มีทางปิด overlay นอกจากปลด lock จริง · header ถูก overlay บังด้วย (N-12, ตัดสินแล้ว) · ไอคอนเป็น placeholder กุญแจแทนสัญลักษณ์อันตราย รอ SVG จริงจาก artist-2d (A-P2-F04-T15-3)</p>
+</div>
+
+<div class="frame-block">
+<h3>D1b. Speed lock — ระหว่าง run (ตั้งค่า + ออก)</h3>
+<div class="phone">
+  <div class="screen-body" style="background:var(--ink-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;height:100%;">
+    <p style="font-size:40px;margin:0 0 16px;" title="โทนแห้ง ไม่ใช่สัญลักษณ์อันตราย (N-12)">&#128274;</p>
+    <p class="body-text" style="color:var(--bg-surface);"><span class="copykey">anticheat.speedLockTitle</span><br><span class="thaidraft">(เร็วเกินเดิน ระบบล็อกไว้ก่อน)</span></p>
+    <p class="caption" style="color:var(--ink-300);margin-bottom:32px;"><span class="copykey">anticheat.speedLockBody</span><br><span class="thaidraft">(จะปลดเองเมื่อกลับมาเดินความเร็วปกติ)</span></p>
+    <div class="btn btn-secondary" style="width:100%;color:var(--bg-surface);border-color:var(--bg-surface);background:transparent;"><span class="copykey">anticheat.speedLockSettings</span> <span class="thaidraft">(ไปตั้งค่า)</span></div>
     <div class="btn btn-secondary btn-fullwidth-bottom" style="border-color:var(--state-danger-night);color:var(--state-danger-night);background:transparent;"><span class="copykey">run.exitButton</span> <span class="thaidraft">(ออก)</span></div>
   </div>
 </div>
-<p class="frame-caption">ทับทุกอย่าง (แผนที่/popup confirm/จอ run รวมจอพกกระเป๋า) ไม่มีปุ่มชวนเล่นต่อ มีแค่ตั้งค่า+ออก (R23) · สั่น 1 ครั้งตอนเข้า ไม่มีเสียงวนซ้ำ · ปลดเองเมื่อช้าลงต่อเนื่อง <span class="config-ref">unlockSustained_s</span> ไม่ต้องกดอะไร</p>
+<p class="frame-caption">แก้ B-03: ระหว่าง run เพิ่มปุ่ม "ออก" ซึ่งเปิด popup ยืนยันออกเดิมของ Flow F **ซ้อนบน** overlay (ไม่ใช่ปิด overlay เอง) กด "ยกเลิก" ใน popup ยืนยันแล้วกลับมาเห็น overlay ล็อกเหมือนเดิม · ทับทุกอย่างรวม header bar (แผนที่/popup confirm/จอ run รวมจอพกกระเป๋า) · สั่น 1 ครั้งตอนเข้า ไม่มีเสียงวนซ้ำ · ปลดเองเมื่อช้าลงต่อเนื่อง <span class="config-ref">unlockSustained_s</span> ไม่ต้องกดอะไร (R22, R23)</p>
 </div>
 
 </div>

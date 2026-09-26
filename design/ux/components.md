@@ -17,7 +17,8 @@ Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อ
 10. ตาราง copy `kind` และเพดานความยาว
 11. ตารางสถานะที่คอมโพเนนต์ต้องรองรับ (อ้างจาก flow หัวข้อ 7)
 12. จอพกกระเป๋า (Wake Lock pocket screen) — ทิศทาง A ตัดสินแล้ว (F-04)
-13. สมมติฐานและการส่งต่อ
+13. คอมโพเนนต์ F04 Phase 2 (state chip, run header, check-in row, speed-lock overlay, direction arrow card, HP bar edge marker, chip-sponsored, distance chip, run-state pill)
+14. สมมติฐานและการส่งต่อ
 
 ## 1. หลักการออกแบบคอมโพเนนต์
 
@@ -39,7 +40,7 @@ Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อ
 | --- | --- | --- | --- |
 | ซ้าย | avatar icon ย่อ | 40×40 px วงกลม ขอบ `ink.900` 2px · touch target ขยายเป็น 48×48 ด้วย padding โปร่งรอบนอก | กดแล้วไป `S-10-profile` เสมอ ทุกหน้า ทุกสถานะ consent/unlock |
 | กลาง | context label | `type.body` 700 | **ไม่ใช่ปุ่ม** เป็น label เฉยๆ ห้ามทำให้ดูกดได้ (ไม่มีขอบ ไม่มีพื้นการ์ด) |
-| กลาง (ต่อ) | GPS pill | `.gps-pill` สูง ~20px มุม `radius.chip` พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบ 2px สี state | ไอคอนเล็ก + สถานะสีตาม `state.success`(ok)/`state.danger`(bad) ทั้งขอบและข้อความ **ต้องมีคำกำกับด้วยเสมอ** (ห้ามใช้สีอย่างเดียว ตาม style-guide S4) |
+| กลาง (ต่อ) | GPS pill | `.gps-pill` สูง ≥24px (พอสำหรับข้อความ 14px + padding แนวตั้ง) มุม `radius.chip` พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบ 2px สี state | ไอคอนเล็ก 16px (`icon.ui16.location-off` เมื่อ bad) + ข้อความ **≥14 px** (V-22, art gate F03-visual-gate.md 3.7 รอบ 2: เดิม 10px อ่านไม่ออกกลางแดด — แก้ใน P2-F04-T06) สีตาม `state.success`(ok)/`state.danger`(bad) ทั้งขอบและข้อความ **ต้องมีคำกำกับด้วยเสมอ** (ห้ามใช้สีอย่างเดียว ตาม style-guide S4) |
 | ขวา | settings icon | เหมือน avatar icon | กดแล้วไป `S-22-settings` เสมอ ทุกหน้า ทุกสถานะ |
 
 กฎร่วม: header bar อยู่ตำแหน่งเดิมทุกหน้าไม่เปลี่ยน (เดาตำแหน่งได้แม้ไม่มองจอนาน ตาม ia.md) สูงขั้นต่ำ = `touchTarget.min_px` (48 px)
@@ -128,7 +129,7 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 | คอมโพเนนต์ | ใช้กับ | โทนสี | หายเอง? |
 | --- | --- | --- | --- |
 | Toast กลาง (`.toast.neutral`) | `run.tickGranted`, `party.buffApplied`, `run.autoPotionUsed` | พื้น `bg.surface` เสมอ · ขอบ `ink.900` ปกติ หรือเน้น `state.success` เมื่อเป็นผลบวก (สีขอบเปลี่ยนได้ พื้นห้าม tint) | หายเองสั้นๆ |
-| Toast จาง (`.toast.faded`) | `run.tickDenied` | **ทึบ 100% เสมอ** ห้ามใช้ opacity บนข้อความ/ขอบ (style-guide S7) — "จาง" คือไม่มีเงาทึบ (flat) + ขอบ `ink.300` 2px + ข้อความ `ink.700` · **ห้ามใช้ `state.danger`** เพราะไม่ใช่การลงโทษ (icon-grammar `gate-miss` ก็ห้ามกากบาทแดงเช่นกัน) | หายเองสั้นๆ |
+| Toast จาง (`.toast.faded`) | `run.tickDenied` | **ทึบ 100% เสมอ** ห้ามใช้ opacity บนข้อความ/ขอบ (style-guide S7) — "จาง" คือไม่มีเงาทึบ (flat) + ขอบ **`ink.500`** 2px (V-20, art gate F03-visual-gate.md รอบ 2: `ink.300` เดิมได้แค่ 2.80:1 กับ `bg.surface` ต่ำกว่า S3 — แก้ใน P2-F04-T06 เป็น `ink.500` ซึ่งได้ 7.30:1) + ข้อความ `ink.700` · **ห้ามใช้ `state.danger`** เพราะไม่ใช่การลงโทษ (icon-grammar `gate-miss` ก็ห้ามกากบาทแดงเช่นกัน) | หายเองสั้นๆ |
 | Toast อันตราย (`.toast.danger`) | `run.hpLow` (canon, ห้ามแก้คำ) | ขอบ+ข้อความ `state.danger` | ค้างจนกว่าผู้เล่นตัดสินใจหรือ HP เปลี่ยนสถานะ |
 | Banner บนสุด (`.banner.info`) | `run.stateGrace`, `gps.offline` | พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบล่าง 2px และข้อความ `state.info` | ค้างตลอดสถานะนั้น ไม่ใช่ toast ชั่วคราว |
 | Banner เตือน (`.banner.warn`) | `run.stateSuspended`, ป้ายเตือน auto-retreat ปิดอยู่ | พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบล่าง 2px และข้อความ `state.danger` | ค้างตลอดสถานะนั้น |
@@ -153,7 +154,7 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 **คำตัดสินของ uiux-designer (P1-X10, verdict = ยืนยันตัวเลขทั้งสามไม่แก้):**
 - ชุดชื่อจริงในสต็อกตั้งต้น (`names.th.json`) ทุกรายการยาวสุด 11 ช่อง (`dungeon.chatuchakMarket`, `dungeon.nonthaburiPierMarket`) ยังห่างจากเพดาน 17 อยู่มาก — เพดาน 17 ปลอดภัยกับข้อมูลจริงตอนนี้
 - คำขยายยาวสุดในคลัง (`zoneSuffix.grillSmokeWalk`, `.afterWorkBallYard`, `.weekendMeetup`) = 14 ช่องพอดี ตรงกับเพดานเป๊ะ (ไม่มีช่องเหลือสำหรับคำขยายใหม่ที่ยาวกว่านี้ — เจตนา ไม่ใช่บั๊ก แจ้ง narrative-designer ไว้เป็น handoff)
-- **แก้แล้วใน P1-X11:** `copy.th.json#_variables.zoneRealName.maxCells` เคยเป็น 18 (ค่าเก่าก่อน T04) narrative-designer แก้เป็น **17** แล้วตรงกับ `names.th.json#_meta.limits.nameRealMaxCells` (T04) ทั้งสองที่ตรงกันแล้ว ไม่มีตัวเลขขัดกันอีก (ปิด handoff เดิม ดูหัวข้อ 13, F03 copy gate F-05/F-06)
+- **แก้แล้วใน P1-X11:** `copy.th.json#_variables.zoneRealName.maxCells` เคยเป็น 18 (ค่าเก่าก่อน T04) narrative-designer แก้เป็น **17** แล้วตรงกับ `names.th.json#_meta.limits.nameRealMaxCells` (T04) ทั้งสองที่ตรงกันแล้ว ไม่มีตัวเลขขัดกันอีก (ปิด handoff เดิม ดูหัวข้อ 14, F03 copy gate F-05/F-06)
 
 | บริบท | ขนาดตัวอักษร | กฎพื้นที่ |
 | --- | --- | --- |
@@ -161,7 +162,7 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 | หัว popup confirm (`h1.scr-title`) | 24px (`type.h1`) | เต็มความกว้าง popup ลบ padding 2×16px — ทดสอบแล้วตัวอย่างยาวสุดในสต็อกจริง (`dungeon.chatuchakMarket` รวม 27 ช่อง) พอดีบรรทัดเดียวที่ 360px แบบ "ชิดขอบ" ไม่เหลือที่ว่าง (ดู 05-run-summary ไม่เกี่ยวข้องตรงนี้ อ้าง `02-dungeon-confirm.html`) **ปรับกฎ (P1-X10):** เพดานจริงคือ 34 ช่อง (มากกว่าที่ทดสอบจริง 7 ช่อง) เพราะสต็อกตั้งต้นยังไม่มีชื่อที่ชนเพดาน — `h1.scr-title` ต้อง **รองรับการตัดบรรทัดเป็น 2 บรรทัดได้** (ไม่บังคับบรรทัดเดียวเหมือนที่ทดสอบ) เมื่อชื่อจากหลังบ้านในอนาคตเข้าใกล้เพดาน 34 ช่อง กันหัว popup ล้นขอบ 360px |
 | Tagline (ถ้ามีในหน้ารายละเอียดโซนภายหลัง) | ไม่ใช้ในนาที 0–10 — เนื้อหาประวัติอยู่ที่ `S-26-lore` เท่านั้น | ต้องมีที่ว่างแยกจากชื่อจริงอย่างน้อย 1 บรรทัด ไม่ต่อท้ายชื่อในบรรทัดเดียวกัน |
 
-**ยังไม่ทดสอบจริงกับ font สุดท้าย** (IBM Plex Sans Thai Looped) เพราะ art-director ยังไม่ส่งไฟล์ font จริงมาถึง T17 — ยืนยันซ้ำในหัวข้อ 13 · การนับ "ช่อง" (cells) ตัดสระ/วรรณยุกต์ลอย (combining) ออกตาม copy-schema 4.1 จึงใกล้เคียงความกว้างจริงที่แสดงผล แต่ต้องยืนยันซ้ำด้วย font จริงก่อนเชื่อเพดาน 34 ช่องแบบเป๊ะ
+**ยังไม่ทดสอบจริงกับ font สุดท้าย** (IBM Plex Sans Thai Looped) เพราะ art-director ยังไม่ส่งไฟล์ font จริงมาถึง T17 — ยืนยันซ้ำในหัวข้อ 14 · การนับ "ช่อง" (cells) ตัดสระ/วรรณยุกต์ลอย (combining) ออกตาม copy-schema 4.1 จึงใกล้เคียงความกว้างจริงที่แสดงผล แต่ต้องยืนยันซ้ำด้วย font จริงก่อนเชื่อเพดาน 34 ช่องแบบเป๊ะ
 
 ## 9. Toggle ที่ตั้งใจฝังลึก (auto-retreat pattern)
 
@@ -243,7 +244,53 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 ### 12.5 เกณฑ์ถอยกลับไป B ทั้งระบบ
 ถ้า Phase 2 (tech-lead + product-manager, F-17) วัดแบตต่อชั่วโมงในเครื่องทดสอบทั้ง Android และ iOS เกินงบที่ตกลงไว้ ให้ส่งกลับ game-director ตัดสินใหม่ ไม่ถอยเงียบ (gate A หัวข้อ 4.4 ข้อ 8)
 
-## 13. สมมติฐานและการส่งต่อ
+## 13. คอมโพเนนต์ F04 Phase 2
+
+ที่มา: `art/direction/briefs/P2-assets.md` หัวข้อ 3.3–3.8 (art-director), `design/ux/flows/F04-dungeon-presence.md` (uiux-designer), `art/reviews/F03-visual-gate.md` V-15 · สีทุกค่าอ้าง `tokens.json` เท่านั้น · ตัวอย่างจริงอยู่ใน `wireframes/F04-*.html` (เขียนใน P2-F04-T15 อยู่นอก writes ของงานนี้ P2-F04-T06 จึงไม่แก้ไฟล์เหล่านั้นในรอบนี้ — โครงสร้าง CSS/ตัวอย่างเพิ่มเติมทำในรอบถัดไปที่แตะไฟล์นั้น)
+
+### 13.1 Chip สถานะ dungeon (`.chip-status`)
+4 แบบ ต่างกันด้วยรูปทรงขอบ + glyph + ข้อความ ไม่ใช่สีอย่างเดียว (style-guide S4) สูง ≥32px ข้อความ ≥14px ตัวหนา (S8) ทั้งแถวของการ์ดที่แตะได้สูง ≥48px
+
+| สถานะ | ขอบ | พื้น/ข้อความ (กลางวัน) | พื้น/ข้อความ (กลางคืน) |
+| --- | --- | --- | --- |
+| เปิด | ไม่มี chip (ค่าตั้งต้น) | — | — |
+| ใกล้ปิด (`icon.ui.closing-soon`) | `ink.900` 2px ทึบ | `accent.signal` + ข้อความ `ink.900` ตัวหนา (11.43) | เหมือนกลางวัน |
+| ปิดทำการ (`icon.ui.closed`) | **`ink.500` เส้นประ 2px (4/4)** | `bg.surface` + ข้อความ `ink.700` (12.37) | `bg.night` + ขอบ `ink.300` (6.17) + ข้อความ `ink.100` (12.88) |
+| กำลังเล่นอยู่ (`icon.ui.in-run`) | **`ink.900` ทึบ 4px** | `bg.surface` + ข้อความ `ink.900` (17.29) | `bg.night` + ขอบ `bg.paper` 4px + ข้อความ `bg.paper` (16.39) |
+
+กฎห้าม: ห้ามใช้พื้น `ink.900` + ข้อความ `bg.paper` กับ chip สถานะใดเลย (นั่นคือรูปของ `.chip-sponsored` หัวข้อ 13.7 เท่านั้น) · ห้ามสี `rarity.*`/`rift.*` เป็นพื้น chip · dungeon ปิดยังกดปุ่มนำทางได้ (ปุ่มยังเป็นปุ่มรอง ไม่ย้ายไปเป็น CTA เหลือง)
+
+### 13.2 Run header / run-state pill (`.run-state-pill`)
+ทางการของ pill ที่เสนอไว้ใน flow F04 หัวข้อ 6 (คำถามเปิดของ flow นั้น — ปิดในเอกสารนี้): pill รูปเม็ดยา (`radius.chip`) วางในแถบใต้ header คงที่ทุกสถานะ (ไม่ใช่แค่ตอนมีปัญหา) มี glyph + คำ + สีขอบ ไม่ใช้สีอย่างเดียว
+
+| สถานะ | glyph | ขอบ pill / แถบ header | tick timer |
+| --- | --- | --- | --- |
+| Active | `icon.ui.in-run` ● | พื้น `bg.paper` ขอบล่าง `ink.900` 2px | เดินนับถอยหลังปกติ |
+| Grace | `icon.ui.grace` ◐ | แถบล่าง `state.info` 6px + ข้อความ `state.info` (5.93) | หยุดนับ → `run.tickPausedLabel` |
+| Suspended | `icon.ui.suspended` ■ | พื้นทั้งแถบ `state.info` ข้อความ `bg.surface` (6.25) | ยัง `run.tickPausedLabel` |
+| Ended | — | ออกจากจอ run ไปหน้าสรุป | — |
+
+ไม่มีสถานะใดใช้ `state.danger` (ออกนอกเขตไม่ใช่ความผิด) · ไม่มีการกะพริบระหว่างสถานะ · รายละเอียด copy/เงื่อนไขเต็มอยู่ flow F04 หัวข้อ 6 เอกสารนี้ยืนยันแค่รูปทรง (compontent ทางการ)
+
+### 13.3 แถว check-in (ในหน้า popup confirm)
+หนึ่งแถวเหนือปุ่ม "เข้า" (F04 flow หัวข้อ 4, GD B-03): ไอคอน 48px (`icon.ui.signal-wait`/`icon.ui.walk-in`/`icon.ui.speed-lock` ตามเหตุเดียวที่แสดง ณ ขณะนั้น) + ข้อความหนึ่งบรรทัด `ink.900` ≥16px + ตัวนับถอยหลังตัวหนา tabular (เฉพาะเหตุ `not_enough_trace`) ปุ่ม "เข้า" ระหว่างรอ: พื้น `ink.100` ข้อความ `ink.500` (5.44) ไม่มีเงา — พร้อมแล้วเปลี่ยนเป็นปุ่มหลักทันที **ไม่มี animation ดึงความสนใจ** `signal-wait` เป็นภาพนิ่งเสมอ (ห้ามขีดสัญญาณไล่ขั้น) และห้ามภาพ/คำที่สื่อการจับผิด (แว่นขยาย ตา กล้อง ไฟไซเรน — R10, U7)
+
+### 13.4 Speed-lock overlay (`.overlay-speedlock`)
+overlay เต็มจอทับทุกอย่าง (แผนที่, popup, จอ run รวมจอพกกระเป๋า, F04 flow หัวข้อ 5, GD B-02): พื้น `bg.paper` (กลางวัน) หรือ `bg.night` (จอพกกระเป๋า) ทึบ 100% ไม่มี animation ต่อเนื่อง (เหมือนจอพกกระเป๋า) · ไอคอน `icon.ui.speed-lock` 48px กึ่งกลาง · ข้อความหนึ่งบรรทัด ≥20px ตัวหนา · **ปุ่มบนจอนี้เป็น `.btn-secondary` ขนาดปกติเท่านั้น 2 ปุ่ม (ลิงก์ตั้งค่า, ออก) — ห้ามมี `.btn-primary`/สีเหลืองใดๆ บนจอนี้เด็ดขาด** (ไม่มีปุ่มชวนเล่นต่อ) สั่นหนึ่งครั้งตอนเข้า lock เท่านั้น ไม่มีเสียงวนซ้ำ
+
+### 13.5 การ์ดนำทาง / ลูกศรทิศ (`.direction-arrow`)
+`icon.ui.direction` ทรงหัวลูกศรว่าว เติม `accent.signal` ขอบ `ink.900` 2px (48px แสดงจริง = เส้น 3px) วางซ้ายของบรรทัดระยะเสมอ **ห้ามแสดงลำพังโดยไม่มีคำบอกทิศ** (`nav.directionLabel`) หมุนแบบปัดเป็น 8 ทิศ (ทีละ 45°) เปลี่ยนเฉพาะเมื่อได้ sample ใหม่และทิศที่ปัดแล้วเปลี่ยนจริง ด้วย `transform: rotate()` แบบกระโดดหรือ one-shot ≤150ms (`reduced-motion` = กระโดดทันที ไม่มีข้อยกเว้น) ซ่อนลูกศรเมื่ออยู่ใน polygon แล้ว (โชว์ chip สถานะ 13.1 แทน) หรือไม่รู้ตำแหน่ง (โชว์ `icon.ui.location-off` แทน) **ไม่มีเส้นใดจากผู้เล่นถึง dungeon บนแผนที่ในทุกกรณี** (D-089, R36)
+
+### 13.6 เส้นแบ่งขอบแถบ HP (`.hp-fill` edge marker)
+เพิ่มจากสเปกเดิมหัวข้อ 7: วางเส้น `ink.900` หนา 2px ที่ปลายส่วนที่เติมของ `.hp-fill` เสมอ (art brief 4.3: `state.danger` บนราง `ink.100` ใต้แสงสะท้อนจำลองได้แค่ 1.497 ต่ำกว่าเกณฑ์ 1.50 เล็กน้อย จึงต้องมีเส้นดำให้ระดับ HP อ่านได้จากตำแหน่งเส้น ไม่ใช่จากสีแดงเพียงอย่างเดียว) แถบสูง ≥8px (ค่าจริงปัจจุบัน 20px ผ่านอยู่แล้ว) การลดค่าใช้ `transform: scaleX()` (motion-direction 3) โดยเส้นแบ่งเลื่อนตามตำแหน่งเสมอ ไม่ใช่ค้างที่ปลายราง
+
+### 13.7 Chip ป้าย sponsored (`.chip-sponsored`, V-15)
+ปิด finding ที่ค้างจาก content gate F03 (style guide 9.2 กำหนดตำแหน่งไว้ 4 ที่แต่เอกสารนี้ไม่มี spec): พื้น `ink.900` ตัวอักษร `bg.paper` ตัวหนา ≥14px (16.39:1) มุม `radius.chip` (999px) ขอบ `bg.surface` 2px (ให้เห็นชัดบนพื้นเข้ม) ข้อความจาก copy key (`label.sponsored`) **ห้ามย่อเหลือแค่ icon** ตำแหน่งบังคับ 4 ที่: ป้ายชื่อรอยแยกบนแผนที่ทุก zoom ที่ป้ายชื่อแสดง, หัวการ์ด dungeon, หน้า confirm เข้า, หน้าสรุป run ของ dungeon นั้น — ห้ามใช้สี `rarity.*`/`rift.*`/`accent.signal` กับ chip นี้ (กันไม่ให้ดูเป็นรางวัลหรือของหายาก) · Phase 2 ยังไม่มี sponsored dungeon จริง (ไม่อยู่ใน `art/direction/briefs/P2-assets.md` หัวข้อ 1.1) แต่ spec ต้องพร้อมก่อน Phase ที่เปิดใช้
+
+### 13.8 Chip ระยะเส้นตรง (`.chip-distance`, ของใหม่จาก flow F04)
+tag เล็กติดกับตัวเลขระยะเสมอทุกจุดที่แสดงระยะ (`nav.straightLineTag` = "เส้นตรง", F04-R34): pill ขอบ `ink.700` 1px พื้น `bg.surface`/`bg.paper` ตามพื้นหลังโดยรอบ ข้อความ `ink.700` ตัวหนา `type.caption` (12.37 บน surface) **ไม่ใช่ chip สถานะ จึงไม่ใช้กฎห้ามสีของ 13.1** เพราะเป็นคำกำกับหน่วยวัด ไม่ใช่สถานะ ใช้ร่วมกับตัวเลขระยะปัดขึ้น `type.numeric` ตัวหนา tabular ≥24px `ink.900` เสมอ ห้ามใช้ตัวเลขระยะโดยไม่มี chip นี้กำกับ (กันสับสนว่าเป็นระยะเดินจริง)
+
+## 14. สมมติฐานและการส่งต่อ
 
 1. บอร์ด T17 เสนอ touch target ขั้นต่ำ 44px แต่ context ของ task และ `art/direction/style-guide.md` S8 กำหนด 48px เอกสารนี้และ `tokens.json` ใช้ **48px** เป็นค่าจริง (สูงกว่าค่าเสนอในบอร์ดโดยตั้งใจ ไม่ใช่ต่ำกว่า) — ยืนยัน: art-director, game-director
 2. ป้ายชื่อโซนที่ 360px ยังทดสอบด้วย font ตัวแทน (system font) ไม่ใช่ IBM Plex Sans Thai Looped ตัวจริง เพราะยังไม่มีไฟล์ font จริงส่งมาถึง T17 — ต้องทดสอบซ้ำเมื่อ `asset-pipeline.md` (P1-F03-T11) ส่งไฟล์ font จริง (ยืนยัน: art-director)
@@ -251,6 +298,7 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 4. เกณฑ์ตัวเลขที่ยังไม่มีใน config (`unlocks.home.reevaluateDistance_m`, `privacy.positionLogTtl_s`, `location.minAccuracy_m`) ใช้ค่าตัวอย่างในวงเล็บของ wireframe เท่านั้น รอ P1-H03 (ยืนยัน: systems-designer)
 5. (P1-X10) เพดานชื่อโซน 17/14/34 ยืนยันด้วยการคำนวณจากข้อมูลจริงใน `names.th.json` (นับ cells จาก field `cells` ที่มีอยู่ ลบตัวคั่นและคำขยาย) ไม่ใช่การวัดจริงบนหน้าจอด้วย font สุดท้าย — ยังต้องทดสอบซ้ำเมื่อมี font จริง (สืบเนื่องจากข้อ 2) โดยเฉพาะกรณีชื่อที่เข้าใกล้เพดาน 34 ช่องเต็ม ซึ่งสต็อกตั้งต้นยังไม่มีตัวอย่างจริง (ยืนยัน: art-director, narrative-designer)
 6. (ปิดแล้ว, P1-X17, F-07) `A-P1-F03-T17-4` เดิม (age-gate ไม่มีปุ่มยืนยันแยก) **ถูกแก้แล้ว:** game-director ตัดสิน CHANGE ใน gate A หัวข้อ 4.8 — age-gate ต้องมีปุ่มยืนยันแยก (`age.gateConfirm`, `.btn-disabled` จนกว่าจะเลือกตัวเลือก) เพราะการแตะพลาดบนรายการที่เลื่อนได้เกิดบ่อย และผลของการเลือกผิดกระทบข้อมูลอายุที่มีผลทางกฎหมาย (NN-7) ดู `wireframes/00-onboarding.html` เฟรม 4 และ flow หัวข้อ 2 ขั้น 4
+7. **(P2-F04-T06)** หัวข้อ 13 (คอมโพเนนต์ F04 Phase 2) ยังไม่มี `.html` ตัวอย่างจริงในไฟล์ `wireframes/F04-*.html` เพราะไฟล์เหล่านั้นอยู่นอก `writes` ของงานนี้ (จำกัดที่ 00–06 ของ F03 เท่านั้น) — spec หัวข้อ 13 อ้างพิกัด/สีตรงจาก `art/direction/briefs/P2-assets.md` 3.3–3.8 และ flow F04 แทนการมีตัวอย่าง HTML สดในรอบนี้ ต้องเพิ่ม class CSS จริงใน `wireframes/shared/style.css` (`.chip-status`, `.run-state-pill`, `.checkin-row`, `.overlay-speedlock`, `.direction-arrow`, `.chip-sponsored`, `.chip-distance`) ในงานที่แตะ `wireframes/F04-*.html` ครั้งถัดไป (owner: uiux-designer)
 
 ### Handoff
 - ~~to: game-director, tech-lead | need: ตัดสินประเด็นเปิดหัวข้อ 12 (Wake Lock vs คำเตือนเปิดจอค้าง)~~ **ตัดสินแล้วใน design gate A หัวข้อ 4.4 (P1-X17):** ทิศทาง A (จอพกกระเป๋า/Wake Lock) เป็นค่าเริ่มต้น สเปกเต็มอยู่หัวข้อ 12 ข้างบน — เหลือ handoff ต่อ tech-lead: ยืนยันความเป็นไปได้จริงของ Wake Lock บน Android Chrome/iOS Safari, พฤติกรรมเมื่อผู้ใช้กดล็อกจอเอง, แบตต่อชั่วโมง, support matrix ของ vibrate/web push (F-17, Phase 2 ก่อน build F04/F05) | blocking: no (ถ้าทำไม่ได้จริงหรือเกินงบแบต ส่งกลับ game-director ตาม gate 4.4 ข้อ 8 ไม่ถอยไปทางเลือก B เงียบ ๆ)
@@ -264,6 +312,8 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 - to: systems-designer, narrative-designer | need: ยืนยันข้อยกเว้นใน `02-dungeon-confirm.html` เฟรม B2 (polygon ซ้อน): การ์ดเทียบต้องโชว์ "0 คน" ตรงๆ เพื่อให้เทียบ 2 การ์ดได้ ต่างจากกฎทั่วไปที่ซ่อนบรรทัดเมื่อจำนวนเป็น 0 (A-P1-F03-T16-3) | why: ป้องกันไม่ให้อ่านผิดว่าเป็นบั๊ก | blocking: no
 - to: narrative-designer | need: ยืนยันการ์ด B3 (คร่อมวง raid) ใช้ `shop.title`/`market.title`-style copy key จริงแทน placeholder "dungeon ปกติ"/"HP realtime · ทุกคนช่วยกัน" ใน `02-dungeon-confirm.html` — ยังไม่มี key รองรับ 2 บรรทัดนี้โดยเฉพาะ | why: UI ห้ามฝังข้อความ (protocol 9) | blocking: no
 - to: gameplay-programmer | need: implement gesture "ปัดขึ้นค้าง" (swipe-up-hold) ออกจากจอพกกระเป๋า (หัวข้อ 12.1) กำหนดระยะเวลาขั้นต่ำจริงกันปัดผ่านโดยบังเอิญ และ implement toggle `settings.pocketScreenLabel` (หัวข้อ 12.4) | why: เอกสารนี้กำหนดพฤติกรรม UX เท่านั้น ไม่ได้กำหนดตัวเลข ms จริง | blocking: no
+- to: gameplay-programmer (P2-F04-T21, P2-F06-T08) | need: build คอมโพเนนต์ F04 หัวข้อ 13 ทั้งหมดตาม tokens.json/components.md ใหม่นี้ (chip สถานะ, run-state pill, check-in row, speed-lock overlay ไม่มีปุ่มเหลือง, ลูกศรทิศ 8 ทิศ, เส้นแบ่งขอบ HP bar, chip-sponsored, chip-distance) | why: P2-F04-T06 ปิด finding V-15/V-20/V-22 และคำถามเปิดของ flow F04 หัวข้อ 11 เรื่อง run-state pill | blocking: no
+- to: qa-tester (P2-X01) | need: อัปเดต `qa/tests/unit/contrast.test.ts` — ขยาย regex `ramp\.([a-z]+)` เป็น `ramp\.([a-z0-9-]+)` (รับ `skin-1`..`hair-6`), แก้ค่านับแถวที่แข็งเป็นตัวเลข (`colorRows.length` 41→42 จาก `color.map.water-edge`, `rampRows.length` 10→23 หลังขยาย regex รับ 12 ramp ผิว/ผมกับ `ramp.tonic`) | why: tokens.json ตอนนี้ตรงกับ style-guide ครบแล้ว เหลือแค่ตัวนับที่ qa เป็นเจ้าของ (บล็อก BLOCKING ของ P2-F04-T06 ระบุไว้) | blocking: no (ทดสอบผ่านหมดยกเว้น 2 row-count check ตามที่คาดไว้)
 
 ## REPORT
 task: P1-F03-T17

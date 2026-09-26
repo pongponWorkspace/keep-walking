@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/content/names.th.schema.json",
+  "title": "config/content/names.th.json",
+  "description": "Flat key map <group>.<stableId> like copy.th.json (names.th.json _meta.structure). A dungeon entry has nameReal + nameSuffix, every other entry has name. `dungeon.<id>.search` holds only the searchable real name (no cells). `cells` = display cells counted by copy lint (style guide 4.3). Keys starting with _ are notes for people and tools and are not shown to players. Structure only: length and word rules stay in tools/copy-lint. The back office takes over this file in Phase 5 (non-negotiable 3).",
+  "type": "object",
+  "required": ["_meta"],
+  "properties": {
+    "_meta": {
+      "allOf": [
+        { "$ref": "../common.schema.json#/$defs/meta" },
+        { "properties": { "locale": { "const": "th" } }, "required": ["locale"], "type": "object" }
+      ]
+    }
+  },
+  "patternProperties": {
+    "^_": {},
+    "^(?!.*\\.search$)[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$": { "$ref": "#/$defs/entry" },
+    "^dungeon\\.[a-z][a-zA-Z0-9]*\\.search$": { "$ref": "#/$defs/searchEntry" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "entry": {
+      "type": "object",
+      "required": ["cells"],
+      "properties": {
+        "name": { "$ref": "#/$defs/text" },
+        "nameReal": { "$ref": "#/$defs/text" },
+        "nameSuffix": { "$ref": "#/$defs/text" },
+        "cells": { "type": "integer", "minimum": 1 }
+      },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["name"],
+          "not": {
+            "anyOf": [
+              { "required": ["nameReal"], "type": "object" },
+              { "required": ["nameSuffix"], "type": "object" }
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        {
+          "required": ["nameReal", "nameSuffix"],
+          "not": { "required": ["name"], "type": "object" },
+          "type": "object"
+        }
+      ]
+    },
+    "searchEntry": {
+      "description": "dungeon.<id>.search (P2-F04-T16, _meta.groups.dungeonSearch): the real name searchable in map apps, no suffix, not length-limited by cells (tech note F04 14.3)",
+      "type": "object",
+      "required": ["name"],
+      "properties": { "name": { "$ref": "#/$defs/text" } },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    }
+  }
+}

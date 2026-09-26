@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/raid.schema.json",
+  "title": "config/balance/raid.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "schedule",
+    "pow",
+    "presenceMult",
+    "survivalMult",
+    "bossDamage",
+    "partyMult",
+    "bossHp",
+    "failure",
+    "checkpoints",
+    "contributionRankMult"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "schedule": {
+      "type": "object",
+      "required": [
+        "raidTick_s",
+        "durationTicks",
+        "weekday",
+        "startLocalTime",
+        "endLocalTime",
+        "timezone",
+        "spawnPointsMin",
+        "spawnPointsMax",
+        "clientBatchTicks"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "raidTick_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "durationTicks": { "type": "integer", "minimum": 0 },
+        "weekday": { "type": "string", "minLength": 1 },
+        "startLocalTime": { "type": "string", "minLength": 1 },
+        "endLocalTime": { "type": "string", "minLength": 1 },
+        "timezone": { "type": "string", "minLength": 1 },
+        "spawnPointsMin": { "type": "integer", "minimum": 0 },
+        "spawnPointsMax": { "type": "integer", "minimum": 0 },
+        "clientBatchTicks": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "pow": {
+      "type": "object",
+      "required": ["powLevelDivisor", "roleMult"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "powLevelDivisor": { "type": "integer", "minimum": 0 },
+        "roleMult": {
+          "type": "object",
+          "required": ["ranged", "magic", "tanker", "support"],
+          "properties": {
+            "ranged": { "type": "number" },
+            "magic": { "type": "number" },
+            "tanker": { "type": "number" },
+            "support": { "type": "number" }
+          },
+          "patternProperties": { "^_": {} }
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "presenceMult": {
+      "type": "object",
+      "required": ["walkingPassesGate", "insideCircleNotMoving"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "walkingPassesGate": { "type": "integer", "minimum": 0 },
+        "insideCircleNotMoving": { "type": "number" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "survivalMult": {
+      "type": "object",
+      "required": ["bands", "downedMult"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "bands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["hpAbove_pct", "mult"],
+            "properties": {
+              "hpAbove_pct": { "$ref": "../common.schema.json#/$defs/pct" },
+              "mult": { "type": "number" }
+            },
+            "patternProperties": { "^_": {} }
+          }
+        },
+        "downedMult": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "bossDamage": {
+      "type": "object",
+      "required": ["defSoftcapK", "bossAtkPerTick"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "defSoftcapK": { "type": "integer", "minimum": 0 },
+        "bossAtkPerTick": { "type": ["number", "null"] }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "partyMult": {
+      "type": "object",
+      "required": [
+        "noPartyMult",
+        "fullPartyTargetMin",
+        "fullPartyTargetMax",
+        "incompletePartyTargetMin",
+        "incompletePartyTargetMax",
+        "weight",
+        "incompletePartyFactor",
+        "fullPartyCap",
+        "incompletePartyCap"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "noPartyMult": { "type": "integer", "minimum": 0 },
+        "fullPartyTargetMin": { "type": "number" },
+        "fullPartyTargetMax": { "type": "number" },
+        "incompletePartyTargetMin": { "type": "integer", "minimum": 0 },
+        "incompletePartyTargetMax": { "type": "number" },
+        "weight": { "type": "number" },
+        "incompletePartyFactor": { "type": "number" },
+        "fullPartyCap": { "type": "number" },
+        "incompletePartyCap": { "type": "number" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "bossHp": {
+      "type": "object",
+      "required": [
+        "alphaLaunch",
+        "alphaLaunchPeriod_days",
+        "alphaTarget",
+        "nextBossHpMultAfterFail"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "alphaLaunch": { "type": "number" },
+        "alphaLaunchPeriod_days": { "$ref": "../common.schema.json#/$defs/days" },
+        "alphaTarget": { "type": "number" },
+        "nextBossHpMultAfterFail": { "type": "number" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "failure": {
+      "type": "object",
+      "required": [
+        "seeMonsterAtk",
+        "seeDropMult",
+        "warnWhenRemaining_s",
+        "warnIfBossHpReducedBelow_pct"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "seeMonsterAtk": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "seeDropMult": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "warnWhenRemaining_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "warnIfBossHpReducedBelow_pct": { "$ref": "../common.schema.json#/$defs/pct" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "checkpoints": {
+      "type": "object",
+      "required": ["thresholds_pct", "unlocks"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "thresholds_pct": {
+          "type": "array",
+          "items": { "$ref": "../common.schema.json#/$defs/pct" }
+        },
+        "unlocks": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "contributionRankMult": {
+      "type": "object",
+      "required": ["bands", "rankBasis"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "bands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["fromPercentile", "toPercentile", "mult"],
+            "properties": {
+              "fromPercentile": { "type": "integer", "minimum": 0 },
+              "toPercentile": { "type": "integer", "minimum": 0 },
+              "mult": { "type": "number" }
+            },
+            "patternProperties": { "^_": {} }
+          }
+        },
+        "rankBasis": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

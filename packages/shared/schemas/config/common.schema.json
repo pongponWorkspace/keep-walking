@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/common.schema.json",
+  "title": "Shared definitions for config/*.json schemas (ADR 0001 3.10, P2-F04-T24)",
+  "description": "Used by tools/config-lint only (test and build, never at runtime: ADR 0003 C1-4). Unit definitions follow the suffix table of ADR 0001 3.10.3; naming rules themselves are checked by the convention lint, not here.",
+  "$defs": {
+    "meta": {
+      "description": "ADR 0001 3.10.2: file, version, owner, task, doc required; readBy, locale, _note optional.",
+      "type": "object",
+      "required": ["file", "version", "owner", "task", "doc"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "version": { "type": "integer", "minimum": 1 },
+        "owner": { "type": "string", "minLength": 1 },
+        "task": { "type": "string", "minLength": 1 },
+        "doc": { "type": "string", "minLength": 1 },
+        "readBy": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "locale": { "type": "string", "pattern": "^[a-z]{2}$" }
+      }
+    },
+    "source": {
+      "description": "ADR 0001 3.10.4: a string, or a map key -> GDD section / decision ID / document.",
+      "anyOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        }
+      ]
+    },
+    "nullMeans": {
+      "description": "ADR 0001 3.10.5: intended nulls. Keys are sibling keys or `<arrayKey>[].<field>`.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][A-Za-z0-9_]*(\\[\\]\\.[a-z][A-Za-z0-9_]*)?$" },
+      "additionalProperties": { "enum": ["unbounded", "none"] }
+    },
+    "pointer": {
+      "description": "ADR 0001 3.10.6: \"<file>.json#<dot.path>\"; a file with / starts with config/. Target existence is checked by the convention lint.",
+      "type": "string",
+      "pattern": "^(config/[a-z]+/)?[a-z][A-Za-z0-9.]*\\.json#[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)*$"
+    },
+    "localTime": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$" },
+    "ianaZone": { "type": "string", "pattern": "^[A-Z][A-Za-z_]+/[A-Za-z_]+$" },
+    "meters": { "type": "number", "minimum": 0 },
+    "squareMeters": { "type": "number", "minimum": 0 },
+    "milliseconds": { "type": "number", "minimum": 0 },
+    "seconds": { "type": "number", "minimum": 0 },
+    "hours": { "type": "number", "minimum": 0 },
+    "days": { "type": "number", "minimum": 0 },
+    "years": { "type": "number", "minimum": 0 },
+    "kmh": { "type": "number", "minimum": 0 },
+    "gold": { "type": "number", "minimum": 0 },
+    "levels": { "type": "integer", "minimum": 0 },
+    "pct": { "type": "number", "minimum": 0 },
+    "pctOf": { "type": "number" },
+    "ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+    "positiveSeconds": { "type": "number", "exclusiveMinimum": 0 },
+    "positiveMeters": { "type": "number", "exclusiveMinimum": 0 }
+  }
+}

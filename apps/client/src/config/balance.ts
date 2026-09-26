@@ -1,21 +1,22 @@
 /**
- * Loads and validates the `config/balance/*.json` files this spike client reads:
- * `config/balance/location.json#homeState` (accuracy thresholds for the `gps.lowAccuracy`
- * display state — docs/tech/F02-map-location-spike.md section 4, design/ux/flows/F03-core-loop.md
- * 9.5), `config/balance/dungeons.json#movementGate` and
- * `config/balance/anticheat.json#checkIn.maxAccuracy_m` (P1-F02-T11: read-only numbers the HUD
- * uses to *measure* gate-window pass rate and TTFF — tech note section 10.5 — never to compute a
- * reward or gate decision; that stays in `packages/shared`/server, CLAUDE.md non-negotiable 1).
- * Everything else in `config/balance/` is server/reward logic the client never touches; this file
- * must never grow beyond display/measurement thresholds.
+ * Typed, validated access to the client's slice of `config/balance/*.json` (F-04, F-08:
+ * docs/tech/F04-dungeon-presence.md section 15, ADR 0003 section 9.3).
+ *
+ * The client never imports a `config/balance/*.json` file directly: it imports
+ * `./generated/balance-subset.generated.json`, a committed, whitelist-filtered file produced by
+ * `apps/client/scripts/generate-config.ts` from `./whitelist.ts`'s allow-list. That file carries
+ * only the subtrees the client is allowed to see (`homeState`, `movementGate`, `checkIn.maxAccuracy_m`
+ * today; more subtrees are already present for P2-F04-T20/T21/T08 to parse later) and structurally
+ * cannot carry a group-C key (`coverageFilter`, `trustScore`, `raid.*`, ...): `config/generated.test.ts`
+ * proves the committed file matches a fresh extraction and never contains one.
  *
  * Namespacing (task context): this is `balance.location`/`balance.dungeons`/`balance.anticheat`,
  * not `balance.privacy` — see `config/runtime.ts` for the one `app.privacy` file this workspace
  * reads. They are different files and must never be confused.
  */
-import locationConfigJson from '../../../../config/balance/location.json';
-import dungeonsConfigJson from '../../../../config/balance/dungeons.json';
-import anticheatConfigJson from '../../../../config/balance/anticheat.json';
+import type { GateComparison } from '@keep-walking/geo';
+import { validateGateFilterParams, validateGridParams } from '@keep-walking/geo';
+import balanceSubsetJson from './generated/balance-subset.generated.json';
 
 export interface HomeStateConfig {
   readonly maxAccuracy_m: number;
@@ -26,17 +27,37 @@ export interface BalanceLocationConfig {
   readonly homeState: HomeStateConfig;
 }
 
-/** `comparison` values `packages/shared`'s gate logic recognizes (only one exists today). */
-export type GateComparison = 'greaterThan';
+export type { GateComparison };
+
+/** ADR 0003 section 5.3/5.5: the outlier filter + fixed-cadence resample `gateDiagnosticWindows`
+ * needs, on top of the raw gate. `undefined` until `config/balance/dungeons.json#movementGate`
+ * carries all five keys (P2-F05-T20): the HUD then falls back to a raw-only measurement instead of
+ * guessing a value (`debug/stats.ts`'s `computeGateWindows`). */
+export interface MovementGateFilterConfig {
+  readonly maxSampleAccuracy_m: number;
+  readonly outlierSpeed_kmh: number;
+  readonly outlierReanchorSamples: number;
+  readonly sampleCadence_s: number;
+  readonly maxSamplePairGap_s: number;
+}
 
 export interface MovementGateConfig {
   readonly minDistancePerWindow_m: number;
   readonly window_s: number;
   readonly comparison: GateComparison;
+  readonly filter: MovementGateFilterConfig | undefined;
 }
 
 export interface CheckInConfig {
   readonly maxAccuracy_m: number;
+}
+
+/** `config/balance/dungeons.json#openingHours.utcOffset_min` (ADR 0003 section 9.2: Bangkok has no
+ * DST, runtime never reads the device time zone). The client's only use today is
+ * `clock/query-params.ts`'s `start` query test hook; `src/run`'s opening-hours evaluation
+ * (P2-F04-T20) reads the same key through this same accessor once it exists. */
+export interface OpeningHoursConfig {
+  readonly utcOffsetMin: number;
 }
 
 type Json = Record<string, unknown>;
@@ -88,7 +109,45 @@ export function parseBalanceLocationConfig(input: unknown): BalanceLocationConfi
   };
 }
 
-const GATE_COMPARISONS: readonly GateComparison[] = ['greaterThan'];
+const GATE_COMPARISONS: readonly GateComparison[] = ['greaterThan', 'greaterThanOrEqual'];
+/** The five keys of `MovementGateFilterConfig`, in the order `validateGateFilterParams`/
+ * `validateGridParams` (from `@keep-walking/geo`) expect to find them missing or present as a set. */
+const FILTER_KEYS = [
+  'maxSampleAccuracy_m',
+  'outlierSpeed_kmh',
+  'outlierReanchorSamples',
+  'sampleCadence_s',
+  'maxSamplePairGap_s',
+] as const;
+
+function parseMovementGateFilter(gate: Json, path: string): MovementGateFilterConfig | undefined {
+  const present = FILTER_KEYS.filter((key) => gate[key] !== undefined);
+  if (present.length === 0) {
+    return undefined;
+  }
+  if (present.length !== FILTER_KEYS.length) {
+    const missing = FILTER_KEYS.filter((key) => !present.includes(key));
+    throw new Error(
+      `config/balance/dungeons.json: ${path} has ${present.join(', ')} but is missing ${missing.join(', ')} (all five gate-filter keys must arrive together, ADR 0003 5.5)`,
+    );
+  }
+  const { positiveNum } = makeParsers('config/balance/dungeons.json');
+  const filter: MovementGateFilterConfig = {
+    maxSampleAccuracy_m: positiveNum(gate['maxSampleAccuracy_m'], `${path}/maxSampleAccuracy_m`),
+    outlierSpeed_kmh: positiveNum(gate['outlierSpeed_kmh'], `${path}/outlierSpeed_kmh`),
+    outlierReanchorSamples: positiveNum(
+      gate['outlierReanchorSamples'],
+      `${path}/outlierReanchorSamples`,
+    ),
+    sampleCadence_s: positiveNum(gate['sampleCadence_s'], `${path}/sampleCadence_s`),
+    maxSamplePairGap_s: positiveNum(gate['maxSamplePairGap_s'], `${path}/maxSamplePairGap_s`),
+  };
+  // Re-validates with geo's own guards (ADR 0003 section 4: geo never reads config, but its
+  // parameter validation is the single source of what a well-formed value looks like).
+  validateGateFilterParams(filter);
+  validateGridParams(filter);
+  return filter;
+}
 
 /** Pure so tests can pass a fixture without touching the real JSON import. */
 export function parseMovementGateConfig(input: unknown): MovementGateConfig {
@@ -108,6 +167,7 @@ export function parseMovementGateConfig(input: unknown): MovementGateConfig {
     ),
     window_s: positiveNum(gate['window_s'], '/movementGate/window_s'),
     comparison: comparison as GateComparison,
+    filter: parseMovementGateFilter(gate, '/movementGate'),
   };
 }
 
@@ -119,10 +179,35 @@ export function parseCheckInConfig(input: unknown): CheckInConfig {
   return { maxAccuracy_m: positiveNum(checkIn['maxAccuracy_m'], '/checkIn/maxAccuracy_m') };
 }
 
+/** Pure so tests can pass a fixture without touching the real JSON import. */
+export function parseOpeningHoursConfig(input: unknown): OpeningHoursConfig {
+  const { obj } = makeParsers('config/balance/dungeons.json');
+  const root = obj(input, '/');
+  const openingHours = obj(root['openingHours'], '/openingHours');
+  const raw = openingHours['utcOffset_min'];
+  if (typeof raw !== 'number' || !Number.isFinite(raw)) {
+    throw new Error(
+      'config/balance/dungeons.json: /openingHours/utcOffset_min must be a finite number',
+    );
+  }
+  return { utcOffsetMin: raw };
+}
+
+const balanceSubset = balanceSubsetJson as {
+  readonly location: unknown;
+  readonly dungeons: unknown;
+  readonly anticheat: unknown;
+};
+
 // Fails loudly at import time, not on first use (config/balance/*.json _meta._note applies the
 // same "fail loudly, never guess" rule as config/app/*.json).
-export const balanceLocationConfig: BalanceLocationConfig =
-  parseBalanceLocationConfig(locationConfigJson);
-export const balanceMovementGateConfig: MovementGateConfig =
-  parseMovementGateConfig(dungeonsConfigJson);
-export const balanceCheckInConfig: CheckInConfig = parseCheckInConfig(anticheatConfigJson);
+export const balanceLocationConfig: BalanceLocationConfig = parseBalanceLocationConfig(
+  balanceSubset.location,
+);
+export const balanceMovementGateConfig: MovementGateConfig = parseMovementGateConfig(
+  balanceSubset.dungeons,
+);
+export const balanceCheckInConfig: CheckInConfig = parseCheckInConfig(balanceSubset.anticheat);
+export const balanceOpeningHoursConfig: OpeningHoursConfig = parseOpeningHoursConfig(
+  balanceSubset.dungeons,
+);

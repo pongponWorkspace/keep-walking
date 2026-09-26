@@ -184,7 +184,8 @@ docs/                adr/, tech/                                           tech-
 | `_m` | เมตร | `maxAccuracy_m` |
 | `_m2` | ตารางเมตร (แทน `_sqm` ของฉบับแรก · ไม่มีไฟล์ใดใช้ `_sqm`) | `minArea_m2` |
 | `_ms` | มิลลิวินาที | `timeout_ms`, `maximumAge_ms` (app · `WebLocationOptions` ใช้ชื่อเดียวกันตั้งแต่ P1-X05, D-062) |
-| `_s` · `_h` · `_days` · `_yr` | วินาที · ชั่วโมง · วัน · ปี | `window_s`, `cooldown_h`, `minAccountAge_days`, `minAge_yr` (P1-H03) |
+| `_s` · `_min` · `_h` · `_days` · `_yr` | วินาที · นาที · ชั่วโมง · วัน · ปี | `window_s`, `openingHours.utcOffset_min` (420, P2-X04), `cooldown_h`, `minAccountAge_days`, `minAge_yr` (P1-H03) |
+| `_deg` | องศา (ละติจูด ลองจิจูด มุม) | `coordinateLikeNumberGuard.latRange_deg` (P2-X04) |
 | `_kmh` | กม./ชม. | `speedLock_kmh` |
 | `_pct` | เปอร์เซ็นต์ 0–100 (16 = 16%) | `autoRetreatThreshold_pct` |
 | `_ratio` | สัดส่วน 0–1 | — |
@@ -192,8 +193,9 @@ docs/                adr/, tech/                                           tech-
 | `_levels` | จำนวนเลเวล (ช่วงหรือระยะห่าง) | `exampleRangeWidth_levels` |
 | `_pct<Ref>[Per<Unit>]` | เปอร์เซ็นต์ของค่าอ้างอิงที่ตั้งชื่อ ต่อหน่วย (suffix ผสม) | `heal_pctMaxHp`, `inDungeonHealBase_pctMaxHpPerMin`, `shieldPerRewardTick_pctMaxHpPerBuffPct` |
 
-- regex ของ suffix: `_(m|m2|ms|s|h|days|yr|kmh|pct|ratio|gold|levels)$` หรือ `_pct[A-Z][A-Za-z]*$` · suffix ใหม่ต้องแก้ตารางนี้ (tech-lead)
-- ไม่ต้องมี suffix: boolean · string enum · จำนวนนับที่ชื่อบอกสิ่งที่นับ (`maxMembers`, `durationTicks`, `spawnPointsMin`) · จำนวนนับที่ชื่อลงท้าย `Threshold` เมื่อ object แม่หรือ `_note` บอกสิ่งที่นับ (`dungeons.reportThreshold` = จำนวนผู้เล่นที่รายงาน, D-062) · เกณฑ์ที่มีหน่วยยังต้องมี suffix (`farDungeonThreshold_m`, `autoRetreatThreshold_pct`) · อัตราส่วนไร้หน่วยที่ชื่อ camelCase ลงท้าย `Ratio` และบอกตัวตั้งกับตัวหาร (`maxAspectRatio` = ด้านยาว/ด้านสั้น, `incomeToPotionRatio`, `minBaseToCapRatio`) ไม่ผูกช่วง 0–1 (`maxAspectRatio` = 8 ได้, D-062) · suffix `_ratio` สงวนไว้สำหรับสัดส่วน 0–1 ของทั้งหมดที่ไม่ได้ตั้งชื่อ · ตัวคูณไร้หน่วยที่ชื่อมี `Mult`, `Coef` หรือ `Divisor` · percentile ที่ชื่อลงท้าย `Percentile` · ความยาวข้อความที่ชื่อมี `Cells` (copy registry)
+- regex ของ suffix: `_(m|m2|ms|s|min|h|days|yr|deg|kmh|pct|ratio|gold|levels)$` หรือ `_pct[A-Z][A-Za-z]*$` · suffix ใหม่ต้องแก้ตารางนี้และ `UNIT_SUFFIX` ใน `tools/config-lint/src/units.ts` พร้อมกัน (tech-lead) · `_min` ใช้เมื่อค่าอ้างอิงนิยามภายนอกเป็นนาที (UTC offset, นาทีของวันใน artifact) · ช่วงเวลาของเกมยังใช้ `_s` เป็นหลัก
+- ไม่ต้องมี suffix: boolean · string enum · จำนวนนับที่ชื่อบอกสิ่งที่นับ (`maxMembers`, `durationTicks`, `spawnPointsMin`) · จำนวนนับที่ชื่อลงท้าย `Threshold` เมื่อ object แม่หรือ `_note` บอกสิ่งที่นับ (`dungeons.reportThreshold` = จำนวนผู้เล่นที่รายงาน, D-062) · เกณฑ์ที่มีหน่วยยังต้องมี suffix (`farDungeonThreshold_m`, `autoRetreatThreshold_pct`) · อัตราส่วนไร้หน่วยที่ชื่อ camelCase ลงท้าย `Ratio` และบอกตัวตั้งกับตัวหาร (`maxAspectRatio` = ด้านยาว/ด้านสั้น, `incomeToPotionRatio`, `minBaseToCapRatio`) ไม่ผูกช่วง 0–1 (`maxAspectRatio` = 8 ได้, D-062) · suffix `_ratio` สงวนไว้สำหรับสัดส่วน 0–1 ของทั้งหมดที่ไม่ได้ตั้งชื่อ · ตัวคูณไร้หน่วยที่ชื่อมี `Mult`, `Coef` หรือ `Divisor` · percentile ที่ชื่อลงท้าย `Percentile` · ความยาวข้อความที่ชื่อมี `Cells` (copy registry) · เลขชี้กำลังที่ชื่อมี `Exponent` (กำลังไม่มีหน่วย) · สัดส่วนที่ตั้งชื่อที่ชื่อลงท้าย `Share` (ส่วนของทั้งหมดที่ตั้งชื่อ) หรือ `IoU` (intersection over union) · สองแบบหลังต้องอยู่ในช่วง 0–1 และ lint ตรวจช่วงเหมือน `_ratio` (ปรับเทียบใน P2-F04-T24, บันทึกใน P2-X04)
+- ค่าตัวเลขใน object ที่ key ของ object เองบอกหน่วยหรือชนิดไร้หน่วย (`baseChancePerRewardTick_pct.epic`, `roleMult.ranged`) สืบหน่วยนั้น · key ลูกเป็น id ไม่ต้องมี suffix
 - key ที่เป็น suffix ล้วน (`base_pct`, `cap_pct`) ใช้ได้เมื่อ object แม่บอกบริบท
 - เวลาของวัน: string `"HH:mm"` ใน key ที่ลงท้าย `LocalTime` คู่กับ `timezone` (IANA) ใน object เดียวกัน · วันในสัปดาห์: string อังกฤษตัวเล็ก (`"saturday"`)
 
@@ -201,6 +203,8 @@ docs/                adr/, tech/                                           tech-
 
 - ทุก key ที่ขึ้นต้นด้วย `_` เป็น metadata · โค้ดและ loader **ข้ามเมื่อวนลูป** และไม่อ่านเป็นค่า
 - `_source`: บังคับในทุก object ที่มีค่า (ยกเว้น `_meta`) · string หรือ map ชื่อ key → หัวข้อ GDD / decision ID / เอกสาร · ข้อยกเว้น: รายการใน `config/content/copy.<locale>.json` และ `_variables` ของไฟล์เดียวกันไม่ต้องมี `_source` ต่อรายการ (ที่มาคือ `_meta.doc`, field `context` และ `source` ของตัวแปร) · object ใน `config/content/copy-rules.json` (`limits`, `formats`) ยังต้องมี · ไฟล์ copy อ่านเป็น flat key map ห้ามแยก key ตามจุด (`docs/tech/copy-schema.md` หัวข้อ 2.1)
+- ข้อยกเว้น `config/content/names.<locale>.json` (P2-X04): ใช้โครง flat key map แบบเดียวกับ `copy.<locale>.json` (`_meta.structure` ของไฟล์) รายการจึงไม่ต้องมี `_source` ต่อรายการ ที่มาคือ `_meta.doc` · lint รู้จักทั้งสองแบบด้วย pattern `^(copy|names)\.[a-z]{2}$` ใน `config/content/`
+- **การสืบ `_source` หนึ่งชั้น** (P2-X04 · ตรงกับ `tools/config-lint`): object ที่ไม่มี `_source` ของตัวเองผ่านได้เมื่อ object แม่โดยตรงมี `_source` เป็น string หรือเป็น map ที่มี key ชื่อ object นั้น (เช่น `potions.hpSmall`) · การสืบไม่ส่งต่อ: object หลานต้องมีของตัวเองหรือได้จากแม่โดยตรงของมัน · object ที่เป็น element ของ array ได้ที่มาจาก object ที่ถือ array นั้นทั้งต้นไม้ย่อย (ตาราง เช่น `marketTax.brackets[]`) · object ที่ไม่มีค่าเดี่ยวเลย (มีแต่ object ลูก) ไม่ต้องมี `_source`
 - `_assumption`: `"A-<task>-<n>: <ข้อสมมติ>. Owner: <role>"` · `_note`: คำอธิบายอิสระ
 - รูปต่อ key `_<key>_source`, `_<key>_assumption` ใช้ได้เมื่อ object มีหลายค่าที่มาต่างกัน (เช่น `_npcDailySellLimit_source`)
 - `_meta` อยู่ที่ top-level เท่านั้น · `_nullMeans` ดู 3.10.5
@@ -369,3 +373,15 @@ docs/                adr/, tech/                                           tech-
 | 3.13 | dependency ของ Phase 2 · Ajv ของ shared เป็น dev | N-02 |
 
 ทวนตาม P1-X05: หัวข้อ 3.5, 3.10.1, 3.10.3, 3.11 ยังตรงกับไฟล์จริง ไม่มีการแก้เพิ่ม
+
+### แก้ไขครั้งที่ 4 — P2-X04 (2026-09-26, tech-lead)
+
+ที่มา: config lint ของ P2-F04-T24 (D-105) · balance-model 16.1 (`openingHours.utcOffset_min`) · `config/app/telemetry.json` (`latRange_deg`, `lngRange_deg`) · ไม่มี vendor หรือค่าใช้จ่ายใหม่
+
+| หัวข้อ | เปลี่ยนอะไร | เหตุผล |
+| --- | --- | --- |
+| 3.10.3 | เพิ่ม suffix `_min` (นาที) และ `_deg` (องศา) ในตารางและ regex | UTC offset นิยามเป็นนาทีภายนอก · พิกัดเป็นองศา · เลี่ยงการแปลงหน่วยที่ไม่มีเหตุผล |
+| 3.10.3 | บันทึกชื่อไร้หน่วย `Exponent`, `Share`, `IoU` (สองแบบหลังช่วง 0–1) และการสืบหน่วยจาก key ของ object แม่ | lint ใช้อยู่แล้วตั้งแต่ P2-F04-T24 · ADR ต้องตรงกับ lint |
+| 3.10.4 | การสืบ `_source` หนึ่งชั้น, element ของ array, ข้อยกเว้น `names.<locale>.json` | lint ใช้อยู่แล้ว · ADR ต้องตรงกับ lint |
+
+สถานะของ lint: `UNIT_SUFFIX` ใน `tools/config-lint/src/units.ts` ยังไม่มี `min|deg` (ไฟล์นี้อยู่นอก Writes ของ P2-X04) · allowlist ของ `utcOffset_min`, `latRange_deg`, `lngRange_deg` จึงยังคงอยู่จนกว่า regex จะแก้ในงานถัดไปของ tech-lead

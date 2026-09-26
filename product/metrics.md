@@ -85,7 +85,7 @@ Metric รวม **"onboarding completion rate"** = ผลคูณของท�
 | Metric | คำนวณจาก | เป้า/guardrail | Event |
 | --- | --- | --- | --- |
 | ระยะถึง dungeon ใกล้สุดตอนเปิดแอปครั้งแรก แจกแจงเป็นโซนเขียว/เหลือง/แดง | client คำนวณระยะ ส่งเฉพาะ bucket ไม่ส่งพิกัด | ไม่มีเป้าเดี่ยว ใช้เป็น distribution เทียบกับ coverage report ของ F01 | `onboarding_nearest_dungeon_distance` |
-| **Guardrail (ผูกกับเกณฑ์เปิดตัว G4/S3 ของ F01):** สัดส่วนผู้เล่นใหม่ที่เห็น `distance_band=red` ตอนเปิดแอปครั้งแรกในย่านที่เปิดตัวแล้ว | นับ `distance_band=red` จาก `onboarding_nearest_dungeon_distance` หารด้วยผู้เล่นใหม่ทั้งหมดในย่านนั้น | ≤ ค่าเดียวกับเกณฑ์ที่ HUMAN ใช้ตัดสิน Go จริงตอนปิด F01 (PRD F01 §4.1 G4 ≤5% ถ้า Go ล้วน หรือ §4.2 S3 ≤15% ถ้า Go พร้อมทางเสริม) — บันทึกค่าที่ใช้จริงไว้ในผลของ P1-F01-T11 แล้วอัปเดตเลขนี้ให้ตรงกันเสมอ (ไม่ปล่อยให้ตัวเลขเปิดตัวกับตัวเลขเฝ้าระวังหลังเปิดตัวต่างกัน) | `onboarding_nearest_dungeon_distance` |
+| **Guardrail (ผูกกับเกณฑ์เปิดตัว G4/S3 ของ F01, ค่าคงที่แล้วโดย P2-F04-T18):** สัดส่วนผู้เล่นใหม่ที่เห็น `distance_band=red` ตอนเปิดแอปครั้งแรกในย่านที่เปิดตัวแล้ว | นับ `distance_band=red` จาก `onboarding_nearest_dungeon_distance` หารด้วยผู้เล่นใหม่ทั้งหมดในย่านนั้น | HUMAN ตัดสิน Go พร้อมทางเสริม (D-083, ปิด P1-F01-T11 แล้ว): **เขตพระนคร/เขตปทุมวัน ผ่านเกณฑ์ 4.1 (Go ล้วน) → ใช้ G4 ≤ 5%** · **เขตบางรัก ผ่านเฉพาะเกณฑ์ 4.2 (Go พร้อมทางเสริม) → ใช้ S3 ≤ 15%** — ผลคำนวณจริงหลังรีรัน P2-F04-T03 อยู่ที่ §9.1 ด้านล่าง (verdict PASS ทั้ง 3 ย่าน) | `onboarding_nearest_dungeon_distance` |
 | อัตราปิดแอปบนหน้าจอว่างเมื่อ dungeon ไกล/นอกพื้นที่/นอกย่านเปิดตัว (GR-2) | `onboarding_empty_screen_abandoned` หารด้วย `onboarding_empty_screen_shown` แยกตาม `reason` (`far`\|`out_of_area`\|`outside_launch_district` — เพิ่ม `outside_launch_district` ตาม D-073 หลัง F06 spec ยืนยัน, `far_temporarily_closed` เดิมถูกตัดออกเพราะ dungeon ปิดชั่วคราวมีแผงของตัวเอง ไม่ใช่หน้าจอว่างแบบนี้) | ≤ 50% (สูงกว่านี้แปลว่าหน้า fallback ไม่ชวนเดินพอ ต้องปรับ copy/design ตาม pillars 7.4 — ส่ง handoff ถึง uiux-designer/narrative-designer) | `onboarding_empty_screen_shown`, `onboarding_empty_screen_abandoned` |
 | การลงทะเบียนความสนใจนอกพื้นที่/นอกย่านเปิดตัว | นับจำนวนแยกตาม `scope` (`province`\|`district`) และ `area_name` ต่อวัน | ไม่มีเป้าตัวเลขในเอกสารนี้ ใช้เป็น input ตรงของ F23 (เกณฑ์เปิดจังหวัด/ย่านถัดไป) | `interest_registered_outside_area` |
 
@@ -130,6 +130,8 @@ Privacy ของทุก event ในหมวดนี้: ไม่มีพ
 
 ที่มา: CLAUDE.md ("entries per day per dungeon, average time, death rate, party size, repeated reports"), `design/ux/ia.md` `S-17-report-block`
 
+**เพิ่มจาก tech note F04 (P2-F04-T14):** เดิม PRD F04 §4 วางแผนวัด "อัตราการสลับ state ถี่ผิดปกติระหว่างเดินเลียบขอบจริง" ด้วยบันทึกผู้สังเกตภาคสนามเท่านั้น (สมมติว่า Phase 2 ไม่มี event อัตโนมัติเพราะไม่ส่งพิกัด) — ตอนนี้มี event `run_state_changed` (`product/telemetry-events.md` §3) ที่รายงานการสลับ Active/Grace/Suspended โดยไม่มีพิกัดเลย จึงวัดอัตโนมัติได้แล้ว: นับจำนวน `run_state_changed` ต่อ run ต่อนาที เทียบเกณฑ์ "ไม่เกิน 1 ครั้งต่อ 5 นาทีต่อการเดินเลียบขอบต่อเนื่อง" — รายงานคู่กับบันทึกผู้สังเกตเดิม ไม่ใช่แทนที่ทั้งหมด (บันทึกผู้สังเกตยังจับ "ความรู้สึกรำคาญ" ที่ event ตัวเลขจับไม่ได้) **PRD F04 §4 ต้องอัปเดตแถวนี้ให้ตรง — ดู handoff ท้ายรายงาน**
+
 | Metric | คำนวณจาก | เป้า/guardrail | Event |
 | --- | --- | --- | --- |
 | entries ต่อวันต่อ dungeon | นับ `dungeon_entered` แยกตาม `dungeon_id` | ไม่มีเป้าเดี่ยว ใช้เทียบระหว่าง dungeon เพื่อวางแผนขยาย coverage (input ของ F01/F23) | `dungeon_entered` |
@@ -154,7 +156,7 @@ Privacy ของทุก event ในหมวดนี้: ไม่มีพ
 
 | # | Guardrail | หมวด | เป้า/เกณฑ์ | ที่มา |
 | --- | --- | --- | --- | --- |
-| GR-1 | สัดส่วน `distance_band=red` ตอนเปิดแอปครั้งแรกในย่านที่เปิดตัวแล้ว | Onboarding | ≤ ค่าเดียวกับ G4/S3 ที่ HUMAN เลือกใช้ตัดสิน Go (PRD F01) | PRD F01 §6 |
+| GR-1 | สัดส่วน `distance_band=red` ตอนเปิดแอปครั้งแรกในย่านที่เปิดตัวแล้ว | Onboarding | พระนคร/ปทุมวัน ≤ 5% (G4), บางรัก ≤ 15% (S3) — **คำนวณแล้ว: PASS ทั้ง 3 ย่าน ดู §9.1** | PRD F01 §6, §9.1 (P2-F04-T18) |
 | GR-2 | อัตราปิดแอปบนหน้าจอว่าง (dungeon ไกล/นอกพื้นที่) | Onboarding | ≤ 50% | หัวข้อ 3.2 |
 | GR-3 | ขนาด party เฉลี่ยทั้งระบบ | Social | เตือนถ้า ≤ 1.2 ติดต่อกัน 4 สัปดาห์ | หัวข้อ 4 |
 | GR-4 | แนวโน้มราคายา (inflation) เทียบ config ตั้งต้น | Economy | เบี่ยง ≤ ±20% โดยไม่มี decision อนุมัติ | หัวข้อ 5 |
@@ -166,6 +168,34 @@ Privacy ของทุก event ในหมวดนี้: ไม่มีพ
 | GR-10 | DAU ช่วงฝนเทียบวันแห้ง | Seasonality | ตกไม่เกิน 30% | หัวข้อ 8 |
 | GR-11 | สัดส่วน tick ที่ไม่ผ่าน movement gate ต่อ run (แยกจาก S12 ของ spike ซึ่งวัดตอน dev เท่านั้น) | ข้ามหมวด (ผูก north star โดยตรง) | ไม่มีเป้าตายตัวใน Phase 1 เก็บ baseline หลัง F04–F06 live แล้วเทียบกับผล spike S12 (≥95% Go) เพื่อดูว่าตัวเลข production ตรงกับ spike ไหม | `product/reviews/F02-spike-criteria.md` S12 |
 | GR-12 | **แบตต่อวันของผู้เล่น heavy-session (3–6 ชม./วัน)** | Onboarding/ความปลอดภัยผู้เล่น | ไม่มีเป้าเชิงตัวเลขที่ automate ได้เต็มรูปใน v1 เว็บ (ดูข้อจำกัดหัวข้อ 10.4) — ใช้ผลเดินทดสอบภาคสนาม (`qa/playtest/field-walk-form.md`) เป็นหลักฐานประกอบ target เชิงคุณภาพ: ผู้เล่นเวลามากต้องเล่นได้ทั้ง session (2–6 ชม.) โดยไม่ต้องพกพาวเวอร์แบงค์เพิ่มจากที่พกอยู่แล้วปกติ | `product/reviews/F02-spike-criteria.md` §4.2 (handoff จาก S3 ที่ No-go edge 15%/30 นาที) |
+
+### 9.1 ผลคำนวณ GR-1 ของ 3 ย่านเปิดตัว (P2-F04-T18, D-083/D-081)
+
+ที่มา: `data/coverage/launch-districts-before-after.csv` และ `data/coverage/district-counts.csv` (ผลรีรัน P2-F04-T03, สูตร transit D-069 + `reviewOsmIds` + `pocketPark_walk_median_m`), `data/coverage/run-meta.json` (`analysis_version` 1.1.0), `design/levels/bangrak-plan.md` (จำนวนทางเสริมที่คาดของบางรัก)
+
+**วิธีคิด:** GR-1 = `g4_pop_share_red` ของแต่ละย่าน (สัดส่วนประชากรที่ระยะเดินตามโครงข่ายจริงถึง dungeon ที่ใช้ได้ใกล้ที่สุด > 3,000 ม. หรือ snap เกิน 150 ม.) จากคอลัมน์เดียวกับที่ตัดสิน G4/S3 ตอนปิด F01 — ไม่ใช่ตัวเลขแยกชุดใหม่ เพื่อให้ตัวเลขเปิดตัวกับตัวเลขเฝ้าระวังหลังเปิดตัวเป็นชุดเดียวกันเสมอ (ตามที่ PRD F01 §6 กำหนด) ค่าที่ใช้คือ**ค่าหลังรีรัน** (คอลัมน์ `after`) เพราะเป็นชุดข้อมูลที่ D-083 ใช้ตัดสินใจจริง
+
+| ย่าน | guardrail ที่ใช้ | เหตุผลที่ใช้เกณฑ์นี้ | `g4_pop_share_red` ก่อนรีรัน | `g4_pop_share_red` หลังรีรัน (ใช้จริง) | delta | Verdict |
+| --- | --- | --- | --- | --- | --- | --- |
+| เขตพระนคร | G4 ≤ 5% | ผ่านเกณฑ์ 4.1 (Go เต็ม) — G1 68.48%, G2 10, G3 3/3, G4 0% ครบทุกข้อ | 0.0000 (0%) | **0.0000 (0%)** | 0.0000 | **PASS** (0 pp ต่ำกว่าเพดาน) |
+| เขตปทุมวัน | G4 ≤ 5% | ผ่านเกณฑ์ 4.1 (Go เต็ม) — G1 61.42%, G2 19 (incl. multi), G3 3/3, G4 0.06% ครบทุกข้อ | 0.0006 (0.06%) | **0.0006 (0.06%)** | 0.0000 | **PASS** (4.94 pp ต่ำกว่าเพดาน) |
+| เขตบางรัก | S3 ≤ 15% | ไม่ผ่าน G2 (มี 6 แห่ง < 10) จึงใช้เกณฑ์ 4.2 (Go พร้อมทางเสริม) แทน — S1 100% (เขียว 73.01% เกินเกณฑ์ S1 แบบเขียวอย่างเดียวอยู่แล้ว), S3 0% | 0.0000 (0%) | **0.0000 (0%)** | 0.0000 | **PASS** (15 pp ต่ำกว่าเพดาน) |
+
+**เทียบกับค่าเดิม (ก่อนรีรัน):** `launch-districts-before-after.csv` แถว `g4_pop_share_red` ของทั้ง 3 ย่านมี `delta = 0` ทุกแถว — แม้จำนวน dungeon ที่ใช้ได้ลดลงมาก (พระนคร 20→10, ปทุมวัน 22→18 จากผล `reviewOsmIds`/N-01 คำราชาศัพท์) สัดส่วนประชากรโซนแดงไม่ขยับเลย เพราะ dungeon ที่ถูกตัดออกส่วนใหญ่อยู่ในพื้นที่ที่ยังมี dungeon อื่นครอบคลุมระยะ ≤3,000 ม. อยู่แล้ว (ซ้อนทับกันในย่านชั้นในหนาแน่น) — GR-1 จึงมั่นคงต่อการเปลี่ยน candidate มากกว่า G1 (ซึ่งขยับลงหลายจุด: พระนคร -13.25pp, ปทุมวัน -10.61pp, บางรัก -1.29pp) เพราะ G1 นับสัดส่วน "เขียวล้วน" (≤800ม.) ที่ไวต่อการตัด candidate ใกล้มากกว่า
+
+**สรุป: ไม่มีย่านใดเกิน guardrail — ไม่เข้ากฎสลับ 2 ของ board (ไม่ blocking, ไม่ต้อง handoff ถึง producer, ไม่ต้องถามคนเรื่องเปลี่ยนชุดย่าน)** ทั้งสามย่านมีสัดส่วนประชากรโซนแดงต่ำมาก (สนามที่คัดมาเป็นย่านชั้นในหนาแน่นที่มี dungeon กระจายทั่วถึง) แม้บางรักจะยังไม่ผ่าน G2 (≥10 แห่ง) — **หมายเหตุสำคัญ:** ตัวเลข G2/G3 ของบางรัก (จำนวน/ความหลากหลาย dungeon) เป็นคนละเกณฑ์จาก GR-1 (ระยะทาง/สัดส่วนแดง) จึงไม่กระทบ verdict ของ GR-1 — ช่องว่าง G2 ของบางรักยังต้องปิดด้วยแผนทางเสริม (`design/levels/bangrak-plan.md`, คาด +2–4 แห่งใน 2–3 สัปดาห์หลัง Phase 2) แต่เป็นคนละหัวข้อจาก guardrail นี้ ไม่ใช่เหตุผลให้ GR-1 เป็น FAIL
+
+**ผลต่อ playtest ภาคสนาม:** เนื่องจากช่องว่าง (ค) ของบางรัก (เวลาเปิดคาบเช้า-เย็นยังไม่ยืนยัน) ยังไม่ปิด `bangrak-plan.md` หัวข้อ 5 ระบุห้ามจัดตารางเดิน playtest ในบางรักจนกว่าจะแก้ — ข้อจำกัดนี้เป็นของ P2-F06-T18 ไม่ใช่ของ GR-1 (ซึ่ง PASS แล้ว) แต่บันทึกไว้ที่นี่เพื่อไม่ให้อ่าน verdict PASS เป็นสัญญาณว่าบางรักพร้อมเดินจริง 100%
+
+**ยืนยัน/แก้ A-P1-F01-T06-2/-4/-7 (ตามที่ P1-F01-T06 handoff ขอให้ product-manager ยืนยันอีกครั้งหลังรีรัน):**
+
+| Assumption | สถานะหลังรีรัน P2-F04-T03 | เหตุผล |
+| --- | --- | --- |
+| A-P1-F01-T06-2 (กราฟทางเดินตัด `access` ต้องห้าม ยกเว้นมี `foot=yes\|designated\|permissive` กำกับ) | **ยืนยันซ้ำ ไม่เปลี่ยน** | `run-meta.json` §`config.launchScore.footOverrideValues` = `["yes","designated","permissive"]` และ `footNoValues` = `["no"]` เหมือนรอบก่อนรีรันทุกตัวอักษร — รีรันแก้แค่สูตร transit (D-069) กับรายชื่อ candidate ที่ผ่าน `reviewOsmIds` ไม่ได้แตะ logic การกรอง access |
+| A-P1-F01-T06-4 (โซนแดงตัดสินจากระยะเดิน >3,000 ม. หรือ snap >150 ม. เท่านั้น, distance-only; เขตไม่มี dungeon = 0 ทันที) | **ยืนยันซ้ำ ไม่เปลี่ยน** | `coverageFilterSource` ยังชี้ `config/balance/dungeons.json#coverageFilter` เดียวกัน `walkGraphSnapMaxDistance_m` = 150 คงเดิม — วิธีตัดสินโซนแดงในรีรันไม่เปลี่ยนแม้จำนวน candidate ที่ผ่านจะลดลง (พระนคร 20→10, ปทุมวัน 22→18) เพราะการลดลงมาจาก `reviewOsmIds`/N-01 (คำราชาศัพท์) ตัด candidate ออกจากตัวตั้ง ไม่ใช่เปลี่ยนนิยามโซน |
+| A-P1-F01-T06-7 (multi-source Dijkstra ใช้เฉพาะ component ที่ใหญ่ที่สุดของกราฟทางเดิน) | **ยืนยันซ้ำ ไม่เปลี่ยน** | `run-meta.json` §`distance_method.graph` รายงาน `main_component_nodes` 3,031,696 / `nodes` 3,158,376 (96.0%) — ตัวเลขเดียวกันเป๊ะกับที่ confirm ไว้ใน `product/reviews/F01-product-gate.md` §7 ก่อนรีรัน ยืนยันว่ารีรันใช้กราฟทางเดินชุดเดิม (ไฟล์ `thailand-260901.osm.pbf` เดียวกัน) เปลี่ยนเฉพาะ input ฝั่ง candidate/สูตร transit ไม่ใช่กราฟทางเดิน |
+
+ไม่มีข้อใดต้องแก้ — ทั้งสามข้อเป็นการตัดสินใจเชิงวิธีวัด (measurement method) ที่ไม่ผูกกับรายชื่อ candidate หรือสูตร transit ที่เปลี่ยนไปในรอบรีรันนี้
 
 ## 10. ความเสี่ยงต่อการวัดผล (confound)
 
@@ -209,8 +239,8 @@ Battery Status API ใช้ได้เฉพาะ Chrome/Android (`A-P1-PLAN-
 
 | หมวด | Phase 1–2 (F04–F06, มี event ให้ emit ได้ทันที) | Phase 3+ (รอระบบที่ยังไม่ build) |
 | --- | --- | --- |
-| Onboarding | ครบทั้งหมด: `onboarding_funnel_step`, `onboarding_first_reward_granted`, `onboarding_nearest_dungeon_distance`, `onboarding_empty_screen_shown`, `onboarding_empty_screen_abandoned`, `interest_registered_outside_area` | — |
-| Places (บางส่วน) | `dungeon_entered`, `dungeon_exited`, `run_tick_granted`, `run_tick_denied`, `run_death`, `run_auto_retreat`, `run_hp_low`, `run_gps_status_changed` | `dungeon_report_submitted` เต็มรูป (ต้องมี moderation queue ของ F13/F15) |
+| Onboarding | ครบทั้งหมด: `onboarding_funnel_step` (ลำดับแก้ตาม F06-R44, ไม่มี login), `onboarding_first_reward_granted`, `onboarding_nearest_dungeon_distance`, `onboarding_empty_screen_shown`/`abandoned` (reason ใหม่รวม `outside_launch_district`), `interest_registered_outside_area` (ขยาย scope), `local_data_cleared` | — |
+| Places (บางส่วน) | `dungeon_entered`, `dungeon_exited`, `run_state_changed`, `checkin_rejected`, `dungeon_closing_soon_notified`, `navigation_link_opened`, `run_tick_granted`, `run_tick_denied`, `run_death`, `run_auto_retreat`, `run_hp_low`, `run_gps_status_changed`, `anticheat_speed_lock_triggered`, `auto_retreat_setting_changed`, `run_potion_auto_used`, `session_state_discarded`, `storage_quota_exceeded` | `dungeon_report_submitted` เต็มรูป (ต้องมี moderation queue ของ F13/F15) |
 | Social | — (ต้องรอ Nearby Party จริง) | `party_formed`, `run_tick_granted.full_role/roles_present`, `party_size_bucket` |
 | Economy | — (ยังไม่มีตลาด/ตีบวกจริง) | `economy_gold_earned`, `economy_gold_spent`, `economy_potion_price_observed`, `market_trade_completed` |
 | Progression | `player_level_up` (โครงพร้อมตั้งแต่ F10 เริ่ม Phase 4 แต่ schema event ประกาศไว้ตั้งแต่ตอนนี้) | `loot_rarity_received` (ผูกกับ drop table เต็มรูปของ F10/F11) |
@@ -223,9 +253,12 @@ Battery Status API ใช้ได้เฉพาะ Chrome/Android (`A-P1-PLAN-
 ### สมมติฐาน
 - A-P1-F03-T19-1: เป้าตัวเลขทั้งหมดในหัวข้อ 3–8 (เช่น ≥70% consent, ≤25% churn) เป็นสมมติฐานเริ่มต้นของ product-manager ไม่ได้อิงข้อมูลอุตสาหกรรมเฉพาะเกม location-based ของไทย ต้องทบทวนหลัง closed beta (F21, Phase 7) เป็นอย่างช้า (ยืนยัน: product-manager เอง, game-director ร่วมพิจารณาใน design gate B)
 - A-P1-F03-T19-2: `run_tick_granted`/`run_tick_denied` ใช้เป็นทั้งฐานของ north star, GR-11 และ input ของ Social/Places/Economy พร้อมกัน (multi-purpose event) เพื่อลดจำนวน event รวมตามข้อกำหนดหัวข้อ 10.2 — ถ้า backend พบว่า schema เดียวรองรับ property ทั้งหมดที่ต้องการไม่ได้จริง ให้ tech-lead แยก event แล้ว handoff กลับมาที่ product-manager แก้ชื่อ (ยืนยัน: tech-lead, backend-programmer)
-- A-P1-F03-T19-3: `config: dungeons.safety.reportThreshold` ที่ GR-9 อ้างถึงยังไม่มีอยู่จริงใน `config/balance/dungeons.json` ปัจจุบัน เป็นข้อเสนอ key ใหม่จากเอกสารนี้ ให้ systems-designer ยืนยัน/ตั้งชื่อจริง (ยืนยัน: systems-designer)
+- A-P1-F03-T19-3 (**ปิดแล้ว**): `config: dungeons.safety.reportThreshold` มีอยู่จริงแล้วใน `config/balance/dungeons.json` (= 5 ครั้ง/`reportWindow_h` = 24 ชม., ยืนยันโดย systems-designer) GR-9 อ้างค่าจริงได้ทันที
 - A-P1-F03-T19-4: GR-5 (F-16) และ GR-7 (F-17) เป็น guardrail แบบ "เฝ้าดู" ไม่ใช่ "บล็อกการเปิดตัว" ตามที่ sim-report เสนอไว้แล้ว (ไม่ใช่การตัดสินใจใหม่ของเอกสารนี้ แค่ยืนยันสถานะ) (ยืนยัน: systems-designer, game-director)
+- A-P2-F04-T17-1: north star proxy ของ Phase 2 (หัวข้อ 1.1) รวบรวมด้วยมือจากไฟล์ export ของผู้เล่นแต่ละคน ไม่มี dashboard อัตโนมัติจนกว่า F08 (Phase 3) จะมี server — วิธีรวบรวม/เก็บไฟล์ระหว่าง playtest ภาคสนามเป็นของ P2-F06-T19/T27 (ยืนยัน: qa-tester)
+- A-P2-F04-T17-2: ตัวหารของ "≥70% ถึงรางวัลก้อนแรกใน 10 นาที" (หัวข้อ 3.1) คือผู้เล่นที่เริ่ม onboarding และอยู่ในสถานะ "ใกล้" ภายในย่านเปิดตัวเท่านั้น ตามที่ game-director ยืนยันจาก A-P2-F06-T02-2 ของ PRD F06 — ไม่มีจุดต้องแก้
+- A-P2-F04-T17-3: การแบ่งกลุ่มผลตาม `class` (เวลาถึงรางวัลก้อนแรก, เวลาอยู่รอด/auto-retreat) เป็นข้อบังคับในการรายงาน ไม่ใช่ทางเลือก — solo non-Tanker ~27.8 นาทีเป็นค่าที่ระบบตั้งใจ (D-020, F06 spec §6) ห้ามใช้ตัวเลขรวมทุก class เป็นเกณฑ์เดียว (ยืนยัน: game-director)
 
-### คำถามค้าง (ไม่ขวาง Phase 1)
+### คำถามค้าง (ไม่ขวาง Phase 1–2)
 - Q-T19-1: North star ควรแยกรายงานเป็นสองเส้น (ก่อน/หลัง Wake Lock หรือ native wrap) ในรายงานสาธารณะหรือเก็บเป็น annotation เดียวในรายงานภายใน — เสนอ: annotation ภายในพอสำหรับ Phase 1–2 ทบทวนอีกครั้งก่อนมี dashboard ให้ HUMAN ดูจริงใน Phase 3 (ส่งต่อ liveops-operator)
-- Q-T19-2: เกณฑ์ตัวเลขของ GR-1 (ผูกกับ G4/S3 ของ F01) ยังไม่ fix เพราะ P1-F01-T11 (HUMAN) ยังไม่ปิด — เมื่อปิดแล้ว ต้องมีคน (product-manager เอง) กลับมาแก้ตัวเลขในเอกสารนี้ให้ตรงทันที ไม่ปล่อยให้เป็นเลขคนละชุด (ติดตามใน backlog ของ product-manager)
+- **Q-T19-2 (ปิดแล้ว, P2-F04-T18):** เกณฑ์ตัวเลขของ GR-1 fix แล้วตาม P1-F01-T11 (HUMAN ตัดสิน D-083, 2026-09-25) — พระนคร/ปทุมวัน ใช้ G4 ≤5% (Go เต็ม), บางรัก ใช้ S3 ≤15% (Go พร้อมทางเสริม) ดูผลคำนวณจริงที่ §9.1

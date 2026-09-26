@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/content/copy-rules.schema.json",
+  "title": "config/content/copy-rules.json",
+  "description": "Delegates to packages/shared/schemas/copy-rules.schema.json (docs/tech/copy-schema.md section 6); adds the ADR 0001 3.10.2 _meta requirement.",
+  "allOf": [
+    { "$ref": "https://keep-walking.invalid/schemas/copy-rules.schema.json" },
+    {
+      "type": "object",
+      "required": ["_meta"],
+      "properties": { "_meta": { "$ref": "../common.schema.json#/$defs/meta" } }
+    }
+  ]
+}

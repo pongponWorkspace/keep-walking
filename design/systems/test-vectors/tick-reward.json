@@ -1,0 +1,2537 @@
+{
+  "formula": "tick-reward",
+  "vectors": [
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 1,
+        "ownClass": "tanker",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 3,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": null,
+        "expMult": 0.6,
+        "exp": 93.530744
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in a 1-5 dungeon (Z = 3), solo tanker: Magic own buff, others x noMagicMult (D-039)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 1,
+        "ownClass": "ranged",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 3,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": null,
+        "expMult": 0.6,
+        "exp": 93.530744
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in a 1-5 dungeon (Z = 3), solo ranged: Magic own buff, others x noMagicMult (D-039)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 1,
+        "ownClass": "support",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 3,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": null,
+        "expMult": 0.6,
+        "exp": 93.530744
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in a 1-5 dungeon (Z = 3), solo support: Magic own buff, others x noMagicMult (D-039)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 1,
+        "ownClass": "magic",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 3,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": 17.273104,
+        "expMult": 1.172731,
+        "exp": 182.810677
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in a 1-5 dungeon (Z = 3), solo magic: Magic own buff, others x noMagicMult (D-039)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 5,
+        "ownClass": "ranged",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 3,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": null,
+        "expMult": 0.6,
+        "exp": 93.530744
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 5 at the top of 1-5, no gap"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 10,
+        "ownClass": "ranged",
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 3,
+        "levelsOutsideRange": 5,
+        "magicBuff_pct": null,
+        "expMult": 0.395449,
+        "exp": 61.644385
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 10 above 1-5: gap 5 -> 0.92^5 (A-3, both sides)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 1,
+        "ownClass": "ranged",
+        "rangeMin": 1,
+        "rangeMax": 35,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 18,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": null,
+        "expMult": 0.6,
+        "exp": 1374.615583
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in PN-2 1-35 (Z = 18): same Z for every level in range (A-1)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 25,
+        "ownClass": "magic",
+        "rangeMin": 20,
+        "rangeMax": 30,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 25,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": 23.190673,
+        "expMult": 1.231907,
+        "exp": 4619.650247
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 25 Magic in 20-30 (Z = 25)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 25,
+        "ownClass": "tanker",
+        "rangeMin": 20,
+        "rangeMax": 30,
+        "f": 0.4,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 25,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": null,
+        "expMult": 0.6,
+        "exp": 900
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · D-059 partial tick f = 0.4 scales exp"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 1,
+        "ownClass": "support",
+        "rangeMin": 50,
+        "rangeMax": 60,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 55,
+        "levelsOutsideRange": 49,
+        "magicBuff_pct": null,
+        "expMult": 0.15,
+        "exp": 1835.509126
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in 50-60: gap 49 -> floor 0.25"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 60,
+        "ownClass": "magic",
+        "rangeMin": 50,
+        "rangeMax": 60,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 55,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": 29.956818,
+        "expMult": 1.299568,
+        "exp": 15902.461734
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 60 in 50-60 (exp is not added at max level, see addExp)"
+    },
+    {
+      "input": {
+        "fn": "addExp",
+        "level": 1,
+        "exp": 50,
+        "gained": 400,
+        "params": {
+          "expToNextCoef": 60,
+          "expToNextExponent": 2.2,
+          "expPerTickCoef": 30,
+          "expPerTickExponent": 1.5,
+          "maxLevel": 60,
+          "startLevel": 1
+        }
+      },
+      "expected": {
+        "level": 3,
+        "exp": 114.312395
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level-ups chain in one grant, remainder carried unrounded"
+    },
+    {
+      "input": {
+        "fn": "addExp",
+        "level": 1,
+        "exp": 0,
+        "gained": 0,
+        "params": {
+          "expToNextCoef": 60,
+          "expToNextExponent": 2.2,
+          "expPerTickCoef": 30,
+          "expPerTickExponent": 1.5,
+          "maxLevel": 60,
+          "startLevel": 1
+        }
+      },
+      "expected": {
+        "level": 1,
+        "exp": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · no gain, no change"
+    },
+    {
+      "input": {
+        "fn": "addExp",
+        "level": 59,
+        "exp": 0,
+        "gained": 9007199254740991,
+        "params": {
+          "expToNextCoef": 60,
+          "expToNextExponent": 2.2,
+          "expPerTickCoef": 30,
+          "expPerTickExponent": 1.5,
+          "maxLevel": 60,
+          "startLevel": 1
+        }
+      },
+      "expected": {
+        "level": 60,
+        "exp": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · reaching max level sets exp to 0"
+    },
+    {
+      "input": {
+        "fn": "addExp",
+        "level": 60,
+        "exp": 0,
+        "gained": 400,
+        "params": {
+          "expToNextCoef": 60,
+          "expToNextExponent": 2.2,
+          "expPerTickCoef": 30,
+          "expPerTickExponent": 1.5,
+          "maxLevel": 60,
+          "startLevel": 1
+        }
+      },
+      "expected": {
+        "level": 60,
+        "exp": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · at max level nothing is added"
+    },
+    {
+      "input": {
+        "fn": "lootTable",
+        "dropTableId": "pocketParkDefault",
+        "dropTable": {
+          "_source": "data/dungeons/presets.json preset pocketPark · GDD > การกำหนด dungeon (สวนหย่อม, dungeon เล็กให้ของน้อยชิ้นกว่าแต่ rare rate สูงกว่า: always small by area)",
+          "preset": "pocketPark",
+          "rolls": [
+            {
+              "roll": "rarity",
+              "rarity": "common",
+              "pool": [
+                { "item": "elementDust", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "uncommon",
+              "pool": [
+                { "item": "elementCore", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "rare",
+              "pool": [
+                { "item": "riftStone", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "epic",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "legendary",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionHpSmall",
+              "chance_pct": 17,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "hpSmall", "weight": 1, "qty": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionRevive",
+              "chance_pct": 1,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "revive", "weight": 1, "qty": 1 }
+              ]
+            }
+          ]
+        },
+        "itemRarity": {
+          "elementDust": "common",
+          "elementCore": "uncommon",
+          "riftStone": "rare",
+          "hpSmall": "uncommon",
+          "hpMedium": "rare",
+          "hpLarge": "epic",
+          "revive": "epic",
+          "equipWeapon": "byRoll",
+          "equipArmor": "byRoll",
+          "equipCharm": "byRoll",
+          "equipBoots": "byRoll"
+        },
+        "ctx": {
+          "rangedBuff_pct": 17.27310383267307,
+          "smallDungeon": true,
+          "lowTrust": false,
+          "failedRaidBossHpLeft": null
+        },
+        "lootParams": {
+          "dp": {
+            "baseChance_pct": {
+              "uncommon": 25,
+              "rare": 6,
+              "epic": 1.2,
+              "legendary": 0.2
+            },
+            "commonMin": 1,
+            "commonMax": 3,
+            "rangedBuffMaxMult": 1.5,
+            "noRangedMult": 0.6,
+            "smallRareAndAboveMult": 1.5,
+            "smallCommonQtyMult": 0.6,
+            "failedRaidWeekMinMult": 1.6,
+            "failedRaidWeekMaxMult": 2,
+            "lowTrustMult": 0.5,
+            "lowTrustBlocksEpicAndAbove": true,
+            "npcPrice_gold": {
+              "common": 20,
+              "uncommon": 120,
+              "rare": 900,
+              "epic": null,
+              "legendary": null
+            },
+            "rewardTickInterval_s": 300
+          },
+          "qty": {
+            "uncommon": 1,
+            "rare": 1,
+            "epic": 1,
+            "legendary": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "rarity": "common",
+          "chance_pct": null,
+          "qtyMult": 0.703639,
+          "chanceMult": 1,
+          "items": [
+            { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 25,
+          "qtyMult": 1,
+          "chanceMult": 1.172731,
+          "items": [
+            { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "rare",
+          "chance_pct": 6,
+          "qtyMult": 1,
+          "chanceMult": 1.759097,
+          "items": [
+            { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1.2,
+          "qtyMult": 1,
+          "chanceMult": 1.759097,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "legendary",
+          "chance_pct": 0.2,
+          "qtyMult": 1,
+          "chanceMult": 1.759097,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 17,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        }
+      ],
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · pocketPark (always small by area), solo Ranged level 1: own buff on every rarity, small x1.5 rare+ and x0.6 Common quantity, potion rolls unscaled"
+    },
+    {
+      "input": {
+        "fn": "lootTable",
+        "dropTableId": "largeParkDefault",
+        "dropTable": {
+          "_source": "data/dungeons/presets.json preset largePark · GDD > การกำหนด dungeon (สวนใหญ่)",
+          "preset": "largePark",
+          "rolls": [
+            {
+              "roll": "rarity",
+              "rarity": "common",
+              "pool": [
+                { "item": "elementDust", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "uncommon",
+              "pool": [
+                { "item": "elementCore", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "rare",
+              "pool": [
+                { "item": "riftStone", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "epic",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "legendary",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionHpSmall",
+              "chance_pct": 17,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "hpSmall", "weight": 1, "qty": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionRevive",
+              "chance_pct": 1,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "revive", "weight": 1, "qty": 1 }
+              ]
+            }
+          ]
+        },
+        "itemRarity": {
+          "elementDust": "common",
+          "elementCore": "uncommon",
+          "riftStone": "rare",
+          "hpSmall": "uncommon",
+          "hpMedium": "rare",
+          "hpLarge": "epic",
+          "revive": "epic",
+          "equipWeapon": "byRoll",
+          "equipArmor": "byRoll",
+          "equipCharm": "byRoll",
+          "equipBoots": "byRoll"
+        },
+        "ctx": {
+          "rangedBuff_pct": null,
+          "smallDungeon": false,
+          "lowTrust": false,
+          "failedRaidBossHpLeft": null
+        },
+        "lootParams": {
+          "dp": {
+            "baseChance_pct": {
+              "uncommon": 25,
+              "rare": 6,
+              "epic": 1.2,
+              "legendary": 0.2
+            },
+            "commonMin": 1,
+            "commonMax": 3,
+            "rangedBuffMaxMult": 1.5,
+            "noRangedMult": 0.6,
+            "smallRareAndAboveMult": 1.5,
+            "smallCommonQtyMult": 0.6,
+            "failedRaidWeekMinMult": 1.6,
+            "failedRaidWeekMaxMult": 2,
+            "lowTrustMult": 0.5,
+            "lowTrustBlocksEpicAndAbove": true,
+            "npcPrice_gold": {
+              "common": 20,
+              "uncommon": 120,
+              "rare": 900,
+              "epic": null,
+              "legendary": null
+            },
+            "rewardTickInterval_s": 300
+          },
+          "qty": {
+            "uncommon": 1,
+            "rare": 1,
+            "epic": 1,
+            "legendary": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "rarity": "common",
+          "chance_pct": null,
+          "qtyMult": 0.6,
+          "chanceMult": 1,
+          "items": [
+            { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 25,
+          "qtyMult": 1,
+          "chanceMult": 0.6,
+          "items": [
+            { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "rare",
+          "chance_pct": 6,
+          "qtyMult": 1,
+          "chanceMult": 0.6,
+          "items": [
+            { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1.2,
+          "qtyMult": 1,
+          "chanceMult": 0.6,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "legendary",
+          "chance_pct": 0.2,
+          "qtyMult": 1,
+          "chanceMult": 0.6,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 17,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        }
+      ],
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · largePark not small, solo Tanker: no Ranged inside -> x0.6 on every rarity roll (F-2), potion rolls unscaled"
+    },
+    {
+      "input": {
+        "fn": "lootTable",
+        "dropTableId": "marketDefault",
+        "dropTable": {
+          "_source": "data/dungeons/presets.json preset market · GDD > การกำหนด dungeon (ตลาด)",
+          "preset": "market",
+          "rolls": [
+            {
+              "roll": "rarity",
+              "rarity": "common",
+              "pool": [
+                { "item": "elementDust", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "uncommon",
+              "pool": [
+                { "item": "elementCore", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "rare",
+              "pool": [
+                { "item": "riftStone", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "epic",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "legendary",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionHpSmall",
+              "chance_pct": 17,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "hpSmall", "weight": 1, "qty": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionRevive",
+              "chance_pct": 1,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "revive", "weight": 1, "qty": 1 }
+              ]
+            }
+          ]
+        },
+        "itemRarity": {
+          "elementDust": "common",
+          "elementCore": "uncommon",
+          "riftStone": "rare",
+          "hpSmall": "uncommon",
+          "hpMedium": "rare",
+          "hpLarge": "epic",
+          "revive": "epic",
+          "equipWeapon": "byRoll",
+          "equipArmor": "byRoll",
+          "equipCharm": "byRoll",
+          "equipBoots": "byRoll"
+        },
+        "ctx": {
+          "rangedBuff_pct": null,
+          "smallDungeon": true,
+          "lowTrust": false,
+          "failedRaidBossHpLeft": null
+        },
+        "lootParams": {
+          "dp": {
+            "baseChance_pct": {
+              "uncommon": 25,
+              "rare": 6,
+              "epic": 1.2,
+              "legendary": 0.2
+            },
+            "commonMin": 1,
+            "commonMax": 3,
+            "rangedBuffMaxMult": 1.5,
+            "noRangedMult": 0.6,
+            "smallRareAndAboveMult": 1.5,
+            "smallCommonQtyMult": 0.6,
+            "failedRaidWeekMinMult": 1.6,
+            "failedRaidWeekMaxMult": 2,
+            "lowTrustMult": 0.5,
+            "lowTrustBlocksEpicAndAbove": true,
+            "npcPrice_gold": {
+              "common": 20,
+              "uncommon": 120,
+              "rare": 900,
+              "epic": null,
+              "legendary": null
+            },
+            "rewardTickInterval_s": 300
+          },
+          "qty": {
+            "uncommon": 1,
+            "rare": 1,
+            "epic": 1,
+            "legendary": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "rarity": "common",
+          "chance_pct": null,
+          "qtyMult": 0.36,
+          "chanceMult": 1,
+          "items": [
+            { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 25,
+          "qtyMult": 1,
+          "chanceMult": 0.6,
+          "items": [
+            { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "rare",
+          "chance_pct": 6,
+          "qtyMult": 1,
+          "chanceMult": 0.9,
+          "items": [
+            { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1.2,
+          "qtyMult": 1,
+          "chanceMult": 0.9,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "legendary",
+          "chance_pct": 0.2,
+          "qtyMult": 1,
+          "chanceMult": 0.9,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 17,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        }
+      ],
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · market under 20,000 m2 (small by area), solo Magic"
+    },
+    {
+      "input": {
+        "fn": "lootTable",
+        "dropTableId": "largeParkDefault",
+        "dropTable": {
+          "_source": "data/dungeons/presets.json preset largePark · GDD > การกำหนด dungeon (สวนใหญ่)",
+          "preset": "largePark",
+          "rolls": [
+            {
+              "roll": "rarity",
+              "rarity": "common",
+              "pool": [
+                { "item": "elementDust", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "uncommon",
+              "pool": [
+                { "item": "elementCore", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "rare",
+              "pool": [
+                { "item": "riftStone", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "epic",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "legendary",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionHpSmall",
+              "chance_pct": 17,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "hpSmall", "weight": 1, "qty": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionRevive",
+              "chance_pct": 1,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "revive", "weight": 1, "qty": 1 }
+              ]
+            }
+          ]
+        },
+        "itemRarity": {
+          "elementDust": "common",
+          "elementCore": "uncommon",
+          "riftStone": "rare",
+          "hpSmall": "uncommon",
+          "hpMedium": "rare",
+          "hpLarge": "epic",
+          "revive": "epic",
+          "equipWeapon": "byRoll",
+          "equipArmor": "byRoll",
+          "equipCharm": "byRoll",
+          "equipBoots": "byRoll"
+        },
+        "ctx": {
+          "rangedBuff_pct": 26.33267970010743,
+          "smallDungeon": true,
+          "lowTrust": false,
+          "failedRaidBossHpLeft": null
+        },
+        "lootParams": {
+          "dp": {
+            "baseChance_pct": {
+              "uncommon": 25,
+              "rare": 6,
+              "epic": 1.2,
+              "legendary": 0.2
+            },
+            "commonMin": 1,
+            "commonMax": 3,
+            "rangedBuffMaxMult": 1.5,
+            "noRangedMult": 0.6,
+            "smallRareAndAboveMult": 1.5,
+            "smallCommonQtyMult": 0.6,
+            "failedRaidWeekMinMult": 1.6,
+            "failedRaidWeekMaxMult": 2,
+            "lowTrustMult": 0.5,
+            "lowTrustBlocksEpicAndAbove": true,
+            "npcPrice_gold": {
+              "common": 20,
+              "uncommon": 120,
+              "rare": 900,
+              "epic": null,
+              "legendary": null
+            },
+            "rewardTickInterval_s": 300
+          },
+          "qty": {
+            "uncommon": 1,
+            "rare": 1,
+            "epic": 1,
+            "legendary": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "rarity": "common",
+          "chance_pct": null,
+          "qtyMult": 0.757996,
+          "chanceMult": 1,
+          "items": [
+            { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 25,
+          "qtyMult": 1,
+          "chanceMult": 1.263327,
+          "items": [
+            { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "rare",
+          "chance_pct": 6,
+          "qtyMult": 1,
+          "chanceMult": 1.89499,
+          "items": [
+            { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1.2,
+          "qtyMult": 1,
+          "chanceMult": 1.89499,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "legendary",
+          "chance_pct": 0.2,
+          "qtyMult": 1,
+          "chanceMult": 1.89499,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 17,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        }
+      ],
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · largePark under 20,000 m2 gets the small rule too (presets.md 6), Ranged level 40"
+    },
+    {
+      "input": {
+        "fn": "lootTable",
+        "dropTableId": "largeParkDefault",
+        "dropTable": {
+          "_source": "data/dungeons/presets.json preset largePark · GDD > การกำหนด dungeon (สวนใหญ่)",
+          "preset": "largePark",
+          "rolls": [
+            {
+              "roll": "rarity",
+              "rarity": "common",
+              "pool": [
+                { "item": "elementDust", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "uncommon",
+              "pool": [
+                { "item": "elementCore", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "rare",
+              "pool": [
+                { "item": "riftStone", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "epic",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "rarity",
+              "rarity": "legendary",
+              "pool": [
+                { "item": "equipWeapon", "weight": 1 },
+                { "item": "equipArmor", "weight": 1 },
+                { "item": "equipCharm", "weight": 1 },
+                { "item": "equipBoots", "weight": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionHpSmall",
+              "chance_pct": 17,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "hpSmall", "weight": 1, "qty": 1 }
+              ]
+            },
+            {
+              "roll": "bonus",
+              "id": "potionRevive",
+              "chance_pct": 1,
+              "applyDropMultipliers": false,
+              "pool": [
+                { "item": "revive", "weight": 1, "qty": 1 }
+              ]
+            }
+          ]
+        },
+        "itemRarity": {
+          "elementDust": "common",
+          "elementCore": "uncommon",
+          "riftStone": "rare",
+          "hpSmall": "uncommon",
+          "hpMedium": "rare",
+          "hpLarge": "epic",
+          "revive": "epic",
+          "equipWeapon": "byRoll",
+          "equipArmor": "byRoll",
+          "equipCharm": "byRoll",
+          "equipBoots": "byRoll"
+        },
+        "ctx": {
+          "rangedBuff_pct": null,
+          "smallDungeon": false,
+          "lowTrust": true,
+          "failedRaidBossHpLeft": 0.5
+        },
+        "lootParams": {
+          "dp": {
+            "baseChance_pct": {
+              "uncommon": 25,
+              "rare": 6,
+              "epic": 1.2,
+              "legendary": 0.2
+            },
+            "commonMin": 1,
+            "commonMax": 3,
+            "rangedBuffMaxMult": 1.5,
+            "noRangedMult": 0.6,
+            "smallRareAndAboveMult": 1.5,
+            "smallCommonQtyMult": 0.6,
+            "failedRaidWeekMinMult": 1.6,
+            "failedRaidWeekMaxMult": 2,
+            "lowTrustMult": 0.5,
+            "lowTrustBlocksEpicAndAbove": true,
+            "npcPrice_gold": {
+              "common": 20,
+              "uncommon": 120,
+              "rare": 900,
+              "epic": null,
+              "legendary": null
+            },
+            "rewardTickInterval_s": 300
+          },
+          "qty": {
+            "uncommon": 1,
+            "rare": 1,
+            "epic": 1,
+            "legendary": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "rarity": "common",
+          "chance_pct": null,
+          "qtyMult": 0.54,
+          "chanceMult": 1,
+          "items": [
+            { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 25,
+          "qtyMult": 1,
+          "chanceMult": 0.54,
+          "items": [
+            { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "rare",
+          "chance_pct": 6,
+          "qtyMult": 1,
+          "chanceMult": 0.54,
+          "items": [
+            { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 0,
+          "qtyMult": 1,
+          "chanceMult": 0.54,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "legendary",
+          "chance_pct": 0,
+          "qtyMult": 1,
+          "chanceMult": 0.54,
+          "items": [
+            { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+            { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "uncommon",
+          "chance_pct": 17,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        },
+        {
+          "rarity": "epic",
+          "chance_pct": 1,
+          "qtyMult": 1,
+          "chanceMult": 1,
+          "items": [
+            { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+          ]
+        }
+      ],
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · boundary (not reachable in Phase 2): low trust blocks epic+ and halves the rest, failed-raid week x1.8; potion rolls still unscaled"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 0,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 13,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 1 },
+          { "rarity": "uncommon", "id": "elementCore", "qty": 1 },
+          { "rarity": "uncommon", "id": "hpSmall", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real pocketParkDefault table (Ranged level 1), drop index 0: ADR 0003 6.3 order, potion rolls after the rarity rolls in config order · index 0 is also the first reward of onboarding: same roll as any tick (D-089, F06 R39)"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 1,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 11,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 2 },
+          { "rarity": "uncommon", "id": "elementCore", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real pocketParkDefault table (Ranged level 1), drop index 1: ADR 0003 6.3 order, potion rolls after the rarity rolls in config order"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 2,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 9,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real pocketParkDefault table (Ranged level 1), drop index 2: ADR 0003 6.3 order, potion rolls after the rarity rolls in config order"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 3,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 11,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 2 },
+          { "rarity": "rare", "id": "riftStone", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real pocketParkDefault table (Ranged level 1), drop index 3: ADR 0003 6.3 order, potion rolls after the rarity rolls in config order"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 4,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 11,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 3 },
+          { "rarity": "uncommon", "id": "elementCore", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real pocketParkDefault table (Ranged level 1), drop index 4: ADR 0003 6.3 order, potion rolls after the rarity rolls in config order"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 5,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 13,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 1 },
+          { "rarity": "uncommon", "id": "elementCore", "qty": 1 },
+          { "rarity": "rare", "id": "riftStone", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real pocketParkDefault table (Ranged level 1), drop index 5: ADR 0003 6.3 order, potion rolls after the rarity rolls in config order"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 3,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 0.4
+      },
+      "expected": {
+        "draws": 9,
+        "items": []
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · D-059 partial tick at index 3, f = 0.4: every chance incl. potion rolls and the Common quantity x f"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 0,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.6,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 11,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 1 },
+          { "rarity": "uncommon", "id": "hpSmall", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real largeParkDefault table (Tanker, no Ranged x0.6), drop index 0"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 1,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.6,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 9,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real largeParkDefault table (Tanker, no Ranged x0.6), drop index 1"
+    },
+    {
+      "input": {
+        "fn": "rollTickLoot",
+        "runSeed": 20260926,
+        "dropIndex": 2,
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.6,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "f": 1
+      },
+      "expected": {
+        "draws": 9,
+        "items": [
+          { "rarity": "common", "id": "elementDust", "qty": 1 }
+        ]
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · real largeParkDefault table (Tanker, no Ranged x0.6), drop index 2"
+    }
+  ]
+}

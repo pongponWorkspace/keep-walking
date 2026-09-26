@@ -27,6 +27,12 @@
         since location works independently of whether the basemap rendered.
       -->
       <div id="hud"></div>
+      <!--
+        TL B-10 / P2-F04-T25: build profile + short SHA (docs/tech/F04-dungeon-presence.md section
+        17: "playtest: ... แสดง version + short SHA"). main.ts fills this in only for a playtest
+        build or once a real commit is set; empty otherwise, so a bare `pnpm dev` stays uncluttered.
+      -->
+      <div id="build-badge"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

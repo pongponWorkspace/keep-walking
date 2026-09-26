@@ -1,10 +1,10 @@
 {
   "_meta": {
     "file": "client.json",
-    "version": 1,
+    "version": 2,
     "owner": "tech-lead",
-    "task": "P1-H05",
-    "doc": "docs/tech/F02-map-location-spike.md sections 3, 4, 8, 10.5, 11",
+    "task": "P1-H05; P2-F04-T25 added engine, storage, navigation, providerQuery.paramNames.start/seed",
+    "doc": "docs/tech/F02-map-location-spike.md sections 3, 4, 8, 10.5, 11; docs/tech/F04-dungeon-presence.md sections 9, 10, 14, 17; ADR 0003 sections 3.2, 6, 8.4",
     "_note": "Runtime values of apps/client for the F02 spike (read by apps/client/src/config/runtime.ts). Build-time URLs stay in VITE_* env vars (tech note section 8), not here. Nothing in this file affects a reward; HUD numbers are spike measurements only. Keys starting with '_' are metadata: code skips them. null = not set yet: code must fail loudly. seeFile keys point at the single source of a value owned elsewhere."
   },
   "locationWeb": {
@@ -21,13 +21,15 @@
       "trace": "trace",
       "speed": "speed",
       "loop": "loop",
-      "hud": "hud"
+      "hud": "hud",
+      "start": "start",
+      "seed": "seed"
     },
     "allowedProviders": ["web", "mock", "capacitor"],
     "allowedMockSpeeds": [1, 10, 60],
     "traceWhenUnset": "firstInList",
     "onUnknownValue": "useDefaultAndWarn",
-    "_note": "capacitor is selectable but the stub reports not-implemented (tests the error path). traceWhenUnset: first trace of the import.meta.glob list (gps-trace-format section 5) that passes validateTrace. Boolean params use '1'/'0' in the URL"
+    "_note": "capacitor is selectable but the stub reports not-implemented (tests the error path). traceWhenUnset: first trace of the import.meta.glob list (gps-trace-format section 5) that passes validateTrace. Boolean params use '1'/'0' in the URL. `start` and `seed` (F04-dungeon-presence.md section 17 test hooks) are read only when `loc=mock`: `start` sets the game clock's replay-start instant (integer epoch ms, or `YYYY-MM-DDTHH:mm` interpreted with `config/balance/dungeons.json#openingHours.utcOffset_min`, read via config/balance.ts); `seed` sets the uint32 RNG `runSeed` for every run started on that page load. Both are silently ignored outside `loc=mock` (Web always uses the real clock and `crypto.getRandomValues`, ADR 0003 section 6)"
   },
   "providerQueryDefaultsByMode": {
     "_source": {
@@ -36,18 +38,18 @@
     },
     "development": {
       "provider": "mock",
-      "speed": 1,
+      "speedMult": 1,
       "loop": true,
       "hud": false
     },
     "production": {
       "provider": "web",
-      "speed": 1,
+      "speedMult": 1,
       "loop": false,
       "hud": false
     },
-    "_note": "Keyed by Vite import.meta.env.MODE. 'production' covers vite build, i.e. the Cloudflare Pages preview and the field-walk build. An unknown MODE falls back to 'production' with a console warning (safer: real GPS, HUD off)",
-    "_assumption": "A-P1-H05-1: the tech note gives no default for speed or loop. speed 1 (real time) everywhere; loop on in development so a demo keeps moving, off in production where mock is only used on purpose. Owner: tech-lead"
+    "_note": "Keyed by Vite import.meta.env.MODE. 'production' covers vite build, i.e. the Cloudflare Pages preview and the field-walk build. An unknown MODE falls back to 'production' with a console warning (safer: real GPS, HUD off). speedMult (renamed from speed, tech-lead/config-lint) is the Mock playback-speed multiplier default; the URL query param itself is still named `speed` (providerQuery.paramNames.speed) and is unaffected by this rename",
+    "_assumption": "A-P1-H05-1: the tech note gives no default for speed or loop. speedMult 1 (real time) everywhere; loop on in development so a demo keeps moving, off in production where mock is only used on purpose. Owner: tech-lead"
   },
   "mapView": {
     "_source": "docs/tech/F02-map-location-spike.md section 8 (style ตั้ง maxzoom ของแผนที่ 18 เพื่อ overzoom); P1-F02-T11 acceptance (overzoom ถึง 18)",
@@ -81,5 +83,25 @@
     "seeTtffAccuracy": "config/balance/anticheat.json#checkIn.maxAccuracy_m",
     "seeRawTraceTrim": "config/app/privacy.json#rawTraceExport.rawTraceTrim_m",
     "_note": "Spike measurements only, never sent to a server and never a reward. The gate window length, distance and comparison are read from dungeons.json#movementGate (single source); the TTFF threshold from anticheat.json. Changing these values after the field walk starts breaks comparability with the pre-set criteria in tech note section 10 (TL-M04)"
+  },
+  "engine": {
+    "_source": "ADR 0003 section 3.2 item 5 (client sets a timer, e.g. every 1 second, and on return from page-hidden, and calls sessionStep with a `tick` input; the reducer itself has no timer)",
+    "tickInterval_ms": 1000,
+    "seeUtcOffset": "config/balance/dungeons.json#openingHours.utcOffset_min",
+    "_note": "The `start` query test hook's YYYY-MM-DDTHH:mm form (docs/tech/F04-dungeon-presence.md section 17) is interpreted with balance.dungeons.json#openingHours.utcOffset_min (Bangkok has no DST), read via config/balance.ts — not duplicated here."
+  },
+  "storage": {
+    "_source": "docs/tech/F04-dungeon-presence.md section 10.1 (client writes kw.p2.session no more often than this, plus immediately on any event, plus on visibilitychange hidden / pagehide)",
+    "sessionPersistInterval_s": 5,
+    "_note": "Throttle only: a step that returns at least one event (tick, transition, run end) is still persisted immediately regardless of this interval (10.1). Not a reward value: only changes how much of the last few seconds could be lost if the tab is killed before a write (10.1: 'ไม่มีทางได้รางวัลเกินจริง')."
+  },
+  "navigation": {
+    "_source": {
+      "coordinateDecimals": "docs/tech/F04-dungeon-presence.md section 14.1 (nav_destination rounded to 5 decimals, about 1.1 m)",
+      "externalOpenTimeout_ms": "docs/tech/F04-dungeon-presence.md section 14.2 (fallback panel shown when the page has not gone hidden within this time of tapping the navigation link)"
+    },
+    "coordinateDecimals": 5,
+    "externalOpenTimeout_ms": 2500,
+    "_note": "Used only by the external navigation link (Google/Apple Maps deep link) and its fallback panel (F04 section 14); not the raw-trace-export coordinateDecimals in config/app/privacy.json#rawTraceExport, a different value for a different export."
   }
 }

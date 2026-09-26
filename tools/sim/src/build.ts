@@ -1,6 +1,6 @@
 // Character stats and the "balanced build" used by the survival and economy simulation
 // (balance-model sections 3.2 and 4.2).
-import { defReductionRatio, gearStat, tierForLevel } from './formulas';
+import { defReductionRatio, gearStat, tierForLevel } from '@keep-walking/shared/formulas';
 import type { SimParams, SlotName, StatParams, SlotShare } from './params';
 import { SLOTS } from './params';
 

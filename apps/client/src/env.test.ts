@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { readMapEnv, withTestEnvOverrides } from './env';
+import { describe, expect, it, vi } from 'vitest';
+import { readBuildProfile, readMapEnv, withTestEnvOverrides } from './env';
 
 describe('readMapEnv', () => {
   it('passes through set values', () => {
@@ -74,5 +74,32 @@ describe('withTestEnvOverrides', () => {
       glyphsUrl: undefined,
       spriteUrl: undefined,
     });
+  });
+});
+
+describe('readBuildProfile', () => {
+  it('defaults to dev with no commit when both vars are unset', () => {
+    expect(readBuildProfile({})).toEqual({ profile: 'dev', commit: undefined });
+  });
+
+  it('reads a valid playtest profile and commit', () => {
+    expect(readBuildProfile({ VITE_KW_PROFILE: 'playtest', VITE_KW_COMMIT: 'abc1234' })).toEqual({
+      profile: 'playtest',
+      commit: 'abc1234',
+    });
+  });
+
+  it('falls back to dev and warns on an unknown profile value', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    expect(readBuildProfile({ VITE_KW_PROFILE: 'staging' })).toEqual({
+      profile: 'dev',
+      commit: undefined,
+    });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('staging'));
+    warn.mockRestore();
+  });
+
+  it('treats a blank commit the same as unset', () => {
+    expect(readBuildProfile({ VITE_KW_COMMIT: '   ' }).commit).toBeUndefined();
   });
 });

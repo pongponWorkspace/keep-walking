@@ -1,61 +1,23 @@
 // Survival time and potion use (balance-model sections 3.3 and 3.4).
-// Analytic expectations are exact for the no-heal, no-shield case; the Monte Carlo engine
-// adds Support heal, Magic shield and auto-potion. All randomness comes from a seeded Rng.
+// The closed-form formulas (hitsToThreshold, expectedSurvival_min, hitChanceForTarget_pct,
+// hpLossPerHour_pct, potionCostPerHour_gold) live in @keep-walking/shared/formulas (TL B-05) and
+// are re-exported here. This file keeps the Monte Carlo engine (Support heal, Magic shield,
+// auto-potion), which stays in tools/sim. All randomness comes from a seeded Rng.
 import { AUTO_RETREAT_HP_FLOOR } from './hit';
-import type { Rng } from './rng';
-import { mean, percentile, uniform } from './rng';
+import type { Rng } from '@keep-walking/shared/formulas';
+import { uniform } from '@keep-walking/shared/formulas';
+import { mean, percentile } from './stats';
+
+export {
+  expectedSurvival_min,
+  hitChanceForTarget_pct,
+  hitsToThreshold,
+  hpLossPerHour_pct,
+  potionCostPerHour_gold,
+} from '@keep-walking/shared/formulas';
 
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
-/** Guards ceil() against floating-point noise on exact multiples. */
-const CEIL_EPSILON = 1e-9;
-
-/** Hits until HP ≤ threshold% of max (threshold 0 = HP 0, death). Damage is constant per hit. */
-export function hitsToThreshold(maxHp: number, damage: number, threshold_pct: number): number {
-  if (damage <= 0) return Number.POSITIVE_INFINITY;
-  const hpToLose = maxHp * (1 - threshold_pct / 100);
-  return Math.max(1, Math.ceil(hpToLose / damage - CEIL_EPSILON));
-}
-
-/** Mean checks until the n-th hit is n / p (negative binomial), each check one mean interval. */
-export function expectedSurvival_min(
-  hits: number,
-  hitChance_pct: number,
-  meanInterval_s: number,
-): number {
-  return ((hits / (hitChance_pct / 100)) * meanInterval_s) / SECONDS_PER_MINUTE;
-}
-
-/** Hit chance (%) that makes the expected survival equal a target, given the hits needed. */
-export function hitChanceForTarget_pct(
-  hits: number,
-  target_min: number,
-  meanInterval_s: number,
-): number {
-  return ((hits * meanInterval_s) / (target_min * SECONDS_PER_MINUTE)) * 100;
-}
-
-/** Expected HP lost per hour, as % of max HP. */
-export function hpLossPerHour_pct(
-  damage: number,
-  maxHp: number,
-  hitChance_pct: number,
-  meanInterval_s: number,
-): number {
-  return (SECONDS_PER_HOUR / meanInterval_s) * (hitChance_pct / 100) * (damage / maxHp) * 100;
-}
-
-/** Uncapped analytic potion cost: HP lost / (heal × VIT efficiency) × price. */
-export function potionCostPerHour_gold(
-  hpLoss_pctPerHour: number,
-  heal_pctMaxHp: number,
-  potionEfficiencyBonus_pct: number,
-  buyPrice_gold: number,
-): number {
-  return (
-    (hpLoss_pctPerHour / (heal_pctMaxHp * (1 + potionEfficiencyBonus_pct / 100))) * buyPrice_gold
-  );
-}
 
 export interface RunSetup {
   maxHp: number;

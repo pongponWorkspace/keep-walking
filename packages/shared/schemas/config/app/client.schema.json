@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/app/client.schema.json",
+  "title": "config/app/client.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "locationWeb",
+    "providerQuery",
+    "providerQueryDefaultsByMode",
+    "mapView",
+    "hudMeasurement",
+    "engine",
+    "storage",
+    "navigation"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "locationWeb": {
+      "type": "object",
+      "required": ["enableHighAccuracy", "timeout_ms", "maximumAge_ms"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "enableHighAccuracy": { "type": "boolean" },
+        "timeout_ms": { "$ref": "../common.schema.json#/$defs/milliseconds" },
+        "maximumAge_ms": { "$ref": "../common.schema.json#/$defs/milliseconds" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "providerQuery": {
+      "type": "object",
+      "required": [
+        "paramNames",
+        "allowedProviders",
+        "allowedMockSpeeds",
+        "traceWhenUnset",
+        "onUnknownValue"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "paramNames": {
+          "type": "object",
+          "required": ["provider", "trace", "speed", "loop", "hud", "start", "seed"],
+          "properties": {
+            "provider": { "type": "string", "minLength": 1 },
+            "trace": { "type": "string", "minLength": 1 },
+            "speed": { "type": "string", "minLength": 1 },
+            "loop": { "type": "string", "minLength": 1 },
+            "hud": { "type": "string", "minLength": 1 },
+            "start": { "type": "string", "minLength": 1 },
+            "seed": { "type": "string", "minLength": 1 }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "allowedProviders": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "allowedMockSpeeds": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+        "traceWhenUnset": { "type": "string", "minLength": 1 },
+        "onUnknownValue": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "providerQueryDefaultsByMode": {
+      "type": "object",
+      "required": ["development", "production"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "development": {
+          "type": "object",
+          "required": ["provider", "speed", "loop", "hud"],
+          "properties": {
+            "provider": { "type": "string", "minLength": 1 },
+            "speed": { "type": "integer", "minimum": 0 },
+            "loop": { "type": "boolean" },
+            "hud": { "type": "boolean" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "production": {
+          "type": "object",
+          "required": ["provider", "speed", "loop", "hud"],
+          "properties": {
+            "provider": { "type": "string", "minLength": 1 },
+            "speed": { "type": "integer", "minimum": 0 },
+            "loop": { "type": "boolean" },
+            "hud": { "type": "boolean" }
+          },
+          "patternProperties": { "^_": {} }
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "mapView": {
+      "type": "object",
+      "required": ["maxZoom"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "maxZoom": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "hudMeasurement": {
+      "type": "object",
+      "required": [
+        "accuracyWarmup_s",
+        "sampleGap_s",
+        "gateWindowStep_s",
+        "fpsMaxFrameGap_ms",
+        "fpsLowPercentile",
+        "accuracyHighPercentile",
+        "latencyHighPercentile",
+        "batteryNormalizeWindow_s",
+        "batteryMinSegment_s",
+        "bytesPerMegabyte",
+        "seeGateWindow",
+        "seeTtffAccuracy",
+        "seeRawTraceTrim"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "accuracyWarmup_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "sampleGap_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "gateWindowStep_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "fpsMaxFrameGap_ms": { "$ref": "../common.schema.json#/$defs/milliseconds" },
+        "fpsLowPercentile": { "type": "integer", "minimum": 0 },
+        "accuracyHighPercentile": { "type": "integer", "minimum": 0 },
+        "latencyHighPercentile": { "type": "integer", "minimum": 0 },
+        "batteryNormalizeWindow_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "batteryMinSegment_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "bytesPerMegabyte": { "type": "integer", "minimum": 0 },
+        "seeGateWindow": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "seeTtffAccuracy": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "seeRawTraceTrim": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "engine": {
+      "type": "object",
+      "required": ["tickInterval_ms", "bangkokUtcOffset_min"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "tickInterval_ms": { "$ref": "../common.schema.json#/$defs/milliseconds" },
+        "bangkokUtcOffset_min": { "type": "integer", "minimum": 0 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "storage": {
+      "type": "object",
+      "required": ["sessionPersistInterval_s"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "sessionPersistInterval_s": { "$ref": "../common.schema.json#/$defs/seconds" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "navigation": {
+      "type": "object",
+      "required": ["coordinateDecimals", "externalOpenTimeout_ms"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "coordinateDecimals": { "type": "integer", "minimum": 0 },
+        "externalOpenTimeout_ms": { "$ref": "../common.schema.json#/$defs/milliseconds" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

@@ -93,6 +93,13 @@
     "_farDungeonThreshold_source": "P2-F06-T01: 2,000 -> 1,900 m (-5%). D-079 (game-director, P1-F03-T25 B-01): ceiling = PRD yellow-zone real walk 3,000 m / population-weighted route factor 1.52 (D-072, P1-F01-T09) = 1,974 m, so the straight-line threshold must be <= 1,970 m; 1,900 m chosen (about 2,890 m of real walking, about 36 min at 4.8 km/h). Distance on the home screen stays straight-line and approximate (N-02, A-3). launch-criteria F-11 uses the same key",
     "seeOutOfAreaMask": "data/map/playarea-mask.geojson",
     "reevaluateDistance_m": 200,
+    "distanceDisplaySteps_m": [
+      { "upTo_m": 1000, "step_m": 50 },
+      { "upTo_m": 10000, "step_m": 100 },
+      { "upTo_m": null, "step_m": 1000 }
+    ],
+    "_distanceDisplaySteps_source": "P2-F05-T20 · spec F04 R34 and acceptance 10 (the distance on screen is never less than the real straight-line distance, and is labelled approximate): shown distance = ceil(distance / step_m) x step_m using the first band with distance <= upTo_m (null = no upper bound). 650 m shows 650, 651 m shows 700, 1,901 m shows 2,000, 12,345 m shows 13,000. Display only, never affects a reward",
+    "_nullMeans": { "distanceDisplaySteps_m[].upTo_m": "unbounded" },
     "seeAccuracy": "location.json#homeState.maxAccuracy_m",
     "_assumption": "A-P1-F03-T06-20b: position inside the play area and nearest open dungeon farther than farDungeonThreshold_m (1,900 m straight line since P2-F06-T01, D-079; the GDD's 650 m example works, 3 km fails) = 'far', however far (distance is still shown and navigable). Owner: game-director. A-P1-H03-5: re-evaluate the home state on app open and whenever the position moved more than 200 m since the last evaluation (about 10% of the far threshold, about 2.5 min walk, well above the 30 m check-in accuracy so GPS drift does not flip the panel). Display only, never affects a reward. Owner: uiux-designer, location-engineer",
     "_note": "'Outside area' (D-064, F-03) is NOT a distance: it is 'position outside the play area' = outside the holes of data/map/playarea-mask.geojson (same geometry the server uses in Phase 3, D-043; opening a province changes data only). The former key outOfServiceAreaThreshold_m (20,000 m to nearest dungeon) was removed in P1-X18 and must not be reintroduced. Mask check may run on the client because it is display only (NN-1 unaffected)"

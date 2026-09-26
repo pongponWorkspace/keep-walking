@@ -72,3 +72,47 @@ function overrideIfPresent(
   }
   return nonEmpty(params.get(key) ?? undefined);
 }
+
+/**
+ * Build profile (TL B-10, docs/tech/F04-dungeon-presence.md section 17, ADR 0003 8.1): two env
+ * vars read at build time only (`import.meta.env`, never re-read at runtime). `dev` is every
+ * build that does not explicitly opt into `playtest` (a local `pnpm dev`, an unconfigured preview);
+ * `playtest` is set by the deploy-preview workflow (P2-F05-T14, devops-engineer) for a build
+ * handed to real playtesters, where the HUD stays off unless `?hud=1` is on the URL (already the
+ * `production`-mode default, `client.json#providerQueryDefaultsByMode`) and the build shows its own
+ * version so a bug report can be tied to a commit.
+ */
+export type BuildProfile = 'dev' | 'playtest';
+
+const KNOWN_BUILD_PROFILES: readonly BuildProfile[] = ['dev', 'playtest'];
+
+export interface BuildProfileEnvSource {
+  readonly VITE_KW_PROFILE?: string | undefined;
+  readonly VITE_KW_COMMIT?: string | undefined;
+}
+
+export interface ResolvedBuildProfile {
+  readonly profile: BuildProfile;
+  /** Short git SHA (devops-engineer's workflow sets this); `undefined` on a local dev build. */
+  readonly commit: string | undefined;
+}
+
+function isKnownBuildProfile(value: string): value is BuildProfile {
+  return (KNOWN_BUILD_PROFILES as readonly string[]).includes(value);
+}
+
+/** `VITE_KW_PROFILE` unset or unrecognized falls back to `dev` (the safer choice: HUD/Mock
+ * defaults are still governed separately by `providerQueryDefaultsByMode`'s MODE key, this only
+ * controls the version badge and is never used to gate a security-relevant behaviour by itself). */
+export function readBuildProfile(source: BuildProfileEnvSource): ResolvedBuildProfile {
+  const raw = source.VITE_KW_PROFILE?.trim();
+  let profile: BuildProfile = 'dev';
+  if (raw !== undefined && raw.length > 0) {
+    if (isKnownBuildProfile(raw)) {
+      profile = raw;
+    } else {
+      console.warn(`unknown VITE_KW_PROFILE "${raw}"; falling back to "dev"`);
+    }
+  }
+  return { profile, commit: nonEmpty(source.VITE_KW_COMMIT) };
+}

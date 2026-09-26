@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/equipment.schema.json",
+  "title": "config/balance/equipment.json",
+  "type": "object",
+  "required": ["_meta", "gearStat", "slots", "bossGear", "binding", "tierByLevel"],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "gearStat": {
+      "type": "object",
+      "required": [
+        "gearStatCoef",
+        "gearStatTierExponent",
+        "enhanceBonusPerLevel",
+        "minTier",
+        "maxTier",
+        "rounding"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "gearStatCoef": { "type": "integer", "minimum": 0 },
+        "gearStatTierExponent": { "type": "number" },
+        "enhanceBonusPerLevel": { "type": "number" },
+        "minTier": { "type": "integer", "minimum": 0 },
+        "maxTier": { "type": "integer", "minimum": 0 },
+        "rounding": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "slots": {
+      "type": "object",
+      "required": ["weapon", "armor", "charm", "boots"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "weapon": {
+          "type": "object",
+          "required": ["atkShare", "defShare", "vitPointsPerGearStat"],
+          "properties": {
+            "atkShare": { "type": "integer", "minimum": 0 },
+            "defShare": { "type": "integer", "minimum": 0 },
+            "vitPointsPerGearStat": { "type": "integer", "minimum": 0 }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "armor": {
+          "type": "object",
+          "required": ["atkShare", "defShare", "vitPointsPerGearStat"],
+          "properties": {
+            "atkShare": { "type": "integer", "minimum": 0 },
+            "defShare": { "type": "integer", "minimum": 0 },
+            "vitPointsPerGearStat": { "type": "integer", "minimum": 0 }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "charm": {
+          "type": "object",
+          "required": ["atkShare", "defShare", "vitPointsPerGearStat"],
+          "properties": {
+            "atkShare": { "type": "number" },
+            "defShare": { "type": "number" },
+            "vitPointsPerGearStat": { "type": "integer", "minimum": 0 }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "boots": {
+          "type": "object",
+          "required": ["atkShare", "defShare", "vitPointsPerGearStat"],
+          "properties": {
+            "atkShare": { "type": "integer", "minimum": 0 },
+            "defShare": { "type": "integer", "minimum": 0 },
+            "vitPointsPerGearStat": { "type": "number" }
+          },
+          "patternProperties": { "^_": {} }
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "bossGear": {
+      "type": "object",
+      "required": [
+        "tier",
+        "baseStatMult",
+        "bindOnPickup",
+        "enhanceable",
+        "tradeable",
+        "npcSellable"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "tier": { "type": "integer", "minimum": 0 },
+        "baseStatMult": { "type": "number" },
+        "bindOnPickup": { "type": "boolean" },
+        "enhanceable": { "type": "boolean" },
+        "tradeable": { "type": "boolean" },
+        "npcSellable": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "binding": {
+      "type": "object",
+      "required": ["bindOnFirstEnhance"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "bindOnFirstEnhance": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "tierByLevel": {
+      "type": "object",
+      "required": ["levelMaxForTier"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "levelMaxForTier": { "type": "array", "items": { "type": "integer", "minimum": 0 } }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

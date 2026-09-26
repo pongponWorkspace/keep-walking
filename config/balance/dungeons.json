@@ -3,7 +3,7 @@
     "file": "dungeons.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06, P1-H03 (coverageFilter, hpSafety copy variables), P1-X04 (_nullMeans, emergencyClose, safety, coverageFilter walk / shape / entrance keys)",
+    "task": "P1-F03-T06, P1-H03 (coverageFilter, hpSafety copy variables), P1-X04 (_nullMeans, emergencyClose, safety, coverageFilter walk / shape / entrance keys), P2-F05-T20 (movementGate filter, runState hysteresis, openingHours), P2-F05-T01 (safety per D-061 change, rewardTick grants)",
     "doc": "design/systems/balance-model.md section 9; tools/coverage/METHOD.md 8.2",
     "readBy": ["tools/coverage (area limits, A-P1-PLAN-01-5; coverageFilter)","back office polygon validation", "server run state machine"]
   },
@@ -25,6 +25,13 @@
     "confirmPopupRequired": true,
     "respectOpeningHours": true
   },
+  "openingHours": {
+    "_source": "GDD > พื้นที่เล่นและ Dungeon > เวลาทำการ; ความปลอดภัยทางกายภาพ (ไม่ให้มีคนไปปีนรั้วตอนดึก) · spec F04 R25-R30 · ADR 0003 9.2 · tech note F04 8.2-8.3 · P2-F05-T20",
+    "utcOffset_min": 420,
+    "_utcOffset_source": "Asia/Bangkok = UTC+07:00 all year, no daylight saving. Runtime evaluates local time as now_ms + utcOffset_min x 60,000 and never uses the device time zone",
+    "closingSoonNotice_s": 600,
+    "_closingSoonNotice_source": "Spec F04 section 8: early enough to finish a tick and walk out. 600 s >= movementGate.window_s (300 s, one full reward window) + about 3 min to walk out of the largest dungeon (area.maxArea_m2 150,000 m2 = radius about 220 m at 1.3 m/s). A window still open at closing time is paid by D-059 (emergencyClose partial tick), so the notice never costs a tick"
+  },
   "runState": {
     "_source": "GDD > พื้นที่เล่นและ Dungeon > การเข้าและออก (Active / Grace ไม่เกิน 3 นาที / Suspended 3-15 นาที / Ended เกิน 15 นาที)",
     "graceMax_s": 180,
@@ -32,11 +39,20 @@
     "rewardTickDuringGrace": false,
     "rewardTickDuringSuspended": false,
     "suspendedTimeCounts": false,
-    "_note": "Outside time <= 180 s = Grace; 180-900 s = Suspended; > 900 s = Ended. The same 15-minute limit ends a run on connection loss (GDD > สถาปัตยกรรมเทคนิค > สัญญาณขาดและแอปถูกปิด)"
+    "_note": "Outside time <= 180 s = Grace; 180-900 s = Suspended; > 900 s = Ended. The same 15-minute limit ends a run on connection loss (GDD > สถาปัตยกรรมเทคนิค > สัญญาณขาดและแอปถูกปิด)",
+    "edgeHysteresisSamples": 6,
+    "edgeHysteresis_m": 5,
+    "_edgeHysteresis_source": "P2-F05-T20 · spec F04 R15 (GD B-05) limits: distance <= about 1/3 of the 31 m radius of the smallest dungeon and below half of a 20 m riverside strip; confirmation time (samples x movementGate.sampleCadence_s = 6 x 5 = 30 s) <= graceMax_s / 6 = 30 s. Evidence: tools/sim report-gate section 3 (edge-walk trace: the 2 real exits give Grace 140 s and Suspended at 180.001 s; drift exits all < 180 s)",
+    "_edgeHysteresis_rule": "Confirmed reading (answers A-P2-F04-T14-1 and A-P2-F04-T12-2): pending run = consecutive usable samples observed on the other side of the polygon edge; a usable sample on the confirmed side resets it. A sample counts only when boundaryDistance_m > edgeHysteresis_m; samples inside that band neither count nor reset. The change is confirmed after edgeHysteresisSamples counted samples (both conditions together, not either) and takes effect at the FIRST sample of the pending run, band samples included (F04 R14). Same rule outward and inward. edgeHysteresis_m = 0 means count only; edgeHysteresisSamples = 1 means distance only. A sample pair gap > movementGate.maxSamplePairGap_s drops a pending run",
+    "clockSkewTolerance_s": 5,
+    "_clockSkewTolerance_source": "P2-F05-T20 · spec F04 E10 (not so long that it becomes extra play time), tech note F04 4.2 / 4.4: a sample more than 5 s in the future is rejected, now_ms going back more than 5 s ends the run with clock_invalid. 5 s covers fix-timestamp vs Date.now differences and small NTP steps on one device clock"
   },
   "rewardTick": {
     "_source": "GDD > Core loop ใน Dungeon > Reward tick (ให้ของเป็นขั้นทุก 5 นาที)",
-    "rewardTickInterval_s": 300
+    "rewardTickInterval_s": 300,
+    "seeExpCurve": "progression.json#expCurve",
+    "seeDropTables": "drops.json#dropTables",
+    "_grants_note": "P2-F05-T01 (spec F05 R10-R17, D-094): a tick that passed the movement gate grants exp and one loot roll at once; a denied tick grants nothing and draws no random number. exp = expPerTick(Z) x expMultiplier (Magic term, level-gap term) x f, where Z = combat.json#monsterAttack.zoneLevelFrom, f = 1 for a normal tick and e / movementGate.window_s for a D-059 partial tick. exp is kept unrounded (the client shows the floor); level-ups apply at once and may chain; at progression.json#level.maxLevel no exp is added. exp is not run loot (kept on death). Loot = rollTickLoot(runSeed, grantedCount, dropTables[drop_table_id], multipliers, f) into the run bag. Formulas: design/systems/balance-model.md section 17; vectors: design/systems/test-vectors/tick-reward.json"
   },
   "movementGate": {
     "_source": "GDD > Core loop ใน Dungeon > Movement gate (ระยะทางสะสมเกิน 50 เมตรใน 5 นาที ใช้ทั้ง dungeon และ raid ไม่มีข้อยกเว้น)",
@@ -44,7 +60,19 @@
     "window_s": 300,
     "comparison": "greaterThan",
     "appliesTo": ["dungeon", "raid"],
-    "exceptions": []
+    "exceptions": [],
+    "sampleCadence_s": 5,
+    "maxSamplePairGap_s": 30,
+    "maxSampleAccuracy_m": 30,
+    "outlierSpeed_kmh": 60,
+    "outlierReanchorSamples": 5,
+    "_filter_source": "P2-F05-T20 · ADR 0003 5.3 / 5.5 (names), spec F05 section 8 and F04 section 8 (limits). Evidence: tools/sim report-gate sections 1-2",
+    "_sampleCadence_source": "window_s % sampleCadence_s = 0 (300 / 5). On the 1 Hz synthetic traces: table-still 0/3 reward windows pass (max 3.3 m), bench-jitter 3/3 pass (53.4-56.5 m, narrow margin, finding F-16), park-loop 6/6 (388-398 m). 10 s fails bench-jitter (0/3). 5 s equals the 0.2 Hz sample period, so a 0.2 Hz device and a 1 Hz device on the same walk give the same grid (vector movement-gate 1 Hz vs 0.2 Hz)",
+    "_maxSamplePairGap_source": "GD B-04: long enough for a 0.2 Hz device (5 s) and short GPS dropouts under trees (soi trace gaps up to 25 s), much shorter than runState.graceMax_s (180 s = 6 x 30 s), short enough that a 5-minute gap walked 400 m adds 0 m. Also the no-evidence limit (F04 R13) and the settled-horizon lag of the engine",
+    "_maxSampleAccuracy_source": "Spec F05 section 8: not stricter than anticheat.checkIn.maxAccuracy_m (30, strict less-than). Gate keeps accuracy <= 30 (equal is kept), so it is never stricter than check-in. Separate key by ADR 0003 5.5; intentionally the same number",
+    "_outlierSpeed_source": "Impossible for a walker, yet above GPS jitter at 1 Hz: synthetic-warmup-accuracy-01 (accuracy settling from 30 to 6 m) has 1 Hz jitter pairs up to 134 km/h; at 30 km/h (the location-engineer fixture) 52 of its fixes are dropped and the check-in approach never reaches 60 s in the 5-minute trace, at 60 km/h 4 are dropped and the approach completes at 118 s (ideal about 106 s). Spikes stay caught: drift-spike S2 1,080 km/h, S3 snap-back 216 km/h at 1 Hz, teleport 4,904 km/h. Separate from anticheat.speedLock.speedLock_kmh (25): the speed lock uses unfiltered pairs, and a pair faster than speedLock_kmh adds no gate distance anyway (tech note F05 3.1 item 5), so a higher outlierSpeed_kmh never adds reward distance. Evidence: tools/sim report-gate section 2",
+    "_outlierReanchorSamples_source": "Longer than the 3-fix spike of synthetic-drift-spike-01 (S2, 300 m at accuracy 12 m) so a spike never becomes the anchor; 5 s at 1 Hz, 25 s at 0.2 Hz before a real relocation (GPS back after a building) is accepted",
+    "_assumption": "A-P2-F05-T20-1: all five filter values are proposals from synthetic traces only; real-device jitter (P2-C03, TL N-11) may move sampleCadence_s. If a phone lying still passes the gate after filtering, the orchestrator opens a fix task for systems-designer and informs game-director before P2-F05-T16 (board rule 4). Owner: systems-designer, game-director"
   },
   "hpSafety": {
     "_source": "GDD > HP การตาย และการฟื้นฟู > ระบบกันตาย",
@@ -87,18 +115,40 @@
   },
   "safety": {
     "_source": {
-      "reportThreshold": "GDD > ระบบหลังบ้าน > ฟีเจอร์ที่ต้องมี (คิวรายงานจากผู้เล่น พร้อมสถิติรายงานซ้ำ); ความเสี่ยงที่ต้องเฝ้าดู (ทางเท้าเข้าไม่ถึงจริง → คิวรายงาน + ปุ่มปิดฉุกเฉิน); product/metrics.md GR-9 (A-P1-F03-T19-3)",
-      "reportWindow_h": "product/metrics.md section 7 ('ภายในหน้าต่างเวลาเดียวกัน')",
-      "reportCountsDistinctPlayers": "one player reporting many times must not close a dungeon",
-      "onThresholdAction": "product/metrics.md section 7 (ปิดชั่วคราวอัตโนมัติรอ moderator ตรวจ)"
+      "reportCategories": "GDD > ระบบหลังบ้าน > ฟีเจอร์ที่ต้องมี (คิวรายงานจากผู้เล่น: เข้าไม่ได้ / ที่นี่อันตราย / ปิดถาวร)",
+      "autoSuspendCategories": "D-061 as changed by game-director (design/reviews/F03-design-gate-b.md 4.3 item 1): only the safety category suspends automatically",
+      "otherCategoriesAction": "D-061 change item 1: 'เข้าไม่ได้' and 'ปิดถาวร' go to the moderator queue with repeat-report statistics, never an automatic suspension",
+      "reportThreshold": "D-061 change item 3 (default 5 kept) · GDD ความเสี่ยงที่ต้องเฝ้าดู (ทางเท้าเข้าไม่ถึงจริง → คิวรายงาน + ปุ่มปิดฉุกเฉิน) · product/metrics.md GR-9",
+      "reportWindow_h": "D-061 change item 3 (default 24 h kept) · product/metrics.md section 7",
+      "reportCountsDistinctPlayers": "one player reporting many times must not suspend a dungeon",
+      "reporterMustBePresent": "D-061 change item 2: the reporter was really at this dungeon inside the window (passed check-in there, or had a run there); decided on the server, the reporter is never shown",
+      "reporterMinTrustScore": "D-061 change item 2: trust not low · pointer to anticheat.json#trustScore.lowThreshold",
+      "minIndependentGroups": "D-061 change item 3: at least 2 groups that are not the same party at the time of the report; a solo player is one group",
+      "independentGroupDefinition": "D-061 change item 3",
+      "onThresholdAction": "D-061 change item 4 · product/metrics.md section 7 (ปิดชั่วคราวอัตโนมัติรอ moderator ตรวจ)",
+      "notifyModeratorOnThreshold": "D-061 change item 4 (moderator alerted at once)",
+      "reopenBy": "D-061 change item 4 (only a moderator reopens)",
+      "reportInput": "D-061 change item 5 and CLAUDE.md non-negotiable 4: categories only, no free text"
     },
+    "reportCategories": ["inaccessible", "dangerous", "permanentlyClosed"],
+    "autoSuspendCategories": ["dangerous"],
+    "otherCategoriesAction": "moderatorQueue",
     "reportThreshold": 5,
     "reportWindow_h": 24,
     "reportCountsDistinctPlayers": true,
+    "reporterMustBePresent": true,
+    "seeReporterMinTrustScore": "anticheat.json#trustScore.lowThreshold",
+    "_reporterTrust_note": "A report counts when the reporter's trust score is not low: score >= anticheat.json#trustScore.lowThreshold (below it is low, A-P1-F03-T06-11)",
+    "minIndependentGroups": 2,
+    "independentGroupDefinition": "partyAtReportTime",
     "onThresholdAction": "suspendPendingModerator",
+    "notifyModeratorOnThreshold": true,
+    "reopenBy": "moderatorOnly",
+    "reportInput": "categoryOnly",
     "seeEmergencyClose": "dungeons.json#emergencyClose",
-    "_note": "When at least reportThreshold distinct players report the same dungeon inside a rolling reportWindow_h, the server suspends the dungeon until a moderator reviews it. Players inside are paid the same way as emergencyClose (movement gate still applies)",
-    "_assumption": "A-P1-X04-3: 5 distinct players in 24 h is a PROPOSED starting value (not in the GDD) chosen so one small party cannot close a dungeon but a real hazard closes within a day at launch traffic. Owner: game-director (safety rule), liveops-operator (tuning after launch)"
+    "_note": "Automatic suspension happens when, inside a rolling reportWindow_h, reports in autoSuspendCategories come from at least reportThreshold distinct players who were present at this dungeon and are not low trust, AND those players form at least minIndependentGroups groups (party at report time; a solo player is one group). The dungeon is then suspended until a moderator reviews and reopens it; the moderator is alerted at once. Players inside are paid the same way as emergencyClose (D-059: the movement gate still applies). Other categories only feed the moderator queue. Computed on the server (Phase 5 F13/F15); Phase 2 has no report button (board 1.9 GD N-06)",
+    "_change": "P2-F05-T01 (B-02): D-061 changed by game-director. Before: 5 distinct players in 24 h, any category. Added: autoSuspendCategories, reporterMustBePresent, reporter trust, minIndependentGroups, moderator alert and reopen rule. The old _assumption text claimed one small party could not close a dungeon; that was wrong (a party has up to classes.json#party.maxMembers = 8) and is replaced below",
+    "_assumption": "A-P1-X04-3 (revised P2-F05-T01): 5 distinct present, not-low-trust players from at least 2 independent groups in 24 h is a PROPOSED starting value, not in the GDD. One party alone can never suspend a dungeon (it is one group), and a real hazard reported by two separate visitors' groups still closes it within a day at launch traffic. Owner: game-director (safety rule), liveops-operator (tuning after launch)"
   },
   "temporaryDungeon": {
     "_source": "GDD > ระบบหลังบ้าน > ฟีเจอร์ที่ต้องมี (dungeon ชั่วคราวต้องมีวันหมดอายุบังคับ)",

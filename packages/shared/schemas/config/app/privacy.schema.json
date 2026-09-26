@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/app/privacy.schema.json",
+  "title": "config/app/privacy.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "rawTraceExport",
+    "summaryExport",
+    "logging",
+    "onDeviceSamples",
+    "localData",
+    "externalNavigation"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "rawTraceExport": {
+      "type": "object",
+      "required": [
+        "rawTraceTrim_m",
+        "coordinateDecimals",
+        "relativeTimeOnly",
+        "requiresExplicitOptIn",
+        "autoUploadAllowed"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "rawTraceTrim_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "coordinateDecimals": { "type": "integer", "minimum": 0 },
+        "relativeTimeOnly": { "type": "boolean" },
+        "requiresExplicitOptIn": { "type": "boolean" },
+        "autoUploadAllowed": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "summaryExport": {
+      "type": "object",
+      "required": ["isDefaultExport", "includesCoordinates", "sessionIdRegeneratedPerSession"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "isDefaultExport": { "type": "boolean" },
+        "includesCoordinates": { "type": "boolean" },
+        "sessionIdRegeneratedPerSession": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "logging": {
+      "type": "object",
+      "required": [
+        "rawCoordinatesInProductionLog",
+        "rawCoordinatesInDebugLogRequiresFlag",
+        "byteCounterStoresTileUrls"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "rawCoordinatesInProductionLog": { "type": "boolean" },
+        "rawCoordinatesInDebugLogRequiresFlag": { "type": "string", "minLength": 1 },
+        "byteCounterStoresTileUrls": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "onDeviceSamples": {
+      "type": "object",
+      "required": [
+        "maxAge_s",
+        "maxCount",
+        "persistPreRunApproach",
+        "deleteOnRunEnd",
+        "hudSamplesMemoryOnly",
+        "seeUpperBound",
+        "seeGateWindow",
+        "seePairGap"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "maxAge_s": {
+          "$ref": "../common.schema.json#/$defs/positiveSeconds",
+          "description": "D-088; bounds in cross.ts"
+        },
+        "maxCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "D-088; lower bound in cross.ts"
+        },
+        "persistPreRunApproach": {
+          "const": false,
+          "description": "C2-5: the pre-run anchor never reaches storage"
+        },
+        "deleteOnRunEnd": {
+          "const": true,
+          "description": "C2-5: no coordinates kept after a run ends"
+        },
+        "hudSamplesMemoryOnly": { "const": true, "description": "C2-5" },
+        "seeUpperBound": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "seeGateWindow": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "seePairGap": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "localData": {
+      "type": "object",
+      "required": ["storageKeyPrefix", "clearScope", "afterClear", "onQuotaExceeded"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "storageKeyPrefix": { "type": "string", "minLength": 1 },
+        "clearScope": { "type": "string", "minLength": 1 },
+        "afterClear": { "type": "string", "minLength": 1 },
+        "onQuotaExceeded": {
+          "type": "object",
+          "required": ["evictFirst", "neverEvictFor", "lastResort"],
+          "properties": {
+            "evictFirst": { "type": "string", "minLength": 1 },
+            "neverEvictFor": { "type": "string", "minLength": 1 },
+            "lastResort": { "type": "string", "minLength": 1 }
+          },
+          "patternProperties": { "^_": {} }
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "externalNavigation": {
+      "type": "object",
+      "required": [
+        "includesPlayerPosition",
+        "destinationSource",
+        "referrerPolicy",
+        "requiresUserGesture",
+        "apiKeyAllowed"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "includesPlayerPosition": { "type": "boolean" },
+        "destinationSource": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "referrerPolicy": { "type": "string", "minLength": 1 },
+        "requiresUserGesture": { "type": "boolean" },
+        "apiKeyAllowed": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} }
+}

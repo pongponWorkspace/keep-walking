@@ -1,0 +1,181 @@
+{
+  "format": "kw-dungeons-client",
+  "format_version": 1,
+  "source_sha256": "2327a7b5d39a4a64a161a933215cf2f0a0a65870a9a7833d8ca1f426ec6b6221",
+  "attribution": ["© OpenStreetMap contributors, ODbL 1.0"],
+  "dungeons": [
+    {
+      "id": "fx-market",
+      "name_key": "fx.market",
+      "preset": "market",
+      "level_range": {
+        "min": 10,
+        "max": 20
+      },
+      "drop_table_id": "market.default",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "area_m2": 7184.9,
+      "bbox": [100.564722, 13.72973, 100.566296, 13.73027],
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [100.564722, 13.72973],
+              [100.565278, 13.72973],
+              [100.565278, 13.73027],
+              [100.564722, 13.73027],
+              [100.564722, 13.72973]
+            ]
+          ],
+          [
+            [
+              [100.56574, 13.72973],
+              [100.566296, 13.72973],
+              [100.566296, 13.73027],
+              [100.56574, 13.73027],
+              [100.56574, 13.72973]
+            ]
+          ]
+        ]
+      },
+      "label_point": [100.566018, 13.73],
+      "nav_destination": {
+        "point": [100.566018, 13.73],
+        "source": "label_point"
+      },
+      "search_name_key": "fx.market.search",
+      "opening_hours": {
+        "source": "osm",
+        "weekly": {
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": [],
+          "5": [[960, 1440]],
+          "6": [
+            [0, 120],
+            [960, 1440]
+          ],
+          "7": [
+            [0, 120],
+            [960, 1320]
+          ]
+        },
+        "exceptions": [
+          {
+            "date": "2026-10-23",
+            "intervals": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "fx-park",
+      "name_key": "fx.park",
+      "preset": "largePark",
+      "level_range": {
+        "min": 20,
+        "max": 35
+      },
+      "drop_table_id": "largePark.default",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "area_m2": 17535.7,
+      "bbox": [100.559306, 13.72946, 100.560694, 13.73054],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [100.559306, 13.73054],
+            [100.559306, 13.72946],
+            [100.560694, 13.72946],
+            [100.560694, 13.73054],
+            [100.559306, 13.73054]
+          ],
+          [
+            [100.559907, 13.72991],
+            [100.559907, 13.73009],
+            [100.560093, 13.73009],
+            [100.560093, 13.72991],
+            [100.559907, 13.72991]
+          ]
+        ]
+      },
+      "label_point": [100.559623, 13.729768],
+      "nav_destination": {
+        "point": [100.56, 13.72946],
+        "source": "entrance"
+      },
+      "search_name_key": "fx.park.search",
+      "opening_hours": {
+        "source": "osm",
+        "weekly": {
+          "1": [[300, 1260]],
+          "2": [[300, 1260]],
+          "3": [[300, 1260]],
+          "4": [[300, 1260]],
+          "5": [[300, 1260]],
+          "6": [[300, 1260]],
+          "7": [[300, 1260]]
+        },
+        "exceptions": []
+      }
+    },
+    {
+      "id": "fx-yard",
+      "name_key": "fx.yard",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketPark.default",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "area_m2": 4884.6,
+      "bbox": [100.559676, 13.734685, 100.560324, 13.735315],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [100.559676, 13.734685],
+            [100.560324, 13.734685],
+            [100.560324, 13.735315],
+            [100.559676, 13.735315],
+            [100.559676, 13.734685]
+          ]
+        ]
+      },
+      "label_point": [100.56, 13.735],
+      "nav_destination": {
+        "point": [100.56, 13.735315],
+        "source": "entrance"
+      },
+      "search_name_key": "fx.yard.search",
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [[360, 1080]],
+          "2": [[360, 1080]],
+          "3": [[360, 1080]],
+          "4": [[360, 1080]],
+          "5": [[360, 1080]],
+          "6": [],
+          "7": []
+        },
+        "exceptions": [
+          {
+            "date": "2026-10-13",
+            "intervals": [[480, 600]]
+          },
+          {
+            "date": "2026-12-31",
+            "intervals": []
+          }
+        ]
+      }
+    }
+  ]
+}

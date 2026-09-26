@@ -1,0 +1,468 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/dungeons.schema.json",
+  "title": "config/balance/dungeons.json",
+  "type": "object",
+  "required": [
+    "_meta",
+    "area",
+    "levelRange",
+    "entry",
+    "openingHours",
+    "runState",
+    "rewardTick",
+    "movementGate",
+    "hpSafety",
+    "death",
+    "exit",
+    "offlineEvidence",
+    "emergencyClose",
+    "safety",
+    "temporaryDungeon",
+    "verification",
+    "smallDungeon",
+    "coverageFilter"
+  ],
+  "properties": {
+    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "area": {
+      "type": "object",
+      "required": ["minArea_m2", "maxArea_m2", "outOfRangeAction"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "minArea_m2": { "$ref": "../common.schema.json#/$defs/squareMeters" },
+        "maxArea_m2": { "$ref": "../common.schema.json#/$defs/squareMeters" },
+        "outOfRangeAction": { "type": "string", "minLength": 1 }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "levelRange": {
+      "type": "object",
+      "required": ["rangeRequired", "blockEntryOutsideRange", "exampleRangeWidth_levels"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "rangeRequired": { "type": "boolean" },
+        "blockEntryOutsideRange": { "type": "boolean" },
+        "exampleRangeWidth_levels": { "$ref": "../common.schema.json#/$defs/levels" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "entry": {
+      "type": "object",
+      "required": ["maxActiveDungeonsPerPlayer", "confirmPopupRequired", "respectOpeningHours"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "maxActiveDungeonsPerPlayer": { "const": 1, "description": "GDD: one dungeon at a time" },
+        "confirmPopupRequired": {
+          "const": true,
+          "description": "GDD: confirm popup before every entry"
+        },
+        "respectOpeningHours": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "openingHours": {
+      "type": "object",
+      "required": ["utcOffset_min", "closingSoonNotice_s"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "utcOffset_min": { "type": "integer", "minimum": 0 },
+        "closingSoonNotice_s": { "$ref": "../common.schema.json#/$defs/seconds" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "runState": {
+      "type": "object",
+      "required": [
+        "graceMax_s",
+        "suspendedMax_s",
+        "rewardTickDuringGrace",
+        "rewardTickDuringSuspended",
+        "suspendedTimeCounts",
+        "edgeHysteresisSamples",
+        "edgeHysteresis_m",
+        "clockSkewTolerance_s"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "graceMax_s": {
+          "$ref": "../common.schema.json#/$defs/positiveSeconds",
+          "description": "GDD run states; < suspendedMax_s (cross.ts)"
+        },
+        "suspendedMax_s": {
+          "$ref": "../common.schema.json#/$defs/positiveSeconds",
+          "description": "GDD run states (15 min)"
+        },
+        "rewardTickDuringGrace": { "type": "boolean" },
+        "rewardTickDuringSuspended": { "type": "boolean" },
+        "suspendedTimeCounts": { "type": "boolean" },
+        "edgeHysteresisSamples": { "type": "integer", "minimum": 1, "description": "spec F04 R15" },
+        "edgeHysteresis_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "clockSkewTolerance_s": {
+          "$ref": "../common.schema.json#/$defs/seconds",
+          "description": "spec F04 E10"
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "rewardTick": {
+      "type": "object",
+      "required": ["rewardTickInterval_s"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "rewardTickInterval_s": {
+          "$ref": "../common.schema.json#/$defs/positiveSeconds",
+          "description": "spec F05 R04: equals movementGate.window_s (cross.ts)"
+        }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "movementGate": {
+      "type": "object",
+      "required": [
+        "minDistancePerWindow_m",
+        "window_s",
+        "comparison",
+        "appliesTo",
+        "exceptions",
+        "sampleCadence_s",
+        "maxSamplePairGap_s",
+        "maxSampleAccuracy_m",
+        "outlierSpeed_kmh",
+        "outlierReanchorSamples"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "minDistancePerWindow_m": {
+          "$ref": "../common.schema.json#/$defs/positiveMeters",
+          "description": "GDD movement gate: more than 50 m per window (non-negotiable 2)"
+        },
+        "window_s": {
+          "$ref": "../common.schema.json#/$defs/positiveSeconds",
+          "description": "GDD: 5-minute window; == rewardTick.rewardTickInterval_s (cross.ts)"
+        },
+        "comparison": {
+          "enum": ["greaterThan"],
+          "description": "ADR 0003 5.2 item 4: any other value makes the engine throw (fail closed)"
+        },
+        "appliesTo": {
+          "type": "array",
+          "items": { "enum": ["dungeon", "raid"] },
+          "uniqueItems": true,
+          "allOf": [{ "contains": { "const": "dungeon" } }, { "contains": { "const": "raid" } }],
+          "description": "non-negotiable 2: every reward passes the same gate, raids included"
+        },
+        "exceptions": {
+          "type": "array",
+          "maxItems": 0,
+          "description": "non-negotiable 2: no exceptions"
+        },
+        "sampleCadence_s": {
+          "$ref": "../common.schema.json#/$defs/positiveSeconds",
+          "description": "ADR 0003 5.3; window_s % sampleCadence_s == 0 (cross.ts)"
+        },
+        "maxSamplePairGap_s": {
+          "$ref": "../common.schema.json#/$defs/positiveSeconds",
+          "description": "GD B-04; < runState.graceMax_s (cross.ts)"
+        },
+        "maxSampleAccuracy_m": {
+          "$ref": "../common.schema.json#/$defs/positiveMeters",
+          "description": "spec F05 section 8; >= anticheat.checkIn.maxAccuracy_m (cross.ts)"
+        },
+        "outlierSpeed_kmh": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "ADR 0003 5.5"
+        },
+        "outlierReanchorSamples": { "type": "integer", "minimum": 1, "description": "ADR 0003 5.5" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "hpSafety": {
+      "type": "object",
+      "required": [
+        "autoRetreatEnabledByDefault",
+        "autoRetreatThreshold_pct",
+        "autoRetreatKeepsRunLoot",
+        "lowHpWarningThreshold_pct",
+        "lowHpWarningChannels"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "autoRetreatEnabledByDefault": {
+          "const": true,
+          "description": "non-negotiable 6: auto-retreat on by default"
+        },
+        "autoRetreatThreshold_pct": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "description": "non-negotiable 6 (25% today)"
+        },
+        "autoRetreatKeepsRunLoot": { "type": "boolean" },
+        "lowHpWarningThreshold_pct": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "description": "GDD HP safety"
+        },
+        "lowHpWarningChannels": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "death": {
+      "type": "object",
+      "required": ["loseAllRunLoot", "supportReviveOnlyInsideSameDungeon"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "loseAllRunLoot": { "type": "boolean" },
+        "supportReviveOnlyInsideSameDungeon": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "exit": {
+      "type": "object",
+      "required": ["manualExitAnytime", "regenStartsOnExit"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "manualExitAnytime": { "type": "boolean" },
+        "regenStartsOnExit": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "offlineEvidence": {
+      "type": "object",
+      "required": ["maxOfflineEvidenceAge_s", "connectionLostEndsRunAfter_s"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "maxOfflineEvidenceAge_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "connectionLostEndsRunAfter_s": { "$ref": "../common.schema.json#/$defs/seconds" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "emergencyClose": {
+      "type": "object",
+      "required": [
+        "singleModeratorAllowed",
+        "proRatedRewardOnClose",
+        "proRatedRewardPassesMovementGate",
+        "partialTickGateScaling",
+        "partialTickMinElapsed_s",
+        "seeMovementGate"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "singleModeratorAllowed": { "type": "boolean" },
+        "proRatedRewardOnClose": { "type": "boolean" },
+        "proRatedRewardPassesMovementGate": {
+          "const": true,
+          "description": "non-negotiable 2: the emergency close never skips the gate"
+        },
+        "partialTickGateScaling": { "type": "string", "minLength": 1 },
+        "partialTickMinElapsed_s": { "$ref": "../common.schema.json#/$defs/seconds" },
+        "seeMovementGate": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "reportThreshold",
+        "reportWindow_h",
+        "reportCountsDistinctPlayers",
+        "onThresholdAction",
+        "seeEmergencyClose"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "reportThreshold": { "type": "integer", "minimum": 0 },
+        "reportWindow_h": { "$ref": "../common.schema.json#/$defs/hours" },
+        "reportCountsDistinctPlayers": { "type": "boolean" },
+        "onThresholdAction": { "type": "string", "minLength": 1 },
+        "seeEmergencyClose": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "temporaryDungeon": {
+      "type": "object",
+      "required": ["expiryRequired"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "expiryRequired": { "type": "boolean" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "verification": {
+      "type": "object",
+      "required": ["v1VerificationMode", "v1FloorLevel"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "v1VerificationMode": {
+          "const": "continuous_gps",
+          "description": "non-negotiable 5: outdoor only in v1"
+        },
+        "v1FloorLevel": {
+          "const": null,
+          "description": "non-negotiable 5: no floor in v1 (_nullMeans none)"
+        },
+        "_nullMeans": { "$ref": "../common.schema.json#/$defs/nullMeans" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "smallDungeon": {
+      "type": "object",
+      "required": ["seeFile"],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "seeFile": { "$ref": "../common.schema.json#/$defs/pointer" }
+      },
+      "patternProperties": { "^_": {} }
+    },
+    "coverageFilter": {
+      "type": "object",
+      "required": [
+        "maxBlockedShare",
+        "pointBlockerRadius_m",
+        "duplicateIoU",
+        "nestedContainmentShare",
+        "partialOverlapShare",
+        "multipartMaxGap_m",
+        "repairMaxAreaChangeShare",
+        "excludeAccessValues",
+        "sizeBandUpper_m2",
+        "boundaryCrossCheckMaxDiffShare",
+        "religiousNamePatterns",
+        "blocklistTags",
+        "blocklistDisabledCategories",
+        "blocklistDisabledTags",
+        "blocklistAreaOnlyTags",
+        "excludeOsmIds",
+        "reviewOsmIds",
+        "releaseOsmIds",
+        "reviewTags",
+        "reviewNamePatterns",
+        "reviewFlagTags",
+        "reviewMinAreaTags",
+        "outdoorBuildingValues",
+        "privateGardenTypes",
+        "majorWayTags",
+        "majorWayIgnoreIfTagged",
+        "majorWayAction",
+        "majorWayMinInsideLength_m",
+        "walkGraphSnapMaxDistance_m",
+        "walkRouteFactorFallbackMult",
+        "walkRouteFactorUncertaintyMinMult",
+        "walkRouteFactorUncertaintyMaxMult",
+        "educationAllowOsmIds",
+        "maxAspectRatio",
+        "aspectRatioMethod",
+        "aspectRatioAction",
+        "maxEntranceGap_m"
+      ],
+      "properties": {
+        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "maxBlockedShare": {
+          "type": "object",
+          "required": [
+            "religious",
+            "health",
+            "education",
+            "government",
+            "military",
+            "diplomatic",
+            "cemetery"
+          ],
+          "properties": {
+            "religious": { "type": "number" },
+            "health": { "type": "number" },
+            "education": { "type": "number" },
+            "government": { "type": "number" },
+            "military": { "type": "number" },
+            "diplomatic": { "type": "number" },
+            "cemetery": { "type": "number" }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "pointBlockerRadius_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "duplicateIoU": { "type": "number" },
+        "nestedContainmentShare": { "type": "number" },
+        "partialOverlapShare": { "type": "number" },
+        "multipartMaxGap_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "repairMaxAreaChangeShare": { "type": "number" },
+        "excludeAccessValues": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "sizeBandUpper_m2": {
+          "type": "object",
+          "required": ["small", "medium"],
+          "properties": {
+            "small": { "type": "integer", "minimum": 0 },
+            "medium": { "type": "integer", "minimum": 0 }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "boundaryCrossCheckMaxDiffShare": { "type": "number" },
+        "religiousNamePatterns": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "blocklistTags": {
+          "type": "object",
+          "required": [
+            "religious",
+            "health",
+            "education",
+            "government",
+            "military",
+            "diplomatic",
+            "cemetery"
+          ],
+          "properties": {
+            "religious": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "health": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "education": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "government": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "military": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "diplomatic": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "cemetery": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "blocklistDisabledCategories": { "type": "array" },
+        "blocklistDisabledTags": { "type": "array" },
+        "blocklistAreaOnlyTags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "excludeOsmIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "reviewOsmIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "releaseOsmIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "reviewTags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "reviewNamePatterns": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "reviewFlagTags": {
+          "type": "object",
+          "required": ["railway_station", "fee_entry"],
+          "properties": {
+            "railway_station": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "fee_entry": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+          },
+          "patternProperties": { "^_": {} }
+        },
+        "reviewMinAreaTags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "outdoorBuildingValues": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "privateGardenTypes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "majorWayTags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "majorWayIgnoreIfTagged": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "majorWayAction": { "type": "string", "minLength": 1 },
+        "majorWayMinInsideLength_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "walkGraphSnapMaxDistance_m": { "$ref": "../common.schema.json#/$defs/meters" },
+        "walkRouteFactorFallbackMult": { "type": "number" },
+        "walkRouteFactorUncertaintyMinMult": { "type": "number" },
+        "walkRouteFactorUncertaintyMaxMult": { "type": "number" },
+        "educationAllowOsmIds": { "type": "array" },
+        "maxAspectRatio": { "type": "integer", "minimum": 0 },
+        "aspectRatioMethod": { "type": "string", "minLength": 1 },
+        "aspectRatioAction": { "type": "string", "minLength": 1 },
+        "maxEntranceGap_m": { "$ref": "../common.schema.json#/$defs/meters" }
+      },
+      "patternProperties": { "^_": {} }
+    }
+  },
+  "patternProperties": { "^_": {} },
+  "description": "Structure and types of config/balance/dungeons.json. Engine keys (movementGate, rewardTick, runState, hpSafety, verification, entry, emergencyClose) carry curated ranges and the CLAUDE.md non-negotiables; the rest is a typed snapshot. Cross-file equalities live in tools/config-lint/src/cross.ts."
+}

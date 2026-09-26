@@ -27,7 +27,8 @@ export type VectorFile = GoldenVectorFile<VectorInput, VectorOutput>;
 export const SIM_TOLERANCE = 1e-6;
 const SIM_DECIMALS = 6;
 const DECIMAL_BASE = 10;
-const SIM = 'sim run P1-F03-T07 (reference implementation tools/sim/src/formulas.ts)';
+const SIM =
+  'sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01)';
 
 function roundSim(value: VectorOutput): VectorOutput {
   const f = DECIMAL_BASE ** SIM_DECIMALS;
