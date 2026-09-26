@@ -78,3 +78,5 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 68 | W6 | P2-X20 | systems-designer | 01:27:33 | 01:30:30 | DONE — config-lint 0 error · root test 2211 ผ่าน · ข้อเสนอ {areaName} ให้ game-director |
 | 69 | W6 | P2-X14 | uiux-designer | 01:09:44 | 01:30:55 | DONE — R2-F1..F4, N-10, copy alignment ครบ · flow F04 ยังมีชื่อ nav.approximateDistancePrefix ค้าง (นอก writes) + wireframe เก่า 04/05 → carry |
 | 70 | W6 | P2-F04-T21 | gameplay-programmer | 00:19:14 | 01:33:06 | PARTIAL → DONE ส่วนหลัก — loop F04 ต่อ session จริง · เจอและแก้ปัญหาแผนที่ไม่โหลดเมื่อ refresh ทุก sample · ส่วนที่เหลือ → P2-X21 (gameplay), P2-X22 (tech-lead), readyIn_s → F06-T06 |
+| 71 | W6 | P2-F06-T19 | product-manager | 01:21:44 | 01:33:42 | DONE — แบบสอบถาม + แผนวิเคราะห์ · HP/auto-retreat ไม่ใช่เกณฑ์รอบนี้ (F-20) · game-director ทบทวนก่อน T27 · telemetry enum → P2-X23 |
+| 72 | W6 | P2-C09 | game-director | 01:30:45 | 01:37:30 | DONE — GDD 10 จุดตาม D-084 · orchestrator ยืนยัน diff เฉพาะหัวข้อที่อนุมัติ · Q-P2-10 รอบถ้อยคำถัดไป |
