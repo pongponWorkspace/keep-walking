@@ -3,10 +3,11 @@
 # no network, no credential, no Cloudflare account:
 #   bash infra/scripts/test/test-lint-headers.sh
 #
-# Not yet wired into `pnpm test` -- vitest.config.ts's `include` globs do not cover infra/, and
-# this task's `writes` does not include vitest.config.ts or .github/workflows/*.yml. See this
-# task's REPORT for the exact one-line change (a new `include` glob, same pattern as
-# tools/coverage's pytest-bridge.test.ts) a follow-up task should make.
+# Wired into CI (P2-F04-T08): `.github/workflows/ci.yml` job `lint-headers` runs this file
+# directly, not through `pnpm test` -- `vitest.config.ts` is not in that task's `writes` and a
+# plain `run:` step is simpler than a vitest-bridge wrapper (same reasoning tools/coverage's
+# pytest-bridge.test.ts uses for Python, but this harness has no assertion library dependency to
+# bridge in the first place).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

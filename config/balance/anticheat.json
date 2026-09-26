@@ -26,7 +26,7 @@
   "offlineEvidence": {
     "_source": "GDD > สถาปัตยกรรมเทคนิค > สัญญาณขาดและแอปถูกปิด (sample ที่ upload ทีหลังมีน้ำหนักต่ำกว่าใน trust score)",
     "seeMaxAge": "dungeons.json#offlineEvidence.maxOfflineEvidenceAge_s",
-    "trustWeightVsLive": 0.5,
+    "trustWeightVsLiveMult": 0.5,
     "_assumption": "A-P1-F03-T06-21: GDD says 'lower weight' without a number. Late-uploaded samples count 0.5 of a live sample in trust scoring. Owner: backend-programmer, tech-lead"
   },
   "trustScore": {

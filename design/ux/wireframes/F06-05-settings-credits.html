@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F06 Flow D/G: ตั้งค่า (delta) + ลบข้อมูลในเครื่อง + Credits (P2-F06-T03)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F06 Flow D/G — ส่วนที่ต่างจาก 06-settings-autoretreat.html เดิม + Credits ใหม่</h1>
+  <p>อ้างอิง: design/ux/flows/F06-hp-damage-onboarding.md หัวข้อ 5, 8 · toggle auto-retreat/ป้ายค้าง/popup ยืนยันปิด ยังใช้ไฟล์เดิม 06-settings-autoretreat.html ได้ทั้งหมด (ไม่วาดซ้ำที่นี่) — ไฟล์นี้วาดเฉพาะ 3 อย่างที่ต่าง: (1) หน้าย่อยความปลอดภัยไม่มีแถวยาอัตโนมัติที่ปรับได้ (2) แถวใหม่ "ลบข้อมูลในเครื่อง" (3) หน้า Credits ใหม่</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>D1. หน้าย่อย "การเดินและความปลอดภัย" — เวอร์ชัน Phase 2 (ไม่มีแถวยาอัตโนมัติที่ปรับได้)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">settings.walkingSafetyLink</span> <span class="thaidraft">(การเดินและความปลอดภัย)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><span class="copykey">settings.autoRetreatToggleLabel</span><br><span class="thaidraft">(ถอยอัตโนมัติ)</span><br><span class="caption"><span class="copykey">settings.autoRetreatToggleHint</span></span></div>
+      <div style="width:48px;height:28px;background:var(--state-success);border:2px solid var(--ink-900);border-radius:999px;position:relative;"><div style="width:22px;height:22px;background:var(--bg-surface);border:2px solid var(--ink-900);border-radius:50%;position:absolute;right:2px;top:1px;"></div></div>
+    </div>
+    <div class="card" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+      <div><span class="copykey">settings.pocketScreenLabel</span> <span class="thaidraft">(จอพกกระเป๋า)</span><br><span class="caption"><span class="copykey">settings.pocketScreenHint</span></span></div>
+      <div style="width:48px;height:28px;background:var(--state-success);border:2px solid var(--ink-900);border-radius:999px;position:relative;"><div style="width:22px;height:22px;background:var(--bg-surface);border:2px solid var(--ink-900);border-radius:50%;position:absolute;right:2px;top:1px;"></div></div>
+    </div>
+    <p class="caption" style="margin-top:12px;color:var(--state-danger);">แถว "ใช้ยาอัตโนมัติ / เกณฑ์ที่ปรับได้" ของไฟล์เดิม (06-settings-autoretreat.html เฟรม E2) <b>ไม่ปรากฏใน Phase 2</b> (F06-R22) — ยาอัตโนมัติเปิดเสมอที่เกณฑ์ตั้งต้นจาก config ปรับ/ปิดไม่ได้จนกว่าจะปลด Phase 4</p>
+  </div>
+</div>
+<p class="frame-caption">popup ยืนยันปิด auto-retreat (E3) และป้ายค้างในจอ run (run.autoRetreatOffBadge) ยังเหมือนไฟล์เดิมทุกประการ — ไม่วาดซ้ำที่นี่</p>
+</div>
+
+<div class="frame-block">
+<h3>G3+G4. S-22-settings หน้าแรก + แถวใหม่ "ลบข้อมูลในเครื่อง"</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">settings.title</span> <span class="thaidraft">(ตั้งค่า)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card"><span class="copykey">settings.walkingSafetyLink</span> <span class="thaidraft">(การเดินและความปลอดภัย)</span> ›</div>
+      <div class="card"><span class="copykey">settings.privacyLink</span> <span class="thaidraft">(ความเป็นส่วนตัว)</span> ›</div>
+      <div class="card" style="border-color:var(--state-danger);"><span class="copykey">settings.clearLocalDataLink</span> <span class="thaidraft">(ลบข้อมูลในเครื่อง)</span> ›</div>
+      <div class="card"><span class="copykey">settings.creditsLink</span> <span class="thaidraft">(เครดิตและลิขสิทธิ์)</span> ›</div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">แถวใหม่ของ Phase 2 (C2-6) เข้าถึงง่ายเหมือน settings.privacyLink ไม่ใช่ฝังลึกแบบ auto-retreat · ระหว่างมี run แถวนี้เป็น .btn-disabled พร้อม settings.clearLocalDataBlockedNote (H-E23)</p>
+</div>
+
+<div class="frame-block">
+<h3>G3 popup. ยืนยันลบข้อมูลในเครื่อง (ชั้นเดียว)</h3>
+<div class="phone">
+  <div class="screen-body" style="padding:0;">
+    <div class="popup-overlay center"><div class="popup center-sheet">
+      <h1 class="scr-title" style="color:var(--state-danger);"><span class="copykey">settings.clearLocalDataConfirmTitle</span><br><span class="thaidraft">(ลบข้อมูลในเครื่องทั้งหมดไหม)</span></h1>
+      <p class="body-text"><span class="copykey">settings.clearLocalDataConfirmBody</span> <span class="thaidraft">(ลบ class, HP, ของ, สรุป run, ความสนใจที่ลงทะเบียน และ consent ทั้งหมดในเครื่องนี้ กู้คืนไม่ได้)</span></p>
+      <div class="btn-row">
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">settings.clearLocalDataCancelButton</span> <span class="thaidraft">(ไม่ลบ)</span></div>
+        <div class="btn btn-danger-confirm" style="flex:1;"><span class="copykey">settings.clearLocalDataConfirmButton</span> <span class="thaidraft">(ลบเลย)</span></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+<p class="frame-caption">ยืนยันแล้วล้างทุก key kw.p2.* ทันที (class, HP, inventory, onboarding, สรุป run, ความสนใจ, consent, telemetry) → กลับ S-00-intro · auto-retreat กลับเป็นเปิด</p>
+</div>
+
+<div class="frame-block">
+<h3>G6. S-26-credits</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">credits.title</span> <span class="thaidraft">(เครดิตและลิขสิทธิ์)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <p class="caption" style="font-weight:700;"><span class="copykey">credits.fontsHeading</span> <span class="thaidraft">(ฟอนต์)</span></p>
+    <p class="body-text">IBM Plex Sans Thai Looped, Noto Sans Thai — SIL Open Font License</p>
+    <p class="caption" style="font-weight:700;margin-top:12px;"><span class="copykey">credits.mapDataHeading</span> <span class="thaidraft">(ข้อมูลแผนที่)</span></p>
+    <p class="body-text"><span class="copykey">credits.osmAttribution</span> <span class="thaidraft">(© OpenStreetMap contributors)</span> — ODbL 1.0</p>
+    <p class="caption" style="font-weight:700;margin-top:12px;"><span class="copykey">credits.dataSourcesHeading</span> <span class="thaidraft">(แหล่งข้อมูลอื่น)</span></p>
+    <div class="btn btn-secondary btn-fullwidth-bottom"><span class="copykey">common.close</span> <span class="thaidraft">(ปิด)</span></div>
+  </div>
+</div>
+<p class="frame-caption">หน้าลิขสิทธิ์ทางเทคนิคล้วน อ่านอย่างเดียว ไม่มีข้อมูลบุคคลจริง · credits.osmAttribution ห้ามแก้ถ้อยคำ (เงื่อนไขสัญญาอนุญาต D-091) · หัวข้อ dataSourcesHeading ลบได้ถ้าไม่มีแหล่งอื่นจริง (ASSUMPTION รอ location-engineer)</p>
+</div>
+
+</div>
+</body>
+</html>

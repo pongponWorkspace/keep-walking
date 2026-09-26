@@ -1,0 +1,1560 @@
+{
+  "_meta": {
+    "file": "dungeons.json",
+    "owner": "level-designer",
+    "task": "P2-F04-T13",
+    "doc": "design/levels/pilot-dungeons.md, design/levels/bangrak-plan.md, design/levels/dungeon-rules.md, docs/tech/F04-dungeon-presence.md section 13",
+    "note": "20 pilot records (Phra Nakhon 10, Pathumwan 6, Bang Rak 4) per pilot-dungeons.md 3.1-3.3. 13 published, 6 review, 1 draft (PN-1, name_key held per D-107). Geometry lives in pilot.geojson (geometry_files) keyed by id."
+  },
+  "format": "kw-dungeons-source",
+  "format_version": 1,
+  "geometry_files": [
+    "pilot.geojson"
+  ],
+  "dungeons": [
+    {
+      "id": "rommaninat-park",
+      "status": "draft",
+      "name_key": null,
+      "search_name_key": null,
+      "name_real": "สวนรมณีนาถ",
+      "osm_id": "osm-r10904051",
+      "osm_tags": {
+        "Source": "https://mindtrip.ai/attraction/bangkok-thailand/rommani-nat-park/at-ZaklKIMZ",
+        "addr:district": "พระนคร",
+        "addr:postcode": "10200",
+        "addr:province": "กรุงเทพมหานคร",
+        "addr:street": "ถนนมหาไชย",
+        "addr:subdistrict": "สำราญราษฎร์",
+        "leisure": "park",
+        "name": "สวนรมณีนาถ",
+        "name:en": "Rommani Nat Park",
+        "name:th": "สวนรมณีนาถ",
+        "opening_hours": "05:00-21:00",
+        "source": "Yahoo",
+        "website": "https://minpininteraction.com/bkk_static/park05.asp",
+        "wikidata": "Q13022359"
+      },
+      "geometry_source": "osm",
+      "preset": "largePark",
+      "level_range": {
+        "min": 20,
+        "max": 35
+      },
+      "drop_table_id": "largeParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.501424,
+          13.74804
+        ],
+        "evidence": "pending",
+        "note": "ถนนมหาไชย side (pilot-dungeons.md 3.1)"
+      },
+      "opening_hours": {
+        "source": "osm",
+        "osm": "05:00-21:00"
+      },
+      "temporary": null,
+      "notes": "Held per D-107/HUMAN exception: name_key stays under _held.dungeon.rommaninatPark in names.th.json until narrative-designer moves the key out of _held. Do not publish until name_key exists in config/content/names.th.json top level (dungeon-rules.md 14). One of the required 10 Phra Nakhon records (pilot-dungeons.md 3.1 PN-1)."
+    },
+    {
+      "id": "phra-sumen-fort",
+      "status": "published",
+      "name_key": "dungeon.phraSumenFort",
+      "search_name_key": "dungeon.phraSumenFort.search",
+      "name_real": "สวนสันติชัยปราการ",
+      "osm_id": "osm-w198399091",
+      "osm_tags": {
+        "addr:country": "TH",
+        "addr:district": "พระนคร",
+        "addr:postcode": "10200",
+        "addr:province": "กรุงเทพมหานคร",
+        "addr:street": "ถนนพระอาทิตย์",
+        "addr:subdistrict": "ชนะสงคราม",
+        "leisure": "park",
+        "name": "สวนสันติชัยปราการ",
+        "name:en": "Santichaiprakan Park",
+        "name:ko": "산티차이프라칸 공원",
+        "name:th": "สวนสันติชัยปราการ",
+        "name:tr": "Santichaiprakan Parkı",
+        "opening_hours": "05:00-21:00",
+        "source": "https://www.klook.com/en-IN/destination/p60280570-santi-chai-prakan-park/",
+        "start_date": "1999-12-05",
+        "website": "http://203.155.220.217/office/ppdd/publicpark/thai/2011/park21.asp",
+        "wikidata": "Q13022379",
+        "wikipedia": "th:สวนสันติชัยปราการ"
+      },
+      "geometry_source": "osm",
+      "preset": "largePark",
+      "level_range": {
+        "min": 1,
+        "max": 35
+      },
+      "drop_table_id": "largeParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.494644,
+          13.763979
+        ],
+        "evidence": "pending",
+        "note": "ถนนพระอาทิตย์ side, near ป้อมพระสุเมรุ (pilot-dungeons.md 3.1)"
+      },
+      "opening_hours": {
+        "source": "osm",
+        "osm": "05:00-21:00"
+      },
+      "temporary": null,
+      "notes": "F-18 (board P2-F04-T13, pending game-director ruling this wave): level_range 1-35 may fail R43 for level-1 players sharing a largePark band with level ~35 content. Kept as pilot-dungeons.md 3.1/6.1 specified (F-11b: only Phra Nakhon record with real OSM hours covering both D-093 walk windows at level 1). If game-director rules max <= 9 for level-1-covering ranges, this needs a follow-up fix task."
+    },
+    {
+      "id": "mahakan-fort",
+      "status": "published",
+      "name_key": "dungeon.mahakanFort",
+      "search_name_key": "dungeon.mahakanFort.search",
+      "name_real": "สวนสาธารณะป้อมมหากาฬ",
+      "osm_id": "osm-w560595626",
+      "osm_tags": {
+        "leisure": "park",
+        "name": "สวนสาธารณะป้อมมหากาฬ",
+        "name:en": "Mahakan Fort Park",
+        "name:th": "สวนสาธารณะป้อมมหากาฬ",
+        "opening_hours": "sunrise-sunset",
+        "wikidata": "Q137777828"
+      },
+      "geometry_source": "osm",
+      "preset": "largePark",
+      "level_range": {
+        "min": 20,
+        "max": 30
+      },
+      "drop_table_id": "largeParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.505026,
+          13.753943
+        ],
+        "evidence": "pending",
+        "note": "ถนนมหาไชย side, near ชุมชนบ้านบาตร (pilot-dungeons.md 3.1)"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              360,
+              1110
+            ]
+          ],
+          "2": [
+            [
+              360,
+              1110
+            ]
+          ],
+          "3": [
+            [
+              360,
+              1110
+            ]
+          ],
+          "4": [
+            [
+              360,
+              1110
+            ]
+          ],
+          "5": [
+            [
+              360,
+              1110
+            ]
+          ],
+          "6": [
+            [
+              360,
+              1110
+            ]
+          ],
+          "7": [
+            [
+              360,
+              1110
+            ]
+          ]
+        },
+        "reason": "OSM value \"sunrise-sunset\" is outside the accepted grammar (tools/dungeons README); using a conservative year-round window (06:00-18:30) narrower than actual Bangkok daylight (~06:00-18:45 in Dec, ~05:50-19:05 in Jun) so the gate never opens later or closes earlier than reality; field confirmation still requested"
+      },
+      "temporary": null
+    },
+    {
+      "id": "pak-khlong-talat",
+      "status": "published",
+      "name_key": "dungeon.pakKhlongTalat",
+      "search_name_key": "dungeon.pakKhlongTalat.search",
+      "name_real": "ตลาดส่งเสริมเกษตรไทย",
+      "osm_id": "osm-w1382638055",
+      "osm_tags": {
+        "amenity": "marketplace",
+        "name": "ตลาดส่งเสริมเกษตรไทย",
+        "name:en": "I.C.P. Flower market",
+        "name:th": "ตลาดส่งเสริมเกษตรไทย"
+      },
+      "geometry_source": "osm",
+      "preset": "market",
+      "level_range": {
+        "min": 10,
+        "max": 25
+      },
+      "drop_table_id": "marketDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.495268,
+          13.742781
+        ],
+        "evidence": "pending",
+        "note": "[ต้องยืนยันภาคสนาม] no addr:street on osm-w1382638055 (pilot-dungeons.md 3.1)"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1320
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA produce-market pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation; ปากคลองตลาด is widely reported to run long hours for the flower trade, but no field-confirmed schedule exists yet, so a conservative 05:00-22:00 window is used instead of claiming 24/7"
+      },
+      "temporary": null
+    },
+    {
+      "id": "pahurat-market",
+      "status": "published",
+      "name_key": "dungeon.pahuratMarket",
+      "search_name_key": "dungeon.pahuratMarket.search",
+      "name_real": "ตลาดพาหุรัด",
+      "osm_id": "osm-w1498869503",
+      "osm_tags": {
+        "amenity": "marketplace",
+        "name": "ตลาดพาหุรัด",
+        "name:en": "Pahurat Market",
+        "name:th": "ตลาดพาหุรัด",
+        "tourism": "attraction"
+      },
+      "geometry_source": "osm",
+      "preset": "market",
+      "level_range": {
+        "min": 15,
+        "max": 30
+      },
+      "drop_table_id": "marketDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.49935,
+          13.74382
+        ],
+        "evidence": "pending",
+        "note": "[ต้องยืนยันภาคสนาม] ย่านสิ่งทอพาหุรัด ใกล้ถนนพาหุรัด/จักรเพชร (pilot-dungeons.md 3.1)"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              480,
+              1080
+            ]
+          ],
+          "2": [
+            [
+              480,
+              1080
+            ]
+          ],
+          "3": [
+            [
+              480,
+              1080
+            ]
+          ],
+          "4": [
+            [
+              480,
+              1080
+            ]
+          ],
+          "5": [
+            [
+              480,
+              1080
+            ]
+          ],
+          "6": [
+            [
+              480,
+              1080
+            ]
+          ],
+          "7": [
+            [
+              480,
+              1080
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical Bangkok textile-market daytime pattern (08:00-18:00) pending field confirmation"
+      },
+      "temporary": null
+    },
+    {
+      "id": "khlong-ong-ang",
+      "status": "published",
+      "name_key": "dungeon.khlongOngAng",
+      "search_name_key": "dungeon.khlongOngAng.search",
+      "name_real": "ถนนคนเดินคลองโอ่งอ่าง",
+      "osm_id": "osm-w950315091",
+      "osm_tags": {
+        "amenity": "marketplace",
+        "name": "ถนนคนเดินคลองโอ่งอ่าง",
+        "name:en": "Khlong Ong Ang Walking Street",
+        "name:th": "ถนนคนเดินคลองโอ่งอ่าง",
+        "opening_hours": "Fr-Su 16:00-22:00"
+      },
+      "geometry_source": "osm",
+      "preset": "market",
+      "level_range": {
+        "min": 10,
+        "max": 20
+      },
+      "drop_table_id": "marketDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.501599,
+          13.742739
+        ],
+        "evidence": "pending",
+        "note": "สะพานข้ามคลองฝั่งถนนบำรุงเมือง/จักรเพชร (pilot-dungeons.md 3.1)"
+      },
+      "opening_hours": {
+        "source": "osm",
+        "osm": "Fr-Su 16:00-22:00"
+      },
+      "temporary": null,
+      "review_acknowledged": [
+        {
+          "flag": "candidate_crosses_major_way",
+          "ref": "D-028; dungeon-rules.md 3",
+          "note": "pilot-dungeons.md 3.1 PN-6 known crossing at a footbridge; precise redraw scheduled for the location-engineer field pass (P2-F04-T26)"
+        },
+        {
+          "flag": "aspect_ratio",
+          "ref": "dungeon-rules.md 12; D-049",
+          "note": "long/narrow canal-walk shape, already tagged _layer=waterside in names.th.json#dungeon.khlongOngAng; measured 8.9 > coverageFilter.maxAspectRatio (8), the worked example this rule was proposed for (presets.json#workedExample_khlongOngAng)"
+        }
+      ],
+      "notes": "F-11 QA fixture: only pilot record with a real, OSM-sourced restricted weekly schedule (closed Mon-Thu) for P2-F04-T19 closing-period test cases. Permanent dungeon with day-limited opening_hours per dungeon-rules.md 5/11 and D-053 (not a temporaryDungeon)."
+    },
+    {
+      "id": "baan-phra-athit",
+      "status": "published",
+      "name_key": "dungeon.baanPhraAthit",
+      "search_name_key": "dungeon.baanPhraAthit.search",
+      "name_real": "บ้านพระอาทิตย์",
+      "osm_id": "osm-w304838059",
+      "osm_tags": {
+        "area": "yes",
+        "historic": "manor",
+        "name": "บ้านพระอาทิตย์",
+        "name:en": "Ban Phra Athit",
+        "tourism": "attraction"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.494486,
+          13.762798
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed same window as the two confirmed neighboring OSM parks (PN-1/PN-2, 05:00-21:00) since this is the same riverside public-plaza strip, pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "Context flag 'PN-7 private venue?': osm-w304838059 carries historic=manor + tourism=attraction. pilot-dungeons.md 3.1 assessed this as low risk (public BMA cultural event space on the river promenade, not a ticketed private venue), which this record follows; kept published but flagged for a location-engineer field check before any wider rollout beyond supervised pilot walks."
+    },
+    {
+      "id": "santi-phon-park",
+      "status": "published",
+      "name_key": "dungeon.santiPhonPark",
+      "search_name_key": "dungeon.santiPhonPark.search",
+      "name_real": "สวนสันติพร",
+      "osm_id": "osm-w947297055",
+      "osm_tags": {
+        "leisure": "park",
+        "name": "สวนสันติพร",
+        "name:th": "สวนสันติพร"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.494986,
+          13.758566
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA public-park pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation"
+      },
+      "temporary": null
+    },
+    {
+      "id": "pn9",
+      "status": "review",
+      "name_key": "dungeon.pn9",
+      "search_name_key": "dungeon.pn9.search",
+      "name_real": null,
+      "osm_id": "osm-w900250671",
+      "osm_tags": {
+        "leisure": "park"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 5,
+        "max": 15
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.492516,
+          13.743212
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA public-park pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "Context flag 'PN-9 near school/museum': osm-w900250671 has no name/addr tags and sits near a school and museum on Sanam Chai road (names.th.json#dungeon.pn9._levelCheck). No blocklist tag is present on this candidate itself, but proximity is not yet field-verified to rule out shared/ambiguous access. Kept status review (not published) pending location-engineer field confirmation; not dropped (board switching rule 2/3 — Phra Nakhon has exactly 10 records)."
+    },
+    {
+      "id": "pn10",
+      "status": "review",
+      "name_key": "dungeon.pn10",
+      "search_name_key": "dungeon.pn10.search",
+      "name_real": null,
+      "osm_id": "osm-w900250672",
+      "osm_tags": {
+        "leisure": "park"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.493239,
+          13.743924
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA public-park pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "Same open question as PN-9 (near school/museum, names.th.json#dungeon.pn10._levelCheck): no blocklist tag present, but access not field-verified. Area 3,013.5 m2 is also only 13.5 m2 above area.minArea_m2 (3,000) with zero margin if the real polygon shrinks avoiding an obstacle. Kept status review pending field confirmation; not dropped (Phra Nakhon must keep exactly 10 records)."
+    },
+    {
+      "id": "centenary-park",
+      "status": "review",
+      "name_key": "dungeon.centenaryPark",
+      "search_name_key": "dungeon.centenaryPark.search",
+      "name_real": "อุทยาน 100 ปี จุฬาลงกรณ์มหาวิทยาลัย",
+      "osm_id": "osm-w443471833",
+      "osm_tags": {
+        "alt_name": "สวนจุฬาฯ ร้อยปี",
+        "alt_name:th": "สวนจุฬาฯ ร้อยปี",
+        "description": "ก่อสร้างเสร็จสิ้นและเปิดใช้เมื่อเดือน ส.ค. 2560",
+        "leisure": "park",
+        "name": "อุทยาน 100 ปี จุฬาลงกรณ์มหาวิทยาลัย",
+        "name:en": "Chulalongkorn University Centennial Park",
+        "name:th": "อุทยาน 100 ปี จุฬาลงกรณ์มหาวิทยาลัย",
+        "short_name": "อุทยานจุฬาฯ 100 ปี",
+        "short_name:th": "อุทยานจุฬาฯ 100 ปี",
+        "wikidata": "Q61361132",
+        "wikipedia": "th:อุทยาน 100 ปี จุฬาลงกรณ์มหาวิทยาลัย"
+      },
+      "geometry_source": "osm",
+      "preset": "largePark",
+      "level_range": {
+        "min": 30,
+        "max": 50
+      },
+      "drop_table_id": "largeParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.522349,
+          13.739195
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1320
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed comparable large-BMA-park window (05:00-22:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "candidates.geojson flags this record contains_religious_feature via a single religious point node (osm-n10763239114, related_ids.blockers.religious.share=0.0074) inside the park, per dungeon-rules.md 10 (R2/R4, point-blocker method). That node's coordinates are not available in any file this task can read offline (not in data/coverage/points-unmatched.geojson, not a candidate/excluded polygon) so a precise redraw excluding the shrine footprint cannot be done this round. Kept status review (not published) rather than acknowledging the flag blind. Handoff: location-engineer field pass to pinpoint the shrine and redraw a hole around it (same technique used for BR-1 in this same file), then promote to published with review_acknowledged."
+    },
+    {
+      "id": "pathumwananurak-park",
+      "status": "published",
+      "name_key": "dungeon.pathumwananurakPark",
+      "search_name_key": "dungeon.pathumwananurakPark.search",
+      "name_real": "สวนปทุมวนานุรักษ์",
+      "osm_id": "osm-w536866176",
+      "osm_tags": {
+        "addr:city": "แขวงปทุมวัน",
+        "addr:housenumber": "5/1-5/40",
+        "addr:postcode": "10330",
+        "addr:street": "ถนนราชดำริ",
+        "leisure": "park",
+        "name": "สวนปทุมวนานุรักษ์",
+        "name:en": "Pathumwananurak Park",
+        "operator": "กรุงเทพมหานคร",
+        "operator:type": "public",
+        "wikidata": "Q116632430",
+        "wikipedia": "สวนปทุมวนานุรักษ์",
+        "wikipedia:en": "Pathumwananurak Park"
+      },
+      "geometry_source": "osm",
+      "preset": "largePark",
+      "level_range": {
+        "min": 25,
+        "max": 45
+      },
+      "drop_table_id": "largeParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.536605,
+          13.747944
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; tags confirm operator=กรุงเทพมหานคร (public), assumed typical BMA park window (05:00-21:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "names.th.json#dungeon.pathumwananurakPark._levelCheck asks level-designer to check the name's origin before it is treated as final; not this task's authority (narrative-designer owns names.th.json). No dungeon-rules.md blocklist or review flag on this candidate."
+    },
+    {
+      "id": "banthat-thong-market",
+      "status": "published",
+      "name_key": "dungeon.banthatThongMarket",
+      "search_name_key": "dungeon.banthatThongMarket.search",
+      "name_real": "สวนหลวงสแควร์",
+      "osm_id": "osm-w319158844",
+      "osm_tags": {
+        "amenity": "marketplace",
+        "landuse": "commercial",
+        "name": "สวนหลวงสแควร์",
+        "name:en": "Suanluang Square",
+        "name:th": "สวนหลวงสแควร์",
+        "operator": "สำนักงานจัดการทรัพย์สิน จุฬาลงกรณ์มหาวิทยาลัย",
+        "website": "https://pmcu.co.th/?page_id=9880"
+      },
+      "geometry_source": "osm",
+      "preset": "market",
+      "level_range": {
+        "min": 15,
+        "max": 30
+      },
+      "drop_table_id": "marketDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.524222,
+          13.742138
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              600,
+              1320
+            ]
+          ],
+          "2": [
+            [
+              600,
+              1320
+            ]
+          ],
+          "3": [
+            [
+              600,
+              1320
+            ]
+          ],
+          "4": [
+            [
+              600,
+              1320
+            ]
+          ],
+          "5": [
+            [
+              600,
+              1320
+            ]
+          ],
+          "6": [
+            [
+              600,
+              1320
+            ]
+          ],
+          "7": [
+            [
+              600,
+              1320
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical Bangkok food/market-street evening pattern (10:00-22:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "Land operator is สำนักงานจัดการทรัพย์สิน จุฬาลงกรณ์มหาวิทยาลัย (a university property office), not the university campus itself (osm_tags.landuse=commercial, amenity=marketplace) — does not match dungeon-rules.md 8/D-027 education blocklist tags. pilot-dungeons.md 3.2 rated this low-to-medium risk. Kept published; flagged for a location-engineer field check that the market stays open to the general public, not lessee/tenant-only."
+    },
+    {
+      "id": "navanukroh-garden",
+      "status": "published",
+      "name_key": "dungeon.navanukrohGarden",
+      "search_name_key": "dungeon.navanukrohGarden.search",
+      "name_real": "สวนหย่อมนาวานุเคราะห์",
+      "osm_id": "osm-w1184268295",
+      "osm_tags": {
+        "access": "yes",
+        "fee": "no",
+        "garden:type": "landscaping",
+        "leisure": "garden",
+        "name": "สวนหย่อมนาวานุเคราะห์",
+        "name:en": "Navanunukro Garden",
+        "name:th": "สวนหย่อมนาวานุเคราะห์"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.538256,
+          13.729992
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1320
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1320
+            ]
+          ]
+        },
+        "reason": "osm_tags access=yes, fee=no support broad public access; no explicit hours tag, so a conservative 05:00-22:00 window is used pending field confirmation"
+      },
+      "temporary": null,
+      "review_acknowledged": [
+        {
+          "flag": "candidate_crosses_major_way",
+          "ref": "D-028; dungeon-rules.md 3",
+          "note": "adjacent to the Ratchadamri/Lumpini corner road network; precise redraw scheduled for the location-engineer field pass (P2-F04-T26)"
+        }
+      ],
+      "notes": "Context flag 'PW-4 navy land?': name 'นาวานุเคราะห์' (Navanunukro) reads like a person's Thai family surname (a Royal Thai Navy admiral shares this surname; WebSearch turned up no evidence this specific plot is navy-owned land or tagged military=*), and osm_tags carry access=yes, fee=no with no military/government tag. This reduces but does not fully close the risk (a family name is not proof of land ownership). Published with this note; flagged for a location-engineer/HUMAN field check on land ownership before wider rollout. Also resolves pilot-dungeons.md F-11 for เขตปทุมวัน: PW-4 + PW-5 give 2 published level 1-5 pocketPark records (N-04)."
+    },
+    {
+      "id": "leelawadee-lawn",
+      "status": "published",
+      "name_key": "dungeon.leelawadeeLawn",
+      "search_name_key": "dungeon.leelawadeeLawn.search",
+      "name_real": "ลานลีลาวดี",
+      "osm_id": "osm-w1188059621",
+      "osm_tags": {
+        "leisure": "garden",
+        "name": "ลานลีลาวดี",
+        "name:en": "Leelawadee Lawn",
+        "name:th": "ลานลีลาวดี"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.539232,
+          13.730672
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA public-park pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "names.th.json#dungeon.leelawadeeLawn._levelCheck: representative point sits at the edge of Lumpini Park; if a location-engineer field check confirms this polygon is actually inside Lumpini's own boundary (not a distinct plot), narrative-designer should be told so search_name_key can point at Lumpini instead (H-04 A). Not resolved by this task; osm-w1188059621 is drawn as its own OSM way in candidates.geojson so it is treated as a distinct plot for now."
+    },
+    {
+      "id": "pw6",
+      "status": "review",
+      "name_key": "dungeon.pw6",
+      "search_name_key": "dungeon.pw6.search",
+      "name_real": null,
+      "osm_id": "osm-w538789309",
+      "osm_tags": {
+        "leisure": "park"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 5,
+        "max": 15
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.547342,
+          13.741693
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA public-park pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "Context flag 'PW-6 embassy/private?': osm-w538789309 has no name/addr/access tags. WebSearch found a well-known public 'สวนเพลินจิต' (a former SRT/railway-side wasteland converted to a public park in the Phloen Chit area), which is a positive general signal for this area, but this could not be confirmed as the same plot as this specific unnamed OSM way, and the district also has embassy presence nearby. Kept status review (not published) pending location-engineer field confirmation of land status."
+    },
+    {
+      "id": "phet-ploy-market",
+      "status": "published",
+      "name_key": "dungeon.phetPloyMarket",
+      "search_name_key": "dungeon.phetPloyMarket.search",
+      "name_real": "ชุมชนตลาดสดเพชรพลอย",
+      "osm_id": "osm-w1189209076",
+      "osm_tags": {
+        "amenity": "marketplace",
+        "landuse": "commercial",
+        "name": "ชุมชนตลาดสดเพชรพลอย",
+        "name:en": "Phet Ploy Market Community",
+        "name:th": "ชุมชนตลาดสดเพชรพลอย"
+      },
+      "geometry_source": "osm_edited",
+      "preset": "market",
+      "level_range": {
+        "min": 10,
+        "max": 25
+      },
+      "drop_table_id": "marketDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.518446,
+          13.729383
+        ],
+        "evidence": "pending",
+        "note": "[ต้องยืนยันภาคสนาม] ตลาดสดชุมชน no addr:street (pilot-dungeons.md 3.3)"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              840
+            ]
+          ],
+          "2": [
+            [
+              300,
+              840
+            ]
+          ],
+          "3": [
+            [
+              300,
+              840
+            ]
+          ],
+          "4": [
+            [
+              300,
+              840
+            ]
+          ],
+          "5": [
+            [
+              300,
+              840
+            ]
+          ],
+          "6": [
+            [
+              300,
+              840
+            ]
+          ],
+          "7": [
+            [
+              300,
+              840
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical Bangkok fresh/wet community-market pattern (05:00-14:00) pending field confirmation"
+      },
+      "temporary": null,
+      "review_acknowledged": [
+        {
+          "flag": "candidate_contains_religious_feature",
+          "ref": "dungeon-rules.md 10 point B; P2-F04-T13 redraw",
+          "note": "redrawn with an interior hole excluding the shrine osm-w1189209084 (religious_self, area 4.6 m2, excluded.geojson) plus a margin; shrine centroid is approx 17 m from the nearest outer-ring edge so the hole stays interior; overlap_excluded_zone against that zone computes to 0 after this edit"
+        }
+      ],
+      "notes": "geometry_source osm_edited: outer ring unchanged from osm-w1189209076; one interior hole added by this task around the shrine per dungeon-rules.md 10. area_m2 will compute slightly below the raw candidate's 10,745.6 m2 once the hole area is subtracted (hole is small, well within area.minArea_m2..maxArea_m2)."
+    },
+    {
+      "id": "chong-nonsi-canal-park",
+      "status": "published",
+      "name_key": "dungeon.chongNonsiCanalPark",
+      "search_name_key": "dungeon.chongNonsiCanalPark.search",
+      "name_real": "สวนสาธารณะคลองช่องนนทรี (เฟส 2)",
+      "osm_id": "osm-w1185525874",
+      "osm_tags": {
+        "leisure": "park",
+        "name": "สวนสาธารณะคลองช่องนนทรี (เฟส 2)",
+        "name:en": "Chong Nonsi Canal Park (Phase 2)",
+        "name:th": "สวนสาธารณะคลองช่องนนทรี (เฟส 2)"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.527059,
+          13.728084
+        ],
+        "evidence": "pending",
+        "note": "[ต้องยืนยันภาคสนาม] ทางเดินเลียบคลองช่องนนทรี (pilot-dungeons.md 3.3)"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA public-park pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation"
+      },
+      "temporary": null,
+      "review_acknowledged": [
+        {
+          "flag": "candidate_crosses_major_way",
+          "ref": "D-028; dungeon-rules.md 3",
+          "note": "canal-side path crossed by a road bridge, same pattern as PN-6 khlong Ong Ang; precise redraw scheduled for the location-engineer field pass (P2-F04-T26)"
+        },
+        {
+          "flag": "aspect_ratio",
+          "ref": "dungeon-rules.md 12; D-049",
+          "note": "long/narrow canal-walk shape is an accepted second-layer case (waterside), not an automatic exclusion; measured 9.6 > coverageFilter.maxAspectRatio (8); handoff sent to narrative-designer to add _layer=waterside to dungeon.chongNonsiCanalPark for consistency with dungeon.khlongOngAng"
+        }
+      ]
+    },
+    {
+      "id": "br3",
+      "status": "review",
+      "name_key": "dungeon.br3",
+      "search_name_key": "dungeon.br3.search",
+      "name_real": null,
+      "osm_id": "osm-w1150667466",
+      "osm_tags": {
+        "leisure": "garden"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 1,
+        "max": 5
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.539216,
+          13.727558
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA public-park pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "Validator smoke test (location-engineer) found approx 50.6 m2 of overlap with private land near this candidate. This task located 7 excluded.geojson zones whose bbox intersects osm-w1150667466 (private_garden osm-w1224973573/osm-w1224973580, access_private osm-w1231343551/-552/-553, plus area_too_small/area_too_large zones that do not count under validator.excludedZoneReasons). Trimming multiple small private-land slivers precisely without a GIS tool risks leaving a residual overlap or cutting the polygon below area.minArea_m2 (candidate area is 4,261.2 m2, not much headroom). Kept status review (not published) rather than guess at the geometry; handoff to location-engineer to redraw with real tooling, then promote to published."
+    },
+    {
+      "id": "br4",
+      "status": "review",
+      "name_key": "dungeon.br4",
+      "search_name_key": "dungeon.br4.search",
+      "name_real": null,
+      "osm_id": "osm-w1320422003",
+      "osm_tags": {
+        "leisure": "garden"
+      },
+      "geometry_source": "osm",
+      "preset": "pocketPark",
+      "level_range": {
+        "min": 5,
+        "max": 15
+      },
+      "drop_table_id": "pocketParkDefault",
+      "verification_mode": "continuous_gps",
+      "floor_level": null,
+      "entrance": {
+        "point": [
+          100.513317,
+          13.720845
+        ],
+        "evidence": "pending"
+      },
+      "opening_hours": {
+        "source": "manual",
+        "weekly": {
+          "1": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "2": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "3": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "4": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "5": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "6": [
+            [
+              300,
+              1260
+            ]
+          ],
+          "7": [
+            [
+              300,
+              1260
+            ]
+          ]
+        },
+        "reason": "no OSM opening_hours; assumed typical BMA public-park pattern (matches PN-1/PN-2 confirmed OSM value 05:00-21:00) pending field confirmation"
+      },
+      "temporary": null,
+      "notes": "Context flag 'BR-4 embassy/private?': osm-w1320422003 has no name/addr/access tags. names.th.json#dungeon.br4._levelCheck notes the area has embassies, religious sites, a school and hotels nearby (Charoen Krung riverside). WebSearch confirmed the Bangrak district does host several embassies (e.g. France, Greece) but did not confirm this specific plot borders one. Kept status review (not published) pending location-engineer field confirmation."
+    }
+  ]
+}

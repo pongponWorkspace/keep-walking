@@ -3,6 +3,7 @@
 import type { BalanceConfig } from './config';
 import { num, str, strArray, numArray, valueKeys } from './config';
 import type { RaidPartyMultParams } from './raid';
+import { assertZoneLevelRule } from './zone';
 
 export const ROLES = ['tanker', 'ranged', 'support', 'magic'] as const;
 export type Role = (typeof ROLES)[number];
@@ -144,6 +145,7 @@ export interface SimParams {
 /** Builds every parameter the simulator needs from config/balance. Throws on null or missing. */
 export function paramsFromConfig(cfg: BalanceConfig): SimParams {
   const { classes, combat, progression, equipment, economy, dungeons, drops, enhance, raid } = cfg;
+  assertZoneLevelRule(combat);
   const roles = {} as Record<Role, RoleParams>;
   for (const role of ROLES) {
     roles[role] = {
@@ -157,7 +159,7 @@ export function paramsFromConfig(cfg: BalanceConfig): SimParams {
     slots[slot] = {
       atkShare: num(equipment, `slots.${slot}.atkShare`),
       defShare: num(equipment, `slots.${slot}.defShare`),
-      vitPointsPerGearStat: num(equipment, `slots.${slot}.vitPointsPerGearStat`),
+      vitPointsPerGearStat: num(equipment, `slots.${slot}.vitPointsPerGearStatCoef`),
     };
   }
   const potions: Record<string, PotionParams> = {};
@@ -235,7 +237,7 @@ export function paramsFromConfig(cfg: BalanceConfig): SimParams {
     gear: {
       gearStatCoef: num(equipment, 'gearStat.gearStatCoef'),
       gearStatTierExponent: num(equipment, 'gearStat.gearStatTierExponent'),
-      enhanceBonusPerLevel: num(equipment, 'gearStat.enhanceBonusPerLevel'),
+      enhanceBonusPerLevel: num(equipment, 'gearStat.enhanceBonusPerLevelCoef'),
       minTier: num(equipment, 'gearStat.minTier'),
       maxTier: num(equipment, 'gearStat.maxTier'),
       bossBaseStatMult: num(equipment, 'bossGear.baseStatMult'),

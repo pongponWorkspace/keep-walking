@@ -81,6 +81,8 @@ const CLIENT_CONFIG: ClientRuntimeConfig = {
   engine: { tickInterval_ms: 1000 },
   storage: { sessionPersistInterval_s: 5 },
   navigation: { coordinateDecimals: 5, externalOpenTimeout_ms: 2500 },
+  probe: { vibrateTestPattern_ms: 200 },
+  bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
 };
 
 const PRIVACY_CONFIG: AppPrivacyConfig = {

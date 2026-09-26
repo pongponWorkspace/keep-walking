@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F06 Flow A: onboarding นาที 0–1 (intro/age gate/consent/permission) (P2-F06-T03)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F06 Flow A — onboarding นาที 0–1: intro → age gate → consent ตำแหน่ง → permission เบราว์เซอร์</h1>
+  <p>อ้างอิง: design/ux/flows/F06-hp-damage-onboarding.md หัวข้อ 2 (A1–A4) · <b>ลำดับ age gate ก่อน consent ตำแหน่ง</b> (F06-R44, override เหนือ F03-core-loop.md) · ไม่มีขั้น login ใน Phase 2 (D-087, D-088)</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>A1. S-00-intro</h3>
+<div class="phone">
+  <div class="screen-body" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;">
+    <p class="body-text" style="font-size:20px;"><span class="copykey">onboarding.intro</span><br><span class="thaidraft">(กรุงเทพฯ กำลังมีปัญหา)</span></p>
+  </div>
+</div>
+<p class="frame-caption">กดที่ใดก็ได้ทั้งจอเพื่อไปต่อ (ปุ่มเดียวเต็มจอ) ไม่มีปุ่มข้าม → S-00-age-gate</p>
+</div>
+
+<div class="frame-block">
+<h3>A2. S-00-age-gate</h3>
+<div class="phone">
+  <div class="headerbar"><div class="context-label"><span class="copykey">age.gateTitle</span> <span class="thaidraft">(ยืนยันอายุ)</span></div></div>
+  <div class="screen-body">
+    <p class="body-text"><span class="copykey">age.gateBody</span> <span class="thaidraft">(เกมนี้สำหรับอายุ 15 ปีขึ้นไป เลือกปีเกิดแล้วกดยืนยัน)</span></p>
+    <p class="caption"><span class="copykey">age.gateOptions</span> <span class="thaidraft">(เลือกปีเกิด)</span></p>
+    <div class="card" style="text-align:center;margin-top:8px;">2550 ▾</div>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">age.gateConfirm</span> <span class="thaidraft">(ยืนยัน)</span></div>
+  </div>
+</div>
+<p class="frame-caption">เลือกจากรายการ ไม่พิมพ์ · ปุ่มยืนยัน disabled จนกว่าจะเลือกตัวเลือก · <span class="config-ref">config: privacy.minAge_yr</span></p>
+</div>
+
+<div class="frame-block">
+<h3>A2b. ต่ำกว่าเกณฑ์ (O-underage, จบ flow)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="context-label"><span class="copykey">age.gateTitle</span></div></div>
+  <div class="screen-body">
+    <h1 class="scr-title"><span class="copykey">age.underMinTitle</span> <span class="thaidraft">(ยังเล่นไม่ได้ตอนนี้)</span></h1>
+    <p class="body-text"><span class="copykey">age.underMinBody</span> <span class="thaidraft">(เกมนี้เปิดให้อายุ 15 ปีขึ้นไปก่อน ช่องทางขอความยินยอมจากผู้ปกครองยังไม่เปิดใช้งาน)</span></p>
+    <div class="btn btn-secondary btn-fullwidth-bottom"><span class="copykey">age.underMinBack</span> <span class="thaidraft">(กลับหน้าแรก)</span></div>
+  </div>
+</div>
+<p class="frame-caption"><span class="config-ref">config: unlocks.parentalConsent.enabled (=false)</span> scaffold ปิด — ไม่มีฟอร์ม ไม่เก็บข้อมูลใด ไม่ขอตำแหน่ง · ไม่ไปต่อ flow onboarding ที่เหลือ</p>
+</div>
+
+<div class="frame-block">
+<h3>A3. S-00-consent-location</h3>
+<div class="phone">
+  <div class="headerbar"><div class="context-label"><span class="copykey">consent.headerLabel</span> <span class="thaidraft">(สิทธิ์ตำแหน่ง)</span></div></div>
+  <div class="screen-body">
+    <h1 class="scr-title"><span class="copykey">consent.locationTitle</span> <span class="thaidraft">(ขอใช้ตำแหน่งของคุณ)</span></h1>
+    <p class="body-text"><span class="copykey">consent.locationBody</span></p>
+    <p class="caption">(ใช้หารอยแยกใกล้คุณ และนับระยะที่คุณเดินจริง · เก็บไม่เกิน 24 ชม. แล้วลบทิ้ง · ผู้เล่นคนอื่นไม่เห็นตำแหน่งของคุณ · ถอนได้ทุกเมื่อ)</p>
+    <div class="btn-row" style="position:absolute;left:16px;right:16px;bottom:16px;">
+      <div class="btn btn-secondary" style="flex:1;"><span class="copykey">consent.locationDecline</span> <span class="thaidraft">(ไม่อนุญาต)</span></div>
+      <div class="btn btn-primary" style="flex:1;height:48px;"><span class="copykey">consent.locationAccept</span> <span class="thaidraft">(อนุญาต)</span></div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ปุ่มคู่น้ำหนักเท่ากัน (หลัก consent) · อนุญาต → permission เบราว์เซอร์ · ไม่อนุญาต → ข้ามไปแผนที่สถานะไม่รู้ตำแหน่งทันที (ยังเลือกพลังได้ต่อ)</p>
+</div>
+
+<div class="frame-block">
+<h3>A4. S-00-permission-browser</h3>
+<div class="phone">
+  <div class="headerbar"><div class="context-label"><span class="copykey">consent.headerLabel</span></div></div>
+  <div class="screen-body" style="display:flex;flex-direction:column;justify-content:center;">
+    <h1 class="scr-title"><span class="copykey">consent.browserPrimingTitle</span> <span class="thaidraft">(อีกขั้นเดียว)</span></h1>
+    <p class="body-text"><span class="copykey">consent.browserPrimingBody</span> <span class="thaidraft">(เดี๋ยวเครื่องจะเด้งถามซ้ำอีกรอบ กดอนุญาตอีกทีก็จบ)</span></p>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">consent.browserPrimingContinue</span> <span class="thaidraft">(ไปต่อ)</span></div>
+  </div>
+</div>
+<p class="frame-caption">trigger native geolocation prompt ของเบราว์เซอร์/OS (ไม่ใช่ UI ของเกม) → S-01-map สถานะตามตำแหน่งจริง · ปฏิเสธจาก OS → สถานะไม่รู้ตำแหน่งเหมือน A3 ปฏิเสธ</p>
+</div>
+
+</div>
+</body>
+</html>

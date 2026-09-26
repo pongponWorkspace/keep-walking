@@ -27,6 +27,16 @@ const RS = {
   hanging: { grace_s: 250, suspended_s: 290, ended_s: 1200 },
   stuckChain: { outUntil_s: 300, chainSamples: 3, backAt_s: 1500 },
   edgeWalkEnd_s: 1170,
+  /** P-4 (F05-F06 flow approval): return into the inner band, 3 m inside the edge. */
+  band: {
+    from_s: 160,
+    deepAt_s: 400,
+    tail_s: 100,
+    silentFrom_s: 1100,
+    end_s: 1200,
+    depth_m: 3,
+    north_m: -12,
+  },
 } as const;
 
 const IN = CASE.origin;
@@ -276,6 +286,59 @@ export function runStateVectors(c: GateConfig): GateVectorFile {
   cc(TG.now_ms - tol, 'now_ms back by exactly the tolerance: held (time stands, no event)');
   cc(TG.now_ms - tol - 1, 'now_ms back by more than the tolerance: invalid (clock_invalid, E10)');
   cc(TG.now_ms + tol, 'forward: ok');
+  // Appended at the end so the indices of earlier run-state vectors stay the same.
+  hy(
+    'out',
+    obs(0, N, true, 0),
+    'edgeHysteresis_m = 0: samples exactly on the boundary count (A-P2-X03-3, tech note F04 5.2): in, back-dated to the first',
+    { ...hp, edgeHysteresis_m: 0 },
+  );
+  const b = RS.band;
+  const inBand = (from_s: number, to_s: number, every_s: number) =>
+    segment({
+      from_s,
+      to_s,
+      every_s,
+      start: offset(CASE.origin, b.north_m, 0),
+      accuracy_m: CASE.goodAccuracy_m,
+      inside: true,
+      boundaryDistance_m: b.depth_m,
+    });
+  const exitTo = (s_: number) => [
+    ...stay(0, RS.exit_s - RS.every_s, true),
+    ...stay(RS.exit_s, s_ - RS.every_s, false),
+  ];
+  const bandOnly = [...exitTo(b.from_s), ...inBand(b.from_s, b.end_s, RS.outEvery_s)];
+  v.push(
+    simVec(
+      tl(c, bandOnly, b.end_s),
+      'P-4: return into the inner band (3 m <= edgeHysteresis_m) at 160 s and still there at 1,200 s (> graceMax_s, > suspendedMax_s): band samples neither count nor reset, so the settled view holds Grace with pendingSince_ms = 160 s (A-P2-X04-1, Phase 2 has no cap). The Phase 3 pendingSetMax_s cap (J-9) changes this vector to a timeout',
+    ),
+  );
+  v.push(
+    simVec(
+      tl(
+        c,
+        bandOnly.filter((x) => x.t_ms <= b.silentFrom_s * CASE.ms),
+        b.end_s,
+      ),
+      'P-4: the same band return, samples stop at 1,100 s and now = 1,200 s: the gap > maxSamplePairGap_s drops the pending run (D-104), so the timers settle back-dated: Suspended at exit + 180.001 s, Ended timeout at exit + 900 s (items kept, R18)',
+    ),
+  );
+  v.push(
+    simVec(
+      tl(
+        c,
+        [
+          ...exitTo(b.from_s),
+          ...inBand(b.from_s, b.deepAt_s - RS.every_s, RS.every_s),
+          ...stay(b.deepAt_s, b.deepAt_s + b.tail_s, true),
+        ],
+        b.deepAt_s + b.tail_s,
+      ),
+      'P-4: return into the inner band at 160 s, 240 s in the band (> graceMax_s), then deeper: Phase 2 has no pending-run cap (A-P2-X04-1), so the return is back-dated to the first band sample and there is no Suspended. The Phase 3 pendingSetMax_s cap (J-9) changes this vector',
+    ),
+  );
   return { formula: 'run-state', vectors: v };
 }
 
@@ -429,7 +492,7 @@ export function checkInVectors(c: GateConfig): GateVectorFile {
     );
   tr(
     'synthetic-walk-in-01',
-    'walk-in trace (acceptance 3): result at every sample, listed when it changes; ok from the first fix inside',
+    'walk-in trace (acceptance 3): result at every sample, listed when it changes; ok from the first fix inside (the fix at 123000 lies exactly on the polygon edge and counts as inside, same rule as packages/geo, P2-X06)',
   );
   tr('synthetic-teleport-spoof-01', 'teleport-spoof trace (acceptance 3, E5): never ok');
   tr(
@@ -539,9 +602,13 @@ export function speedLockVectors(c: GateConfig): GateVectorFile {
   tr(
     'synthetic-driving-40kmh-01',
     1,
-    'driving-40kmh (acceptance 7): lock at 84 s; the 45 s red light stays locked; the trace ends 45 s after parking, before unlockSustained_s',
+    'driving-40kmh (acceptance 7): lock at 84 s; the 45 s red light stays locked; parked at 400 s, then 120 s of walking (P2-X03) give slow pairs spanning unlockSustained_s: exit at 400 s, back-dated to the first sample of the slow run',
   );
-  tr('synthetic-driving-40kmh-01', CASE.sample02Hz_s, 'driving-40kmh at 0.2 Hz: lock at 85 s');
+  tr(
+    'synthetic-driving-40kmh-01',
+    CASE.sample02Hz_s,
+    'driving-40kmh at 0.2 Hz: lock at 85 s; exit at 400 s, back-dated to the first sample of the slow run',
+  );
   tr(
     'synthetic-drift-spike-01',
     1,

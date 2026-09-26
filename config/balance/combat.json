@@ -3,15 +3,16 @@
     "file": "combat.json",
     "version": 1,
     "owner": "systems-designer",
-    "task": "P1-F03-T06; hit chance refit P1-F03-T08; _nullMeans P1-X04; F06 notes P2-F05-T01",
+    "task": "P1-F03-T06; hit chance refit P1-F03-T08; _nullMeans P1-X04; F06 notes P2-F05-T01; zoneLevelFrom D-112 P2-X09",
     "doc": "design/systems/balance-model.md section 3"
   },
   "monsterAttack": {
     "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (monsterATK = 3 x Z^1.3, Z = zone level)",
     "monsterAtkCoef": 3,
     "monsterAtkExponent": 1.3,
-    "zoneLevelFrom": "levelRangeMidpointRounded",
-    "_assumption": "A-P1-F03-T06-1: GDD defines Z as the zone level but a dungeon stores a level range (e.g. 15-25). Z = round((min + max) / 2). Owner: game-director, level-designer"
+    "zoneLevelFrom": "playerLevelClampedToRange",
+    "_zoneLevelFrom_source": "D-112 (game-director J-8, design/reviews/F04-flow-approval.md R2-5): replaces A-P1-F03-T06-1 (was levelRangeMidpointRounded, Z = round((min + max) / 2) for everyone). GDD > การกำหนด dungeon (ช่วงเลเวลที่เหมาะสม) and ระดับเลเวลที่เหมาะสม (only players outside the range are penalised, by the distance from the range)",
+    "_zoneLevelFrom_note": "Z = clamp(player level at the instant, levelRange.min, levelRange.max), used for both damage (F06 R08) and exp per tick (F05 R11). Outside the range the player plays at the nearest edge and the gap multiplier counts once from that edge: damage x levelGapDamage.damageMultPerLevelBelowRange ^ (min - level) below only, exp x max(floor, levelGapMultPerLevel ^ gap) on both sides. game-director approved damage changes beyond +-20% of the old value for players at the low end of wide ranges (e.g. level 1 in 1-35, Phase 2 base stats, solo non-Tanker: 192.8 -> 4.5 per hit; the top of a wide range gets matched-level damage, e.g. level 35 in 1-35 balanced build 63.3 -> 150.3). Formula and evidence: design/systems/balance-model.md 3.1, 17.1, 18. Vectors: damage.json fn zoneLevel (input playerLevel, rangeMin, rangeMax)"
   },
   "defense": {
     "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน; Raid Boss > ตัวเลขตั้งต้น (K = 300, DEF 300 ลด damage 50%)",

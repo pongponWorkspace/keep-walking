@@ -1,7 +1,7 @@
 # Balance Model — GPS Dungeon Bangkok
 
-- งาน: P1-F03-T06 · เจ้าของ: systems-designer · สถานะ: ฉบับแรก (Phase 1) · ปรับตามคำตัดสินหลัง T06 ใน P1-X22 (เป็นบันทึก ไม่เปลี่ยนค่า config) · P2-F06-T01 (Phase 2): D-038 B, farDungeonThreshold_m, R-B1, cap ของ partyMult (หัวข้อ 15) · P2-F05-T20: gate, run state, check-in, speed lock, เวลาทำการ (หัวข้อ 16) · P2-F05-T01: exp ต่อ tick, drop table ต่อ preset รวมยา, ไอเทมพร้อม `assets.icon`, ค่า F06, `dungeons.safety` ตาม D-061 ที่แก้, run loop ที่ใส่ seed (หัวข้อ 17)
-- คำตัดสินที่สะท้อนแล้ว: D-020 ACCEPTED (นิยาม 45 นาที), D-038 B ACCEPTED (VIT ต่อยา +1%), D-078 (R-B1 ลำดับผลต่อ hit), D-079 (เพดานระยะไกลและ partyMult), D-029 (hit chance 54), D-041 (ลำดับปลด), D-059 ACCEPTED (รางวัลปิดฉุกเฉิน), D-061 ACCEPTED พร้อมแก้ (`dungeons.safety` หัวข้อ 17.6), D-089 (ยามาจาก drop เท่านั้น), D-094, D-096 (กฎ F05/F06), D-062 (`telemetry.json` อยู่ `config/app/`), D-064 ("นอกพื้นที่" = นอก mask), D-065 (ร้าน NPC) · ตัวเลขผลรันล่าสุดอยู่ที่ `design/systems/sim-report.md`
+- งาน: P1-F03-T06 · เจ้าของ: systems-designer · สถานะ: ฉบับแรก (Phase 1) · ปรับตามคำตัดสินหลัง T06 ใน P1-X22 (เป็นบันทึก ไม่เปลี่ยนค่า config) · P2-F06-T01 (Phase 2): D-038 B, farDungeonThreshold_m, R-B1, cap ของ partyMult (หัวข้อ 15) · P2-F05-T20: gate, run state, check-in, speed lock, เวลาทำการ (หัวข้อ 16) · P2-F05-T01: exp ต่อ tick, drop table ต่อ preset รวมยา, ไอเทมพร้อม `assets.icon`, ค่า F06, `dungeons.safety` ตาม D-061 ที่แก้, run loop ที่ใส่ seed (หัวข้อ 17) · P2-X09: Z = เลเวลผู้เล่นที่ถูกบีบเข้าในช่วง ตาม D-112 / J-8 (หัวข้อ 18) และข้อเสนอเพดานเวลาชุดรอยืนยัน J-9 (หัวข้อ 19)
+- คำตัดสินที่สะท้อนแล้ว: D-020 ACCEPTED (นิยาม 45 นาที), D-038 B ACCEPTED (VIT ต่อยา +1%), D-078 (R-B1 ลำดับผลต่อ hit), D-079 (เพดานระยะไกลและ partyMult), D-029 (hit chance 54), D-041 (ลำดับปลด), D-059 ACCEPTED (รางวัลปิดฉุกเฉิน), D-061 ACCEPTED พร้อมแก้ (`dungeons.safety` หัวข้อ 17.6), D-089 (ยามาจาก drop เท่านั้น), D-094, D-096 (กฎ F05/F06), D-062 (`telemetry.json` อยู่ `config/app/`), D-064 ("นอกพื้นที่" = นอก mask), D-065 (ร้าน NPC), D-112 (J-8: `zoneLevelFrom` = clamp เลเวลผู้เล่น) · ตัวเลขผลรันล่าสุดอยู่ที่ `design/systems/sim-report.md`
 - แหล่งความจริง: GDD (`เกม GPS Dungeon กรุงเทพฯ — Design Document.md`) · decision D-004, D-005
 - ค่าทุกตัวอยู่ใน `config/balance/*.json` เอกสารนี้อธิบายสูตรและเหตุผลเท่านั้น โค้ดห้ามถือเลขเอง
 - ผู้ใช้ต่อ: P1-F03-T07 และ T08 (simulator + golden test vectors), P1-F03-T09 (preset), gameplay/backend-programmer, liveops-operator
@@ -11,7 +11,7 @@
 | ข้อ | กติกา |
 | --- | --- |
 | ชื่อ key | camelCase (TL-N02 · รอ ADR 0001 รับรอง) |
-| หน่วย | อยู่ท้ายชื่อ key: `_pct` (เปอร์เซ็นต์ เช่น 16 = 16%), `_s`, `_m`, `_m2`, `_h`, `_days`, `_gold`, `_kmh` · คำว่า `Mult` = ตัวคูณไม่มีหน่วย (1.6 = ×1.6) |
+| หน่วย | อยู่ท้ายชื่อ key: `_pct` (เปอร์เซ็นต์ เช่น 16 = 16%), `_s`, `_m`, `_m2`, `_h`, `_days`, `_gold`, `_kmh` · คำว่า `Mult` หรือ `Coef` = ตัวคูณไม่มีหน่วย (1.6 = ×1.6) · `Ratio` = อัตราส่วนไร้หน่วยที่ชื่อบอกตัวตั้งกับตัวหาร ไม่ผูกช่วง 0–1 (ADR 0001 3.10.3 · ชื่อ key ตามที่เปลี่ยนใน P2-X06) |
 | ค่า | ตัวเลขตรง ไม่ห่อ object · `null` = ยังไม่มีค่า (โค้ดและ simulator ต้องล้มทันทีถ้าอ่านเจอ ไม่ใช่เดาค่า) |
 | แหล่ง | ทุก object มี `_source` ชี้หัวข้อ GDD · ค่าที่ GDD ไม่ระบุมี `_assumption` พร้อมรหัส `A-P1-F03-T06-<n>` และเจ้าของที่ต้องยืนยัน |
 | ที่เดียว | ค่าหนึ่งตัวอยู่ไฟล์เดียว ไฟล์อื่นอ้างด้วย `seeFile` เช่น movement gate อยู่ `dungeons.json#movementGate` เท่านั้น |
@@ -56,8 +56,10 @@
 | F-10 | กฎ base/cap | 1/3–2/5 | Support 25/50 = 0.50 | ยกเว้นโดยเจตนาตาม D-004 ไม่เสนอซ้ำ | — |
 | F-16 | นั่งม้านั่งยังได้ tick (P2-F05-T20) | "นั่งพักบนม้านั่งยังได้อยู่" | trace `synthetic-bench-jitter-01` หลังกรอง + resample 5 วินาที = 53.4–56.5 ม. ต่อหน้าต่าง (เกณฑ์ > 50) · resample 10 วินาที = 32.8–43.0 ม. ไม่ผ่านเลย | ผ่านแต่ขอบบาง (7–13%) และขนาด jitter ของ trace เป็นค่าสมมติ (sigma 1.5 ม.) · มือถือจริงอาจตกทั้งสองทาง | ไม่แก้เกณฑ์ 50 ม. เงียบ (NN-2) · รอ P2-C03 วัดเครื่องจริง ถ้าม้านั่งไม่ผ่านหรือโต๊ะนิ่งผ่าน ส่ง game-director (board กฎข้อ 4) · `sampleCadence_s` เป็นคันโยกเดียวที่ควรขยับ (ห้ามต่ำกว่าช่วง sample ของเครื่อง 0.2 Hz = 5 วินาที เพราะผล 1 Hz กับ 0.2 Hz จะต่างกัน) |
 | F-17 | เปิด GPS ใหม่แล้วเดินเข้าเขต (P2-F05-T20) | check-in ต่อเนื่อง 60 วินาที | trace `synthetic-warmup-accuracy-01` ที่ `outlierSpeed_kmh` 30 (ค่า fixture ของ geo) ทิ้ง fix 52 ตัว ลำดับไม่ถึง 60 วินาทีภายใน 5 นาที | jitter ของ fix 1 Hz ช่วง warm-up ถึง 134 กม./ชม. ตัวกรองความเร็วที่ต่ำเกินทำให้ check-in ไม่ผ่านเลย | ตั้ง 60 กม./ชม.: ครบที่ 118 วินาที (ideal ราว 106) · spike และ teleport ยังถูกทิ้งทั้งหมด · ระยะรางวัลไม่เพิ่มเพราะคู่ที่เร็วกว่า 25 กม./ชม. ไม่นับอยู่แล้ว |
-| F-18 | dungeon ที่ช่วงเลเวลกว้างและครอบเลเวล 1 (P2-F05-T01) | เลเวลตรงโซนอยู่ราว 45 นาที · spec F06 R43: เลเวล 1 ไม่มียา มัธยฐานถึง auto-retreat ≥ 2 × `window_s` (10 นาที) | Z = กลางช่วงปัด (A-1) ดังนั้น PN-2 ช่วง 1–35 มี Z = 18 · เลเวล 1 base stat โดน 192.8 ต่อครั้ง (64% ของ HP 300) · มัธยฐานถึง auto-retreat 3.2 นาที (non-Tanker) / 5.1 นาที (Tanker) · ช่วง 1–5 ผ่าน (21.7–43.1 นาที) · 1–9 ผ่าน (12.6) · 1–10 ไม่ผ่าน (8.8) | R43 ไม่ผ่านใน PN-2 · onboarding แนะนำ PN-2 ได้ถ้าเป็นแห่งที่เปิดใกล้สุด (F06 R37) | ห้ามแก้ด้วยเกณฑ์ auto-retreat หรือ gate (NN-8) · ส่ง game-director: (ก) level-designer ตั้งช่วงที่ครอบเลเวล 1 ให้ max ≤ 9 (Z ≤ 5) หรือ (ข) เปลี่ยน A-1 เป็น Z = เลเวลผู้เล่นที่ถูกบีบเข้าในช่วง (ต้องทำ vector ใหม่ทั้งหมด) · หลักฐาน report-loop หัวข้อ 4 |
+| F-18 | dungeon ที่ช่วงเลเวลกว้างและครอบเลเวล 1 (P2-F05-T01) | เลเวลตรงโซนอยู่ราว 45 นาที · spec F06 R43: เลเวล 1 ไม่มียา มัธยฐานถึง auto-retreat ≥ 2 × `window_s` (10 นาที) | Z = กลางช่วงปัด (A-1) ดังนั้น PN-2 ช่วง 1–35 มี Z = 18 · เลเวล 1 base stat โดน 192.8 ต่อครั้ง (64% ของ HP 300) · มัธยฐานถึง auto-retreat 3.2 นาที (non-Tanker) / 5.1 นาที (Tanker) · ช่วง 1–5 ผ่าน (21.7–43.1 นาที) · 1–9 ผ่าน (12.6) · 1–10 ไม่ผ่าน (8.8) | R43 ไม่ผ่านใน PN-2 · onboarding แนะนำ PN-2 ได้ถ้าเป็นแห่งที่เปิดใกล้สุด (F06 R37) | ห้ามแก้ด้วยเกณฑ์ auto-retreat หรือ gate (NN-8) · ส่ง game-director: (ก) level-designer ตั้งช่วงที่ครอบเลเวล 1 ให้ max ≤ 9 (Z ≤ 5) หรือ (ข) เปลี่ยน A-1 เป็น Z = เลเวลผู้เล่นที่ถูกบีบเข้าในช่วง (ต้องทำ vector ใหม่ทั้งหมด) · หลักฐาน report-loop หัวข้อ 4 · **ปิดแล้วด้วย D-112 (P2-X09):** R43 ผ่านทุกช่วงนำร่องที่ครอบเลเวล 1 (หัวข้อ 18.3) |
 | F-19 | ยาจาก drop ของ Phase 2 เทียบเป้าเศรษฐกิจ (P2-F05-T01) | รายได้ราว 2.5–3 เท่าของค่ายา (D-005, HUMAN) | ยาเล็ก 17% + ยาชุบ 1% ต่อ tick มีมูลค่า 606 gold/ชม. ที่ราคาซื้อ NPC ≈ ค่ายาทั้งหมดของ GDD (600) | Phase 2 ไม่มี gold จึงไม่กระทบ · ถ้าคงไว้ถึง Phase 4 ค่ายาสุทธิเกือบเป็นศูนย์ อัตราส่วนหลุดเป้าด้านบน | roll ยาเป็นของ Phase 2 (A-P2-F05-T01-1) · ต้องทบทวนก่อนเปิดร้าน NPC (Phase 4) · ถ้าจะคงไว้ต้องเป็น decision HUMAN |
+| F-20 | ผลข้างเคียงของ D-112 ต่อ playtest Phase 2 (P2-X09) | kit ผู้สังเกต (N-03 ข้อ 6) และ J-10 อ้าง non-Tanker ถึง auto-retreat 27–37 นาทีเมื่อมียา | เลเวล 1 ในช่วง 1–5 ได้ Z = 1 (เดิม 3): damage/hit ต่ำลง 76% · ไม่มียา มัธยฐาน 39.7–70.2 นาที (เดิม 22–43) · มียาจาก drop 50.7–116.2 นาที (เดิม 27–79) · exp ต่อ tick 18.0 non-Magic (เดิม 93.5) → ขึ้นเลเวล 2 ที่ tick ที่ 4 (20 นาที, เดิม tick แรก) · Magic tick ที่ 2 · แต่ Phase 2 ไม่มีแต้ม/อุปกรณ์ (HP 300 คงที่) damage จึงโตตามเลเวล: เลเวล 5 non-Tanker ไม่มียา 12.6 นาที | playtest 30–60 นาทีส่วนใหญ่จะไม่เห็น auto-retreat ที่เลเวล 1 · เลเวล 4–5 เห็นเร็วขึ้น (16 / 12.6 นาที) | ไม่แก้ค่า (อยู่ใน J-8 แล้ว) · แจ้ง game-director ว่าเหตุผลตัวเลขของ J-10 เปลี่ยน และแจ้งผู้ทำ kit P2-F06-T18 ให้ใช้ตาราง 18.4 · R43 (เลเวล 1) ยังผ่าน |
+| F-21 | exp ของคนที่เลเวลต่ำกว่าช่วง (P2-X09) | ตัวคูณห่างเลเวลเป็นโทษ ไม่ใช่ทางลัด | สูตร A-3 (พื้น 0.25) คูณ Z ที่สูงกว่าเลเวลตัวเอง ทำให้ exp ต่อ tick เกินอัตราเลเวลตรงโซน: สูงสุด 41× (Magic เลเวล 1 ในช่วง 30–50 · A-1 เดิม 63×) · ถ้านับเฉพาะกรณีที่ build สมดุล + Tanker buff ที่ cap อยู่ได้ครบหนึ่งหน้าต่าง = 8.0× (เลเวล 1 ในช่วง 5–15) | มีมาก่อน D-112 และ D-112 ทำให้ลดลง · ผลจริงจำกัดที่เลเวลต้นๆ (exp สัมบูรณ์เล็ก) เพราะ damage ×1.25^gap ทำให้อยู่ไม่ถึง tick เมื่อห่างมาก | ไม่แก้ใน Phase 2 · ทบทวนพร้อม party ต่างเลเวลใน Phase 3 (F08) ว่าควรมีเพดาน exp = อัตราเลเวลตรงโซนหรือไม่ · authority systems-designer (ไม่ใช่ค่า GDD) |
 
 ## 2. Class, party และ buff stacking
 
@@ -124,12 +126,12 @@ classChangeCost = costCoef × (level / costLevelDivisor) ^ costExponent        =
 ### 3.1 สูตร
 
 ```
-Z            = round((levelRange.min + levelRange.max) / 2)                       (A-1)
+Z            = clamp(playerLevel, levelRange.min, levelRange.max)                 (D-112, แทน A-1 เดิม round((min + max) / 2))
 monsterATK   = monsterAtkCoef × Z ^ monsterAtkExponent                             = 3 × Z^1.3
 defRed       = DEF / (DEF + defSoftcap)                                            softcap 300
 tankerTerm   = (1 − tankerBuff/100)        ถ้ามี Tanker ในดัน
              = missingDebuffMult (1.6)     ถ้าไม่มี
-gapMult      = 1.25 ^ max(0, levelRange.min − playerLevel)                        (A-2, ไม่มีเพดาน)
+gapMult      = 1.25 ^ max(0, levelRange.min − playerLevel)                        (A-2, ไม่มีเพดาน · คิดครั้งเดียวจากขอบล่าง Z อยู่ที่ขอบแล้ว)
 failMult     = 2 ในสัปดาห์หลังล้มบอสไม่สำเร็จ ไม่งั้น 1                            (A-16)
 damagePerHit = monsterATK × (1 − defRed) × tankerTerm × gapMult × failMult
 ```
@@ -440,7 +442,7 @@ outsideTime ≤ 180 → Grace · 180 < outsideTime ≤ 900 → Suspended · > 90
 | สถานะ | นิยาม | config | ที่มา |
 | --- | --- | --- | --- |
 | "ไกล" | อยู่ใน play area และ dungeon ที่เปิดอยู่ใกล้สุดเกิน 1,900 ม. (ระยะเส้นตรง) | `unlocks.home.farDungeonThreshold_m` | D-079 เพดาน 3,000 / route factor 1.52 = 1,974 → ≤ 1,970 เลือก 1,900 (P2-F06-T01, เดิม 2,000 ตาม A-20b) · D-072 · GDD: 650 ม. ใช้ได้, 3 กม. พัง · ประเมินใหม่เมื่อขยับเกิน `reevaluateDistance_m` 200 ม. (A-P1-H03-5) |
-| "นอกพื้นที่" | ตำแหน่งอยู่นอก play area ตาม mask ไม่ใช่ระยะถึง dungeon | `unlocks.home.seeOutOfAreaMask` → `data/map/playarea-mask.geojson` | D-064 · key เดิม `outOfServiceAreaThreshold_m` (20,000 ม.) ถูกตัดใน P1-X18 ห้ามนำกลับ |
+| "นอกพื้นที่" | ตำแหน่งอยู่นอก play area ตาม mask ไม่ใช่ระยะถึง dungeon | `unlocks.home.outOfAreaMaskPath` = `data/map/playarea-mask.geojson` (path ของไฟล์ data ไม่ใช่ pointer ของ config · เดิมชื่อ `seeOutOfAreaMask` เปลี่ยนใน P2-X06) | D-064 · key เดิม `outOfServiceAreaThreshold_m` (20,000 ม.) ถูกตัดใน P1-X18 ห้ามนำกลับ |
 
 - ร้าน NPC ใช้ id `NPC` ถาวร ไม่มีเลข U (pillars 6.2 คำตัดสินเรื่องรหัส P1-X21): ไม่อยู่ในรายการห้ามสอนของ GDD และต้องซื้อยาได้เร็ว (หลักการข้อ 3)
 - หมายเหตุชื่อ key: board เขียน `unlocks.home.far_dungeon_threshold_m` ตามรูปแบบ camelCase (ADR 0001 3.10) key จริงคือ `unlocks.home.farDungeonThreshold_m`
@@ -708,7 +710,7 @@ f = e / 300 · ผ่านเมื่อ ระยะ > 50 × f (greaterThan)
 ### 17.1 exp ต่อ tick ที่ผ่าน gate (F05 R11, R16, R22)
 
 ```
-Z          = round((levelRange.min + levelRange.max) / 2)                 combat.monsterAttack.zoneLevelFrom (A-1)
+Z          = clamp(L, levelRange.min, levelRange.max)                    combat.monsterAttack.zoneLevelFrom (D-112)
 gap        = max(0, levelRange.min − L, L − levelRange.max)                ทั้งสองฝั่ง (A-3)
 magicTerm  = 1 + magicBuff/100 (สูงสุด 1.5) ถ้าผู้เล่นเป็น Magic           magicBuff = roleBuffPct(magic, P = 1 + L/50) · D-039
            = noMagicMult (0.6) ถ้าไม่ใช่
@@ -719,7 +721,7 @@ exp        = expPerTick(Z) × magicTerm × max(0.25, 0.92^gap) × f         f = 
 - ขึ้นเลเวลทันทีและต่อกันได้ในครั้งเดียว: `while exp ≥ expToNext(L): exp −= expToNext(L); L += 1` · ถึงเลเวล 60 exp = 0 และไม่บวกเพิ่ม
 - ลำดับใน tick ที่ผ่าน: loot → โล่ Magic (ใช้เลเวลก่อน tick นี้) → exp และเลเวล · เลเวลใหม่ใช้กับ hit และ tick ถัดไป (F05 R16, G13)
 - exp ไม่ใช่ของใน run ตายแล้วไม่หาย (D-094) · config: `dungeons.json#rewardTick._grants_note` + pointer `seeExpCurve`
-- ตัวอย่าง (vector `soloTickExp`): ช่วง 1–5 (Z = 3) เลเวล 1: non-Magic 93.5, Magic 182.8 (buff ตัวเอง 17.3%) · Z = 25 non-Magic 2,250 · ตาราง Z 1–60 อยู่ใน report-loop หัวข้อ 1
+- ตัวอย่าง (vector `soloTickExp`, หลัง D-112): ช่วง 1–5 เลเวล 1 (Z = 1): non-Magic 18.0, Magic 35.2 (buff ตัวเอง 17.3%) · เดิม Z = 3 ได้ 93.5 / 182.8 · Z = 25 non-Magic 2,250 · ตาราง Z 1–60 อยู่ใน report-loop หัวข้อ 1
 
 ### 17.2 ไอเทมที่ drop และ `assets.icon` (`drops.json#items`)
 
@@ -765,7 +767,7 @@ roll bonus   : chance_pct และ qty ของแถวเอง · applyDrop
 - ไม่มีชุดยาตั้งต้น ไม่มีของขวัญ ไม่มีทางอื่นนอก tick ที่ผ่าน gate (D-089) · เหมือนกันทุก preset
 - ไม่มีตัวคูณ Ranged หรือ dungeon เล็ก (A-P2-F05-T01-1) เพื่อให้ทุก class ได้ยาเท่ากัน · roll ยาเป็นของ Phase 2 ต้องทบทวนก่อนร้าน NPC (F-19)
 - ลำดับยาอัตโนมัติ: `economy.autoPotion.sourceOrder` = `["runBag", "inventory"]` แล้วตาม `defaultPotionOrder` ในแต่ละแหล่ง · 1 ขวดต่อ hit · ยาชุบไม่อยู่ในลำดับ (F06 R12–R13, D-096)
-- vector "มีโอกาสได้ยาก่อนถึง auto-retreat": `runLoopStats` เลเวล 1 ช่วง 1–5 ที่มียา: สัดส่วน run ที่ได้ยาก่อนจบ Ranged 0.555, Support 0.62, Magic 0.595, Tanker 0.795 (200 seed) · และ `runLoop` seed 3 ที่ยาจาก tick แรกถูกดื่มก่อนถอย
+- vector "มีโอกาสได้ยาก่อนถึง auto-retreat": `runLoopStats` เลเวล 1 ช่วง 1–5 ที่มียา: สัดส่วน run ที่ได้ยาก่อนจบ Ranged 0.855, Support 0.89, Magic 0.795, Tanker 0.935 (200 seed, หลัง D-112 · เดิม 0.555 / 0.62 / 0.595 / 0.795) · และ `runLoop` seed 3 ที่ยาจาก tick แรกถูกดื่มก่อนถอย
 
 ### 17.5 ค่า F06 ที่ engine ใช้ (ครบและอ้าง GDD)
 
@@ -822,25 +824,26 @@ heal       : Support ฟื้นต่อเนื่องตามเวล�
 
 ### 17.8 เวลาถึง auto-retreat ของผู้เล่น Phase 2 (N-03 ข้อ 6, F06 R43)
 
-base stat (HP 300, DEF 20, VIT 0) ไม่มีอุปกรณ์ ไม่ลงแต้ม · ช่วง 1–5 (Z = 3) · dungeon เล็ก · 2,000 seed · เลเวล 1–5 ได้ผลเท่ากันภายใน 1 นาที (damage เท่ากันในช่วง, buff ต่างกันเล็กน้อย) ตารางเต็มใน sim-report หัวข้อ 12.3
+base stat (HP 300, DEF 20, VIT 0) ไม่มีอุปกรณ์ ไม่ลงแต้ม · ช่วง 1–5 · dungeon เล็ก · 2,000 seed · **ค่าหลัง D-112** (Z = เลเวลผู้เล่น จึงไม่เท่ากันในช่วงอีกต่อไป: เลเวล 1 → 5 damage โตตาม Z แต่ HP คงที่ 300 ใน Phase 2) ตารางเต็มเลเวล 1–5 ใน sim-report หัวข้อ 13.2 · ค่าเดิมที่ Z = 3 อยู่ในวงเล็บ
 
-| class | damage/hit | ไม่มียา มัธยฐาน (p10–p90) | มียาจาก drop มัธยฐาน (p10–p90) | ได้ยาก่อนจบ |
+| class (เลเวล 1) | damage/hit | ไม่มียา มัธยฐาน (p10–p90) | มียาจาก drop มัธยฐาน (p10–p90) | ได้ยาก่อนจบ |
 | --- | --- | --- | --- | --- |
-| Tanker | 9.8 | 43.1 (34.9–52.3) | 78.5 (41.0–192.1) · 1.5% ไม่ถอยใน 6 ชม. | 0.787 |
-| Ranged | 18.8 | 21.7 (16.8–28.0) | 27.2 (17.8–48.8) | 0.518 |
-| Support | 18.8 | 27.5 (19.9–36.0) | 36.8 (22.1–70.9) | 0.601 |
-| Magic | 18.8 | 25.5 (18.4–32.0) | 32.4 (19.7–59.3) | 0.567 |
+| Tanker | 2.4 (9.8) | 70.2 (64.1–77.6) (43.1) | 116.2 (81.0–160.8) (78.5) | 0.923 (0.787) |
+| Ranged | 4.5 (18.8) | 49.8 (43.5–54.7) (21.7) | 67.1 (49.7–92.7) (27.2) | 0.832 (0.518) |
+| Support | 4.5 (18.8) | 60.3 (54.3–68.2) (27.5) | 87.3 (62.8–113.7) (36.8) | 0.886 (0.601) |
+| Magic | 4.5 (18.8) | 39.7 (34.1–46.2) (25.5) | 50.7 (37.8–69.0) (32.4) | 0.763 (0.567) |
 
-- R43 (มัธยฐาน ≥ 10 นาที) ผ่านทุก class ในช่วง 1–5 · ไม่ผ่านใน PN-2 (1–35) และช่วง 1–10 (F-18)
-- D-020 ยังผ่านหลัง D-038 B: build สมดุลเลเวล 25 damage ×1.0 ไม่ใช้ยา 44.4 นาที (vector GDD ใน `damage.json`) · มี Tanker 55.6 · คนเดียวไม่ใช่ Tanker 27.8
-- Tanker ที่ได้ยาจาก drop มัธยฐาน 78.5 นาที: ใน playtest 30–60 นาที Tanker ส่วนใหญ่จะไม่เห็น auto-retreat · non-Tanker ยังเห็น (มัธยฐาน 27–37 นาที) · kit ผู้สังเกตต้องแยกตาม class
+- R43 (มัธยฐาน ≥ 10 นาที) ผ่านทุก class ในทุกช่วงนำร่องที่ครอบเลเวล 1 (1–5 และ PN-2 1–35 ได้ผลเท่ากันทุกบิต เพราะ Z = 1 ทั้งคู่) · หัวข้อ 18.3
+- เลเวล 5 ในช่วง 1–5 (Z = 5) non-Tanker ไม่มียา 12.6 นาที · Tanker 21.7 · ยังเกิน 10 นาที แต่ R43 นิยามเฉพาะเลเวล 1 (F-20)
+- D-020 ยังผ่าน: build สมดุลเลเวล 25 damage ×1.0 ไม่ใช้ยา 44.4 นาที · มี Tanker 55.6 · คนเดียวไม่ใช่ Tanker 27.8 (เลเวลตรงโซนไม่ขึ้นกับกติกา Z)
+- kit ผู้สังเกต: ที่เลเวล 1 non-Tanker ที่มียาถึง auto-retreat ราว 51–87 นาที (เดิม 27–37) · playtest 30–60 นาทีส่วนใหญ่จะไม่เห็น auto-retreat ที่เลเวล 1 (F-20)
 
 ### 17.9 Vector ที่เพิ่ม (`gen-vectors --check` เขียว)
 
 | ไฟล์ | ข้อ | `input.fn` | ครอบ |
 | --- | --- | --- | --- |
-| `tick-reward.json` | 30 | `soloTickExp`, `addExp`, `lootTable`, `rollTickLoot` | exp ต่อ tick 4 class ช่วง 1–5, gap, PN-2, Magic, f = 0.4, พื้น 0.25, เลเวล 60 · ขึ้นเลเวลต่อกัน · ตารางจริงต่อ preset ที่ resolve แล้ว 5 บริบท · loot บนตารางจริง index 0–5 และ f = 0.4 (index 0 = รางวัลก้อนแรก เหมือน tick อื่นทุกประการ F06 R39) |
-| `run-loop.json` | 29 | `hitAttempt`, `soloDamage`, `runLoop`, `runLoopStats` | ลำดับการดึงของ stream hit · damage ของ Phase 2 · ตายเทียบ auto-retreat seed เดียวกัน · ลำดับแหล่งยา · โล่ Magic กับ tick ที่ไม่ผ่าน · Support heal · tick ก่อน hit ที่เวลาเดียวกัน · เข้า run ที่ HP 23% · PN-2 · R43 ต่อ class มี/ไม่มียา |
+| `tick-reward.json` | 32 (P2-X09 +2) | `soloTickExp`, `addExp`, `lootTable`, `rollTickLoot` | exp ต่อ tick 4 class ช่วง 1–5, gap, PN-2, Magic, f = 0.4, พื้น 0.25, เลเวล 60 · ขึ้นเลเวลต่อกัน · ตารางจริงต่อ preset ที่ resolve แล้ว 5 บริบท · loot บนตารางจริง index 0–5 และ f = 0.4 (index 0 = รางวัลก้อนแรก เหมือน tick อื่นทุกประการ F06 R39) |
+| `run-loop.json` | 30 (P2-X09 +1) | `hitAttempt`, `soloDamage`, `runLoop`, `runLoopStats` | ลำดับการดึงของ stream hit · damage ของ Phase 2 · ตายเทียบ auto-retreat seed เดียวกัน · ลำดับแหล่งยา · โล่ Magic กับ tick ที่ไม่ผ่าน · Support heal · tick ก่อน hit ที่เวลาเดียวกัน · เข้า run ที่ HP 23% · PN-2 · R43 ต่อ class มี/ไม่มียา |
 
 - รูปแบบเหมือนไฟล์ของ P2-F05-T20 (`input` มี parameter ครบ, tolerance 1e-6, ปัด 6 ตำแหน่ง) · `lootTable` รับ entry ดิบของ `drops.json#dropTables` จึง port parse รูปเดียวกับ config
 - ชื่อ fn คงที่ (backend เพิ่มใน dispatcher ของ `packages/shared`)
@@ -858,3 +861,157 @@ base stat (HP 300, DEF 20, VIT 0) ไม่มีอุปกรณ์ ไม่
 - A-P2-F05-T01-3: exp ไม่ปัด (ค่าจริง, client แสดงค่าปัดลง) · ถึงเลเวลสูงสุดไม่สะสม exp · owner systems-designer, backend-programmer
 - A-P2-F05-T01-4: โล่ Magic ของ tick คำนวณจากเลเวลก่อน exp ของ tick นั้น และขนาดไม่ย่อด้วย f ใน tick บางส่วน · owner game-director
 - A-P2-F05-T01-5: id ของ drop table เป็น camelCase (`largeParkDefault` …) ไม่ใช่ `largePark.default` · owner location-engineer, level-designer
+
+## 18. ระดับโซน Z = เลเวลผู้เล่นที่ถูกบีบเข้าในช่วง (P2-X09 · D-112 · game-director J-8)
+
+แหล่ง: `design/reviews/F04-flow-approval.md` รอบ 2 หัวข้อ R2-5 J-8 · GDD "การกำหนด dungeon" (ช่วงเลเวลที่เหมาะสม) และ "ระดับเลเวลที่เหมาะสม" (โทษเฉพาะคนนอกช่วงตามระยะห่างจากช่วง) · config: `combat.json#monsterAttack.zoneLevelFrom` = `"playerLevelClampedToRange"` (เดิม `"levelRangeMidpointRounded"`) · reference: `tools/sim/src/zone.ts` · หลักฐาน: `pnpm exec tsx tools/sim/src/report-loop.ts` หัวข้อ 4 และ 8
+
+### 18.1 สูตร
+
+```
+Z          = clamp(L, levelRange.min, levelRange.max)        L = เลเวลผู้เล่น ณ ตอนนั้น (hit: ตอนทอย · tick: เลเวลก่อน exp ของ tick นั้น)
+damage     = 3 × Z^1.3 × (1 − DEF/(DEF+300)) × tankerTerm × 1.25^max(0, min − L) × failMult
+exp/tick   = 30 × Z^1.5 × magicTerm × max(0.25, 0.92^gap) × f       gap = max(0, min − L, L − max)
+```
+
+- ในช่วง: Z = L ทุกคน · ได้ damage และ exp เท่ากับ dungeon ที่ช่วงเป็นเลเวลตัวเองพอดี (หลักการข้อ 4: party ต่างเลเวลในที่เดียวกันได้ความยากของตัวเอง) · test `zone.test.ts` ตรวจทุกเลเวลในทุกช่วงนำร่อง
+- ต่ำกว่าช่วง: Z = min แล้ว × 1.25^(min − L) ครั้งเดียว (ไม่ใช่ Z กลางช่วง × ตัวคูณ ซึ่งเป็นการคิดโทษซ้ำตาม A-1)
+- สูงกว่าช่วง: Z = max · damage ไม่ลด (F06 R09) · exp × 0.92^(L − max) (A-3) · คนเลเวลสูงกว่าช่วงจึงไม่ได้ของถูก
+- ไม่แตะ: `dungeons.hpSafety.*` (auto-retreat 25%), movement gate, hit chance 54, ตัวคูณห่างเลเวลทั้งสองตัว · F05-R11 และ F06-R08 อ้าง config key อยู่แล้ว ไม่ต้องแก้ข้อความ
+
+### 18.2 ผลต่อ damage เทียบ A-1 (report-loop 8.1 · build สมดุล ×1.0 · Phase 2 base stat Ranged ×1.6)
+
+| ช่วง | เลเวล | Z A-1 → D-112 | build สมดุล | ต่าง | Phase 2 Ranged |
+| --- | --- | --- | --- | --- | --- |
+| 1–5 | 1 | 3 → 1 | 10.2 → 2.5 | −76% | 18.8 → 4.5 |
+| 1–5 | 5 | 3 → 5 | 10.0 → 19.4 | +94% | 18.8 → 36.5 |
+| 1–35 | 1 | 18 → 1 | 105.0 → 2.5 | −97.7% | 192.8 → 4.5 |
+| 1–35 | 18 | 18 → 18 | 80.5 → 80.5 | 0 | 192.8 → 192.8 |
+| 1–35 | 35 | 18 → 35 | 63.3 → 150.3 | +137% | 192.8 → 457.6 |
+| 10–25 | 10 | 18 → 10 | 99.5 → 46.3 | −53% | 192.8 → 89.8 |
+| 10–25 | 25 | 18 → 25 | 65.8 → 100.8 | +53% | 192.8 → 295.5 |
+| 20–30 | 20 / 30 | 25 → 20 / 30 | 122.2 → 91.5 / 98.9 → 125.4 | −25% / +27% | |
+| 30–50 | 30 / 50 | 40 → 30 / 50 | 182.2 → 125.4 / 126.4 → 168.9 | −31% / +34% | |
+
+- 38 จาก 48 แถวของ report 8.1 ต่างเกิน ±20% ของค่า A-1 · ทุกแถวที่ต่างคือขอบช่วง · ปลายล่าง: game-director อนุมัติแล้วใน J-8 · **ปลายบนแรงขึ้นด้วย** (เช่น เลเวล 35 ใน 1–35 +137%) ซึ่ง J-8 ไม่ได้เขียนอนุมัติไว้ตรงๆ แต่ค่าใหม่คือ damage ของเลเวลตรงโซนตาม GDD (build สมดุลอยู่ได้ 44–51 นาทีตามตาราง 3.3) · ส่งยืนยันเป็น decision (ไม่ blocking)
+- เทียบกับ GDD (ไม่ใช่ A-1): ในช่วงทุกแถวตรงสูตร GDD ที่ Z = เลเวล จึงไม่มีรายการเกิน ±20% ของค่า GDD
+
+### 18.3 R43 ทุกช่วงนำร่อง (report-loop หัวข้อ 4 · เลเวล 1 ไม่มียา · 2,000 seed · เกณฑ์ ≥ 2 × `window_s` = 10 นาที)
+
+| ช่วง (dungeon ใน `design/levels/pilot-dungeons.md` 3.1–3.3) | Z ที่เลเวล 1 (A-1 เดิม) | Tanker | Ranged | Support | Magic | R43 | build สมดุลที่เลเวล = min, ×1.6 / ×1.0 (นาที) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1–5 (PN-7, PN-8, PN-10, PW-4, PW-5, BR-2, BR-3) | 1 (3) | 70.2 | 49.8 | 60.3 | 39.7 | ผ่าน | 146.3 / 235.2 |
+| 1–35 (PN-2) | 1 (18) | 70.2 | 49.8 | 60.3 | 39.7 | **ผ่าน** (เดิม Tanker 5.1 / non-Tanker 3.2 ไม่ผ่าน, F-18) | 146.3 / 235.2 |
+| 5–15 (PN-9, PW-6, BR-4) | 5 (10) | 10.8 | 5.1 | 5.1 | 5.1 | ไม่ใช้ (ไม่ครอบเลเวล 1) | 38.9 / 63.0 |
+| 10–20 (PN-6) | 10 (15) | 1.2 | 1.2 | 1.2 | 1.2 | ไม่ใช้ | 27.8 / 44.4 |
+| 10–25 (PN-4, BR-1) | 10 (18) | 1.2 | 1.2 | 1.2 | 1.2 | ไม่ใช้ | 27.8 / 44.4 |
+| 15–30 (PN-5, PW-3) | 15 (23) | 1.2 | 1.2 | 1.2 | 1.2 | ไม่ใช้ | 27.8 / 44.4 |
+| 20–30 (PN-3) | 20 (25) | 1.2 | 1.2 | 1.2 | 1.2 | ไม่ใช้ | 25.9 / 38.9 |
+| 20–35 (PN-1) | 20 (28) | 1.2 | 1.2 | 1.2 | 1.2 | ไม่ใช้ | 25.9 / 38.9 |
+| 25–45 (PW-2) | 25 (35) | 1.2 | 1.2 | 1.2 | 1.2 | ไม่ใช้ | 27.8 / 44.4 |
+| 30–50 (PW-1) | 30 (40) | 1.2 | 1.2 | 1.2 | 1.2 | ไม่ใช้ | 25.9 / 40.7 |
+
+- A-P2-F04-T27-R2-1 ยืนยัน: ทุกช่วงที่ครอบเลเวล 1 ผ่าน และได้ผลเท่ากันทุกบิตไม่ว่าช่วงกว้างเท่าไร (Z = 1) · level-designer ไม่ต้องแก้ช่วงนำร่อง
+- ช่วงที่ไม่ครอบเลเวล 1: เลเวล 1 ถูกโทษ ×1.25^gap ตาม GDD (ถอยใน hit แรกๆ) · onboarding ต้องไม่แนะนำช่วงเหล่านี้ให้เลเวล 1 (F06 R37 ใช้ช่วงที่ครอบเลเวลอยู่แล้ว) · คนที่เลเวล = min ของทุกช่วงได้ damage ตรงโซน (คอลัมน์สุดท้าย)
+- test: `zone.test.ts` "F06 R43 on every pilot range that covers level 1" (200 seed ต่อ class ต่อช่วง)
+
+### 18.4 exp ต่อชั่วโมงของเลเวลสูงในช่วงกว้าง (report-loop 8.2 · 12 tick/ชม. · คนเดียว)
+
+| ช่วง | เลเวล | Z A-1 → D-112 | non-Magic exp/ชม. | ต่าง | tick ต่อเลเวล non-Magic | เทียบเลเวลตรงโซน |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1–35 | 1 | 18 → 1 | 16,495 → 216 | −98.7% | 0.0 → 3.3 | 1.000 |
+| 1–35 | 10 | 18 → 10 | 16,495 → 6,831 | −58.6% | 6.9 → 16.7 | 1.000 |
+| 1–35 | 25 | 18 → 25 | 16,495 → 27,000 | +63.7% | 51.9 → 31.7 | 1.000 |
+| 1–35 | 30 | 18 → 30 | 16,495 → 35,492 | +115% | 77.6 → 36.0 | 1.000 |
+| 1–35 | 35 | 18 → 35 | 16,495 → 44,726 | +171% | 108.9 → 40.2 | 1.000 |
+| 1–35 | 36 (เหนือช่วง) | 18 → 35 | 15,176 → 41,148 | +171% | 125.9 → 46.4 | 0.882 |
+| 25–45 | 45 | 35 → 45 | 44,726 → 65,204 | +45.8% | 69.8 → 47.9 | 1.000 |
+| 30–50 | 50 | 40 → 50 | 54,644 → 76,368 | +39.8% | 72.0 → 51.5 | 1.000 |
+
+- **ไม่มี runaway:** ในช่วงและเหนือช่วง ทุกเลเวล 1–60 × ทุกช่วงนำร่อง × {non-Magic, Magic} exp ต่อ tick ≤ อัตราเลเวลตรงโซน (ค่าสูงสุด 1.000 · test `no exp runaway inside or above a range`) · เลเวล 30 ใน 1–35 ได้ exp เท่าคนเลเวล 30 ในช่วง 30–30 พอดี = ตาราง ticks ต่อเลเวลของ GDD (หัวข้อ 4.1: 21.6 tick ที่ ×1.0, 36.0 ที่ ×0.6)
+- ที่ A-1 เดิมคนเลเวลสูงในช่วงกว้าง "ถูกกด" (เลเวล 35 ใน 1–35 ต้อง 108.9 tick ต่อเลเวล) และคนเลเวลต่ำ "ถูกดัน" (เลเวล 1 ขึ้นเลเวลในเศษของ tick) · เดินจาก 1 → 35 ใน PN-2 ตลอด: A-1 94.7 ชม. · D-112 67.2 ชม. = เส้น GDD 67.2 ชม. · 25 → 45 ใน 25–45: 67.2 → 66.1 ชม. · 30 → 50 ใน 30–50: 73.5 → 72.7 ชม. (เท่ากับเส้น GDD ทุกกรณี)
+- exp ไม่ไหลเข้าเศรษฐกิจส่วนกลาง (J-8 หลักการข้อ 1) · ผลต่อความเร็วรวมของผู้เล่นทั้งเกมคือกลับมาตรงเส้น GDD (F-4)
+- ข้อที่พบระหว่างตรวจ (F-21, ไม่ใช่ผลของ D-112): ต่ำกว่าช่วง exp ต่อ tick เกินอัตราเลเวลตรงโซนได้ (สูงสุด 41× ที่เลเวล 1 ใน 30–50 · เดิม A-1 63×) · กรณีที่อยู่รอดได้ครบหนึ่งหน้าต่างด้วย Tanker buff ที่ cap สูงสุด 8.0× (เลเวล 1 ใน 5–15) · ผลจริงจำกัดที่เลเวลต้นๆ
+
+### 18.5 Vector ที่เปลี่ยน (ชื่อ fn เดิมทั้งหมด · `gen-vectors --check` เขียว)
+
+| ไฟล์ | fn | การเปลี่ยน |
+| --- | --- | --- |
+| `damage.json` (64 → 70) | `zoneLevel` | **input เปลี่ยน:** เพิ่ม `playerLevel` (รับ `{playerLevel, rangeMin, rangeMax}`) · 4 ข้อเดิมแบบกลางช่วงถูกแทนด้วย 10 ข้อ: ต่ำกว่า / ขอบล่าง / ในช่วง / ขอบบน / เหนือช่วง (15–25), เลเวล 1 และ 30 ใน 1–35, ช่วงเลเวลเดียว, เลเวล 60 ใน 55–60, เลเวล 1 ใน 20–25 · fn อื่นใน damage.json ค่าไม่เปลี่ยน (รับ `zoneLevel` เป็นตัวเลขอยู่แล้ว) |
+| `tick-reward.json` (30 → 32) | `soloTickExp` | ค่าเปลี่ยน 11 ข้อ (ทุกข้อที่ L ≠ กลางช่วง: index 0–8, 11, 12) · ใหม่ 2 ข้อ: เลเวล 30 ใน 1–35 (Z = 30), เลเวล 36 เหนือ 1–35 (Z = 35, gap 1) · index 9, 10 (เลเวล 25 ใน 20–30) ค่าเดิม · `addExp`, `lootTable`, `rollTickLoot` ไม่เปลี่ยน |
+| `run-loop.json` (29 → 30) | `soloDamage` | ค่าเปลี่ยน 6 ข้อ (4 class เลเวล 1 ใน 1–5, เลเวล 1 ใน 1–35, เลเวล 1 ใน 20–30 → Z = 20 × 1.25^19) · ใหม่ 1 ข้อ: เลเวล 30 ใน 1–35 |
+| `run-loop.json` | `runLoop`, `runLoopStats` | ค่าเปลี่ยนทุกข้อที่เป็นช่วง 1–5 หรือ 1–35 (8 `runLoop`, 10 `runLoopStats`) · `hitAttempt` ไม่เปลี่ยน · ข้อ Magic shield จบ `manual_exit` ที่ 30 นาทีแทน `auto_retreat` (ยังตรวจโล่เฉพาะ tick ที่ผ่าน · การแทนที่ไม่ซ้อนตรวจใน `loop.test.ts`) |
+
+- ไฟล์อื่นทั้ง 15 ไฟล์ไม่เปลี่ยนทุกไบต์ (เทียบก่อน/หลัง regenerate)
+- `packages/shared` ที่แดงจนกว่า P2-X10: `formulas/vectors.test.ts` damage.json `zoneLevel` index 0–6, 8, 9 (9 ข้อ · index 7 ช่วงเลเวลเดียวบังเอิญเท่ากัน) และ tick-reward.json `soloTickExp` index 0–8, 11, 12 (11 ข้อ · dispatcher ของ backend ที่กำลัง port อยู่ใน working tree) · `soloDamage`, `runLoop`, `runLoopStats` ยังอยู่ใน `SKIP_FNS` จึงไม่แดง แต่เมื่อ port ต้องใช้ Z ใหม่
+
+### 18.6 สัญญาที่ต้องเปลี่ยนใน engine (handoff P2-X10 · tech-lead ยืนยัน)
+
+```
+เดิม  zoneLevel(rangeMin: number, rangeMax: number): number                         Math.round((min + max) / 2)
+ใหม่  zoneLevel(playerLevel: number, rangeMin: number, rangeMax: number): number   Math.min(rangeMax, Math.max(rangeMin, playerLevel))
+      RangeError ถ้า rangeMin > rangeMax หรือไม่ใช่จำนวนเต็ม (reference tools/sim/src/zone.ts zoneLevelFor)
+```
+
+- ผู้เรียกที่ต้องแก้: `packages/shared/src/formulas/damage.ts` (`zoneLevel`), `packages/shared/src/reward/exp.ts` บรรทัด `zoneLevel(rangeMin, rangeMax)` ใน `soloTickExp` → `zoneLevel(level, rangeMin, rangeMax)`, dispatcher `formulas/vectors.test.ts` case `'zoneLevel'` อ่าน `playerLevel` เพิ่ม, และ damage ของ `src/hp` (P2-F06-T06) ที่ต้องส่งเลเวล ณ ตอนทอย
+- engine ควรอ่าน `combat.monsterAttack.zoneLevelFrom` และล้มถ้าไม่ใช่ `"playerLevelClampedToRange"` (tools/sim ทำแล้ว: `assertZoneLevelRule` ใน `paramsFromConfig`) · schema `combat.schema.json` รับ string ใดก็ได้ ข้อเสนอ: เปลี่ยนเป็น `enum: ["playerLevelClampedToRange"]` (tech-lead)
+- `tools/sim` ไม่ import `zoneLevel` จาก shared แล้ว จึงไม่พังตอน signature เปลี่ยน
+
+### 18.7 สมมติฐานของงานนี้
+
+- A-P2-X09-1: เลเวลที่ใช้คือเลเวล ณ ตอนนั้น (hit: ตอนทอย · tick: ก่อน exp ของ tick) เหมือน F05 R16 เดิม · เลเวลขึ้นกลาง run ทำให้ Z ขึ้นตาม · owner game-director
+- A-P2-X09-2: damage ปลายบนของช่วงกว้างที่แรงขึ้นเกิน 20% จาก A-1 ถือเป็นส่วนหนึ่งของ J-8 (เป็นค่าตรง GDD) · owner game-director
+
+## 19. ข้อเสนอ J-9: เพดานเวลาของชุดรอยืนยัน (hysteresis band) ก่อน Phase 3
+
+สถานะ: **ข้อเสนอ** (ไม่มีค่าใน config · Phase 2 ใช้ A-P2-X04-1 ที่ game-director ยอมรับแล้ว) · ผู้ตัดสิน: game-director · ต้องเสร็จก่อน flow/spec F08 และ contribution ของ F09 · หลักฐาน: `pnpm exec tsx tools/sim/src/report-gate.ts` หัวข้อ 5
+
+### 19.1 ปัญหา
+
+- ชุดรอยืนยัน (หัวข้อ 16.3) ไม่ล้มเมื่อ sample อยู่ในแถบ ≤ `edgeHysteresis_m` (5 ม.) · ผู้เล่นที่ยืนในแถบนาน ทำให้ `H = min(E, P)` ถูกตรึงที่ sample แรกของชุด (P) ได้ไม่จำกัด
+- ผลย้อนหลังถูกต้องเสมอ แต่ tick, Grace/Suspended และ feedback ทุกอย่างหลัง `P` รอจนชุดยืนยันหรือล้ม · Phase 3 มี server และ party: สมาชิกคนอื่นเห็นสถานะ/จำนวนคนใน dungeon ช้า และ contribution ของ F09 คิดไม่ได้จนกว่าผลนิ่ง
+
+### 19.2 หลักฐานบน trace (report-gate หัวข้อ 5 · synthetic-edge-walk-01 · config ปัจจุบัน N = 6, d = 5 ม.)
+
+| ความถี่ | ชุดทั้งหมด | ยืนยัน (ยาวสุด) | ล้ม (ยาวสุด) | เพดาน 30 / 45 / 60 / 90 วินาที ตัดชุดที่ควรยืนยัน |
+| --- | --- | --- | --- | --- |
+| 1 Hz | 34 | 10 (19.0 วินาที) | 24 (25.0) | 0 / 0 / 0 / 0 |
+| 0.2 Hz | 15 | 6 (55.0 วินาที) | 9 (25.0) | 4 / 1 / 0 / 0 |
+
+- ที่ 0.2 Hz ชุดที่ยืนยันยาวสุด 55 วินาที (sample ในแถบคั่นระหว่าง 6 ตัวที่นับ) · 60 วินาทีไม่ตัดอะไรแต่เหลือขอบแค่ 5 วินาที · trace เป็นค่าสังเคราะห์ (jitter ของเครื่องจริงรอ P2-C03)
+
+### 19.3 ข้อเสนอ
+
+```
+key ใหม่ (Phase 3)  : dungeons.runState.pendingSetMax_s = 90
+กติกา               : ถ้า t(sample ล่าสุด) − t(sample แรกของชุด) > pendingSetMax_s และยังนับไม่ครบ edgeHysteresisSamples
+                      → ล้มชุดเหมือนเจอ sample ฝั่งเดิม (สถานะคงเดิม ไม่ย้อนผล) · sample ถัดไปที่อยู่ฝั่งตรงข้ามเริ่มชุดใหม่
+ผล                  : H เดินหน้าได้เสมอ · ความช้าของผลไม่เกิน pendingSetMax_s ต่อรอบ
+กฎ config (lint)    : edgeHysteresisSamples × sampleCadence_s < pendingSetMax_s ≤ graceMax_s / 2
+```
+
+- ทำไม 90: 1.6 เท่าของชุดที่ยาวสุดบน trace ที่ 0.2 Hz (เผื่อ jitter เครื่องจริง) · = 3 × (6 × 5 วินาที) · = `graceMax_s` / 2 จึงช้ากว่าเวลาที่ผู้เล่นเสีย Grace ไม่ได้ · = 30% ของ `window_s` ดังนั้น tick ช้าลงไม่เกินหนึ่งในสามหน้าต่าง
+- ทำไมล้มแทนยืนยัน (fail closed ตามหลักการข้อ 2): คนที่ยืนในแถบอยู่ห่างขอบ ≤ 5 ม. ตัดสินฝั่งไม่ได้อยู่แล้ว · ขาออก: ถือว่ายังอยู่ใน แต่ระยะนับเฉพาะคู่ที่อยู่ใน polygon ทั้งคู่ (F05-R05) จึงไม่มีรางวัลรั่ว ผลเสียมีแค่ Grace เริ่มช้าได้ไม่เกิน 90 วินาทีต่อรอบ · ขากลับ: ถือว่ายังอยู่นอก timer Grace/Suspended เดินต่อ (เข้มกว่า ไม่ได้เปรียบ)
+- ทางเลือกที่ไม่เสนอ: (ก) ยืนยันอัตโนมัติเมื่อถึงเพดาน = ให้แถบเป็นกลางตัดสินแทนหลักฐาน ขัด D-103 · (ข) นับ sample ในแถบเป็นฝั่งเดิม = กลับไปเป็นกฎที่ edge-walk ออกผิดมากกว่าเท่าตัว (หัวข้อ 16.3) · (ค) เพดาน 60 = ขอบ 5 วินาทีบน trace เดียว เสี่ยงตัดการออกจริงที่ 0.2 Hz
+- ต้องทำเมื่ออนุมัติ: vector `run-state` เพิ่ม (ชุดที่ 89 / 90 / 91 วินาที, ทั้งสองทิศ, เพดานพร้อมช่องว่าง > 30 วินาที) · tech note F04 5.2 เพิ่มกติกา · ตรวจซ้ำบน trace เครื่องจริงของ P2-C03 ก่อนล็อกค่า
+
+### 19.4 คำตัดสิน P-4 และงานที่ทำแล้ว (P2-X13)
+
+- game-director ยอมรับเป็นแผนของ Phase 3 (P-4 ใน `design/reviews/F05-F06-flow-approval.md`) · **Phase 2 ไม่มี key `pendingSetMax_s` ใน config** · A-P2-X04-1 (ไม่มีเพดาน) ยังใช้ตาม D-113
+- กฎ lint ที่วางแผนไว้ของ Phase 3 (เพิ่มใน `gateConfigProblems` ของ tools/sim และ tools/config-lint พร้อม key): `edgeHysteresisSamples × sampleCadence_s < pendingSetMax_s ≤ graceMax_s / 2` · ค่าปัจจุบัน 6 × 5 = 30 < 90 ≤ 180 / 2 = 90 ผ่านพอดีที่ขอบบน
+- vector ขากลับที่มาถึงหลัง `graceMax_s` (ต่อท้าย `run-state.json` ดัชนี 33–35 ดัชนีเดิมไม่เลื่อน) · ผลของ Phase 2:
+
+| ดัชนี | กรณี | ผล Phase 2 | เมื่อมีเพดาน Phase 3 |
+| --- | --- | --- | --- |
+| 33 | ออกที่ 100 วินาที กลับเข้าแถบ 3 ม. ฝั่งในที่ 160 วินาที อยู่ในแถบถึง 1,200 วินาที | ค้าง Grace · `pendingSince_ms` = 160 วินาที (sample ในแถบไม่นับไม่ล้ม) | ต้องเป็น timeout: vector นี้ต้องสร้างใหม่ |
+| 34 | เหมือน 33 แต่ sample หยุดที่ 1,100 วินาที now = 1,200 | ช่องว่าง > `maxSamplePairGap_s` ล้มชุด (D-104) → Suspended ที่ 280.001 วินาที, Ended timeout ที่ 1,000 วินาที (ของครบ R18) | เหมือนเดิม |
+| 35 | กลับเข้าแถบที่ 160 วินาที อยู่ในแถบ 240 วินาที (> `graceMax_s`) แล้วเข้าลึกที่ 400 วินาที | กลับ Active ย้อนไปที่ 160 วินาที ไม่มี Suspended | เปลี่ยน: ชุดล้มที่เพดาน สถานะยังเป็นนอก |
+
+- ข้อ 33 และ 35 คือเหตุผลของ J-9: ถ้าไม่มีเพดาน การยืนในแถบตรึงผลได้ไม่จำกัดและย้อนผลกลับ Active ได้หลังเกิน `graceMax_s` · เงื่อนไขข้อ (2) ของ P-4 (timeout ของครบ) จึงพิสูจน์ได้เฉพาะเมื่อมีเพดาน · Phase 2 พิสูจน์ได้แล้วเฉพาะทางช่องว่าง (ข้อ 34)
+- หลักฐาน: `pnpm exec tsx tools/sim/src/gen-vectors.ts --check`
+
+### 19.5 A-P2-X03-3: `edgeHysteresis_m = 0` นับ sample บนขอบ (ยืนยัน · P2-X13)
+
+- ยืนยันสมมติฐานของ location-engineer: ถ้า `edgeHysteresis_m = 0` ทุก sample ฝั่งตรงข้ามนับ รวมถึง sample ที่ `boundaryDistance_m = 0` พอดี · tools/sim แก้ให้ตรงแล้ว (`presence.ts` `Hysteresis.feed`) · เดิมนับเฉพาะ `> 0`
+- เหตุผล: (1) tech note F04 5.2 และ `_edgeHysteresis_rule` ใน config เขียนว่า 0 = "นับอย่างเดียว" ไม่มีแถบ · ถ้าใช้ `> 0` แถบที่กว้าง 0 ม. ยังมีอยู่บนเส้นขอบ เป็นกรณีพิเศษที่ไม่มีใครตั้งใจ (2) point-in-polygon นับขอบเป็นข้างใน (P2-X06, check-in[11]) sample บนขอบจึงถูกจัดฝั่งแล้ว ถ้าไม่นับจะเป็นทั้ง "ข้างใน" และ "เป็นกลาง" พร้อมกัน (3) มีผลเฉพาะขากลับเข้า (ขาออก sample บนขอบเป็นฝั่งเดิม) และเฉพาะ config ทดลอง ค่าจริง 5 ม. ไม่เปลี่ยนผล vector ใด
+- vector: `run-state.json` [32] (ต่อท้าย) · vector [6] ของหัวข้อ 16.3 (band 3 ม.) ไม่เปลี่ยน

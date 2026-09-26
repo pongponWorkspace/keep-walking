@@ -33,7 +33,7 @@ export const CASE = {
   pn2Range: { min: 1, max: 35 },
   midRange: { min: 20, max: 30 },
   topRange: { min: 50, max: 60 },
-  levels: { one: 1, five: 5, ten: 10, l25: 25, l40: 40, l59: 59, max: 60 },
+  levels: { one: 1, five: 5, ten: 10, l25: 25, l30: 30, l36: 36, l40: 40, l59: 59, max: 60 },
   partialF: 0.4,
   fullF: 1,
   expCarry: { level: 1, exp: 50, gained: 400 },
@@ -102,7 +102,21 @@ export function tickRewardVectors(cfg: BalanceConfig): GateVectorFile {
     'ranged',
     CASE.pn2Range,
     CASE.fullF,
-    'level 1 in PN-2 1-35 (Z = 18): same Z for every level in range (A-1)',
+    'level 1 in PN-2 1-35: Z = clamp(1, 1, 35) = 1 (D-112, was Z = 18 under A-1)',
+  );
+  te(
+    L.l30,
+    'ranged',
+    CASE.pn2Range,
+    CASE.fullF,
+    'level 30 in PN-2 1-35: Z = 30, the same exp as a level-30 player in a 30-30 range (D-112, was Z = 18)',
+  );
+  te(
+    L.l36,
+    'ranged',
+    CASE.pn2Range,
+    CASE.fullF,
+    'level 36 above PN-2 1-35: Z = 35 and gap 1 from the top edge -> 0.92^1, counted once (D-112)',
   );
   te(L.l25, 'magic', CASE.midRange, CASE.fullF, 'level 25 Magic in 20-30 (Z = 25)');
   te(L.l25, 'tanker', CASE.midRange, CASE.partialF, 'D-059 partial tick f = 0.4 scales exp');
@@ -316,13 +330,19 @@ export function runLoopVectors(cfg: BalanceConfig): GateVectorFile {
     CASE.levels.one,
     'ranged',
     CASE.pn2Range,
-    'level 1 in PN-2 1-35: Z = 18 for everyone in range, about 64% of max HP per hit (finding F-18)',
+    'level 1 in PN-2 1-35: Z = clamp(1, 1, 35) = 1, same damage as in a 1-5 dungeon (D-112 fixes finding F-18; was Z = 18, 192.8 per hit)',
+  );
+  dmg(
+    CASE.levels.l30,
+    'ranged',
+    CASE.pn2Range,
+    'level 30 in PN-2 1-35: Z = 30, base Phase 2 stats (D-112)',
   );
   dmg(
     CASE.levels.one,
     'ranged',
     CASE.midRange,
-    'level 1 in 20-30: 1.25^19 below the range, unbounded (A-2)',
+    'level 1 in 20-30: Z = 20 (range edge) x 1.25^19 below the range, counted once, unbounded (D-112, A-2)',
   );
   const loop = (s: Scenario, seed: number, note: string, events = true) => {
     const { runSeed, ...rest } = loopInput(cfg, s, seed, events);
@@ -386,7 +406,7 @@ export function runLoopVectors(cfg: BalanceConfig): GateVectorFile {
   loop(
     pn2('ranged', true),
     CASE.seeds.pn2,
-    'PN-2 1-35 at level 1: auto-retreat after a few hits (finding F-18, R43 not met)',
+    'PN-2 1-35 at level 1: Z = 1 under D-112, the run plays like a 1-5 dungeon (finding F-18 closed)',
   );
   const stats = (s: Scenario, note: string) => {
     const rest: Partial<LoopInput> = loopInput(cfg, s, 0, false);
@@ -410,8 +430,11 @@ export function runLoopVectors(cfg: BalanceConfig): GateVectorFile {
   }
   stats(
     pn2('ranged', false),
-    'PN-2 1-35, level 1 Ranged, no potions: R43 NOT met (finding F-18, sent to game-director)',
+    'PN-2 1-35, level 1 Ranged, no potions: R43 (median >= 10 min) after D-112 (finding F-18)',
   );
-  stats(pn2('tanker', false), 'PN-2 1-35, level 1 Tanker, no potions: R43 NOT met (finding F-18)');
+  stats(
+    pn2('tanker', false),
+    'PN-2 1-35, level 1 Tanker, no potions: R43 after D-112 (finding F-18)',
+  );
   return { formula: 'run-loop', vectors: v };
 }

@@ -6,13 +6,15 @@ import type { FilterVerdict, GateFilterParams, GateFilterState } from './filter'
 import { gateFilterInit, gateFilterStep, validateGateFilterParams } from './filter';
 import type { GridParams, GridState } from './grid';
 import { gridCloseThrough, gridInit, gridStep, validateGridParams } from './grid';
-import { secondsToWholeMs } from './params';
+import { requirePositive, secondsToWholeMs } from './params';
 import type { GeoSample } from './types';
 import { MS_PER_S } from './units';
 
 export interface RewardWindowParams extends GateFilterParams, GridParams {
   /** Config `movementGate.window_s`; must be a whole multiple of `sampleCadence_s`. */
   readonly window_s: number;
+  /** Config `anticheat.speedLock.speedLock_kmh`: required on the reward path (F05 3.1 item 5). */
+  readonly speedLock_kmh: number;
 }
 
 export interface RewardWindowState {
@@ -46,6 +48,7 @@ export interface RewardWindowStepResult {
 export function validateRewardWindowParams(p: RewardWindowParams): void {
   validateGateFilterParams(p);
   validateGridParams(p);
+  requirePositive('speedLock_kmh', p.speedLock_kmh);
   const window_ms = secondsToWholeMs('window_s', p.window_s, MS_PER_S);
   const cadence_ms = p.sampleCadence_s * MS_PER_S;
   if (window_ms % cadence_ms !== 0) {

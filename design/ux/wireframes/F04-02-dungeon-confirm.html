@@ -24,11 +24,12 @@
         <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></p>
         <div class="btn btn-disabled" style="margin-top:12px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
         <p class="caption" style="text-align:center;margin-top:8px;"><span class="copykey">dungeon.checkinNotEnoughTrace</span> <span class="thaidraft">(กำลังนับเวลาที่เดินต่อเนื่อง อีก 00:07)</span></p>
+        <div class="btn btn-secondary" style="margin-top:8px;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div>
       </div>
     </div>
   </div>
 </div>
-<p class="frame-caption">แก้ B-01: popup ไม่เปิดว่างๆ รอกด "เข้า" อีกต่อไป — เปิดพร้อมผล <code>selectCheckInPreview</code> ทันทีตั้งแต่เฟรมแรก (เฟรมนี้แสดงตัวอย่างกรณียังไม่ผ่าน ปุ่มเปิดใช้เองอัตโนมัติเมื่อผ่าน ไม่ต้องปิดเปิด popup ใหม่ ดูรายละเอียดครบใน F04-03-checkin-speedlock.html) · แก้ N-01: ไม่มีบรรทัด/ช่องว่างสำรองสำหรับจำนวนคนเลยในเลย์เอาต์นี้ (ไม่ใช่แค่ไม่ render) · แก้ N-10: กด "ยกเลิก" กลับแผนที่แล้วเปิดใหม่ได้ด้วยปุ่ม <span class="copykey">map.reopenConfirmButton</span> <span class="thaidraft">(เข้าโซนนี้)</span> ที่ครึ่งล่างจอสถานะ "อยู่ในเขต"</p>
+<p class="frame-caption">แก้ C-1: ปุ่ม "ยกเลิก" แสดงและกดได้เสมอแม้ปุ่ม "เข้า" ยัง disabled อยู่ (R06 — ยกเลิกได้ทุกเมื่อโดยไม่มีผล) · แก้ B-01: popup ไม่เปิดว่างๆ รอกด "เข้า" อีกต่อไป — เปิดพร้อมผล <code>selectCheckInPreview</code> ทันทีตั้งแต่เฟรมแรก (เฟรมนี้แสดงตัวอย่างกรณียังไม่ผ่าน ปุ่มเปิดใช้เองอัตโนมัติเมื่อผ่าน ไม่ต้องปิดเปิด popup ใหม่ ดูรายละเอียดครบใน F04-03-checkin-speedlock.html) · แก้ N-01: ไม่มีบรรทัด/ช่องว่างสำรองสำหรับจำนวนคนเลยในเลย์เอาต์นี้ (ไม่ใช่แค่ไม่ render) · แก้ N-10: กด "ยกเลิก" กลับแผนที่แล้วเปิดใหม่ได้ด้วยปุ่ม <span class="copykey">map.reopenConfirmButton</span> <span class="thaidraft">(เข้าโซนนี้)</span> ที่ครึ่งล่างจอสถานะ "อยู่ในเขต"</p>
 </div>
 
 <div class="frame-block">
@@ -106,11 +107,12 @@
         <p class="caption"><span class="copykey">dungeon.confirmLevel</span> <span class="thaidraft">(Lv.1–5)</span></p>
         <div class="btn btn-disabled" style="margin-top:12px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
         <p class="caption" style="text-align:center;margin-top:8px;"><span class="copykey">dungeon.outOfRangeTitle</span> <span class="thaidraft">(GPS ยังไม่เชื่อว่าคุณถึงแล้ว เดินลึกเข้าไปอีกหน่อย)</span></p>
+        <div class="btn btn-secondary" style="margin-top:8px;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div>
       </div>
     </div>
   </div>
 </div>
-<p class="frame-caption">แก้ B-07/J-7: ไม่ใช่ popup แยกที่มีแต่ปุ่มปิดอีกต่อไป — เป็นบรรทัดสถานะใต้ปุ่ม "เข้า" เดียวกับ Flow C ใช้เมื่อ <code>no_approach_from_outside</code> และ sample ล่าสุดอยู่นอก polygon จริง (ลำดับ R08 ไม่เปลี่ยน เป็นแค่หมวดย่อยของข้อ 4) · popup ปิดเองกลับแผนที่ไม่ลงโทษเมื่ออยู่นอกต่อเนื่องครบเกณฑ์ hysteresis เดียวกับ R15 ไม่ปิดจาก sample เดียวที่ส่ายขอบสวน · แก้ B-02: ออฟไลน์ไม่มีผลใดต่อปุ่ม "เข้า" อีกต่อไป (ลบข้อความ common.offlineNotice/offlineRetry เดิมออก — Phase 2 ไม่มี server ให้ request ล้ม)</p>
+<p class="frame-caption">แก้ C-1: ปุ่ม "ยกเลิก" สำคัญที่สุดในเฟรมนี้ — คนยืนขอบสวนต้องปิดเองได้ทันที ไม่ต้องรอ hysteresis ปิดอัตโนมัติ · แก้ B-07/J-7: ไม่ใช่ popup แยกที่มีแต่ปุ่มปิดอีกต่อไป — เป็นบรรทัดสถานะใต้ปุ่ม "เข้า" เดียวกับ Flow C ใช้เมื่อ <code>no_approach_from_outside</code> และ sample ล่าสุดอยู่นอก polygon จริง (ลำดับ R08 ไม่เปลี่ยน เป็นแค่หมวดย่อยของข้อ 4) · popup ปิดเองกลับแผนที่ไม่ลงโทษเมื่ออยู่นอกต่อเนื่องครบเกณฑ์ hysteresis เดียวกับ R15 ไม่ปิดจาก sample เดียวที่ส่ายขอบสวน · แก้ B-02: ออฟไลน์ไม่มีผลใดต่อปุ่ม "เข้า" อีกต่อไป (ลบข้อความ common.offlineNotice/offlineRetry เดิมออก — Phase 2 ไม่มี server ให้ request ล้ม)</p>
 </div>
 
 </div>

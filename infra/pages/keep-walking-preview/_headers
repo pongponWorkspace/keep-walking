@@ -1,12 +1,51 @@
-# Owner: devops-engineer (P1-F02-T08). Cloudflare Pages `_headers` for the client project
-# (keep-walking-preview). This is Phase 1's only "preview" environment (docs/tech/environments.md
-# section 1: no production exists yet) -- keep it out of search indexes (TL-N07) since it is a
-# spike build, not the real game.
+# Owner: devops-engineer (P1-F02-T08, cache rules added P2-F04-T08). Cloudflare Pages `_headers`
+# for the client project (keep-walking-preview). This is Phase 1/2's only "preview" environment
+# (docs/tech/environments.md section 1: no production exists yet) -- keep it out of search indexes
+# (TL-N07) since it is a spike build, not the real game.
 #
-# No Content-Type/Cache-Control overrides here: this project only serves the Vite build output
-# (index.html, hashed JS/CSS/asset filenames), which Cloudflare Pages already serves correctly
-# and cache-busts by filename. Tile-specific rules live in
-# infra/pages/keep-walking-map/_headers (separate project, tech note F02 section 7.5).
+# Most of the Vite build output (index.html, hashed JS/CSS filenames) needs no override here:
+# Cloudflare Pages already serves it correctly and cache-busts by filename. The `/kw/*` rules below
+# are for the asset pipeline's own output (tools/art/out/client/, copied into `dist/kw/` by
+# apps/client's build, docs/tech/asset-delivery.md section 6.1) -- those filenames are NOT
+# content-hashed by Vite, so they need explicit cache headers per asset-delivery.md section 6.2.
+# Tile-specific rules live in infra/pages/keep-walking-map/_headers (separate project, tech note
+# F02 section 7.5) -- this file never repeats those.
+#
+# Checked with infra/scripts/lint-headers.sh (infra/scripts/test/test-lint-headers.sh) after every
+# edit: none of the `/kw/*` rules below overlap on the same header name for any representative path
+# (the broad `/kw/fonts/*` cache rule and the two specific `/kw/fonts/*.woff2` / `*.ttf`
+# content-type rules set DIFFERENT header names on the same file, which is not an overlap -- only
+# two rules setting the SAME header name for the SAME path is the P1-X41 bug this lint catches).
 
 /*
   X-Robots-Tag: noindex
+
+# Version pointer (asset-pipeline 5, asset-delivery.md 6.2): must revalidate on every load so a
+# new build's manifest is never served stale from a client's HTTP cache. Cloudflare Pages already
+# sends a strong ETag for every static file it serves, so `no-cache` (revalidate-before-use, not
+# "don't cache") plus that automatic ETag together give a 304 on an unchanged manifest -- no ETag
+# directive is set explicitly here, there is no way to set one in `_headers` and none is needed.
+/kw/asset-manifest.json
+  Cache-Control: no-cache
+
+# Art, fonts, audio the pipeline stages: immutable for a year. Every art/audio file's own URL
+# already embeds `?v=<sha256 8 chars>` (asset-manifest.json `files[].url`, asset-delivery.md
+# section 5) so a changed file is always a new URL -- there is nothing to invalidate.
+/kw/art/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/kw/audio/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fonts: same immutable cache as above, plus the two content types Cloudflare Pages does not infer
+# correctly on its own for these two extensions (asset-delivery.md section 6.2, section 7 font
+# table). This rule and the two below it set different header names on the same file (Cache-Control
+# here, Content-Type below) -- not an overlap, see file header comment.
+/kw/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/kw/fonts/*.woff2
+  Content-Type: font/woff2
+
+/kw/fonts/*.ttf
+  Content-Type: font/ttf

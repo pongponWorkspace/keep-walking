@@ -1,0 +1,106 @@
+{
+  "fontsVersion": 1,
+  "_comment": "Vendored OFL fonts (D-057, asset-pipeline 4.5 and 9.3). Files are the official releases, byte-for-byte, original file names. Checked by tools/art (V3, V4, V10) inside pnpm test. Update only by re-vendoring from the pinned source and re-running `shasum -a 256 ui/* map/* > SHA256SUMS`.",
+  "fonts": [
+    {
+      "id": "font.ui.plex-sans-thai-looped-500",
+      "role": "ui",
+      "family": "IBM Plex Sans Thai Looped",
+      "weight": 500,
+      "path": "art/fonts/ui/IBMPlexSansThaiLooped-Medium.woff2",
+      "format": "woff2",
+      "bytes": 44120,
+      "sha256": "5f3de9f39f7c07de0ec671c7ccbd705ef50eec5c90adbc371008efefb9f038ae",
+      "sourceRef": "plex",
+      "licenseRef": "plex"
+    },
+    {
+      "id": "font.ui.plex-sans-thai-looped-700",
+      "role": "ui",
+      "family": "IBM Plex Sans Thai Looped",
+      "weight": 700,
+      "path": "art/fonts/ui/IBMPlexSansThaiLooped-Bold.woff2",
+      "format": "woff2",
+      "bytes": 43144,
+      "sha256": "57d56a28e14613d5cde70d986ff725840826054c661d4b821c8404235e2354ec",
+      "sourceRef": "plex",
+      "licenseRef": "plex"
+    },
+    {
+      "id": "font.map.noto-sans-thai-400",
+      "role": "map",
+      "family": "Noto Sans Thai",
+      "weight": 400,
+      "path": "art/fonts/map/NotoSansThai-Regular.ttf",
+      "format": "ttf",
+      "bytes": 20960,
+      "sha256": "d4303fe9c63ebb72759ca8b6d2040c8ae81689f7d08d7b91c656154382b49313",
+      "sourceRef": "noto",
+      "licenseRef": "noto"
+    },
+    {
+      "id": "font.map.noto-sans-thai-500",
+      "role": "map",
+      "family": "Noto Sans Thai",
+      "weight": 500,
+      "path": "art/fonts/map/NotoSansThai-Medium.ttf",
+      "format": "ttf",
+      "bytes": 20868,
+      "sha256": "043a0473caaca159557b0965709cbef586125167771e7714cc7163960175d2f9",
+      "sourceRef": "noto",
+      "licenseRef": "noto"
+    }
+  ],
+  "sources": {
+    "plex": {
+      "name": "@ibm/plex-sans-thai-looped",
+      "version": "1.1.0",
+      "origin": "https://registry.npmjs.org/@ibm/plex-sans-thai-looped/-/plex-sans-thai-looped-1.1.0.tgz",
+      "archiveSha256": "76f87add6bce805e284a9f9e0ef117a9fd63b47ffd46debd36b0f00f2e8a799e",
+      "archiveIntegrity": "sha512-9zbDGzmtscHgBRTF88y3/92zQx6lmKjz5ZxhgcljilwOpj08BAytDc3mzUl9XGUh+DmOMl0Ql1lk6ecsEYYg2w==",
+      "upstream": "https://github.com/IBM/plex (gitHead 1da12f02587b630c07e92692d21492d722f53614)",
+      "archivePaths": [
+        "package/fonts/complete/woff2/IBMPlexSansThaiLooped-Medium.woff2",
+        "package/fonts/complete/woff2/IBMPlexSansThaiLooped-Bold.woff2",
+        "package/fonts/complete/woff2/license.txt"
+      ],
+      "date": "2026-09-27",
+      "note": "Files extracted from the tarball only. The npm package is never installed (its postinstall runs IBM telemetry)."
+    },
+    "noto": {
+      "name": "notofonts/thai",
+      "version": "NotoSansThai-v2.002",
+      "origin": "https://github.com/notofonts/thai/releases/download/NotoSansThai-v2.002/NotoSansThai-v2.002.zip",
+      "archiveSha256": "af889cc673fc714060ce5e4e088fbad32aa4c0571a19958efeaff128a22da485",
+      "archiveIntegrity": null,
+      "upstream": "https://github.com/notofonts/thai (same pin as tools/tiles/config.json assets.notoSansThai)",
+      "archivePaths": [
+        "NotoSansThai/unhinted/ttf/NotoSansThai-Regular.ttf",
+        "NotoSansThai/unhinted/ttf/NotoSansThai-Medium.ttf",
+        "OFL.txt"
+      ],
+      "date": "2026-09-27",
+      "note": "Unhinted TTF, unmodified (no subset needed: under budget)."
+    }
+  },
+  "licenses": {
+    "plex": {
+      "spdx": "OFL-1.1",
+      "holder": "IBM Corp.",
+      "file": "art/fonts/ui/OFL.txt",
+      "fileSha256": "91c25c350d3cac39da2736d74f7ba37ef648f5237a4e330a240615bc8d8c4360",
+      "attribution": "IBM Plex Sans Thai Looped, SIL Open Font License 1.1",
+      "reservedFontName": "Plex",
+      "modified": false
+    },
+    "noto": {
+      "spdx": "OFL-1.1",
+      "holder": "The Noto Project Authors",
+      "file": "art/fonts/map/OFL.txt",
+      "fileSha256": "2e98fd23a52d253db8612cd5942c8f2ff4111b21d2367050fdca91d8ccc374a0",
+      "attribution": "Noto Sans Thai, SIL Open Font License 1.1",
+      "reservedFontName": null,
+      "modified": false
+    }
+  }
+}

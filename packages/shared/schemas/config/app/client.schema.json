@@ -66,10 +66,10 @@
         "_source": { "$ref": "../common.schema.json#/$defs/source" },
         "development": {
           "type": "object",
-          "required": ["provider", "speed", "loop", "hud"],
+          "required": ["provider", "speedMult", "loop", "hud"],
           "properties": {
             "provider": { "type": "string", "minLength": 1 },
-            "speed": { "type": "integer", "minimum": 0 },
+            "speedMult": { "type": "integer", "minimum": 0 },
             "loop": { "type": "boolean" },
             "hud": { "type": "boolean" }
           },
@@ -77,10 +77,10 @@
         },
         "production": {
           "type": "object",
-          "required": ["provider", "speed", "loop", "hud"],
+          "required": ["provider", "speedMult", "loop", "hud"],
           "properties": {
             "provider": { "type": "string", "minLength": 1 },
-            "speed": { "type": "integer", "minimum": 0 },
+            "speedMult": { "type": "integer", "minimum": 0 },
             "loop": { "type": "boolean" },
             "hud": { "type": "boolean" }
           },
@@ -135,11 +135,11 @@
     },
     "engine": {
       "type": "object",
-      "required": ["tickInterval_ms", "bangkokUtcOffset_min"],
+      "required": ["tickInterval_ms", "seeUtcOffset"],
       "properties": {
         "_source": { "$ref": "../common.schema.json#/$defs/source" },
         "tickInterval_ms": { "$ref": "../common.schema.json#/$defs/milliseconds" },
-        "bangkokUtcOffset_min": { "type": "integer", "minimum": 0 }
+        "seeUtcOffset": { "$ref": "../common.schema.json#/$defs/pointer" }
       },
       "patternProperties": { "^_": {} }
     },

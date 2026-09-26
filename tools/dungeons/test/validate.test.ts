@@ -81,7 +81,7 @@ const FAILS: [string, Mutation, string][] = [
   ],
   [
     'drop table not in config',
-    yard((r) => (r.drop_table_id = 'nope.default')),
+    yard((r) => (r.drop_table_id = 'nopeDefault')),
     'drop_table_unknown',
   ],
   ['name_key null on a published record', yard((r) => (r.name_key = null)), 'name_key_missing'],

@@ -139,7 +139,7 @@
       "type": "object",
       "required": [
         "farDungeonThreshold_m",
-        "seeOutOfAreaMask",
+        "outOfAreaMaskPath",
         "reevaluateDistance_m",
         "distanceDisplaySteps_m",
         "seeAccuracy"
@@ -147,7 +147,7 @@
       "properties": {
         "_source": { "$ref": "../common.schema.json#/$defs/source" },
         "farDungeonThreshold_m": { "$ref": "../common.schema.json#/$defs/meters" },
-        "seeOutOfAreaMask": { "$ref": "../common.schema.json#/$defs/pointer" },
+        "outOfAreaMaskPath": { "type": "string", "minLength": 1 },
         "reevaluateDistance_m": { "$ref": "../common.schema.json#/$defs/meters" },
         "distanceDisplaySteps_m": {
           "type": "array",

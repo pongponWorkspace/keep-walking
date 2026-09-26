@@ -1,0 +1,11 @@
+{
+  "name": "@keep-walking/qa-tests-traces",
+  "version": "0.0.0",
+  "private": true,
+  "description": "QA-authored GPS traces for F04/F05 (P2-F04-T19). Generator script (build.ts, --check mode) reuses tools/traces/src/* by relative import (never edited); trace-replay tests use only @keep-walking/shared and @keep-walking/geo's public surface. Owner: qa-tester.",
+  "type": "module",
+  "devDependencies": {
+    "@keep-walking/geo": "workspace:*",
+    "@keep-walking/shared": "workspace:*"
+  }
+}

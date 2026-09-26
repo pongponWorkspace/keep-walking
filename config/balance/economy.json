@@ -60,8 +60,8 @@
   },
   "partyReward": {
     "_source": "GDD > Class และ Party > เป้าหมายสมดุล (party ครบ role ได้รางวัลต่อหัว 1.8-2.2 เท่าของคนเดียว)",
-    "fullPartyPerHeadToSoloMin": 1.8,
-    "fullPartyPerHeadToSoloMax": 2.2
+    "fullPartyPerHeadToSoloMinRatio": 1.8,
+    "fullPartyPerHeadToSoloMaxRatio": 2.2
   },
   "playtimeGap": {
     "_source": "GDD > Core loop ใน Dungeon > ความเสี่ยงที่ต้องเฝ้าดู (40 นาที/วัน vs 6 ชม./วัน ราว 9 เท่า)",

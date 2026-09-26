@@ -1,7 +1,6 @@
-import 'maplibre-gl/dist/maplibre-gl.css';
 import './app.css';
-import { readBuildProfile, readMapEnv, withTestEnvOverrides } from './env';
-import { createMap } from './map';
+import { readBuildProfile, readMapEnv, withTestEnvOverrides, hasRuntimeMapEnv } from './env';
+import type { createMap, CreateMapResult } from './map';
 import { clientConfig, appPrivacyConfig } from './config/runtime';
 import {
   balanceLocationConfig,
@@ -14,12 +13,50 @@ import { createLocationProvider, wireProvider } from './location/session';
 import type { LocationProvider } from '@keep-walking/location';
 import { windowNetworkStatus } from './location/network-status';
 import { mountGpsUi } from './ui/gps-ui';
-import { createLocationLayerController } from './map/location-layer';
-import type { LocationLayerController } from './map/location-layer';
-import { loadGameGeoSources } from './map/geo-sources';
-import { registerRiftCrackImage } from './map/runtime-images';
+import type { createLocationLayerController, LocationLayerController } from './map/location-layer';
+import type { loadGameGeoSources } from './map/geo-sources';
+import type { registerRiftCrackImage } from './map/runtime-images';
 import { installSpikeHook, removeSpikeHook, sampleToSpikePosition } from './debug/spike-hook';
 import type { HudPanel } from './debug/hud-panel';
+import { getCopyText } from './copy/load';
+
+/** The four functions `loadMapModules` hands back, typed purely from `import type` (never a value
+ * import — `@typescript-eslint/consistent-type-imports` forbids `import()` type annotations, and a
+ * value import here would defeat the whole point of this task: pulling `maplibre-gl` back into the
+ * initial static chunk). */
+interface MapModules {
+  readonly createMap: typeof createMap;
+  readonly createLocationLayerController: typeof createLocationLayerController;
+  readonly loadGameGeoSources: typeof loadGameGeoSources;
+  readonly registerRiftCrackImage: typeof registerRiftCrackImage;
+}
+
+/**
+ * P2-F04-T10 (ADR 0003 section 10): `maplibre-gl` (and everything that touches it — `./map`,
+ * `./map/location-layer`, `./map/geo-sources`, `./map/runtime-images`, and its own CSS) is loaded
+ * only from here, `await import(...)`-ed once real map env is configured (`hasRuntimeMapEnv`,
+ * checked *before* this runs so an unconfigured build never even fetches the chunk). Everything
+ * this file needs from those modules crosses through this one function, so there is exactly one
+ * place `main.ts` decides to pay for the maplibre bundle — never a second static import that would
+ * silently pull it back into the initial chunk.
+ */
+async function loadMapModules(): Promise<MapModules> {
+  const [mapModule, locationLayerModule, geoSourcesModule, runtimeImagesModule] = await Promise.all(
+    [
+      import('./map'),
+      import('./map/location-layer'),
+      import('./map/geo-sources'),
+      import('./map/runtime-images'),
+      import('maplibre-gl/dist/maplibre-gl.css'),
+    ],
+  );
+  return {
+    createMap: mapModule.createMap,
+    createLocationLayerController: locationLayerModule.createLocationLayerController,
+    loadGameGeoSources: geoSourcesModule.loadGameGeoSources,
+    registerRiftCrackImage: runtimeImagesModule.registerRiftCrackImage,
+  };
+}
 
 /** `VITE_KW_PROFILE`/`VITE_KW_COMMIT` (TL B-10, P2-F04-T25): read once at module load, from build
  * time only. `commit` replaces the old `APP_VERSION_PLACEHOLDER = 'dev'` (P1-F02-T10's own
@@ -55,7 +92,8 @@ const env = withTestEnvOverrides(readMapEnv(import.meta.env), window.location.se
 // from an outer `if`/`await` across a function boundary.
 async function initLocation(
   hudElement: HTMLElement,
-  mapResult: Awaited<ReturnType<typeof createMap>>,
+  mapResult: CreateMapResult | undefined,
+  mapModules: Awaited<ReturnType<typeof loadMapModules>> | undefined,
 ): Promise<void> {
   const selection = selectProvider(window.location.search, clientConfig, import.meta.env.MODE);
   const spikeHook = selection.hud ? installSpikeHook(selection.provider) : undefined;
@@ -81,6 +119,7 @@ async function initLocation(
       tilesetId: mapResult?.tilesetId,
       rawTraceTrim_m: appPrivacyConfig.rawTraceExport.rawTraceTrim_m,
       coordinateDecimals: appPrivacyConfig.rawTraceExport.coordinateDecimals,
+      vibrateTestPattern_ms: clientConfig.probe.vibrateTestPattern_ms,
       onUpdate: (row) => {
         if (spikeHook !== undefined) {
           spikeHook.hud = row;
@@ -108,14 +147,14 @@ async function initLocation(
   network.subscribe((online) => gpsUi.setOffline(!online));
 
   let layerController: LocationLayerController | undefined;
-  if (mapResult !== undefined) {
+  if (mapResult !== undefined && mapModules !== undefined) {
     // `kw-self` (and every other `kw-*` source) is already declared, empty, by
     // kw-light.style.json (map-style.md section 6) — no `addSource`/`addLayer` call needed here —
     // but MapLibre still only makes sources queryable once the style has finished loading.
     mapResult.map.on('load', () => {
-      layerController = createLocationLayerController(mapResult.map, true);
-      void loadGameGeoSources(mapResult.map);
-      void registerRiftCrackImage(mapResult.map);
+      layerController = mapModules.createLocationLayerController(mapResult.map, true);
+      void mapModules.loadGameGeoSources(mapResult.map);
+      void mapModules.registerRiftCrackImage(mapResult.map);
     });
     gpsUi.onFollowToggle((enabled) => layerController?.setFollowMode(enabled));
   }
@@ -162,17 +201,27 @@ async function initLocation(
 }
 
 async function main(mapContainer: HTMLElement, hudElement: HTMLElement): Promise<void> {
-  const mapResult = await createMap(mapContainer, env, clientConfig);
-  if (mapResult === undefined) {
-    // No copy.th.json key exists yet for this dev-only configuration state, so fall back to the
-    // key-shaped placeholder text itself (TL-N06), same convention P1-F02-T10 uses for real
-    // gps.* status copy. This only shows up when one of the three VITE_* values is unset, never in
-    // a real deployed build (Cloudflare Pages always sets all three, D-008). #hud is a sibling of
-    // #map, so it survives this fallback (index.html P1-F02-T10 comment).
-    mapContainer.classList.add('map-shell--empty');
-    mapContainer.textContent = 'client.mapSpike.tilesUrlMissing';
+  let mapResult: CreateMapResult | undefined;
+  let mapModules: Awaited<ReturnType<typeof loadMapModules>> | undefined;
+  // `hasRuntimeMapEnv` is checked *before* `loadMapModules()` (P2-F04-T10, ADR 0003 section 10):
+  // when any of the three `VITE_*` values is unset, the maplibre-gl chunk is never even fetched,
+  // matching the honest "not configured" fallback below without paying its network cost.
+  if (hasRuntimeMapEnv(env)) {
+    mapModules = await loadMapModules();
+    mapResult = await mapModules.createMap(mapContainer, env, clientConfig);
   }
-  await initLocation(hudElement, mapResult);
+  if (mapResult === undefined) {
+    // `client.mapSpike.tilesUrlMissing` (P1-X42): read through `getCopyText`, never the key itself
+    // embedded as literal Thai-shaped text (CLAUDE.md "All Thai text comes from copy.th.json
+    // keys"). `getCopyText` still falls back to the key string (TL-N06) if narrative ever removes
+    // it, so this path degrades the same honest way it always has. This only shows up when one of
+    // the three VITE_* values is unset, never in a real deployed build (Cloudflare Pages always
+    // sets all three, D-008). #hud is a sibling of #map, so it survives this fallback (index.html
+    // P1-F02-T10 comment).
+    mapContainer.classList.add('map-shell--empty');
+    mapContainer.textContent = getCopyText('client.mapSpike.tilesUrlMissing');
+  }
+  await initLocation(hudElement, mapResult, mapModules);
 }
 
 void main(container, hud);

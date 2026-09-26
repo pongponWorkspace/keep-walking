@@ -127,11 +127,11 @@
     },
     "partyReward": {
       "type": "object",
-      "required": ["fullPartyPerHeadToSoloMin", "fullPartyPerHeadToSoloMax"],
+      "required": ["fullPartyPerHeadToSoloMinRatio", "fullPartyPerHeadToSoloMaxRatio"],
       "properties": {
         "_source": { "$ref": "../common.schema.json#/$defs/source" },
-        "fullPartyPerHeadToSoloMin": { "type": "number" },
-        "fullPartyPerHeadToSoloMax": { "type": "number" }
+        "fullPartyPerHeadToSoloMinRatio": { "type": "number" },
+        "fullPartyPerHeadToSoloMaxRatio": { "type": "number" }
       },
       "patternProperties": { "^_": {} }
     },

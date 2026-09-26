@@ -2,10 +2,10 @@
 // Run from the repo root: pnpm exec tsx tools/sim/src/report-gate.ts
 // Sweep candidates below are what-if inputs for the report, never written to config.
 import { loadBalanceConfig } from './config';
-import { runGate } from './gate';
+import { MS_PER_S, filterSamples, runGate } from './gate';
 import type { GateParams } from './gate';
 import { gateConfigFromConfig, gateConfigProblems } from './params-gate';
-import { checkIn, runTimeline, speedLockTransitions } from './presence';
+import { Hysteresis, checkIn, runTimeline, speedLockTransitions } from './presence';
 import type { PresenceSample, RunStateParams } from './presence';
 import { TEST_POLYGON, loadTraceSamples, tracePath } from './traces';
 
@@ -29,6 +29,8 @@ const WHAT_IF = {
   pad: { id: 13, speed: 3, time: 8 },
   msPerS: 1000,
   edgeWalkEnd_ms: 1_170_000,
+  /** J-9 what-if caps on a pending confirmation set (s); proposal only, not in config. */
+  pendingCaps_s: { a: 30, b: 45, c: 60, d: 90 },
 } as const;
 
 const c = gateConfigFromConfig(loadBalanceConfig());
@@ -134,6 +136,63 @@ function section4(): void {
   }
 }
 
+interface PendingSet {
+  start_ms: number;
+  last_ms: number;
+  confirmed: boolean;
+}
+
+/** Pending confirmation sets of the edge hysteresis (tech note F04 5.2) over one trace. */
+function pendingSets(samples: PresenceSample[], p: RunStateParams): PendingSet[] {
+  const verdicts = filterSamples(samples, p);
+  const usable = samples.filter((_, i) => verdicts[i]?.kept === true);
+  const h = new Hysteresis('in', p);
+  const sets: PendingSet[] = [];
+  let open: PendingSet | null = null;
+  let last: number | null = null;
+  for (const x of usable) {
+    if (last !== null && x.t_ms - last > p.maxSamplePairGap_s * MS_PER_S) {
+      h.reset();
+      open = null;
+    }
+    last = x.t_ms;
+    const before = h.firstAt_ms;
+    const at = h.feed(x);
+    if (at !== null) {
+      if (open) [open.last_ms, open.confirmed] = [x.t_ms, true];
+      else sets.push({ start_ms: at, last_ms: x.t_ms, confirmed: true });
+      open = null;
+    } else if (h.firstAt_ms === null) open = null;
+    else if (before === null || open === null) {
+      open = { start_ms: h.firstAt_ms, last_ms: x.t_ms, confirmed: false };
+      sets.push(open);
+    } else open.last_ms = x.t_ms;
+  }
+  return sets;
+}
+
+function section5(): void {
+  console.log(
+    '\n5. J-9: pending confirmation sets on synthetic-edge-walk-01 (duration = first sample of the set -> confirming or last sample)',
+  );
+  for (const every of Object.values(WHAT_IF.every)) {
+    const sets = pendingSets(load('edge-walk', every, TEST_POLYGON), c.run);
+    const conf = sets
+      .filter((x) => x.confirmed)
+      .map((x) => (x.last_ms - x.start_ms) / WHAT_IF.msPerS);
+    const drop = sets
+      .filter((x) => !x.confirmed)
+      .map((x) => (x.last_ms - x.start_ms) / WHAT_IF.msPerS);
+    const max = (a: number[]) => (a.length ? fmt(Math.max(...a)) : '-');
+    const caps = Object.values(WHAT_IF.pendingCaps_s)
+      .map((cap) => `${cap} s cuts ${conf.filter((d) => d > cap).length} confirmed`)
+      .join(' · ');
+    console.log(
+      `  every ${every} sample(s): ${sets.length} sets · confirmed ${conf.length} (longest ${max(conf)} s) · abandoned ${drop.length} (longest ${max(drop)} s) · ${caps}`,
+    );
+  }
+}
+
 function main(): void {
   console.log('P2-F05-T20 gate / run state / check-in evidence (config/balance, synthetic traces)');
   const problems = gateConfigProblems(c);
@@ -144,6 +203,7 @@ function main(): void {
   section2();
   section3();
   section4();
+  section5();
 }
 
 main();

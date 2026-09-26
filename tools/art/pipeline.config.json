@@ -1,0 +1,298 @@
+{
+  "_comment": "Every tunable value of tools/art (P2-F06-T07). Sources: art/direction/asset-pipeline.md (sections noted per key), art/direction/avatar-spec.md 6 and 7.4, art/direction/style-guide.md 3 and 6. Change a value here only after the owning doc changes.",
+  "paths": {
+    "manifest": "art/assets/manifest.json",
+    "buildManifest": "art/assets/manifest.build.json",
+    "schema": "art/assets/manifest.schema.json",
+    "assetsDir": "art/assets",
+    "srcDir": "art/src",
+    "fontsDir": "art/fonts",
+    "fontsManifest": "art/fonts/fonts.json",
+    "fontsSha256Sums": "art/fonts/SHA256SUMS",
+    "tokens": "design/ux/tokens.json",
+    "audioGenerator": "audio/src/generate.ts",
+    "audioManifest": "audio/manifest.json",
+    "audioOut": "audio/out",
+    "stageOut": "tools/art/out/client"
+  },
+  "unlistedFilesAllowed": [
+    "manifest.json",
+    "manifest.schema.json",
+    "manifest.build.json",
+    "OFL.txt",
+    ".DS_Store"
+  ],
+  "pathExceptionRoots": [
+    "map",
+    "ref"
+  ],
+  "spdxAllowed": [
+    "LicenseRef-KeepWalking-Original",
+    "OFL-1.1"
+  ],
+  "svg": {
+    "_comment": "asset-pipeline 4.1 and style-guide 6.3 (no gradient, no blur).",
+    "forbiddenElements": [
+      "image",
+      "text",
+      "script",
+      "foreignObject",
+      "linearGradient",
+      "radialGradient",
+      "filter"
+    ],
+    "colorAttributes": [
+      "fill",
+      "stroke",
+      "stop-color",
+      "flood-color",
+      "lighting-color",
+      "color"
+    ],
+    "opacityAttributes": [
+      "opacity",
+      "fill-opacity",
+      "stroke-opacity"
+    ],
+    "opacityException": {
+      "color": "#1A1A22",
+      "value": 0.2
+    },
+    "currentColorKinds": [
+      "icon-ui"
+    ],
+    "keywordsAllowed": [
+      "none",
+      "currentColor",
+      "transparent"
+    ],
+    "miterRequiredIds": [
+      "map.icon.rift-crack",
+      "icon.ui.rift",
+      "icon.ui.in-run",
+      "icon.ui.enter"
+    ],
+    "miterLimit": 4
+  },
+  "keyColors": {
+    "_comment": "avatar-spec 7.4. Allowed only in masters under keyColorDirs (V8).",
+    "skin": {
+      "top": "#FF40FF",
+      "left": "#C020C0",
+      "right": "#800080"
+    },
+    "hair": {
+      "top": "#40FFFF",
+      "left": "#20C0C0",
+      "right": "#008080"
+    }
+  },
+  "keyColorDirs": [
+    "art/src/avatar/body/",
+    "art/src/avatar/hair/",
+    "art/src/avatar/pose-hand/"
+  ],
+  "avatar": {
+    "_comment": "avatar-spec 6: sheet size at 1x and the variant axis per layer.",
+    "frame": {
+      "width": 128,
+      "height": 160
+    },
+    "layers": {
+      "body": {
+        "sheet": [
+          384,
+          480
+        ],
+        "axis": "skin"
+      },
+      "face": {
+        "sheet": [
+          384,
+          800
+        ],
+        "axis": null
+      },
+      "hair": {
+        "sheet": [
+          384,
+          320
+        ],
+        "axis": "hair"
+      },
+      "outfit_body": {
+        "sheet": [
+          384,
+          480
+        ],
+        "axis": null
+      },
+      "outfit_feet": {
+        "sheet": [
+          384,
+          160
+        ],
+        "axis": null
+      },
+      "weapon": {
+        "sheet": [
+          384,
+          160
+        ],
+        "axis": null
+      },
+      "accessory_charm": {
+        "sheet": [
+          384,
+          160
+        ],
+        "axis": null
+      },
+      "accessory_head": {
+        "sheet": [
+          384,
+          160
+        ],
+        "axis": null
+      },
+      "accessory_face": {
+        "sheet": [
+          384,
+          160
+        ],
+        "axis": null
+      },
+      "pose_hand": {
+        "sheet": [
+          896,
+          160
+        ],
+        "axis": "skin"
+      },
+      "pose_prop": {
+        "sheet": [
+          256,
+          160
+        ],
+        "axis": null
+      }
+    },
+    "variantValues": {
+      "skin": [
+        "skin-1",
+        "skin-2",
+        "skin-3",
+        "skin-4",
+        "skin-5",
+        "skin-6"
+      ],
+      "hair": [
+        "hair-1",
+        "hair-2",
+        "hair-3",
+        "hair-4",
+        "hair-5",
+        "hair-6"
+      ]
+    },
+    "scales": [
+      1,
+      2
+    ]
+  },
+  "quantize": {
+    "_comment": "asset-pipeline 4.2 step 3.",
+    "maxColors": 128,
+    "dither": false
+  },
+  "raster": {
+    "_comment": "Pixel tolerance for V12 when the build machine differs from the recorded platform.",
+    "crossPlatformMaxChannelDelta": 8,
+    "crossPlatformMaxDiffPixelRatio": 0.01
+  },
+  "budgets": {
+    "_comment": "asset-pipeline 7.1 (bytes after optimisation, before gzip). 1 KB = 1024 bytes.",
+    "kindBytes": {
+      "icon-ui": 2048,
+      "icon-ui16": 1536,
+      "icon-qc": 2048,
+      "icon-item": 8192,
+      "badge-class": 3072,
+      "frame-rarity": 3072,
+      "ui": 6144,
+      "illus-svg": 20480,
+      "illus-raster": 122880,
+      "map-icon": 4096,
+      "vfx@1": 24576,
+      "vfx@2": 65536,
+      "font-ui": 61440,
+      "font-map": 61440,
+      "reference": null
+    },
+    "avatarLayerBytes": {
+      "body": [
+        16384,
+        40960
+      ],
+      "face": [
+        10240,
+        24576
+      ],
+      "hair": [
+        10240,
+        28672
+      ],
+      "outfit_body": [
+        14336,
+        36864
+      ],
+      "outfit_feet": [
+        5120,
+        12288
+      ],
+      "weapon": [
+        6144,
+        14336
+      ],
+      "accessory_charm": [
+        4096,
+        10240
+      ],
+      "accessory_head": [
+        4096,
+        10240
+      ],
+      "accessory_face": [
+        4096,
+        10240
+      ],
+      "pose_hand": [
+        8192,
+        20480
+      ],
+      "pose_prop": [
+        4096,
+        10240
+      ]
+    },
+    "avatarTotalBytes": [
+      81920,
+      204800
+    ],
+    "avatarLayersInTotal": [
+      "body",
+      "face",
+      "hair",
+      "outfit_body",
+      "outfit_feet",
+      "weapon",
+      "accessory_charm",
+      "accessory_head",
+      "accessory_face"
+    ],
+    "firstScreenBytes": 409600,
+    "firstScreenUiGlyphBytes": 30720,
+    "manifestBytes": 61440,
+    "runtimeManifestBytes": 30720
+  }
+}

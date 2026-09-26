@@ -556,7 +556,7 @@ client UI (onboarding, nav, gps)  ─┼→ mapper (ตาราง 12.3, allowl
       "name_key": "dungeon.chatuchakPark",
       "preset": "largePark",
       "level_range": { "min": 20, "max": 35 },
-      "drop_table_id": "largePark.default",
+      "drop_table_id": "largeParkDefault",
       "verification_mode": "continuous_gps",
       "floor_level": null,
       "area_m2": 37689.0,

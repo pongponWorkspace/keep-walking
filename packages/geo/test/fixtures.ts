@@ -1,10 +1,13 @@
 // Test fixtures for @keep-walking/geo. geo never reads config (ADR 0003 4.1): these values are
-// fixtures chosen to exercise the code, NOT balance. The real values are config keys owned by
-// systems-designer (P2-F05-T20, config/balance/dungeons.json#movementGate and #runState).
+// fixtures, NOT balance. They mirror the values ratified in D-102 (P2-F05-T20) so the trace
+// results here match the tools/sim reference and design/systems/test-vectors; the real values are
+// config keys owned by systems-designer (config/balance/dungeons.json#movementGate, #runState,
+// config/balance/anticheat.json#speedLock).
 import { readFileSync } from 'node:fs';
 import type { MultiPolygon, Polygon } from 'geojson';
 import type {
   DiagnosticParams,
+  EdgeHysteresisGapParams,
   EdgeHysteresisParams,
   GeoSample,
   LatLng,
@@ -21,24 +24,32 @@ export const GATE = {
   comparison: 'greaterThan',
 } as const;
 
-/** Filter + grid fixture. Cadence 5 s sits inside the band where table = 0 and bench >= 1. */
+/** Filter + grid fixture (D-102). Cadence 5 s sits inside the band where table = 0, bench >= 1. */
 export const FILTER = {
   maxSampleAccuracy_m: 30,
-  outlierSpeed_kmh: 30,
+  outlierSpeed_kmh: 60,
   outlierReanchorSamples: 5,
   sampleCadence_s: 5,
   maxSamplePairGap_s: 30,
 } as const;
 
-export const REWARD: RewardWindowParams = { ...FILTER, window_s: GATE.window_s };
+/** speedLock_kmh of the current config: the reward-path pair limit (F05 3.1 item 5). */
+export const SPEED_LOCK_KMH = 25;
+
+export const REWARD: RewardWindowParams = {
+  ...FILTER,
+  window_s: GATE.window_s,
+  speedLock_kmh: SPEED_LOCK_KMH,
+};
 
 export const DIAG: DiagnosticParams = { ...FILTER, ...GATE, windowStep_s: 30 };
 
-/** Hysteresis fixture: 10 fixes at 1 Hz (<= graceMax_s / 6) and 5 m (<= ~1/3 of 31 m). */
-export const HYST: EdgeHysteresisParams = { edgeHysteresisSamples: 10, edgeHysteresis_m: 5 };
-
-/** speedLock_kmh of the current config, used only to read the driving trace. */
-export const SPEED_LOCK_KMH = 25;
+/** Hysteresis fixture (D-102/D-103): 6 counted fixes beyond a 5 m band, gap rule 30 s (D-104). */
+export const HYST: EdgeHysteresisParams & EdgeHysteresisGapParams = {
+  edgeHysteresisSamples: 6,
+  edgeHysteresis_m: 5,
+  maxSamplePairGap_s: FILTER.maxSamplePairGap_s,
+};
 
 /** graceMax_s of the current config, used only to read the edge-walk expectations. */
 export const GRACE_MAX_S = 180;

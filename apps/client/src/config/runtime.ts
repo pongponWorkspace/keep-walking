@@ -89,6 +89,24 @@ export interface NavigationConfig {
   readonly externalOpenTimeout_ms: number;
 }
 
+/** HUD probe constants (P2-F04-T10, F-17): never a literal in `debug/vibrate.ts`/`hud-panel.ts`. */
+export interface ProbeConfig {
+  readonly vibrateTestPattern_ms: number;
+}
+
+/**
+ * `bundle.*` (P2-F04-T10, ADR 0003 section 10): the JS-transfer budgets `apps/client/scripts/
+ * measure-bundle.ts` checks `dist/`'s Vite manifest against. `initialJsBudget_bytes` covers the
+ * entry chunk + everything it statically imports (S5 ≤ 1.0 MB); `mapLazyJsBudget_bytes` covers
+ * maplibre-gl + its worker, loaded only via the `await import(...)` in `main.ts`'s
+ * `loadMapModules` — a separate budget because it is never paid by a build with no map env
+ * configured (`hasRuntimeMapEnv`).
+ */
+export interface BundleConfig {
+  readonly initialJsBudget_bytes: number;
+  readonly mapLazyJsBudget_bytes: number;
+}
+
 export interface ClientRuntimeConfig {
   readonly locationWeb: LocationWebConfig;
   readonly providerQuery: ProviderQueryConfig;
@@ -98,6 +116,8 @@ export interface ClientRuntimeConfig {
   readonly engine: EngineConfig;
   readonly storage: StorageRuntimeConfig;
   readonly navigation: NavigationConfig;
+  readonly probe: ProbeConfig;
+  readonly bundle: BundleConfig;
 }
 
 export interface RawTraceExportConfig {
@@ -284,6 +304,21 @@ function parseNavigation(root: Json, path: string): NavigationConfig {
   };
 }
 
+function parseProbe(root: Json, path: string): ProbeConfig {
+  const node = obj(root['probe'], path);
+  return {
+    vibrateTestPattern_ms: num(node['vibrateTestPattern_ms'], `${path}/vibrateTestPattern_ms`),
+  };
+}
+
+function parseBundle(root: Json, path: string): BundleConfig {
+  const node = obj(root['bundle'], path);
+  return {
+    initialJsBudget_bytes: num(node['initialJsBudget_bytes'], `${path}/initialJsBudget_bytes`),
+    mapLazyJsBudget_bytes: num(node['mapLazyJsBudget_bytes'], `${path}/mapLazyJsBudget_bytes`),
+  };
+}
+
 /** Pure so tests can pass a fixture without touching the real JSON import (env.ts convention). */
 export function parseClientConfig(input: unknown): ClientRuntimeConfig {
   const root = obj(input, '/');
@@ -299,6 +334,8 @@ export function parseClientConfig(input: unknown): ClientRuntimeConfig {
     engine: parseEngine(root, '/engine'),
     storage: parseStorage(root, '/storage'),
     navigation: parseNavigation(root, '/navigation'),
+    probe: parseProbe(root, '/probe'),
+    bundle: parseBundle(root, '/bundle'),
   };
 }
 

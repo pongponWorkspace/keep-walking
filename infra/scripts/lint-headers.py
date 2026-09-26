@@ -46,6 +46,17 @@ DEFAULT_REPRESENTATIVE_PATHS: list[str] = [
     "/sprites/v4/light.png",
     "/404.html",
     "/index.html",
+    # keep-walking-preview's own asset pipeline output (P2-F04-T08, docs/tech/asset-delivery.md
+    # section 6.2): version pointer, a staged art file (nested one directory, same splat-crosses-/
+    # shape as /glyphs/*.pbf above), a woff2 and a ttf font (both matched by the broad
+    # /kw/fonts/* rule AND their own extension-specific Content-Type rule -- different header
+    # names, not an overlap, see infra/pages/keep-walking-preview/_headers), and a staged audio
+    # file.
+    "/kw/asset-manifest.json",
+    "/kw/art/avatar/hair/buzz-hair-3@2x.png",
+    "/kw/fonts/ui/IBMPlexSansThaiLooped-Medium.woff2",
+    "/kw/fonts/map/NotoSansThai-Regular.ttf",
+    "/kw/audio/run.tickGranted.wav",
 ]
 
 

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F06 Flow B: เลือก class (sheet) + หน้าอ่าน role (P2-F06-T03)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F06 Flow B — S-00-class-select (sheet บนแผนที่) + S-05-role-info</h1>
+  <p>อ้างอิง: design/ux/flows/F06-hp-damage-onboarding.md หัวข้อ 3 · ไม่มีตัวเลข % หรือสูตรใด (F06-R32) · เลือกครั้งเดียว ไม่มีปุ่มยืนยันซ้อน (F06-R29) · เข้าถึงหน้าอ่าน role ได้ทุกสถานะที่บ้านโดยไม่ต้องเลือกก่อน</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>B1. S-00-class-select — sheet ทับแผนที่</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="background:var(--map-land);">
+    <div class="drawer" style="bottom:0;">
+      <div class="drawer-handle"></div>
+      <h2 class="scr-sub"><span class="copykey">onboarding.pickRoleTitle</span> <span class="thaidraft">(เลือกพลัง)</span></h2>
+      <p class="caption"><span class="copykey">onboarding.pickRoleHint</span> <span class="thaidraft">(เลือกเสร็จเข้าเกมเลย)</span></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <div class="card" style="text-align:center;">
+          <div class="class-badge" style="background:var(--class-tanker);margin:0 auto 6px;">T</div>
+          <b><span class="copykey">class.tanker</span> <span class="thaidraft">(Tanker)</span></b>
+          <p class="caption"><span class="copykey">onboarding.pickRoleTanker</span> <span class="thaidraft">(ทั้งทีมโดนตีเบาลง)</span></p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="class-badge" style="background:var(--class-ranged);margin:0 auto 6px;">R</div>
+          <b><span class="copykey">class.ranged</span> <span class="thaidraft">(Ranged)</span></b>
+          <p class="caption"><span class="copykey">onboarding.pickRoleRanged</span> <span class="thaidraft">(ทั้งทีมได้ของเยอะขึ้น)</span></p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="class-badge" style="background:var(--class-support);margin:0 auto 6px;">S</div>
+          <b><span class="copykey">class.support</span> <span class="thaidraft">(Support)</span></b>
+          <p class="caption"><span class="copykey">onboarding.pickRoleSupport</span> <span class="thaidraft">(ฟื้น HP เร็วขึ้น ชุบเพื่อนได้)</span></p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="class-badge" style="background:var(--class-magic);margin:0 auto 6px;">M</div>
+          <b><span class="copykey">class.magic</span> <span class="thaidraft">(Magic)</span></b>
+          <p class="caption"><span class="copykey">onboarding.pickRoleMagic</span> <span class="thaidraft">(EXP มากขึ้น มีโล่กันแรงตี)</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ไม่มีการ์ดใดถูกเลือกไว้ล่วงหน้า · แตะการ์ดใดการ์ดหนึ่ง → ปิด sheet ทันที ไม่มีปุ่มยืนยันแยก ไม่มีหน้ายืนยันซ้อน (F06-R29) · ปิดแอปก่อนเลือก → เปิดใหม่ sheet ขึ้นทับอีกครั้ง (H-E18)</p>
+</div>
+
+<div class="frame-block">
+<h3>B2. S-05-role-info (เข้าถึงได้ทุกสถานะที่บ้าน)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">roleInfo.title</span> <span class="thaidraft">(แต่ละพลังทำอะไร)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card" style="display:flex;gap:10px;align-items:center;"><div class="class-badge" style="background:var(--class-tanker);">T</div><div><b><span class="copykey">class.tanker</span></b><br><span class="caption"><span class="copykey">onboarding.pickRoleTanker</span></span></div></div>
+      <div class="card" style="display:flex;gap:10px;align-items:center;"><div class="class-badge" style="background:var(--class-ranged);">R</div><div><b><span class="copykey">class.ranged</span></b><br><span class="caption"><span class="copykey">onboarding.pickRoleRanged</span></span></div></div>
+      <div class="card" style="display:flex;gap:10px;align-items:center;"><div class="class-badge" style="background:var(--class-support);">S</div><div><b><span class="copykey">class.support</span></b><br><span class="caption"><span class="copykey">onboarding.pickRoleSupport</span></span></div></div>
+      <div class="card" style="display:flex;gap:10px;align-items:center;"><div class="class-badge" style="background:var(--class-magic);">M</div><div><b><span class="copykey">class.magic</span></b><br><span class="caption"><span class="copykey">onboarding.pickRoleMagic</span></span></div></div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ใช้คำอธิบายเดียวกับการ์ดของ B1 · ไม่มีปุ่มเปลี่ยน class บนจอนี้ (F06-R30, U5) · ไม่มีการเข้าถึงจากในจอ run</p>
+</div>
+
+</div>
+</body>
+</html>

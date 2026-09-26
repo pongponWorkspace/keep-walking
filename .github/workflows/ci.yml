@@ -15,6 +15,13 @@
 #                      as a build artifact (actions/upload-artifact, free) for diagnosis.
 #   secret-scan       gitleaks over full git history (D-002 layer 2)
 #   forbidden-files   guard against tracked secrets/raw-data/oversized files (D-002 layer 2)
+#   lint-headers      infra/scripts/test/test-lint-headers.sh (P1-X41, wired P2-F04-T08): Cloudflare
+#                      Pages `_headers` overlap check, offline, no credential
+#   billing-guard     infra/scripts/test/test-billing-guard.sh (D-085, P2-F04-T08): static grep of
+#                      this repo's own workflows/scripts/config for billable Cloudflare/GitHub
+#                      products. Never reads a token or calls an API -- see the script's own header
+#                      comment and infra/runbooks/billing-guard.md for why a HUMAN, not this job,
+#                      verifies the real Cloudflare API token scope and the billing pages
 #
 # build-test also creates tools/coverage/.venv (Python pytest bridges, P1-X05/P1-X07:
 # tools/coverage/pipeline/tests and tools/coverage/boundaries/tests run inside `pnpm test` via
@@ -116,6 +123,15 @@ jobs:
         # `test:e2e:install` script a developer runs locally (macOS/other distros don't support the
         # flag; local machines already have the OS libraries a real browser install needs).
         run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Asset prebuild (tools/art) before the client build (webServer builds it directly)
+        # docs/tech/asset-delivery.md section 3 last bullet + section 11 handoff to devops-engineer
+        # (P2-F04-T08): root `pnpm build` runs `tsx tools/art/src/cli.ts prebuild` first (package.json
+        # "build" script), but playwright.config.ts's `webServer` (see this file's header comment)
+        # runs `pnpm --filter @keep-walking/client build` directly, skipping that root script.
+        # Without this step the e2e client build gets an empty tools/art/out/client/ and every
+        # icon/font/audio asset silently falls back (asset-delivery.md section 6.4) instead of
+        # exercising the real pipeline.
+        run: pnpm exec tsx tools/art/src/cli.ts prebuild
       - run: pnpm test:e2e
       - name: Upload Playwright HTML report (only on failure, for diagnosis)
         if: failure()
@@ -239,3 +255,19 @@ jobs:
             exit 1
           fi
           echo "Forbidden-file guard passed."
+
+  lint-headers:
+    name: Cloudflare Pages _headers overlap check (P1-X41)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run infra/scripts/test/test-lint-headers.sh (Python stdlib only, no network, no credential)
+        run: bash infra/scripts/test/test-lint-headers.sh
+
+  billing-guard:
+    name: billing guard -- no billable Cloudflare/GitHub product referenced (D-085)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run infra/scripts/test/test-billing-guard.sh (static grep, no token, no network, no API call)
+        run: bash infra/scripts/test/test-billing-guard.sh

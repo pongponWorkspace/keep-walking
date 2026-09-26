@@ -103,5 +103,18 @@
     "coordinateDecimals": 5,
     "externalOpenTimeout_ms": 2500,
     "_note": "Used only by the external navigation link (Google/Apple Maps deep link) and its fallback panel (F04 section 14); not the raw-trace-export coordinateDecimals in config/app/privacy.json#rawTraceExport, a different value for a different export."
+  },
+  "probe": {
+    "_source": "P2-F04-T10 (GDD > F-17: Wake Lock + pocket screen, vibrate/web push matrix). No spec gives a vibration length; a short, noticeable single pulse for a manual HUD test button, not a gameplay cue (those are sound-designer/vfx-animator owned, Phase 2 F06)",
+    "vibrateTestPattern_ms": 200,
+    "_note": "apps/client/src/debug/vibrate.ts's triggerVibrate(navigator, pattern_ms) argument for the HUD's 'Test vibrate' button only. iOS Safari has no navigator.vibrate at all (D-003): the HUD reports 'unsupported' instead of throwing.",
+    "_assumption": "A-P2-F04-T10-1: 200 ms chosen as a short, single, clearly-felt pulse for a manual dev/QA probe (not tuned against a real device yet, P2-C02/P2-F04-T11). Owner: gameplay-programmer"
+  },
+  "bundle": {
+    "_source": "ADR 0003 section 10 (N-13): JS-transfer budgets measured from apps/client/dist's Vite manifest by apps/client/scripts/measure-bundle.ts, brotli quality 11, same method for both keys.",
+    "initialJsBudget_bytes": 1000000,
+    "mapLazyJsBudget_bytes": 700000,
+    "_note": "initialJsBudget_bytes covers the entry chunk + every chunk it statically imports (S5 <= 1.0 MB, 10^6 byte) — never maplibre-gl, which main.ts only reaches through await import(...) once hasRuntimeMapEnv(env) is true (P2-F04-T10 code-split). mapLazyJsBudget_bytes covers that lazy maplibre-gl + worker chunk group on its own, measured the same way. CSS/font/tile/trace bytes are excluded from both (ADR 0003 10.4). CI (P2-F06-T16) fails the build when either is exceeded.",
+    "_assumption": "A-P2-F04-T10-2: this task's own `pnpm build` + `apps/client/scripts/measure-bundle.ts` measured the entry chunk (post code-split) at 48,303 B brotli and the maplibre-gl + worker lazy group at 350,208 B brotli. initialJsBudget_bytes keeps the S5 <= 1.0 MB ceiling from ADR 0003 unchanged (measured value is well under it already); mapLazyJsBudget_bytes is set to 700,000 B (about 2x the measured 350,208 B) for headroom before P2-F06 adds more map layers/assets, not tuned against a real device yet (revisit once P2-C03's real-device numbers land). Owner: gameplay-programmer, tech-lead"
   }
 }

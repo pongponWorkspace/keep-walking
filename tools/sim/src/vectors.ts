@@ -99,7 +99,14 @@ const CASE = {
   expGapSmall: 1,
   expGapNoMagic: 3,
   tierProbeLevel: 25,
-  zoneRanges: { a: { min: 15, max: 25 }, b: { min: 20, max: 25 }, topWidth: 5 },
+  zoneRanges: {
+    a: { min: 15, max: 25 },
+    b: { min: 20, max: 25 },
+    topWidth: 5,
+    wide: { min: 1, max: 35 },
+  },
+  /** D-112 player levels around range a (15-25): below, low edge, inside, high edge, above. */
+  zoneLevelPlayers: { below: 10, inside: 18, above: 30 },
   levelsBelowRange: { some: 2, above: -3, combined: 3 },
   hits: { maxHp: 1000, damage: 250, exactHits: 3, overkillDamage: 2000, count: 24 },
   exampleHitChance_pct: 50,
@@ -646,19 +653,26 @@ export function damageVectors(p: SimParams, g: GddReference): VectorFile {
   const start = p.exp.startLevel;
   const max = p.exp.maxLevel;
   const zr = CASE.zoneRanges;
-  for (const [rangeMin, rangeMax] of [
-    [zr.a.min, zr.a.max],
-    [zr.b.min, zr.b.max],
-    [start, start],
-    [max - zr.topWidth, max],
-  ]) {
+  const zp = CASE.zoneLevelPlayers;
+  const zoneCases: [number, number, number, string][] = [
+    [zp.below, zr.a.min, zr.a.max, 'below the range → Z = min, damage gap counts from min once'],
+    [zr.a.min, zr.a.min, zr.a.max, 'low edge of the range → Z = level'],
+    [zp.inside, zr.a.min, zr.a.max, 'inside the range → Z = level (was the midpoint under A-1)'],
+    [zr.a.max, zr.a.min, zr.a.max, 'high edge of the range → Z = level'],
+    [zp.above, zr.a.min, zr.a.max, 'above the range → Z = max (exp gap from max, no damage cut)'],
+    [start, zr.wide.min, zr.wide.max, 'level 1 in a wide range 1-35 (PN-2) → Z = 1 (finding F-18)'],
+    [zp.above, zr.wide.min, zr.wide.max, 'level 30 in 1-35 → Z = 30 (own level, not 18)'],
+    [start, start, start, 'boundary: one-level range at level 1'],
+    [max, max - zr.topWidth, max, 'boundary: level 60 at the top of 55-60'],
+    [start, zr.b.min, zr.b.max, 'boundary: level 1 far below 20-25 → Z = 20'],
+  ];
+  for (const [playerLevel, rangeMin, rangeMax, note] of zoneCases)
     v.push(
       sim(
-        { fn: 'zoneLevel', rangeMin, rangeMax },
-        'A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up',
+        { fn: 'zoneLevel', playerLevel, rangeMin, rangeMax },
+        `D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · ${note}`,
       ),
     );
-  }
   for (const Z of [start, CASE.zoneLevels.low, CASE.zoneLevels.mid, CASE.zoneLevels.high, max])
     v.push(
       sim(

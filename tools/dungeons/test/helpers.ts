@@ -42,7 +42,7 @@ export function fixtureContext(overrides: Partial<RuleContext> = {}): RuleContex
   return {
     ...base,
     nameKeys: new Set(keys.filter((k): k is string => k !== null)),
-    dropTableIds: new Set(['largePark.default', 'market.default', 'pocketPark.default']),
+    dropTableIds: new Set(['largeParkDefault', 'marketDefault', 'pocketParkDefault']),
     candidateFlags: new Map(),
     excludedZones: [],
     majorWays: null,

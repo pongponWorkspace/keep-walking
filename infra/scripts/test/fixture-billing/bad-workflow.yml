@@ -1,0 +1,9 @@
+# Synthetic fixture only (infra/scripts/test/test-billing-guard.sh) -- deliberately violates D-085
+# so the detector has something real to catch. Never a real workflow.
+name: bad-example
+on: push
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - run: wrangler r2 object put my-bucket/tile.pmtiles --file=out.pmtiles

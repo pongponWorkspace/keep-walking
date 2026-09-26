@@ -5,9 +5,12 @@
  * shipped in the production JS bundle otherwise, keeping the S5 budget clean for the common case —
  * P1-F02-T11 acceptance: "ถ้าเกิน ลอง code-splitting / lazy HUD").
  *
- * DOM-only glue (like `ui/gps-ui.ts`, `map/location-layer.ts`): not unit-tested at the Vitest level
- * (ADR 0001 3.6); its pure math (`debug/stats.ts`, `debug/csv-export.ts`, `debug/fps-sampler.ts`,
- * `debug/raw-trace-export.ts`) is. Covered by e2e (`apps/client/e2e/`).
+ * DOM-only glue (like `ui/gps-ui.ts`, `map/location-layer.ts`): covered directly only where
+ * `hud-panel.test.ts` opts into a DOM (`// @vitest-environment happy-dom`, P2-F04-T25/ADR 0003
+ * 8.4); its pure math (`debug/stats.ts`, `debug/csv-export.ts`, `debug/fps-sampler.ts`,
+ * `debug/raw-trace-export.ts`, `debug/wake-lock.ts`, `debug/vibrate.ts`,
+ * `debug/visibility-tracker.ts`, `debug/probe-summary.ts`) is unit-tested on its own. Also covered
+ * by e2e (`apps/client/e2e/`).
  */
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import type { LocationSample } from '@keep-walking/location';
@@ -20,10 +23,11 @@ import {
   computeGateWindows,
   computePathLengthM,
   computeSampleIntervalMedianS,
+  computeStationaryAccumM,
   computeTtffS,
   percentile,
 } from './stats';
-import type { HudSample } from './stats';
+import type { HudSample, HudSegment } from './stats';
 import { FpsAccumulator, startFpsSampler } from './fps-sampler';
 import type { FpsSamplerHandle } from './fps-sampler';
 import { readBatteryLevel, parseManualBatteryPct } from './battery';
@@ -32,11 +36,18 @@ import { buildSummaryCsv } from './csv-export';
 import type { SummaryRow } from './csv-export';
 import { sanitizeRawTrace } from './raw-trace-export';
 import { detectPlatform } from './platform';
+import { WakeLockProbe } from './wake-lock';
+import { triggerVibrate } from './vibrate';
+import { VisibilityTracker } from './visibility-tracker';
+import { buildProbeSummaryText } from './probe-summary';
+import type { WakeLockEventLog } from './probe-summary';
 
 const REDRAW_INTERVAL_MS = 1000;
 const MS_PER_SECOND = 1000;
 const MEDIAN_PERCENTILE = 50;
 const HUD_PANEL_ID = 'hud-panel';
+const ENVIRONMENT_OPTIONS: readonly SummaryRow['environment'][] = ['park', 'soi', 'other'];
+const SEGMENT_OPTIONS: readonly HudSegment[] = ['all', 'screen_on', 'pocket', 'stationary'];
 
 export interface HudPanelDeps {
   readonly map: MapLibreMap | undefined;
@@ -50,6 +61,9 @@ export interface HudPanelDeps {
    * trace export button's trim distance and coordinate rounding. */
   readonly rawTraceTrim_m: number;
   readonly coordinateDecimals: number;
+  /** `config/app/client.json#probe.vibrateTestPattern_ms` (P2-F04-T10, F-17): the single vibration
+   * length the HUD's "test vibrate" button asks for — never a literal in this file. */
+  readonly vibrateTestPattern_ms: number;
   /** Called with every redraw's row (once a second) — `main.ts` uses this to mirror the latest
    * numbers onto `window.__kwSpike.hud` (`debug/spike-hook.ts`) for the tech gate's e2e checks. */
   readonly onUpdate?: (row: SummaryRow) => void;
@@ -97,7 +111,22 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
   let batteryStartSource: BatterySource = 'none';
   let batteryEndPct: number | undefined;
   let batteryEndSource: BatterySource = 'none';
-  const environment: 'park' | 'soi' | 'other' = 'other';
+  /** Set by the HUD's own `<select>`s (P2-F04-T10): a human tester picks these before/while
+   * walking a segment (gps-trace-format.md 4.1 rows `environment`/`segment`) — never inferred by
+   * the code, since only the tester on the ground knows which park/soi they are in. */
+  let environment: SummaryRow['environment'] = 'other';
+  let segment: HudSegment = 'all';
+  const startedAtWallMs = Date.now();
+  const visibility = new VisibilityTracker(document.visibilityState === 'hidden', startedAtWallMs);
+  const wakeLockEvents: WakeLockEventLog[] = [];
+  const wakeLockProbe = new WakeLockProbe(navigator, {
+    onStateChange: (state, detail) => {
+      wakeLockEvents.push({ atRelativeMs: Date.now() - startedAtWallMs, state, detail });
+      redrawWakeLockReadout();
+    },
+  });
+  let vibrateSupported: boolean | undefined;
+  let vibrateTriggered: boolean | undefined;
 
   const panFps = new FpsAccumulator(
     deps.hudMeasurement.fpsMaxFrameGap_ms,
@@ -124,6 +153,24 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
   panel.id = HUD_PANEL_ID;
   const readout = document.createElement('pre');
   readout.id = 'hud-panel-readout';
+
+  function selectFor(id: string, options: readonly string[]): HTMLSelectElement {
+    const select = document.createElement('select');
+    select.id = id;
+    for (const option of options) {
+      const optionEl = document.createElement('option');
+      optionEl.value = option;
+      optionEl.textContent = option;
+      select.append(optionEl);
+    }
+    return select;
+  }
+
+  const environmentSelect = selectFor('hud-environment', ENVIRONMENT_OPTIONS);
+  environmentSelect.value = environment;
+  const segmentSelect = selectFor('hud-segment', SEGMENT_OPTIONS);
+  segmentSelect.value = segment;
+
   const exportSummaryButton = document.createElement('button');
   exportSummaryButton.id = 'hud-export-summary';
   exportSummaryButton.textContent = 'Export summary CSV';
@@ -134,8 +181,53 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
   manualBatteryInput.id = 'hud-manual-battery';
   manualBatteryInput.type = 'number';
   manualBatteryInput.placeholder = 'battery %';
-  panel.append(readout, manualBatteryInput, exportSummaryButton, exportRawButton);
+
+  const wakeLockRequestButton = document.createElement('button');
+  wakeLockRequestButton.id = 'hud-wake-lock-request';
+  wakeLockRequestButton.textContent = 'Request Wake Lock';
+  const wakeLockReleaseButton = document.createElement('button');
+  wakeLockReleaseButton.id = 'hud-wake-lock-release';
+  wakeLockReleaseButton.textContent = 'Release Wake Lock';
+  const wakeLockReadout = document.createElement('span');
+  wakeLockReadout.id = 'hud-wake-lock-readout';
+
+  const vibrateButton = document.createElement('button');
+  vibrateButton.id = 'hud-vibrate-test';
+  vibrateButton.textContent = 'Test vibrate';
+  const vibrateReadout = document.createElement('span');
+  vibrateReadout.id = 'hud-vibrate-readout';
+
+  const exportProbeButton = document.createElement('button');
+  exportProbeButton.id = 'hud-export-probe';
+  exportProbeButton.textContent = 'Export probe summary';
+
+  panel.append(
+    readout,
+    environmentSelect,
+    segmentSelect,
+    manualBatteryInput,
+    wakeLockRequestButton,
+    wakeLockReleaseButton,
+    wakeLockReadout,
+    vibrateButton,
+    vibrateReadout,
+    exportSummaryButton,
+    exportRawButton,
+    exportProbeButton,
+  );
   container.appendChild(panel);
+
+  function redrawWakeLockReadout(): void {
+    wakeLockReadout.textContent = `wake lock: ${wakeLockProbe.getState()}`;
+  }
+  redrawWakeLockReadout();
+
+  environmentSelect.addEventListener('change', () => {
+    environment = environmentSelect.value as SummaryRow['environment'];
+  });
+  segmentSelect.addEventListener('change', () => {
+    segment = segmentSelect.value as HudSegment;
+  });
 
   manualBatteryInput.addEventListener('change', () => {
     const pct = parseManualBatteryPct(manualBatteryInput.value);
@@ -148,6 +240,48 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
     }
     batteryEndPct = pct;
     batteryEndSource = 'manual';
+  });
+
+  wakeLockRequestButton.addEventListener('click', () => {
+    void wakeLockProbe.request();
+  });
+  wakeLockReleaseButton.addEventListener('click', () => {
+    void wakeLockProbe.release();
+  });
+
+  vibrateButton.addEventListener('click', () => {
+    const result = triggerVibrate(navigator, deps.vibrateTestPattern_ms);
+    vibrateSupported = result.supported;
+    vibrateTriggered = result.triggered;
+    vibrateReadout.textContent = result.supported
+      ? `vibrate: triggered=${String(result.triggered)}`
+      : 'vibrate: unsupported';
+  });
+
+  function handleVisibilityChange(): void {
+    visibility.setHidden(document.visibilityState === 'hidden', Date.now());
+  }
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  document.addEventListener('pagehide', handleVisibilityChange);
+
+  exportProbeButton.addEventListener('click', () => {
+    const now = Date.now();
+    const snapshot = visibility.snapshot(now);
+    const text = buildProbeSummaryText({
+      sessionId: deps.sessionId,
+      wakeLockSupported: wakeLockProbe.getState() !== 'unsupported',
+      wakeLockEvents,
+      vibrateSupported,
+      vibrateTriggered,
+      hiddenTotalS: snapshot.hiddenTotalMs / MS_PER_SECOND,
+      samplesWhileHidden: snapshot.samplesWhileHidden,
+      samplesWhileVisible: snapshot.samplesWhileVisible,
+      batteryStartPct,
+      batteryEndPct,
+      batterySource: batteryEndSource,
+      elapsedS: (now - startedAtWallMs) / MS_PER_SECOND,
+    });
+    downloadTextFile(`probe-${deps.sessionId}.txt`, text, 'text/plain');
   });
 
   function buildSummaryRow(): SummaryRow {
@@ -166,6 +300,7 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
       deps.movementGate,
       deps.hudMeasurement.gateWindowStep_s,
     );
+    const stationary = computeStationaryAccumM(samples, deps.movementGate);
     const pan = panFps.stats();
     const follow = followFps.stats();
     const jsBytes = computeJsBytes();
@@ -188,7 +323,7 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
       tilesetId: deps.tilesetId,
       platform: detectPlatform(navigator.userAgent),
       environment,
-      segment: 'all',
+      segment,
       localHour: new Date(startedAt).getHours(),
       durationS: duration_s,
       fpsPanAvg: pan.avg,
@@ -223,10 +358,10 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
       gateWindowsTotal: gate.windowsTotal,
       gateWindowsPass: gate.windowsPass,
       gateWindowsPassPct: gate.windowsPassPct,
-      stationary5MinAccumM: undefined,
+      stationary5MinAccumM: stationary.accumM,
       gateWindowsPassFiltered: gate.windowsPassFiltered,
       gateWindowsPassFilteredPct: gate.windowsPassFilteredPct,
-      stationary5MinAccumFilteredM: undefined,
+      stationary5MinAccumFilteredM: stationary.accumFilteredM,
       latencyMedianMs: percentile(
         [...latenciesMs].sort((a, b) => a - b),
         MEDIAN_PERCENTILE,
@@ -288,12 +423,16 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
         lat: sample.lat,
         lng: sample.lng,
         accuracy: sample.accuracy,
+        // Tagged with whatever the tester's segment picker reads *now* (P2-F04-T10): a sample
+        // recorded while `segment === 'stationary'` is what `computeStationaryAccumM` looks at.
+        segment,
       });
       const latency = Date.now() - sample.timestamp;
       if (latency >= 0) {
         latenciesMs.push(latency);
       }
       followActiveUntil = performance.now() + FOLLOW_ACTIVE_WINDOW_MS;
+      visibility.recordSample(Date.now());
     },
     recordProviderStart(): void {
       providerStartedAtMs = Date.now();
@@ -305,6 +444,8 @@ export function mountHudPanel(container: HTMLElement, deps: HudPanelDeps): HudPa
       clearInterval(intervalHandle);
       panHandle.stop();
       followHandle.stop();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('pagehide', handleVisibilityChange);
       panel.remove();
     },
   };

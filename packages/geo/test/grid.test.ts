@@ -103,3 +103,55 @@ describe('resampleOnGrid + gridDistance_m', () => {
     expect(gridDistance_m(resampleOnGrid(timeFromOrigin(kept, 0), G))).toBeCloseTo(100, 3);
   });
 });
+
+describe('pair conditions added in P2-X03', () => {
+  const L: GridParams = { ...G, speedLock_kmh: 25 };
+
+  it('rejects a non-positive speedLock_kmh when given', () => {
+    expect(() => resampleOnGrid([], { ...G, speedLock_kmh: 0 })).toThrow(RangeError);
+  });
+
+  it('a pair faster than speedLock_kmh adds no distance and breaks the chain (F05 3.1 item 5)', () => {
+    // 1 m/s walk, one 8 m step in 1 s (28.8 km/h: above the lock, below a 60 km/h outlier filter).
+    const a = straightWalk(60, 1, 1);
+    const b = straightWalk(60, 1, 1, { start_s: 61, from: offset(ORIGIN, 0, 68) });
+    const s = timed([...a, ...b]);
+    expect(gridDistance_m(resampleOnGrid(s, G))).toBeCloseTo(127, 6);
+    // The 60 -> 61 s pair is invalid, so grid points 60 and 65 fall in different chains.
+    expect(gridDistance_m(resampleOnGrid(s, L))).toBeCloseTo(115, 6);
+  });
+
+  it('a pair at exactly speedLock_kmh still counts (<=)', () => {
+    const s = timed(straightWalk(60, 5, 25 / 3.6));
+    const lock = 25 * (1 + 1e-9);
+    expect(gridDistance_m(resampleOnGrid(s, { ...G, speedLock_kmh: lock }))).toBeCloseTo(
+      gridDistance_m(resampleOnGrid(s, G)),
+      9,
+    );
+  });
+
+  it('a resume fix on the pause grid point takes that point (reference runGate)', () => {
+    // Walk 0-75 s, the last fix outside (exit), clock paused 75-115 s, resume inside at 115 s.
+    const walk = straightWalk(75, 1, 1);
+    const after = straightWalk(30, 1, 1, { start_s: 115, from: offset(ORIGIN, 50, 0) });
+    const s: TimedSample[] = [
+      ...walk.map((sample, i) => ({
+        sample,
+        tau_ms: sample.t_ms,
+        countable: i < walk.length - 1,
+        breakBefore: i === 0,
+      })),
+      ...after.map((sample) => ({
+        sample,
+        tau_ms: sample.t_ms - 40_000,
+        countable: true,
+        breakBefore: false,
+      })),
+    ];
+    const pts = resampleOnGrid(s, G);
+    const resume = pts.find((p) => p.tau_ms === 75_000);
+    expect(resume?.lat).toBeCloseTo(offset(ORIGIN, 50, 0).lat, 12);
+    // 70 m before the exit fix + 30 m after resume, the resume step (75 -> 80 s) included.
+    expect(gridDistance_m(pts)).toBeCloseTo(70 + 30, 6);
+  });
+});

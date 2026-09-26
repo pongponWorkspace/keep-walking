@@ -5,6 +5,7 @@ import {
   computeGateWindows,
   computePathLengthM,
   computeSampleIntervalMedianS,
+  computeStationaryAccumM,
   computeTtffS,
   haversineMeters,
   percentile,
@@ -16,6 +17,15 @@ const START = 1_700_000_000_000;
 
 function sample(offsetSeconds: number, lat: number, lng: number, accuracy = 10): HudSample {
   return { timestamp: START + offsetSeconds * SECOND, lat, lng, accuracy };
+}
+
+function stationarySample(
+  offsetSeconds: number,
+  lat: number,
+  lng: number,
+  accuracy = 10,
+): HudSample {
+  return { ...sample(offsetSeconds, lat, lng, accuracy), segment: 'stationary' };
 }
 
 describe('haversineMeters', () => {
@@ -181,5 +191,80 @@ describe('computeTtffS', () => {
 
   it('returns undefined when accuracy never meets the threshold', () => {
     expect(computeTtffS([sample(0, 0, 0, 100)], START, 30)).toBeUndefined();
+  });
+});
+
+describe('computeStationaryAccumM', () => {
+  const gate = {
+    minDistancePerWindow_m: 50,
+    window_s: 300,
+    comparison: 'greaterThan' as const,
+    filter: undefined,
+  };
+  const gateWithFilter = {
+    ...gate,
+    filter: {
+      maxSampleAccuracy_m: 30,
+      outlierSpeed_kmh: 30,
+      outlierReanchorSamples: 5,
+      sampleCadence_s: 5,
+      maxSamplePairGap_s: 30,
+    },
+  };
+
+  it('reports undefined (not measured yet) with fewer than two stationary-tagged samples', () => {
+    expect(computeStationaryAccumM([sample(0, 13.73, 100.54)], gate)).toEqual({
+      accumM: undefined,
+      accumFilteredM: undefined,
+    });
+  });
+
+  it('ignores samples not tagged stationary, even if there are plenty of them', () => {
+    const samples: HudSample[] = [];
+    for (let t = 0; t <= 300; t += 5) {
+      samples.push(sample(t, 13.73 + t * 0.00002, 100.54)); // no segment tag
+    }
+    expect(computeStationaryAccumM(samples, gate).accumM).toBeUndefined();
+  });
+
+  it('reports undefined until 300s of stationary-tagged samples have been collected', () => {
+    const samples: HudSample[] = [];
+    for (let t = 0; t <= 200; t += 5) {
+      samples.push(stationarySample(t, 13.73, 100.54));
+    }
+    expect(computeStationaryAccumM(samples, gate).accumM).toBeUndefined();
+  });
+
+  it('sums raw jitter over the fixed 300s window once enough stationary samples exist (no filter configured)', () => {
+    const samples: HudSample[] = [];
+    for (let t = 0; t <= 300; t += 5) {
+      // Tiny jitter around one point, not a real walk.
+      samples.push(stationarySample(t, 13.73 + (t % 10 === 0 ? 0.000005 : 0), 100.54));
+    }
+    const stats = computeStationaryAccumM(samples, gate);
+    expect(stats.accumM).toBeGreaterThan(0);
+    expect(stats.accumFilteredM).toBeUndefined();
+  });
+
+  it('fills in the filtered column too once gate.filter is configured', () => {
+    const samples: HudSample[] = [];
+    for (let t = 0; t <= 300; t += 5) {
+      samples.push(stationarySample(t, 13.73, 100.54));
+    }
+    const stats = computeStationaryAccumM(samples, gateWithFilter);
+    expect(stats.accumM).toBeDefined();
+    expect(stats.accumFilteredM).toBeDefined();
+  });
+
+  it('drops a jitter spike from the filtered value but not from the raw one (ADR 0003 5.3)', () => {
+    const samples: HudSample[] = [];
+    for (let t = 0; t <= 300; t += 5) {
+      samples.push(stationarySample(t, 13.73, 100.54));
+    }
+    samples.push(stationarySample(152, 13.7327, 100.54)); // ~300 m spike mid-window
+    samples.sort((a, b) => a.timestamp - b.timestamp);
+    const stats = computeStationaryAccumM(samples, gateWithFilter);
+    expect(stats.accumM).toBeGreaterThan(100);
+    expect(stats.accumFilteredM).toBeLessThan(10);
   });
 });

@@ -10,7 +10,8 @@ import { lootTable, parseDropTable } from './loot';
 import type { LoopInput, LoopParams, OwnClass } from './loop';
 import { addExp, hitAttempt, runLoop, soloBuffPct, soloDamage, soloTickExp } from './loop';
 import { loopStats } from './loop-scenarios';
-import { expMultiplier, zoneLevel } from '@keep-walking/shared/formulas';
+import { expMultiplier } from '@keep-walking/shared/formulas';
+import { levelsOutsideRange as outside, zoneLevelFor } from './zone';
 
 type In = Record<string, unknown>;
 
@@ -39,9 +40,9 @@ function tickExp(input: In) {
   const min = n(input, 'rangeMin');
   const max = n(input, 'rangeMax');
   const magicBuff_pct = ownClass === 'magic' ? soloBuffPct(p.roles.magic, level, p.buff) : null;
-  const levelsOutsideRange = Math.max(0, min - level, level - max);
+  const levelsOutsideRange = outside(level, min, max);
   return {
-    zoneLevel: zoneLevel(min, max),
+    zoneLevel: zoneLevelFor(level, min, max),
     levelsOutsideRange,
     magicBuff_pct,
     expMult: expMultiplier(magicBuff_pct, levelsOutsideRange, p.expMult),

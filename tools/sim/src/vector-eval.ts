@@ -21,7 +21,6 @@ import {
   ticksPerLevel,
   ticksPerLevelCurve,
   tierForLevel,
-  zoneLevel,
 } from '@keep-walking/shared/formulas';
 import type {
   ExpParams,
@@ -43,6 +42,7 @@ import {
   hpLossPerHour_pct,
   potionCostPerHour_gold,
 } from './survival';
+import { zoneLevelFor } from './zone';
 
 export type VectorInput = Record<string, unknown>;
 export type VectorLeaf = number | string | boolean | null;
@@ -272,7 +272,8 @@ export function evaluateVector(input: VectorInput): VectorOutput {
     }
     // ---- damage.json ----
     case 'zoneLevel':
-      return zoneLevel(n(input, 'rangeMin'), n(input, 'rangeMax'));
+      // D-112: Z = clamp(playerLevel, rangeMin, rangeMax)
+      return zoneLevelFor(n(input, 'playerLevel'), n(input, 'rangeMin'), n(input, 'rangeMax'));
     case 'monsterAtk':
       return monsterAtk(n(input, 'zoneLevel'), {
         monsterAtkCoef: n(input, 'monsterAtkCoef'),

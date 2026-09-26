@@ -605,10 +605,11 @@
         "phase": 0
       },
       "expected": [
-        { "phase": "enter", "at_ms": 84000 }
+        { "phase": "enter", "at_ms": 84000 },
+        { "phase": "exit", "at_ms": 400000 }
       ],
       "tolerance": 0.000001,
-      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · driving-40kmh (acceptance 7): lock at 84 s; the 45 s red light stays locked; the trace ends 45 s after parking, before unlockSustained_s"
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · driving-40kmh (acceptance 7): lock at 84 s; the 45 s red light stays locked; parked at 400 s, then 120 s of walking (P2-X03) give slow pairs spanning unlockSustained_s: exit at 400 s, back-dated to the first sample of the slow run"
     },
     {
       "input": {
@@ -626,10 +627,11 @@
         "phase": 0
       },
       "expected": [
-        { "phase": "enter", "at_ms": 85000 }
+        { "phase": "enter", "at_ms": 85000 },
+        { "phase": "exit", "at_ms": 400000 }
       ],
       "tolerance": 0.000001,
-      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · driving-40kmh at 0.2 Hz: lock at 85 s"
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · driving-40kmh at 0.2 Hz: lock at 85 s; exit at 400 s, back-dated to the first sample of the slow run"
     },
     {
       "input": {

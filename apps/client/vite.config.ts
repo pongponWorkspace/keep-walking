@@ -57,6 +57,10 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       sourcemap: true,
+      // P2-F04-T10 (ADR 0003 section 10): `apps/client/scripts/measure-bundle.ts` reads
+      // `dist/.vite/manifest.json` to tell the initial (static-import) JS apart from the lazy
+      // maplibre-gl chunk group `main.ts`'s `loadMapModules` only `await import(...)`s.
+      manifest: true,
     },
   };
 });

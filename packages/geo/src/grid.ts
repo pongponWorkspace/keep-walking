@@ -1,7 +1,7 @@
 // Steps 2 and 3 of ADR 0003 5.3: resample kept fixes onto a fixed grid of active time and sum the
 // distance between neighbouring grid points. Grid points sit at tau = i * sampleCadence_s, tied to
 // the window clock, so every window edge is a grid point and no grid pair straddles an edge.
-import { haversine_m } from './haversine';
+import { haversine_m, pairSpeed_kmh } from './haversine';
 import { requirePositive, secondsToWholeMs } from './params';
 import type { GeoSample } from './types';
 import { MS_PER_S } from './units';
@@ -11,6 +11,13 @@ export interface GridParams {
   readonly sampleCadence_s: number;
   /** A bracketing pair further apart than this (fix time) values no grid point. */
   readonly maxSamplePairGap_s: number;
+  /**
+   * Config `anticheat.speedLock.speedLock_kmh`: a pair of fixes faster than this is invalid (adds
+   * no distance, breaks the chain), tech note F05 3.1 item 5. Required on the reward path
+   * (`RewardWindowParams`). Absent only for the HUD diagnostic, which has no anticheat config and
+   * never decides a reward (ADR 0003 5.1).
+   */
+  readonly speedLock_kmh?: number;
 }
 
 /**
@@ -64,6 +71,7 @@ export interface GridStepResult {
 export function validateGridParams(p: GridParams): void {
   secondsToWholeMs('sampleCadence_s', p.sampleCadence_s, MS_PER_S);
   requirePositive('maxSamplePairGap_s', p.maxSamplePairGap_s);
+  if (p.speedLock_kmh !== undefined) requirePositive('speedLock_kmh', p.speedLock_kmh);
 }
 
 export function gridInit(): GridState {
@@ -75,7 +83,7 @@ export function gridPairCounts(a: GridPoint, b: GridPoint): boolean {
   return b.i === a.i + 1 && b.seg === a.seg;
 }
 
-function pairValid(last: LastFix, b: TimedSample, maxGap_ms: number): boolean {
+function pairValid(last: LastFix, b: TimedSample, maxGap_ms: number, p: GridParams): boolean {
   const dt_ms = b.sample.t_ms - last.t_ms;
   return (
     last.countable &&
@@ -83,8 +91,24 @@ function pairValid(last: LastFix, b: TimedSample, maxGap_ms: number): boolean {
     !b.breakBefore &&
     dt_ms <= maxGap_ms &&
     // The window clock ran for the whole pair: a pause in between (Grace, lock) breaks it.
-    b.tau_ms - last.tau_ms === dt_ms
+    b.tau_ms - last.tau_ms === dt_ms &&
+    // F05 3.1 item 5: a pair faster than the speed lock adds no distance (fix time, not tau).
+    (p.speedLock_kmh === undefined || pairSpeed_kmh(last, b.sample) <= p.speedLock_kmh)
   );
+}
+
+/**
+ * The grid point exactly on fix `b` (index `i`) may still take a value: either time has not
+ * reached it yet, or the previous fix sits at the same tau (the window clock was paused between
+ * them, so the resume fix lands on the pause point) and nothing valued that point. Matches the
+ * reference, where a pair values every grid point in [a.tau, b.tau] not yet valued
+ * (tools/sim/src/gate.ts `runGate`); without it a resume on a grid point loses one step.
+ */
+function onFixPointOpen(state: GridState, b: TimedSample, i: number): boolean {
+  if (i >= state.nextIndex) return true;
+  const pausedHere = state.last !== null && state.last.tau_ms === b.tau_ms;
+  const valued = state.lastPoint !== null && state.lastPoint.i >= i;
+  return pausedHere && i === state.nextIndex - 1 && !valued;
 }
 
 function emit(
@@ -114,7 +138,7 @@ export function gridStep(state: GridState, b: TimedSample, p: GridParams): GridS
   if (last !== null && b.tau_ms < last.tau_ms) {
     throw new RangeError(`tau_ms went backwards: ${String(b.tau_ms)} < ${String(last.tau_ms)}`);
   }
-  const valid = last !== null && pairValid(last, b, maxGap_ms);
+  const valid = last !== null && pairValid(last, b, maxGap_ms, p);
   const seg = valid ? last.seg : state.nextSeg;
   let next: GridState = {
     ...state,
@@ -140,7 +164,11 @@ export function gridStep(state: GridState, b: TimedSample, p: GridParams): GridS
       const lng = last.lng + (b.sample.lng - last.lng) * f;
       next = emit(next, { i, tau_ms, lat, lng, seg }, points, pairs);
     }
-  } else if (b.countable && lastIndex >= state.nextIndex && lastIndex * cadence_ms === b.tau_ms) {
+  } else if (
+    b.countable &&
+    lastIndex * cadence_ms === b.tau_ms &&
+    onFixPointOpen(state, b, lastIndex)
+  ) {
     const point = { i: lastIndex, tau_ms: b.tau_ms, lat: b.sample.lat, lng: b.sample.lng, seg };
     next = emit(next, point, points, pairs);
   }

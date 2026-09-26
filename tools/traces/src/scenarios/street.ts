@@ -99,7 +99,11 @@ const DRIVE = {
   firstLeg_m: 1500,
   redLight_s: 45,
   secondLeg_m: 1500,
-  parkAndWalk_m: 60,
+  /**
+   * Walk after parking: 1.3 m/s x 120 s. Must stay longer than 90 s so the unlock
+   * (unlockSustained_s of slow pairs, P2-X03) is visible inside the trace.
+   */
+  parkAndWalk_m: 156,
   interval_s: 1,
   noise: { sigma_m: 3, tau_s: 20 },
   accuracyMin_m: 4,
@@ -112,7 +116,7 @@ export const drivingScenario: ScenarioDef = {
   seed: 402,
   environment: 'street',
   description:
-    'เดินไปขึ้นรถ นั่งรอ 30 วินาที ขับบนถนนใหญ่ราว 40 กม./ชม. (เกิน speed lock ใน config) ติดไฟแดง 45 วินาที แล้วจอดและเดินต่อ',
+    'เดินไปขึ้นรถ นั่งรอ 30 วินาที ขับบนถนนใหญ่ราว 40 กม./ชม. (เกิน speed lock ใน config) ติดไฟแดง 45 วินาที แล้วจอดและเดินต่อราว 2 นาที (นานพอให้เห็นการปลดล็อก)',
   build: ({ rng, cfg }, b) => {
     const cruise_ms = DRIVE.targetSpeed_kmh / toKmh(1);
     if (DRIVE.targetSpeed_kmh <= cfg.speedLock_kmh) {

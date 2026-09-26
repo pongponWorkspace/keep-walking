@@ -110,6 +110,9 @@ const R15_GRACE_SHARE = 6;
 const R15_RADIUS_SHARE = 3;
 
 /** Config checks this task promises (the lint itself is P2-F04-T24). Returns failed rule names. */
+// Planned for Phase 3 with dungeons.runState.pendingSetMax_s (J-9, F05-F06 flow approval P-4;
+// no config key in Phase 2): edgeHysteresisSamples * sampleCadence_s < pendingSetMax_s <=
+// graceMax_s / 2. Add the check here and in tools/config-lint together with the key.
 export function gateConfigProblems(c: GateConfig): string[] {
   const out: string[] = [];
   if (c.rewardTickInterval_s !== c.gate.window_s) out.push('rewardTickInterval_s == window_s');

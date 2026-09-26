@@ -26,11 +26,12 @@
         <p class="caption" style="text-align:center;margin-top:8px;">
           <span class="copykey">dungeon.checkinNotEnoughTrace</span> <span class="thaidraft">(กำลังนับเวลาที่เดินต่อเนื่อง อีก 00:07)</span>
         </p>
+        <div class="btn btn-secondary" style="margin-top:8px;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div>
       </div>
     </div>
   </div>
 </div>
-<p class="frame-caption">countdown mm:ss เป็น widget ตัวเลขสดจาก engine (ไม่ใช่ client ประมาณ) นับถึง <span class="config-ref">config: anticheat.checkIn.minContinuousApproach_s</span> · ปุ่มเปิดใช้เองทันทีที่ครบ ไม่ต้องปิดเปิด popup ใหม่ (R09)</p>
+<p class="frame-caption">แก้ C-1: ปุ่ม "ยกเลิก" อยู่ทุกสถานะ check-in ไม่ใช่แค่ตอนผ่านแล้ว · <b>แก้ C-3 (caption เดิมขัดกับ N-03 ที่ flow แก้แล้ว):</b> countdown mm:ss เป็น widget ตัวเลขสด — client นับต่อฝั่งตัวเองระหว่างสอง sample ได้เพื่อความลื่น แต่ sync ค่าจริงจาก engine ทุกครั้งที่ selector เปลี่ยน นับถึง <span class="config-ref">config: anticheat.checkIn.minContinuousApproach_s</span> · ปุ่มเปิดใช้ได้จากผล preview ของ engine เท่านั้น (ห้ามเปิดเพราะตัวนับฝั่ง client ถึง 00:00 เอง) ถ้าตัวนับถึง 00:00 ก่อน engine ยืนยัน ค้างที่ 00:00 ไม่ติดลบ ไม่ต้องปิดเปิด popup ใหม่ (R09)</p>
 </div>
 
 <div class="frame-block">
@@ -46,31 +47,32 @@
         <div class="btn btn-disabled" style="margin-top:12px;height:56px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div>
         <p class="caption" style="text-align:center;margin-top:8px;"><span class="copykey">dungeon.checkinPoorAccuracy</span> <span class="thaidraft">(สัญญาณ GPS ไม่แม่นพอ ลองออกที่โล่ง)</span></p>
         <p class="caption" style="text-align:center;color:var(--ink-500);">ตัวอย่างอื่นในลำดับเดียวกัน (แสดงทีละบรรทัดเดียวจริง):<br><span class="copykey">dungeon.checkinNoApproach</span> <span class="thaidraft">(ต้องเดินเข้ามาจากนอกเขต ลองเดินออกแล้วกลับเข้ามา)</span><br><span class="copykey">dungeon.checkinSpeedLocked</span> <span class="thaidraft">(เพิ่งเร็วเกินเดินอยู่ช่วงที่ผ่านมา ลองเดินเข้าใหม่อีกครั้ง)</span></p>
+        <div class="btn btn-secondary" style="margin-top:8px;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div>
       </div>
     </div>
   </div>
 </div>
-<p class="frame-caption">ลำดับความสำคัญ (R08): แสดงเหตุผลเดียวที่มีลำดับสูงสุดที่ยังไม่ผ่านเท่านั้น ไม่แสดงซ้อนกันจริง (เฟรมนี้รวมไว้เพื่อเทียบโทนเท่านั้น) · ทุกข้อความพูดถึงแค่สัญญาณ GPS/การเดินเข้าเขต ไม่มีคำว่า anti-cheat</p>
+<p class="frame-caption">แก้ C-1: ปุ่ม "ยกเลิก" อยู่ทุกสถานะเช่นกัน · ลำดับความสำคัญ (R08): แสดงเหตุผลเดียวที่มีลำดับสูงสุดที่ยังไม่ผ่านเท่านั้น ไม่แสดงซ้อนกันจริง (เฟรมนี้รวมไว้เพื่อเทียบโทนเท่านั้น) · ทุกข้อความพูดถึงแค่สัญญาณ GPS/การเดินเข้าเขต ไม่มีคำว่า anti-cheat</p>
 </div>
 
 <div class="frame-block">
 <h3>D1a. Speed lock — ก่อนมี run (ปุ่มเดียว, แก้ B-03)</h3>
 <div class="phone">
   <div class="screen-body" style="background:var(--ink-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;height:100%;">
-    <p style="font-size:40px;margin:0 0 16px;" title="โทนแห้ง ไม่ใช่สัญลักษณ์อันตราย (N-12) — placeholder รอ SVG icon.ui.speed-lock จริง">&#128274;</p>
+    <div style="width:56px;height:56px;margin:0 0 16px;border:2px dashed var(--ink-300);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-300);font-size:11px;text-align:center;" title="แก้ C-4: placeholder ข้อความ ไม่ใช่ emoji — รอ SVG icon.ui.speed-lock จริง โทนแห้ง ไม่ใช่สัญลักษณ์อันตราย (N-12)">icon.ui.<br>speed-lock</div>
     <p class="body-text" style="color:var(--bg-surface);"><span class="copykey">anticheat.speedLockTitle</span><br><span class="thaidraft">(เร็วเกินเดิน ระบบล็อกไว้ก่อน)</span></p>
     <p class="caption" style="color:var(--ink-300);margin-bottom:32px;"><span class="copykey">anticheat.speedLockBody</span><br><span class="thaidraft">(จะปลดเองเมื่อกลับมาเดินความเร็วปกติ)</span></p>
     <div class="btn btn-secondary btn-fullwidth-bottom" style="color:var(--bg-surface);border-color:var(--bg-surface);background:transparent;"><span class="copykey">anticheat.speedLockSettings</span> <span class="thaidraft">(ไปตั้งค่า)</span></div>
   </div>
 </div>
-<p class="frame-caption">แก้ B-03: ก่อนมี run มี<b>ปุ่มเดียว</b>คือ "ไปตั้งค่า" ไม่มีปุ่มปิด/กลับแผนที่อีกต่อไป (ปุ่มแบบนั้นเท่ากับปุ่มเล่นต่อในทางปฏิบัติ ขัด R21/R23) — ไม่มีทางปิด overlay นอกจากปลด lock จริง · header ถูก overlay บังด้วย (N-12, ตัดสินแล้ว) · ไอคอนเป็น placeholder กุญแจแทนสัญลักษณ์อันตราย รอ SVG จริงจาก artist-2d (A-P2-F04-T15-3)</p>
+<p class="frame-caption">แก้ C-4: glyph กุญแจ emoji (&amp;#128274;) เดิมขัดกติกา no-emoji ของ CLAUDE.md แม้เป็น placeholder — เปลี่ยนเป็นกล่องชื่อ <code>icon.ui.speed-lock</code> จนกว่าจะมี SVG จริง · แก้ B-03: ก่อนมี run มี<b>ปุ่มเดียว</b>คือ "ไปตั้งค่า" ไม่มีปุ่มปิด/กลับแผนที่อีกต่อไป (ปุ่มแบบนั้นเท่ากับปุ่มเล่นต่อในทางปฏิบัติ ขัด R21/R23) — ไม่มีทางปิด overlay นอกจากปลด lock จริง · header ถูก overlay บังด้วย (N-12, ตัดสินแล้ว) · ไอคอนเป็น placeholder กุญแจแทนสัญลักษณ์อันตราย รอ SVG จริงจาก artist-2d (A-P2-F04-T15-3)</p>
 </div>
 
 <div class="frame-block">
 <h3>D1b. Speed lock — ระหว่าง run (ตั้งค่า + ออก)</h3>
 <div class="phone">
   <div class="screen-body" style="background:var(--ink-900);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;height:100%;">
-    <p style="font-size:40px;margin:0 0 16px;" title="โทนแห้ง ไม่ใช่สัญลักษณ์อันตราย (N-12)">&#128274;</p>
+    <div style="width:56px;height:56px;margin:0 0 16px;border:2px dashed var(--ink-300);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink-300);font-size:11px;text-align:center;" title="แก้ C-4: placeholder ข้อความ ไม่ใช่ emoji — โทนแห้ง ไม่ใช่สัญลักษณ์อันตราย (N-12)">icon.ui.<br>speed-lock</div>
     <p class="body-text" style="color:var(--bg-surface);"><span class="copykey">anticheat.speedLockTitle</span><br><span class="thaidraft">(เร็วเกินเดิน ระบบล็อกไว้ก่อน)</span></p>
     <p class="caption" style="color:var(--ink-300);margin-bottom:32px;"><span class="copykey">anticheat.speedLockBody</span><br><span class="thaidraft">(จะปลดเองเมื่อกลับมาเดินความเร็วปกติ)</span></p>
     <div class="btn btn-secondary" style="width:100%;color:var(--bg-surface);border-color:var(--bg-surface);background:transparent;"><span class="copykey">anticheat.speedLockSettings</span> <span class="thaidraft">(ไปตั้งค่า)</span></div>

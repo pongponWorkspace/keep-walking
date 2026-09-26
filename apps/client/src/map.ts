@@ -6,11 +6,11 @@
 // `kw-self` layers the style ships are fed by `map/location-layer.ts` (P1-F02-T11).
 import { MapLibreMap } from 'maplibre-gl';
 import type { MapEnv } from './env';
+import { hasRuntimeMapEnv } from './env';
 import type { ClientRuntimeConfig } from './config/runtime';
 import { ensureMapProtocolsRegistered } from './map/protocol';
 import { loadRuntimeStyle } from './map/style';
 import { ensureMapWorkerUrl } from './map/worker';
-import type { RuntimeMapEnv } from './map/style';
 
 // Bangkok (Sanam Luang / old city area). A placeholder camera start until a config-driven default
 // view exists (data/dungeons); not a balance value. kw-light.style.json's own `center`/`zoom` are
@@ -55,10 +55,6 @@ export function deriveTilesetId(tilesUrl: string): string | undefined {
   return undefined;
 }
 
-function isRuntimeMapEnv(env: MapEnv): env is RuntimeMapEnv & MapEnv {
-  return env.tilesUrl !== undefined && env.glyphsUrl !== undefined && env.spriteUrl !== undefined;
-}
-
 function resolveInitialCamera(style: {
   readonly center?: readonly [number, number];
   readonly zoom?: number;
@@ -85,7 +81,7 @@ export async function createMap(
   env: MapEnv,
   clientConfig: ClientRuntimeConfig,
 ): Promise<CreateMapResult | undefined> {
-  if (!isRuntimeMapEnv(env)) {
+  if (!hasRuntimeMapEnv(env)) {
     return undefined;
   }
 

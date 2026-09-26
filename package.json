@@ -19,7 +19,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test --pass-with-no-tests",
     "test:e2e:install": "playwright install chromium webkit",
-    "build": "pnpm -r --if-present run build",
+    "build": "tsx tools/art/src/cli.ts prebuild && pnpm -r --if-present run build",
     "check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
   },
   "devDependencies": {

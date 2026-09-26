@@ -1,0 +1,10 @@
+{
+  "buildManifestVersion": 1,
+  "source": "art/assets/manifest.json",
+  "tool": {
+    "rasterizer": { "name": "@resvg/resvg-js", "version": "2.6.2" },
+    "quantizer": { "name": "tools/art median-cut", "version": "1" }
+  },
+  "platform": null,
+  "assets": []
+}

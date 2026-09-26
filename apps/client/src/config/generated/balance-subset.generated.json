@@ -111,11 +111,12 @@
       "mode": "compound"
     },
     "monsterAttack": {
-      "_assumption": "A-P1-F03-T06-1: GDD defines Z as the zone level but a dungeon stores a level range (e.g. 15-25). Z = round((min + max) / 2). Owner: game-director, level-designer",
       "_source": "GDD > HP การตาย และการฟื้นฟู > damage มาจากไหน (monsterATK = 3 x Z^1.3, Z = zone level)",
+      "_zoneLevelFrom_note": "Z = clamp(player level at the instant, levelRange.min, levelRange.max), used for both damage (F06 R08) and exp per tick (F05 R11). Outside the range the player plays at the nearest edge and the gap multiplier counts once from that edge: damage x levelGapDamage.damageMultPerLevelBelowRange ^ (min - level) below only, exp x max(floor, levelGapMultPerLevel ^ gap) on both sides. game-director approved damage changes beyond +-20% of the old value for players at the low end of wide ranges (e.g. level 1 in 1-35, Phase 2 base stats, solo non-Tanker: 192.8 -> 4.5 per hit; the top of a wide range gets matched-level damage, e.g. level 35 in 1-35 balanced build 63.3 -> 150.3). Formula and evidence: design/systems/balance-model.md 3.1, 17.1, 18. Vectors: damage.json fn zoneLevel (input playerLevel, rangeMin, rangeMax)",
+      "_zoneLevelFrom_source": "D-112 (game-director J-8, design/reviews/F04-flow-approval.md R2-5): replaces A-P1-F03-T06-1 (was levelRangeMidpointRounded, Z = round((min + max) / 2) for everyone). GDD > การกำหนด dungeon (ช่วงเลเวลที่เหมาะสม) and ระดับเลเวลที่เหมาะสม (only players outside the range are penalised, by the distance from the range)",
       "monsterAtkCoef": 3,
       "monsterAtkExponent": 1.3,
-      "zoneLevelFrom": "levelRangeMidpointRounded"
+      "zoneLevelFrom": "playerLevelClampedToRange"
     }
   },
   "drops": {
@@ -127,6 +128,437 @@
       "legendary": 0.2,
       "rare": 6,
       "uncommon": 25
+    },
+    "dropTables": {
+      "_bonusPotion_assumption": "A-P2-F05-T01-1: potion rolls take no Ranged or small-dungeon multiplier, so every class gets the same potion supply (GDD Ranged 'more loot' is read as materials and equipment). Phase 2 only: before the Phase 4 NPC shop these rolls must be reviewed, because potion drops lower the potion cost used by the economy target (economy.json#incomeToPotionRatio, HUMAN authority). Owner: game-director",
+      "_bonusPotion_source": "D-089 and spec F06 section 9 (game-director): potions in every preset's table, about one small potion per 30 minutes of passing ticks, revive potions much rarer, auto-retreat must still be seen in playtest. hpSmall 17% per passing tick = one per 5.9 ticks = one per 29.4 walking minutes; revive 1% = one per 100 ticks = 8.3 walking hours. Same in every preset on purpose (safety does not depend on the place). Evidence: tools/sim report-loop sections 2-4",
+      "_note": "One table per preset (data/dungeons/presets.json presetIds). rolls are evaluated in array order. roll 'rarity': chance = baseChancePerRewardTick_pct.<rarity> (common = always, its quantity scaled instead), quantity = quantityPerDrop.<rarity>, multipliers = multipliers.* exactly as in balance-model section 7 (Ranged term on every rarity and the Common quantity; small dungeon by area_m2 < smallDungeon.smallDungeonMaxArea_m2 on rare/epic/legendary chance and the Common quantity). roll 'bonus': chance_pct and qty are its own, no drop multiplier applies (applyDropMultipliers false). Every chance and the always-drop quantity are scaled by f of a D-059 partial tick. The item rarity shown is items.<id>.rarity, or the roll rarity for items with rarity 'byRoll'. Small dungeons get fewer items and higher rare odds from the area rule, not from the preset: every pocketPark is small (size band <= 10,000 m2), a largePark or market is small when its area is below 20,000 m2 (design/levels/presets.md section 6)",
+      "_source": "P2-F05-T01 · spec F05 R12, R14 · D-089 · ADR 0003 6.3 (draw order) · tech note F05 5 (rollTickLoot) · keys = drop_table_id of data/dungeons/dungeons.json (FR-11, tools/dungeons build.config.json paths.dropTables)",
+      "largeParkDefault": {
+        "_source": "data/dungeons/presets.json preset largePark · GDD > การกำหนด dungeon (สวนใหญ่)",
+        "preset": "largePark",
+        "rolls": [
+          {
+            "pool": [
+              {
+                "item": "elementDust",
+                "weight": 1
+              }
+            ],
+            "rarity": "common",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "elementCore",
+                "weight": 1
+              }
+            ],
+            "rarity": "uncommon",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "riftStone",
+                "weight": 1
+              }
+            ],
+            "rarity": "rare",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "equipWeapon",
+                "weight": 1
+              },
+              {
+                "item": "equipArmor",
+                "weight": 1
+              },
+              {
+                "item": "equipCharm",
+                "weight": 1
+              },
+              {
+                "item": "equipBoots",
+                "weight": 1
+              }
+            ],
+            "rarity": "epic",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "equipWeapon",
+                "weight": 1
+              },
+              {
+                "item": "equipArmor",
+                "weight": 1
+              },
+              {
+                "item": "equipCharm",
+                "weight": 1
+              },
+              {
+                "item": "equipBoots",
+                "weight": 1
+              }
+            ],
+            "rarity": "legendary",
+            "roll": "rarity"
+          },
+          {
+            "applyDropMultipliers": false,
+            "chance_pct": 17,
+            "id": "potionHpSmall",
+            "pool": [
+              {
+                "item": "hpSmall",
+                "qty": 1,
+                "weight": 1
+              }
+            ],
+            "roll": "bonus"
+          },
+          {
+            "applyDropMultipliers": false,
+            "chance_pct": 1,
+            "id": "potionRevive",
+            "pool": [
+              {
+                "item": "revive",
+                "qty": 1,
+                "weight": 1
+              }
+            ],
+            "roll": "bonus"
+          }
+        ]
+      },
+      "marketDefault": {
+        "_source": "data/dungeons/presets.json preset market · GDD > การกำหนด dungeon (ตลาด)",
+        "preset": "market",
+        "rolls": [
+          {
+            "pool": [
+              {
+                "item": "elementDust",
+                "weight": 1
+              }
+            ],
+            "rarity": "common",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "elementCore",
+                "weight": 1
+              }
+            ],
+            "rarity": "uncommon",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "riftStone",
+                "weight": 1
+              }
+            ],
+            "rarity": "rare",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "equipWeapon",
+                "weight": 1
+              },
+              {
+                "item": "equipArmor",
+                "weight": 1
+              },
+              {
+                "item": "equipCharm",
+                "weight": 1
+              },
+              {
+                "item": "equipBoots",
+                "weight": 1
+              }
+            ],
+            "rarity": "epic",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "equipWeapon",
+                "weight": 1
+              },
+              {
+                "item": "equipArmor",
+                "weight": 1
+              },
+              {
+                "item": "equipCharm",
+                "weight": 1
+              },
+              {
+                "item": "equipBoots",
+                "weight": 1
+              }
+            ],
+            "rarity": "legendary",
+            "roll": "rarity"
+          },
+          {
+            "applyDropMultipliers": false,
+            "chance_pct": 17,
+            "id": "potionHpSmall",
+            "pool": [
+              {
+                "item": "hpSmall",
+                "qty": 1,
+                "weight": 1
+              }
+            ],
+            "roll": "bonus"
+          },
+          {
+            "applyDropMultipliers": false,
+            "chance_pct": 1,
+            "id": "potionRevive",
+            "pool": [
+              {
+                "item": "revive",
+                "qty": 1,
+                "weight": 1
+              }
+            ],
+            "roll": "bonus"
+          }
+        ]
+      },
+      "pocketParkDefault": {
+        "_source": "data/dungeons/presets.json preset pocketPark · GDD > การกำหนด dungeon (สวนหย่อม, dungeon เล็กให้ของน้อยชิ้นกว่าแต่ rare rate สูงกว่า: always small by area)",
+        "preset": "pocketPark",
+        "rolls": [
+          {
+            "pool": [
+              {
+                "item": "elementDust",
+                "weight": 1
+              }
+            ],
+            "rarity": "common",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "elementCore",
+                "weight": 1
+              }
+            ],
+            "rarity": "uncommon",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "riftStone",
+                "weight": 1
+              }
+            ],
+            "rarity": "rare",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "equipWeapon",
+                "weight": 1
+              },
+              {
+                "item": "equipArmor",
+                "weight": 1
+              },
+              {
+                "item": "equipCharm",
+                "weight": 1
+              },
+              {
+                "item": "equipBoots",
+                "weight": 1
+              }
+            ],
+            "rarity": "epic",
+            "roll": "rarity"
+          },
+          {
+            "pool": [
+              {
+                "item": "equipWeapon",
+                "weight": 1
+              },
+              {
+                "item": "equipArmor",
+                "weight": 1
+              },
+              {
+                "item": "equipCharm",
+                "weight": 1
+              },
+              {
+                "item": "equipBoots",
+                "weight": 1
+              }
+            ],
+            "rarity": "legendary",
+            "roll": "rarity"
+          },
+          {
+            "applyDropMultipliers": false,
+            "chance_pct": 17,
+            "id": "potionHpSmall",
+            "pool": [
+              {
+                "item": "hpSmall",
+                "qty": 1,
+                "weight": 1
+              }
+            ],
+            "roll": "bonus"
+          },
+          {
+            "applyDropMultipliers": false,
+            "chance_pct": 1,
+            "id": "potionRevive",
+            "pool": [
+              {
+                "item": "revive",
+                "qty": 1,
+                "weight": 1
+              }
+            ],
+            "roll": "bonus"
+          }
+        ]
+      }
+    },
+    "items": {
+      "_note": "Catalog of every item a reward tick can put in the run bag. The key is the item id used by dropTables pools, the run bag and the inventory. It is also the key of the item's own table: kind material -> economy.json#npcSellPrice_gold.<id>, kind potion -> economy.json#potions.<id>, kind equipment -> equipment.json#slots.<slot>. rarity = the rarity frame and effect the client shows (frame.rarity.<rarity>-52/72). nameKey = key in config/content/names.th.json (never a Thai string here, CLAUDE.md non-negotiable 3). assets.icon = id in art/assets/manifest.json",
+      "_source": "P2-F05-T01 · board 1.9 row P1-F03-T11 (dropped items carry assets.icon) · icon ids: art/direction/briefs/P2-assets.md 2.9 (icon-grammar 7.3) · names: config/content/names.th.json",
+      "elementCore": {
+        "_source": "GDD > Progression > วัตถุดิบและการตีบวก (แก่นธาตุ Uncommon) · rewardTypeByRarity.uncommon · A-P2-F05-T03-5 confirmed: icon.item.mat-essence is elementCore",
+        "assets": {
+          "icon": "icon.item.mat-essence"
+        },
+        "kind": "material",
+        "nameKey": "material.elementCore",
+        "rarity": "uncommon"
+      },
+      "elementDust": {
+        "_source": "GDD > Progression > วัตถุดิบและการตีบวก (ผงธาตุ Common) · rewardTypeByRarity.common",
+        "assets": {
+          "icon": "icon.item.mat-dust"
+        },
+        "kind": "material",
+        "nameKey": "material.elementDust",
+        "rarity": "common"
+      },
+      "equipArmor": {
+        "_source": "GDD > Progression > อุปกรณ์ · A-P2-F05-T03-3",
+        "assets": {
+          "icon": "icon.item.armor-raincoat"
+        },
+        "kind": "equipment",
+        "nameKey": "equipment.armor",
+        "rarity": "byRoll",
+        "slot": "armor"
+      },
+      "equipBoots": {
+        "_source": "GDD > Progression > อุปกรณ์ · A-P2-F05-T03-3",
+        "assets": {
+          "icon": "icon.item.boots-rain-boots"
+        },
+        "kind": "equipment",
+        "nameKey": "equipment.boots",
+        "rarity": "byRoll",
+        "slot": "boots"
+      },
+      "equipCharm": {
+        "_source": "GDD > Progression > อุปกรณ์ · A-P2-F05-T03-3",
+        "assets": {
+          "icon": "icon.item.charm-keychain"
+        },
+        "kind": "equipment",
+        "nameKey": "equipment.charm",
+        "rarity": "byRoll",
+        "slot": "charm"
+      },
+      "equipWeapon": {
+        "_source": "GDD > Progression > อุปกรณ์ (4 ช่อง) · rewardTypeByRarity.epic / legendary (A-8: equipment of the dungeon tier) · A-P2-F05-T03-3 confirmed: one icon per slot for every tier",
+        "assets": {
+          "icon": "icon.item.weapon-folding-umbrella"
+        },
+        "kind": "equipment",
+        "nameKey": "equipment.weapon",
+        "rarity": "byRoll",
+        "slot": "weapon"
+      },
+      "hpLarge": {
+        "_source": "GDD > Progression > ราคา NPC และยา (ยาใหญ่) · not in any Phase 2 drop table",
+        "assets": {
+          "icon": "icon.item.potion-hp-large"
+        },
+        "kind": "potion",
+        "nameKey": "potion.hpLarge",
+        "rarity": "epic"
+      },
+      "hpMedium": {
+        "_source": "GDD > Progression > ราคา NPC และยา (ยากลาง) · not in any Phase 2 drop table; listed so inventory and auto-potion order resolve an icon",
+        "assets": {
+          "icon": "icon.item.potion-hp-medium"
+        },
+        "kind": "potion",
+        "nameKey": "potion.hpMedium",
+        "rarity": "rare"
+      },
+      "hpSmall": {
+        "_source": "GDD > Progression > ราคา NPC และยา (ยาเล็ก) · D-089 (Phase 2 potions come only from gate-passed tick drops) · rarity: A-P2-F05-T01-2",
+        "assets": {
+          "icon": "icon.item.potion-hp-small"
+        },
+        "kind": "potion",
+        "nameKey": "potion.hpSmall",
+        "rarity": "uncommon"
+      },
+      "revive": {
+        "_source": "GDD > Progression > ราคา NPC และยา (ยาชุบชีวิต) · spec F06 R26 (used outside a run only in Phase 2) · rarity: A-P2-F05-T01-2",
+        "assets": {
+          "icon": "icon.item.potion-revive"
+        },
+        "kind": "potion",
+        "nameKey": "potion.revive",
+        "rarity": "epic"
+      },
+      "riftStone": {
+        "_source": "GDD > Progression > วัตถุดิบและการตีบวก (หินรอยแยก Rare) · rewardTypeByRarity.rare",
+        "assets": {
+          "icon": "icon.item.mat-rift-stone"
+        },
+        "kind": "material",
+        "nameKey": "material.riftStone",
+        "rarity": "rare"
+      }
     },
     "multipliers": {
       "_failedRaidWeek_assumption": "A-P1-F03-T06-16b: mult = 1.6 + 0.4 x (boss HP fraction left at the end), so a near-kill gives 1.6 and an untouched boss gives 2.0. Owner: game-director",
@@ -300,6 +732,17 @@
         "inventory"
       ]
     },
+    "npcSellPrice_gold": {
+      "_assumption": "A-P1-F03-T06-8b: GDD has no NPC price for equipment; null = cannot be sold to NPC in v1. Owner: game-director",
+      "_nullMeans": {
+        "equipment": "none"
+      },
+      "_source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา",
+      "elementCore": 120,
+      "elementDust": 20,
+      "equipment": null,
+      "riftStone": 900
+    },
     "potions": {
       "_source": "GDD > Progression > ตัวเลขตั้งต้น > ราคา NPC และยา",
       "hpLarge": {
@@ -414,6 +857,7 @@
       "_nullMeans": {
         "distanceDisplaySteps_m[].upTo_m": "unbounded"
       },
+      "_outOfAreaMaskPath_source": "D-064 (mask geometry shared by client and server, packages/geo inPlayArea). P2-X06: renamed from seeOutOfAreaMask; the value is a repo path to a data file, not a config pointer (ADR 0001 3.10.6), so it is a plain string key",
       "_source": "GDD > 10 นาทีแรกของคนใหม่ (ตัวอย่างรอยแยก 650 ม. และปัญหา dungeon ใกล้สุดอยู่ 3 กิโลหรือนอกกรุงเทพ); pillars 7.1; GDD > แผนที่และโซนดำ; D-064; design gate A 4.5",
       "distanceDisplaySteps_m": [
         {
@@ -430,9 +874,9 @@
         }
       ],
       "farDungeonThreshold_m": 1900,
+      "outOfAreaMaskPath": "data/map/playarea-mask.geojson",
       "reevaluateDistance_m": 200,
-      "seeAccuracy": "location.json#homeState.maxAccuracy_m",
-      "seeOutOfAreaMask": "data/map/playarea-mask.geojson"
+      "seeAccuracy": "location.json#homeState.maxAccuracy_m"
     },
     "parentalConsent": {
       "_note": "Scaffold switch. false = a player below the minimum age sees the 'not available yet' screen only: no form, no data collected, one button back to the app start. Setting true needs HUMAN approval after legal review (GDD: ควรปรึกษานักกฎหมายก่อนเปิดจริง) and a built consent flow; it is not a tuning value",

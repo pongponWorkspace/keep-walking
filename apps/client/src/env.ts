@@ -27,6 +27,17 @@ export function readMapEnv(source: EnvSource): MapEnv {
   };
 }
 
+/** `MapEnv` narrowed to "all three set" (`map.ts`'s old, module-private `isRuntimeMapEnv`, moved
+ * here for P2-F04-T10's code-split: `main.ts` needs this check *before* it decides whether to
+ * `import('./map')` at all, and `./map` itself statically imports `maplibre-gl` — importing it just
+ * to ask "is the env even configured?" would defeat the lazy-load (ADR 0003 section 10). Pure, no
+ * Vite/DOM dependency, so it stays testable the same way as the rest of this file. */
+export function hasRuntimeMapEnv(
+  env: MapEnv,
+): env is MapEnv & { tilesUrl: string; glyphsUrl: string; spriteUrl: string } {
+  return env.tilesUrl !== undefined && env.glyphsUrl !== undefined && env.spriteUrl !== undefined;
+}
+
 /** Treats an unset or blank/whitespace-only env var the same as "not set". */
 function nonEmpty(value: string | undefined): string | undefined {
   const trimmed = value?.trim();

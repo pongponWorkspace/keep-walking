@@ -13,7 +13,10 @@ Related documents:
 - `docs/tech/F02-map-location-spike.md` section 7 (host decision, budgets, `_headers`) and 14
 - `docs/adr/0002-backend-stack.md` (why Cloudflare, free-tier ceiling table)
 - `docs/tech/environments.md` (env var list, repo-public rules)
+- `docs/tech/asset-delivery.md` section 6 (P2-F04-T08: `/kw/*` cache headers, prebuild ordering)
 - `infra/config/pages.json` (project names -- config, not secret)
+- `infra/runbooks/billing-guard.md` (D-085: verify token scope + billing notifications, used by
+  HUMAN P2-C07 -- separate from this file, do it once the deploy in section 3 is working)
 
 ## 1. What gets created
 
@@ -146,6 +149,30 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 # expect today: HTTP/2 200, full content-length, no content-range
 ```
 
+**Client asset delivery (`/kw/*`, docs/tech/asset-delivery.md section 6, P2-F04-T08) -- these only
+return real content once `apps/client`'s own build copies `tools/art/out/client/` into `dist/kw/`
+(gameplay-programmer, P2-F05-T10/P2-F06-T09); until then a `/kw/*` request 404s on the deployed
+client project, which is expected, not a header-rule bug:**
+
+```sh
+# Replace <CLIENT_URL> with the client project URL (normally https://keep-walking-preview.pages.dev)
+curl -sS -D - -o /dev/null "<CLIENT_URL>/kw/asset-manifest.json"
+# expect: cache-control: no-cache (must revalidate every load, it is the version pointer)
+
+curl -sS -D - -o /dev/null "<CLIENT_URL>/kw/fonts/ui/IBMPlexSansThaiLooped-Medium.woff2"
+# expect: content-type: font/woff2, cache-control: public, max-age=31536000, immutable
+
+curl -sS -D - -o /dev/null "<CLIENT_URL>/kw/fonts/map/NotoSansThai-Regular.ttf"
+# expect: content-type: font/ttf, cache-control: public, max-age=31536000, immutable
+
+curl -sS -D - -o /dev/null "<CLIENT_URL>/kw/art/avatar/hair/<some-shipped-file>@2x.png"
+# expect: cache-control: public, max-age=31536000, immutable (Content-Type is Cloudflare's own
+# extension inference for .png -- this repo does not override it)
+```
+
+Static overlap check (offline, no deploy needed): `bash infra/scripts/lint-headers.sh` (or
+`infra/scripts/test/test-lint-headers.sh`) -- CI runs this on every push in job `lint-headers`.
+
 **Fallback path (GitHub Pages PMTiles) -- only when `use_github_pages_fallback` was used, must
 get `206`:**
 
@@ -267,4 +294,7 @@ cost decision").
 | client's map fails to load; browser console shows a CORS error on `.../tiles/<id>/tiles.json` (`Access-Control-Allow-Origin` has multiple values); `curl -sI` on that same URL shows `content-type: application/x-protobuf` and/or `access-control-allow-origin: *, *` | **P1-X41, fixed:** `/tiles/*` and the more specific `/tiles/*/tiles.json` rule in `infra/pages/keep-walking-map/_headers` both match a tiles.json request (`*` is a splat, it matches across `/`); Cloudflare Pages applies every matching rule and concatenates same-named header values instead of letting the more specific rule win | already fixed: the `tiles.json` rule now starts with `! Content-Type` / `! Cache-Control` / `! Access-Control-Allow-Origin` / `! Timing-Allow-Origin` / `! X-Robots-Tag` (Cloudflare's detach directive) before setting its own single value of each. If this regresses, run `infra/scripts/lint-headers.sh` (or `bash infra/scripts/test/test-lint-headers.sh`) locally first -- both fail loudly and name the exact duplicated header before you need a real deploy to notice |
 | "Build tiles" step fails immediately with `[tiles] ERROR: config value .tools.pmtiles.version missing in infra/config/pages.json` (or any `.tools.*`/`.area.*`/`.schema.*` key "missing in infra/config/pages.json") | fixed P1-X40, do not reintroduce: `tools/tiles/bin/lib.sh` reads the env var `TILES_CONFIG` as an override for `tools/tiles/config.json` (documented in `tools/tiles/README.md` and `tools/tiles/size-report.md`). `deploy-preview.yml` used to declare a job-level `env: TILES_CONFIG: infra/config/pages.json` for its own unrelated "which Pages project URLs" lookup; a job-level `env:` is visible to every step, so it silently redirected `build.sh` to read the Pages-project config file instead of its own, and it died on the first missing tile-build key. This is not a Linux/runner issue -- it reproduces identically on macOS (`TILES_CONFIG=infra/config/pages.json bash tools/tiles/bin/build.sh`) | the workflow's variable is named `PAGES_CONFIG` now (same name `infra/scripts/lib.sh` already used, no collision). If you add a new workflow-level `env:` entry, never name it `TILES_CONFIG` -- that name is reserved for `tools/tiles`'s own config override |
 | no access to the raw Actions run log to see the `[tiles] ERROR: ...` line (no repo auth, or the run expired) | — | download the `tile-build-logs` artifact from the run's Summary page (Actions -> the run -> Artifacts). It is uploaded automatically `if: failure()` and contains `tools/tiles/out/build.log` (full stdout+stderr of `build.sh`) plus whatever of `verify-bbox.txt`, `size-report.txt`/`.json`, and `manifest.json` existed at the point of failure. Never contains tile/pmtiles data, only text logs and small JSON, retained 14 days |
+| CI job `billing-guard` fails with `FAIL <file> -- matches forbidden pattern '...'` (P2-F04-T08, D-085) | a workflow, `infra/scripts/*.sh`, or `infra/config/*.json` edit added a call/keyword for a billable Cloudflare product (R2, Images, Stream, Argo, Load Balancing, Logpush, any Workers deploy other than `wrangler pages ...`) or non-standard GitHub Actions runner/Packages/Codespaces usage | this is almost never a bug to "fix" quietly -- it means the change needs a real HUMAN cost-approval decision first (decision log), same as the R2 extension path in section 7 below. Revert the change or get the decision recorded, then re-push. Never edit `infra/scripts/check-billing-guard.sh`'s patterns just to make a real violation pass |
+| CI job `lint-headers` fails | see the row above (P1-X41) -- same script, just now run automatically on every push instead of only by hand |
+| deployed client's `/kw/*` URLs 404 even though the workflow succeeded | expected until `apps/client`'s own build copies `tools/art/out/client/` into `dist/kw/` (gameplay-programmer, P2-F05-T10/P2-F06-T09) -- the `_headers` cache rules in `infra/pages/keep-walking-preview/_headers` exist and are lint-checked regardless of whether anything is deployed under those paths yet |
 

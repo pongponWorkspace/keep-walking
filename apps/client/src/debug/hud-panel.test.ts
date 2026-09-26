@@ -40,6 +40,7 @@ function deps(overrides: Partial<HudPanelDeps> = {}): HudPanelDeps {
     tilesetId: 'pm4-test',
     rawTraceTrim_m: 200,
     coordinateDecimals: 5,
+    vibrateTestPattern_ms: 200,
     ...overrides,
   };
 }
@@ -205,5 +206,103 @@ describe('mountHudPanel', () => {
     expect(container.querySelector('#hud-panel')).not.toBeNull();
     panel.dispose();
     expect(container.querySelector('#hud-panel')).toBeNull();
+  });
+
+  it('mounts the environment/segment selects, wake lock, vibrate and probe-export controls', () => {
+    const panel = mountHudPanel(container, deps());
+    expect(container.querySelector('#hud-environment')).not.toBeNull();
+    expect(container.querySelector('#hud-segment')).not.toBeNull();
+    expect(container.querySelector('#hud-wake-lock-request')).not.toBeNull();
+    expect(container.querySelector('#hud-wake-lock-release')).not.toBeNull();
+    expect(container.querySelector('#hud-vibrate-test')).not.toBeNull();
+    expect(container.querySelector('#hud-export-probe')).not.toBeNull();
+    panel.dispose();
+  });
+
+  it('picking environment/segment in the HUD feeds those exact values into the exported CSV row', async () => {
+    const panel = mountHudPanel(container, deps());
+    const environmentSelect = container.querySelector<HTMLSelectElement>('#hud-environment');
+    const segmentSelect = container.querySelector<HTMLSelectElement>('#hud-segment');
+    expect(environmentSelect).not.toBeNull();
+    expect(segmentSelect).not.toBeNull();
+    if (environmentSelect === null || segmentSelect === null) throw new Error('unreachable');
+
+    environmentSelect.value = 'park';
+    environmentSelect.dispatchEvent(new Event('change'));
+    segmentSelect.value = 'stationary';
+    segmentSelect.dispatchEvent(new Event('change'));
+
+    const csv = await clickExportAndReadCsv(container);
+    const [headerLine, dataLine] = csv.split('\n');
+    const header = (headerLine ?? '').split(',');
+    const cells = (dataLine ?? '').split(',');
+    expect(cells[header.indexOf('environment')]).toBe('park');
+    expect(cells[header.indexOf('segment')]).toBe('stationary');
+
+    panel.dispose();
+  });
+
+  it('reports Wake Lock as unsupported when navigator.wakeLock does not exist (happy-dom/iOS Safari)', () => {
+    const panel = mountHudPanel(container, deps());
+    expect(container.querySelector('#hud-wake-lock-readout')?.textContent).toBe(
+      'wake lock: unsupported',
+    );
+    panel.dispose();
+  });
+
+  it('the vibrate test button reports unsupported when navigator.vibrate does not exist', () => {
+    const panel = mountHudPanel(container, deps());
+    const button = container.querySelector<HTMLButtonElement>('#hud-vibrate-test');
+    button?.click();
+    expect(container.querySelector('#hud-vibrate-readout')?.textContent).toBe(
+      'vibrate: unsupported',
+    );
+    panel.dispose();
+  });
+
+  it('the vibrate test button calls navigator.vibrate with the configured pattern when it exists', () => {
+    const vibrate = vi.fn(() => true);
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    const panel = mountHudPanel(container, deps({ vibrateTestPattern_ms: 321 }));
+
+    container.querySelector<HTMLButtonElement>('#hud-vibrate-test')?.click();
+
+    expect(vibrate).toHaveBeenCalledWith(321);
+    expect(container.querySelector('#hud-vibrate-readout')?.textContent).toBe(
+      'vibrate: triggered=true',
+    );
+    panel.dispose();
+    Reflect.deleteProperty(navigator, 'vibrate');
+  });
+
+  it('exports a coordinate-free probe summary on click, including the vibrate result', async () => {
+    const vibrate = vi.fn(() => true);
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    let capturedText = '';
+    const createSpy = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockImplementation((obj: Blob | MediaSource) => {
+        void (obj as Blob).text().then((text) => {
+          capturedText = text;
+        });
+        return 'blob:mock';
+      });
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+
+    const panel = mountHudPanel(container, deps());
+    container.querySelector<HTMLButtonElement>('#hud-vibrate-test')?.click();
+    container.querySelector<HTMLButtonElement>('#hud-export-probe')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(capturedText).toContain('session_id: abcd1234');
+    expect(capturedText).toContain('vibrate: supported');
+    expect(capturedText).toContain('vibrate_triggered: true');
+    expect(capturedText).not.toMatch(/lat|lng|latitude|longitude/i);
+
+    createSpy.mockRestore();
+    revokeSpy.mockRestore();
+    panel.dispose();
+    Reflect.deleteProperty(navigator, 'vibrate');
   });
 });

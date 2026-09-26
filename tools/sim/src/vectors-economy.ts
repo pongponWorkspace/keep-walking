@@ -44,8 +44,8 @@ export function economyRefsFromConfig(cfg: BalanceConfig): EconomyRefs {
     heavyLegendaryEvery_days: f('heavyLegendaryEvery_days'),
     income_gold: num(cfg.economy, 'gddReferenceEconomy.incomePerWalkingHour_gold'),
     potion_gold: num(cfg.economy, 'gddReferenceEconomy.potionCostPerHour_gold'),
-    partyMin: num(cfg.economy, 'partyReward.fullPartyPerHeadToSoloMin'),
-    partyMax: num(cfg.economy, 'partyReward.fullPartyPerHeadToSoloMax'),
+    partyMin: num(cfg.economy, 'partyReward.fullPartyPerHeadToSoloMinRatio'),
+    partyMax: num(cfg.economy, 'partyReward.fullPartyPerHeadToSoloMaxRatio'),
   };
 }
 

@@ -28,15 +28,29 @@ import {
 } from '@keep-walking/geo';
 import type { MovementGateConfig } from '../config/balance';
 
+/** `debug/csv-export.ts`'s `SummaryRow['segment']` (kept as its own literal union, not an import,
+ * to avoid a cross-file coupling for one type: the two are checked to agree by
+ * `computeStationaryAccumM`'s test coverage instead). */
+export type HudSegment = 'all' | 'screen_on' | 'pocket' | 'stationary';
+
 export interface HudSample {
   readonly timestamp: number;
   readonly lat: number;
   readonly lng: number;
   readonly accuracy: number;
+  /** The HUD's segment picker value at the moment this sample arrived (P2-F04-T10). `undefined`
+   * for samples recorded before the picker existed/in tests that do not care — never counted as
+   * `'stationary'` by `computeStationaryAccumM`. */
+  readonly segment?: HudSegment;
 }
 
 const MS_PER_SECOND = 1000;
 const MEDIAN_PERCENTILE = 50;
+/** `stationary_5min_accum_m` / `_filtered_m` (gps-trace-format.md 4.1): a fixed 5-minute window,
+ * spelled out by the trace-format doc's own column name — not a tunable balance value, same
+ * category as this file's `MS_PER_SECOND`/`MEDIAN_PERCENTILE` (ADR 0001 3.10.1 only covers
+ * balance/reward numbers; a column's own fixed definition is not one). */
+const STATIONARY_WINDOW_S = 300;
 
 /** `array[index]`, asserted present. Every call site (here and in `raw-trace-export.ts`) only ever
  * indexes within a loop bound already checked against `array.length`, so this never actually
@@ -259,4 +273,76 @@ export function computeTtffS(
 ): number | undefined {
   const first = samples.find((s) => s.accuracy <= maxAccuracy_m);
   return first === undefined ? undefined : (first.timestamp - startTimestamp) / MS_PER_SECOND;
+}
+
+export interface StationaryStats {
+  readonly accumM: number | undefined;
+  readonly accumFilteredM: number | undefined;
+}
+
+const EMPTY_STATIONARY: StationaryStats = { accumM: undefined, accumFilteredM: undefined };
+
+/** Raw haversine sum over consecutive pairs both inside `[first.timestamp, first.timestamp +
+ * windowSeconds]` (mirrors `@keep-walking/geo`'s own private `rawDistance` in `diagnostic.ts`, so
+ * the raw-only fallback below uses the exact same window-clipping rule the filtered path gets from
+ * `gateDiagnosticWindows`, not a second slightly-different definition). */
+function rawWindowDistanceM(samples: readonly HudSample[], windowSeconds: number): number {
+  const start = at(samples, 0).timestamp;
+  const end = start + windowSeconds * MS_PER_SECOND;
+  let total = 0;
+  for (let i = 1; i < samples.length; i++) {
+    const a = at(samples, i - 1);
+    const b = at(samples, i);
+    if (a.timestamp >= start && b.timestamp <= end) {
+      total += haversine_m(a, b);
+    }
+  }
+  return total;
+}
+
+/**
+ * `stationary_5min_accum_m` / `_filtered_m` (gps-trace-format.md 4.1): the fake distance jitter
+ * accumulates while a tester stands still, over a fixed `STATIONARY_WINDOW_S` (300 s) window,
+ * measured only over samples the tester recorded with the HUD's segment picker on `'stationary'`
+ * (`debug/hud-panel.ts`). `undefined` (empty CSV cell, "not measured") until at least 300 seconds
+ * of `stationary`-tagged samples have been collected — same "measure once you have enough
+ * evidence" shape as `computeTtffS`/`computeGateWindows`'s raw fallback.
+ *
+ * Reuses `gateDiagnosticWindows` (ADR 0003 5.1) with a single non-sliding `window_s` of 300 s
+ * instead of `computeGateWindows`'s moving `movementGate.window_s` one: this is the same
+ * outlier-filter + resample pipeline the real gate/HUD gate measurement uses, never a second,
+ * hand-rolled copy (F-05b, ADR 0003 section 4).
+ */
+export function computeStationaryAccumM(
+  samples: readonly HudSample[],
+  gate: MovementGateConfig,
+): StationaryStats {
+  const stationary = samples.filter((s) => s.segment === 'stationary');
+  if (stationary.length < 2) {
+    return EMPTY_STATIONARY;
+  }
+  const spanS =
+    (at(stationary, stationary.length - 1).timestamp - at(stationary, 0).timestamp) / MS_PER_SECOND;
+  if (spanS < STATIONARY_WINDOW_S) {
+    return EMPTY_STATIONARY;
+  }
+  if (gate.filter === undefined) {
+    return {
+      accumM: rawWindowDistanceM(stationary, STATIONARY_WINDOW_S),
+      accumFilteredM: undefined,
+    };
+  }
+  const geoSamples = stationary.map(toGeoSample);
+  const windows = gateDiagnosticWindows(geoSamples, {
+    ...gate.filter,
+    window_s: STATIONARY_WINDOW_S,
+    windowStep_s: STATIONARY_WINDOW_S,
+    minDistancePerWindow_m: gate.minDistancePerWindow_m,
+    comparison: gate.comparison,
+  });
+  const first = windows[0];
+  return {
+    accumM: first?.rawDistance_m ?? rawWindowDistanceM(stationary, STATIONARY_WINDOW_S),
+    accumFilteredM: first?.filteredDistance_m,
+  };
 }

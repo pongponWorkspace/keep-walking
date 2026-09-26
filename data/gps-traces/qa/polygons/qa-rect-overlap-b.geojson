@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "qa-rect-overlap-b",
+        "note": "QA-owned second test rectangle overlapping the eastern half of data/gps-traces/synthetic/polygons/test-rect-benchasiri.geojson (location-engineer). Not a real dungeon polygon. Used only for F04-R03/E9 overlap cases (P2-F04-T19)."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              100.56725,
+              13.7293
+            ],
+            [
+              100.56934999999999,
+              13.7293
+            ],
+            [
+              100.56934999999999,
+              13.7317
+            ],
+            [
+              100.56725,
+              13.7317
+            ],
+            [
+              100.56725,
+              13.7293
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

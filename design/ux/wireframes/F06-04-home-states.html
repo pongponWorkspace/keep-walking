@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F06 Flow F: จอที่บ้าน ไกล/นอกย่านเปิดตัว/นอกพื้นที่/ไม่รู้ตำแหน่ง (P2-F06-T03)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F06 Flow F — S-06/S-07/S-08 + S-09-interest-register</h1>
+  <p>อ้างอิง: design/ux/flows/F06-hp-damage-onboarding.md หัวข้อ 7 (แก้ตาม design/reviews/F05-F06-flow-approval.md B-03, B-04, B-05) · ทุกสถานะมี **5 ทางลัดเสมอ**: ดู avatar, อ่าน role, เลือกพลังถ้ายังไม่เลือก, **ดูของ/ใช้ยานอก run (ใหม่)**, **สรุป run ที่ผ่านมา (ใหม่)** — วาดครบทุกเฟรม F1/F2/F3/F6 ไม่ใช่แค่เฟรมแรก (แก้ B-03) · <b>ไม่มีจำนวนคนหรือจำนวนลงทะเบียนที่ใดเลย</b> (F06-R56/R57, GD N-04) ไม่มีช่องพิมพ์ ไม่เก็บพิกัด</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>F1. ไกล — S-06-far-dungeon-panel</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="background:var(--map-land);">
+    <div class="drawer">
+      <div class="drawer-handle"></div>
+      <h2 class="scr-sub"><span class="copykey">home.farTitle</span> <span class="thaidraft">(รอยแยกใกล้สุดอยู่ไกล)</span></h2>
+      <p class="body-text"><span class="copykey">home.farBody</span> <span class="thaidraft">(ใกล้สุด</span> <span class="numeric">2,400 ม.</span> <span class="chip-distance"><span class="copykey">nav.straightLineTag</span> <span class="thaidraft">(เส้นตรง)</span></span> <span class="thaidraft">ไกลก็จริง แต่ขามีไว้เดิน)</span></p>
+      <div class="btn btn-primary" style="width:100%;margin-top:8px;"><span class="copykey">map.navigateButton</span> <span class="thaidraft">(นำทาง)</span></div>
+      <p class="caption" style="margin-top:6px;"><span class="copykey">nav.returnBeforeArrive</span> <span class="thaidraft">(ใกล้ถึงแล้วสลับกลับมาเปิดเกมค้างไว้ก่อนเดินเข้าเขต)</span></p>
+      <p class="caption" style="margin-top:10px;">ทางลัด (ไอคอน ไม่ใช่ copy key ยาว): <span class="copykey">roleInfo.title</span> · avatar (S-10-profile) · <span class="copykey">inventory.homeShortcut</span> <span class="thaidraft">(ของที่เก็บมา)</span> · <span class="copykey">home.recentRunsShortcut</span> <span class="thaidraft">(run ที่ผ่านมา)</span></p>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">ไม่มีการลงทะเบียนความสนใจในสถานะนี้ (ยังอยู่ในย่านเปิดตัว มีที่ให้ไปแค่ไกล) — ไกลชั่วคราว (dungeon ปิดหมด) เพิ่มบรรทัด home.farNextOpen เท่านั้น · แก้ B-03: เพิ่มทางลัด inventory + run ที่ผ่านมา (เดิมมีแค่ role/avatar)</p>
+</div>
+
+<div class="frame-block">
+<h3>F2. นอกย่านเปิดตัว — S-06 + ลงทะเบียนรายเขต</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="background:var(--map-land);">
+    <div class="drawer">
+      <div class="drawer-handle"></div>
+      <h2 class="scr-sub"><span class="copykey">home.farTitle</span></h2>
+      <p class="caption"><span class="copykey">home.farBody</span></p>
+      <div class="btn btn-primary" style="width:100%;margin-top:8px;"><span class="copykey">map.navigateButton</span> <span class="thaidraft">(นำทาง)</span></div>
+      <p class="caption" style="margin-top:6px;"><span class="copykey">nav.returnBeforeArrive</span></p>
+      <div class="card" style="margin-top:12px;border-color:var(--ink-300);">
+        <h2 class="scr-sub" style="font-size:16px;"><span class="copykey">home.outsideLaunchTitle</span> <span class="thaidraft">(ช่วยกันปลุกย่านเรา)</span></h2>
+        <p class="caption"><span class="copykey">home.outsideLaunchBody</span> <span class="thaidraft">(บางนายังไม่มีใครมาสำรวจ ยื่นเรื่องขอเปิดได้ที่นี่)</span></p>
+        <div class="btn btn-secondary" style="width:100%;margin-top:6px;"><span class="copykey">home.outOfAreaCta</span> <span class="thaidraft">(ยื่นเรื่อง)</span></div>
+      </div>
+      <p class="caption" style="margin-top:10px;">ทางลัด: <span class="copykey">roleInfo.title</span> · avatar (S-10-profile) · <span class="copykey">inventory.homeShortcut</span> <span class="thaidraft">(ของที่เก็บมา)</span> · <span class="copykey">home.recentRunsShortcut</span> <span class="thaidraft">(run ที่ผ่านมา)</span></p>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">สถานะย่อยของไกล + อยู่นอก geometry ย่านเปิดตัว (D-073, D-096) · ไม่มีจำนวนคนยื่นเรื่อง (ต่างจาก home.outOfAreaCount ของ Phase 1 ที่ไม่ใช้ใน Phase 2) · <b>แก้ B-05 (คำตัดสิน round 2 R2-3):</b> เดิมเฟรมนี้ให้ปุ่ม "ยื่นเรื่อง" เป็น primary และ "นำทาง" เป็น secondary ซึ่งขัด F06-R52 ข้อ 1–2 — สลับแล้ว: นำทางเป็น primary เสมอ (การ์ดลงทะเบียนรายเขตเป็นการ์ดรองใต้แผงนำทาง) · แก้ B-03: เพิ่มแถวทางลัดด้านล่าง</p>
+</div>
+
+<div class="frame-block">
+<h3>F3+F4. นอกพื้นที่ — S-07-out-of-area-panel (ไม่มีจำนวนคน)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="background:var(--map-zone-black);color:var(--bg-surface);">
+    <div class="drawer">
+      <div class="drawer-handle"></div>
+      <h2 class="scr-sub"><span class="copykey">home.outOfAreaTitle</span> <span class="thaidraft">(ช่วยกันปลุกจังหวัดเรา)</span></h2>
+      <p class="body-text"><span class="copykey">home.outOfAreaBody</span> <span class="thaidraft">(นครปฐมยังไม่มีใครมาสำรวจ ยื่นเรื่องขอเปิดได้ที่นี่)</span></p>
+      <div class="btn btn-primary" style="width:100%;margin-top:8px;"><span class="copykey">home.outOfAreaCta</span> <span class="thaidraft">(ยื่นเรื่อง)</span></div>
+      <p class="caption" style="margin-top:10px;color:var(--bg-surface);">ทางลัด: <span class="copykey">roleInfo.title</span> · avatar (S-10-profile) · <span class="copykey">inventory.homeShortcut</span> <span class="thaidraft">(ของที่เก็บมา)</span> · <span class="copykey">home.recentRunsShortcut</span> <span class="thaidraft">(run ที่ผ่านมา)</span></p>
+    </div>
+  </div>
+</div>
+<p class="frame-caption"><b>แก้ override ข้อ 3:</b> ไม่มีบรรทัด "N คนยื่นเรื่องแล้ว" (home.outOfAreaCount/CountZero ของ Phase 1 ไม่ใช้ที่นี่) ปุ่มยื่นเรื่องตามหลัง body ทันที ไม่มีช่องว่างคั่น · แผนที่โซนดำ นำทางไม่ได้ · แก้ B-03: เพิ่มแถวทางลัด (เดิมเฟรมนี้ไม่มีทางลัดใดเลย)</p>
+</div>
+
+<div class="frame-block">
+<h3>F5. S-09-interest-register (โหมดรายจังหวัด/รายเขต)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">interest.title</span> <span class="thaidraft">(ยื่นเรื่องขอเปิดจังหวัด)</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body">
+    <p class="caption"><span class="copykey">interest.selectProvince</span> <span class="thaidraft">(เลือกจังหวัดของคุณ)</span></p>
+    <div class="card" style="text-align:center;margin-top:8px;">นครปฐม ▾</div>
+    <div class="btn btn-primary btn-fullwidth-bottom"><span class="copykey">interest.confirm</span> <span class="thaidraft">(ยื่นเรื่อง)</span></div>
+  </div>
+</div>
+<p class="frame-caption">เลือกจากรายการเท่านั้น ไม่มีช่องพิมพ์ ไม่เก็บพิกัด · ยืนยันแล้ว → interest.confirmed ("ยื่นเรื่องแล้ว นครปฐมเปิดเมื่อไรจะแจ้ง") ไม่มีของตอบแทน · โหมดรายเขตใช้ interest.areaTitle/selectArea/confirmedArea แทน</p>
+</div>
+
+<div class="frame-block">
+<h3>F6. ไม่รู้ตำแหน่ง — S-08-unknown-location-panel</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span></div><div class="settings-icon">S</div></div>
+  <div class="screen-body" style="display:flex;flex-direction:column;justify-content:center;text-align:center;">
+    <h1 class="scr-title"><span class="copykey">home.unknownTitle</span> <span class="thaidraft">(ไม่รู้ว่าคุณอยู่ไหน)</span></h1>
+    <p class="body-text"><span class="copykey">home.unknownBody</span> <span class="thaidraft">(ไม่มีตำแหน่ง ก็ไม่มีรอยแยกใกล้ตัว แผนที่ยังดูได้)</span></p>
+    <div class="btn btn-primary" style="width:100%;"><span class="copykey">home.unknownCta</span> <span class="thaidraft">(ให้ใช้ตำแหน่ง)</span></div>
+    <p class="caption" style="margin-top:14px;"><span class="copykey">home.unknownRegisterHint</span> <span class="thaidraft">(รู้จังหวัดของตัวเองไหม บอกเราได้แม้ไม่เปิดตำแหน่ง)</span></p>
+    <div class="btn btn-secondary btn-fullwidth-bottom"><span class="copykey">home.outOfAreaCta</span> <span class="thaidraft">(ยื่นเรื่อง)</span></div>
+    <p class="caption" style="margin-top:14px;">ทางลัด: <span class="copykey">roleInfo.title</span> · avatar (S-10-profile) · <span class="copykey">inventory.homeShortcut</span> <span class="thaidraft">(ของที่เก็บมา)</span> · <span class="copykey">home.recentRunsShortcut</span> <span class="thaidraft">(run ที่ผ่านมา)</span></p>
+  </div>
+</div>
+<p class="frame-caption">ปุ่มหลักกลับ S-00-consent-location ใหม่ · ไม่เด้ง popup ซ้ำเอง · accuracy แย่ต่อเนื่องเพิ่ม gps.lowAccuracyBody · <b>แก้ B-04:</b> เพิ่มปุ่มรองลงทะเบียนความสนใจ**รายจังหวัด** → `S-09-interest-register` (ไม่ใช่รายเขต เพราะไม่รู้ตำแหน่งจึงไม่รู้ว่าอยู่ในย่านเปิดตัวหรือไม่) ไม่เด้งเอง ไม่มีรางวัล · แก้ B-03: เพิ่มแถวทางลัด</p>
+</div>
+
+</div>
+</body>
+</html>

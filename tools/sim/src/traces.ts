@@ -74,10 +74,34 @@ export function boundaryDistance_m(lat: number, lng: number, poly: PolygonRings)
   return best;
 }
 
-/** Inside the outer ring and not inside a hole (a point exactly on an edge is rare on these grids). */
+/** True when the point lies exactly on a segment of the ring (planar test in degrees). */
+function onRingBoundary(lat: number, lng: number, ring: Ring): boolean {
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    const [bx, by] = ring[i] as [number, number];
+    const [ax, ay] = ring[j] as [number, number];
+    const cross = (bx - ax) * (lat - ay) - (by - ay) * (lng - ax);
+    if (
+      cross === 0 &&
+      lng >= Math.min(ax, bx) &&
+      lng <= Math.max(ax, bx) &&
+      lat >= Math.min(ay, by) &&
+      lat <= Math.max(ay, by)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Inside the outer ring and not inside a hole. A point exactly on any ring (outer or hole) counts
+ * as inside: the same rule as packages/geo pointInPolygon (P2-X06, check-in vector [11] walk-in
+ * has a sample exactly on the test polygon edge at t = 123000).
+ */
 export function pointInPolygon(lat: number, lng: number, poly: PolygonRings): boolean {
   const [outer, ...holes] = poly.rings;
   if (outer === undefined) return false;
+  if (poly.rings.some((ring) => onRingBoundary(lat, lng, ring))) return true;
   return insideRing(lat, lng, outer) && !holes.some((h) => insideRing(lat, lng, h));
 }
 

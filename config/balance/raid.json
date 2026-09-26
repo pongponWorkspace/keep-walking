@@ -67,9 +67,9 @@
   },
   "bossHp": {
     "_source": "GDD > Raid Boss > HP ของบอส (bossHP = medianPOW_lastWeek x activePlayers_lastWeek x alpha x ticks; alpha 0.45 เดือนแรก แล้วขยับเป็น 0.55)",
-    "alphaLaunch": 0.45,
+    "alphaLaunchCoef": 0.45,
     "alphaLaunchPeriod_days": 30,
-    "alphaTarget": 0.55,
+    "alphaTargetCoef": 0.55,
     "nextBossHpMultAfterFail": 0.85,
     "_nextBoss_source": "GDD > Raid Boss > เมื่อล้มบอสไม่สำเร็จ (บอสสัปดาห์ถัดไปอ่อนลง 15%)"
   },

@@ -65,6 +65,13 @@ export const BALANCE_WHITELIST: readonly WhitelistEntry[] = [
       'rewardTypeByRarity',
       'multipliers',
       'smallDungeon',
+      // Added by P2-F04-T21 (handoff to tech-lead pending, see task report): `session/config.ts`
+      // resolves each dungeon's `drop_table_id` through `parseDropTable` (@keep-walking/shared/reward,
+      // the only place client is allowed to touch a drop table shape) which needs the raw table and
+      // the item-rarity map already parsed once per dungeon, tech note F04 section 9 step 7 / F05
+      // section 1. Neither key carries a group-C name (FORBIDDEN_ANYWHERE below still applies).
+      'dropTables',
+      'items',
     ],
   },
   {
@@ -91,7 +98,18 @@ export const BALANCE_WHITELIST: readonly WhitelistEntry[] = [
     namespace: 'classes',
     topLevelKeys: ['roles', 'buffStacking', 'baseCapRule', 'party'],
   },
-  { file: 'economy.json', namespace: 'economy', topLevelKeys: ['potions', 'autoPotion'] },
+  {
+    file: 'economy.json',
+    namespace: 'economy',
+    topLevelKeys: [
+      'potions',
+      'autoPotion',
+      // Added by P2-F04-T21 (handoff to tech-lead pending): `@keep-walking/shared/formulas`'s
+      // `dropParamsFromConfig` reads `economy.npcSellPrice_gold.<item>` to resolve `DropParams`
+      // (session/config.ts, tech note F04 section 9). Material sell price, not a secret value.
+      'npcSellPrice_gold',
+    ],
+  },
   { file: 'location.json', namespace: 'location', topLevelKeys: ['homeState'] },
   {
     file: 'unlocks.json',

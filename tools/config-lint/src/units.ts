@@ -4,17 +4,20 @@
 import type { Json } from './types';
 
 /** Regex of 3.10.3, verbatim. */
-export const UNIT_SUFFIX = /_(m|m2|ms|s|h|days|yr|kmh|pct|ratio|gold|levels)$/;
+export const UNIT_SUFFIX = /_(m|m2|ms|s|min|h|days|yr|deg|kmh|pct|ratio|gold|levels|bytes)$/;
 export const COMPOUND_PCT_SUFFIX = /_pct[A-Z][A-Za-z]*$/;
 const RATIO_SUFFIX = '_ratio';
+/** `_bytes` counts whole bytes (3.10.3, P2-X12): integer and >= 0. */
+const BYTES_SUFFIX = '_bytes';
 
 /**
  * Unit-less names allowed by 3.10.3: camelCase `...Ratio` (named numerator/denominator, not tied
  * to 0-1), multipliers (`Mult`, `Coef`, `Divisor`, or a key that is exactly `mult`), percentiles,
  * copy lengths (`Cells`).
- * Lint calibration beyond the 3.10.3 text (P2-F04-T24, to be folded into ADR 0001 3.10.3 by
- * tech-lead): `Exponent` (a power is dimensionless), `IoU` and `Share` (a named 0-1 share of a
- * named whole; range-checked like `_ratio`).
+ * Also allowed by 3.10.3 since P2-X04: `Exponent` (a power is dimensionless), `IoU` and `Share`
+ * (a named 0-1 share of a named whole; range-checked like `_ratio`). Unit suffixes `_min` and
+ * `_deg` were added to UNIT_SUFFIX in P2-X07 to match the 3.10.3 table; `_bytes` in P2-X12
+ * (ADR 0003 section 10 bundle budgets).
  */
 const UNITLESS_NAME = /(Ratio$|Mult|Coef|Divisor|Percentile$|Cells|Exponent|IoU|Share)|^mult$/;
 const ZERO_TO_ONE_NAME = /(IoU|Share)$/;
@@ -53,6 +56,9 @@ export function namesUnitOrKind(key: string): boolean {
 export function checkNumericKeyName(key: string, value: Json, inherited = false): string[] {
   const numbers = value === null ? [] : numericValues(value);
   if (numbers === null) return [];
+  if (key.endsWith(BYTES_SUFFIX) && numbers.some((n) => !Number.isInteger(n) || n < 0)) {
+    return [`${key} must be an integer >= 0 (3.10.3 _bytes)`];
+  }
   if (inherited || namesUnitOrKind(key)) return [];
   const allIntegers = numbers.every((n) => Number.isInteger(n));
   const capitalized = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;

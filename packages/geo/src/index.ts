@@ -53,10 +53,21 @@ export {
   rewindPolygon,
 } from './polygon';
 export type {
+  EdgeHysteresisGapParams,
   EdgeHysteresisInput,
   EdgeHysteresisParams,
   EdgeHysteresisState,
+  EdgeHysteresisStepResult,
   EdgeSide,
   EdgeTransition,
 } from './hysteresis';
-export { edgeHysteresisInit, edgeHysteresisStep, validateEdgeHysteresisParams } from './hysteresis';
+export {
+  edgeHysteresisDropStale,
+  edgeHysteresisFeed,
+  edgeHysteresisGapExceeded,
+  edgeHysteresisInit,
+  edgeHysteresisStep,
+  edgeHysteresisTransitions,
+  validateEdgeHysteresisGapParams,
+  validateEdgeHysteresisParams,
+} from './hysteresis';

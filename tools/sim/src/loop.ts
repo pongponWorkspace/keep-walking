@@ -19,12 +19,12 @@ import {
   roleBuffPct,
   streamRng,
   uniform,
-  zoneLevel,
 } from '@keep-walking/shared/formulas';
 import { resolveHit } from './hit';
 import type { HitPotion } from './hit';
 import type { LootRarity } from './rng-contract';
 import { rollTickLoot } from './rng-contract';
+import { levelsBelowRange, levelsOutsideRange, zoneLevelFor } from './zone';
 
 export type OwnClass = 'tanker' | 'ranged' | 'support' | 'magic';
 type RoleBaseCap = { base_pct: number; cap_pct: number };
@@ -135,7 +135,10 @@ export function soloBuffPct(role: RoleBaseCap, level: number, buff: BuffParams):
   return roleBuffPct(role, memberP(level, buff));
 }
 
-/** Damage of one landed hit for a solo player (F06 R08-R09, R31): Tanker own buff, else x1.6. */
+/**
+ * Damage of one landed hit for a solo player (F06 R08-R09, R31): Tanker own buff, else x1.6.
+ * Z = clamp(level, range) and the gap below the range counts once from rangeMin (D-112).
+ */
 export function soloDamage(
   level: number,
   ownClass: OwnClass,
@@ -147,17 +150,20 @@ export function soloDamage(
   const tanker = ownClass === 'tanker' ? soloBuffPct(p.roles.tanker, level, p.buff) : null;
   return damagePerHit(
     {
-      zoneLevel: zoneLevel(rangeMin, rangeMax),
+      zoneLevel: zoneLevelFor(level, rangeMin, rangeMax),
       def,
       tankerBuff_pct: tanker,
-      levelsBelowRange: Math.max(0, rangeMin - level),
+      levelsBelowRange: levelsBelowRange(level, rangeMin),
       failedRaidWeek: false,
     },
     p.monster,
   );
 }
 
-/** Exp of one granted tick (F05 R11, balance-model 17): unrounded, scaled by f (D-059). */
+/**
+ * Exp of one granted tick (F05 R11, balance-model 17): unrounded, scaled by f (D-059).
+ * Z = clamp(level, range), the gap outside the range counts once from the nearest edge (D-112).
+ */
 export function soloTickExp(
   level: number,
   ownClass: OwnClass,
@@ -167,9 +173,11 @@ export function soloTickExp(
   p: Pick<LoopParams, 'exp' | 'expMult' | 'roles' | 'buff'>,
 ): number {
   const magic = ownClass === 'magic' ? soloBuffPct(p.roles.magic, level, p.buff) : null;
-  const gap = Math.max(0, rangeMin - level, level - rangeMax);
+  const gap = levelsOutsideRange(level, rangeMin, rangeMax);
   return (
-    expPerTick(zoneLevel(rangeMin, rangeMax), p.exp) * expMultiplier(magic, gap, p.expMult) * f
+    expPerTick(zoneLevelFor(level, rangeMin, rangeMax), p.exp) *
+    expMultiplier(magic, gap, p.expMult) *
+    f
   );
 }
 

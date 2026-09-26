@@ -21,7 +21,8 @@ export type Side = 'in' | 'out';
  * Edge hysteresis, the reading confirmed in P2-F05-T20 (answers A-P2-F04-T14-1 and
  * A-P2-F04-T12-2). The pending run = consecutive usable samples observed on the other side; a
  * usable sample on the confirmed side resets it. A sample counts only when it is further than
- * edgeHysteresis_m from the boundary; samples inside that band neither count nor reset. The change
+ * edgeHysteresis_m from the boundary (edgeHysteresis_m = 0: every sample counts, on-boundary
+ * included); samples inside that band neither count nor reset. The change
  * is confirmed when edgeHysteresisSamples samples have counted, and takes effect at the FIRST
  * sample of the pending run (band samples included, F04 R14). Both directions use the same rule.
  */
@@ -47,7 +48,11 @@ export class Hysteresis {
       return null;
     }
     this.firstAt_ms ??= s.t_ms;
-    if (s.boundaryDistance_m > this.p.edgeHysteresis_m) this.counted += 1;
+    // A-P2-X03-3 (confirmed in P2-X13): edgeHysteresis_m = 0 means no band, so every sample on
+    // the other side counts, including one exactly on the boundary (tech note F04 5.2). On-edge
+    // is already inside for point-in-polygon (P2-X06), so this only matters for a return.
+    if (this.p.edgeHysteresis_m === 0 || s.boundaryDistance_m > this.p.edgeHysteresis_m)
+      this.counted += 1;
     if (this.counted < this.p.edgeHysteresisSamples) return null;
     const at = this.firstAt_ms;
     this.side = obs;

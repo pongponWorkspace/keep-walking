@@ -45,11 +45,11 @@
         }
       },
       "expected": {
-        "zoneLevel": 3,
+        "zoneLevel": 1,
         "levelsOutsideRange": 0,
         "magicBuff_pct": null,
         "expMult": 0.6,
-        "exp": 93.530744
+        "exp": 18
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in a 1-5 dungeon (Z = 3), solo tanker: Magic own buff, others x noMagicMult (D-039)"
@@ -98,11 +98,11 @@
         }
       },
       "expected": {
-        "zoneLevel": 3,
+        "zoneLevel": 1,
         "levelsOutsideRange": 0,
         "magicBuff_pct": null,
         "expMult": 0.6,
-        "exp": 93.530744
+        "exp": 18
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in a 1-5 dungeon (Z = 3), solo ranged: Magic own buff, others x noMagicMult (D-039)"
@@ -151,11 +151,11 @@
         }
       },
       "expected": {
-        "zoneLevel": 3,
+        "zoneLevel": 1,
         "levelsOutsideRange": 0,
         "magicBuff_pct": null,
         "expMult": 0.6,
-        "exp": 93.530744
+        "exp": 18
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in a 1-5 dungeon (Z = 3), solo support: Magic own buff, others x noMagicMult (D-039)"
@@ -204,11 +204,11 @@
         }
       },
       "expected": {
-        "zoneLevel": 3,
+        "zoneLevel": 1,
         "levelsOutsideRange": 0,
         "magicBuff_pct": 17.273104,
         "expMult": 1.172731,
-        "exp": 182.810677
+        "exp": 35.181931
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in a 1-5 dungeon (Z = 3), solo magic: Magic own buff, others x noMagicMult (D-039)"
@@ -257,11 +257,11 @@
         }
       },
       "expected": {
-        "zoneLevel": 3,
+        "zoneLevel": 5,
         "levelsOutsideRange": 0,
         "magicBuff_pct": null,
         "expMult": 0.6,
-        "exp": 93.530744
+        "exp": 201.246118
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 5 at the top of 1-5, no gap"
@@ -310,11 +310,11 @@
         }
       },
       "expected": {
-        "zoneLevel": 3,
+        "zoneLevel": 5,
         "levelsOutsideRange": 5,
         "magicBuff_pct": null,
         "expMult": 0.395449,
-        "exp": 61.644385
+        "exp": 132.637598
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 10 above 1-5: gap 5 -> 0.92^5 (A-3, both sides)"
@@ -363,14 +363,120 @@
         }
       },
       "expected": {
-        "zoneLevel": 18,
+        "zoneLevel": 1,
         "levelsOutsideRange": 0,
         "magicBuff_pct": null,
         "expMult": 0.6,
-        "exp": 1374.615583
+        "exp": 18
       },
       "tolerance": 0.000001,
-      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in PN-2 1-35 (Z = 18): same Z for every level in range (A-1)"
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in PN-2 1-35: Z = clamp(1, 1, 35) = 1 (D-112, was Z = 18 under A-1)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 30,
+        "ownClass": "ranged",
+        "rangeMin": 1,
+        "rangeMax": 35,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 30,
+        "levelsOutsideRange": 0,
+        "magicBuff_pct": null,
+        "expMult": 0.6,
+        "exp": 2957.701811
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 30 in PN-2 1-35: Z = 30, the same exp as a level-30 player in a 30-30 range (D-112, was Z = 18)"
+    },
+    {
+      "input": {
+        "fn": "soloTickExp",
+        "level": 36,
+        "ownClass": "ranged",
+        "rangeMin": 1,
+        "rangeMax": 35,
+        "f": 1,
+        "params": {
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          }
+        }
+      },
+      "expected": {
+        "zoneLevel": 35,
+        "levelsOutsideRange": 1,
+        "magicBuff_pct": null,
+        "expMult": 0.552,
+        "exp": 3428.959842
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 36 above PN-2 1-35: Z = 35 and gap 1 from the top edge -> 0.92^1, counted once (D-112)"
     },
     {
       "input": {
@@ -522,11 +628,11 @@
         }
       },
       "expected": {
-        "zoneLevel": 55,
+        "zoneLevel": 50,
         "levelsOutsideRange": 49,
         "magicBuff_pct": null,
         "expMult": 0.15,
-        "exp": 1835.509126
+        "exp": 1590.990258
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 1 in 50-60: gap 49 -> floor 0.25"
@@ -575,11 +681,11 @@
         }
       },
       "expected": {
-        "zoneLevel": 55,
+        "zoneLevel": 60,
         "levelsOutsideRange": 0,
         "magicBuff_pct": 29.956818,
         "expMult": 1.299568,
-        "exp": 15902.461734
+        "exp": 18119.541355
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · level 60 in 50-60 (exp is not added at max level, see addExp)"

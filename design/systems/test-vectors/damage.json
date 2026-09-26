@@ -4,42 +4,112 @@
     {
       "input": {
         "fn": "zoneLevel",
+        "playerLevel": 10,
         "rangeMin": 15,
         "rangeMax": 25
       },
-      "expected": 20,
+      "expected": 15,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · below the range → Z = min, damage gap counts from min once"
     },
     {
       "input": {
         "fn": "zoneLevel",
-        "rangeMin": 20,
+        "playerLevel": 15,
+        "rangeMin": 15,
         "rangeMax": 25
       },
-      "expected": 23,
+      "expected": 15,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · low edge of the range → Z = level"
     },
     {
       "input": {
         "fn": "zoneLevel",
+        "playerLevel": 18,
+        "rangeMin": 15,
+        "rangeMax": 25
+      },
+      "expected": 18,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · inside the range → Z = level (was the midpoint under A-1)"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "playerLevel": 25,
+        "rangeMin": 15,
+        "rangeMax": 25
+      },
+      "expected": 25,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · high edge of the range → Z = level"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "playerLevel": 30,
+        "rangeMin": 15,
+        "rangeMax": 25
+      },
+      "expected": 25,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · above the range → Z = max (exp gap from max, no damage cut)"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "playerLevel": 1,
+        "rangeMin": 1,
+        "rangeMax": 35
+      },
+      "expected": 1,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · level 1 in a wide range 1-35 (PN-2) → Z = 1 (finding F-18)"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "playerLevel": 30,
+        "rangeMin": 1,
+        "rangeMax": 35
+      },
+      "expected": 30,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · level 30 in 1-35 → Z = 30 (own level, not 18)"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "playerLevel": 1,
         "rangeMin": 1,
         "rangeMax": 1
       },
       "expected": 1,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · boundary: one-level range at level 1"
     },
     {
       "input": {
         "fn": "zoneLevel",
+        "playerLevel": 60,
         "rangeMin": 55,
         "rangeMax": 60
       },
-      "expected": 58,
+      "expected": 60,
       "tolerance": 0.000001,
-      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · A-P1-F03-T06-1: Z = round(midpoint), .5 rounds up"
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · boundary: level 60 at the top of 55-60"
+    },
+    {
+      "input": {
+        "fn": "zoneLevel",
+        "playerLevel": 1,
+        "rangeMin": 20,
+        "rangeMax": 25
+      },
+      "expected": 20,
+      "tolerance": 0.000001,
+      "source": "sim run P1-F03-T07 (reference implementation packages/shared/src/formulas, imported by tools/sim since P2-F05-T01) · D-112 (J-8): Z = clamp(playerLevel, rangeMin, rangeMax) · boundary: level 1 far below 20-25 → Z = 20"
     },
     {
       "input": {

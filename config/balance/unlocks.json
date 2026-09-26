@@ -91,7 +91,8 @@
     "_source": "GDD > 10 นาทีแรกของคนใหม่ (ตัวอย่างรอยแยก 650 ม. และปัญหา dungeon ใกล้สุดอยู่ 3 กิโลหรือนอกกรุงเทพ); pillars 7.1; GDD > แผนที่และโซนดำ; D-064; design gate A 4.5",
     "farDungeonThreshold_m": 1900,
     "_farDungeonThreshold_source": "P2-F06-T01: 2,000 -> 1,900 m (-5%). D-079 (game-director, P1-F03-T25 B-01): ceiling = PRD yellow-zone real walk 3,000 m / population-weighted route factor 1.52 (D-072, P1-F01-T09) = 1,974 m, so the straight-line threshold must be <= 1,970 m; 1,900 m chosen (about 2,890 m of real walking, about 36 min at 4.8 km/h). Distance on the home screen stays straight-line and approximate (N-02, A-3). launch-criteria F-11 uses the same key",
-    "seeOutOfAreaMask": "data/map/playarea-mask.geojson",
+    "outOfAreaMaskPath": "data/map/playarea-mask.geojson",
+    "_outOfAreaMaskPath_source": "D-064 (mask geometry shared by client and server, packages/geo inPlayArea). P2-X06: renamed from seeOutOfAreaMask; the value is a repo path to a data file, not a config pointer (ADR 0001 3.10.6), so it is a plain string key",
     "reevaluateDistance_m": 200,
     "distanceDisplaySteps_m": [
       { "upTo_m": 1000, "step_m": 50 },

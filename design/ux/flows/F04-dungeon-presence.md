@@ -1,6 +1,6 @@
 # Flow F04 — Dungeon Presence: แผนที่ → นำทาง → confirm → check-in → run state
 
-Task: P2-F04-T15 (ฉบับแก้รอบ 2 โดย P2-X02) · เจ้าของ: uiux-designer · สถานะ: แก้ตาม `design/reviews/F04-flow-approval.md` (รอบ 1 = NEEDS_CHANGES · blocking B-01..B-08 + non-blocking N-01..N-15 ทั้งหมดแก้ในรอบนี้) ส่งกลับรอบ 2 ของ P2-F04-T27 (game-director อนุมัติ flow core loop) ก่อนเข้า design gate รวม F04+F05 (P2-F05-T18) · วันที่: 2026-09-26
+Task: P2-F04-T15 (ฉบับแก้รอบ 3 โดย P2-X11) · เจ้าของ: uiux-designer · สถานะ: รอบ 1 = NEEDS_CHANGES (แก้โดย P2-X02) → รอบ 2 (P2-F04-T27) = PASS พร้อมเงื่อนไขความสอดคล้อง C-1..C-5 → **รอบ 3 (เอกสารนี้) แก้ C-1..C-5 ให้ครบก่อนเข้า design gate รวม F04+F05 (P2-F05-T18)** · วันที่: 2026-09-27
 แหล่งอ้างอิง: `design/features/F04-dungeon-presence.md` (P2-F04-T01, สเปกหลักที่ flow นี้แปลงเป็นจอ) · `design/ux/ia.md` (รหัสหน้าจอ, navigation shell, สถานะที่บ้าน) · `design/ux/flows/F03-core-loop.md` (ฐานเดิมของ layout header/popup/run screen — ดูหมายเหตุ override ด้านล่าง) · `design/ux/components.md` (หัวข้อ 13 คอมโพเนนต์ F04), `design/ux/tokens.json` · `art/direction/style-guide.md` (S1–S10) · `art/direction/briefs/P2-assets.md` (หัวข้อ 3.3–3.8) · `docs/tech/F04-dungeon-presence.md` (หัวข้อ 7 check-in/confirm, หัวข้อ 14 ลิงก์นำทาง+fallback) · `config/content/copy.th.json` (key ที่มีอยู่แล้ว) · `design/reviews/F04-flow-approval.md` (รอบ 1, คำตัดสิน J-1..J-7) · D-089, D-064, D-072, D-079, D-097, D-100, A-3 (ระยะเส้นตรง+นำทาง), GD B-02 (speed lock), GD B-03 (check-in), GD N-04 (ซ่อนจำนวนคน)
 ลำดับอำนาจ: GDD > pillars.md > `design/features/F04-dungeon-presence.md` > ia.md > เอกสารนี้ · ตัวเลขทุกตัวอ้างเป็น `config: <key>` เท่านั้น ค่าในวงเล็บหลัง `config:` เป็นค่าปัจจุบันเพื่ออ่านง่าย ห้ามลอกตัวเลขไปเขียนโค้ดตรงๆ
 
@@ -54,7 +54,7 @@ A3. กด "นำทาง" → เปิดแอปแผนที่ขอ�
    ⤷ เงื่อนไข: **fallback อัตโนมัติ** (แก้ B-05 ตาม tech note 14.2–14.3) เมื่อภายใน `externalOpenTimeout_ms` หน้ายังไม่เข้าสถานะ hidden (deep link ใช้ไม่ได้จริง) **หรือ** `navigator.onLine === false` (แสดงคู่ลิงก์ตั้งแต่แรก) **หรือ** ผู้เล่นกดลิงก์รองใน A2 → แผง `[nav.fallbackTitle]` ("เปิดแอปนำทางไม่ได้") แสดง **สองค่าพร้อมปุ่มคัดลอกแยกกัน**:
      1. ชื่อที่ค้นได้ (`search_name_key`) + ปุ่ม `[nav.fallbackCopyButton]` ("คัดลอกชื่อ")
      2. พิกัดปลายทาง `lat, lng` (ข้อมูลสาธารณะของสถานที่ ไม่ใช่ของผู้เล่น) ป้ายกำกับ `[nav.fallbackCoordinateLabel]` ("พิกัดปลายทาง") + ปุ่ม `[nav.fallbackCopyCoordinateButton]` ("คัดลอกพิกัด")
-     คัดลอกด้วย `navigator.clipboard.writeText` ใน gesture → แสดง toast `[nav.fallbackCopied]` ("คัดลอกแล้ว") หายเองสั้นๆ ได้ (เฉพาะ toast ยืนยัน ไม่ใช่ตัวแผง) · ล้มหรือไม่มี API → ค่านั้นแสดงเป็น `<input readonly>` ที่เลือกข้อความไว้แล้วให้คัดลอกเอง (tech note 14.3) · **แผงเองปิดเฉพาะเมื่อผู้เล่นกดปิดเท่านั้น** (ไม่ปิดอัตโนมัติหลังคัดลอก — กันคัดลอกค่าที่สองไม่ทันและกันปิดก่อนอ่านชื่อครบ)
+     คัดลอกด้วย `navigator.clipboard.writeText` ใน gesture → แสดง toast `[nav.fallbackCopied]` ("คัดลอกแล้ว") หายเองสั้นๆ ได้ (เฉพาะ toast ยืนยัน ไม่ใช่ตัวแผง) · ล้มหรือไม่มี API → ค่านั้นแสดงเป็น `<input readonly>` ที่เลือกข้อความไว้แล้วให้คัดลอกเอง (tech note 14.3) · **แผงเองปิดเฉพาะเมื่อผู้เล่นกดปิดเท่านั้น** (ไม่ปิดอัตโนมัติหลังคัดลอก — กันคัดลอกค่าที่สองไม่ทันและกันปิดก่อนอ่านชื่อครบ) · **แก้ C-2 (คำตัดสิน round 2 R2-3):** แผงนี้มีบรรทัด `[nav.returnBeforeArrive]` เดียวกับแผง A2 ด้วย วางใต้ปุ่มคัดลอกพิกัด เหนือปุ่มปิด — คนที่คัดลอกชื่อ/พิกัดไปเปิดแอปแผนที่เองผ่านแผงนี้เจอกับดัก check-in เดียวกับคนที่ใช้ deep link โดยตรง (J-6) จึงต้องเห็นบรรทัดเตือนนี้เช่นกัน ไม่ใช่แค่ในแผง A2
 
 A4. **ไม่มีเส้นทางหรือเส้นตรงใดบนแผนที่ในแอปเลย** (R36, R39) — แผนที่หลักยังเป็น static tile เดิม ไม่มี polyline/animation ต่อเนื่องเพิ่ม (pillars P4, style-guide 9.3)
 
@@ -68,7 +68,7 @@ B1. เดินถึงขอบ polygon ของ dungeon ที่เปิ�
    - ชื่อโซน `[dungeon.confirmTitle]` ({zoneName})
    - ช่วงเลเวล `[dungeon.confirmLevel]` (ไม่บล็อกการเข้า ตาม R32)
    - **แถวสถานะ check-in** ตาม `selectCheckInPreview` ปัจจุบัน (components.md 13.3): ถ้ายังไม่ผ่านเฟรมแรกก็แสดงเหตุผลทันที ปุ่ม "เข้า" เป็น `.btn-disabled` ตั้งแต่ต้น เปิดใช้เองอัตโนมัติเมื่อ preview เปลี่ยนเป็นผ่าน (ไม่ต้องกดอะไรเพิ่ม ไม่ปิดเปิด popup ใหม่ — รายละเอียดเต็มอยู่ Flow C)
-   - ปุ่ม `[dungeon.confirmEnter]` ("เข้า") เด่นสุดครึ่งล่างจอ และ `[dungeon.confirmCancel]` ("ยกเลิก")
+   - ปุ่ม `[dungeon.confirmEnter]` ("เข้า") เด่นสุดครึ่งล่างจอ และ `[dungeon.confirmCancel]` ("ยกเลิก") — **แก้ C-1 (คำตัดสิน round 2 R2-3):** ปุ่ม "ยกเลิก" แสดงและกดได้ **ทุกสถานะของ popup** (ยังไม่ผ่าน check-in, ผ่านแล้ว, รอผล `confirm`, บรรทัดนอกระยะ B5) ตำแหน่งเดียวกันเสมอ ไม่หายไปพร้อมปุ่ม "เข้า" ที่ถูก disable — สำคัญที่สุดในกรณี B5 (นอกระยะ) เพราะคนยืนขอบสวนต้องปิดเองได้ทันทีโดยไม่ต้องรอ hysteresis ปิดอัตโนมัติ (R06: ยกเลิกได้ทุกเมื่อโดยไม่มีผล)
    - **ตำแหน่งที่จะแสดงจำนวนคน/role เมื่อมี backend (Phase 3):** บรรทัดใต้ช่วงเลเวล ก่อนแถวสถานะ check-in — **Phase 2 ไม่มี element และไม่มีช่องว่างใดถูกจองไว้ในเลย์เอาต์เลย** (N-01, pillars 7.1: "ไม่แสดง = ไม่มี element") ตำแหน่งนี้เป็นแค่บันทึกอ้างอิงสำหรับตอนต่อ backend ใน Phase 3 ผ่าน flow F09 (`design/features/F04-dungeon-presence.md` ข้อ R05 เงื่อนไข)
    ⤷ เงื่อนไข: กด "ยกเลิก" → ปิด popup กลับ `S-01-map` ไม่มีผลใด (R06) เปิดใหม่ได้ตลอดที่ยังอยู่ในเขต ด้วยปุ่ม `[map.reopenConfirmButton]` ("เข้าโซนนี้") ที่ครึ่งล่างจอสถานะ "อยู่ในเขต" ของ `S-01-map` (N-10, ปุ่มเด่นสุดของสถานะนั้น)
    ⤷ เงื่อนไข: กด "เข้า" และ check-in ผ่านครบ (Flow C) → engine ตรวจเวลาทำการ + `maxActiveDungeonsPerPlayer` (R01) → ไป Flow E (Active) หรือ B4/B6 แล้วแต่ผล
@@ -128,7 +128,7 @@ D4. event `anticheat_speed_lock_triggered` ยิงทั้งตอนเข�
 | --- | --- | --- | --- | --- |
 | **Active** | ● `state.success` `[run.stateActiveLabel]` ("กำลังเล่น") | เดินนับถอยหลังปกติ `[run.tickTimer]` | ไม่มี | จอปกติ ไม่มีอะไรน่ากังวล |
 | **Grace** | ◐ `state.info` `[run.stateGraceLabel]` ("กำลังยืนยันตำแหน่ง" — key ใหม่แยกจาก `run.stateGrace` ที่เป็นข้อความ banner ยาวกว่า, N-02) | **หยุดนับ** เปลี่ยนเป็น `[run.tickPausedLabel]` ("หยุดนับชั่วคราว") แทนตัวเลข | `banner.info` เล็กไม่บล็อกจอ ข้อความ `[run.stateGrace]` | ไม่ตกใจ (แค่ GPS drift ปกติ, ≤ `config: dungeons.runState.graceMax_s`) |
-| **Suspended** | ■ **`state.info` เต็มพื้น pill** (ไม่ใช่ `state.danger`) `[run.stateSuspendedLabel]` ("หยุดชั่วคราว") | ยังเป็น `[run.tickPausedLabel]` | `banner.warn` เต็มความกว้าง **ขอบ/ข้อความ `state.info`** (ไม่ใช่ `state.danger` — แก้ N-02) ค้างตลอดสถานะ `[run.stateSuspended]` ("run หยุดชั่วคราว กลับเข้าเขตภายใน {timeLeft}") | ยังไม่จบ run ออกไปซื้อน้ำ/เข้าห้องน้ำได้ (≤ `config: dungeons.runState.suspendedMax_s`) |
+| **Suspended** | ■ **`state.info` เต็มพื้น pill** (ไม่ใช่ `state.danger`) `[run.stateSuspendedLabel]` ("หยุดชั่วคราว") | ยังเป็น `[run.tickPausedLabel]` | **แก้ C-5 (ชื่อ variant):** เต็มความกว้าง **ขอบ/ข้อความ `state.info`** (ไม่ใช่ `state.danger` — แก้ N-02) ค้างตลอดสถานะ `[run.stateSuspended]` ("run หยุดชั่วคราว กลับเข้าเขตภายใน {timeLeft}") — **ไม่ใช้ชื่อ `banner.warn`** (ชนกับ `components.md` หัวข้อ 6 ที่นิยาม `.banner.warn` เป็นข้อความสี `state.danger` จริง เช่นป้ายเตือน auto-retreat ปิดอยู่ ซึ่งเป็นคำเตือนจริง ต่างจากที่นี่) ใช้ชื่อชั่วคราว **`banner.info-full`** (ส่วนขยายเต็มความกว้างของ `.banner.info` เดิมที่ Grace ใช้แบบขอบบาง) จนกว่า art-director/uiux จะยืนยันชื่อทางการใน `components.md` [handoff: เพิ่ม `.banner.info-full` เป็นแถวใหม่ในหัวข้อ 6 ของ `components.md` — นอก `writes` ของงานนี้] | ยังไม่จบ run ออกไปซื้อน้ำ/เข้าห้องน้ำได้ (≤ `config: dungeons.runState.suspendedMax_s`) |
 | **Ended** | — (ออกจากจอ run ทันที) | — | — | ไปหน้าสรุปผลอัตโนมัติ (Flow F) ไม่ใช่จอ run |
 
 [handoff art-director: pill/header ยังใช้ glyph placeholder ◐/■ รอ SVG จริงของ `icon.ui.grace`/`icon.ui.suspended` ตาม art brief 3.7 (A-P2-F04-T15-3 เดิม ยังไม่ปิด) — โทนสีด้านบนยึดตาม `components.md`/art brief ที่ยืนยันแล้ว ไม่ใช่ข้อเสนอใหม่ของรอบนี้]
@@ -215,7 +215,9 @@ D4. event `anticheat_speed_lock_triggered` ยิงทั้งตอนเข�
 
 ### 10.2 Key ที่มีอยู่แล้วและใช้ซ้ำตรงๆ (ไม่แก้)
 
-`nav.map`, `dungeon.confirmTitle`, `dungeon.confirmLevel`, `dungeon.confirmEnter`, `dungeon.confirmCancel`, `dungeon.overlapTitle`, `dungeon.closedTitle`, `dungeon.closedBody`, `dungeon.closedEmergencyBody`, `dungeon.closedDismiss`, `dungeon.outOfRangeTitle`, `dungeon.alreadyActive`, `common.close`, `common.error`, `common.retry`, `common.offlineNotice`, `common.offlineRetry`, `common.lastUpdated`, `map.riftClosed`, `map.navigateButton`, `gps.pillLabel`, `gps.offline`, `gps.offlineInRun`, `gps.lowAccuracy`, `gps.lowAccuracyBody`, `run.exitButton`, `run.exitConfirmTitle`, `run.exitConfirmBody`, `run.exitConfirmButton`, `run.exitConfirmCancel`, `run.stateGrace`, `run.stateSuspended`, `run.stateResumed`, `run.tickTimer`, `run.summary.headerLabel`, `run.summary.exited`, `run.summary.died`, `run.summary.autoRetreated`, `run.summary.closedByModerator`, `run.summary.connectionLost`, `run.summary.connectionLostBody`, `run.summaryRewardList`, `run.summaryRewardEmpty`, `run.summaryRewardLost`, `run.summaryContinue`
+`nav.map`, `dungeon.confirmTitle`, `dungeon.confirmLevel`, `dungeon.confirmEnter`, `dungeon.confirmCancel`, `dungeon.overlapTitle`, `dungeon.closedTitle`, `dungeon.closedBody`, `dungeon.closedEmergencyBody`, `dungeon.closedDismiss`, `dungeon.outOfRangeTitle`, `dungeon.alreadyActive`, `common.close`, `common.error`, `common.retry`, `common.lastUpdated`, `map.riftClosed`, `map.navigateButton`, `gps.pillLabel`, `gps.offline`, `gps.lowAccuracy`, `gps.lowAccuracyBody`, `run.exitButton`, `run.exitConfirmTitle`, `run.exitConfirmBody`, `run.exitConfirmButton`, `run.exitConfirmCancel`, `run.stateGrace`, `run.stateSuspended`, `run.stateResumed`, `run.tickTimer`, `run.summary.headerLabel`, `run.summary.exited`, `run.summary.died`, `run.summary.autoRetreated`, `run.summary.closedByModerator`, `run.summaryRewardList`, `run.summaryRewardEmpty`, `run.summaryRewardLost`, `run.summaryContinue`
+
+**แก้ C-5 — สงวนไว้ Phase 3 (F08), ไม่ใช้ใน Phase 2:** `common.offlineNotice`, `common.offlineRetry`, `gps.offlineInRun`, `run.summary.connectionLost`, `run.summary.connectionLostBody` — ทั้งหมดผูกกับพฤติกรรม disable ปุ่มตอนออฟไลน์ที่ต้องมี server (B-02 ลบพฤติกรรมนี้ออกจาก Phase 2 แล้ว) ห้าม build ใส่กลับเป็น "ใช้ซ้ำได้" เพราะเคยอยู่ในรายการเดียวกับ key ที่ยังใช้จริงด้านบน
 
 ### 10.3 Key เดิมที่ context ต้องแก้ตามกฎใหม่ (handoff เป็น decision ให้ narrative-designer ยืนยัน)
 
@@ -263,31 +265,39 @@ D4. event `anticheat_speed_lock_triggered` ยิงทั้งตอนเข�
 | N-14 | ชี้ไปที่ flow F06 ให้ครอบประเด็น exp คงอยู่ตอนตาย — **ไม่แก้ในเอกสารนี้** (เหตุผล: เป็นขอบเขตของ spec/flow F06 ตามที่ระบุไว้แล้วในหัวข้อ 7 แถว `death`, แก้ในเอกสารนี้จะซ้ำซ้อนกับเจ้าของจริง) | หัวข้อ 7 แถว `death` (คงเดิม อ้าง F06) |
 | N-15 | เปลี่ยนชื่อตัวอย่างที่อยู่นอกย่านนำร่องและคู่ overlap ที่เป็นไปไม่ได้ทางภูมิศาสตร์ในทั้งสอง wireframe | `design/ux/wireframes/F04-01-map-navigate.html` เฟรม A1, `design/ux/wireframes/F04-02-dungeon-confirm.html` เฟรม B2 |
 
+(REPORT ของรอบก่อนหน้า P2-X02 เก็บไว้ในประวัติ git — ดู REPORT ล่าสุดของ P2-X11 ท้ายหัวข้อ 13 ด้านล่าง)
+
+## 13. รอบ 3: สิ่งที่แก้ (P2-X11 ตอบ `design/reviews/F04-flow-approval.md` รอบ 2 เงื่อนไข C-1..C-5)
+
+ตารางนี้ให้ game-director ตรวจเฉพาะ C-1..C-5 ตามเงื่อนไขความสอดคล้องของ R2-3 (ไม่ขวาง build แต่ uiux ต้องแก้ก่อน design gate รวม P2-F05-T18)
+
+| ข้อ | สิ่งที่แก้ | ตำแหน่งในเอกสารนี้ / wireframe |
+| --- | --- | --- |
+| C-1 | ปุ่ม "ยกเลิก" แสดงและกดได้ทุกสถานะ popup (ไม่หายไปพร้อมปุ่ม "เข้า" ที่ disable) สำคัญสุดใน B5 | หัวข้อ 3 B1 · wireframe F04-02 B1/B5, F04-03 C1/C2 |
+| C-2 | เพิ่ม `nav.returnBeforeArrive` ในแผง fallback A3 ด้วย ไม่ใช่แค่ A2 | หัวข้อ 2 A3 · wireframe F04-01 A3 |
+| C-3 | caption ของ F04-03 C1 แก้ให้ตรงกับ N-03 (client นับต่อได้ระหว่าง sample แต่ sync จาก engine เสมอ ไม่ใช่ "engine ล้วน ไม่ใช่ client ประมาณ") | wireframe F04-03 C1 |
+| C-4 | เปลี่ยน glyph กุญแจ emoji (`&#128274;`) เป็น placeholder ข้อความ/กล่องชื่อ ไม่ใช้ emoji เป็นไอคอน | wireframe F04-03 D1a/D1b |
+| C-5 | ย้าย key ออฟไลน์ (`common.offlineNotice`, `common.offlineRetry`, `gps.offlineInRun`, `run.summary.connectionLost*`) ไปบรรทัด "สงวนไว้ Phase 3" แยกจากรายการที่ใช้จริง · ตั้งชื่อ banner variant ของ Suspended ใหม่ (`banner.info-full`) ไม่ใช้ `banner.warn` ที่ชนกับนิยามเดิมของ `components.md` | หัวข้อ 10.2 · หัวข้อ 6 ตาราง Flow E แถว Suspended |
+
 ## REPORT
-task: P2-X02
+task: P2-X11 (ส่วน F04)
 status: DONE
-summary: แก้ flow F04 ครบทั้ง B-01..B-08 (blocking) และ N-01..N-15 (non-blocking, N-14 เลือก defer พร้อมเหตุผล) ตาม `design/reviews/F04-flow-approval.md` รอบ 1 · แก้ wireframe F04-01..04 ให้ตรง · เพิ่มหมายเหตุที่หัว F03-core-loop.md ชี้มาที่ flow นี้ (N-13, J-1)
+summary: แก้เงื่อนไขความสอดคล้อง C-1..C-5 จากรีวิว F04 รอบ 2 ครบทุกข้อ พร้อมแก้ wireframe F04-01..04 ให้ตรง
 outputs:
-  - design/ux/flows/F04-dungeon-presence.md — แก้ B-01..B-08 + N-01..N-15 ทั้งหมด เพิ่ม key ใหม่ 9 รายการในหัวข้อ 10.1 (รวม `run.summary.timeout`, `run.stateGraceLabel`, `nav.returnBeforeArrive`, `nav.approximateDistancePrefix`, `anticheat.speedLockSettings`, `map.reopenConfirmButton`, พิกัด fallback 2 key, `dungeon.overlapHint`) ปิด assumption A-P2-F04-T15-1/2/4 ตามคำตัดสิน J-2/J-3/J-4 · เพิ่มหัวข้อ 12 ตารางสรุปการแก้
-  - design/ux/wireframes/F04-01-map-navigate.html — แก้ A2 (ทิศ 8 ทิศ+nav.returnBeforeArrive+ลิงก์รอง fallback+ระยะประมาณ), A3 (แผง fallback ชื่อ+พิกัด 2 ปุ่มคัดลอก ปิดเองด้วยมือ), A1 (ชื่อตัวอย่างในย่านนำร่อง)
-  - design/ux/wireframes/F04-02-dungeon-confirm.html — แก้ B1 (สถานะ check-in ตั้งแต่เปิด, ไม่มีช่องว่างจำนวนคน, ปุ่มเปิดใหม่), B2 (เฉพาะแห่งเปิด ไม่พรีเซเล็ก ชื่อตัวอย่างสมมติ), B4 (unsupported_mode), B5 (บรรทัดสถานะใต้ปุ่ม ไม่ใช่ popup แยก), ลบข้อความ offline เดิม
-  - design/ux/wireframes/F04-03-checkin-speedlock.html — แก้ D1 (ปุ่มต่างกันก่อน/ระหว่าง run, copy key ปุ่มตั้งค่า, ไอคอนโทนแห้งไม่ใช่ไอคอนอันตราย, header ถูกบัง)
-  - design/ux/wireframes/F04-04-run-state-summary.html — แก้ E2/E3 (สี state.info ไม่ใช่ state.danger, เพิ่ม run.stateGraceLabel), F2 (run.summary.timeout แทน connectionLost)
-  - design/ux/flows/F03-core-loop.md — เพิ่มหมายเหตุหัวเอกสารชี้ไปที่ flow F04 สำหรับ Phase 2 (N-13, J-1)
+  - design/ux/flows/F04-dungeon-presence.md — แก้ C-1..C-5 เพิ่มหัวข้อ 13 ตารางสรุปการแก้รอบ 3
+  - design/ux/wireframes/F04-01-map-navigate.html — เพิ่ม `nav.returnBeforeArrive` ในเฟรม A3 (C-2)
+  - design/ux/wireframes/F04-02-dungeon-confirm.html — เพิ่มปุ่มยกเลิกในเฟรม B1, B5 (C-1)
+  - design/ux/wireframes/F04-03-checkin-speedlock.html — เพิ่มปุ่มยกเลิกในเฟรม C1, C2 (C-1) แก้ caption C1 (C-3) เปลี่ยน glyph emoji เป็น placeholder ข้อความในเฟรม D1a/D1b (C-4)
+  - design/ux/wireframes/F04-04-run-state-summary.html — เพิ่มบรรทัด `run.death`/`run.autoRetreat` canon และ `run.summary.diedBody` ในเฟรม F3 (B-01 ของรีวิว F05/F06 ที่ระบุให้แก้ไฟล์นี้ร่วมด้วย)
 acceptance:
-  - [x] ทุกข้อ blocking B-01..B-08 แก้แล้วพร้อมหลักฐานตำแหน่ง — evidence: หัวข้อ 12 ตาราง "รอบ 2: สิ่งที่แก้" แถว B-01..B-08 ระบุตำแหน่งในเอกสารและ/หรือไฟล์ wireframe ที่แก้จริง
-  - [x] ทุกข้อ non-blocking N-01..N-15 แก้หรือ defer พร้อมเหตุผล — evidence: หัวข้อ 12 ตาราง แถว N-01..N-15 ครบทุกข้อ N-14 ระบุเหตุผล defer ชัดเจน (เป็นขอบเขตของ F06)
-  - [x] ภาษาไทย ไม่มี emoji — evidence: ตรวจด้วยสายตาทั้งไฟล์ที่แก้ ไม่มีอักขระ emoji
-  - [x] copy key ใหม่ตรงชื่อที่ context กำหนด (`nav.returnBeforeArrive`, `run.summary.timeout`, `run.stateGraceLabel`, key ปุ่มตั้งค่า speed lock, key พิกัด fallback, key "ประมาณ" ของระยะ) — evidence: หัวข้อ 10.1 มีครบทุก key ตามชื่อที่ brief กำหนด
+  - [x] C-1..C-5 แก้ครบพร้อมหลักฐานตำแหน่ง — evidence: หัวข้อ 13 ตาราง
+  - [x] ภาษาไทย ไม่มี emoji ในไฟล์ที่แก้ (รวมการลบ glyph emoji ออกจาก wireframe) — evidence: ตรวจด้วยสายตา C-4
 assumptions:
-  - A-P2-X02-1: `anticheat.speedLockSettings` และ `map.reopenConfirmButton` เป็นชื่อ key ที่ uiux เสนอ (ไม่ได้อยู่ในรายชื่อบังคับของ brief) รอ narrative-designer ยืนยันหรือเปลี่ยนชื่อใน P2-F04-T16 (owner: narrative-designer)
-  - A-P2-X02-2: ตัวอย่างชื่อ dungeon ที่แก้ใน N-15 (สวนตัวอย่าง/ตลาดตัวอย่าง สำหรับคู่ overlap, คลองโอ่งอ่างสำหรับหมุดที่สองใน A1) เป็นชื่อสมมติ/ชื่อจริงในคลังที่เลือกเพื่อสาธิต UI เท่านั้น ไม่ใช่การยืนยันว่า dungeon คู่ใดซ้อนกันจริง (เป็นหน้าที่ของ location-engineer/level-designer) (owner: level-designer)
+  - A-P2-X11-2: ชื่อ variant banner ใหม่ `banner.info-full` เป็นชื่อชั่วคราวที่ uiux เสนอ รอ art-director ยืนยันหรือเปลี่ยนชื่อพร้อมเพิ่มแถวใน `components.md` หัวข้อ 6 (owner: art-director)
 handoffs:
-  - to: game-director (P2-F04-T27 รอบ 2) | need: ตรวจซ้ำเฉพาะ B-01..B-08 และจุดที่แก้ตามตารางหัวข้อ 12 | why: protocol ข้อ 6 (NEEDS_CHANGES ตรวจซ้ำเฉพาะจุดที่แก้) | blocking: yes สำหรับ P2-F04-T21
-  - to: narrative-designer (P2-F04-T16) | need: ยืนยัน/แก้คำของ key ใหม่ทั้งหมดในหัวข้อ 10.1 (รวม 9 key ใหม่ของรอบนี้), แก้ context ของ `dungeon.outOfRangeTitle` (หัวข้อ 10.3), แก้คำ `dungeon.checkinSpeedLocked` ให้เป็นสถานะปัจจุบันไม่ใช่อดีต (N-04) | why: T16 ต้องใช้ key จริงเขียนลง copy.th.json | blocking: no
-  - to: art-director, artist-2d | need: ยืนยันโทนไอคอน speed-lock (ไม่ใช่สัญลักษณ์อันตราย, N-12) และสี/ไอคอนของ Grace/Suspended pill ตรงกับ art brief 3.7 (N-02) เมื่อวาด SVG จริง (A-P2-F04-T15-3 ยังเปิดอยู่) | why: B-03, N-02, N-12 | blocking: no
-  - to: gameplay-programmer (P2-F04-T21) | need: ใช้ flow นี้ฉบับแก้รอบ 2 (ไม่ใช่รอบ 1) เป็นตัวจริงของ Phase 2 โดยเฉพาะจุดที่ B-01..B-08 แก้ | why: override หัวข้อบนสุดของเอกสาร + gate ยังไม่ PASS จนกว่ารอบ 2 ผ่าน | blocking: no (เริ่มงานส่วนที่ไม่แตะ blocking ได้ตามดุลยพินิจ producer ตามเงื่อนไขหัวข้อ 7 ของรีวิว)
+  - to: game-director (P2-F05-T18 design gate รวม) | need: ตรวจ C-1..C-5 ตามหัวข้อ 13 | why: R2-3 ของรีวิวรอบ 2 | blocking: no สำหรับ P2-F04-T21 (ตาม R2-6 เดิม) แต่ blocking สำหรับ design gate รวม
+  - to: art-director | need: ยืนยันชื่อ `banner.info-full` และเพิ่มแถวใน `components.md` หัวข้อ 6 | why: C-5 | blocking: no
 decisions:
-  - none (J-1..J-7 เป็นคำตัดสินของ game-director ที่มีอยู่แล้วในรีวิว ไม่ใช่การตัดสินใหม่ของ uiux)
+  - none
 questions_for_human:
   - none

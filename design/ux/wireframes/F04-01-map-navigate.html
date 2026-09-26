@@ -8,7 +8,7 @@
 <body>
 <div class="doc-header">
   <h1>F04 Flow A — เห็นรอยแยกบนแผนที่ + นำทาง (A-3)</h1>
-  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 2 (แก้รอบ 2 ตาม design/reviews/F04-flow-approval.md B-04, B-05, B-06, N-08, N-09, N-15) · Phase 2 ป้ายบนแผนที่ไม่มีจำนวนคน (override เหนือ F03) · ระยะเส้นตรงปัดขึ้นเป็นขั้นพร้อมคำกำกับทุกจุด (<span class="config-ref">config: unlocks.home.distanceDisplaySteps_m</span>) · ไม่วาดเส้นทางใดบนแผนที่</p>
+  <p>อ้างอิง: design/ux/flows/F04-dungeon-presence.md หัวข้อ 2 (แก้รอบ 2 ตาม design/reviews/F04-flow-approval.md B-04, B-05, B-06, N-08, N-09, N-15 · แก้รอบ 3 ตาม R2-3 เงื่อนไข C-2: เพิ่ม nav.returnBeforeArrive ในแผง fallback A3 ด้วย ไม่ใช่แค่ A2) · Phase 2 ป้ายบนแผนที่ไม่มีจำนวนคน (override เหนือ F03) · ระยะเส้นตรงปัดขึ้นเป็นขั้นพร้อมคำกำกับทุกจุด (<span class="config-ref">config: unlocks.home.distanceDisplaySteps_m</span>) · ไม่วาดเส้นทางใดบนแผนที่</p>
 </div>
 <div class="storyboard">
 
@@ -92,7 +92,8 @@
         <input readonly value="13.73101, 100.54105" style="width:100%;border:2px solid var(--ink-900);border-radius:8px;padding:8px;font-family:monospace;font-size:14px;margin-bottom:8px;">
         <div class="btn btn-secondary" style="width:100%;"><span class="copykey">nav.fallbackCopyCoordinateButton</span> <span class="thaidraft">(คัดลอกพิกัด)</span></div>
         <p class="caption" style="text-align:center;margin-top:8px;color:var(--state-success);"><span class="copykey">nav.fallbackCopied</span> <span class="thaidraft">(คัดลอกแล้ว)</span> — toast หายเองสั้นๆ (แค่ toast ยืนยัน ไม่ใช่ทั้งแผง)</p>
-        <div class="btn btn-secondary" style="width:100%;margin-top:12px;border-style:dashed;"><span class="copykey">common.close</span> <span class="thaidraft">(ปิด)</span></div>
+        <p class="caption" style="text-align:center;margin-top:12px;"><span class="copykey">nav.returnBeforeArrive</span> <span class="thaidraft">(ใกล้ถึงแล้วสลับกลับมาเปิดเกมค้างไว้ก่อนเดินเข้าเขต)</span></p>
+        <div class="btn btn-secondary" style="width:100%;margin-top:8px;border-style:dashed;"><span class="copykey">common.close</span> <span class="thaidraft">(ปิด)</span></div>
       </div>
     </div>
   </div>

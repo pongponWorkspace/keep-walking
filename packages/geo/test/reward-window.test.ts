@@ -32,6 +32,9 @@ describe('rewardWindow accumulator: parameters', () => {
   it('requires window_s to be a whole multiple of sampleCadence_s', () => {
     expect(() => rewardWindowInit({ ...REWARD, sampleCadence_s: 7 })).toThrow(RangeError);
     expect(() => rewardWindowInit({ ...REWARD, window_s: 0 })).toThrow(RangeError);
+    // The reward path always carries the speed-lock pair limit (F05 3.1 item 5, P2-X03).
+    const noLock = { ...REWARD, speedLock_kmh: undefined } as unknown as typeof REWARD;
+    expect(() => rewardWindowInit(noLock)).toThrow(RangeError);
   });
 });
 

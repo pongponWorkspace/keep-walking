@@ -18,7 +18,7 @@
         "min": 1,
         "max": 5
       },
-      "drop_table_id": "pocketPark.default",
+      "drop_table_id": "pocketParkDefault",
       "verification_mode": "continuous_gps",
       "floor_level": null,
       "geometry": {
@@ -83,7 +83,7 @@
         "min": 20,
         "max": 35
       },
-      "drop_table_id": "largePark.default",
+      "drop_table_id": "largeParkDefault",
       "verification_mode": "continuous_gps",
       "floor_level": null,
       "geometry": {
@@ -130,7 +130,7 @@
         "min": 10,
         "max": 20
       },
-      "drop_table_id": "market.default",
+      "drop_table_id": "marketDefault",
       "verification_mode": "continuous_gps",
       "floor_level": null,
       "geometry": {
@@ -178,7 +178,7 @@
         "min": 1,
         "max": 5
       },
-      "drop_table_id": "pocketPark.default",
+      "drop_table_id": "pocketParkDefault",
       "verification_mode": "continuous_gps",
       "floor_level": null,
       "geometry": {

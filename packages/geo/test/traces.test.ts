@@ -2,8 +2,8 @@
 // parameters from ./fixtures (not config).
 import { describe, expect, it } from 'vitest';
 import {
+  edgeHysteresisFeed,
   edgeHysteresisInit,
-  edgeHysteresisStep,
   edgeObservation,
   filterGateSamples,
   gateDiagnosticWindows,
@@ -101,7 +101,10 @@ describe('movement gate on synthetic traces (fixture cadence 5 s)', () => {
 describe('drift-spike: no distance from spikes', () => {
   const s = T('drift-spike');
   const { kept, dropped } = filterGateSamples(s, FILTER);
-  const points = resampleOnGrid(timeFromOrigin(kept, 0), FILTER);
+  const points = resampleOnGrid(timeFromOrigin(kept, 0), {
+    ...FILTER,
+    speedLock_kmh: SPEED_LOCK_KMH,
+  });
   const between = (from_s: number, to_s: number) => {
     let d = 0;
     for (let i = 1; i < points.length; i += 1) {
@@ -123,9 +126,34 @@ describe('drift-spike: no distance from spikes', () => {
     expect([at(330), at(331), at(332)]).toEqual(['speed', 'speed', 'speed']);
   });
 
-  it('S3 snap-back is dropped for speed and re-anchored, not counted', () => {
+  it('S3 snap-back (214 km/h) is dropped for speed; the next fix fits the anchor, no re-anchor', () => {
     expect(dropped.find((d) => d.sample.t_ms === 535_000)?.reason).toBe('speed');
-    expect(kept.filter((k) => k.breakBefore).map((k) => k.sample.t_ms)).toEqual([0, 539_000]);
+    expect(kept.filter((k) => k.breakBefore).map((k) => k.sample.t_ms)).toEqual([0]);
+  });
+
+  it('reward windows equal the tools/sim reference (movement-gate.json drift-spike 1 Hz)', () => {
+    const d = rewardWindows(s, REWARD);
+    expect(d).toHaveLength(2);
+    expect(d[0]).toBeCloseTo(408.257555, 6);
+    expect(d[1]).toBeCloseTo(443.656913, 6);
+  });
+
+  it('without the speedLock_kmh pair rule window 1 would hold 51.5 m more (P2-X03 finding)', () => {
+    const loose = rewardWindows(s, { ...REWARD, speedLock_kmh: 1e9 });
+    expect((loose[1] as number) - 443.656913).toBeCloseTo(51.5, 1);
+  });
+
+  it('no counted grid pair is faster than speedLock_kmh', () => {
+    for (let i = 1; i < points.length; i += 1) {
+      const a = points[i - 1] as GridPoint;
+      const b = points[i] as GridPoint;
+      if (!gridPairCounts(a, b)) continue;
+      const v = pairSpeed_kmh(
+        { t_ms: a.tau_ms, lat: a.lat, lng: a.lng },
+        { t_ms: b.tau_ms, lat: b.lat, lng: b.lng },
+      );
+      expect(v).toBeLessThanOrEqual(SPEED_LOCK_KMH);
+    }
   });
 
   it('no counted grid pair is faster than outlierSpeed_kmh', () => {
@@ -172,7 +200,7 @@ describe('edge-walk: hysteresis does not flip often; outside distance never coun
     const o = edgeObservation(x, rect);
     if (o.inside !== prevInside) rawFlips += 1;
     prevInside = o.inside;
-    const r = edgeHysteresisStep(state, { t_ms: x.t_ms, ...o }, HYST);
+    const r = edgeHysteresisFeed(state, { t_ms: x.t_ms, ...o }, HYST);
     state = r.state;
     if (r.transition) transitions.push(r.transition);
   }
@@ -183,10 +211,18 @@ describe('edge-walk: hysteresis does not flip often; outside distance never coun
     .filter((x): x is number[] => x !== null)
     .map(([a, b]) => [(a as number) / 1000, ((b as number) - (a as number)) / 1000]);
 
-  it('raw inside/outside flips 58 times; hysteresis confirms at most 8 changes', () => {
+  it('raw inside/outside flips 58 times; hysteresis confirms 10 changes (5 exits, 5 returns)', () => {
     expect(rawFlips).toBe(58);
-    expect(transitions.length).toBeLessThanOrEqual(8);
-    expect(transitions.length % 2).toBe(0);
+    expect(transitions).toHaveLength(10);
+  });
+
+  it('confirmed changes equal the reference run-state timeline (movement-gate.json clock)', () => {
+    // Clock intervals of the edge-walk vector: every exit at an interval end, every return at a start.
+    const clock = [0, 75, 115, 137, 265, 292, 411, 532, 672, 853, 1095];
+    expect(transitions.map((tr) => tr.since_t_ms / 1000)).toEqual(clock.slice(1));
+    expect(transitions.map((tr) => tr.to)).toEqual(
+      clock.slice(1).map((_, i) => (i % 2 === 0 ? 'outside' : 'inside')),
+    );
   });
 
   it('drift while walking the edge (before 519 s) never exceeds graceMax_s outside (no Suspended)', () => {
@@ -233,5 +269,14 @@ describe('other synthetic traces', () => {
     for (let i = 1; i < s.length; i += 1)
       if (pairSpeed_kmh(s[i - 1] as GeoSample, s[i] as GeoSample) > SPEED_LOCK_KMH) fast += 1;
     expect(fast).toBeGreaterThan(60);
+  });
+
+  it('driving-40kmh: >= 90 s of walking pairs after parking at 400 s, so the unlock shows', () => {
+    const s = T('driving-40kmh').filter((x) => x.t_ms >= 400_000);
+    for (let i = 1; i < s.length; i += 1)
+      expect(pairSpeed_kmh(s[i - 1] as GeoSample, s[i] as GeoSample)).toBeLessThanOrEqual(
+        SPEED_LOCK_KMH,
+      );
+    expect(((s.at(-1)?.t_ms ?? 0) - 400_000) / 1000).toBeGreaterThanOrEqual(90);
   });
 });

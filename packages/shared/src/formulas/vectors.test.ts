@@ -60,6 +60,32 @@ import {
   sampleTimeGate,
   speedLockBatch,
 } from '../run';
+// P2-F05-T08 (backend, reward engine): movement-gate.json, reward-window.json and
+// partial-tick.json share the batch `gateWindows` reference; tick-reward.json exercises the drop
+// table resolver, the loot roll and the solo exp formula (`session`'s incremental composition of
+// the same functions is untestable through these batch vectors, TL B-07 / this task's report).
+import type {
+  ClockInterval as RewardClockInterval,
+  DropTableDef,
+  GateParams as RewardGateParams,
+  LootParams,
+  LootRarity,
+  PlayerClass,
+  SoloTickExpParams,
+} from '../reward';
+import {
+  addExp,
+  gateWindows,
+  lootTable,
+  parseDropTable,
+  partialTick,
+  passesGate,
+  rollTickLoot,
+  soloTickExp,
+  tauAt,
+  windowIndexOf,
+} from '../reward';
+import { deriveSeed, streamRng, type StreamTag } from './rng';
 
 declare global {
   interface ImportMeta {
@@ -111,28 +137,12 @@ const SKIP_FNS: ReadonlySet<string> = new Set([
   'ratioStatus',
   'partyEffects',
   'partyPerHeadRatio',
-  // movement-gate.json / reward-window.json / partial-tick.json: rewardWindow + drop RNG belong
-  // to the reward engine + session (P2-F05-T08, `src/reward`), not this task's `src/run`.
-  'gateWindows',
-  'passesGate',
-  'tauAt',
-  'windowIndexOf',
-  'partialTick',
-  'deriveSeed',
-  'streamDraws',
-  'rollTickLoot',
-  // run-loop.json / tick-reward.json: appeared after this task's brief was written (systems-
-  // designer's P2-F05-T01, reference tools/sim/src/loop.ts). The whole solo run loop composing
-  // hit + damage + tick + drop belongs to session/reward/hp (P2-F05-T08, P2-F06-T06), not the
-  // presence/run-state engine of this task. Flagged in the report as a discovery, not silently
-  // dropped.
+  // run-loop.json: the whole solo run loop composing hit + damage + tick + drop belongs to the HP
+  // engine (P2-F06-T06), which has not landed yet; `resolveHit` above is the same boundary.
   'hitAttempt',
   'soloDamage',
   'runLoop',
   'runLoopStats',
-  'soloTickExp',
-  'lootTable',
-  'addExp',
   // opening-hours.json: the home-screen distance display belongs to the client plumbing task
   // (P2-F04-T25, apps/client), not the run engine (tech note F04 R34 is a display concern).
   'displayDistance',
@@ -377,6 +387,45 @@ function dropContextOf(i: Record<string, unknown>): DropContext {
   };
 }
 
+// ---- movement-gate.json / reward-window.json / partial-tick.json / tick-reward.json helpers ----
+function clockOf(input: Record<string, unknown>): RewardClockInterval[] {
+  return objArr(input, 'clock').map((c) => ({
+    start_ms: n(c, 'start_ms'),
+    end_ms: nOrNull(c, 'end_ms'),
+  }));
+}
+function rewardGateParamsOf(i: Record<string, unknown>): RewardGateParams {
+  return {
+    window_s: n(i, 'window_s'),
+    minDistancePerWindow_m: n(i, 'minDistancePerWindow_m'),
+    comparison: String(i['comparison']),
+    sampleCadence_s: n(i, 'sampleCadence_s'),
+    maxSamplePairGap_s: n(i, 'maxSamplePairGap_s'),
+    maxSampleAccuracy_m: n(i, 'maxSampleAccuracy_m'),
+    outlierSpeed_kmh: n(i, 'outlierSpeed_kmh'),
+    outlierReanchorSamples: n(i, 'outlierReanchorSamples'),
+    speedLock_kmh: n(i, 'speedLock_kmh'),
+  };
+}
+function streamTagOf(v: unknown): StreamTag {
+  if (v === 'drop' || v === 'hit') return v;
+  throw new Error(`vector streamTag must be "drop" or "hit", got ${String(v)}`);
+}
+function lootRarityOf(x: Record<string, unknown>): LootRarity {
+  return {
+    rarity: String(x['rarity']),
+    chance_pct: nOrNull(x, 'chance_pct'),
+    qtyMult: n(x, 'qtyMult'),
+    chanceMult: n(x, 'chanceMult'),
+    items: objArr(x, 'items').map((it) => ({
+      id: String(it['id']),
+      weight: n(it, 'weight'),
+      qtyMin: n(it, 'qtyMin'),
+      qtyMax: n(it, 'qtyMax'),
+    })),
+  };
+}
+
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
 
@@ -615,6 +664,111 @@ function evaluateOwnedVector(input: Record<string, unknown>): unknown {
         nOrNull(input, 'closesAt_ms'),
         n(input, 'startedAt_ms'),
         n(input, 'closingSoonNotice_s'),
+      );
+    // ---- movement-gate.json / reward-window.json (P2-F05-T08) ----
+    case 'gateWindows':
+      return gateWindows(
+        presenceSamplesOf(input),
+        clockOf(input),
+        nOrNull(input, 'endAt_ms'),
+        rewardGateParamsOf(obj(input, 'params')),
+      );
+    case 'passesGate':
+      return passesGate(
+        n(input, 'distance_m'),
+        n(input, 'minDistance_m'),
+        String(input['comparison']),
+      );
+    case 'tauAt':
+      return tauAt(n(input, 't_ms'), clockOf(input));
+    case 'windowIndexOf':
+      return windowIndexOf(n(input, 'tau_ms'), n(input, 'window_s'));
+    // ---- partial-tick.json (P2-F05-T08) ----
+    case 'partialTick': {
+      const p = obj(input, 'params');
+      return partialTick(n(input, 'elapsed_ms'), n(input, 'distance_m'), {
+        window_s: n(p, 'window_s'),
+        minDistancePerWindow_m: n(p, 'minDistancePerWindow_m'),
+        comparison: String(p['comparison']),
+        partialTickMinElapsed_s: n(p, 'partialTickMinElapsed_s'),
+      });
+    }
+    case 'deriveSeed':
+      return deriveSeed(n(input, 'runSeed'), streamTagOf(input['streamTag']), n(input, 'index'));
+    case 'streamDraws': {
+      const rng = streamRng(
+        n(input, 'runSeed'),
+        streamTagOf(input['streamTag']),
+        n(input, 'index'),
+      );
+      return Array.from({ length: n(input, 'count') }, () => rng());
+    }
+    case 'rollTickLoot':
+      return rollTickLoot(
+        n(input, 'runSeed'),
+        n(input, 'dropIndex'),
+        objArr(input, 'table').map(lootRarityOf),
+        n(input, 'f'),
+      );
+    // ---- tick-reward.json (P2-F05-T01 / T08) ----
+    case 'lootTable': {
+      const rawItemRarity = obj(input, 'itemRarity');
+      const itemRarity: Record<string, string> = {};
+      for (const key of Object.keys(rawItemRarity)) itemRarity[key] = String(rawItemRarity[key]);
+      const def: DropTableDef = parseDropTable(
+        String(input['dropTableId']),
+        input['dropTable'],
+        itemRarity,
+      );
+      const ctx = dropContextOf(obj(input, 'ctx'));
+      const lp = obj(input, 'lootParams');
+      const dp = dropParamsOf(obj(lp, 'dp'));
+      const qty = obj(lp, 'qty');
+      const lootParams: LootParams = {
+        dp,
+        qty: {
+          uncommon: n(qty, 'uncommon'),
+          rare: n(qty, 'rare'),
+          epic: n(qty, 'epic'),
+          legendary: n(qty, 'legendary'),
+        },
+      };
+      return lootTable(def, ctx, lootParams);
+    }
+    case 'soloTickExp': {
+      const p = obj(input, 'params');
+      const expMult = obj(p, 'expMult');
+      const magicRole = obj(obj(p, 'roles'), 'magic');
+      const buff = obj(p, 'buff');
+      const params: SoloTickExpParams = {
+        exp: expParamsOf(obj(p, 'exp')),
+        expMult: {
+          magicBuffMaxMult: n(expMult, 'magicBuffMaxMult'),
+          noMagicMult: n(expMult, 'noMagicMult'),
+          levelGapMultPerLevel: n(expMult, 'levelGapMultPerLevel'),
+          levelGapMultFloor: n(expMult, 'levelGapMultFloor'),
+        },
+        roles: { magic: { base_pct: n(magicRole, 'base_pct'), cap_pct: n(magicRole, 'cap_pct') } },
+        buff: {
+          pPerMemberBase: n(buff, 'pPerMemberBase'),
+          pLevelDivisor: n(buff, 'pLevelDivisor'),
+        },
+      };
+      return soloTickExp(
+        n(input, 'level'),
+        String(input['ownClass']) as PlayerClass,
+        n(input, 'rangeMin'),
+        n(input, 'rangeMax'),
+        n(input, 'f'),
+        params,
+      );
+    }
+    case 'addExp':
+      return addExp(
+        n(input, 'level'),
+        n(input, 'exp'),
+        n(input, 'gained'),
+        expParamsOf(obj(input, 'params')),
       );
     default:
       throw new Error(`vectors.test.ts does not know how to evaluate fn "${String(fn)}"`);

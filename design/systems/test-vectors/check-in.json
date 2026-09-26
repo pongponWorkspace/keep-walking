@@ -614,10 +614,10 @@
       "expected": [
         { "t_ms": 0, "ok": false, "reason": "not_enough_trace", "readyIn_s": 60 },
         { "t_ms": 60000, "ok": false, "reason": "no_approach_from_outside", "readyIn_s": null },
-        { "t_ms": 124000, "ok": true, "reason": null, "readyIn_s": null }
+        { "t_ms": 123000, "ok": true, "reason": null, "readyIn_s": null }
       ],
       "tolerance": 0.000001,
-      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · walk-in trace (acceptance 3): result at every sample, listed when it changes; ok from the first fix inside"
+      "source": "sim run P2-F05-T20 (reference tools/sim/src/gate.ts, presence.ts, rng-contract.ts) · walk-in trace (acceptance 3): result at every sample, listed when it changes; ok from the first fix inside (the fix at 123000 lies exactly on the polygon edge and counts as inside, same rule as packages/geo, P2-X06)"
     },
     {
       "input": {

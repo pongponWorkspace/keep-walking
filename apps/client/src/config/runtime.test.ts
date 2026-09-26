@@ -37,6 +37,8 @@ function validClient(): Record<string, unknown> {
     engine: { tickInterval_ms: 1000 },
     storage: { sessionPersistInterval_s: 5 },
     navigation: { coordinateDecimals: 5, externalOpenTimeout_ms: 2500 },
+    probe: { vibrateTestPattern_ms: 200 },
+    bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
   };
 }
 
@@ -69,6 +71,17 @@ describe('parseClientConfig', () => {
     expect(parsed.engine).toEqual({ tickInterval_ms: 1000 });
     expect(parsed.storage).toEqual({ sessionPersistInterval_s: 5 });
     expect(parsed.navigation).toEqual({ coordinateDecimals: 5, externalOpenTimeout_ms: 2500 });
+    expect(parsed.probe).toEqual({ vibrateTestPattern_ms: 200 });
+    expect(parsed.bundle).toEqual({
+      initialJsBudget_bytes: 1000000,
+      mapLazyJsBudget_bytes: 2000000,
+    });
+  });
+
+  it('fails loudly when bundle.initialJsBudget_bytes is missing', () => {
+    const broken = validClient();
+    delete (broken['bundle'] as Record<string, unknown>)['initialJsBudget_bytes'];
+    expect(() => parseClientConfig(broken)).toThrow(/initialJsBudget_bytes/);
   });
 
   it('fails loudly when engine.tickInterval_ms is missing', () => {

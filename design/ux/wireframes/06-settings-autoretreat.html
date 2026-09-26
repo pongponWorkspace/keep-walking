@@ -8,7 +8,7 @@
 <body>
 <div class="doc-header">
   <h1>S-22-settings → "การเดินและความปลอดภัย" — ปิดถอยอัตโนมัติ (Flow E)</h1>
-  <p>เจตนา: ทำให้ปิดยากกว่าเปิด ไม่ใช่ทำให้หาไม่เจอเลย · เปิดเป็นค่าเริ่มต้นเสมอสำหรับบัญชีใหม่</p>
+  <p>เจตนา: ทำให้ปิดยากกว่าเปิด ไม่ใช่ทำให้หาไม่เจอเลย · เปิดเป็นค่าเริ่มต้นเสมอสำหรับบัญชีใหม่ · <b>Phase 2 override:</b> เฟรม E2 แก้ตาม `design/ux/flows/F06-hp-damage-onboarding.md` หัวข้อ 5 (ลบแถวปรับเกณฑ์ยาอัตโนมัติ, ดู `design/reviews/F05-F06-flow-approval.md` K-5) หน้าย่อยนี้ของ Phase 2 มีแค่สองแถว
 </div>
 <div class="storyboard">
 
@@ -40,11 +40,7 @@
       <div style="width:48px;height:28px;background:var(--state-success);border:2px solid var(--ink-900);border-radius:999px;position:relative;"><div style="width:22px;height:22px;background:var(--bg-surface);border:2px solid var(--ink-900);border-radius:50%;position:absolute;right:2px;top:1px;"></div></div>
     </div>
     <p class="caption" style="margin-top:8px;">ค่าเริ่มต้น = เปิดเสมอ (<span class="config-ref">config: dungeons.hpSafety.autoRetreatEnabledByDefault (=true)</span>) · เปิด→ปิด ต้องผ่าน popup ยืนยัน (E3) · ปิด→เปิด เปลี่ยนทันทีไม่ต้องยืนยัน</p>
-    <div class="card" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
-      <div><span class="copykey">settings.autoPotionLabel</span> <span class="thaidraft">(ใช้ยาอัตโนมัติ)</span><br><span class="caption"><span class="copykey">settings.autoPotionThreshold</span> <span class="thaidraft">(ใช้เมื่อ HP ต่ำกว่า {autoPotionPct}%)</span></span></div>
-      <div style="width:48px;height:28px;background:var(--state-success);border:2px solid var(--ink-900);border-radius:999px;position:relative;"><div style="width:22px;height:22px;background:var(--bg-surface);border:2px solid var(--ink-900);border-radius:50%;position:absolute;right:2px;top:1px;"></div></div>
-    </div>
-    <p class="caption" style="margin-top:8px;">ปรับเกณฑ์ยาอัตโนมัติ — ไม่ต้องมี popup ยืนยัน เพราะไม่ใช่การปิดระบบกันตายทั้งระบบ · offline: <span class="copykey">settings.pendingSync</span> <span class="thaidraft">(ยังไม่บันทึก รอเน็ต)</span></p>
+    <p class="frame-caption" style="margin-top:8px;"><b>แก้ตาม `design/ux/flows/F06-hp-damage-onboarding.md` หัวข้อ 5 (override ข้อ 5, D1):</b> ลบแถว "ใช้ยาอัตโนมัติ" ที่เคยปรับเกณฑ์ได้ (<code>settings.autoPotionLabel</code>/<code>settings.autoPotionThreshold</code>) ออกจากหน้าย่อยนี้ของ Phase 2 — ยาอัตโนมัติเปิดเสมอที่เกณฑ์ตั้งต้นจาก <span class="config-ref">config: economy.autoPotion.defaultThreshold_pct</span> ปรับไม่ได้ ปิดไม่ได้ในเฟสนี้ (F06-R22) ไม่ใช่แถว disabled ไม่ใช่ CSS ซ่อน แต่ไม่มี element เลย · สงวนตัวเลือกนี้ไว้ Phase 4 (F11, D-079 ข้อ 3) หน้าย่อยนี้ของ Phase 2 จึงมีแค่สองแถว: toggle ถอยอัตโนมัติด้านบน และ toggle จอพกกระเป๋าด้านล่าง</p>
     <div class="card" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
       <div><span class="copykey">settings.pocketScreenLabel</span> <span class="thaidraft">(จอพกกระเป๋า)</span><br><span class="caption"><span class="copykey">settings.pocketScreenHint</span> <span class="thaidraft">(ปิดจอเป็นจอมืดมี HP ระหว่างเดิน กันแตะพลาดในกระเป๋า)</span></span></div>
       <div style="width:48px;height:28px;background:var(--state-success);border:2px solid var(--ink-900);border-radius:999px;position:relative;"><div style="width:22px;height:22px;background:var(--bg-surface);border:2px solid var(--ink-900);border-radius:50%;position:absolute;right:2px;top:1px;"></div></div>

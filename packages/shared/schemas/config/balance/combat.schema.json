@@ -21,7 +21,7 @@
         "_source": { "$ref": "../common.schema.json#/$defs/source" },
         "monsterAtkCoef": { "type": "integer", "minimum": 0 },
         "monsterAtkExponent": { "type": "number" },
-        "zoneLevelFrom": { "type": "string", "minLength": 1 }
+        "zoneLevelFrom": { "type": "string", "enum": ["playerLevelClampedToRange"] }
       },
       "patternProperties": { "^_": {} }
     },

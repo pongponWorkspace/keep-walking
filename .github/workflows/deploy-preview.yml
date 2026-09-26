@@ -152,6 +152,12 @@ jobs:
           fi
 
       - name: Publish client (keep-walking-preview)
+        # infra/scripts/publish-client.sh itself runs `pnpm exec tsx tools/art/src/cli.ts prebuild`
+        # (docs/tech/asset-delivery.md section 3/11, P2-F04-T08) before `pnpm --filter
+        # @keep-walking/client build`, since that filtered build bypasses root `pnpm build`'s own
+        # prebuild step. Kept inside the script (not a separate workflow step here) so a human
+        # running the same script locally for infra/runbooks/preview-setup.md section 5 gets the
+        # identical asset pipeline, not a workflow-only shortcut.
         if: steps.tilebase.outcome == 'success'
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -14,8 +14,8 @@
 | `pnpm exec tsx tools/sim/src/gen-vectors.ts` | สร้าง golden vectors ใหม่จาก config · ถ้า vector ที่มาจาก GDD ไม่ผ่าน จะหยุดและพิมพ์ `FINDING` แทนการเขียนไฟล์ (ไม่แก้เงียบ) |
 | `pnpm exec tsx tools/sim/src/gen-vectors.ts --check` | ตรวจว่าไฟล์ vectors บนดิสก์ตรงกับ config ปัจจุบัน (exit 1 ถ้าไม่ตรง) |
 | `pnpm test` | รัน `tools/sim/src/sim.test.ts` รวมกับ test อื่นของ repo |
-| `pnpm exec tsx tools/sim/src/report-loop.ts [--runs N]` | หลักฐานของ P2-F05-T01: 1 exp ต่อ tick ตาม Z, 2 drop table ต่อ preset รวมยา, 3 เวลาถึง auto-retreat ของผู้เล่น Phase 2 ต่อ class มี/ไม่มียา, 4 R43, 5 D-020, 6 ตายเทียบ auto-retreat, 7 มูลค่ายาจาก drop (Phase 4) · run ละ runSeed ตาม ADR 0003 |
-| `pnpm exec tsx tools/sim/src/report-gate.ts` | หลักฐานของค่า gate / run state / check-in / speed lock (P2-F05-T20): 0 กฎ config, 1 cadence, 2 outlier, 3 hysteresis บน edge-walk, 4 speed lock |
+| `pnpm exec tsx tools/sim/src/report-loop.ts [--runs N]` | หลักฐานของ P2-F05-T01: 1 exp ต่อ tick ตาม Z, 2 drop table ต่อ preset รวมยา, 3 เวลาถึง auto-retreat ของผู้เล่น Phase 2 ต่อ class มี/ไม่มียา, 4 R43, 5 D-020, 6 ตายเทียบ auto-retreat, 7 มูลค่ายาจาก drop (Phase 4), 8 หลักฐาน D-112 (damage เทียบ A-1, exp/ชม. ช่วงกว้าง, runaway) · หัวข้อ 4 = R43 ทุกช่วงนำร่อง · run ละ runSeed ตาม ADR 0003 |
+| `pnpm exec tsx tools/sim/src/report-gate.ts` | หลักฐานของค่า gate / run state / check-in / speed lock (P2-F05-T20): 0 กฎ config, 1 cadence, 2 outlier, 3 hysteresis บน edge-walk, 4 speed lock, 5 ความยาวชุดรอยืนยัน (ข้อเสนอเพดาน J-9) |
 
 ค่า seed ตั้งต้น 20260923, Monte Carlo 20,000 run ต่อกรณี · ผลซ้ำได้ทุกครั้งที่ใช้ seed เดิม
 
@@ -46,6 +46,7 @@
 | `src/loop.ts` | `runLoop`: run เดียวแบบ seed (tick, drop, exp, การตี, ยาอัตโนมัติ, โล่, heal, auto-retreat, ตาย) + `soloTickExp`, `soloDamage`, `addExp`, `hitAttempt` (P2-F05-T01) |
 | `src/loop-scenarios.ts` | config → input ของ `runLoop`, `loopStats` (Monte Carlo ตาม runSeed) |
 | `src/vectors-loop.ts`, `src/vector-eval-loop.ts`, `src/report-loop.ts` | สร้าง / ประเมิน `tick-reward.json`, `run-loop.json` · CLI หลักฐาน |
+| `src/zone.ts` | ระดับโซน Z = clamp(เลเวลผู้เล่น, ช่วง) ตาม D-112 (P2-X09) + ตรวจว่า `combat.monsterAttack.zoneLevelFrom` ตรงกฎที่ทำไว้ · `zone.test.ts` ตรวจ R43 ทุกช่วงนำร่องและไม่มี exp runaway |
 | `src/traces.ts`, `src/synth.ts` | โหลด trace ใน `data/gps-traces` + point-in-polygon / ระยะถึงขอบ · สร้าง sample สังเคราะห์ของ vector |
 | `src/params-gate.ts` | `GateConfig` จาก config + `gateConfigProblems()` (กฎ config ที่ P2-F04-T24 จะ lint) |
 | `src/vectors-gate.ts`, `src/vectors-presence.ts`, `src/vector-eval-gate.ts`, `src/vector-files-gate.ts` | สร้าง / ประเมิน `movement-gate`, `reward-window`, `partial-tick`, `run-state`, `check-in`, `speed-lock`, `opening-hours` |

@@ -41,11 +41,11 @@
     },
     "offlineEvidence": {
       "type": "object",
-      "required": ["seeMaxAge", "trustWeightVsLive"],
+      "required": ["seeMaxAge", "trustWeightVsLiveMult"],
       "properties": {
         "_source": { "$ref": "../common.schema.json#/$defs/source" },
         "seeMaxAge": { "$ref": "../common.schema.json#/$defs/pointer" },
-        "trustWeightVsLive": { "type": "number" }
+        "trustWeightVsLiveMult": { "type": "number" }
       },
       "patternProperties": { "^_": {} }
     },

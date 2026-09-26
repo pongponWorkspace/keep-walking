@@ -137,16 +137,16 @@
     "bossHp": {
       "type": "object",
       "required": [
-        "alphaLaunch",
+        "alphaLaunchCoef",
         "alphaLaunchPeriod_days",
-        "alphaTarget",
+        "alphaTargetCoef",
         "nextBossHpMultAfterFail"
       ],
       "properties": {
         "_source": { "$ref": "../common.schema.json#/$defs/source" },
-        "alphaLaunch": { "type": "number" },
+        "alphaLaunchCoef": { "type": "number" },
         "alphaLaunchPeriod_days": { "$ref": "../common.schema.json#/$defs/days" },
-        "alphaTarget": { "type": "number" },
+        "alphaTargetCoef": { "type": "number" },
         "nextBossHpMultAfterFail": { "type": "number" }
       },
       "patternProperties": { "^_": {} }
