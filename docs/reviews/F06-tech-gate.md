@@ -152,3 +152,90 @@
 - ข้อที่ไม่ blocking (F06-TG-07 ถึง -15) ไม่ต้องปิดก่อนรอบ 2
 - รอบนี้เป็นรอบแรกของ gate F06 · ถ้ารอบ 2 ได้ NEEDS_CHANGES อีก ต้อง escalate ถึง HUMAN ตาม protocol หัวข้อ 6 · finding ทั้งหกข้อเป็นงานเล็กในไฟล์ของ gameplay-programmer (5 ข้อ) และ qa-tester (1 ข้อ) ที่ไม่ชน path กัน จึงทำขนานกันได้ใน wave เดียว
 - QA gate P2-F06-T21 เริ่มได้ขนานกับ X ของรอบนี้สำหรับส่วนที่ไม่แตะ telemetry และ consent · ข้อเสนอสำหรับ QA: ตรวจ event `onboarding_first_reward_granted` ใน export หลัง F06-TG-02 ปิด
+
+---
+
+# รอบ 2 — ตรวจซ้ำเฉพาะ F06-TG-01 ถึง -06
+
+| หัวข้อ | ค่า |
+| --- | --- |
+| task | P2-F06-T20 (review-gate) · รอบ 2 |
+| ผู้ตรวจ | tech-lead |
+| วันที่ | 2026-09-28 |
+| ฐานที่ตรวจ | HEAD `b1dee22` · working tree สะอาดตอนเริ่ม (`git status` ว่าง) · gameplay-programmer แก้ telemetry ของ P2-X48 ขนานกันใน wave นี้ แต่ตอนรันไม่มีไฟล์ค้าง · เลขบรรทัดในรอบนี้อ้าง `b1dee22` |
+| ขอบเขต | เฉพาะหัวข้อ 7 ของรอบ 1 (F06-TG-01 ถึง -06) + งานเอกสาร H45 · ข้อใหม่ที่ไม่แตะ non-negotiable ไม่ blocking (board กฎสลับข้อ 12) |
+| **verdict** | **PASS** |
+
+## R2.1 หลักฐานที่รัน
+
+รันที่ `/Users/pongpon/Game` (HEAD `b1dee22`) บน macOS, Node 24, pnpm 11.24.0
+
+| คำสั่ง | ผล |
+| --- | --- |
+| `pnpm exec tsc -p tsconfig.json --noEmit` (root) | exit 0 |
+| `pnpm typecheck` | exit 0 |
+| `pnpm exec eslint . --max-warnings=0` | exit 0 · 0 error 0 warning (ไม่มี error ค้างในไฟล์ telemetry ของ X48) |
+| `pnpm exec prettier --check .` | exit 0 · `All matched files use Prettier code style!` |
+| `pnpm lint` | exit 0 |
+| `pnpm run lint:config` | exit 0 · `config-lint: 20 files, 0 errors, 2 warnings, 0 allowed, 0 stale` (2 warning เดิมของ `enhance` / `raid`) |
+| `pnpm run lint:copy` | exit 0 · มีแต่ WARN S7 เดิม (`{raidEndTime}`, `{raidStartTime}`, `{successPct}`, `{toLevel}` ฯลฯ) |
+| `pnpm test` (root vitest) | exit 0 · `Test Files 213 passed (213)` · `Tests 3023 passed / 2 skipped (3025)` (2 skipped = `it.skip` PENDING เดิมของ `qa/tests/F02/hud-panel-blackbox.test.ts`) |
+| `pnpm --filter @keep-walking/client build` | exit 0 · warning ขนาด chunk ของ `maplibre-gl` (1,010.51 kB, lazy) เป็นเรื่องเดิม |
+| `pnpm exec tsx apps/client/scripts/measure-bundle.ts` | exit 0 · `initial JS 0.117 MB (116901 B) / budget 1.000 MB` · `map lazy JS 0.350 MB (350190 B) / budget 0.700 MB` |
+| `pnpm exec playwright test apps/client/e2e` (android-chrome + ios-safari, ขนาน) | exit 0 · `50 passed (48.2s)` · ไม่มี flake ในรอบนี้ |
+
+- `qa/tests/e2e` (`f02-map-fixture-tile`, `f02-map-network-resilience`) ไม่อยู่ในรายการคำสั่งของ gate นี้ · ตามรายงาน X41 เป็น flake เดิมที่เกิดบน HEAD สะอาด · ส่งต่อ QA gate P2-F06-T21 แล้ว ไม่ตรวจซ้ำที่นี่
+
+## R2.2 สถานะ finding ที่ blocking
+
+| ID | สถานะ | หลักฐาน |
+| --- | --- | --- |
+| F06-TG-01 | **ปิด** | `pnpm exec prettier --check .` exit 0 และ `pnpm lint` exit 0 (R2.1) · 7 ไฟล์ของ `qa/tests` ผ่าน format โดยไม่มีการเพิ่ม `.prettierignore` |
+| F06-TG-02 | **ปิด** (มีงานต่อที่ไม่ blocking R2-N1) | จุดยิงเดียว `apps/client/src/session/engine.ts:112-125` (`persistAndMap`): เมื่อ `event.type === 'run_tick_granted' && event.firstEver` ยิง record ที่สองหลัง mapping ของ `run_tick_granted` ใน call stack เดียวกัน (sink ลงเวลาเดียวกัน) ไม่แทนที่ record เดิม · mapper `apps/client/src/telemetry/f04-events.ts:225-240` (`onboardingFirstRewardGrantedEvent`) ส่ง `dungeon_id`, `minutes_since_first_open_bucket`, `class` ครบ 3 ตัว · bucket `0-10` / `10-30` / `30-60` / `60+` เป็นค่าคงที่ที่มีชื่อ (`f04-events.ts:53-70`) · call site จริงส่ง `getFirstOpenAt_ms` จาก `kw.p2.onboarding` (`f04-app.ts:325`) · test: `apps/client/src/session/engine.test.ts:199` `createSessionEngine — F06-TG-02 onboarding_first_reward_granted` ขับ `sessionStep` จริงผ่าน engine แล้วตรวจว่ามี event นี้หนึ่งครั้ง, property ครบ, ไม่มี `lat` / `lng` และเคส "never fires a second time" (`:470`) · `telemetry/f04-events.test.ts:51` ตรวจ mapper · ชื่ออยู่ใน `known-events.ts:15` |
+| F06-TG-03 | **ปิด** | grep `POSITION_LOG_TTL_HOURS_FALLBACK` ใน `apps`, `packages`, `tools`, `qa` ไม่พบ · `apps/client/src/config/whitelist.ts:151` `topLevelKeys: ['minAge_yr', 'minAgeComparison', 'positionLogTtl_s']` · `whitelist.test.ts:73-74` ยืนยันว่าไม่อยู่ใน `FORBIDDEN_ANYWHERE` · subset `config/generated/balance-subset.generated.json:784` มี `"positionLogTtl_s": 86400` · parse เป็นจำนวนเต็ม > 0 และล้มดังเมื่อหาย (`config/balance.ts:232-241`, test `balance.test.ts:271-280`) · `copy/position-log-ttl.ts:17-23` คำนวณ `positionLogTtl_s / SECONDS_PER_HOUR` แล้ว format ด้วย `unit.hours` · `position-log-ttl.test.ts` เทียบกับค่าจาก `balancePrivacyConfig` ไม่ใช่ 24 ที่เขียนตายตัว · tech note F04 แก้แล้ว (R2.3) |
+| F06-TG-04 | **ปิด** (มีงานต่อที่ไม่ blocking R2-N3) | `config/runtime.ts:188-201,488-499` parse `localData.{storageKeyPrefix, clearScope, afterClear}` ใน `AppPrivacyConfig` · `f04-app.ts:625` ส่ง `appPrivacyConfig.localData.storageKeyPrefix` เข้า `clearLocalData` · literal `'kw.p2.consent'` ใน `f04-app.ts` หายแล้ว (grep ไม่พบ) · test `apps/client/src/storage/storage-key-prefix.test.ts` ตรวจ 8 key ว่าขึ้นต้นด้วย prefix จาก config |
+| F06-TG-05 | **ปิด** | `locationConsentGranted()` ตัวเก่าถูกลบ · `f04-app.ts:1466` `locationConsentGranted: readLocationConsent(deps.storage) === 'granted' \|\| e2eSkipOnboarding` · `e2eSkipOnboarding` คำนวณครั้งเดียวที่ `f04-app.ts:245-249` ด้วย `shouldSkipF04App(..., deps.isMockProvider)` ตัวเดียวกับ `main.ts` จึงเปิดได้เฉพาะ Mock (D-130) · สายของ test: ไม่มี key → `'unanswered'` (`storage/onboarding.test.ts:43-44`) → `!== 'granted'` → `false` → `unknown` (`home/home-state.test.ts:124`, `dungeons/home-tracker.test.ts:80`) · e2e 50/50 ผ่าน รวม `withdraw-consent.spec.ts` และ `onboarding.spec.ts:200` (ปฏิเสธ consent ไม่เริ่ม GPS) |
+| F06-TG-06 | **ปิด** (มีงานต่อที่ไม่ blocking R2-N2) | `storage/clear-local-data.ts:45` `if (deps.canClear?.() === false) return;` ก่อนลบ key ใด · call site จริงส่ง `canClear: () => selectCanClearLocalData(engine.getState())` (`f04-app.ts:628`) · test ทั้งสองกรณี: `clear-local-data.test.ts:25` (`true` → ลบ) และ `:76-93` describe `canClear: false (a run is active)` (ไม่ลบ, ไม่เขียน telemetry, ไม่ reload) |
+
+## R2.3 งานเอกสารของ tech-lead (P2-H45)
+
+| เอกสาร | สถานะ | หลักฐาน |
+| --- | --- | --- |
+| tech note F04 15.2 | แก้แล้ว | `docs/tech/F04-dungeon-presence.md:651` แถว `balance/privacy.json` มี `positionLogTtl_s` (ข้อความ `{ttlText}` บนจอ consent และ S-23 · แสดงผลเท่านั้น · D-135) |
+| tech note F04 15.3 | แก้แล้ว | `docs/tech/F04-dungeon-presence.md:659` บันทึก D-135 การย้ายจากกลุ่ม C ไปกลุ่ม B พร้อมเหตุผล, ข้อห้ามใช้ในตรรกะอื่น, ไม่ทำ mirror และโค้ดที่ต้องตรงกัน (`BALANCE_WHITELIST`, `FORBIDDEN_ANYWHERE`) · รายการกลุ่ม C ไม่มี `privacy.positionLogTtl_s` แล้ว |
+| tech note F06 8.1 | แก้แล้ว | `docs/tech/F06-hp-damage-onboarding.md:386` `kw.p2.settings.<name>` หนึ่ง key ต่อหนึ่งค่า · `:389` กฎ prefix + test กัน drift (F06-TG-04) · `:390` `runClientStats` อยู่ในหน่วยความจำ ไม่มี key `kw.p2.runClientStats` |
+| tech note F06 8.5 | แก้แล้ว | `:439-442` key ของจอพกกระเป๋าแยกตาม 8.1 · D-134 |
+| tech note F06 9.2 ข้อ 4 | แก้แล้ว | `:475` กรณี A-P2-X27-1 (หลังจบ onboarding ไม่มี dungeon เปิด → `temporarilyClosed` ที่ใกล้สุด · D-136) |
+
+F06-TG-13 จึง **ปิด** ทั้งสามข้อ (ก, ข, ค)
+
+## R2.4 สถานะ finding ที่ไม่ blocking (F06-TG-07 ถึง -15)
+
+| ID | สถานะ | หลักฐาน / ไปที่ไหน |
+| --- | --- | --- |
+| F06-TG-07 | ปิด | `apps/client/e2e/pocket-screen.spec.ts:80` รอ `.run-bar` 20 วิ · e2e ขนาน 50/50 |
+| F06-TG-08 | ปิด (H46, backend) | `apps/client/src/assets/icon-glyph.ts:7-11` allowlist ของ element + attribute · test `icon-glyph.test.ts:186` (`foreignObject` + subtree) |
+| F06-TG-09 | ปิด (H46, backend) | `feedback/wake-lock-controller.ts:95,157-161` ธง `requestInFlight` · test `wake-lock-controller.test.ts:224,266` |
+| F06-TG-10 | ปิด | `apps/client/src/app.css:891-899` จอ intro / age gate / consent ใช้ `z-index: 60` (`zIndex.system`) · visual gate P2-F06-T23 ตรวจซ้ำได้ |
+| F06-TG-11 | เปิด → P2-X47 (หลัง design gate) | `apps/client/src/assets/audio.ts:24` `DEFAULT_STALE_AFTER_MS = 2000` ยังอยู่ในโค้ด |
+| F06-TG-12 | ตัดสินแล้ว (H50) → P2-X48 | PM: `run_gps_status_changed` ต้องมีก่อน playtest (P2-X48 กำลังทำ wave นี้) · `onboarding_nearest_dungeon_distance` เลื่อน · ตรวจใน product gate P2-F06-T25 |
+| F06-TG-13 | ปิด | R2.3 |
+| F06-TG-14 | ปิด (H47 + X45) | `design/systems/test-vectors/hp-recovery.json` มีแล้ว · อ่านใน `packages/shared/src/formulas/vectors.test.ts` (เขียวใน root vitest) |
+| F06-TG-15 | เปิด → backlog Phase 3 | แยก `f04-app.ts` ตาม flow ก่อน F08 (C1-1) |
+| D-134 เงื่อนไข pointerdown | ปิด | `apps/client/src/ui/pocket-screen.ts:180-190` คำนวณ `window.innerHeight × swipeUpMinDistanceRatio` ทุก `pointerdown` · comment เก่าที่ `:71` ยังเขียนว่า "once, at mount time" (R2-N4) |
+
+## R2.5 ข้อสังเกตใหม่ (ไม่ blocking · ไม่มีข้อใดแตะ non-negotiable)
+
+| ID | severity | file:line | ข้อสังเกต | owner | งาน |
+| --- | --- | --- | --- | --- | --- |
+| R2-N1 | low | `apps/client/e2e/onboarding.spec.ts` | เงื่อนไขรอบ 1 ของ F06-TG-02 ขอ assertion ใน e2e ว่า ring buffer มี `onboarding_first_reward_granted` หนึ่งครั้ง แต่ยังไม่มี · ไม่ blocking เพราะ test ของ engine ขับ `sessionStep` จริงผ่าน `createSessionEngine` ตัวเดียวกับที่ app ใช้ และ call site จริง (`f04-app.ts:325`) ส่ง `getFirstOpenAt_ms` แล้ว ช่องว่างเหลือแค่การต่อสายระดับหน้าเว็บ | qa-tester | QA gate P2-F06-T21: ตรวจ event นี้ใน export หลัง e2e onboarding (ข้อเสนอเดิมของรอบ 1 หัวข้อ 7) หรือเพิ่ม assertion ใน spec ครั้งถัดไปที่แตะ |
+| R2-N2 | low | `apps/client/src/storage/clear-local-data.ts:36,45` | `canClear` เป็น optional และค่าเริ่มคือ "อนุญาต" (A-P2-X41-2 · เพราะ `qa/tests/F06/clear-local-data-integration.test.ts` เรียกโดยไม่ส่ง) · call site ที่สองในอนาคตที่ลืมส่งจะไม่ถูกกัน ซึ่งเป็นกรณีที่ 8.3 ตั้งใจกัน · ตอนนี้มี call site เดียวและส่งค่าจริง จึงไม่มีผลจริง · **รับ A-P2-X41-2 แบบมีเงื่อนไข** | gameplay-programmer + qa-tester | ทำเป็น required แล้วให้ integration test ของ qa ส่ง `canClear: () => true` · ทำพร้อม P2-X47 หรือก่อนมี call site ที่สอง (อย่างใดก่อน) |
+| R2-N3 | info | `apps/client/src/storage/storage-key-prefix.test.ts:13-16` | 4 key (`kw.p2.telemetry`, `kw.p2.session`, `kw.p2.settings.pocketWakeHintShown`, `kw.p2.settings.screenLockNoticeShown`) ถูกเขียนซ้ำเป็น literal ใน test แทนการ import ค่าจริง · ถ้าโมดูลต้นทางเปลี่ยนชื่อ key test จะยังเขียว จึงกัน drift ได้ไม่ครบสำหรับ 4 ตัวนี้ | gameplay-programmer | export ค่าคงที่ (หรือย้ายไปโมดูล `storage/keys.ts` ร่วม) แล้ว import ใน test · ครั้งถัดไปที่แตะไฟล์ |
+| R2-N4 | info | `apps/client/src/ui/pocket-screen.ts:71` | doc comment ยังบอกว่าแปลง px "once, at mount time" ขัดกับโค้ดที่ `:156-190` | gameplay-programmer | แก้ comment ครั้งถัดไปที่แตะไฟล์ |
+
+## R2.6 สรุปรอบ 2
+
+- F06-TG-01 ถึง -06 **ปิดครบทั้งหก** · คำสั่งที่ brief ขอเขียวทั้งหมด (R2.1) · เอกสาร H45 แก้ครบ (R2.3)
+- ข้อสังเกตใหม่ R2-N1 ถึง -N4 เป็นเรื่องความครบของ test และ comment ไม่มีข้อใดแตะ server authority, movement gate, config ของ balance, PvP / chat / ตำแหน่ง, outdoor หรือ PDPA จึงไม่ blocking ตามกฎสลับข้อ 12
+- C1-1 (หัวข้อ 0 ของรอบ 1) ยังมีผลจนถึงเริ่ม Phase 3 · tech gate F08 ตรวจตามที่บันทึกไว้
+- **verdict: PASS**

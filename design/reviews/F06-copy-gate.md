@@ -5,7 +5,7 @@
 | Task | P2-F06-T22 (review-gate, content gate copy) |
 | ผู้ตรวจ | narrative-designer |
 | วันที่ | 2026-09-28 |
-| รอบ | 1 |
+| รอบ | 1 · รอบ 2 ดูหัวข้อ 9 (verdict รอบ 2: PASS) |
 | วิธีตรวจ | อ่านโค้ด UI แทน screenshot (session นี้ไม่มี shell จึงรัน build, e2e, Playwright และ copy lint เองไม่ได้) · เทียบทุก key ที่แต่ละจอเรียกกับ `config/content/copy.th.json` · ตรวจตัวแปรที่โค้ดเติมจริง · ตรวจ CSS ที่มีผลต่อการตัดบรรทัด (`apps/client/src/app.css`) · ตรวจกฎ copy 6 ข้อ · ตรวจถ้อยคำ consent/privacy (PDPA) · grep อักษรไทยในโค้ดและ emoji ใน `config/content/` |
 | ไฟล์ที่อ่าน | `apps/client/src/ui/{tick-toast,hp-bar,pocket-screen,age-gate-screen,consent-location-screen,privacy-screen,settings-menu,settings-walking-safety,intro-screen,class-select,run-tutorial-line,home-panel,run-summary}.ts`, `apps/client/src/copy/{position-log-ttl,names}.ts`, `apps/client/src/dungeons/open-time.ts`, `apps/client/src/privacy/withdraw-consent.ts`, `apps/client/src/home/home-state.ts`, `apps/client/src/f04-app.ts` (780-810, 1125-1275), `apps/client/src/app.css`, `packages/shared/src/session/persistence.ts`, `design/ux/flows/F06-hp-damage-onboarding.md` หัวข้อ 4, `docs/tech/F06-hp-damage-onboarding.md` (8.4, 622), e2e 4 ไฟล์ตาม brief (อ่าน assertion เท่านั้น) |
 
@@ -134,7 +134,9 @@ key ใหม่ที่ narrative จะเพิ่ม (เมื่อได
 
 ## 7. copy lint
 
-**ยังไม่ได้รัน** · session นี้ไม่มี shell จึงรัน `pnpm lint:copy` (`tsx tools/copy-lint/src/cli.ts`) เองไม่ได้ และไม่พบผล lint รอบล่าสุดบน board · orchestrator ต้องรันและแปะสรุปไว้ใต้หัวข้อนี้ก่อนปิด gate (รวม `pnpm lint:config` ถ้าแตะ `client.json` ใน C6-03)
+**ผล (รอบ 2):** orchestrator รัน `pnpm lint:copy` เมื่อ 2026-09-28 หลัง P2-X40 · exit 0 · 0 FAIL · 21 WARN (ตัวแปร template ที่ไม่ถูกใช้ มีมาก่อน ไม่ใช่ของ F06 รอบนี้) · ผ่าน
+
+รอบ 1 (บันทึกเดิม): **ยังไม่ได้รัน** · session นี้ไม่มี shell จึงรัน `pnpm lint:copy` (`tsx tools/copy-lint/src/cli.ts`) เองไม่ได้ และไม่พบผล lint รอบล่าสุดบน board · orchestrator ต้องรันและแปะสรุปไว้ใต้หัวข้อนี้ก่อนปิด gate (รวม `pnpm lint:config` ถ้าแตะ `client.json` ใน C6-03)
 
 ## 8. ส่งต่อ
 
@@ -148,3 +150,60 @@ key ใหม่ที่ narrative จะเพิ่ม (เมื่อได
 | orchestrator | รัน `pnpm lint:copy` แปะผลในหัวข้อ 7 · เปิดงาน X สำหรับ blocker แล้วขอ gate รอบ 2 (รอบ 2 ที่ยัง NEEDS_CHANGES ส่ง HUMAN ตาม protocol 6) | yes |
 | qa-tester | e2e ตรวจว่า `.toast` สูงไม่เกิน 2 บรรทัดที่ viewport 360 px และไม่มีข้อความลงท้ายด้วย `อีกที ` หรือมี `{` บนจอที่บ้าน | no |
 | HUMAN | PDPA sign-off ของถ้อยคำ consent/privacy (gate นี้ตรวจความชัดของภาษาเท่านั้น) | no (ไม่ใช่เงื่อนไขของ gate นี้) |
+
+## 9. รอบ 2 (2026-09-28)
+
+| หัวข้อ | ค่า |
+| --- | --- |
+| ขอบเขต | ตรวจเฉพาะ blocker รอบ 1 C6-01..C6-05 · ข้อใหม่ไม่ blocking เว้นแต่ผิดกฎ copy ในสามจังหวะ (E7) หรือทำให้เข้าใจผิดเรื่อง consent/PDPA |
+| ที่มาของการแก้ | gameplay P2-X41 (C6-01, -02, -03, -05, ส่วน map ของ C6-04) · narrative P2-X40 (key `home.farNextOpenUnknown`, `unit.yesterday`) |
+| วิธีตรวจ | อ่านโค้ดและ CSS ตาม brief · เปิด screenshot 360 px 8 ภาพของ X41 (`01-consent-location` ถึง `08-home-far-unknown`, scratchpad ของ session) ด้วยตาเอง |
+
+**verdict รอบ 2: PASS**
+
+### 9.1 blocker รอบ 1
+
+| # | ผล | หลักฐาน |
+| --- | --- | --- |
+| C6-01 | ปิด | CSS `white-space: pre-line` ครบทุก class ที่ระบุ: `app.css:1137-1138` (`.consent-location-body`), `app.css:1094-1098` (`.privacy-position-log-explain`, `.privacy-withdraw-confirm-body`), `app.css:1011-1013` (`.settings-menu-clear-local-data-confirm-body`), `app.css:1283-1285` (`.pocket-screen-lock-notice`) · class ถูกผูกกับ element จริง: `consent-location-screen.ts:45`, `privacy-screen.ts:64,80`, `settings-menu.ts:96` (class ใหม่ของ popup body), `pocket-screen.ts:149` · screenshot 01, 03, 04, 05: บรรทัดสรุปแยกเป็นบรรทัดแรก ข้อความ legal ขึ้นเป็นบรรทัดตาม `\n` ไม่รวบเป็นก้อน · ข้อยกเว้น legal จึงมีผล |
+| C6-02 | ปิด | `app.css:456-468` `.toast` มี `width: max-content; max-width: calc(100vw - 32px)` · screenshot 07 (360 px): `run.hpLow` canon ครบคำ ขึ้น 2 บรรทัดพอดี ("HP ต่ำ กลับบ้าน ซื้อยา หาเพื่อนที่มี" / "Support หรือไม่ก็เลิกดื้อ") ผ่านกฎข้อ 2 |
+| C6-03 | ปิด | `pocket-screen.ts:243-252` ตั้ง timer ซ่อนเองหลัง `deps.screenLockNoticeHoldDurationMs` · ค่ามาจาก `client.json:128` (`toast.screenLockNoticeHoldDurationMs` = 4000) ผ่าน `config/runtime.ts:394-396` และ `f04-app.ts:477` ไม่ hardcode · `pocket-screen.ts:253-259` `hideFallbackNotice()` ถูกเรียกเมื่อ `dungeon_exited` ที่ `f04-app.ts:1194-1207` · รูปแบบ toast จางหาย (ไม่ใช่ banner) ตรงคำตัดสิน uiux (flow F06 Flow E ข้อ E2, หัวข้อ 19 ของ flow) · มี unit test `pocket-screen.test.ts:31-50` · ในช่วง 4 วินาทีแรกของ run แรก Path B ยังทับช่อง toast ได้ในทางทฤษฎี แต่ในช่วงนั้นยังไม่มี hit ที่ทำ HP ต่ำได้จริง (ดู N2-02) |
+| C6-04 | ปิด | key `home.farNextOpenUnknown` อยู่ที่ `copy.th.json:307` ข้อความตรงที่เสนอ (27 ช่อง, message) · `home-panel.ts:166-171` ใช้ key นี้เมื่อ `nextOpenAt_ms === null` และใช้ `home.farNextOpen` เฉพาะเมื่อมีเวลา · test `home-panel.test.ts:92-97` · screenshot 08: บรรทัดขึ้น "ที่ใกล้กว่าปิดอยู่ ยังไม่รู้ว่าเปิดเมื่อไร" ครบประโยค ไม่มี `เปิดอีกที ` ค้าง |
+| C6-05 | ปิด | `recovering-banner.ts:48-60` แสดง `home.recoveringLabel` + `home.recoveringDetail` เมื่อ `PlayerView.recovering` · `{recoverPct}` = `recoveryTo_pct`, `{timeLeft}` = `recoveryTimeLeft_ms` จาก `selectPlayerView` จัดรูปด้วย `unit.minutes` (ไม่คำนวณเองฝั่ง client) · ซ่อนเมื่อ `timeLeft` เป็น null หรือ ≤ 0 จึงไม่เคยขึ้น "0 นาที" (พ้นเป้าแล้วหายเงียบ) · `f04-app.ts:1302` ซ่อนทุก render แล้ว `f04-app.ts:1483-1488` แสดงเฉพาะสาขาจอที่บ้าน ก่อนแยก near/far จึงขึ้นทุกสถานะรวม near · ไม่มีไอคอนนาฬิกาทราย · screenshot 06: สถานะ near (nav panel) ขึ้น "กำลังฟื้น / HP กลับมา 50% ในอีก 1 นาที" · เป็นข้อความเห็นครั้งต่อ render ไม่ใช่ตัวนับวินาที ตาม R2-N1 |
+
+ทั้งห้าข้อปิด จังหวะตายจบครบตาม flow C7 แล้ว (หน้าสรุป → จอที่บ้านมีป้ายกำลังฟื้นพร้อมเวลา)
+
+### 9.2 สถานะข้อ should / minor
+
+| # | สถานะ | หลักฐาน / เหตุ |
+| --- | --- | --- |
+| C6-06 | ยังไม่ทำ → จัดไว้ P2-X47 หลัง design gate | screenshot 08 ยืนยันว่า body ของ `home.farBody` ยังไม่มีชิป `nav.straightLineTag` · ไม่ blocking |
+| C6-07 | ยังไม่ทำ (ส่วน client) → P2-X47 | key `unit.yesterday` เพิ่มแล้วใน P2-X40 รอ client ใช้ formatter เวลาในอดีต · ไม่ blocking |
+| C6-08 | ทำแล้ว | `settings-walking-safety.ts:87,141` ผูก `aria-labelledby` กับป้ายของแถว |
+| C6-09 | ทำแล้ว | `age-gate-screen.ts:94-107` แสดงปี พ.ศ. (`+543`) ค่าที่ส่งออกยังเป็น ค.ศ. ตามข้อเสนอ |
+| C6-10 | uiux ตัดสินแล้ว (P2-H40): รับตามเดิม | ไม่มีงาน |
+| C6-11 | uiux ตัดสินแล้ว (P2-H40): รับตามเดิม | ไม่มีงาน |
+
+### 9.3 ข้อสังเกตใหม่ (ไม่ blocking ทั้งหมด)
+
+| # | เรื่อง | ที่เห็น | ข้อเสนอ | owner |
+| --- | --- | --- | --- | --- |
+| N2-01 | จอ priming ใหม่ `S-00-permission-browser` (`consent-permission-screen.ts`, screenshot 02) | `consent.browserPriming*` ถูกใช้แล้ว ปิดรายการ key ไม่ถูกใช้ในหัวข้อ 6 · ตรวจ PDPA: จอนี้ขึ้นหลังผู้เล่นกดอนุญาตในเกมแล้วเท่านั้น (doc comment บรรทัด 1-12) คำว่า "กดอนุญาตอีกทีก็จบ" สอดคล้องกับที่ผู้เล่นเลือกไปแล้ว ไม่ได้ขอความยินยอมใหม่ และ prompt ของเบราว์เซอร์ยังปฏิเสธได้ · ไม่ชี้นำเกินจริง ไม่ทำให้เข้าใจผิด · กฎ 6 ข้อผ่าน | ไม่มี · ถ้าผู้เล่นกดปฏิเสธที่ prompt ต้องตกไปสถานะไม่รู้ตำแหน่งเหมือนกดไม่อนุญาต (เป็นเรื่อง flow ไม่ใช่ copy) | uiux / qa ยืนยัน |
+| N2-02 | Path B ช่วง 4 วินาทีแรก | `run.screenLockNotice` และ toast อื่นใช้ช่องเดียวกัน ถ้ามี toast อื่นเกิดใน 4 วินาทีแรกของ run แรกจะทับกัน | ยอมรับได้ใน Phase 2 · ถ้าต้องการกันถาวร ให้ `tickToast` ซ่อน notice ก่อนแสดง toast ใหม่ (กฎทับเดียวของ flow) | gameplay-programmer (P2-X47 ถ้ามีเวลา) |
+| N2-03 | บรรทัดสรุปของ `consent.locationBody` (34 ช่อง) ตัดเป็น 2 บรรทัดที่ 360 px (screenshot 01) | ยังอยู่ในข้อยกเว้น legal (บรรทัดสรุป ≤ 64 ช่อง) อ่านได้ครบ | ไม่แก้ | - |
+| N2-04 | screenshot 08 เป็นสถานะไกลที่มี body `home.farBody` + บรรทัด `home.farNextOpenUnknown` ขณะที่ `home-panel.ts:161` ล้าง body ในสถานะ `temporarilyClosed` | ถ้อยคำทั้งสองแบบถูกต้องและไม่ขัดกัน (flow F06 7.1 ข้อ F1 ระบุว่า "เพิ่มบรรทัด") · ไม่มีกฎ copy ที่ผิด | qa ยืนยันว่า fixture ของ screenshot 08 เป็นสถานะใด และ body ควรขึ้นหรือไม่ในสถานะ `temporarilyClosed` | qa-tester / uiux-designer |
+| N2-05 | screenshot 07 ถ่าย toast `run.hpLow` บน fixture จอที่บ้าน (toast ทับแผงที่บ้าน) | เป็นการจัดฉากเพื่อวัดความกว้าง ไม่ใช่การแสดงผลจริงบน S-03-run · ผลวัด 2 บรรทัดใช้ได้เพราะ `.toast` ตัวเดียวกัน | e2e ของ qa ควรวัดบน S-03-run จริงตามข้อ qa-tester ในหัวข้อ 8 | qa-tester |
+
+กฎ copy 6 ข้อ: ไม่มีข้อความใหม่ใน F06 รอบนี้นอกจาก `home.farNextOpenUnknown` และ `unit.yesterday` (ตรวจแล้วในรอบ 1 หัวข้อ 5) · สามจังหวะไม่มีการเปลี่ยนถ้อยคำ · ไม่มีข้อที่ต้องงอ
+
+### 9.4 copy lint
+
+ดูหัวข้อ 7: `pnpm lint:copy` exit 0, 0 FAIL, 21 WARN (ตัวแปร template ที่ไม่ถูกใช้ มีมาก่อน) · ผ่าน
+
+### 9.5 ส่งต่อ
+
+| to | need | blocking |
+| --- | --- | --- |
+| orchestrator | ปิด P2-F06-T22 ด้วย PASS · C6-06, C6-07 (client) และ N2-02 อยู่ใน P2-X47 | no |
+| qa-tester | N2-04 (สถานะของ screenshot 08), N2-05 (วัด `.toast` ≤ 2 บรรทัดบน S-03-run จริงที่ 360 px) | no |
+| HUMAN | PDPA sign-off ถ้อยคำ consent/privacy รวมจอ priming ใหม่ (`consent.browserPriming*`) · gate นี้ตรวจความชัดของภาษาเท่านั้น | no (ไม่ใช่เงื่อนไขของ gate นี้) |

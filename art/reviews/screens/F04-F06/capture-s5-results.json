@@ -1,0 +1,74 @@
+[
+  {
+    "engine": "android-chrome",
+    "format": "pmtiles",
+    "viewport": "390x844",
+    "zoomUsed": 14,
+    "riverLabelFound": true,
+    "file": "S5-android-chrome--pmtiles--390x844--z14.jpg",
+    "bytes": 142002
+  },
+  {
+    "engine": "android-chrome",
+    "format": "pmtiles",
+    "viewport": "360x800",
+    "zoomUsed": 14,
+    "riverLabelFound": true,
+    "file": "S5-android-chrome--pmtiles--360x800--z14.jpg",
+    "bytes": 134218
+  },
+  {
+    "engine": "android-chrome",
+    "format": "tilejson",
+    "viewport": "390x844",
+    "zoomUsed": 14,
+    "riverLabelFound": true,
+    "file": "S5-android-chrome--tilejson--390x844--z14.jpg",
+    "bytes": 142002
+  },
+  {
+    "engine": "android-chrome",
+    "format": "tilejson",
+    "viewport": "360x800",
+    "zoomUsed": 14,
+    "riverLabelFound": true,
+    "file": "S5-android-chrome--tilejson--360x800--z14.jpg",
+    "bytes": 134218
+  },
+  {
+    "engine": "ios-safari",
+    "format": "pmtiles",
+    "viewport": "390x844",
+    "zoomUsed": 14,
+    "riverLabelFound": true,
+    "file": "S5-ios-safari--pmtiles--390x844--z14.jpg",
+    "bytes": 241837
+  },
+  {
+    "engine": "ios-safari",
+    "format": "pmtiles",
+    "viewport": "360x800",
+    "zoomUsed": 14,
+    "riverLabelFound": true,
+    "file": "S5-ios-safari--pmtiles--360x800--z14.jpg",
+    "bytes": 263743
+  },
+  {
+    "engine": "ios-safari",
+    "format": "tilejson",
+    "viewport": "390x844",
+    "zoomUsed": 14,
+    "riverLabelFound": true,
+    "file": "S5-ios-safari--tilejson--390x844--z14.jpg",
+    "bytes": 241837
+  },
+  {
+    "engine": "ios-safari",
+    "format": "tilejson",
+    "viewport": "360x800",
+    "zoomUsed": 14,
+    "riverLabelFound": true,
+    "file": "S5-ios-safari--tilejson--360x800--z14.jpg",
+    "bytes": 263743
+  }
+]

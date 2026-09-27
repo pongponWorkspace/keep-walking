@@ -376,6 +376,7 @@
   "settings.clearLocalDataConfirmButton": { "text": "ลบเลย", "voice": "system", "kind": "button", "context": "popup ยืนยันลบข้อมูลในเครื่อง ปุ่มยืนยัน → ล้างทันที → S-00-intro", "cells": 5 },
   "settings.clearLocalDataCancelButton": { "text": "ไม่ลบ", "voice": "system", "kind": "button", "context": "popup ยืนยันลบข้อมูลในเครื่อง ปุ่มยกเลิก ปิด popup ไม่มีผลใด · ถ้อยคำเดียวกับ account.deleteCancel", "cells": 4 },
   "settings.clearLocalDataBlockedNote": { "text": "จบ run ก่อนถึงลบได้", "voice": "system", "kind": "label", "context": "S-22 ใต้แถว settings.clearLocalDataLink ที่ disabled ระหว่างมี run Active/Grace/Suspended (H-E23, F06-R49, flow F06 G5) · ต่างจากถอนความยินยอมที่กดได้เสมอ (B-06)", "cells": 16 },
+  "settings.exportLink": { "text": "ส่งออกบันทึกการเล่น", "voice": "system", "kind": "label", "context": "S-22-settings แถว action ในหน้า (P2-X50, C2-2) กดแล้วดาวน์โหลดไฟล์ telemetry ในเครื่องทันที ไม่มีหน้าย่อย · ผู้ร่วม playtest ส่งไฟล์นี้ให้ทีมเอง ไม่มีพิกัด · ใช้ บันทึกการเล่น ไม่ใช้ ข้อมูล หรือ ข้อมูลที่บันทึกไว้ เพื่อไม่ให้เข้าใจว่ารวมตำแหน่ง", "cells": 15 },
   "settings.creditsLink": { "text": "เครดิตและลิขสิทธิ์", "voice": "system", "kind": "label", "context": "S-22-settings แถว → S-26-credits (flow F06 G6) · เข้าถึงได้โดยไม่มีเงื่อนไข consent หรือ unlock", "cells": 13 },
   "settings.soundLabel": { "text": "เสียง", "voice": "system", "kind": "label", "context": "S-22-settings", "cells": 4 },
   "settings.vibrationLabel": { "text": "สั่น", "voice": "system", "kind": "label", "context": "S-22-settings", "cells": 2 },

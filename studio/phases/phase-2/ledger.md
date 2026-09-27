@@ -194,3 +194,11 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 179 | W16 | P2-H46 | backend-programmer | 04:25 | 03:15:14 | DONE — TG-08 allowlist, TG-09 in-flight guard · assets+feedback 124 pass · eslint แดงจาก X41 ระหว่างทำ (f04-app onboardingFirstOpenAt_ms) |
 | 180 | W16 | P2-H50 | product-manager | 04:52 | 03:19:11 | DONE — run_gps_status_changed ต้องมี → X48 gameplay (หลัง X41), nearest distance เลื่อน · A-P2-H45-1 รับทราบ |
 | 181 | W16 | P2-X41 | gameplay-programmer | 04:25 | 04:02:35 | DONE — blocking ของ tech/copy gate + H40/H42/H49 ครบ · root vitest 3023, e2e 50/50 · ไม่บล็อกที่เหลือ → X47 (หลัง T24), V-37 CUT → Phase 3 · → H51 uiux · W17 dispatch T20 r2, T22 r2, H41, X48, H51 |
+| 182 | W17 | P2-F06-T22 | narrative-designer | 05:38 | 04:05:28 | PASS (รอบ 2) — C6-01..05 ปิด · N2-02 → X47, N2-04/05 → T21 · PDPA sign-off คน (Q-P2-13 เดิม) |
+| 183 | W17 | P2-F06-T20 | tech-lead | 05:38 | 04:06:54 | PASS (รอบ 2) — TG-01..06 ปิด ทุกคำสั่งเขียวบน b1dee22 · R2-N1 → T21, R2-N2..N4 → X47 |
+| 184 | W17 | P2-H51 | uiux-designer | 05:38 | 04:16:06 | DONE — banner ยืนยัน + icon ขาด, สเปก C6-06/07 · handoff → X47 |
+| 185 | W17 | P2-X48 | gameplay-programmer | 05:38 | 04:16:21 | DONE — run_gps_status_changed ยิงจริง + 19 test · สังเกต: ไม่มีปุ่ม download export telemetry → ให้ T21/T25 ตรวจ (อาจกั้น playtest) |
+| 186 | W17 | P2-X50 | orchestrator | — | 04:16:58 | เปิดงาน — ไม่มีปุ่ม export telemetry ใน UI (telemetry/export.ts มีแค่ builder) ทั้งที่ phase-2-plan ต้องใช้ → gameplay W17 (settings เพิ่ม 1 แถว แจ้ง visual gate รอบ 2) |
+| 187 | W17 | P2-X50 | gameplay-programmer | 04:29:12 | 04:29:12 | DONE — ปุ่ม export telemetry + e2e download · key ดิบ → X51 narrative · X50 kill vite preview เก่า (อาจกระทบ H41) |
+| 188 | W17 | P2-X51 | narrative-designer | — | 04:29:48 | DONE — settings.exportLink ส่งออกบันทึกการเล่น |
+| 189 | W17 | P2-H41 | qa-tester | 05:38 | 04:53:39 | DONE — ภาพ 24/26 + S5 8/8 มีป้ายแม่น้ำ · 2 จอถ่ายไม่ได้ → H52 location (tick-denied trace) / art-director ตัดสิน · W18 dispatch T21 QA gate, T23 visual r2, H52 |

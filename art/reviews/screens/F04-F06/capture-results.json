@@ -1,0 +1,187 @@
+[
+  {
+    "id": "01-map-far",
+    "ok": true,
+    "bytes": 98105,
+    "grayBytes": 150761,
+    "reachedVia": "qa-home-states-walk-01 speed=60, title=\"ช่วยกันปลุกจังหวัดเรา\""
+  },
+  {
+    "id": "02-map-near-nav",
+    "ok": true,
+    "bytes": 75580,
+    "grayBytes": 125825,
+    "reachedVia": "e2e-full-run-01 speed=1, chip=\"100 ม.\""
+  },
+  {
+    "id": "03-nav-fallback",
+    "ok": true,
+    "bytes": 92320,
+    "grayBytes": 142299,
+    "reachedVia": "e2e-full-run-01, clicked .nav-fallback-open-link"
+  },
+  {
+    "id": "04-confirm-b1-wait",
+    "ok": true,
+    "bytes": 106783,
+    "grayBytes": 147746,
+    "reachedVia": "qa-e2e-leelawadee-poor-accuracy-01 speed=5, status=\"GPS ยังไม่แม่นพอ ขยับไปที่โล่งหน่อย\""
+  },
+  {
+    "id": "05-confirm-b1-ready",
+    "ok": true,
+    "bytes": 91276,
+    "grayBytes": 132829,
+    "reachedVia": "e2e-full-run-01 speed=60, title=\"ลานลีลาวดี — ดอกร่วงใส่หัว\""
+  },
+  {
+    "id": "06-confirm-b2-overlap-selected",
+    "ok": false,
+    "notReachedReason": "no two published dungeons in data/dungeons/dungeons.json actually overlap geometrically (pahurat-market and khlong-ong-ang share a bounding box, but a point-in-polygon grid check over their bbox intersection found zero shared points — checked by this task, see README); this task's own `writes` do not include data/dungeons or data/gps-traces, and there is no client-side test hook to inject a second synthetic candidate into a real confirm popup for a black-box (real app) capture the way the map-style script injects sample GeoJSON into the map layer."
+  },
+  {
+    "id": "07-confirm-closed",
+    "ok": true,
+    "bytes": 71290,
+    "grayBytes": 115505,
+    "reachedVia": "qa-e2e-khlong-ong-ang-closed-01, start=Monday, title=\"ปิดอยู่ตอนนี้\""
+  },
+  {
+    "id": "08-run-active",
+    "ok": true,
+    "bytes": 135447,
+    "grayBytes": 180604,
+    "reachedVia": "e2e-full-run-01, entered, pill=\"อยู่ในเขต\""
+  },
+  {
+    "id": "09-run-grace",
+    "ok": true,
+    "bytes": 105290,
+    "grayBytes": 147447,
+    "reachedVia": "qa-e2e-leelawadee-checkin-01, pill=\"รอยืนยัน\""
+  },
+  {
+    "id": "10-toast-tick-loot",
+    "ok": true,
+    "bytes": 119732,
+    "grayBytes": 165346,
+    "reachedVia": "e2e-full-run-01, granted-tick toast"
+  },
+  {
+    "id": "11-toast-tick-denied",
+    "ok": false,
+    "notReachedReason": "every committed real-dungeon e2e fixture either grants exactly one tick and ends before a second reward window matures (e2e-full-run-01, e2e-onboarding-01: ~340s active, one 300s window) or ends in death/auto-retreat within the first ~200s, before any 300s reward window evaluates at all (e2e-f06-koa-run-01) — checked by running both through the real client and watching for `.toast.faded` (this task, see README). Traces that do sit still/underwalk long enough to fail a reward window (qa-gate-still-01, qa-gate-boundary-01, etc.) all walk a synthetic engine-level test rectangle with no matching committed dungeon polygon, so they never reach a real confirm popup/run screen. Requesting a dedicated fixture (an active run in a real, already-open dungeon that stays put/underwalks through one whole rewardTick.rewardTickInterval_s window) is a trace request to location-engineer, not something this task's own writes (art/reviews/screens, qa/tests/e2e/visual) can add."
+  },
+  {
+    "id": "12-hp-low",
+    "ok": true,
+    "bytes": 133737,
+    "grayBytes": 171914,
+    "reachedVia": "e2e-f06-koa-run-01 seed=5 tanker, hp=\"7%\""
+  },
+  {
+    "id": "13-pocket",
+    "ok": true,
+    "bytes": 64793,
+    "grayBytes": 110302,
+    "reachedVia": "e2e-full-run-01, Wake Lock forced supported"
+  },
+  {
+    "id": "14-speedlock",
+    "ok": true,
+    "bytes": 51383,
+    "grayBytes": 95556,
+    "reachedVia": "synthetic-driving-40kmh-01 speed=10 (global anti-cheat overlay, no dungeon needed)"
+  },
+  {
+    "id": "15-summary-normal",
+    "ok": true,
+    "bytes": 54969,
+    "grayBytes": 101949,
+    "reachedVia": "e2e-full-run-01, manual exit, header=\"ออกเอง ของอยู่ครบ\""
+  },
+  {
+    "id": "16-summary-death",
+    "ok": true,
+    "bytes": 78465,
+    "grayBytes": 123976,
+    "reachedVia": "e2e-f06-koa-run-01 seed=7 ranged, auto-retreat off, canon=\"คุณตาย ของใน run นี้หายทั้งหมด ครั้งหน้าลองกลับบ้านก่อนตาย\""
+  },
+  {
+    "id": "17-summary-autoretreat",
+    "ok": true,
+    "bytes": 96961,
+    "grayBytes": 142574,
+    "reachedVia": "e2e-f06-koa-run-01 seed=7 ranged, default auto-retreat, canon=\"HP เหลือต่ำกว่า 25% ระบบพาคุณกลับก่อน คุณรอด มอนสเตอร์ไม่ได้ แต่ก็ช่างมันเถอะ\""
+  },
+  {
+    "id": "18-intro",
+    "ok": true,
+    "bytes": 33196,
+    "grayBytes": 77052,
+    "reachedVia": "e2e-onboarding-01, real flow, no skip hook"
+  },
+  {
+    "id": "19-age-gate",
+    "ok": true,
+    "bytes": 51082,
+    "grayBytes": 97557,
+    "reachedVia": "e2e-onboarding-01, tapped intro"
+  },
+  {
+    "id": "20-consent",
+    "ok": true,
+    "bytes": 113032,
+    "grayBytes": 161441,
+    "reachedVia": "e2e-onboarding-01, passed age gate with 1990"
+  },
+  {
+    "id": "21-class-select",
+    "ok": true,
+    "bytes": 86148,
+    "grayBytes": 136830,
+    "reachedVia": "e2e-onboarding-01, accepted consent, continued past the permission-priming screen"
+  },
+  {
+    "id": "22-settings-walking-safety",
+    "ok": true,
+    "bytes": 80721,
+    "grayBytes": 127228,
+    "reachedVia": "hash #/settings/walking-safety"
+  },
+  {
+    "id": "23-privacy",
+    "ok": true,
+    "bytes": 94826,
+    "grayBytes": 140360,
+    "reachedVia": "hash #/settings/privacy, consent pre-seeded granted"
+  },
+  {
+    "id": "24-inventory",
+    "ok": true,
+    "bytes": 34431,
+    "grayBytes": 79117,
+    "reachedVia": "hash #/inventory, pre-seeded session fixture with a revive potion"
+  },
+  {
+    "id": "25-home-out-of-area",
+    "ok": true,
+    "bytes": 118627,
+    "grayBytes": 168981,
+    "reachedVia": "qa-home-states-walk-01 speed=1, leg 1 (outside the real playarea-mask)"
+  },
+  {
+    "id": "26-home-unknown",
+    "ok": true,
+    "bytes": 126696,
+    "grayBytes": 178306,
+    "reachedVia": "e2e-onboarding-01, declined consent (real flow, R48)"
+  },
+  {
+    "id": "bonus-settings-menu",
+    "ok": true,
+    "bytes": 73569,
+    "grayBytes": 123788,
+    "reachedVia": "hash #/settings"
+  }
+]

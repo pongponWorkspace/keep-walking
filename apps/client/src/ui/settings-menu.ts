@@ -17,6 +17,17 @@
  * exactly when `selectCanClearLocalData()` is `false` (`@keep-walking/shared/session`, tech note F06
  * 8.3, H-E23) — the opposite of the privacy screen's own withdraw-consent button, which is never
  * disabled during a run (B-06/NN-7).
+ *
+ * `exportRow` (P2-X50, plan requirement C2-2, `product/playtest/phase-2-plan.md` §2/§11): the one
+ * way a playtest participant gets their telemetry off the device — there is no server, no
+ * auto-upload (D-088). A direct action on click, like `clearLocalDataRow`, not a link to a subpage
+ * (design/ux/components.md line 239: `S-22-settings` itself carries menu links only, but this row
+ * is the same shape as the other in-place action already on this screen) — the actual `Blob`/anchor
+ * download lives in `telemetry/download.ts`, called from `deps.onExport()` so this module stays
+ * pure DOM glue with no telemetry-sink import of its own (same separation `onClearLocalDataConfirmed`
+ * already uses). Copy key `settings.exportLink` does not exist in `copy.th.json` yet — this task's
+ * REPORT hands off the proposed wording to narrative-designer; `getCopyText`'s own documented
+ * fallback (the raw key) keeps the row honestly labelled in the meantime (TL-N06).
  */
 import { getCopyText } from '../copy/load';
 
@@ -27,6 +38,9 @@ export interface SettingsMenuDeps {
   readonly onOpenWalkingSafety: () => void;
   readonly onOpenCredits: () => void;
   readonly onOpenPrivacy: () => void;
+  /** The export row's own tap (P2-X50, C2-2) — the caller does the actual `Blob`/anchor download
+   * (`telemetry/download.ts#downloadTelemetryExport`), this module only fires the callback. */
+  readonly onExport: () => void;
   /** The confirm popup's own "ลบเลย" tap — the caller's `storage/clear-local-data.ts#clearLocalData`
    * call site (which itself reloads to onboarding, `afterClear: reloadToOnboarding`). */
   readonly onClearLocalDataConfirmed: () => void;
@@ -75,6 +89,13 @@ export function mountSettingsMenu(
   creditsRow.className = 'btn btn-secondary settings-menu-row settings-menu-credits';
   creditsRow.textContent = getCopyText('settings.creditsLink');
   creditsRow.addEventListener('click', () => deps.onOpenCredits());
+
+  // P2-X50 (C2-2): a direct action, not a subpage link — same shape as `clearLocalDataRow` below.
+  const exportRow = document.createElement('button');
+  exportRow.type = 'button';
+  exportRow.className = 'btn btn-secondary settings-menu-row settings-menu-export';
+  exportRow.textContent = getCopyText('settings.exportLink');
+  exportRow.addEventListener('click', () => deps.onExport());
 
   // --- clear local data (fixed top-of-list position per GD K-8/N-02, flow F06 G3) ---
   const clearLocalDataRow = document.createElement('button');
@@ -127,6 +148,7 @@ export function mountSettingsMenu(
     clearLocalDataBlockedNote,
     walkingSafetyRow,
     privacyRow,
+    exportRow,
     creditsRow,
     closeButton,
     clearConfirmOverlay,

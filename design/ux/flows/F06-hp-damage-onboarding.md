@@ -1,6 +1,6 @@
 # Flow F06 — Onboarding นาที 0–10, HP/damage/auto-retreat/ตาย/ฟื้น, class, จอที่บ้าน, consent/age gate
 
-Task: P2-F06-T03 (แก้โดย P2-X11 รอบ 2, P2-X14 รอบ 3, P2-H09 รอบ 4, P2-H23 รอบ 5, P2-H34 รอบ 6, P2-H40 รอบ 7) · เจ้าของ: uiux-designer · สถานะ: รอบ 3 ปิดเศษ gate ครบแล้ว (PASS) — รอบ 4 (P2-H09) เสนอ D-120 (PROPOSED) เรื่องเหตุปฏิเสธ `no_class`/`no_hp` ของ confirm — **รอบ 5 (P2-H23) ปิดครบ:** D-120 ACCEPTED โดย game-director (`design/reviews/P2-H20-decisions.md`), D-126 (F2 ใช้ `launchAreaMaskPath` + body ใหม่ไม่มี `{areaName}`, S-09 รายเขตไม่มีค่าเริ่มต้น), D-127 (A7/F1 ชี้เป้าเดียวระหว่าง onboarding + กฎเสมอกัน) — **รอบ 7 (P2-H40) ปิด 5 สมมติฐานค้างของ P2-X38** (build จริงของ age gate/consent/settings): บังคับใช้จอ `S-00-permission-browser` ก่อน native prompt, สไตล์ปุ่มทางลัดของ `S-23`, ขอบเขต 4 แถวของ `S-22-settings`, ปุ่ม "กลับหน้าแรก" ของ underage, ช่วงปีเกิด 100 ปี · วันที่: 2026-09-28
+Task: P2-F06-T03 (แก้โดย P2-X11 รอบ 2, P2-X14 รอบ 3, P2-H09 รอบ 4, P2-H23 รอบ 5, P2-H34 รอบ 6, P2-H40 รอบ 7, P2-H51 รอบ 9) · เจ้าของ: uiux-designer · สถานะ: รอบ 3 ปิดเศษ gate ครบแล้ว (PASS) — รอบ 4 (P2-H09) เสนอ D-120 (PROPOSED) เรื่องเหตุปฏิเสธ `no_class`/`no_hp` ของ confirm — **รอบ 5 (P2-H23) ปิดครบ:** D-120 ACCEPTED โดย game-director (`design/reviews/P2-H20-decisions.md`), D-126 (F2 ใช้ `launchAreaMaskPath` + body ใหม่ไม่มี `{areaName}`, S-09 รายเขตไม่มีค่าเริ่มต้น), D-127 (A7/F1 ชี้เป้าเดียวระหว่าง onboarding + กฎเสมอกัน) — **รอบ 7 (P2-H40) ปิด 5 สมมติฐานค้างของ P2-X38** (build จริงของ age gate/consent/settings): บังคับใช้จอ `S-00-permission-browser` ก่อน native prompt, สไตล์ปุ่มทางลัดของ `S-23`, ขอบเขต 4 แถวของ `S-22-settings`, ปุ่ม "กลับหน้าแรก" ของ underage, ช่วงปีเกิด 100 ปี — **รอบ 9 (P2-H51) ยืนยัน/ปิด C6-05/C6-06/C6-07 ของ F06 copy gate ที่ P2-X41 ต้องเดาเองหรือทิ้งเป็น should:** ยืนยันตำแหน่งป้าย Recovering ใต้ `#network-banner` เป็นสเปกจริง, ตัดสินตำแหน่งชิประยะเส้นตรงของ `home.farBody`, และตัดสินรูปแบบเวลา+หัวข้อ+การซ่อนชื่อของบรรทัดสรุป run ที่ผ่านมา · วันที่: 2026-09-28
 แหล่งอ้างอิง: `design/features/F06-hp-damage-onboarding.md` (R01–R58, T1–T12, H-E1–H-E24 — สเปกหลักที่ flow นี้แปลงเป็นจอ) · `design/ux/flows/F04-dungeon-presence.md` (popup confirm, run-state pill, run summary headers ที่ flow นี้อ้างอิงแต่ไม่เขียนซ้ำ) · `design/ux/flows/F05-movement-gate-reward.md` (tick feedback ที่ชนกับ hit) · `design/ux/flows/F03-core-loop.md` (ฐานเดิมของ onboarding/HP/class/home states — ดูหมายเหตุ override หัวข้อถัดไป) · `design/ux/components.md` หัวข้อ 7 (HP bar เดิม), 12 (จอพกกระเป๋า/Wake Lock), 13.6 (เส้นแบ่งขอบ HP) · `design/ux/ia.md` หัวข้อ 3–4 (รหัสหน้าจอ, สถานะที่บ้าน) · `art/direction/briefs/P2-assets.md` หัวข้อ 3.8 (HP/ยา/ถอย/ตาย) · `config/content/copy.th.json` (key ที่ narrative เติมแล้วสำหรับ F06) · `product/prd/F06-hp-damage-onboarding.md` · `product/telemetry-events.md` · D-020, D-038 B, D-039, D-064, D-072, D-073, D-078, D-079, D-083, D-087, D-088, D-089, D-092, D-094, D-096, D-097, D-100
 คู่กับ: `design/ux/flows/F04-dungeon-presence.md` (run state, check-in, popup confirm, speed lock), `design/ux/flows/F05-movement-gate-reward.md` (tick/ของ, สรุป run)
 ลำดับอำนาจ: GDD > pillars.md > `design/features/F06-hp-damage-onboarding.md` > ia.md > เอกสารนี้ · ตัวเลขทุกตัวอ้างเป็น `config: <key>` เท่านั้น ค่าในวงเล็บหลัง `config:` เป็นค่าอ่านง่ายเท่านั้น ห้ามลอกไปเขียนโค้ดตรงๆ
@@ -39,6 +39,7 @@ Task: P2-F06-T03 (แก้โดย P2-X11 รอบ 2, P2-X14 รอบ 3, P2-
 17. รอบ 6: ก้อนแรกจาก tick บางส่วนของ D-059 แสดงบนหน้าสรุป ไม่ใช่ toast (P2-H34, ตอบ O-3)
 18. รอบ 7: ปิด 5 สมมติฐานค้างของ P2-X38 (age gate/consent/settings สร้างจริง) (P2-H40)
 19. รอบ 8: ปิดข้อค้างของ F06 copy gate และ visual gate ที่ส่งถึง uiux-designer (P2-H40)
+20. รอบ 9: ยืนยัน/ปิด C6-05 (ป้าย Recovering), C6-06 (ชิประยะของ `home.farBody`), C6-07 (บรรทัดสรุป run ที่ผ่านมา) ของ F06 copy gate (P2-H51)
 
 ## 1. หลักการอ่าน flow นี้
 
@@ -131,7 +132,7 @@ C5. **ผลที่ต้องเป็นจริงบนจอเสม�
 
 C6. เกิดเมื่อปิด auto-retreat อยู่และ HP ถึง 0 → **run จบทันที** ด้วย `exit_reason: death` (ไม่ใช่สถานะกลางที่ยังอยู่ใน `S-03-run` รอเลือกทำอะไรต่อ) ของในถุง run หายทั้งหมด (F05-R20) exp อยู่ เลเวลไม่ลด → สลับไปหน้าสรุปทันที (`S-04-run-summary`): หัวข้อ `[run.summary.died]` (**แก้ R2-F2**: "HP หมด" — label สั้น เจ้าของหัวข้อคือ flow F04 หัวข้อ 7 · narrative เปลี่ยนจาก "คุณตาย ของหายหมด" เดิมเพราะบรรทัด canon ถัดไปพูดว่าตายและของหายอยู่แล้ว หัวข้อจึงบอกแค่เหตุไม่ซ้ำ) **แก้ B-01: บรรทัดแรกใต้หัวข้อเป็นข้อความ canon เต็มของ GDD `[run.death]`** ("คุณตาย ของใน run นี้หายทั้งหมด ครั้งหน้าลองกลับบ้านก่อนตาย" — canon ห้ามแก้คำ, ต่างจาก `run.summary.died` ที่เป็นแค่ label หัวข้อสั้น) **ต่อด้วย** `[run.summary.diedBody]` ("EXP ที่ได้ใน run นี้ยังอยู่" — ปิด N-14 ของ F04-flow-approval ตามที่ flow F05 หัวข้อ 3 ข้อ B4 กำหนดไว้แล้ว เอกสารนี้ยืนยันซ้ำเพราะเป็นเนื้อหาของ F06) **ต่อด้วยแถว exp (`run.summaryExpGained`) และแถวจำนวน tick (`run.summaryTickCount`) เสมอ** (F05-R25 ใช้กับทุก exit_reason, N-06 ของ gate รอบ 1 — ไม่ถูกแทนที่ด้วย `diedBody`) แล้วรายการของว่าง = `[run.summaryRewardLost]` ("ไม่เหลืออะไร") ปุ่มเดียวเด่นสุด `[run.summaryContinue]` กลับแผนที่ **ไม่มีปุ่ม "ใช้ยาฟื้น"/"รอฟื้นเอง"/Support ชุบ อยู่บนจอนี้เลย** (คีย์ `run.death.usePotion`/`waitRecover`/`reviveHint` ไม่ใช้ในหน้านี้ของ Phase 2 — ทางฟื้นทั้งหมดอยู่นอก run ที่จอบ้าน ใช้ `inventory.useRevivePotionButton` แทน ดู C7/C8) — **แก้ R2-F1**: ลำดับ `run.summary.died` (heading) → `run.death` (canon) → `diedBody` → แถว exp/tick → `run.summaryRewardLost` → `run.summaryContinue` ต้องตรงกันทั้ง `F04-04-run-state-summary.html`, `F05-02-run-summary-detail.html` และเฟรม C6 ของ `F06-03-hp-warning-autoretreat-death-recovering.html` (แก้ครบทั้งสามไฟล์ในรอบนี้ — เดิมเฟรม C6 ของ F06-03 มีแค่ `run.death` เป็น heading โดยไม่มี `run.summary.died`/แถว exp-tick/`run.summaryRewardLost`)
 
-C7. **Recovering (H4, นอก run, ที่จอบ้านทุกสถานะ)**: หลัง `death` (ทุก exit_reason ที่จบ run จริงๆ ก็เริ่มนับฟื้นใหม่ตามเวลาจบ, F06-R03 — แต่คำว่า Recovering ในความหมายของ badge นี้ใช้เฉพาะช่วง HP 0 → `config: progression.hpRecovery.deathRecoveryTo_pct`) จอที่บ้าน (Flow F) และ `S-10-profile` แสดงป้าย `[home.recoveringLabel]` ("กำลังฟื้น") + ตัวเลข `[home.recoveringDetail]` ("HP กลับมา {recoverPct}% ภายใน {recoverTime}") ใช้ตัวแปรชุดเดียวกับ `run.death.waitRecoverDetail` เดิมที่สงวนไว้ F09 (ค่าจาก `config: progression.hpRecovery`) — ฟื้นต่อเนื่องแม้แอปปิด (คำนวณจากเวลาที่ผ่านไปตามนาฬิกาของ host, F06-R04) พ้นเป้าแล้วฟื้นต่อที่อัตราปกติจนเต็ม (ไม่มีป้าย Recovering อีกต่อไป กลับเป็น `Healthy` เงียบๆ) **ไม่ใช้ไอคอนนาฬิกาทราย** (สงวนให้ Grace/Suspended ของ F04, art brief 3.8)
+C7. **Recovering (H4, นอก run, ที่จอบ้านทุกสถานะ)** — **ยืนยัน P2-H51 (ปิด C6-05 ของ F06 copy gate):** ตำแหน่ง/กฎการแสดงผลที่ build เลือกไว้เอง (ป้ายลอยที่สองใต้ `#network-banner`, ซ่อนทุกจอยกเว้นกิ่งสุดท้าย "อยู่ที่บ้าน") ตรงกับข้อความข้างล่างนี้ทุกข้อ ยืนยันเป็นสเปกจริงที่ `design/ux/components.md` หัวข้อ 6.1 (พบเพิ่มว่าไอคอนที่ควรมีตามกฎ `.banner.info` ยังขาด — ดูหัวข้อ 20.1) — หลัง `death` (ทุก exit_reason ที่จบ run จริงๆ ก็เริ่มนับฟื้นใหม่ตามเวลาจบ, F06-R03 — แต่คำว่า Recovering ในความหมายของ badge นี้ใช้เฉพาะช่วง HP 0 → `config: progression.hpRecovery.deathRecoveryTo_pct`) จอที่บ้าน (Flow F) และ `S-10-profile` แสดงป้าย `[home.recoveringLabel]` ("กำลังฟื้น") + ตัวเลข `[home.recoveringDetail]` ("HP กลับมา {recoverPct}% ภายใน {recoverTime}") ใช้ตัวแปรชุดเดียวกับ `run.death.waitRecoverDetail` เดิมที่สงวนไว้ F09 (ค่าจาก `config: progression.hpRecovery`) — ฟื้นต่อเนื่องแม้แอปปิด (คำนวณจากเวลาที่ผ่านไปตามนาฬิกาของ host, F06-R04) พ้นเป้าแล้วฟื้นต่อที่อัตราปกติจนเต็ม (ไม่มีป้าย Recovering อีกต่อไป กลับเป็น `Healthy` เงียบๆ) **ไม่ใช้ไอคอนนาฬิกาทราย** (สงวนให้ Grace/Suspended ของ F04, art brief 3.8)
 
 C8. **ยาฟื้น (`potion-revive`) ใช้ได้เฉพาะตอน Recovering และไม่มี run** (F06-R26) — ปุ่ม `[inventory.useRevivePotionButton]` ("ใช้ยาฟื้น" — **แก้ R2-F3**: เดิมใช้ `run.death.usePotion` ซึ่งสงวนไว้ F09 เท่านั้น) อยู่ที่จอบ้านสถานะ Recovering (ไม่ใช่บนจอ run/สรุป run — คนละตำแหน่งจาก F03 เดิม) กดแล้ว HP = `config: economy.potions.revive.reviveToHp_pct` ทันที มีเงื่อนไขว่ามียาชนิดนี้ใน inventory เท่านั้น (มาจาก drop, F05-R14) ถ้าไม่มี ไม่แสดงปุ่มนี้เลย (ไม่ใช่ปุ่ม disabled) — ยา HP ทั่วไปใช้เองนอก run ทุกเมื่อที่ HP < maxHP รวมตอน Recovering ผ่านปุ่ม `[inventory.usePotionButton]` คนละปุ่มจากยาฟื้น (F06-R26 ข้อสอง) จากช่องเดียวกับที่ดู inventory
 
@@ -177,13 +178,13 @@ E4. **ปิดจอพกกระเป๋าได้ในตั้งค�
 - **อ่านว่าแต่ละพลังทำอะไร** — ทางลัดไป `S-05-role-info` (Flow B หัวข้อ 3 ข้อ B2)
 - **เลือกพลังถ้ายังไม่เลือก** — sheet เดียวกับ Flow B ข้อ B1 ทับจอนี้ได้เหมือนทับแผนที่ (F06-R52 ยืนยันชัด)
 - **ดูของที่เก็บมา + ใช้ยา** — ทางลัดไป `[inventory.homeShortcut]` ("ของที่เก็บมา") → `S-11-inventory`: รายการของแยก rarity เหมือนหน้าสรุป run (F05 B1) + ปุ่ม `[inventory.usePotionButton]` ("ใช้ยา") ใช้ได้เมื่อ **ไม่มี run อยู่และ HP < maxHP** (F06-R26) + ปุ่ม `[inventory.useRevivePotionButton]` ("ใช้ยาฟื้น" — **แก้ R2-F3**, เดิมอ้าง `run.death.usePotion`) เมื่ออยู่สถานะ Recovering และมียาชนิดนั้น (C8, ตำแหน่งเดียวกัน ไม่ใช่ปุ่มซ้ำ) — **ไม่มีปุ่มขายให้ร้าน/ลงขายตลาด/ตีบวกใน Phase 2** (ดูหมายเหตุ override ข้อ 8 ด้านบน)
-- **ดูสรุป run ที่ผ่านมา** — ทางลัด `[home.recentRunsShortcut]` ("run ที่ผ่านมา") → รายการสั้นของหน้าสรุป run ล่าสุด (หัวข้อ+เวลา, ไม่มีพิกัดหรือเส้นทาง ตาม F05-R25) เปิดจากจอเดียวกับ `S-11-inventory` หรือแท็บย่อยของ `S-10-profile` (uiux เลือกได้ตอน build ไม่กระทบพฤติกรรม — ไม่ใช่ dungeon เสมือนหรือรางวัลใหม่ใด)
+- **ดูสรุป run ที่ผ่านมา** — ทางลัด `[home.recentRunsShortcut]` ("run ที่ผ่านมา") → รายละเอียดบรรทัดเดียวของ run ล่าสุด (หัวข้อ+ชื่อ+เวลา, ไม่มีพิกัดหรือเส้นทาง ตาม F05-R25) เปิดจากจอเดียวกับ `S-11-inventory` หรือแท็บย่อยของ `S-10-profile` (uiux เลือกได้ตอน build ไม่กระทบพฤติกรรม — ไม่ใช่ dungeon เสมือนหรือรางวัลใหม่ใด) **รูปแบบบรรทัดนี้ (หัวข้อตาม exit_reason, รูปแบบเวลาในอดีต, ซ่อนชื่อเมื่อไม่ resolve) ปิดที่ C6-07 ของ F06 copy gate — สเปกเต็มอยู่หัวข้อ 20.3 (P2-H51)**
 
 ไม่มีรางวัลใดในสถานะที่บ้าน ไม่มี dungeon เสมือน ไม่นำเข้าก้าวจากแอปอื่น (F06-R54, pillars 7.3) · **ทางลัดทั้ง 5 ต้องวาดครบในทุกเฟรมของ `F06-04-home-states.html` (F1, F2, F3, F6) ไม่ใช่แค่เฟรมแรก** (แก้ B-03 — เดิมมีแค่เฟรม F1)
 
 ### 7.1 ไกล (`S-06-far-dungeon-panel`)
 
-F1. เกิดเมื่อ dungeon ที่เปิดอยู่ใกล้สุดห่างเกิน `config: unlocks.home.farDungeonThreshold_m` (ระยะเส้นตรงถึงขอบ polygon, F04-R35) **รวม "ไกลชั่วคราว"** ที่ dungeon ในเกณฑ์ปิดทั้งหมด → หัว `[home.farTitle]` ("รอยแยกใกล้สุดอยู่ไกล") + `[home.farBody]` ("ใกล้สุด {distanceText} ไกลก็จริง แต่ขามีไว้เดิน") ต่อชิป `nav.straightLineTag` เสมอ + ปุ่มนำทางเด่นสุด (F04 A2, A3 — พาไปเดินจริงแม้ไกล) + บรรทัด `nav.returnBeforeArrive` ใต้ปุ่ม (เหมือนแผงระยะของ F04) — นิยามนี้ (dungeon ใกล้สุดทั่วไป ไม่กรองช่วงเลเวล) ใช้หลังจบ onboarding (`O-done`) เท่านั้น ระหว่างที่ยังไม่จบ onboarding ดูข้อยกเว้นที่ A7 ⤷ **แก้ R2-F4/N-08**
+F1. เกิดเมื่อ dungeon ที่เปิดอยู่ใกล้สุดห่างเกิน `config: unlocks.home.farDungeonThreshold_m` (ระยะเส้นตรงถึงขอบ polygon, F04-R35) **รวม "ไกลชั่วคราว"** ที่ dungeon ในเกณฑ์ปิดทั้งหมด → หัว `[home.farTitle]` ("รอยแยกใกล้สุดอยู่ไกล") + `[home.farBody]` ("ใกล้สุด {distanceText} ไกลก็จริง แต่ขามีไว้เดิน") ต่อชิป `nav.straightLineTag` เสมอ (**ปิด C6-06 ของ F06 copy gate, P2-H51:** ชิปนี้อยู่บรรทัดใหม่ต่อจาก `body` ไม่ใช่ฝังกลางประโยค เพราะ `{distanceText}` อยู่กลางประโยคและ `formatCopyText` ไม่รองรับแทรก element กลางข้อความ — สเปกเต็มอยู่ `design/ux/components.md` หัวข้อ 13.8, ดูหัวข้อ 20.2) + ปุ่มนำทางเด่นสุด (F04 A2, A3 — พาไปเดินจริงแม้ไกล) + บรรทัด `nav.returnBeforeArrive` ใต้ปุ่ม (เหมือนแผงระยะของ F04) — นิยามนี้ (dungeon ใกล้สุดทั่วไป ไม่กรองช่วงเลเวล) ใช้หลังจบ onboarding (`O-done`) เท่านั้น ระหว่างที่ยังไม่จบ onboarding ดูข้อยกเว้นที่ A7 ⤷ **แก้ R2-F4/N-08**
    ⤷ เงื่อนไข: ไกลชั่วคราว (dungeon ในเกณฑ์ปิดหมด, H-E21) → เพิ่มบรรทัด `[home.farNextOpen]` ("ที่ใกล้กว่าปิดอยู่ เปิดอีกที {openTime}") หรือ `[home.farNextOpenUnknown]` ("ที่ใกล้กว่าปิดอยู่ ยังไม่รู้ว่าเปิดเมื่อไร") เมื่อ `nextOpenAt_ms` เป็น `null` (ห้ามเติม `{openTime}` เป็นสตริงว่าง, ปิด C6-04 ของ F06 copy gate) **ไม่มีการลงทะเบียนความสนใจในกรณีนี้** (ยังอยู่ในย่านเปิดตัว มีที่ให้ไปแค่ต้องรอเวลาเปิด) — ระหว่าง onboarding เงื่อนไขนี้คือกรณี "ไม่มี" ของ F06-R37 ข้อ 2 ด้วย (A7 ⤷)
    **ตอบ C6-11 (F06 copy gate) — หัว `home.farTitle` ("รอยแยกใกล้สุดอยู่ไกล") ใช้กับ "ไกลชั่วคราว" ด้วย ยืนยันว่าตั้งใจ (Q-T16-1 เดิม):** แม้ dungeon ที่ใกล้สุดจริงจะอยู่ใกล้แต่ปิดอยู่ (ไม่ใช่ไกลจริง) ก็ยังใช้หัวเดียวกัน ไม่แยกหัวใหม่ เหตุผล: (1) กันการเพิ่ม copy key/สถานะที่สามเฉพาะกรณีที่เกิดไม่บ่อย (dungeon ในเกณฑ์ปิดทั้งหมดพร้อมกัน) (2) บรรทัดถัดไปทันที (`home.farNextOpen`/`home.farNextOpenUnknown`) บอกเหตุจริง (ปิด ไม่ใช่ไกล) อยู่แล้วในกรอบเดียวกัน ผู้เล่นที่อ่านครบ 3 วินาทีตามโจทย์หลักของ flow นี้ (หัวข้อ 1) จะเห็นทั้งสองบรรทัดพร้อมกันเสมอ ไม่ใช่เห็นแค่หัวข้อลอยเดี่ยว (3) หัวข้อนี้ทำหน้าที่เป็นกรอบทั่วไป "มีรอยแยกให้ไปแต่ยังไปไม่ได้เดี๋ยวนี้" มากกว่าการยืนยันระยะทางตรงตัว ตรงกับที่ปุ่มนำทางเด่นสุดยังคงอยู่ (F1) แม้ในเคสนี้ปุ่มจะพาไปยัง dungeon เดียวกันที่กำลังปิดอยู่ก็ตาม (D-127 "เป้าเดียวเสมอ") — ไม่ใช่การหลอกผู้เล่นว่าไกล เพราะไม่มีจุดใดอ้างระยะจริงผิดพลาด (`home.farBody` ยังโชว์ `{distanceText}` จริงเสมอ) **ไม่แก้ ไม่เพิ่ม key ใหม่**
 
@@ -445,70 +446,69 @@ G7. **ไม่มีข้อมูลส่วนตัวหรือที�
 | C6-04 `home.farNextOpenUnknown` | อ้างอิง key ใหม่ของ narrative ในบรรทัด `home.farNextOpen` เดิม ไม่ส่ง `{openTime}` ว่าง | Flow F ข้อ F1 |
 | V-38 ขนาดตัวอักษร toast/banner, GPS pill, ปุ่ม primary ของ inventory | ปิดทั้งหมดใน `components.md` (ไม่ใช่ไฟล์นี้) | `design/ux/components.md` หัวข้อ 2.1, 6, 7, 13 (ดู REPORT) |
 
+## 20. รอบ 9: ยืนยัน/ปิด C6-05, C6-06, C6-07 ของ F06 copy gate (P2-H51)
+
+ที่มา: `design/reviews/F06-copy-gate.md` หัวข้อ 5/8 — สามข้อสุดท้ายที่ยังไม่ปิดจากรอบตรวจนั้นที่ส่งถึง uiux-designer: C6-05 (blocking เดิม, P2-X41 build ไปแล้วโดยไม่มีสเปกตรงจุด ต้องยืนยัน/แก้), C6-06 และ C6-07 (ทั้งคู่ should) งานนี้ปิดทั้งสามข้อ
+
+| ข้อ | คำตัดสิน | ตำแหน่งเต็ม |
+| --- | --- | --- |
+| C6-05 ตำแหน่งป้าย Recovering | **ยืนยัน** ของที่ P2-X41 build ไว้เองตรงกับ flow C7 ทุกข้อ — เขียนเป็นสเปกจริงแล้ว พบเพิ่มว่าไอคอนที่กฎ `.banner.info` บังคับยังขาด | `design/ux/components.md` หัวข้อ 6.1, Flow C ข้อ C7 |
+| C6-06 ตำแหน่งชิประยะของ `home.farBody` | บรรทัดใหม่ต่อจาก `body` (ไม่ฝังกลางประโยค) reuse DOM/class เดียวกับ `nav-panel.ts` | `design/ux/components.md` หัวข้อ 13.8, Flow F ข้อ F1 |
+| C6-07 บรรทัดสรุป run ที่ผ่านมา | หัวข้อ = `runSummaryHeaderKey(exitReason)` เดิม (ไม่มี key ใหม่) · เวลา = `formatPastTime` ใหม่ (วันนี้/เมื่อวาน/ชื่อวันภายในสัปดาห์ reuse `unit.onWeekday`) · ซ่อนชื่อเมื่อไม่ resolve | หัวข้อ 20.3 ด้านล่าง, หัวข้อ 7.0 |
+
+### 20.1 C6-05 — ป้าย Recovering: ยืนยัน ไม่ใช่แก้
+
+ตรวจโค้ดจริง (`apps/client/src/ui/recovering-banner.ts`, `app.css`, `f04-app.ts` จุดเรียก `recoveringBanner.render`/`.hide`) เทียบกับข้อความ C7 ทีละข้อ: (1) "บนจอที่บ้านทุกสถานะ รวมสถานะใกล้" — `render()` ของ `f04-app.ts` เรียก `recoveringBanner.hide()` เป็นค่าเริ่มต้นทุก pass แล้วเรียก `.render()` จริงอีกครั้งเฉพาะกิ่งสุดท้าย (หลัง route/run/onboarding/popup ทุกอันเช็คแล้วว่า "ไม่ใช่ฉัน") ซึ่งครอบทั้ง `near` (nav-panel) และ `far`/`out_of_area`/`unknown`/`outside_launch_district`/`temporarilyClosed` (home-panel) — ตรง (2) "พ้นเป้าแล้วหายเงียบ ไม่ใช้ไอคอนนาฬิกาทราย" — `render()` ซ่อนเองเมื่อ `recoveryTimeLeft_ms` เป็น `null`/`0` และ reuse ทรง `.banner.info` (ไม่มีไอคอนนาฬิกาทรายอยู่แล้วเพราะยังไม่มีไอคอนเลย) — ตรง (3) ตัวเลขมาจาก `PlayerView.recoveryTo_pct`/`recoveryTimeLeft_ms` ของ `selectPlayerView` ล้วน ไม่คำนวณเอง — ตรงตาม non-negotiable ข้อ 1
+
+**สรุป: ยืนยันตำแหน่ง/กฎการแสดงผลทั้งหมด ไม่ต้องแก้พฤติกรรม** เขียนเป็นสเปกทางการที่ `components.md` หัวข้อ 6.1 แล้ว (offset คงที่ใต้ `#network-banner`, reuse `.banner.info` ไม่ใช่ `.banner.warn`, กฎซ่อน-ตาม-ค่าเริ่มต้น) — **สิ่งที่ต้องเพิ่ม (ไม่ blocking):** ไอคอน `icon.ui.recovering` (มีอยู่แล้วในทะเบียน asset กลุ่ม tintable ของหัวข้อ 13.9 ของ `components.md`) ยังไม่ถูกวาง ทั้งที่กฎ `.banner.info` ทุกจุดบังคับมีไอคอน 24px คู่ข้อความ (style-guide S4) — รายละเอียด handoff อยู่ที่ `components.md` หัวข้อ 6.1 ท้ายย่อหน้า
+
+### 20.2 C6-06 — ชิประยะเส้นตรงของ `home.farBody`: ตัดสินตำแหน่ง
+
+รายละเอียดเหตุผลเต็มอยู่ `components.md` หัวข้อ 13.8 (ย่อหน้าใหม่) สรุปที่นี่เท่าที่กระทบ flow: `{distanceText}` ของ `home.farBody` อยู่กลางประโยค ("ใกล้สุด {distanceText} ไกลก็จริง...") ไม่ใช่ปลายประโยคแบบที่ `.chip-distance` ทั่วไปใช้ (nav-panel) — เขียน chip แทรกกลางประโยคจริงต้องมี plumbing แยกส่วนข้อความใหม่ที่ `copy/format.ts` ไม่รองรับอยู่แล้ว จึงตัดสินวางบรรทัดชิปใหม่ต่อจาก `body` แทน (ไม่ใช่แก้ถ้อยคำ `home.farBody`) ใช้ได้กับ 2 kind เดียวที่ประโยคนี้ปรากฏจริง: `far`, `outside_launch_district` — ไม่กระทบ `temporarilyClosed`/`out_of_area`/`unknown` ที่ไม่มี `home.farBody` เลย accuracy ต่ำใช้ `nav.distanceApprox` ในตัวเลขของชิปเดียวกัน (ไม่ใช่ชิปที่สอง) เหมือน `nav-panel.ts` ทำอยู่แล้วสำหรับสถานะใกล้
+
+### 20.3 C6-07 — บรรทัดสรุป run ที่ผ่านมา: หัวข้อ + เวลา + ชื่อ
+
+ตรวจโค้ดจริง (`f04-app.ts` ที่ `onOpenRecentRuns`, `ui/run-state-view.ts#runSummaryHeaderKey`, `dungeons/open-time.ts#formatOpenTime`, `copy/names.ts#getDungeonShortName`/`isResolvedDungeonName`) ก่อนตัดสิน — ทุกชิ้นที่ต้องใช้มีอยู่แล้วในโค้ดยกเว้นตัวจัดรูปแบบเวลาในอดีต
+
+1. **หัวข้อ (ปิด "which `run.summary.*` title key per exit reason"):** ใช้ `runSummaryHeaderKey(summary.exitReason)` ตัวเดิมที่ `ui/run-state-view.ts` export ไว้แล้วสำหรับหัวหน้าสรุป run (F04 flow หัวข้อ 7) ตรงๆ **ไม่มี key ใหม่ ไม่มี mapping คู่ขนานชุดที่สอง** — บรรทัดที่บ้านกับหัวหน้าสรุป run ใช้ประโยคเดียวกันเป๊ะ (ไม่เสี่ยงคำสองชุดไม่ตรงกันในอนาคต)
+2. **เวลา (ปิด "past-time format today / yesterday / older"):** `formatOpenTime` (เดิม) มองไปข้างหน้าเท่านั้น (`dayDiff <= 0` ยุบเป็น `unit.today` เสมอ — ผิดสำหรับเวลาในอดีต) เพิ่มฟังก์ชันใหม่ **`formatPastTime(pastMs, nowMs, utcOffsetMin)`** ไว้ข้าง `formatOpenTime` ในไฟล์เดียวกัน (`dungeons/open-time.ts`) reuse helper private เดิมทั้งหมด (`localDayIndex`, `localWeekdayIndex`, `localClockText`, `WEEKDAY_KEYS`) ไม่มีของใหม่ที่ต้อง export เพิ่ม:
+   - `dayDiff = localDayIndex(nowMs) - localDayIndex(pastMs)` (สลับเครื่องหมายจาก `formatOpenTime` เพราะทิศทางกลับกัน)
+   - `dayDiff <= 0` (วันเดียวกัน หรือกันเคสนาฬิกาเพี้ยนที่ `pastMs` ดันมาอยู่ "อนาคต" ของวันปัจจุบัน) → `unit.today`
+   - `dayDiff === 1` → `unit.yesterday` (key มีอยู่แล้ว เพิ่มโดย narrative ตามที่ copy gate ขอไว้ในรอบตรวจเดิม)
+   - `dayDiff >= 2` → `unit.onWeekday` (key เดิม "{weekdayName} {clockText}") ด้วยชื่อวันของ `pastMs` เอง — **ครอบทั้ง "ภายใน 7 วัน" และไกลกว่านั้นด้วยสูตรเดียวกัน** (ตัดสินใจง่ายกว่า 4 bucket): ยอมรับความคลุมเครือของชื่อวันที่ไม่บอกว่า "สัปดาห์ไหน" เมื่อเกิน 7 วัน เพราะ (ก) บรรทัดนี้แสดง run **ล่าสุดเพียงรายการเดียว** ไม่ใช่ประวัติหลายรายการที่ความเข้าใจผิดเรื่องวันจะสะสม (ข) ไม่มี copy key รูปแบบวันที่ปฏิทินเต็ม (เช่น "DD/MM") ในเฟสนี้ และการเพิ่ม key ใหม่เกินขอบเขตของ "should" นี้ (ค) ข้อความไม่ได้กล่าวอ้างว่า "ล่าสุด"/"สัปดาห์นี้" ที่จะทำให้เข้าใจผิดเป็นเท็จ เป็นแค่ชื่อวันจริงของวันนั้น — **ถ้าในอนาคตมีจอประวัติ run หลายรายการ (list) ให้กลับมาทบทวนจุดนี้ใหม่ เพราะตอนนั้นความคลุมเครือข้ามสัปดาห์จะสะสมจริง**
+3. **ชื่อ dungeon (ปิด "hide the dungeon name when unresolved"):** ใช้ `isResolvedDungeonName(nameKey, shortName)` ตัวเดิม (แพทเทิร์นเดียวกับที่ `nav-panel.ts`/`dungeons/artifact.ts` ใช้อยู่แล้ว) — `false` แล้วตัดทั้งท่อนชื่อ (และตัวคั่นข้างมันหนึ่งตัว) ออกทั้งหมด ไม่ใช่ปล่อยชื่อดิบหรือช่องว่างค้าง
+4. **ประกอบสตริง:** resolve แล้ว → `"{หัวข้อ} · {ชื่อสั้น} · {เวลา}"` · ไม่ resolve → `"{หัวข้อ} · {เวลา}"` (ตัวคั่น " · " ตามที่ copy gate เสนอไว้ในตารางข้อค้นพบเดิม) — ไม่มี summary เลย (`lastSummary === null`) ยังใช้ `home.recentRunsEmpty` เดิมไม่เปลี่ยน
+5. **ไม่มี copy key ใหม่จากงานนี้**: `unit.yesterday`/`unit.onWeekday`/`run.summary.*` ทุกตัวมีอยู่แล้วใน `copy.th.json`
+
+[handoff gameplay-programmer: (1) เพิ่ม `formatPastTime` ใน `dungeons/open-time.ts` ตามสูตรข้อ 20.3.2 (2) แก้ `onOpenRecentRuns` ใน `f04-app.ts` ให้ประกอบสตริงตามข้อ 20.3.4 แทนการต่อ `${dungeonName} — ${endedAt}` แบบตรงๆ ปัจจุบัน (3) เพิ่มบรรทัดชิประยะใน `home-panel.ts` ตามข้อ 20.2/`components.md` 13.8 (4) เพิ่มไอคอนป้าย Recovering ตามข้อ 20.1/`components.md` 6.1 — ทั้งสี่ข้อไม่ blocking ด้าน PDPA, งาน P2-X47]
+
 ## REPORT
-task: P2-H40
+task: P2-H51
 status: DONE
-summary: ปิดสมมติฐาน/ข้อค้างของ P2-X38 (age gate/consent/settings build) ทั้ง 5 ข้อในโจทย์เดิม บวกข้อเพิ่มจาก F06 copy gate (C6-03/09/10/11, ยืนยัน `run.hpBarLabel`/`home.farProfileLink`) และ F04-F06 visual gate (V-38: ขนาดตัวอักษร toast/banner, เลือกแบบ GPS pill, ยืนยันปุ่ม primary ของ inventory) รวมถึงตรวจ P2-H43 (tokens.json/components.md เทียบ style-guide S8) ตามที่ orchestrator ส่งเพิ่มระหว่างทำงาน ทุกข้อเขียนคำตัดสิน+เหตุผลลงจุดที่เกี่ยวข้องโดยตรงในเอกสาร ไม่ได้รวมไว้ที่เดียว เพื่อให้คนอ่านแต่ละ flow เจอคำตอบตรงจุดที่ใช้งานจริง — สรุปทีละข้อ:
-
-1. **A-P2-X38-2 (จอ priming ก่อน native permission)** — ตัดสิน **ต้องมี** ยืนยัน A4 (`S-00-permission-browser`) เดิมเป็นตัวจริง build ต้องแก้ให้ตรง (ไม่ blocking ด้าน PDPA เพราะ consent จริงขอแยกที่ A3 ไปแล้ว แต่แนะนำเร่งทำเพราะกระทบอัตราการได้ตำแหน่งจริง) — Flow A ข้อ A4, หัวข้อ 18.1 (ขั้นตอนละเอียดสำหรับ gameplay-programmer)
-2. **A-P2-X38-4 (สไตล์ปุ่มทางลัด `S-23`)** — ใช้ `.btn-secondary` เดิม ไม่สร้าง `.btn-link` ใหม่ (ไม่ต้องแก้โค้ด) — `components.md` หัวข้อ 3.2
-3. **ขอบเขตเมนู `S-22-settings` = 4 แถว** — ยืนยันถูกต้อง report/help/account-delete ยังไม่มีทางเข้าด้วยเหตุผลคนละข้อ (ไม่มีจอ vs. นอกขอบเขต Phase 2) พร้อมเหตุผลอิง pillars U6 (ยังไม่มีผู้เล่นอื่นให้รายงาน) — Flow G หัวข้อ 8 (ก่อน G1)
-4. **R46 "กลับหน้าแรก"** — ยืนยันโค้ดถูกต้อง (`returnFromUnderage`) พาไปสู่ความพยายามใหม่ของ age-gate ตรงๆ ไม่ใช่ intro ซ้ำ ตรงเจตนา R46 — Flow A ข้อ A2
-5. **A-P2-X38-1 (ช่วงปีเกิด 100 ปี)** — ยืนยันเป็นค่า UI ล้วน ไม่ย้ายเข้า config เจ้าของเดียวคือ uiux-designer — Flow A ข้อ A2
-
-เพิ่มจากข้อความของ orchestrator ระหว่างทาง:
-6. **C6-03 `run.screenLockNotice`** — toast จางหายเอง (ไม่ใช่ banner) หลัง hold duration ใหม่ + ซ่อนเมื่อ `dungeon_exited` — Flow E ข้อ E2
-7. **C6-09 ปีเกิด พ.ศ./ค.ศ.** — แสดง พ.ศ. ค่าที่ส่งเข้า engine ยังเป็น ค.ศ. เดิม — Flow A ข้อ A2
-8. **C6-10 first-reward ใต้จอพกกระเป๋า** — ยอมรับได้ ตรง P2-H39 เดิม ไม่แก้ในเฟสนี้ (บันทึกแนวคิดปรับปรุงอนาคตไว้ ไม่ blocking) — Flow E ข้อ E1
-9. **C6-11 หัว `home.farTitle` ในสถานะไกลชั่วคราว** — ยืนยันตั้งใจ ไม่แยกหัวใหม่ — Flow F ข้อ F1
-10. **`run.hpBarLabel`/`home.farProfileLink`** — ยืนยันตั้งใจไม่ใช้ทั้งคู่ ไม่ต้องย้ายเป็น key สงวนถาวร — `components.md` หัวข้อ 7, Flow F หัวข้อ 7.0
-11. **`run.autoRetreatOffBadge` (V-32)** — reuse ทรง `.banner.warn` เต็มรูปแบบ (พื้น `bg.surface`+ขอบ+ข้อความ `state.danger` 16px) แทนคลาสเฉพาะที่ไม่เคยกำหนดขนาด — Flow C ข้อ C10, `components.md` หัวข้อ 6
-12. **V-38 ขนาดตัวอักษร toast/banner** — กำหนด 16px เป็นค่าเดียวไม่มีข้อยกเว้นสำหรับสี state (คู่สี state บน `bg.surface` ได้แค่ 5.50–6.25:1 ไม่ถึง 7:1 ตามตาราง S8 ที่ P2-H43 เพิ่มใน style-guide) — `components.md` หัวข้อ 6
-13. **V-38 เลือกแบบ GPS pill** — เลือกทรง `bg.surface`+ขอบสี state เดิมของ 2.1 (ไม่ใช่พื้นทึบ `ink.900` ที่ build ทำอยู่) ข้อความแก้จาก "≥14px" เป็น 16px ตัวหนา ความสูง pill 24px→28px — `components.md` หัวข้อ 2.1
-14. **V-38 ปุ่ม primary ของ `S-11-inventory`** — ยืนยัน 0 ปุ่ม ทั้ง "ใช้ยา"/"ใช้ยาฟื้น" เป็น `.btn-secondary` เสมอ (ทั้งสองอาจโชว์พร้อมกันได้ ขัดกฎ 1-primary-ต่อจอถ้าเป็น primary ทั้งคู่) — `components.md` หัวข้อ 3.3
-15. **P2-H43 (ตรวจ tokens.json/components.md เทียบ style-guide S8)** — **ผล: `tokens.json` ไม่ต่ำกว่า S8 อยู่แล้ว** (`type.caption` 14px ผูกเงื่อนไข ≥7:1 ไว้ถูกต้องตั้งแต่ต้น) **`components.md` เคยต่ำกว่า S8 สามจุด** ได้แก่ GPS pill (2.1, "≥14px" ใช้กับสี state), ป้าย auto-retreat-off (ไม่เคยกำหนดขนาดเลย), และตาราง toast/banner (6, ไม่เคยเขียน px ชัดเจน) — ปิดครบทั้งสามจุดในรอบนี้ (ดูข้อ 11–13 ข้างบน)
-
+summary: ปิดสามข้อสุดท้ายที่ F06 copy gate ส่งถึง uiux-designer — ยืนยันตำแหน่ง/กฎการแสดงผลป้าย Recovering ที่ P2-X41 ต้องเดาเอง (C6-05) เป็นสเปกจริง พบไอคอนที่ขาด, ตัดสินตำแหน่งชิประยะเส้นตรงของ `home.farBody` (C6-06), และตัดสินรูปแบบหัวข้อ/เวลา/การซ่อนชื่อของบรรทัดสรุป run ที่ผ่านมา (C6-07) พร้อม handoff ที่ไม่ blocking ให้ P2-X47
 outputs:
-  - design/ux/flows/F06-hp-damage-onboarding.md — เพิ่มหัวข้อ 18 (รอบ 7, ปิด P2-X38 5 ข้อ + 18.1 ขั้นตอนสำหรับ gameplay-programmer) และหัวข้อ 19 (รอบ 8, ดัชนีปิดข้อค้างของ copy/visual gate) ในสารบัญและเนื้อหา · แก้ Flow A ข้อ A2 (underage back + ปีเกิด 100 ปี + พ.ศ./ค.ศ.), ข้อ A4 (ยืนยันจอ priming บังคับ) · แก้ Flow C ข้อ C10 (auto-retreat badge → `.banner.warn`) · แก้ Flow E ข้อ E1 (first-reward ใต้จอพกกระเป๋า), ข้อ E2 (screenLockNotice จางหายเอง) · แก้ Flow F ข้อ F1 (far title + `farNextOpenUnknown`), หัวข้อ 7.0 (`farProfileLink`) · แก้ Flow G หัวข้อ 8 (ยืนยันขอบเขตเมนู 4 แถว) · แก้ REPORT
-  - design/ux/components.md — เพิ่มหัวข้อ 3.2 (ปุ่มทางลัดในเนื้อหา, ปิด A-P2-X38-4), 3.3 (ยืนยันปุ่ม primary ของ inventory = 0) · แก้หัวข้อ 2.1 (GPS pill เป็น `bg.surface`+16px) · แก้หัวข้อ 6 (ตาราง toast/banner ครบ 16px ทุกแถว, รวม auto-retreat-off เข้า `.banner.warn`, เพิ่มกฎรวม 16px อ้าง style-guide S8 ของ P2-H43) · แก้หัวข้อ 7 (ยืนยัน `run.hpBarLabel` ไม่ใช้) · แก้บรรทัด revision หัวบทความ
+  - design/ux/flows/F06-hp-damage-onboarding.md — เพิ่มหัวข้อ 20 (รอบ 9: 20.1 C6-05, 20.2 C6-06, 20.3 C6-07) ในสารบัญและเนื้อหา · แก้ Flow C ข้อ C7 (อ้างอิงยืนยัน C6-05), Flow F ข้อ F1 (อ้างอิงตัดสิน C6-06), หัวข้อ 7.0 (อ้างอิงตัดสิน C6-07) · แก้บรรทัด revision หัวบทความ · แก้ REPORT
+  - design/ux/components.md — เพิ่มหัวข้อ 6.1 (ป้าย Recovering, ปิด C6-05 พร้อมพบไอคอนที่ขาด) · แก้หัวข้อ 13.8 (เพิ่มย่อหน้าตำแหน่งชิประยะของ `home.farBody`, ปิด C6-06) · เพิ่มข้อ 10 ในหัวข้อ 14 (ดัชนีอ้างอิง) · แก้บรรทัด revision หัวบทความ
 
 acceptance:
-  - [x] A-P2-X38-2: ตัดสินแล้วว่าบังคับต้องมี พร้อมขั้นตอนแก้ build — evidence: Flow A ข้อ A4, หัวข้อ 18.1
-  - [x] A-P2-X38-4: ตัดสินสไตล์ปุ่มทางลัด — evidence: `components.md` หัวข้อ 3.2
-  - [x] ขอบเขตเมนู `S-22-settings` 4 แถว: ยืนยัน — evidence: Flow G หัวข้อ 8
-  - [x] R46 "กลับหน้าแรก": ยืนยันพฤติกรรมโค้ดถูกต้อง — evidence: Flow A ข้อ A2
-  - [x] A-P2-X38-1: ตัดสินไม่ย้ายเข้า config — evidence: Flow A ข้อ A2
-  - [x] client change ทุกจุดมี handoff ระบุ blocking yes/no ชัดเจน (ไม่มีข้อใด blocking ด้าน PDPA — consent ตำแหน่งจริงถูกขอแยกไว้แล้วเสมอทุกกรณี) — evidence: หัวข้อ 18.1, Flow E ข้อ E2, Flow A ข้อ A2 (ข้อ 3), Flow C ข้อ C10, `components.md` หัวข้อ 2.1/3.3
-  - [x] ข้อเพิ่มจาก F06 copy gate (C6-03/09/10/11, hpBarLabel, farProfileLink) — evidence: หัวข้อ 19, จุดที่อ้างในตารางนั้น
-  - [x] ข้อเพิ่มจาก visual gate V-38 — evidence: `components.md` หัวข้อ 2.1, 3.3, 6
-  - [x] P2-H43 (ตรวจ tokens.json/components.md เทียบ S8) — evidence: ข้อ 15 ของ summary ข้างบน, `components.md` หัวข้อ 6/2.1
-  - [x] ภาษาไทย ไม่มี emoji — evidence: ตรวจด้วยสายตาทั้งส่วนที่แก้ทั้งสองไฟล์
+  - [x] recovering banner placement (top of screen below #network-banner, shown on every home state including near) — ยืนยันตรงกับ flow C7 ทุกข้อจากการตรวจโค้ดจริง เขียนกฎเป็นสเปกทางการ — evidence: `components.md` หัวข้อ 6.1, flow หัวข้อ 20.1, Flow C ข้อ C7
+  - [x] C6-06: ตำแหน่งชิประยะเส้นตรงข้าง `home.farBody` — ตัดสินวางบรรทัดใหม่ต่อจาก body (ไม่ฝังกลางประโยค) พร้อมเหตุผลว่าทำไมไม่ฝังกลางประโยค — evidence: `components.md` หัวข้อ 13.8, flow หัวข้อ 20.2, Flow F ข้อ F1
+  - [x] C6-07: รูปแบบเวลาในอดีต (วันนี้/เมื่อวาน/เก่ากว่า), หัวข้อ `run.summary.*` ต่อ exit reason, ซ่อนชื่อ dungeon เมื่อไม่ resolve — ตัดสินครบทั้งสามส่วน reuse ของเดิมทั้งหมด (`runSummaryHeaderKey`, `isResolvedDungeonName`) บวกฟังก์ชันใหม่หนึ่งตัว (`formatPastTime`) — evidence: flow หัวข้อ 20.3
+  - [x] client work เป็น handoff ให้ gameplay-programmer สำหรับ P2-X47 (blocking: no) — evidence: handoffs ด้านล่าง, `components.md` หัวข้อ 6.1/13.8/14, flow หัวข้อ 20.3 ท้ายย่อหน้า
+  - [x] ภาษาไทย ไม่มี emoji — evidence: ตรวจด้วยสายตาทั้งสองไฟล์ที่แก้
 
 assumptions:
-  - none (ทุกข้อเป็นคำตัดสินปิด ไม่ใช่สมมติฐานเปิดใหม่)
+  - none (ทุกข้อเป็นคำตัดสินปิดจากการตรวจโค้ดจริง ไม่ใช่สมมติฐานเปิดใหม่)
 
 handoffs:
-  - to: gameplay-programmer | need: สร้างจอ `S-00-permission-browser` จริง (ย้าย `startLocationProvider()`/`resolvePermission()` จาก `acceptConsent()` ไปเมธอดใหม่ที่ปุ่ม "ไปต่อ" เรียก, เพิ่ม branch render ใน `f04-app.ts`, เพิ่ม telemetry `permission_browser_shown`) | why: A-P2-X38-2, Flow A ข้อ A4/หัวข้อ 18.1 | blocking: no (ไม่ผิด PDPA — แนะนำเร่งทำเพราะกระทบอัตราการได้ตำแหน่งจริงของเกม)
-  - to: gameplay-programmer | need: แก้ `age-gate-screen.ts#populateOptions` ให้ `option.textContent = year+543` (พ.ศ.) โดย `option.value` คง ค.ศ. เดิม | why: C6-09, Flow A ข้อ A2 | blocking: no
-  - to: gameplay-programmer | need: เพิ่ม timer จางหาย + ซ่อนเมื่อ `dungeon_exited` ให้ `pocket-screen.ts#fallbackToast` (`run.screenLockNotice`) พร้อม config ใหม่ `client.json#toast.screenLockNoticeHoldDurationMs` (เสนอ 4000ms) | why: C6-03, Flow E ข้อ E2 | blocking: no
-  - to: gameplay-programmer | need: แก้ `.gps-pill` เป็นพื้น `bg.surface`+ขอบสี state (ไม่ใช่พื้น `ink.900` ทึบ) ข้อความ 16px ตัวหนา, แก้ `.toast.danger` เป็นพื้น `bg.surface`+ข้อความ `state.danger` 16px (เลิกพื้นแดงทึบ), แก้ `.auto-retreat-off-badge` ให้ reuse กฎ `.banner.warn`, แก้ `.banner.info`/`.banner.warn`/`.toast`/`.toast.faded` เป็น 16px ทุกจุด, ยืนยัน `S-11-inventory` ไม่มีปุ่ม `.btn-primary` เลย | why: V-38, V-32, V-22 ของ `art/reviews/F04-F06-visual-gate.md` | blocking: no
-  - to: narrative-designer | need: ไม่มี key ใหม่ที่ต้องเพิ่มจากงานนี้ (C6-04 `home.farNextOpenUnknown` เป็นของ F06 copy gate เดิมอยู่แล้ว อ้างอิงซ้ำในหัวข้อ 19 เท่านั้น) — ยืนยันว่า `run.hpBarLabel`/`home.farProfileLink` ยังไม่ต้องย้ายไปกลุ่ม key สงวนถาวร | why: หัวข้อ 19 | blocking: no
-  - to: ia.md (งานถัดไปที่แตะไฟล์นั้น, เจ้าของเดียวกันคือ uiux-designer) | need: เพิ่มหมายเหตุ override Phase 2 ที่แถว `S-17-report-block`/`S-25-help` ว่ายังไม่มีทางเข้าจาก `S-22-settings` จนกว่า Nearby Party จะเปิดจริง (F09) | why: ยืนยันขอบเขตเมนู 4 แถว, Flow G หัวข้อ 8 | blocking: no
+  - to: gameplay-programmer | need: เพิ่มไอคอน `icon.ui.recovering` 24px (`aria-hidden`, สี `state.info`) หน้ากลุ่มข้อความใน `recovering-banner.ts` | why: C6-05 — กฎ `.banner.info` ทุกจุดบังคับมีไอคอนคู่ข้อความ (S4) ยังขาดอยู่ | blocking: no
+  - to: gameplay-programmer | need: เพิ่มบรรทัดชิประยะ (`.chip-distance`+`.chip-distance-tag`, reuse โค้ดแบบเดียวกับ `nav-panel.ts#setDistance`) ใน `home-panel.ts` ต่อจาก `body` สำหรับ state `far`/`outside_launch_district` พร้อมส่ง `approximate` จาก `f04-app.ts` เหมือนที่ `renderNearbyNav` ทำ | why: C6-06 | blocking: no
+  - to: gameplay-programmer | need: เพิ่ม `formatPastTime(pastMs, nowMs, utcOffsetMin)` ใน `dungeons/open-time.ts` ตามสูตรหัวข้อ 20.3 ข้อ 2 แล้วแก้ `onOpenRecentRuns` ใน `f04-app.ts` ให้ประกอบสตริง `"{runSummaryHeaderKey(exitReason)} · {ชื่อถ้า resolve} · {formatPastTime(...)}"` แทนการต่อ `${dungeonName} — ${endedAt}` ตรงๆ ปัจจุบัน | why: C6-07 | blocking: no
+  - to: qa-tester | need: เพิ่มเคสทดสอบ `formatPastTime`/บรรทัด recent-run เมื่อ P2-X47 build เสร็จ (วันนี้/เมื่อวาน/ชื่อวันย้อนหลัง, ชื่อ dungeon ที่ไม่ resolve ต้องไม่ขึ้นทั้งชื่อและตัวคั่น) | why: C6-07 ไม่มี golden test vector อยู่ก่อนเพราะเป็น UI formatting ล้วน ไม่ใช่สูตรเกม | blocking: no
 
 decisions:
-  - A-P2-X38-2: จอ `S-00-permission-browser` เป็นจอบังคับ (blocking) เสมอ ยืนยัน A4 เดิม ไม่ตัดออก
-  - A-P2-X38-4: ปุ่มทางลัดใช้ `.btn-secondary` เดิม ไม่สร้างคลาสใหม่
-  - ขอบเขตเมนู `S-22-settings` = 4 แถว ยืนยันถูกต้องสำหรับ Phase 2
-  - R46 "กลับหน้าแรก" = ความพยายามใหม่ของ age-gate ไม่ใช่ intro ซ้ำ ยืนยันโค้ดถูกต้อง
-  - A-P2-X38-1: ช่วงปีเกิด 100 ปี เป็นค่า UI ล้วน ไม่ย้ายเข้า config
-  - `run.screenLockNotice` = toast จางหายเอง ไม่ใช่ banner
-  - ปีเกิดแสดงเป็น พ.ศ. (ค่าเก็บยังเป็น ค.ศ.)
-  - first-reward ใต้จอพกกระเป๋า (C6-10) ยอมรับได้ตาม P2-H39 ไม่แก้ในเฟสนี้
-  - หัว `home.farTitle` ใช้กับสถานะไกลชั่วคราวด้วย ยืนยันตั้งใจ
-  - `run.hpBarLabel`/`home.farProfileLink` ยืนยันไม่ใช้โดยตั้งใจ
-  - `run.autoRetreatOffBadge` reuse ทรง `.banner.warn`
-  - toast/banner ทุกตัวใช้ 16px เป็นค่าเดียวไม่มีข้อยกเว้นสำหรับสี state
-  - GPS pill ใช้ทรง `bg.surface`+ขอบสี state, ข้อความ 16px
-  - `S-11-inventory` มีปุ่ม primary = 0 ปุ่ม
+  - C6-05: ยืนยันตำแหน่ง/กฎการแสดงผลป้าย Recovering ที่ build ไว้เองถูกต้อง ไม่ต้องแก้พฤติกรรม เขียนเป็นสเปกทางการที่ `components.md` 6.1
+  - C6-06: ชิประยะของ `home.farBody` อยู่บรรทัดใหม่ต่อจาก body ไม่ฝังกลางประโยค เพราะ `copy/format.ts` ไม่รองรับแทรก element กลางข้อความและไม่คุ้มเปิด plumbing ใหม่สำหรับ finding ระดับ should
+  - C6-07: หัวข้อ = `runSummaryHeaderKey(exitReason)` เดิม, เวลา = `formatPastTime` ใหม่ (วันนี้/เมื่อวาน/ชื่อวัน reuse `unit.onWeekday` แม้เกิน 7 วัน — ยอมรับความคลุมเครือเพราะเป็น run ล่าสุดรายการเดียว ไม่ใช่ประวัติหลายรายการ), ชื่อซ่อนทั้งท่อนเมื่อ `isResolvedDungeonName` เป็นเท็จ, ตัวคั่น " · "
 questions_for_human:
   - none

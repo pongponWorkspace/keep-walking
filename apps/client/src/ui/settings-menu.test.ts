@@ -10,6 +10,7 @@ function mount(canClear = true) {
     onOpenWalkingSafety: vi.fn(),
     onOpenCredits: vi.fn(),
     onOpenPrivacy: vi.fn(),
+    onExport: vi.fn(),
     onClearLocalDataConfirmed: vi.fn(),
     onClose: vi.fn(),
   };
@@ -27,6 +28,26 @@ describe('mountSettingsMenu', () => {
     expect(screen.root.textContent).toContain(getCopyText('settings.creditsLink'));
     expect(screen.root.textContent).toContain(getCopyText('settings.clearLocalDataLink'));
     expect(screen.root.textContent).toContain(getCopyText('settings.privacyLink'));
+    expect(screen.root.textContent).toContain(getCopyText('settings.exportLink'));
+  });
+
+  it('export row: same secondary button style as the other rows, no run/consent gate', () => {
+    const { screen } = mount();
+    screen.show();
+    const row = screen.root.querySelector<HTMLButtonElement>('.settings-menu-export');
+    expect(row).not.toBeNull();
+    expect(row?.disabled).toBe(false);
+    expect(row?.className.split(' ')).toEqual(
+      expect.arrayContaining(['btn', 'btn-secondary', 'settings-menu-row']),
+    );
+  });
+
+  it('export row calls onExport exactly once per click, straight through with no confirm popup', () => {
+    const { screen, deps } = mount();
+    screen.show();
+    screen.root.querySelector<HTMLButtonElement>('.settings-menu-export')?.click();
+    expect(deps.onExport).toHaveBeenCalledTimes(1);
+    expect(screen.root.querySelector<HTMLElement>('.popup-overlay')?.hidden).toBe(true);
   });
 
   it('never links to a screen this task does not build (report/block, help, account delete)', () => {
@@ -96,6 +117,7 @@ describe('mountSettingsMenu', () => {
       onOpenWalkingSafety: vi.fn(),
       onOpenCredits: vi.fn(),
       onOpenPrivacy: vi.fn(),
+      onExport: vi.fn(),
       onClearLocalDataConfirmed: vi.fn(),
       onClose: vi.fn(),
     });

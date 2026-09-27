@@ -19,6 +19,7 @@ import { createLocationProvider, wireProvider } from './location/session';
 import type { LocationProvider } from '@keep-walking/location';
 import { windowNetworkStatus } from './location/network-status';
 import { mountGpsUi } from './ui/gps-ui';
+import { wireGpsStatusTelemetry, resolveGpsStatusContext } from './telemetry/gps-status-events';
 import type { createLocationLayerController, LocationLayerController } from './map/location-layer';
 import type { loadGameGeoSources } from './map/geo-sources';
 import type { registerRiftCrackImage } from './map/runtime-images';
@@ -353,6 +354,26 @@ async function initLocation(
           ...('wakeLock' in navigator ? { wakeLock: navigator.wakeLock } : {}),
         },
         documentVisibility: document,
+      });
+      // P2-X48 (product/telemetry-events.md section 3, P2-H50): `run_gps_status_changed` needs the
+      // real `TelemetrySink` (`f04App.telemetry`, created just above) — there is no earlier point in
+      // this file with a sink to record into (D-088: exactly one ring buffer, owned by `f04App`, no
+      // second sink is created here). `tracker`/`network` already exist (they drive the GPS pill and
+      // the offline banner from the moment `initLocation` starts); `wireGpsStatusTelemetry`'s own
+      // catch-up (its doc comment) reports whatever state either is *already* in the moment this
+      // line runs, so a GPS problem or an offline device from before this callback fires is never
+      // silently missed just because the sink came into existence one macrotask late.
+      const app = f04App;
+      wireGpsStatusTelemetry({
+        gps: tracker,
+        network,
+        resolveContext: () =>
+          resolveGpsStatusContext(
+            app.engine.getState().run !== null,
+            app.engine.getState().player.classId !== null,
+          ),
+        record: (status, context) =>
+          app.telemetry.record('run_gps_status_changed', { status, context }),
       });
       window.setInterval(
         () => f04App?.onTick(gameClock.now()),

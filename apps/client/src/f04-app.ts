@@ -31,6 +31,7 @@ import { readEnvelope, writeWithQuotaFallback } from './storage/local-store';
 import type { KeyValueStorage } from './storage/local-store';
 import { isTelemetryRecordArray } from './telemetry/sink';
 import { speedLockTriggeredEvent } from './telemetry/f04-events';
+import { downloadTelemetryExport } from './telemetry/download';
 import { appTelemetryConfig } from './config/telemetry';
 import { appPrivacyConfig, clientConfig } from './config/runtime';
 import { createSessionEngine } from './session/engine';
@@ -615,6 +616,18 @@ export function createF04App(deps: F04AppDeps): F04App {
     },
     onOpenPrivacy: () => {
       window.location.hash = '#/settings/privacy';
+    },
+    // P2-X50 (C2-2, plan §2/§11): the only way telemetry leaves the device — a direct download,
+    // never an upload (D-088). `telemetry.snapshot()` read fresh on every click, same as every
+    // other `engine.getState()`/`telemetry` read in this file (never cached at construction time).
+    onExport: () => {
+      downloadTelemetryExport({
+        records: telemetry.snapshot(),
+        forbiddenPropertyNames: appTelemetryConfig.export.forbiddenPropertyNames,
+        coordinateGuard: appTelemetryConfig.export.coordinateLikeNumberGuard,
+        fileNamePrefix: appTelemetryConfig.export.fileNamePrefix,
+        mimeType: appTelemetryConfig.export.mimeType,
+      });
     },
     onClearLocalDataConfirmed: () => {
       clearLocalData({
