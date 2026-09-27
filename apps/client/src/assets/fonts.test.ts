@@ -45,6 +45,14 @@ describe('fontFaceCss', () => {
   it('is empty for a manifest with no fonts', () => {
     expect(fontFaceCss({ ...MANIFEST, fonts: [] }, '/kw/')).toBe('');
   });
+
+  it('V-31 (art gate F04-F06 round 1): emits one --kw-font-<role> variable per role on :root, never a literal family name duplicated in app.css', () => {
+    const css = fontFaceCss(MANIFEST, '/kw/');
+    expect(css).toContain(':root {');
+    expect(css).toContain("--kw-font-ui: 'IBM Plex Sans Thai Looped';");
+    // Only one `ui` declaration even though the fixture has two `ui`-role font entries (500/700).
+    expect(css.match(/--kw-font-ui:/g)?.length).toBe(1);
+  });
 });
 
 describe('injectFontFaces', () => {

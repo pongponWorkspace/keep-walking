@@ -14,10 +14,12 @@
  * banner would need one narrative has not written), so it stays honest about what it is instead of
  * duplicating another module's detailed message.
  *
- * DOM-only glue (not unit-tested at the Vitest level — same convention as `ui/gps-ui.ts`), visible
- * on top of the pocket screen too (`app.css`'s z-index for `.cue-visual-pulse` sits above
- * `.pocket-screen`, components.md 12.1's "Toast/cue ... ไม่ต้องออกจากจอพกกระเป๋าเพราะหน้าเว็บยัง
- * foreground").
+ * DOM-only glue (not unit-tested at the Vitest level — same convention as `ui/gps-ui.ts`). V-35 (art
+ * gate F04-F06 round 1): this pulse sits at `zIndex.toast` (`app.css`), the same level as
+ * `ui/tick-toast.ts`'s own toasts — components.md 15.4's own decision (P2-H39) is that nothing above
+ * `zIndex.overlay` ever needs to reach the player while the pocket screen's opaque overlay is up
+ * (sound/vibration carry that signal instead), so this pulse is covered by the pocket screen exactly
+ * the same way a toast already is, on purpose, never a separate level above it.
  */
 export interface CueVisual {
   /** Triggers one flash. Safe to call again before the previous flash finishes (restarts it). */

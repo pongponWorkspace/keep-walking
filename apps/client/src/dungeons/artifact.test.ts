@@ -42,6 +42,12 @@ describe('dungeonStatus / toMapDungeonInput', () => {
     expect(input.sponsored).toBe(false);
     expect(input).not.toHaveProperty('label_count');
     expect(typeof input.name).toBe('string');
-    expect(input.name.length).toBeGreaterThan(0);
+    expect(input.name?.length).toBeGreaterThan(0);
+  });
+
+  it('V-34 (art gate F04-F06 round 1): omits name entirely rather than the raw name_key when it does not resolve through names.th.json', () => {
+    const unresolved = { ...first, name_key: 'dungeon.doesNotExistInNamesJson' };
+    const input = toMapDungeonInput(unresolved, params, Date.now());
+    expect(input).not.toHaveProperty('name');
   });
 });

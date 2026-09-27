@@ -46,7 +46,11 @@ export type DungeonStatus = 'open' | 'closed';
 /** The 6-property whitelist, map-style.md 6.1 / tech note 15.2. Identical shape on both sources. */
 export interface DungeonProperties {
   readonly id: string;
-  readonly name: string;
+  /** V-34 (art gate F04-F06 round 1): omitted (never a raw, unresolved `name_key`) when the caller
+   * could not resolve a display name through `names.th.json` — `kw-light.style.json`'s
+   * `kw-rift-name` layer filters on `["has", "name"]`, so an absent property means no label text at
+   * all, while `kw-rift-crack` (the crack icon) has no such filter and keeps rendering. */
+  readonly name?: string;
   readonly status: DungeonStatus;
   readonly sponsored: boolean;
   readonly label_sponsored?: string;
@@ -55,13 +59,16 @@ export interface DungeonProperties {
 
 /**
  * One dungeon's payload as this adapter receives it: an arbitrary server/fixture object that must
- * carry at least `id`, `name` and `geometry`, plus whatever else the server happens to send (a
- * geohash, a per-player last-seen time, ...). None of the extra keys ever reach a Feature's
- * `properties` — see `buildDungeonProperties`.
+ * carry at least `id`, `geometry` and (usually) `name`, plus whatever else the server happens to
+ * send (a geohash, a per-player last-seen time, ...). None of the extra keys ever reach a Feature's
+ * `properties` — see `buildDungeonProperties`. `name` itself is optional (V-34): a caller that could
+ * not resolve a display name (e.g. `dungeons/artifact.ts#toMapDungeonInput` against `names.th.json`)
+ * omits it entirely rather than pass through a raw, unresolved key — see `DungeonProperties.name`'s
+ * own doc comment for why an absent property, not an empty string, is what actually hides the label.
  */
 export interface DungeonInput {
   readonly id: string;
-  readonly name: string;
+  readonly name?: string;
   readonly geometry: DungeonGeometry;
   readonly status?: unknown;
   readonly sponsored?: unknown;
@@ -536,17 +543,22 @@ function normalizeStatus(value: unknown, id: string): DungeonStatus {
 function buildDungeonProperties(input: DungeonInput): DungeonProperties {
   const properties: {
     id: string;
-    name: string;
+    name?: string;
     status: DungeonStatus;
     sponsored: boolean;
     label_sponsored?: string;
     label_count?: string;
   } = {
     id: input.id,
-    name: input.name,
     status: normalizeStatus(input.status, input.id),
     sponsored: input.sponsored === true,
   };
+  // V-34: only a real, resolved string sets the property at all — an absent `name` (never an empty
+  // string, which `kw-light.style.json`'s `["has", "name"]` filter would still treat as present) is
+  // what actually hides `kw-rift-name`'s label for this dungeon.
+  if (typeof input.name === 'string') {
+    properties.name = input.name;
+  }
   if (typeof input.label_sponsored === 'string') {
     properties.label_sponsored = input.label_sponsored;
   }

@@ -1,7 +1,8 @@
 // Evaluates the P2-F05-T01 vector fns (tick-reward.json, run-loop.json) from the vector input
 // alone (no config read). Returns undefined for any other fn so vector-eval.ts can chain.
 // Stable fn names (backend ports them into the packages/shared dispatcher): soloTickExp, addExp,
-// lootTable, soloDamage, hitAttempt, runLoop, runLoopStats. rollTickLoot, deriveSeed and
+// lootTable, soloDamage, hitAttempt, runLoop (optional pauses, P2-H47), runLoopStats, and
+// hp-recovery.json's hpAfterRegen, recoveryTime (P2-H47). rollTickLoot, deriveSeed and
 // streamDraws stay in vector-eval-gate.ts (P2-F05-T20).
 import type { DropContext } from '@keep-walking/shared/formulas';
 import type { Json } from './config';
@@ -10,6 +11,10 @@ import { lootTable, parseDropTable } from './loot';
 import type { LoopInput, LoopParams, OwnClass } from './loop';
 import { addExp, hitAttempt, runLoop, soloBuffPct, soloDamage, soloTickExp } from './loop';
 import { loopStats } from './loop-scenarios';
+import type { Pause, PauseParams } from './loop-pauses';
+import { runLoopWithPauses } from './loop-pauses';
+import type { RegenParams } from './regen';
+import { hpAfterRegen, recoveryTime } from './regen';
 import { expMultiplier } from '@keep-walking/shared/formulas';
 import { levelsOutsideRange as outside, zoneLevelFor } from './zone';
 
@@ -78,7 +83,12 @@ export function evaluateLoopVector(input: In): unknown {
     case 'runLoop': {
       const rest: In = { ...input };
       delete rest['fn'];
-      return runLoop(rest as unknown as LoopInput);
+      if (rest['pauses'] === undefined) return runLoop(rest as unknown as LoopInput);
+      const pauses = rest['pauses'] as Pause[];
+      const pp = o<PauseParams>(rest, 'pauseParams');
+      delete rest['pauses'];
+      delete rest['pauseParams'];
+      return runLoopWithPauses(rest as unknown as LoopInput, pauses, pp);
     }
     case 'runLoopStats':
       return loopStats(
@@ -86,6 +96,26 @@ export function evaluateLoopVector(input: In): unknown {
         n(input, 'firstSeed'),
         n(input, 'runs'),
       );
+    case 'hpAfterRegen':
+      return hpAfterRegen(
+        n(input, 'value'),
+        n(input, 'maxHp'),
+        n(input, 'vit'),
+        n(input, 'elapsed_ms'),
+        o<RegenParams>(input, 'params'),
+      );
+    case 'recoveryTime': {
+      const recovering = input['recovering'];
+      if (typeof recovering !== 'boolean')
+        throw new Error('vector input "recovering" must be a boolean');
+      return recoveryTime(
+        n(input, 'value'),
+        n(input, 'maxHp'),
+        n(input, 'vit'),
+        recovering,
+        o<RegenParams>(input, 'params'),
+      );
+    }
     default:
       return undefined;
   }

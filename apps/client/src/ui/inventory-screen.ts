@@ -129,7 +129,10 @@ export function mountInventoryScreen(
           button.addEventListener('click', () => deps.onUsePotion(id));
         } else if (!view.hasRun && id === deps.potions.reviveItemId && view.recovering && qty > 0) {
           button = document.createElement('button');
-          button.className = 'btn btn-primary inventory-use-revive-potion-button';
+          // V-38 (uiux decision, components.md 6/3): S-11 inventory never has a `.btn-primary` — a
+          // list screen may show more than one eligible potion row at once, so neither button may
+          // claim the single-primary-per-screen slot (style guide 5).
+          button.className = 'btn btn-secondary inventory-use-revive-potion-button';
           button.textContent = getCopyText('inventory.useRevivePotionButton');
           button.addEventListener('click', () => deps.onUseRevivePotion(id));
         }

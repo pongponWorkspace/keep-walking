@@ -3883,6 +3883,553 @@
       },
       "tolerance": 0.000001,
       "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · PN-2 1-35, level 1 Tanker, no potions: R43 after D-112 (finding F-18)"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 3,
+        "limit_s": 21600,
+        "failedTicks": [],
+        "ownClass": "ranged",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 300,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": true,
+        "inventory": {
+          "hpSmall": 1,
+          "revive": 1
+        },
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.7036386229960384,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 1.1727310383267306,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 1.7590965574900959,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 17,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "hpSmall", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1,
+            "qtyMult": 1,
+            "chanceMult": 1,
+            "items": [
+              { "id": "revive", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true,
+        "pauses": [
+          { "atTau_s": 700, "duration_s": 120 },
+          { "atTau_s": 1000, "duration_s": 600 }
+        ],
+        "pauseParams": {
+          "graceMax_s": 180,
+          "suspendedMax_s": 900
+        }
+      },
+      "expected": {
+        "exitReason": "auto_retreat",
+        "end_s": 4207.666311,
+        "ticksEvaluated": 14,
+        "ticksGranted": 14,
+        "attempts": 67,
+        "hitsLanded": 44,
+        "potionsFromRunBag": 2,
+        "potionsFromInventory": 1,
+        "firstPotionDrop_s": 300,
+        "lowHpWarnings": 1,
+        "hpEnd": 69.15096,
+        "levelEnd": 3,
+        "expEnd": 415.905499,
+        "expGained": 751.593104,
+        "runBag": {
+          "elementDust": 18,
+          "elementCore": 4,
+          "riftStone": 1
+        },
+        "kept": {
+          "elementDust": 18,
+          "elementCore": 4,
+          "riftStone": 1
+        },
+        "lost": {},
+        "inventoryEnd": {
+          "revive": 1,
+          "elementDust": 18,
+          "elementCore": 4,
+          "riftStone": 1
+        },
+        "events": [
+          { "t_s": 69.707682, "type": "attempt", "i": 0, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 69.707682 },
+          { "t_s": 136.796382, "type": "attempt", "i": 1, "landed": true, "damage": 4.5, "hpAfter": 295.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 136.796382 },
+          { "t_s": 190.549908, "type": "attempt", "i": 2, "landed": true, "damage": 4.5, "hpAfter": 291, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 190.549908 },
+          { "t_s": 255.583793, "type": "attempt", "i": 3, "landed": false, "damage": 0, "hpAfter": 291, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 255.583793 },
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 18, "level": 1, "shield": 0, "loot": "elementDust:1,elementCore:1,hpSmall:1", "at_s": 300 },
+          { "t_s": 329.432339, "type": "attempt", "i": 4, "landed": false, "damage": 0, "hpAfter": 291, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 329.432339 },
+          { "t_s": 376.24591, "type": "attempt", "i": 5, "landed": true, "damage": 4.5, "hpAfter": 286.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 376.24591 },
+          { "t_s": 445.224072, "type": "attempt", "i": 6, "landed": true, "damage": 4.5, "hpAfter": 282, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 445.224072 },
+          { "t_s": 505.19286, "type": "attempt", "i": 7, "landed": true, "damage": 4.5, "hpAfter": 277.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 505.19286 },
+          { "t_s": 565.575488, "type": "attempt", "i": 8, "landed": true, "damage": 4.5, "hpAfter": 273, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 565.575488 },
+          { "t_s": 600, "type": "tick", "k": 1, "granted": true, "exp": 18, "level": 1, "shield": 0, "loot": "elementDust:1,elementCore:1", "at_s": 600 },
+          { "t_s": 611.812836, "type": "attempt", "i": 9, "landed": true, "damage": 4.5, "hpAfter": 268.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 611.812836 },
+          { "t_s": 685.000371, "type": "attempt", "i": 10, "landed": false, "damage": 0, "hpAfter": 268.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 685.000371 },
+          { "t_s": 744.115385, "type": "attempt", "i": 11, "landed": false, "damage": 0, "hpAfter": 268.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 864.115385 },
+          { "t_s": 796.667173, "type": "attempt", "i": 12, "landed": false, "damage": 0, "hpAfter": 268.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 916.667173 },
+          { "t_s": 842.307228, "type": "attempt", "i": 13, "landed": true, "damage": 4.5, "hpAfter": 264, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 962.307228 },
+          { "t_s": 900, "type": "tick", "k": 2, "granted": true, "exp": 18, "level": 1, "shield": 0, "loot": "elementDust:2,elementCore:1", "at_s": 1020 },
+          { "t_s": 910.020284, "type": "attempt", "i": 14, "landed": true, "damage": 4.5, "hpAfter": 259.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1030.020284 },
+          { "t_s": 984.760069, "type": "attempt", "i": 15, "landed": false, "damage": 0, "hpAfter": 259.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 1104.760069 },
+          { "t_s": 1036.513867, "type": "attempt", "i": 16, "landed": true, "damage": 4.5, "hpAfter": 255, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1756.513867 },
+          { "t_s": 1101.638427, "type": "attempt", "i": 17, "landed": true, "damage": 4.5, "hpAfter": 250.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1821.638427 },
+          { "t_s": 1175.135687, "type": "attempt", "i": 18, "landed": true, "damage": 4.5, "hpAfter": 246, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1895.135687 },
+          { "t_s": 1200, "type": "tick", "k": 3, "granted": true, "exp": 18, "level": 2, "shield": 0, "loot": "elementDust:1", "at_s": 1920 },
+          { "t_s": 1243.908052, "type": "attempt", "i": 19, "landed": true, "damage": 11.0803, "hpAfter": 234.9197, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1963.908052 },
+          { "t_s": 1302.750385, "type": "attempt", "i": 20, "landed": true, "damage": 11.0803, "hpAfter": 223.839401, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2022.750385 },
+          { "t_s": 1374.170736, "type": "attempt", "i": 21, "landed": true, "damage": 11.0803, "hpAfter": 212.759101, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2094.170736 },
+          { "t_s": 1433.090028, "type": "attempt", "i": 22, "landed": true, "damage": 11.0803, "hpAfter": 201.678801, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2153.090028 },
+          { "t_s": 1486.887647, "type": "attempt", "i": 23, "landed": true, "damage": 11.0803, "hpAfter": 190.598501, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2206.887647 },
+          { "t_s": 1500, "type": "tick", "k": 4, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:2,riftStone:1", "at_s": 2220 },
+          { "t_s": 1556.975796, "type": "attempt", "i": 24, "landed": true, "damage": 11.0803, "hpAfter": 179.518202, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2276.975796 },
+          { "t_s": 1627.488799, "type": "attempt", "i": 25, "landed": false, "damage": 0, "hpAfter": 179.518202, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2347.488799 },
+          { "t_s": 1675.636348, "type": "attempt", "i": 26, "landed": true, "damage": 11.0803, "hpAfter": 168.437902, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2395.636348 },
+          { "t_s": 1730.848747, "type": "attempt", "i": 27, "landed": true, "damage": 11.0803, "hpAfter": 157.357602, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2450.848747 },
+          { "t_s": 1789.680799, "type": "attempt", "i": 28, "landed": true, "damage": 11.0803, "hpAfter": 146.277303, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2509.680799 },
+          { "t_s": 1800, "type": "tick", "k": 5, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:1", "at_s": 2520 },
+          { "t_s": 1858.221834, "type": "attempt", "i": 29, "landed": false, "damage": 0, "hpAfter": 146.277303, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2578.221834 },
+          { "t_s": 1914.314515, "type": "attempt", "i": 30, "landed": true, "damage": 11.0803, "hpAfter": 135.197003, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2634.314515 },
+          { "t_s": 1970.568565, "type": "attempt", "i": 31, "landed": false, "damage": 0, "hpAfter": 135.197003, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2690.568565 },
+          { "t_s": 2036.735989, "type": "attempt", "i": 32, "landed": false, "damage": 0, "hpAfter": 135.197003, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2756.735989 },
+          { "t_s": 2100, "type": "tick", "k": 6, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "", "at_s": 2820 },
+          { "t_s": 2107.272098, "type": "attempt", "i": 33, "landed": true, "damage": 11.0803, "hpAfter": 124.116703, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2827.272098 },
+          { "t_s": 2167.865018, "type": "attempt", "i": 34, "landed": false, "damage": 0, "hpAfter": 124.116703, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2887.865018 },
+          { "t_s": 2230.143762, "type": "attempt", "i": 35, "landed": true, "damage": 11.0803, "hpAfter": 203.036403, "shieldAfter": 0, "potion": "runBag:hpSmall", "warning": false, "outcome": "continue", "at_s": 2950.143762 },
+          { "t_s": 2283.357986, "type": "attempt", "i": 36, "landed": true, "damage": 11.0803, "hpAfter": 191.956104, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3003.357986 },
+          { "t_s": 2352.259789, "type": "attempt", "i": 37, "landed": true, "damage": 11.0803, "hpAfter": 180.875804, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3072.259789 },
+          { "t_s": 2399.015591, "type": "attempt", "i": 38, "landed": true, "damage": 11.0803, "hpAfter": 169.795504, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3119.015591 },
+          { "t_s": 2400, "type": "tick", "k": 7, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:2", "at_s": 3120 },
+          { "t_s": 2468.983941, "type": "attempt", "i": 39, "landed": true, "damage": 11.0803, "hpAfter": 158.715204, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3188.983941 },
+          { "t_s": 2524.179067, "type": "attempt", "i": 40, "landed": false, "damage": 0, "hpAfter": 158.715204, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3244.179067 },
+          { "t_s": 2588.167788, "type": "attempt", "i": 41, "landed": false, "damage": 0, "hpAfter": 158.715204, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3308.167788 },
+          { "t_s": 2653.858199, "type": "attempt", "i": 42, "landed": true, "damage": 11.0803, "hpAfter": 147.634905, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3373.858199 },
+          { "t_s": 2700, "type": "tick", "k": 8, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:2", "at_s": 3420 },
+          { "t_s": 2713.711778, "type": "attempt", "i": 43, "landed": false, "damage": 0, "hpAfter": 147.634905, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3433.711778 },
+          { "t_s": 2774.16949, "type": "attempt", "i": 44, "landed": true, "damage": 11.0803, "hpAfter": 136.554605, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3494.16949 },
+          { "t_s": 2837.032974, "type": "attempt", "i": 45, "landed": false, "damage": 0, "hpAfter": 136.554605, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3557.032974 },
+          { "t_s": 2910.045642, "type": "attempt", "i": 46, "landed": true, "damage": 11.0803, "hpAfter": 125.474305, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3630.045642 },
+          { "t_s": 2981.196281, "type": "attempt", "i": 47, "landed": true, "damage": 11.0803, "hpAfter": 204.394006, "shieldAfter": 0, "potion": "inventory:hpSmall", "warning": false, "outcome": "continue", "at_s": 3701.196281 },
+          { "t_s": 3000, "type": "tick", "k": 9, "granted": true, "exp": 50.911688, "level": 3, "shield": 0, "loot": "elementDust:2,hpSmall:1", "at_s": 3720 },
+          { "t_s": 3041.322567, "type": "attempt", "i": 48, "landed": true, "damage": 18.770254, "hpAfter": 185.623752, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3761.322567 },
+          { "t_s": 3094.773554, "type": "attempt", "i": 49, "landed": true, "damage": 18.770254, "hpAfter": 166.853498, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3814.773554 },
+          { "t_s": 3165.35418, "type": "attempt", "i": 50, "landed": false, "damage": 0, "hpAfter": 166.853498, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3885.35418 },
+          { "t_s": 3226.722353, "type": "attempt", "i": 51, "landed": true, "damage": 18.770254, "hpAfter": 148.083244, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3946.722353 },
+          { "t_s": 3293.767627, "type": "attempt", "i": 52, "landed": false, "damage": 0, "hpAfter": 148.083244, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 4013.767627 },
+          { "t_s": 3300, "type": "tick", "k": 10, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1", "at_s": 4020 },
+          { "t_s": 3340.101426, "type": "attempt", "i": 53, "landed": false, "damage": 0, "hpAfter": 148.083244, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 4060.101426 },
+          { "t_s": 3398.403197, "type": "attempt", "i": 54, "landed": false, "damage": 0, "hpAfter": 148.083244, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 4118.403197 },
+          { "t_s": 3470.155126, "type": "attempt", "i": 55, "landed": true, "damage": 18.770254, "hpAfter": 129.31299, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 4190.155126 },
+          { "t_s": 3522.767965, "type": "attempt", "i": 56, "landed": true, "damage": 18.770254, "hpAfter": 200.542737, "shieldAfter": 0, "potion": "runBag:hpSmall", "warning": false, "outcome": "continue", "at_s": 4242.767965 },
+          { "t_s": 3596.913945, "type": "attempt", "i": 57, "landed": false, "damage": 0, "hpAfter": 200.542737, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 4316.913945 },
+          { "t_s": 3600, "type": "tick", "k": 11, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "", "at_s": 4320 },
+          { "t_s": 3665.10909, "type": "attempt", "i": 58, "landed": false, "damage": 0, "hpAfter": 200.542737, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 4385.10909 },
+          { "t_s": 3730.945303, "type": "attempt", "i": 59, "landed": true, "damage": 18.770254, "hpAfter": 181.772483, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 4450.945303 },
+          { "t_s": 3799.487737, "type": "attempt", "i": 60, "landed": true, "damage": 18.770254, "hpAfter": 163.002229, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 4519.487737 },
+          { "t_s": 3872.442672, "type": "attempt", "i": 61, "landed": true, "damage": 18.770254, "hpAfter": 144.231975, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 4592.442672 },
+          { "t_s": 3900, "type": "tick", "k": 12, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1,elementCore:1", "at_s": 4620 },
+          { "t_s": 3945.561658, "type": "attempt", "i": 62, "landed": false, "damage": 0, "hpAfter": 144.231975, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 4665.561658 },
+          { "t_s": 3994.534389, "type": "attempt", "i": 63, "landed": true, "damage": 18.770254, "hpAfter": 125.461721, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 4714.534389 },
+          { "t_s": 4061.35095, "type": "attempt", "i": 64, "landed": true, "damage": 18.770254, "hpAfter": 106.691468, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 4781.35095 },
+          { "t_s": 4134.060335, "type": "attempt", "i": 65, "landed": true, "damage": 18.770254, "hpAfter": 87.921214, "shieldAfter": 0, "potion": null, "warning": true, "outcome": "continue", "at_s": 4854.060335 },
+          { "t_s": 4200, "type": "tick", "k": 13, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:2", "at_s": 4920 },
+          { "t_s": 4207.666311, "type": "attempt", "i": 66, "landed": true, "damage": 18.770254, "hpAfter": 69.15096, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "autoRetreat", "at_s": 4927.666311 }
+        ],
+        "pauses": [
+          { "atTau_s": 700, "duration_s": 120, "reached": true, "leftAtReal_s": 700, "grace_s": 120, "suspended_s": 0 },
+          { "atTau_s": 1000, "duration_s": 600, "reached": true, "leftAtReal_s": 1120, "grace_s": 180, "suspended_s": 420 }
+        ],
+        "paused_s": 720,
+        "realEnd_s": 4927.666311
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · same seed and input as the auto-retreat ON case above, with two outside periods: Grace 120 s at tau 700 and Grace 180 s + Suspended 420 s at tau 1000. Every tau field (t_s, end_s, attempts, damage, loot, exp) equals the case without pauses: the hit clock and reward windows resume, never reset (R06-R07, R10, D-094, D-096); every event after a pause moves by the pause in real time at_s (13.3 item 1: attempts after a 120 s Grace move by exactly 120 s)"
+    },
+    {
+      "input": {
+        "fn": "runLoop",
+        "runSeed": 5,
+        "limit_s": 21600,
+        "failedTicks": [],
+        "ownClass": "support",
+        "level": 1,
+        "exp": 0,
+        "maxHp": 300,
+        "hp": 300,
+        "def": 20,
+        "vit": 0,
+        "rangeMin": 1,
+        "rangeMax": 5,
+        "autoRetreatEnabled": true,
+        "inventory": {},
+        "table": [
+          {
+            "rarity": "common",
+            "chance_pct": null,
+            "qtyMult": 0.36,
+            "chanceMult": 1,
+            "items": [
+              { "id": "elementDust", "weight": 1, "qtyMin": 1, "qtyMax": 3 }
+            ]
+          },
+          {
+            "rarity": "uncommon",
+            "chance_pct": 25,
+            "qtyMult": 1,
+            "chanceMult": 0.6,
+            "items": [
+              { "id": "elementCore", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "rare",
+            "chance_pct": 6,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "riftStone", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "epic",
+            "chance_pct": 1.2,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          },
+          {
+            "rarity": "legendary",
+            "chance_pct": 0.2,
+            "qtyMult": 1,
+            "chanceMult": 0.8999999999999999,
+            "items": [
+              { "id": "equipWeapon", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipArmor", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipCharm", "weight": 1, "qtyMin": 1, "qtyMax": 1 },
+              { "id": "equipBoots", "weight": 1, "qtyMin": 1, "qtyMax": 1 }
+            ]
+          }
+        ],
+        "params": {
+          "window_s": 300,
+          "intervalMin_s": 45,
+          "intervalMax_s": 75,
+          "hitChance_pct": 54,
+          "monster": {
+            "monsterAtkCoef": 3,
+            "monsterAtkExponent": 1.3,
+            "defSoftcap": 300,
+            "damageMultPerLevelBelowRange": 1.25,
+            "monsterAtkMultAfterFailedRaid": 2,
+            "tankerMissingDebuffMult": 1.6
+          },
+          "buff": {
+            "pPerMemberBase": 1,
+            "pLevelDivisor": 50
+          },
+          "roles": {
+            "tanker": {
+              "base_pct": 16,
+              "cap_pct": 45
+            },
+            "support": {
+              "base_pct": 25,
+              "cap_pct": 50
+            },
+            "magic": {
+              "base_pct": 17,
+              "cap_pct": 50
+            }
+          },
+          "supportHealBase_pctMaxHpPerMin": 0.5,
+          "magicShieldPerTick_pctMaxHpPerBuffPct": 0.1,
+          "exp": {
+            "expToNextCoef": 60,
+            "expToNextExponent": 2.2,
+            "expPerTickCoef": 30,
+            "expPerTickExponent": 1.5,
+            "maxLevel": 60,
+            "startLevel": 1
+          },
+          "expMult": {
+            "magicBuffMaxMult": 1.5,
+            "noMagicMult": 0.6,
+            "levelGapMultPerLevel": 0.92,
+            "levelGapMultFloor": 0.25
+          },
+          "autoRetreatThreshold_pct": 25,
+          "lowHpWarningThreshold_pct": 30,
+          "autoPotionEnabled": true,
+          "autoPotionThreshold_pct": 40,
+          "vitPotionEfficiency_pct": 1,
+          "potionHeal_pct": {
+            "hpSmall": 30,
+            "hpMedium": 60,
+            "hpLarge": 100
+          },
+          "potionOrder": [
+            "hpSmall",
+            "hpMedium",
+            "hpLarge"
+          ],
+          "sourceOrder": [
+            "runBag",
+            "inventory"
+          ]
+        },
+        "recordEvents": true,
+        "pauses": [
+          { "atTau_s": 450, "duration_s": 170 },
+          { "atTau_s": 1250, "duration_s": 480 }
+        ],
+        "pauseParams": {
+          "graceMax_s": 180,
+          "suspendedMax_s": 900
+        }
+      },
+      "expected": {
+        "exitReason": "auto_retreat",
+        "end_s": 3409.825507,
+        "ticksEvaluated": 11,
+        "ticksGranted": 11,
+        "attempts": 56,
+        "hitsLanded": 32,
+        "potionsFromRunBag": 0,
+        "potionsFromInventory": 0,
+        "firstPotionDrop_s": null,
+        "lowHpWarnings": 1,
+        "hpEnd": 63.235716,
+        "levelEnd": 3,
+        "expEnd": 135.313268,
+        "expGained": 471.000873,
+        "runBag": {
+          "elementDust": 9,
+          "elementCore": 3
+        },
+        "kept": {
+          "elementDust": 9,
+          "elementCore": 3
+        },
+        "lost": {},
+        "inventoryEnd": {
+          "elementDust": 9,
+          "elementCore": 3
+        },
+        "events": [
+          { "t_s": 53.085778, "type": "attempt", "i": 0, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 53.085778 },
+          { "t_s": 127.361962, "type": "attempt", "i": 1, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 127.361962 },
+          { "t_s": 191.765534, "type": "attempt", "i": 2, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 191.765534 },
+          { "t_s": 259.537031, "type": "attempt", "i": 3, "landed": false, "damage": 0, "hpAfter": 300, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 259.537031 },
+          { "t_s": 300, "type": "tick", "k": 0, "granted": true, "exp": 18, "level": 1, "shield": 0, "loot": "elementDust:1", "at_s": 300 },
+          { "t_s": 320.39443, "type": "attempt", "i": 4, "landed": true, "damage": 4.5, "hpAfter": 295.5, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 320.39443 },
+          { "t_s": 392.21549, "type": "attempt", "i": 5, "landed": false, "damage": 0, "hpAfter": 297.750588, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 392.21549 },
+          { "t_s": 455.721061, "type": "attempt", "i": 6, "landed": true, "damage": 4.5, "hpAfter": 295.240601, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 625.721061 },
+          { "t_s": 506.904505, "type": "attempt", "i": 7, "landed": true, "damage": 4.5, "hpAfter": 292.344488, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 676.904505 },
+          { "t_s": 552.106832, "type": "attempt", "i": 8, "landed": true, "damage": 4.5, "hpAfter": 289.26095, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 722.106832 },
+          { "t_s": 598.500728, "type": "attempt", "i": 9, "landed": true, "damage": 4.5, "hpAfter": 286.214752, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 768.500728 },
+          { "t_s": 600, "type": "tick", "k": 1, "granted": true, "exp": 18, "level": 1, "shield": 0, "loot": "elementDust:1", "at_s": 770 },
+          { "t_s": 653.709386, "type": "attempt", "i": 10, "landed": false, "damage": 0, "hpAfter": 287.944773, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 823.709386 },
+          { "t_s": 715.786884, "type": "attempt", "i": 11, "landed": false, "damage": 0, "hpAfter": 289.890036, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 885.786884 },
+          { "t_s": 783.368057, "type": "attempt", "i": 12, "landed": true, "damage": 4.5, "hpAfter": 287.507763, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 953.368057 },
+          { "t_s": 834.66505, "type": "attempt", "i": 13, "landed": true, "damage": 4.5, "hpAfter": 284.615208, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1004.66505 },
+          { "t_s": 897.389289, "type": "attempt", "i": 14, "landed": true, "damage": 4.5, "hpAfter": 282.080737, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1067.389289 },
+          { "t_s": 900, "type": "tick", "k": 2, "granted": true, "exp": 18, "level": 1, "shield": 0, "loot": "", "at_s": 1070 },
+          { "t_s": 954.763252, "type": "attempt", "i": 15, "landed": false, "damage": 0, "hpAfter": 283.87861, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 1124.763252 },
+          { "t_s": 1018.494162, "type": "attempt", "i": 16, "landed": false, "damage": 0, "hpAfter": 285.875685, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 1188.494162 },
+          { "t_s": 1078.789565, "type": "attempt", "i": 17, "landed": false, "damage": 0, "hpAfter": 287.765105, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 1248.789565 },
+          { "t_s": 1125.388377, "type": "attempt", "i": 18, "landed": false, "damage": 0, "hpAfter": 289.225327, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 1295.388377 },
+          { "t_s": 1189.906481, "type": "attempt", "i": 19, "landed": true, "damage": 4.5, "hpAfter": 286.747069, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1359.906481 },
+          { "t_s": 1200, "type": "tick", "k": 3, "granted": true, "exp": 18, "level": 2, "shield": 0, "loot": "", "at_s": 1370 },
+          { "t_s": 1244.940238, "type": "attempt", "i": 20, "landed": false, "damage": 0, "hpAfter": 288.475423, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 1414.940238 },
+          { "t_s": 1296.452222, "type": "attempt", "i": 21, "landed": true, "damage": 11.0803, "hpAfter": 279.013677, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 1946.452222 },
+          { "t_s": 1371.030305, "type": "attempt", "i": 22, "landed": false, "damage": 0, "hpAfter": 281.356988, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2021.030305 },
+          { "t_s": 1439.177966, "type": "attempt", "i": 23, "landed": true, "damage": 11.0803, "hpAfter": 272.417949, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2089.177966 },
+          { "t_s": 1500, "type": "tick", "k": 4, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:1,elementCore:1", "at_s": 2150 },
+          { "t_s": 1511.986592, "type": "attempt", "i": 24, "landed": false, "damage": 0, "hpAfter": 274.705662, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2161.986592 },
+          { "t_s": 1572.747849, "type": "attempt", "i": 25, "landed": true, "damage": 11.0803, "hpAfter": 265.534536, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2222.747849 },
+          { "t_s": 1622.839645, "type": "attempt", "i": 26, "landed": true, "damage": 11.0803, "hpAfter": 256.028166, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2272.839645 },
+          { "t_s": 1680.847235, "type": "attempt", "i": 27, "landed": true, "damage": 11.0803, "hpAfter": 246.770518, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2330.847235 },
+          { "t_s": 1735.320675, "type": "attempt", "i": 28, "landed": true, "damage": 11.0803, "hpAfter": 237.401823, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2385.320675 },
+          { "t_s": 1797.179384, "type": "attempt", "i": 29, "landed": false, "damage": 0, "hpAfter": 239.34548, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2447.179384 },
+          { "t_s": 1800, "type": "tick", "k": 5, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:1", "at_s": 2450 },
+          { "t_s": 1868.727176, "type": "attempt", "i": 30, "landed": false, "damage": 0, "hpAfter": 241.593576, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2518.727176 },
+          { "t_s": 1932.575749, "type": "attempt", "i": 31, "landed": true, "damage": 11.0803, "hpAfter": 232.519456, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2582.575749 },
+          { "t_s": 1980.900508, "type": "attempt", "i": 32, "landed": false, "damage": 0, "hpAfter": 234.037864, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2630.900508 },
+          { "t_s": 2050.536481, "type": "attempt", "i": 33, "landed": true, "damage": 11.0803, "hpAfter": 225.14559, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2700.536481 },
+          { "t_s": 2100, "type": "tick", "k": 6, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:1", "at_s": 2750 },
+          { "t_s": 2120.875954, "type": "attempt", "i": 34, "landed": false, "damage": 0, "hpAfter": 227.35572, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2770.875954 },
+          { "t_s": 2192.835009, "type": "attempt", "i": 35, "landed": true, "damage": 11.0803, "hpAfter": 218.536439, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2842.835009 },
+          { "t_s": 2251.471582, "type": "attempt", "i": 36, "landed": true, "damage": 11.0803, "hpAfter": 209.298553, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 2901.471582 },
+          { "t_s": 2309.88876, "type": "attempt", "i": 37, "landed": false, "damage": 0, "hpAfter": 211.134074, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 2959.88876 },
+          { "t_s": 2369.887666, "type": "attempt", "i": 38, "landed": true, "damage": 11.0803, "hpAfter": 201.938994, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3019.887666 },
+          { "t_s": 2400, "type": "tick", "k": 7, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:1", "at_s": 3050 },
+          { "t_s": 2429.445237, "type": "attempt", "i": 39, "landed": false, "damage": 0, "hpAfter": 203.810347, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3079.445237 },
+          { "t_s": 2504.058735, "type": "attempt", "i": 40, "landed": true, "damage": 11.0803, "hpAfter": 195.074471, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3154.058735 },
+          { "t_s": 2553.444257, "type": "attempt", "i": 41, "landed": true, "damage": 11.0803, "hpAfter": 185.545909, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3203.444257 },
+          { "t_s": 2609.551327, "type": "attempt", "i": 42, "landed": true, "damage": 11.0803, "hpAfter": 176.228545, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3259.551327 },
+          { "t_s": 2662.028326, "type": "attempt", "i": 43, "landed": true, "damage": 11.0803, "hpAfter": 166.79712, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3312.028326 },
+          { "t_s": 2700, "type": "tick", "k": 8, "granted": true, "exp": 50.911688, "level": 2, "shield": 0, "loot": "elementDust:1,elementCore:1", "at_s": 3350 },
+          { "t_s": 2723.865233, "type": "attempt", "i": 44, "landed": true, "damage": 11.0803, "hpAfter": 157.659792, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3373.865233 },
+          { "t_s": 2770.475857, "type": "attempt", "i": 45, "landed": false, "damage": 0, "hpAfter": 159.12434, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3420.475857 },
+          { "t_s": 2817.255774, "type": "attempt", "i": 46, "landed": true, "damage": 11.0803, "hpAfter": 149.513908, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3467.255774 },
+          { "t_s": 2888.073898, "type": "attempt", "i": 47, "landed": true, "damage": 11.0803, "hpAfter": 140.658778, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3538.073898 },
+          { "t_s": 2959.419524, "type": "attempt", "i": 48, "landed": false, "damage": 0, "hpAfter": 142.900522, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3609.419524 },
+          { "t_s": 3000, "type": "tick", "k": 9, "granted": true, "exp": 50.911688, "level": 3, "shield": 0, "loot": "elementDust:1", "at_s": 3650 },
+          { "t_s": 3028.084542, "type": "attempt", "i": 49, "landed": true, "damage": 18.770254, "hpAfter": 126.290136, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3678.084542 },
+          { "t_s": 3097.347315, "type": "attempt", "i": 50, "landed": true, "damage": 18.770254, "hpAfter": 109.701978, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3747.347315 },
+          { "t_s": 3163.538156, "type": "attempt", "i": 51, "landed": true, "damage": 18.770254, "hpAfter": 93.01704, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "continue", "at_s": 3813.538156 },
+          { "t_s": 3227.200295, "type": "attempt", "i": 52, "landed": true, "damage": 18.770254, "hpAfter": 76.252436, "shieldAfter": 0, "potion": null, "warning": true, "outcome": "continue", "at_s": 3877.200295 },
+          { "t_s": 3294.151038, "type": "attempt", "i": 53, "landed": false, "damage": 0, "hpAfter": 78.361692, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3944.151038 },
+          { "t_s": 3300, "type": "tick", "k": 10, "granted": true, "exp": 93.530744, "level": 3, "shield": 0, "loot": "elementDust:1,elementCore:1", "at_s": 3950 },
+          { "t_s": 3348.671459, "type": "attempt", "i": 54, "landed": false, "damage": 0, "hpAfter": 80.079337, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "miss", "at_s": 3998.671459 },
+          { "t_s": 3409.825507, "type": "attempt", "i": 55, "landed": true, "damage": 18.770254, "hpAfter": 63.235716, "shieldAfter": 0, "potion": null, "warning": false, "outcome": "autoRetreat", "at_s": 4059.825507 }
+        ],
+        "pauses": [
+          { "atTau_s": 450, "duration_s": 170, "reached": true, "leftAtReal_s": 450, "grace_s": 170, "suspended_s": 0 },
+          { "atTau_s": 1250, "duration_s": 480, "reached": true, "leftAtReal_s": 1420, "grace_s": 180, "suspended_s": 300 }
+        ],
+        "paused_s": 650,
+        "realEnd_s": 4059.825507
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-F05-T01 (reference tools/sim/src/loot.ts, loop.ts, rng-contract.ts) · same seed as the Support case above, Grace 170 s at tau 450 and Grace 180 s + Suspended 300 s at tau 1250: no Support heal, no regen and no tick while outside (classes.json support _note, R03), so hpAfter of every attempt equals the no-pause case"
     }
   ]
 }

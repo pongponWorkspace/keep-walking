@@ -98,7 +98,11 @@ export function walkUntilRetreatOrDeath(
     const legIndex = Math.floor(stepsSinceConfirm / LEG_STEPS);
     const withinLeg = (stepsSinceConfirm % LEG_STEPS) / LEG_STEPS;
     const legFrac = legIndex % 2 === 0 ? withinLeg : 1 - withinLeg;
-    const pt = confirmed ? (moveAfterConfirm ? pointOnLeg(legFrac) : pointOnLeg(0.5)) : approachPoint(i);
+    const pt = confirmed
+      ? moveAfterConfirm
+        ? pointOnLeg(legFrac)
+        : pointOnLeg(0.5)
+      : approachPoint(i);
     const sampled = sessionStep(
       state,
       { type: 'sample', sample: { t_ms: now_ms, lat: pt.lat, lng: pt.lng, accuracy_m: 8 } },
@@ -111,13 +115,23 @@ export function walkUntilRetreatOrDeath(
     if (!confirmed) {
       const preview = selectCheckInPreview(state, dungeonId, now_ms, params);
       if (preview.ok) {
-        const confirmedStep = sessionStep(state, { type: 'confirm', dungeonId, runSeed }, now_ms, params);
+        const confirmedStep = sessionStep(
+          state,
+          { type: 'confirm', dungeonId, runSeed },
+          now_ms,
+          params,
+        );
         state = confirmedStep.state;
         events.push(...confirmedStep.events);
         confirmed = true;
         confirmedAtStep = i + 1;
         if (!autoRetreatEnabled) {
-          const off = sessionStep(state, { type: 'setAutoRetreat', enabled: false }, now_ms, params);
+          const off = sessionStep(
+            state,
+            { type: 'setAutoRetreat', enabled: false },
+            now_ms,
+            params,
+          );
           state = off.state;
           events.push(...off.events);
         }

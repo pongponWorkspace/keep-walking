@@ -230,8 +230,22 @@ export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPa
         arrow.hidden = false;
         directionLabel.hidden = false;
         arrow.dataset['direction'] = direction;
-        directionLabel.textContent = formatCopyText('nav.directionLabel', {
+        const label = formatCopyText('nav.directionLabel', {
           directionText: getCopyText(DIRECTION_COPY_KEY[direction]),
+        });
+        directionLabel.textContent = label;
+        // V-30 (art gate F04-F06 round 1): `icon.ui.direction` is a fixed-colour badge
+        // (components.md 13.9.1's "กลุ่ม badge สีตายตัว", `accent.signal`) — `setIconGlyph` renders
+        // it through its `<img>` fallback path automatically (this id carries no `tintable` field),
+        // the same technique `setClosed` below already uses for `icon.ui.closed`. `colorCss` is
+        // unused on that path (only the tintable inline-SVG path reads it) but every call site still
+        // supplies one, same convention as `run-bar.ts`/`icon-tone.ts`. CSS (`app.css`) sizes this
+        // 48x48 and rotates it in 45-degree steps from `data-direction`.
+        void deps.iconGlyph.setIconGlyph(arrow, 'icon.ui.direction', {
+          altText: label,
+          colorCss: '#FFCC00',
+          onNightBackground: false,
+          nightPlateColorCss: NIGHT_BACKING_PLATE_COLOR_CSS,
         });
       },
       setClosed(closed, openTime) {

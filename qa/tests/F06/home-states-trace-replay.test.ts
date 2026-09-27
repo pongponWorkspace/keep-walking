@@ -51,7 +51,12 @@ const PLAY_AREA = {
   ],
 };
 const LAUNCH_AREA = rectPolygon({ south: 13.9, north: 13.93, west: 100.4, east: 100.43 });
-const DUNGEON_GEOMETRY = rectPolygon({ south: 13.914, north: 13.916, west: 100.414, east: 100.416 });
+const DUNGEON_GEOMETRY = rectPolygon({
+  south: 13.914,
+  north: 13.916,
+  west: 100.414,
+  east: 100.416,
+});
 
 function paramsOf(farDungeonThreshold_m: number): HomeStateParams {
   return {
@@ -77,7 +82,10 @@ describe('home-state trace-replay (P2-F06-T17, qa-home-states-walk-01)', () => {
   const trace = loadCommittedTrace('data/gps-traces/qa/qa-home-states-walk-01.trace.json');
   // config/balance/unlocks.json#home.farDungeonThreshold_m, read live, never hardcoded here.
   const unlocksJson = JSON.parse(
-    readFileSync(`${new URL('../../../', import.meta.url).pathname}config/balance/unlocks.json`, 'utf8'),
+    readFileSync(
+      `${new URL('../../../', import.meta.url).pathname}config/balance/unlocks.json`,
+      'utf8',
+    ),
   ) as { readonly home: { readonly farDungeonThreshold_m: number } };
   const params = paramsOf(unlocksJson.home.farDungeonThreshold_m);
 

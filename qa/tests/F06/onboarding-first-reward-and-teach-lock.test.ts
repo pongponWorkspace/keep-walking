@@ -83,9 +83,9 @@ describe('F06 onboarding — first reward is an ordinary tick, no reward when th
       }),
     ).toBe('first_reward');
     for (const id of lockedIds) {
-      expect(isSystemTeachLocked(id, { firstRewardDone: false }, { lockedSystemIds: lockedIds })).toBe(
-        true,
-      );
+      expect(
+        isSystemTeachLocked(id, { firstRewardDone: false }, { lockedSystemIds: lockedIds }),
+      ).toBe(true);
     }
   });
 
@@ -112,9 +112,9 @@ describe('F06 onboarding — first reward is an ordinary tick, no reward when th
     expect(after.player.lifetimeTicksGranted).toBeGreaterThan(0);
     const lockedIds = lockedSystemIdsFromConfig();
     for (const id of lockedIds) {
-      expect(isSystemTeachLocked(id, { firstRewardDone: true }, { lockedSystemIds: lockedIds })).toBe(
-        false,
-      );
+      expect(
+        isSystemTeachLocked(id, { firstRewardDone: true }, { lockedSystemIds: lockedIds }),
+      ).toBe(false);
     }
     expect(
       currentOnboardingStep({

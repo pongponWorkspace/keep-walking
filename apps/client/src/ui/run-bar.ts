@@ -103,6 +103,10 @@ export function mountRunBar(container: HTMLElement, deps: RunBarDeps): RunBar {
       const view = runStatePillView(status);
       pillLabel.textContent = getCopyText(view.labelKey);
       pill.dataset['tone'] = view.tone;
+      // V-30 (art gate F04-F06 round 1, components.md 13.2): `view.tone` alone cannot tell Grace and
+      // Suspended apart in CSS (both are `'info'`) — the pill's own border/background differ per
+      // exact `RunStatus`, not per tone, so this dataset carries the status verbatim too.
+      pill.dataset['status'] = status;
       // [ASSUMPTION A-P2-F06-T14-1 (icon-tone.ts): no night theme exists in this client yet, so
       // `onNightBackground` is always `false` here — see that file's own doc comment.]
       const tone = runStatePillIconTone(status, false);

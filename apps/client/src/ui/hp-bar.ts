@@ -53,13 +53,25 @@ export function mountHpBar(container: HTMLElement): HpBar {
   track.className = 'hp-track';
   const fill = document.createElement('div');
   fill.className = 'hp-fill';
-  track.append(fill);
+  // V-30 item 7 (art gate F04-F06 round 1, components.md 13.6): a *separate* element, never a
+  // `.hp-fill::after` — the fill itself moves with `transform: scaleX()` (art/vfx/hp-bar/hp-bar.ts's
+  // own DOM contract), which would squash a pseudo-element's width along with it. This marker
+  // instead moves via `left` (a plain percentage of `.hp-track`'s own width, so it never needs to
+  // know the track's real pixel size) driven from the exact same ratio the fill itself just
+  // rendered — see `update()` below.
+  const edgeMarker = document.createElement('div');
+  edgeMarker.className = 'hp-fill-edge-marker';
+  track.append(fill, edgeMarker);
 
   const percent = document.createElement('div');
   percent.className = 'hp-percent';
 
   const offBadge = document.createElement('div');
-  offBadge.className = 'chip-status auto-retreat-off-badge';
+  // V-38 (uiux decision, components.md 6/9): reuses `.banner.warn` verbatim (surface + `state.danger`
+  // border/text, 16px) rather than the chip-status shape — this sticky badge is the same "banner
+  // that stays up while a safety setting is off" pattern components.md 9 already names, not a
+  // dungeon-status chip.
+  offBadge.className = 'banner warn auto-retreat-off-badge';
   offBadge.textContent = getCopyText('run.autoRetreatOffBadge');
   offBadge.hidden = true;
 
@@ -73,13 +85,21 @@ export function mountHpBar(container: HTMLElement): HpBar {
     fillElement: fill,
     update(view, opts) {
       const toRatio = Math.max(0, Math.min(1, view.hpRatio));
-      if (opts?.instant === true || lastRatio === undefined || prefersReducedMotion()) {
+      const instantOrReduced = opts?.instant === true || prefersReducedMotion();
+      if (instantOrReduced || lastRatio === undefined) {
         setHpFillReduced(fill, toRatio);
       } else {
         tweenHpFill(fill, { fromRatio: lastRatio, toRatio });
       }
+      const skipMarkerTransition = instantOrReduced || lastRatio === undefined;
       lastRatio = toRatio;
       fill.classList.toggle('low', view.belowWarningLine);
+      // V-30 item 7: `left` is a CSS-transitioned property (`app.css`'s own `.hp-fill-edge-marker`
+      // rule owns the 200ms/ease-out timing, matching `tweenHpFill`'s own constants) — `instant`/
+      // reduced-motion skip it the same way `setHpFillReduced` skips the fill's own tween, by
+      // clearing any transition just for this one write.
+      edgeMarker.style.transition = skipMarkerTransition ? 'none' : '';
+      edgeMarker.style.left = `${toRatio * PERCENT_MULTIPLIER}%`;
       percent.textContent = percentText(view.hpRatio);
       offBadge.hidden = view.autoRetreatEnabled;
     },

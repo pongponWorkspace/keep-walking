@@ -26,35 +26,33 @@ describe('F04-C03a — checkin_rejected reasons through sessionStep (public inte
     expect(preview).toEqual({ ok: false, reason: 'poor_accuracy', readyIn_s: null });
   });
 
-  // BUG-P2-002 (severity high, OPEN, owner backend-programmer): the *real* sessionStep path
-  // accepts this teleport (`ok: true`) even though the exact same trace correctly and permanently
-  // stays `no_approach_from_outside` through `checkInBatch` (qa/tests/traces/engine-checkin.test.ts,
-  // P2-F04-T19) — the production reducer and the QA/vector-level batch helper disagree on the one
-  // rule GD B-03 explicitly names ("ห้ามข้ามเวลาด้วยการเทเลพอร์ตเข้ากลาง polygon"). Root cause
-  // (packages/shared/src/session/reducer.ts `handleSample`): `usableAndUnlocked = accuracyOk &&
-  // !lock.locked` feeds `approachStep` — no speed-outlier check at all — even though
-  // `packages/shared/src/run/approach.ts`'s own `ApproachSample.usableAndUnlocked` doc says it
-  // should have "passed the gate outlier filter (accuracy + speed...)". This lets a single
-  // impossible 1.3 km/1 s jump both (a) keep the approach chain unbroken (gap 1 s, far under
-  // `maxSamplePairGap_s`) and (b) count as the required "seen outside" sample
-  // (`teleportIntoPolygonAllowed: false`'s own check), so 60+ s of continuous *legitimate* inside
-  // time after the teleport is enough to check in. `it.fails`: this assertion is the *spec-correct*
-  // expectation and is expected to keep failing until backend-programmer fixes the reducer; a
-  // sudden pass here is the signal to flip this back to a normal `it`.
-  it(
-    'synthetic-teleport-spoof-01: no_approach_from_outside once the trace ends (BUG-P2-002)',
-    () => {
-      const trace = loadCommittedTrace(
-        'data/gps-traces/synthetic/synthetic-teleport-spoof-01.trace.json',
-      );
-      const params = qaSessionParams();
-      const { state } = driveTrace(trace, params, START_EPOCH_MS);
-      const now_ms = START_EPOCH_MS + (trace.samples.at(-1)?.t ?? 0);
-      const preview = selectCheckInPreview(state, QA_RECT_DUNGEON_ID, now_ms, params);
-      expect(preview.ok).toBe(false);
-      if (!preview.ok) expect(preview.reason).toBe('no_approach_from_outside');
-    },
-  );
+  // BUG-P2-002 (severity high, CLOSED, owner backend-programmer, fixed P2-X34): the *real*
+  // sessionStep path used to accept this teleport (`ok: true`) even though the exact same trace
+  // correctly and permanently stayed `no_approach_from_outside` through `checkInBatch`
+  // (qa/tests/traces/engine-checkin.test.ts, P2-F04-T19) — the production reducer and the
+  // QA/vector-level batch helper disagreed on the one rule GD B-03 explicitly names ("ห้ามข้ามเวลา
+  // ด้วยการเทเลพอร์ตเข้ากลาง polygon"). Root cause (packages/shared/src/session/reducer.ts
+  // `handleSample`): `usableAndUnlocked = accuracyOk && !lock.locked` fed `approachStep` — no
+  // speed-outlier check at all — even though `packages/shared/src/run/approach.ts`'s own
+  // `ApproachSample.usableAndUnlocked` doc says it should have "passed the gate outlier filter
+  // (accuracy + speed...)". This let a single impossible 1.3 km/1 s jump both (a) keep the
+  // approach chain unbroken (gap 1 s, far under `maxSamplePairGap_s`) and (b) count as the
+  // required "seen outside" sample (`teleportIntoPolygonAllowed: false`'s own check), so 60+ s of
+  // continuous *legitimate* inside time after the teleport was enough to check in. This case now
+  // runs as a normal `it` (flipped from `it.fails` in P2-F06-T17 once the fix was confirmed) and
+  // is expected to stay green as a permanent regression test; a red result here means the reducer
+  // regressed and BUG-P2-002 must be reopened.
+  it('synthetic-teleport-spoof-01: no_approach_from_outside once the trace ends (BUG-P2-002)', () => {
+    const trace = loadCommittedTrace(
+      'data/gps-traces/synthetic/synthetic-teleport-spoof-01.trace.json',
+    );
+    const params = qaSessionParams();
+    const { state } = driveTrace(trace, params, START_EPOCH_MS);
+    const now_ms = START_EPOCH_MS + (trace.samples.at(-1)?.t ?? 0);
+    const preview = selectCheckInPreview(state, QA_RECT_DUNGEON_ID, now_ms, params);
+    expect(preview.ok).toBe(false);
+    if (!preview.ok) expect(preview.reason).toBe('no_approach_from_outside');
+  });
 
   it('synthetic-driving-40kmh-01: speed_lock takes precedence mid-cruise', () => {
     const trace = loadCommittedTrace(

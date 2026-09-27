@@ -280,6 +280,23 @@ describe('buildDungeonFeatureCollections', () => {
     expect(dungeons.features[0]?.properties).not.toHaveProperty('label_sponsored');
   });
 
+  it('V-34 (art gate F04-F06 round 1): omits name from both FeatureCollections when the input carries none (never an unresolved raw key on the map)', () => {
+    const cache = createDungeonLabelCache();
+    const closed = DUNGEONS_SAMPLE.features.find((f) => f.properties.id === 'sample-closed-01');
+    const input = toDungeonInput(closed as SampleFeature);
+    // `exactOptionalPropertyTypes` forbids `name: undefined` — build a fresh object that never
+    // declares the key at all, the same shape a real unresolved-name caller produces.
+    const withoutName: DungeonInput = {
+      id: input.id,
+      geometry: input.geometry,
+      status: input.status,
+      sponsored: input.sponsored,
+    };
+    const { dungeons, labels } = buildDungeonFeatureCollections([withoutName], cache);
+    expect(dungeons.features[0]?.properties).not.toHaveProperty('name');
+    expect(labels.features[0]?.properties).not.toHaveProperty('name');
+  });
+
   it('picks a point inside the larger member of a MultiPolygon, not one per sub-polygon', () => {
     const small: Ring = [
       [10, 10],

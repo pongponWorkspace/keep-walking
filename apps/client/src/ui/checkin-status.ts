@@ -13,6 +13,11 @@ export interface CheckInStatusView {
    * send `null`, same "no countdown" fallback as before this task, honestly labelled by omission
    * rather than a guessed number). */
   readonly countdownText: string | undefined;
+  /** `design/ux/components.md` 13.3: "ไอคอน 48px ตามเหตุ (icon.ui.signal-wait/walk-in/speed-lock
+   * ตามเหตุเดียวที่แสดง ณ ขณะนั้น)". `undefined` for every reason outside that list (the row still
+   * reads fine on text alone, art gate finding V-30 only requires an icon for the 3 named reasons —
+   * never a guessed icon for a reason the component spec does not name). */
+  readonly iconId: string | undefined;
 }
 
 const REASON_COPY_KEY: Readonly<Record<CheckInRejectReason, string>> = {
@@ -29,6 +34,14 @@ const REASON_COPY_KEY: Readonly<Record<CheckInRejectReason, string>> = {
   // itself" fallback (TL-N06) keeps this honest rather than inventing Thai text (CLAUDE.md).
   no_class: 'dungeon.checkinNoClass',
   no_hp: 'dungeon.checkinNoHp',
+};
+
+/** components.md 13.3's own 3-icon list, keyed by `CheckInRejectReason` — every other reason has no
+ * entry (the row falls back to text-only, same as before this field existed). */
+const REASON_ICON_ID: Readonly<Partial<Record<CheckInRejectReason, string>>> = {
+  speed_lock: 'icon.ui.speed-lock',
+  not_enough_trace: 'icon.ui.signal-wait',
+  no_approach_from_outside: 'icon.ui.walk-in',
 };
 
 const SECONDS_PER_MINUTE = 60;
@@ -54,7 +67,11 @@ export function checkInStatusView(
     throw new Error('checkInStatusView: no status row when check-in preview is ready');
   }
   if (preview.reason === 'no_approach_from_outside' && isOutOfRangeNow) {
-    return { copyKey: 'dungeon.outOfRangeTitle', countdownText: undefined };
+    return {
+      copyKey: 'dungeon.outOfRangeTitle',
+      countdownText: undefined,
+      iconId: REASON_ICON_ID[preview.reason],
+    };
   }
   if (preview.reason === 'not_enough_trace') {
     // C-06 (copy gate P2-X37): `readyIn_s === null` means the approach chain has not started yet
@@ -62,12 +79,21 @@ export function checkInStatusView(
     // `{countdown}` placeholder at all, rather than showing the normal key with a raw `{countdown}`
     // left unfilled.
     if (preview.readyIn_s === null) {
-      return { copyKey: 'dungeon.checkinNotEnoughTraceWaiting', countdownText: undefined };
+      return {
+        copyKey: 'dungeon.checkinNotEnoughTraceWaiting',
+        countdownText: undefined,
+        iconId: REASON_ICON_ID[preview.reason],
+      };
     }
     return {
       copyKey: 'dungeon.checkinNotEnoughTrace',
       countdownText: formatCountdown(preview.readyIn_s),
+      iconId: REASON_ICON_ID[preview.reason],
     };
   }
-  return { copyKey: REASON_COPY_KEY[preview.reason], countdownText: undefined };
+  return {
+    copyKey: REASON_COPY_KEY[preview.reason],
+    countdownText: undefined,
+    iconId: REASON_ICON_ID[preview.reason],
+  };
 }

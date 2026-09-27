@@ -15,6 +15,7 @@ import { CLASSES, loopInput, loopParamsFromConfig, phase2Stats } from './loop-sc
 import { paramsFromConfig } from './params';
 import { evaluateLoopVector } from './vector-eval-loop';
 import { evaluateGateVector } from './vector-eval-gate';
+import { gateConfigFromConfig } from './params-gate';
 import type { GateVector, GateVectorFile } from './vectors-gate';
 import { GATE_TOLERANCE, roundDeep } from './vectors-gate';
 
@@ -57,6 +58,11 @@ export const CASE = {
   statsFirstSeed: 1,
   sure_pct: 100,
   sameInstant: { lowHp: 100, veryLowHp: 70 },
+  /** P2-H47 outside periods (tech note F06 13.5): tau of leaving, real seconds outside. */
+  pauseGrace: { atTau_s: 700, duration_s: 120 },
+  pauseSuspended: { atTau_s: 1000, duration_s: 600 },
+  pauseSupport: { atTau_s: 450, duration_s: 170 },
+  pauseSupportLate: { atTau_s: 1250, duration_s: 480 },
 } as const;
 
 function tickExpParams(cfg: BalanceConfig) {
@@ -436,5 +442,35 @@ export function runLoopVectors(cfg: BalanceConfig): GateVectorFile {
     pn2('tanker', false),
     'PN-2 1-35, level 1 Tanker, no potions: R43 after D-112 (finding F-18)',
   );
+  runLoopPauseVectors(cfg, v);
   return { formula: 'run-loop', vectors: v };
+}
+
+/** P2-H47 (tech note F06 13.5, closes the pause half of F06-TG-14): `runLoop` with `pauses`.
+ * The tau fields must equal the same seed without pauses (the case above with that seed); only
+ * `at_s`, `pauses`, `paused_s` and `realEnd_s` carry the real time. */
+function runLoopPauseVectors(cfg: BalanceConfig, v: GateVector[]): void {
+  const pauseParams = gateConfigFromConfig(cfg).run;
+  const pp = { graceMax_s: pauseParams.graceMax_s, suspendedMax_s: pauseParams.suspendedMax_s };
+  const paused = (
+    s: Scenario,
+    seed: number,
+    pauses: { atTau_s: number; duration_s: number }[],
+    note: string,
+  ) => {
+    const { runSeed, ...rest } = loopInput(cfg, s, seed, true);
+    v.push(vec({ fn: 'runLoop', runSeed, ...rest, pauses, pauseParams: pp }, note));
+  };
+  paused(
+    starter('ranged', true, { inventory: { hpSmall: 1, revive: 1 } }),
+    CASE.seeds.deathVsRetreat,
+    [{ ...CASE.pauseGrace }, { ...CASE.pauseSuspended }],
+    'same seed and input as the auto-retreat ON case above, with two outside periods: Grace 120 s at tau 700 and Grace 180 s + Suspended 420 s at tau 1000. Every tau field (t_s, end_s, attempts, damage, loot, exp) equals the case without pauses: the hit clock and reward windows resume, never reset (R06-R07, R10, D-094, D-096); every event after a pause moves by the pause in real time at_s (13.3 item 1: attempts after a 120 s Grace move by exactly 120 s)',
+  );
+  paused(
+    starter('support', false),
+    CASE.seeds.support,
+    [{ ...CASE.pauseSupport }, { ...CASE.pauseSupportLate }],
+    'same seed as the Support case above, Grace 170 s at tau 450 and Grace 180 s + Suspended 300 s at tau 1250: no Support heal, no regen and no tick while outside (classes.json support _note, R03), so hpAfter of every attempt equals the no-pause case',
+  );
 }

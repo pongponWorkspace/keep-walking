@@ -2,6 +2,7 @@
 
 Task: P1-F03-T10 · เจ้าของ: art-director · สถานะ: ฉบับเสนอ รอ HUMAN อนุมัติทิศทางภาพ (ผ่าน P1-F03-T26 หรือ gate ที่ producer กำหนด) · วันที่: 2026-09-23
 แก้ใน P2-F05-T03 (2026-09-26) ปิด F-AD-2..4 ของ `art/reviews/F03-visual-gate.md`: S7 (ห้าม opacity วน, D-076/D-077) · 3.4 เพิ่ม `ramp.tonic` (ยา) · 3.5 เพิ่ม `map.water-edge` และแก้หมายเหตุ `map.rift-fill` · 6.2 ข้อยกเว้น miter ของรอยแยก · 7 ฟอนต์แผนที่ 400/500 · 8.2 ห้ามวาดสัญลักษณ์ต้องห้ามแม้เป็นตัวอย่างผิด · 10 แถว 4 (R-3) และหมายเหตุแถวที่เป็นข้อความอย่างเดียว
+แก้ใน P2-H43 (2026-09-28) ปิด F-AD-6 ของ `art/reviews/F04-F06-visual-gate.md`: หัวข้อ 2 เพิ่ม "ตัวอย่าง S8: สี state บนพื้นสว่างต้อง 16 px" (กัน V-32 ซ้ำ) · ไม่เปลี่ยน token หรือค่า contrast
 แหล่งอ้างอิง: GDD "ธีมและการตั้งชื่อ", "แผนที่และโซนดำ", "โทนและภาษาในเกม", "ระบบตีบวก" (หน้าตาของระบบ), "Avatar", "รายได้ของโปรเจกต์" (sponsored dungeon) · `design/pillars.md` (P4, P5) · `design/narrative/world.md` (หัวข้อ 1, 4, 5, 9, 12)
 เอกสารคู่กัน: `art/direction/icon-grammar.md` (icon, rarity, class) · ตามมา: `avatar-spec.md`, `asset-pipeline.md` (P1-F03-T11), `map-style.md` (P1-F03-T12)
 
@@ -48,6 +49,30 @@ Task: P1-F03-T10 · เจ้าของ: art-director · สถานะ: ฉ�
 | S8 | ขนาดขั้นต่ำ | ข้อความ 16 px (เนื้อหา), 14 px เฉพาะป้ายรองที่ ≥ 7:1 · เส้นที่มีความหมายหนา ≥ 2 px ที่ 1x · touch target ≥ 48×48 px (uiux-designer เป็นเจ้าของตัวเลขสุดท้ายใน `design/ux/tokens.json`) |
 | S9 | โหมดกลางคืน | กลับพื้นเป็น `bg.night` ใช้ token ชุด `on-night` (หัวข้อ 4.3) · ห้ามแค่กลับสีอัตโนมัติ |
 | S10 | ทดสอบจริง | ทุก screen ใน content gate ถ่ายรูปจอจริงกลางแดดเวลา 12:00–15:00 ที่ความสว่างจอ 100% และแปลงเป็นขาวดำ ถ้าแยกองค์ประกอบสำคัญไม่ออกในภาพขาวดำ = ตก |
+
+### ตัวอย่าง S8: สี state บนพื้นสว่างต้อง 16 px เสมอ (P2-H43, กัน V-32 ซ้ำ)
+
+กฎจำง่าย: **สี state ทั้งสามบนพื้นสว่างได้แค่ 5.21–6.25:1 ไม่ถึง 7:1 จึงใช้ 14 px ไม่ได้ในทุกกรณี** ทั้งแบบตัวอักษรสี state บนพื้นสว่าง และแบบกลับด้าน (ตัวอักษรขาวบนพื้นสี state) · ข้อยกเว้น 14 px ของ S8 ใช้ได้เฉพาะคู่ที่ ≥ 7:1 เช่น `ink.900` หรือ `ink.700` บนพื้นสว่าง และ `bg.paper` บน `ink.900`
+
+| คู่สี (ข้อความ / พื้น) | ratio (หัวข้อ 4) | ขนาดข้อความขั้นต่ำ | ใช้กับ |
+| --- | --- | --- | --- |
+| `color.state.danger` #CC2222 / `color.bg.paper` #FFF8EE | 5.21 | **16 px** | ข้อความเตือนบนจอพื้นหลัก |
+| `color.state.danger` #CC2222 / `color.bg.surface` #FFFFFF | 5.50 | **16 px** | `.toast.danger`, `.banner.warn` |
+| `color.state.success` #117733 / `color.bg.paper` | 5.37 | **16 px** | "ผ่าน" บนจอพื้นหลัก |
+| `color.state.success` #117733 / `color.bg.surface` | 5.66 | **16 px** | toast tick ผ่าน |
+| `color.state.info` #006699 / `color.bg.paper` | 5.93 | **16 px** | ข้อมูลบนจอพื้นหลัก |
+| `color.state.info` #006699 / `color.bg.surface` | 6.25 | **16 px** | `.banner.info`, pill Grace/Suspended |
+| `color.bg.surface` / พื้น `state.danger` · `state.success` · `state.info` (กลับด้าน) | 5.50 / 5.66 / 6.25 | **16 px** ตัวหนา | ป้าย auto-retreat, ป้ายผ่าน gate |
+| `color.ink.900` / `color.bg.surface` หรือ `bg.paper` (เทียบ) | 17.29 / 16.39 | 14 px ได้ | ป้ายรอง เวลา หน่วย |
+
+ตัวอย่างที่ถูก (banner ข้อมูล แก้จาก V-32):
+- พื้น `color.bg.surface` ทึบ · ขอบล่าง 2 px `color.state.info` · ข้อความ `color.state.info` **16 px** น้ำหนัก 500 ขึ้นไป · icon 24 px เส้น `ink.900` คู่ข้อความเสมอ (S4) · ไม่มี opacity (S7)
+- banner เตือนแบบเดียวกัน เปลี่ยน `state.info` เป็น `state.danger` (5.50:1) ทั้งขอบและข้อความ
+- ถ้าพื้นที่ไม่พอสำหรับ 16 px: ให้ข้อความเป็น `color.ink.900` 14 px (17.29:1) แล้วบอกสถานะด้วยขอบสี state 2 px + icon แทน · **ห้ามลดสี state ลงเป็น 14 px**
+
+ตัวอย่างที่ผิด (พบจริงใน F04–F06 gate): ข้อความ `#006699` 14 px บนพื้นสีนอก token (`.banner.info`) · ตัวอักษร `bg.paper` 14 px บนพื้น `state.danger` (`.toast.danger`, 5.21:1) · ป้าย 12 px (`.auto-retreat-off-badge`) · ข้อความ 13 px + `opacity: 0.7` (จอพกกระเป๋า) · ขนาดนี้ต่ำกว่า S8 ทุกกรณีไม่ว่าสีใด
+
+ขอบเขต: ตัวอย่างนี้ใช้กับ UI ใน DOM · ขนาดป้ายบนแผนที่เป็นไปตาม `art/direction/map-style.md` · ขนาดขั้นต่ำสุดท้ายใน `design/ux/tokens.json` เป็นของ uiux-designer (ต้องไม่ต่ำกว่าตารางนี้)
 
 วิธีคำนวณ contrast ที่ใช้ในเอกสารนี้: relative luminance ตาม WCAG 2.x (sRGB linearize ช่องละ แล้ว L = 0.2126R + 0.7152G + 0.0722B) · ratio = (L สว่าง + 0.05) / (L มืด + 0.05) · ปัดทศนิยม 2 ตำแหน่ง · ค่า L ของทุก token อยู่ในตารางหัวข้อ 3 เพื่อให้ใครก็ตรวจซ้ำได้
 

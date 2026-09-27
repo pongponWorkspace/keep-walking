@@ -44,6 +44,8 @@
 | `src/rng-contract.ts` | `rollTickLoot` ตามลำดับ ADR 0003 6.3 พร้อมตัวย่อ f (P2-F05-T20) · `deriveSeed`/`streamRng` มาจาก shared |
 | `src/loot.ts` | `drops.json#items` + `#dropTables` → `LootRarity[]` ต่อบริบท tick (ตัวคูณจากสูตร shared) + กฎความสอดคล้อง `dropTableProblems` (P2-F05-T01) |
 | `src/loop.ts` | `runLoop`: run เดียวแบบ seed (tick, drop, exp, การตี, ยาอัตโนมัติ, โล่, heal, auto-retreat, ตาย) + `soloTickExp`, `soloDamage`, `addExp`, `hitAttempt` (P2-F05-T01) |
+| `src/loop-pauses.ts` | `runLoop` ที่มีช่วงออกนอก dungeon (`pauses: [{ atTau_s, duration_s }]` + `pauseParams`): run ใน τ เท่ากับไม่มีช่วงหยุดทุกค่า (นับต่อ ไม่รีเซ็ต) · event ได้ `at_s` เวลาจริง = τ + ผลรวมช่วงหยุดที่ `atTau_s < τ` · แยก Grace / Suspended ตาม `runState.graceMax_s` · ช่วงเกิน `suspendedMax_s` ถูกปฏิเสธ (เป็น timeout ไม่ใช่ช่วงหยุด) (P2-H47, tech note F06 13.5) |
+| `src/regen.ts`, `src/vectors-recovery.ts` | การฟื้น HP นอก run แบบ closed form (`hpAfterRegen`) และเวลาถึงเส้นออกจาก Recovering (`recoveryTime`) + กฎ config: อัตราฟื้นต้องให้ 0 → `deathRecoveryTo_pct` ภายใน `deathRecoveryDuration_s` ± 1 วิ · สร้าง `hp-recovery.json` (P2-H47) |
 | `src/loop-scenarios.ts` | config → input ของ `runLoop`, `loopStats` (Monte Carlo ตาม runSeed) |
 | `src/vectors-loop.ts`, `src/vector-eval-loop.ts`, `src/report-loop.ts` | สร้าง / ประเมิน `tick-reward.json`, `run-loop.json` · CLI หลักฐาน |
 | `src/zone.ts` | ระดับโซน Z = clamp(เลเวลผู้เล่น, ช่วง) ตาม D-112 (P2-X09) + ตรวจว่า `combat.monsterAttack.zoneLevelFrom` ตรงกฎที่ทำไว้ · `zone.test.ts` ตรวจ R43 ทุกช่วงนำร่องและไม่มี exp runaway |

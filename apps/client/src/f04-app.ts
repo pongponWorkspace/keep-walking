@@ -497,6 +497,9 @@ export function createF04App(deps: F04AppDeps): F04App {
       render(engine.getState(), at_ms);
     },
     onCancel: () => confirmPopup.hide(),
+    // V-30 (art gate F04-F06 round 1): the check-in row's 48px icon (components.md 13.3), same
+    // shared renderer every other tintable-or-fixed `icon.ui.*` glyph on this screen already uses.
+    iconGlyph,
   });
   const runBar = mountRunBar(deps.hudContainer, {
     onExitConfirmed: () => handleSessionEvents(engine.dispatch({ type: 'exit' }, deps.now())),

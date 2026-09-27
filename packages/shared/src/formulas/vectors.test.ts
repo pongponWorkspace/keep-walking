@@ -100,7 +100,9 @@ import type { AttemptContext, HpParams, PotionSource } from '../hp';
 import {
   applyAttempt,
   hitAttempt,
+  hpAt,
   onGrantedTick,
+  recoveredAt_ms,
   resolveHit,
   runHpInit,
   soloHitDamage,
@@ -649,6 +651,30 @@ const DUMMY_HP_PARAMS: HpParams = {
   },
 };
 
+// ---- hp-recovery.json (P2-H47): `hpAfterRegen`/`recoveryTime` are ported through `../hp`'s own
+// `hpAt`/`recoveredAt_ms` (tech note F06 6.1-6.2), read against an arbitrary anchor A = 0 — the
+// closed form is anchor-relative (D-094: no wall-clock timer), so any anchor reproduces the
+// vector's `elapsed_ms`-from-now shape. Only the three regen-relevant `player` fields vary per
+// vector; every other `HpParams` field is `DUMMY_HP_PARAMS` filler, never read by `hpAt`/
+// `recoveredAt_ms`. */
+const HP_RECOVERY_ANCHOR_MS = 0;
+function hpRecoveryParamsOf(i: Record<string, unknown>): HpParams {
+  return {
+    ...DUMMY_HP_PARAMS,
+    player: {
+      ...DUMMY_HP_PARAMS.player,
+      statPerPoint: {
+        ...DUMMY_HP_PARAMS.player.statPerPoint,
+        vitHpRegenSpeed_pct: n(i, 'vitHpRegenSpeed_pct'),
+      },
+      hpRecovery: {
+        deathRecoveryTo_pct: n(i, 'deathRecoveryTo_pct'),
+        outsideDungeonRegen_pctMaxHpPerMin: n(i, 'outsideDungeonRegen_pctMaxHpPerMin'),
+      },
+    },
+  };
+}
+
 function loopHpParamsOf(p: HarnessLoopParams): HpParams {
   return {
     attack: {
@@ -892,6 +918,66 @@ function loopStatsViaHp(
     endedShare: ended / runs,
     potionBeforeEndShare: potion / runs,
     potionsUsedPerRun: used / runs,
+  };
+}
+
+// ---- run-loop.json `pauses`/`pauseParams` (P2-H47, tech note F06 13.5): an outside period never
+// touches the tau-domain computation (R06-R07/R10, D-094, D-096 — Grace/Suspended stop active
+// time, the hit clock and reward windows resume where they stopped, never reset), so
+// `runLoopViaHp`'s own result *is* the tau-domain run; this only overlays each tau with the real
+// wall-clock time the player experienced (tools/sim/src/loop-pauses.ts, reference, never imported).
+interface PauseVector {
+  readonly atTau_s: number;
+  readonly duration_s: number;
+}
+interface PauseParamsVector {
+  readonly graceMax_s: number;
+  readonly suspendedMax_s: number;
+}
+function pausesOf(input: Record<string, unknown>): PauseVector[] | null {
+  const v = input['pauses'];
+  if (v === undefined) return null;
+  return objArr(input, 'pauses').map((x) => ({
+    atTau_s: n(x, 'atTau_s'),
+    duration_s: n(x, 'duration_s'),
+  }));
+}
+function pauseParamsOf(i: Record<string, unknown>): PauseParamsVector {
+  return { graceMax_s: n(i, 'graceMax_s'), suspendedMax_s: n(i, 'suspendedMax_s') };
+}
+/** Real time at tau `t`: `t` plus every pause's `duration_s` whose `atTau_s` is strictly before it
+ * (A-P2-H47-1: an event due exactly at `atTau_s` happens before the player leaves, so it is not
+ * yet shifted by that pause). suspendedMax_s is a pause-validity bound only (tools/sim's
+ * `pauseProblems`), never read by this real-time overlay itself. */
+function realAt(tau: number, pauses: readonly PauseVector[]): number {
+  return pauses.reduce((t, q) => (q.atTau_s < tau ? t + q.duration_s : t), tau);
+}
+function withPauses(
+  r: HarnessLoopResult,
+  pauses: readonly PauseVector[],
+  pp: PauseParamsVector,
+): unknown {
+  const reachedPauses = pauses.filter((q) => q.atTau_s < r.end_s);
+  const pauseSummaries = pauses.map((q) => {
+    const reached = q.atTau_s < r.end_s;
+    return {
+      atTau_s: q.atTau_s,
+      duration_s: q.duration_s,
+      reached,
+      leftAtReal_s: reached ? realAt(q.atTau_s, pauses) : null,
+      // A-P2-H47-2: one Grace up to graceMax_s, the rest of the duration Suspended.
+      grace_s: reached ? Math.min(q.duration_s, pp.graceMax_s) : 0,
+      suspended_s: reached ? Math.max(0, q.duration_s - pp.graceMax_s) : 0,
+    };
+  });
+  const events =
+    r.events === null ? null : r.events.map((e) => ({ ...e, at_s: realAt(e.t_s, pauses) }));
+  return {
+    ...r,
+    events,
+    pauses: pauseSummaries,
+    paused_s: reachedPauses.reduce((s, q) => s + q.duration_s, 0),
+    realEnd_s: realAt(r.end_s, pauses),
   };
 }
 
@@ -1294,8 +1380,41 @@ function evaluateOwnedVector(input: Record<string, unknown>): unknown {
         hpParams,
       );
     }
-    case 'runLoop':
-      return runLoopViaHp({ ...loopInputOf(input), runSeed: n(input, 'runSeed') });
+    case 'runLoop': {
+      const result = runLoopViaHp({ ...loopInputOf(input), runSeed: n(input, 'runSeed') });
+      const pauses = pausesOf(input);
+      if (pauses === null) return result;
+      return withPauses(result, pauses, pauseParamsOf(obj(input, 'pauseParams')));
+    }
+    // ---- hp-recovery.json (P2-H47) ----
+    case 'hpAfterRegen': {
+      const p = obj(input, 'params');
+      const hp = hpAt(
+        { value: n(input, 'value'), anchorAt_ms: HP_RECOVERY_ANCHOR_MS, recovering: false },
+        HP_RECOVERY_ANCHOR_MS + n(input, 'elapsed_ms'),
+        { maxHp: n(input, 'maxHp'), vit: n(input, 'vit') },
+        hpRecoveryParamsOf(p),
+      );
+      return hp.value;
+    }
+    case 'recoveryTime': {
+      const p = obj(input, 'params');
+      const maxHp = n(input, 'maxHp');
+      const hpParams = hpRecoveryParamsOf(p);
+      const recoveredAt = recoveredAt_ms(
+        {
+          value: n(input, 'value'),
+          anchorAt_ms: HP_RECOVERY_ANCHOR_MS,
+          recovering: boolIn(input, 'recovering'),
+        },
+        { maxHp, vit: n(input, 'vit') },
+        hpParams,
+      );
+      return {
+        recoveryLine: (maxHp * n(p, 'deathRecoveryTo_pct')) / 100,
+        recoveredAfter_ms: recoveredAt === null ? null : recoveredAt - HP_RECOVERY_ANCHOR_MS,
+      };
+    }
     case 'runLoopStats': {
       const loop = obj(input, 'loop');
       return loopStatsViaHp(loopInputOf(loop), n(input, 'firstSeed'), n(input, 'runs'));

@@ -1,0 +1,311 @@
+{
+  "formula": "hp-recovery",
+  "vectors": [
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 0,
+        "maxHp": 300,
+        "vit": 0,
+        "elapsed_ms": 1800000,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 150.003,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · death (HP 0) at Phase 2 base max HP, VIT 0, after deathRecoveryDuration_s: just over 50% (the rate reaches the line at 1799.964 s, inside the +-1 s check of tech note 6.2)"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 0,
+        "maxHp": 300,
+        "vit": 0,
+        "elapsed_ms": 1799964.0007199855,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 150,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · death, VIT 0, after the exact closed-form crossing time: exactly 50% (deathRecoveryTo_pct)"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 0,
+        "maxHp": 3112.5,
+        "vit": 0,
+        "elapsed_ms": 1800000,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 1556.281125,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · death at the level-25 balanced max HP: the same 50% share after the same time (rate is a share of maxHp)"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 0,
+        "maxHp": 300,
+        "vit": 0,
+        "elapsed_ms": 600000,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 50.001,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · partial recovery: death then 10 min outside -> 10 x rate % of maxHp, still Recovering"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 180,
+        "maxHp": 300,
+        "vit": 0,
+        "elapsed_ms": 900000,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 255.0015,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · recovery while not in a run after a normal exit (no death) at 60%: same rate as after death (A-P1-F03-T06-15a)"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 270,
+        "maxHp": 300,
+        "vit": 0,
+        "elapsed_ms": 1800000,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 300,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · cap: never above maxHp"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 300,
+        "maxHp": 300,
+        "vit": 0,
+        "elapsed_ms": 1800000,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 300,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · already full stays full"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 0,
+        "maxHp": 300,
+        "vit": 10,
+        "elapsed_ms": 1800000,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 172.50345,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · VIT 10: rate x (1 + 10 x vitHpRegenSpeed_pct / 100)"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 60,
+        "maxHp": 300,
+        "vit": 0,
+        "elapsed_ms": 0,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 60,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · elapsed_ms = 0: value unchanged"
+    },
+    {
+      "input": {
+        "fn": "hpAfterRegen",
+        "value": 60,
+        "maxHp": 300,
+        "vit": 0,
+        "elapsed_ms": -60000,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": 60,
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · elapsed_ms < 0 (clock moved backwards): value unchanged, HP never drops (R04)"
+    },
+    {
+      "input": {
+        "fn": "recoveryTime",
+        "value": 0,
+        "maxHp": 300,
+        "vit": 0,
+        "recovering": true,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": {
+        "recoveryLine": 150,
+        "recoveredAfter_ms": 1799964.00072
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · death, VIT 0: time to 50% = 50 / outsideDungeonRegen_pctMaxHpPerMin min (config says deathRecoveryDuration_s = 1800; engine test 13.3 item 9 allows +-1 s)"
+    },
+    {
+      "input": {
+        "fn": "recoveryTime",
+        "value": 0,
+        "maxHp": 3112.5,
+        "vit": 0,
+        "recovering": true,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": {
+        "recoveryLine": 1556.25,
+        "recoveredAfter_ms": 1799964.00072
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · the same time at another maxHp (share-based rate)"
+    },
+    {
+      "input": {
+        "fn": "recoveryTime",
+        "value": 60,
+        "maxHp": 300,
+        "vit": 0,
+        "recovering": true,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": {
+        "recoveryLine": 150,
+        "recoveredAfter_ms": 1079978.400432
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · partial: Recovering at 20% (e.g. a small potion drunk while Recovering), time left to the line"
+    },
+    {
+      "input": {
+        "fn": "recoveryTime",
+        "value": 0,
+        "maxHp": 300,
+        "vit": 10,
+        "recovering": true,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": {
+        "recoveryLine": 150,
+        "recoveredAfter_ms": 1565186.087583
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · VIT 10: shorter Recovering"
+    },
+    {
+      "input": {
+        "fn": "recoveryTime",
+        "value": 165,
+        "maxHp": 300,
+        "vit": 0,
+        "recovering": true,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": {
+        "recoveryLine": 150,
+        "recoveredAfter_ms": 0
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · Recovering flag still set but HP already past the line (stale anchor): 0 ms left"
+    },
+    {
+      "input": {
+        "fn": "recoveryTime",
+        "value": 60,
+        "maxHp": 300,
+        "vit": 0,
+        "recovering": false,
+        "params": {
+          "outsideDungeonRegen_pctMaxHpPerMin": 1.6667,
+          "vitHpRegenSpeed_pct": 1.5,
+          "deathRecoveryTo_pct": 50,
+          "deathRecoveryDuration_s": 1800
+        }
+      },
+      "expected": {
+        "recoveryLine": 150,
+        "recoveredAfter_ms": null
+      },
+      "tolerance": 0.000001,
+      "source": "sim run P2-H47 (reference tools/sim/src/regen.ts) · not Recovering (normal exit): nothing to cross, null"
+    }
+  ]
+}

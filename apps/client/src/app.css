@@ -1,5 +1,10 @@
-/* Full-bleed map shell for a phone screen. No visual design here yet: the
-   art-directed style/theme lands with P1-F03-T12 / P1-F02-T11. */
+/* Component CSS layer (P2-X42, art gate `art/reviews/F04-F06-visual-gate.md` V-30..V-34): every
+   value below is copied byte-for-byte from `design/ux/tokens.json` (a literal hex/px value with a
+   trailing comment naming its token path, the convention this file already used before this task)
+   — never a new raw colour. Layout source: `design/ux/components.md` sections 2-3-4-6-7-9-12-13-15.
+   z-index scale (design/ux/tokens.json#zIndex, components.md 15): `map` (0) < `hud` (1) <
+   `banner` (10) < `drawer` (20) < `toast` (30) < `popupModal` (40) < `overlay` (50) < `system` (60)
+   < `nativePrompt` (9999, out of our control — the browser's own permission prompt). */
 
 html,
 body {
@@ -14,192 +19,727 @@ body {
   inset: 0;
 }
 
-/* z-index scale (design/ux/tokens.json#zIndex, components.md section 15, D-129/P2-H28): `map` (0)
-   is the base layer every other level in this file is measured against. */
 #map {
-  z-index: 0;
+  z-index: 0; /* zIndex.map */
 }
 
-/* Only used when VITE_TILES_URL is unset (main.ts sets both the class and
-   the fallback text); MapLibre lays out its own canvas absolutely, so this
-   never applies once a real map mounts. */
+/* Only used when VITE_TILES_URL is unset (main.ts sets both the class and the fallback text);
+   MapLibre lays out its own canvas absolutely, so this never applies once a real map mounts. */
 #map.map-shell--empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  font:
-    14px/1.4 system-ui,
-    sans-serif;
-  color: #444;
+  padding: 16px; /* space.scale_px */
+  font-family: var(--kw-font-ui, 'IBM Plex Sans Thai Looped', system-ui, sans-serif);
+  font-size: 14px; /* type.caption.size_px */
+  line-height: 1.5;
+  /* V-32: `#444` was off-token — ink.700 on the map's own `bg.paper`-ish backdrop reads fine and is
+     a real token (a dev-only screen, but a player can see it if the tile URL is ever misconfigured). */
+  color: #333344; /* ink.700 */
   text-align: center;
   box-sizing: border-box;
 }
 
-/* GPS status UI (P1-F02-T10). #hud is a sibling of #map (index.html) so it
-   survives the "tiles URL not configured" fallback above. Values below are
-   copied byte-for-byte from design/ux/tokens.json; no visual/motion design
-   has landed for this exact spike screen yet (P1-F03-T22/T25/T27 are still
-   open), so layout here is minimal placement, not final art direction.
-   `position: absolute; inset: 0` (P2-F05-T10, found while wiring this task's own e2e): without a
-   `position`, `#hud` is a non-positioned box, which CSS paints *before* any positioned box in the
-   same stacking context regardless of DOM order (CSS2.1 Appendix E) — `#map` is `position:
-   absolute` (above), so it was painted on top of the whole `#hud` subtree, not the other way
-   round the code comment above already assumed. Every screen mounted straight into `#hud` with no
-   `position` of its own (`.popup-overlay`, `.run-bar`, `.overlay-speedlock`, `.screen.run-summary`,
-   `.nav-panel` — none of them have a rule in this file yet) was invisible/unclickable behind the
-   map in a real build, real map or the empty fallback alike; only the handful of elements that
-   already declare their own `position: absolute` (`.gps-pill`, `.banner`, `.toast`,
-   `#start-location`, `#follow-toggle`) escaped it by becoming positioned themselves. Positioning
-   `#hud` once here fixes every current and future screen at the source instead of requiring every
-   new screen to remember its own escape hatch; `inset: 0` matches `#app`/`#map` exactly (same
-   value, same box) so no already-positioned child's coordinates move. */
+/* `#hud` (D-129/P2-H28): the one positioned container every screen/component in this file mounts
+   into, always above `#map`. V-31: the family comes from the runtime font manifest via
+   `assets/fonts.ts`'s own `--kw-font-ui` custom property (never a second hardcoded family name) —
+   body weight 500, `line-height` >= 1.5 (components.md 1). */
 #hud {
   position: absolute;
   inset: 0;
-  /* z-index scale (design/ux/tokens.json#zIndex.hud, components.md 15.1): always above `#map`
-     (`zIndex.map`, 0), below every level a child of `#hud` may elevate itself to. */
-  z-index: 1;
+  z-index: 1; /* zIndex.hud */
   pointer-events: none;
-  font:
-    16px/1.5 system-ui,
-    sans-serif;
+  font-family: var(--kw-font-ui, 'IBM Plex Sans Thai Looped', system-ui, sans-serif);
+  font-size: 16px; /* type.body.size_px */
+  font-weight: 500; /* type.body.weight */
+  line-height: 1.5;
+  color: #1a1a22; /* ink.900 */
 }
 
 #hud > * {
   pointer-events: auto;
 }
 
+#hud h1 {
+  margin: 0 0 8px;
+  font-size: 24px; /* type.h1.size_px */
+  font-weight: 700; /* type.h1.weight */
+  line-height: 1.5;
+}
+
+#hud h2 {
+  margin: 0 0 8px;
+  font-size: 20px; /* type.h2.size_px */
+  font-weight: 700; /* type.h2.weight */
+  line-height: 1.5;
+}
+
+#hud p {
+  margin: 0 0 8px;
+}
+
 /* An author `display` rule always wins over the UA stylesheet's implicit `[hidden] {
-   display: none }`, no matter the selector's specificity — the same class of bug the old
-   `.popup-overlay[hidden]` rule (below, now folded into this global one) fixed only for popups:
-   `.popup button` (`display: block`), `.btn`-family rules, `.screen`, `.hp-bar`, `.nav-panel`, ...
-   all beat the UA's bare `[hidden]` on specificity, so any element with both an author `display`
-   rule and `hidden` set stayed visible and clickable. One global, maximum-specificity override
-   fixes every current and future case at the source, the same way `#hud`'s own `position` rule
-   above fixes every current and future full-screen child at the source (P2-H28/D-129's own
-   precedent). */
+   display: none }` — one global, maximum-specificity override fixes every current and future
+   `.btn`/`.screen`/`.hp-bar`/`.nav-panel`/... rule that would otherwise beat the UA's bare
+   `[hidden]` on specificity (P2-H28/D-129's own precedent). */
 [hidden] {
   display: none !important;
 }
 
-/* design/ux/components.md 2.2: GPS pill, ~20px tall, chip radius, icon+label
-   (icon omitted until art-director assigns one; label text alone still
-   satisfies "ต้องมีคำกำกับด้วยเสมอ", never colour alone). */
+/* --- Buttons (components.md 3, style guide 5) ------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 48px; /* touchTarget.min_px */
+  padding: 8px 16px;
+  border: 2px solid #1a1a22; /* border.ink_px, ink.900 */
+  border-radius: 12px; /* radius.button_px */
+  background: #ffffff; /* bg.surface */
+  color: #1a1a22; /* ink.900 */
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700; /* bodyBold */
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  min-height: 56px; /* touchTarget.primaryButtonHeight_px */
+  width: 100%;
+  background: #ffcc00; /* accent.signal */
+  color: #1a1a22; /* ink.900 */
+  box-shadow: 0 4px 0 #1a1a22; /* elevation.pressable, ink.900, no blur */
+}
+
+/* style guide 5: pressing removes the shadow and drops the button by the same offset, no
+   transition (a snappy, non-animated tap response — "ไม่มี transition ยืดเวลา"). */
+.btn-primary:active {
+  transform: translateY(4px); /* elevation.pressedOffset_px */
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: #ffffff; /* bg.surface */
+  color: #333344; /* ink.700 */
+}
+
+.btn-danger-confirm {
+  background: #ffffff; /* bg.surface */
+  border-color: #cc2222; /* state.danger */
+  color: #cc2222; /* state.danger */
+}
+
+.btn-disabled,
+.btn:disabled,
+.btn-primary.btn-disabled,
+.btn-primary:disabled {
+  background: #ddddee; /* ink.100 */
+  color: #555566; /* ink.500 */
+  box-shadow: none;
+  cursor: default;
+}
+
+.btn-fullwidth-bottom {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* --- Cards and popups (components.md 4) ------------------------------------------------------ */
+
+.card {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  background: #ffffff; /* bg.surface */
+  border: 2px solid #1a1a22; /* border.ink_px, ink.900 */
+  border-radius: 12px; /* radius.card_px */
+  padding: 16px; /* space.cardPadding_px */
+  font: inherit;
+  color: #1a1a22; /* ink.900 */
+  text-align: left;
+  cursor: pointer;
+}
+
+/* "เพิ่มเส้น" ไม่ใช่ "แทนที่สี" — the ink border thickens and gains an accent ring, never swaps colour
+   (icon-grammar 3, reads in a black-and-white photo too, style-guide S3/S10). */
+.card.selected {
+  border-width: 4px;
+  box-shadow: 0 0 0 3px #ffcc00; /* accent.signal, flat ring, no blur */
+}
+
+.popup-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40; /* zIndex.popupModal */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(26 26 34 / 45%); /* ink.900 @ 45% */
+}
+
+/* Bottom sheet (components.md 4): slides up from the bottom, rounded only on top. */
+.popup {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* space.stackGap_px */
+  padding: 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-bottom: none;
+  border-radius: 12px 12px 0 0; /* radius.card_px */
+  background: #fff8ee; /* bg.paper */
+  color: #1a1a22; /* ink.900 */
+}
+
+.popup .btn {
+  width: 100%;
+}
+
+/* Popup header (`h1.scr-title`-equivalent, components.md 4/8): allowed to wrap to 2 lines, never
+   forced onto one (P1-X10 handoff — the 34-cell full zone name has never been tested at 360px). */
+.confirm-title {
+  font-size: 24px; /* type.h1.size_px */
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: normal;
+}
+
+.confirm-level {
+  font-size: 16px;
+  color: #333344; /* ink.700 */
+}
+
+.confirm-cards {
+  display: flex;
+  gap: 8px;
+}
+
+.confirm-cards .card {
+  flex: 1 1 0;
+}
+
+/* --- Chips (components.md 13.1, 13.7, 13.8) ---------------------------------------------------- */
+
+.chip-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: 999px; /* radius.chip_px */
+  font-size: 14px; /* type.caption.size_px */
+  font-weight: 700;
+}
+
+.chip-status-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+
+.chip-status-icon img,
+.chip-status-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.chip-status.closing-soon {
+  background: #ffcc00; /* accent.signal */
+  border: 2px solid #1a1a22; /* ink.900 */
+  color: #1a1a22; /* ink.900 */
+}
+
+.chip-status.closed {
+  background: #ffffff; /* bg.surface */
+  border: 2px dashed #555566; /* ink.500 */
+  color: #333344; /* ink.700 */
+}
+
+.chip-status.in-run {
+  background: #ffffff; /* bg.surface */
+  border: 4px solid #1a1a22; /* ink.900 */
+  color: #1a1a22; /* ink.900 */
+}
+
+/* Distance number + its unit chip (components.md 13.8) */
+.chip-distance {
+  font-size: 24px; /* type.numeric */
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #1a1a22; /* ink.900 */
+}
+
+.chip-distance-tag {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  border: 1px solid #333344; /* ink.700 */
+  border-radius: 999px; /* radius.chip_px */
+  font-size: 14px; /* type.caption.size_px */
+  font-weight: 700;
+  color: #333344; /* ink.700 */
+  vertical-align: middle;
+}
+
+/* Direction arrow (components.md 13.5): `icon.ui.direction` (accent.signal fixed-colour badge, set
+   by `ui/nav-panel.ts`) sized/rotated here. Rotation snaps in 8 steps of 45deg; the transition below
+   is skipped outright under `prefers-reduced-motion` (no exception, components.md 13.5). */
+.direction-arrow {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  vertical-align: middle;
+  margin-inline-end: 8px;
+}
+
+.direction-arrow img,
+.direction-arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.direction-arrow[data-direction='N'] {
+  transform: rotate(0deg);
+}
+.direction-arrow[data-direction='NE'] {
+  transform: rotate(45deg);
+}
+.direction-arrow[data-direction='E'] {
+  transform: rotate(90deg);
+}
+.direction-arrow[data-direction='SE'] {
+  transform: rotate(135deg);
+}
+.direction-arrow[data-direction='S'] {
+  transform: rotate(180deg);
+}
+.direction-arrow[data-direction='SW'] {
+  transform: rotate(225deg);
+}
+.direction-arrow[data-direction='W'] {
+  transform: rotate(270deg);
+}
+.direction-arrow[data-direction='NW'] {
+  transform: rotate(315deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .direction-arrow {
+    transition: transform 150ms ease-out;
+  }
+}
+
+.direction-label {
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+/* --- GPS pill (components.md 2.2, V-38 uiux decision) ------------------------------------------
+   `bg.surface` + a coloured border/text variant (never solid `ink.900`, never colour alone — the
+   text label is always the accessible name, style-guide S4). Every `GpsDisplayState` copy.th.json
+   assigns a label to (`gps-state.ts`) is a non-OK condition today (the OK/idle case hides the pill
+   entirely, `ui/gps-ui.ts#setDisplay`), so `state.danger` is the one variant needed until a future
+   OK-state pill is designed. [ASSUMPTION A-P2-X42-1: single danger-toned variant for every shown
+   state — owner: uiux-designer, split by state if a future state needs a lighter tone.] */
 .gps-pill {
   position: absolute;
   top: max(8px, env(safe-area-inset-top));
   left: 8px;
-  min-height: 20px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
   padding: 4px 12px;
-  border-radius: 999px;
-  background: #1a1a22;
-  color: #fff8ee;
-  font-size: 14px;
+  border: 2px solid #cc2222; /* state.danger */
+  border-radius: 999px; /* radius.chip_px */
+  background: #ffffff; /* bg.surface */
+  color: #cc2222; /* state.danger */
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .gps-pill-body {
   position: absolute;
-  top: calc(max(8px, env(safe-area-inset-top)) + 32px);
+  top: calc(max(8px, env(safe-area-inset-top)) + 36px);
   left: 8px;
   max-width: min(80vw, 320px);
   padding: 4px 12px;
-  font-size: 14px;
-  color: #333344;
+  font-size: 16px;
+  color: #333344; /* ink.700 */
 }
 
-/* design/ux/components.md 6: banner at top, z-index 10 (below toast/popup). */
+/* --- Toasts and banners (components.md 6, V-32/V-38) ------------------------------------------- */
+
 .banner {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  padding: 8px 16px;
-  text-align: center;
-  font-size: 14px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #ffffff; /* bg.surface, never tinted */
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .banner.info {
-  background: #d9edf7;
-  color: #006699;
+  border-bottom: 2px solid #006699; /* state.info */
+  color: #006699; /* state.info */
 }
 
-/* design/ux/components.md 6: toast, centered, z-index 30, disappears on its own. */
+.banner.warn {
+  border-bottom: 2px solid #cc2222; /* state.danger */
+  color: #cc2222; /* state.danger */
+}
+
+/* The one full-width, top-of-screen "floating overlay banner" (components.md 2.3): the network
+   banner. Every other `.banner` (the run-bar's own Grace/Suspended/closing-soon lines, the sticky
+   auto-retreat-off badge) stays in normal document flow inside its own card instead. */
+#network-banner {
+  position: absolute;
+  top: max(48px, calc(env(safe-area-inset-top) + 40px));
+  left: 8px;
+  right: 8px;
+  z-index: 10; /* zIndex.banner */
+  justify-content: center;
+  text-align: center;
+}
+
 .toast {
   position: absolute;
   left: 50%;
   bottom: 24px;
   transform: translateX(-50%);
-  z-index: 30;
+  z-index: 30; /* zIndex.toast */
+  box-sizing: border-box;
+  max-width: calc(100vw - 32px);
   padding: 8px 16px;
-  border-radius: 12px;
-  background: #1a1a22;
-  color: #fff8ee;
-  font-size: 14px;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.card_px */
+  background: #ffffff; /* bg.surface, never ink.900 */
+  color: #1a1a22; /* ink.900 */
+  font-size: 16px; /* V-32: was 14px */
   text-align: center;
 }
 
-/* V-20 (art/reviews/F03-visual-gate.md round 2, P2-F04-T06): "จาง" (faded, `run.tickDenied`) is
-   never real `opacity` on text/border (style-guide S7) -- flat 100% opaque, just a lighter/no-shadow
-   treatment, `ink.500` 2px border (7.30:1 contrast on `bg.surface`, `ink.300` only managed 2.80:1)
-   + `ink.700` text. Never `state.danger` (a denied tick is not a punishment, hp-critical.md's
-   `.toast.danger` below is the only red toast). */
+/* "จาง" (faded, `run.tickDenied`): flat, 100% opaque, never `opacity` on text/border (S7) — a
+   lighter/no-shadow treatment only. `ink.500` border (7.30:1 on `bg.surface`). Never `state.danger`
+   (a denied tick is not a punishment). */
 .toast.faded {
-  background: #ffffff;
-  color: #333344;
-  border: 2px solid #555566;
+  border-color: #555566; /* ink.500 */
+  color: #333344; /* ink.700 */
   box-shadow: none;
 }
 
-/* touchTarget.min_px = 48 (style-guide S8).
-   P1-X25 fix: the P1-X23 ios-safari screenshot showed these two buttons visually overlapping
-   ("doubled button"). It was not a double DOM mount (`mountGpsUi` has one call site, src/main.ts) —
-   `#start-location` (centered, `left: 50%`) and `#follow-toggle` (right-anchored) are two distinct
-   real buttons that shared one row, and their content is the literal `client.mapSpike.*` copy key
-   (TL-N06: no narrative-designer text exists for these two dev-only affordances yet), which is long
-   enough to make either button wide enough to collide with the other on a narrow phone viewport.
-   `max-width` + `text-overflow: ellipsis` bounds each button's width regardless of copy length, and
-   stacking them into two rows (never sharing one) keeps them apart even if both still hit that cap
-   at once — a fix that holds once real short Thai copy lands, not just for today's placeholder. */
-#start-location,
-#follow-toggle {
+/* `run.hpLow`'s own toast (canon, never re-worded): surface + `state.danger` border/text at 16px
+   bold (5.50:1) rather than a solid danger fill with `bg.paper` text at 14px (5.21:1, below S8's
+   7:1 floor for that size). */
+.toast.danger {
+  border-color: #cc2222; /* state.danger */
+  color: #cc2222; /* state.danger */
+  font-weight: 700;
+}
+
+.toast-line {
+  margin: 2px 0;
+}
+
+.toast-continue-cta,
+.toast-level-up {
+  font-weight: 700;
+}
+
+.toast-loot-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* --- HP bar row (components.md 7, 13.6) — a solid plate, S6 ------------------------------------ */
+
+.hp-bar {
   position: absolute;
+  top: calc(max(8px, env(safe-area-inset-top)) + 92px);
+  left: 8px;
+  right: 8px;
   box-sizing: border-box;
-  min-height: 48px;
-  min-width: 48px;
-  max-width: calc(100vw - 32px);
-  padding: 8px 16px;
-  border-radius: 12px;
-  border: 2px solid #1a1a22;
-  background: #fff8ee;
-  color: #1a1a22;
-  font-size: 16px;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #ffffff; /* bg.surface */
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.card_px */
+  padding: 12px; /* space.cardPadding_px, close enough to stackGap for this row */
+}
+
+.hp-track {
+  position: relative; /* anchors .hp-fill-edge-marker's `left` percentage */
+  flex: 1 1 auto;
+  height: 20px;
+  border-radius: 999px; /* radius.chip_px */
+  background: #ddddee; /* ink.100 */
+  border: 2px solid #1a1a22; /* ink.900 */
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* Bottom row: the follow toggle (used constantly, in every provider mode). */
-#follow-toggle {
+.hp-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  background: #117733; /* state.success */
+}
+
+.hp-fill.low {
+  background: #cc2222; /* state.danger */
+}
+
+/* V-30 item 7 / components.md 13.6: a 2px `ink.900` line at the fill's own edge, so HP level reads
+   from the marker's position even where `state.danger` on `ink.100` alone falls just under the
+   contrast floor. A sibling of `.hp-fill`, not its `::after` (`.hp-fill`'s own `scaleX` would squash
+   a pseudo-element's width) — moved via `left` (`ui/hp-bar.ts#update`), never `transform: scaleX`. */
+.hp-fill-edge-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0%;
+  width: 2px;
+  transform: translateX(-1px);
+  background: #1a1a22; /* ink.900 */
+  transition: left 200ms ease-out; /* matches art/vfx/hp-bar/hp-bar.ts's own tween duration/easing */
+  pointer-events: none;
+}
+
+.hp-percent {
+  min-width: 3em;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums; /* type.numeric */
+  color: #1a1a22; /* ink.900 */
+}
+
+/* V-38: the sticky "auto-retreat off" badge is a `.banner.warn`, not a chip (components.md 9) — this
+   just keeps it from stretching to the row's full width like a normal block-level banner would. */
+.auto-retreat-off-badge {
+  flex: 0 0 auto;
+}
+
+/* --- Run bar (components.md 13.2) — one plate: pill, tick timer, exit button; banners wrap below */
+
+.run-bar {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  left: 8px;
+  right: 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  background: #ffffff; /* bg.surface */
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.card_px */
+  padding: 12px;
+}
+
+.run-state-pill {
+  order: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  padding: 4px 12px;
+  border-radius: 999px; /* radius.chip_px */
+  font-size: 14px;
+  font-weight: 700;
+  /* Active (default): `bg.paper` + `ink.900` bottom border (13.2). */
+  background: #fff8ee; /* bg.paper */
+  border-bottom: 2px solid #1a1a22; /* ink.900 */
+  color: #1a1a22; /* ink.900 */
+}
+
+.run-state-pill[data-status='grace'] {
+  background: transparent;
+  border-bottom: 6px solid #006699; /* state.info */
+  color: #006699; /* state.info */
+}
+
+.run-state-pill[data-status='suspended'] {
+  background: #006699; /* state.info */
+  border-bottom: none;
+  color: #ffffff; /* bg.surface, 6.25:1 on state.info */
+}
+
+.run-state-pill-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+
+.run-state-pill-icon img,
+.run-state-pill-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.run-tick-timer {
+  order: 2;
+  margin-inline-start: auto;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.run-exit-button {
+  order: 3;
+}
+
+/* The Grace/Suspended/closing-soon banners and the exit-confirm popup are the run-bar's own
+   children too (`ui/run-bar.ts`) — full width, wrapped below the pill/tick/exit row. */
+.run-bar > .banner {
+  order: 4;
+  flex-basis: 100%;
+}
+
+.run-bar > .popup-overlay {
+  order: 5;
+}
+
+/* --- Nav panel (components.md 13.5, 13.8) — a solid plate over the map, S6 --------------------- */
+
+.nav-panel {
+  position: absolute;
   bottom: max(16px, env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
+  left: 8px;
+  right: 8px;
+  box-sizing: border-box;
+  background: #ffffff; /* bg.surface */
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.card_px */
+  padding: 12px;
 }
 
-/* Row above it: the start-location button (`?loc=web` only, src/main.ts). `space.scale_px`
-   (design/ux/tokens.json) has no single step that reliably clears a 48px-tall neighbour plus its
-   own `stackGap_px` (8px) inside one `calc()`, so this composes two token values instead of
-   introducing a new literal. */
-#start-location {
-  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 48px + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+.nav-panel > div {
+  margin-top: 8px;
 }
 
-/* Debug HUD panel (P1-F02-T11, hud=1 only): minimal placement, not final art direction, same as
-   the rest of #hud (no visual design has landed for this spike screen). Scrollable and capped so a
-   long readout never blocks the export buttons or covers the whole viewport on a small phone. */
+.nav-panel > div:first-child {
+  margin-top: 0;
+}
+
+.nav-panel-destination-name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.nav-panel-closed {
+  font-size: 14px;
+  color: #333344; /* ink.700 */
+}
+
+.nav-return-before-arrive {
+  font-size: 14px;
+  color: #333344; /* ink.700 */
+}
+
+.nav-fallback-open-link {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: #006699; /* state.info, a plain text-link affordance */
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* --- Home panel (components.md, F06 home states) — a solid plate over the map, S6 -------------- */
+
+.home-panel {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 8px;
+  right: 8px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: #ffffff; /* bg.surface */
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.card_px */
+  padding: 12px;
+}
+
+.home-panel-shortcuts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.home-avatar-card {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #1a1a22; /* ink.900 */
+  background: #ffffff; /* bg.surface */
+}
+
+.home-panel-title {
+  font-size: 20px; /* type.h2.size_px */
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.home-panel-body,
+.home-panel-next-open {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.home-panel-register-card {
+  background: #fff8ee; /* bg.paper */
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.card_px */
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.home-primary-cta {
+  width: 100%;
+}
+
+.home-recent-runs-detail {
+  font-size: 14px;
+  color: #333344; /* ink.700 */
+  margin-top: 4px;
+}
+
+/* Debug HUD panel (hud=1 only, dev tool — never shown in a player build). */
 #hud-panel {
   position: absolute;
   top: max(8px, env(safe-area-inset-top));
@@ -210,7 +750,7 @@ body {
   padding: 8px;
   border-radius: 8px;
   background: rgb(26 26 34 / 85%);
-  color: #fff8ee;
+  color: #fff8ee; /* bg.paper */
   font-size: 11px;
 }
 
@@ -228,21 +768,24 @@ body {
   font-size: 12px;
 }
 
-/* Run-summary loot row icon (P2-X21, components.md 13.7): two stacked <img>s, no visual design
-   here yet either (see file header) — just enough positioning for the rarity frame and the item
-   glyph to sit on top of each other at a readable size. Either image may be `hidden` (asset
-   manifest miss, asset-pipeline 10 "never a broken image"): the row still reads via its text. */
+/* --- Item icon + rarity frame (components.md 13.7, icon-grammar 4.3, V-33) ---------------------- */
+
+/* V-33: 52x52 (the minimum size a rarity frame may ever render at — "ขนาดเล็กกว่านี้ห้ามใช้กรอบ")
+   with the item glyph 48x48, centred with a 2px inset on every side. Used identically by the
+   run-summary loot rows and the tick-feedback toast (`ui/item-icon-dom.ts`'s own doc comment on why
+   both share one DOM shape) — there is always room for 52px here (`toast.tickMaxIconsShown` caps at
+   3 icons, 3 * 52px + gaps is well under a phone's width), so the icon-grammar 4.4 "32px + rarity
+   chip, no frame" fallback is not needed by either call site today. */
 .item-icon-frame {
   position: relative;
   display: inline-block;
-  width: 32px;
-  height: 32px;
+  width: 52px;
+  height: 52px;
   margin-inline-end: 8px;
   vertical-align: middle;
 }
 
-.item-icon-frame-bg,
-.item-icon-glyph {
+.item-icon-frame-bg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -251,199 +794,184 @@ body {
 }
 
 .item-icon-glyph {
-  width: 70%;
-  height: 70%;
+  position: absolute;
+  inset: 2px;
+  width: 48px;
+  height: 48px;
   margin: auto;
+  object-fit: contain;
 }
 
 .run-summary-reward-row {
   display: flex;
   align-items: center;
+  margin: 4px 0;
 }
 
-/* z-index scale, applied byte-for-byte from `design/ux/tokens.json#zIndex` (components.md section
-   15, D-129/P2-H28 — supersedes P2-F06-T08's earlier placeholder `.screen` value of 15, which
-   predates the full scale landing in tokens.json/components.md): `map` (0) < `hud` (1) < `banner`
-   (10) < `drawer` (20) < `toast` (30) < `popupModal` (40, `.popup-overlay`/`.popup`) < `overlay`
-   (50, `.overlay-speedlock`, `.screen.run-summary` and — per components.md 15.2's own rule that
-   only popupModal/overlay/system may be a full-screen opaque `inset: 0` box — every other
-   `.screen` too: `S-11-inventory`/`S-22-settings` fully take over the display the same way
-   run-summary does) < `system` (60, not built yet: `S-00-consent-location`/`S-00-age-gate`). No
-   art direction has landed for any of this yet — colors/spacing below are placeholders, not final
-   style. */
-.popup-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgb(26 26 34 / 55%);
+/* --- Run summary (components.md 13.7, F05 flow B) ----------------------------------------------- */
+
+.run-summary-header {
+  font-size: 24px; /* type.h1.size_px */
+  font-weight: 700;
+  margin-bottom: 8px;
 }
 
-.popup {
-  box-sizing: border-box;
-  width: min(92vw, 360px);
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 16px;
-  border-radius: 12px;
-  border: 2px solid #1a1a22;
-  background: #fff8ee;
-  color: #1a1a22;
+.run-summary-canon,
+.run-summary-body {
+  font-size: 16px;
+  margin-bottom: 8px;
 }
 
-.popup button {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 48px;
-  margin-top: 8px;
+.run-summary-exp-row,
+.run-summary-tick-row {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 4px;
 }
+
+.run-summary-rewards {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+}
+
+/* --- Generic full-screen takeovers (`.screen`) -------------------------------------------------- */
 
 .screen {
   position: absolute;
   inset: 0;
-  z-index: 50;
+  z-index: 50; /* zIndex.overlay — every `.screen` replaces the whole display, components.md 15.2 */
   overflow-y: auto;
   box-sizing: border-box;
-  padding: 16px;
-  background: #fff8ee;
-  color: #1a1a22;
+  padding: 16px; /* space.screenPadding_px */
+  background: #fff8ee; /* bg.paper */
+  color: #1a1a22; /* ink.900 */
+}
+
+/* V-30 item 10: consent/age-gate are system-level gates — above every other screen (components.md
+   15.1), never just an ordinary `.screen`. */
+.screen.age-gate-screen,
+.screen.consent-location-screen {
+  z-index: 60; /* zIndex.system */
 }
 
 .run-summary-body {
-  /* `run.summary.clockInvalidBody` carries a real `\n` (copy.th.json): render it as an actual
-     line break rather than collapsing it like normal inline text. */
+  /* `run.summary.clockInvalidBody` carries a real `\n` (copy.th.json): render it as an actual line
+     break rather than collapsing it like normal inline text. */
   white-space: pre-line;
 }
 
-/* Speed-lock overlay (F04 flow section 5, components.md 13.4): full-screen, above every popup —
-   `overlay` (50, components.md 15.3: "ต้องอยู่เหนือ popupModal เพราะอาจมี popup เปิดค้างอยู่ตอน
-   speed-lock เริ่ม"). */
-.overlay-speedlock {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* --- Class-select sheet (components.md, onboarding) ---------------------------------------------- */
+
+.class-select-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-  box-sizing: border-box;
-  padding: 16px;
-  background: #fff8ee;
-  color: #1a1a22;
+  margin-top: 8px;
 }
 
-.speedlock-buttons {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 320px;
-  gap: 8px;
+.class-select-badge {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 8px;
 }
 
-.run-bar {
-  position: absolute;
-  top: max(8px, env(safe-area-inset-top));
-  left: 8px;
-  right: 8px;
-  box-sizing: border-box;
+.class-select-name {
+  font-weight: 700;
+  text-align: center;
 }
 
-.run-state-pill {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: #1a1a22;
-  color: #fff8ee;
+.class-select-desc {
   font-size: 14px;
+  color: #333344; /* ink.700 */
+  text-align: center;
 }
 
-/* HP bar (components.md section 7, `.hp-track`/`.hp-fill`): track ink.100 bg + ink.900 2px border
-   (2.6:1 minimum contrast rule S3, `border.ink_px` token), radius.chip, 20px tall; fill
-   state.success normally, `.hp-fill.low` state.danger at/under lowHpWarningThreshold_pct
-   (F06-R14) — `transform: scaleX()` only (art/vfx/hp-bar/hp-bar.ts's own DOM contract: never
-   `width`, that would defeat the compositor-only motion budget). `.hp-percent` next to the bar,
-   never color-only (style-guide S4). */
-.hp-bar {
-  position: absolute;
-  top: calc(max(8px, env(safe-area-inset-top)) + 40px);
-  left: 8px;
-  right: 8px;
-  box-sizing: border-box;
+/* --- Role info / interest register / credits lists ------------------------------------------------ */
+
+.role-info-row,
+.interest-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #ddddee; /* ink.100 */
 }
 
-.hp-track {
-  flex: 1 1 auto;
-  height: 20px;
-  border-radius: 999px;
-  background: #ddddee;
-  border: 2px solid #1a1a22;
-  overflow: hidden;
+.interest-group {
+  flex-direction: column;
+  align-items: stretch;
 }
 
-.hp-fill {
-  height: 100%;
-  width: 100%;
-  transform-origin: left;
-  background: #117733;
-}
-
-.hp-fill.low {
-  background: #cc2222;
-}
-
-.hp-percent {
-  min-width: 3em;
-  font:
-    700 16px/1.2 system-ui,
-    sans-serif;
-  font-variant-numeric: tabular-nums;
-  color: #1a1a22;
-}
-
-.auto-retreat-off-badge {
+.role-info-badge {
   flex: 0 0 auto;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #cc2222;
-  color: #fff8ee;
-  font-size: 12px;
+  width: 48px;
+  height: 48px;
 }
 
-/* run.hpLow's own toast, `.toast.danger` (art/vfx/specs/hp-critical.md's DOM contract) — the same
-   `.toast`/`.toast.faded` base already defined above, just recolored for the safety line. */
-.toast.danger {
-  background: #cc2222;
-  color: #fff8ee;
+.role-info-name {
+  font-weight: 700;
 }
 
-.nav-panel {
-  position: absolute;
-  bottom: max(16px, env(safe-area-inset-bottom));
-  left: 8px;
-  right: 8px;
-  box-sizing: border-box;
-}
-
-.nav-panel-closed {
-  padding: 4px 0;
+.role-info-desc {
   font-size: 14px;
-  color: #333344;
+  color: #333344; /* ink.700 */
 }
 
-/* S-22 settings subpage (`ui/settings-walking-safety.ts`) and S-11 inventory (`ui/
-   inventory-screen.ts`): plain rows, touchTarget.min_px 48 on every button (style-guide S8). The
-   toggle's own on/off state is a `data-on` attribute (never color alone, S4) so a future style
-   pass can add an icon/label without touching the component's own code. */
+.interest-group-heading {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.interest-option {
+  width: 100%;
+  margin-top: 8px;
+  text-align: left;
+}
+
+.interest-option[aria-pressed='true'] {
+  border-width: 4px;
+  box-shadow: 0 0 0 3px #ffcc00; /* accent.signal, same "add a ring" language as .card.selected */
+}
+
+.interest-confirmed-line {
+  margin: 8px 0;
+  font-weight: 700;
+  color: #117733; /* state.success */
+}
+
+.credits-entry {
+  margin-bottom: 12px;
+}
+
+.credits-entry a {
+  color: #006699; /* state.info */
+}
+
+/* --- Settings (components.md 9) ------------------------------------------------------------------ */
+
+.settings-menu-row {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  text-align: left;
+}
+
+.settings-menu-clear-local-data-blocked-note {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #333344; /* ink.700 */
+}
+
+.settings-menu-close,
+.settings-close-button {
+  margin-top: 16px;
+}
+
 .settings-row {
   padding: 12px 0;
-  border-bottom: 1px solid #ddddee;
+  border-bottom: 1px solid #ddddee; /* ink.100 */
 }
 
 .settings-row-label {
@@ -452,24 +980,32 @@ body {
 
 .settings-row-hint {
   font-size: 14px;
-  color: #555566;
+  color: #333344; /* ink.700 */
 }
 
+/* Toggle (components.md 9): the on/off state is a `data-on` attribute, never colour alone (S4) —
+   the label text next to it always says the current state too. */
 .toggle {
-  min-height: 48px;
+  min-height: 48px; /* touchTarget.min_px */
   min-width: 48px;
   padding: 8px 16px;
   margin-top: 8px;
-  border-radius: 999px;
-  border: 2px solid #1a1a22;
-  background: #ffffff;
-  color: #1a1a22;
+  border-radius: 999px; /* radius.chip_px */
+  border: 2px solid #1a1a22; /* ink.900 */
+  background: #ffffff; /* bg.surface */
+  color: #1a1a22; /* ink.900 */
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .toggle[data-on='true'] {
-  background: #117733;
-  color: #fff8ee;
+  background: #117733; /* state.success */
+  color: #fff8ee; /* bg.paper */
+  border-color: #117733;
 }
+
+/* --- Inventory (components.md 13.7) --------------------------------------------------------------- */
 
 .inventory-list {
   list-style: none;
@@ -482,30 +1018,131 @@ body {
   align-items: center;
   gap: 8px;
   padding: 8px 0;
-  border-bottom: 1px solid #ddddee;
+  border-bottom: 1px solid #ddddee; /* ink.100 */
 }
 
 .inventory-row-label {
   flex: 1 1 auto;
 }
 
-.inventory-use-potion-button,
-.inventory-use-revive-potion-button {
-  min-height: 48px;
+/* --- Privacy screen ------------------------------------------------------------------------------- */
+
+.privacy-location-status-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 16px;
 }
 
-/* Pocket screen (components.md section 12.1, design gate A 4.4, P2-F06-T14): full-screen, near-
-   black, `overlay` tier (50, same as `.overlay-speedlock`/`.screen` — a dungeon confirm/settings
-   screen must never sit visually above it while a run is active, tokens.json#zIndex). `touch-
-   action: none` is load-bearing: without it a real touchscreen's own scroll/pull-to-refresh gesture
-   can steal or cancel the pointer sequence `ui/pocket-screen.ts`'s swipe-up-hold reads raw
-   (`pointerdown`/`pointermove`/`pointerup`), the same reason `.overlay-speedlock` never needed this
-   (it has no gesture of its own). No `animation`/`transition` anywhere in this rule on purpose (P4,
-   OLED battery — components.md 12.1's own "ไม่มี animation ต่อเนื่อง"). */
-.pocket-screen {
+.privacy-location-status-label {
+  font-weight: 700;
+}
+
+.privacy-position-log-explain {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.privacy-withdraw-during-run-note {
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #cc2222; /* state.danger */
+}
+
+/* --- Intro / age-gate / consent (onboarding) -------------------------------------------------------- */
+
+.intro-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.intro-message {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.intro-tap-hint {
+  font-size: 16px;
+  color: #333344; /* ink.700 */
+}
+
+.age-gate-options-label,
+.consent-location-body {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.age-gate-birth-year-select {
+  display: block;
+  width: 100%;
+  min-height: 48px; /* touchTarget.min_px */
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.button_px */
+  background: #ffffff; /* bg.surface */
+  color: #1a1a22; /* ink.900 */
+  font: inherit;
+  font-size: 16px;
+}
+
+.age-gate-confirm,
+.age-gate-underage-back {
+  margin-top: 8px;
+}
+
+.consent-header-label {
+  font-size: 14px;
+  color: #333344; /* ink.700 */
+  margin-bottom: 8px;
+}
+
+/* NN-7: accept/decline carry equal visual weight (plain `.btn`, never primary-vs-secondary). */
+.consent-location-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* --- Check-in row (components.md 13.3) ------------------------------------------------------------ */
+
+.checkin-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  margin: 8px 0;
+  font-size: 16px;
+  color: #1a1a22; /* ink.900 */
+  font-variant-numeric: tabular-nums;
+}
+
+.checkin-status-icon {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+}
+
+.checkin-status-icon img,
+.checkin-status-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Speed-lock overlay (components.md 13.4) — never a `.btn-primary` on this screen ---------------- */
+
+.overlay-speedlock {
   position: absolute;
   inset: 0;
-  z-index: 50;
+  z-index: 50; /* zIndex.overlay */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -513,25 +1150,68 @@ body {
   gap: 8px;
   box-sizing: border-box;
   padding: 16px;
-  background: #1a1a22;
-  color: #fff8ee;
   text-align: center;
+  background: #fff8ee; /* bg.paper (day) */
+  color: #1a1a22; /* ink.900 */
+}
+
+.speedlock-title {
+  font-size: 20px; /* >= type.h2, "หัว >= 20px ตัวหนา" */
+  font-weight: 700;
+}
+
+.speedlock-body {
+  font-size: 16px;
+}
+
+.speedlock-buttons {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 320px;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* --- Pocket screen (components.md 12.1, V-32) ------------------------------------------------------ */
+
+.pocket-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 50; /* zIndex.overlay */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #1a1a22; /* bg.night */
+  color: #fff8ee; /* bg.paper */
+  text-align: center;
+  /* Without this, a real touchscreen's own scroll/pull-to-refresh gesture can steal or cancel the
+     swipe-up-hold pointer sequence `ui/pocket-screen.ts` reads raw. No animation/transition anywhere
+     in this rule on purpose (OLED battery, components.md 12.1's own "ไม่มี animation ต่อเนื่อง"). */
   touch-action: none;
 }
 
 .pocket-screen-hp {
-  font-size: 64px;
+  font-size: 64px; /* type.display.size_px */
   font-weight: 700;
+  font-variant-numeric: tabular-nums; /* type.numeric */
 }
 
 .pocket-screen-tick {
   font-size: 24px;
+  font-variant-numeric: tabular-nums;
 }
 
+/* V-32: no `opacity` on text (S7) — `ink.300` (`#9999AA`) on `bg.night` is 6.17:1, "จาง" by colour
+   choice alone, at the same 16px floor as every other line on this screen. */
 .pocket-screen-counting,
 .pocket-screen-wake-hint {
-  font-size: 13px;
-  opacity: 0.7;
+  font-size: 16px;
+  color: #9999aa; /* ink.300 */
   white-space: pre-line;
 }
 
@@ -540,12 +1220,63 @@ body {
   bottom: max(16px, env(safe-area-inset-bottom));
 }
 
-/* `[run.pocketEnterButton]` (12.1's "กลับเข้าจอพกกระเป๋า"): lives on the normal run screen, not on
-   the overlay itself (rule 2 — no button ever appears on `.pocket-screen`). */
+/* `run.pocketEnterButton` lives on the normal run screen, not the overlay itself. */
 .pocket-enter-button {
   position: absolute;
   left: 8px;
   right: 8px;
   bottom: max(8px, env(safe-area-inset-bottom));
   z-index: 10;
+}
+
+/* --- Fire-together visual pulse (`ui/cue-visual.ts`, V-35) ------------------------------------------ */
+
+/* Decorative only (`aria-hidden`), one-shot <= 200ms, never uses `opacity` on an ink-bordered edge
+   (there is no border here at all). Sits at `zIndex.toast` on purpose — components.md 15.4's own
+   decision means it is meant to be covered by the pocket screen exactly like a real toast is, never
+   promoted above `zIndex.overlay`.
+   `#hud > .cue-visual-pulse` (not just `.cue-visual-pulse`): `#hud > *` earlier in this file sets
+   `pointer-events: auto` on every direct child, at `(1,0,0)` specificity (one ID selector) — a bare
+   `.cue-visual-pulse { pointer-events: none }` at `(0,1,0)` loses to it and this full-screen,
+   `inset: 0` decoration would otherwise sit on top of the map/HUD and swallow every tap underneath
+   it (found live in this task's own e2e run: `.run-exit-button`/`.pocket-enter-button`/export
+   buttons all timed out with "cue-visual-pulse intercepts pointer events"). `(1,1,0)` beats it. */
+#hud > .cue-visual-pulse {
+  position: absolute;
+  inset: 0;
+  z-index: 30; /* zIndex.toast */
+  pointer-events: none;
+  background: transparent;
+}
+
+.cue-visual-pulse.cue-visual-pulse-active {
+  animation: kw-cue-visual-pulse 180ms ease-out;
+}
+
+@keyframes kw-cue-visual-pulse {
+  0% {
+    background: rgb(
+      255 204 0 / 25%
+    ); /* accent.signal, brief flat tint, never on ink-bordered edges */
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* --- Run tutorial line (N-3, the one tooltip in the whole game) ------------------------------------- */
+
+.run-tutorial-line {
+  position: absolute;
+  top: calc(max(8px, env(safe-area-inset-top)) + 148px);
+  left: 8px;
+  right: 8px;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.card_px */
+  background: #ffffff; /* bg.surface */
+  color: #1a1a22; /* ink.900 */
+  font-size: 16px;
+  text-align: center;
 }

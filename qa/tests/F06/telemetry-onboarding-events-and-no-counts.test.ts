@@ -40,13 +40,11 @@ describe('PM-M2 onboarding empty-screen + interest events (product/telemetry-eve
   it('the real client-side reason enum is exactly far/out_of_area/outside_launch_district (never unknown/temporarilyClosed, tech note F06 9.2)', () => {
     const m = F04_APP_SRC.match(/type EmptyScreenReason = ([^;]+);/);
     expect(m).not.toBeNull();
-    const literals = new Set(
-      (m?.[1] ?? '').split('|').map((s) => s.trim().replace(/^'|'$/g, '')),
-    );
+    const literals = new Set((m?.[1] ?? '').split('|').map((s) => s.trim().replace(/^'|'$/g, '')));
     expect(literals).toEqual(new Set(['far', 'out_of_area', 'outside_launch_district']));
   });
 
-  it('the doc\'s own reason enum for onboarding_empty_screen_shown matches the same three values', () => {
+  it("the doc's own reason enum for onboarding_empty_screen_shown matches the same three values", () => {
     const section = DOC.slice(DOC.indexOf('### `onboarding_empty_screen_shown`'));
     const reasonLine = section.slice(0, section.indexOf('###', 1));
     expect(reasonLine).toContain('far');
@@ -85,8 +83,9 @@ describe('D-100 — no per-dungeon player/role counts on any Phase 2 screen', ()
     return out;
   }
 
-  it('every match of a count-like identifier is either the player\'s own tick summary or a telemetry-only property, never a UI count of other players', () => {
-    const suspicious = /\b(playerCount|registeredCount|roles_present|outOfAreaCount|memberCount|partySize)\b/;
+  it("every match of a count-like identifier is either the player's own tick summary or a telemetry-only property, never a UI count of other players", () => {
+    const suspicious =
+      /\b(playerCount|registeredCount|roles_present|outOfAreaCount|memberCount|partySize)\b/;
     const allowedFiles = new Set([
       'apps/client/src/ui/run-summary.ts', // the player's OWN passedCount/evaluatedCount, F05
       'apps/client/src/telemetry/f04-events.ts', // roles_present: an analytics-only SessionEvent mapper property
@@ -100,7 +99,7 @@ describe('D-100 — no per-dungeon player/role counts on any Phase 2 screen', ()
     expect(hits.length).toBeGreaterThan(0); // the pattern itself still matches something real (not a stale regex)
   });
 
-  it('label_count (per-dungeon crowd label) is never set on the map source (D-089, dungeons/artifact.ts\'s own doc comment)', () => {
+  it("label_count (per-dungeon crowd label) is never set on the map source (D-089, dungeons/artifact.ts's own doc comment)", () => {
     const src = readFileSync('apps/client/src/dungeons/artifact.ts', 'utf8');
     expect(src).toMatch(/label_count.*never set/i);
     expect(src).not.toMatch(/label_count\s*:\s*[^n]/); // never assigned a non-null-ish literal value

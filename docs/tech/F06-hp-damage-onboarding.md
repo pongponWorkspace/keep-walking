@@ -383,10 +383,11 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 | `kw.p2.onboarding` | client (P2-F06-T09) | `{ schemaVersion: 1, introSeen: bool, ageGatePassed: bool, consentAnswered: bool, firstOpenAt_ms: number }` | ปีเกิด, ช่วงอายุ (R45) |
 | `kw.p2.consent` | client | `{ schemaVersion: 1, location: 'granted' \| 'declined' \| 'withdrawn' }` | เวลาที่ให้ consent, ข้อความ |
 | `kw.p2.interest` | client | `{ schemaVersion: 1, scope: 'district' \| 'province', areaId: string } \| null` (id จากรายการใน content) | พิกัด, ข้อความอิสระ (R53) |
-| `kw.p2.runClientStats` | client | `{ runId, pageHidden_ms, wakeLockHeld_ms, wakeLockSupported }` ของ run ปัจจุบัน (หัวข้อ 10.2) · ลบเมื่อส่ง `dungeon_exited` telemetry แล้ว | พิกัด |
-| `kw.p2.settings` | client | ค่าตั้งของ UI ที่ไม่มีผลต่อเกม (เช่น เสียง) ถ้ามี | auto-retreat (อยู่ใน `player` เพราะมีผลต่อ hit) |
+| `kw.p2.settings.<name>` | client | ค่าตั้งของ UI ที่ไม่มีผลต่อเกม **หนึ่ง key ต่อหนึ่งค่า** (ไม่ใช่ object รวม) · Phase 2: `kw.p2.settings.pocketScreenEnabled` (`ui/settings-walking-safety.ts`), `kw.p2.settings.pocketWakeHintShown`, `kw.p2.settings.screenLockNoticeShown` (`ui/pocket-screen.ts`) · ดู 8.5 | auto-retreat (อยู่ใน `player` เพราะมีผลต่อ hit) |
 | `kw.p2.telemetry` | client (มีแล้ว) | ring buffer (F04 12.2) | พิกัด |
 
+- **settings แยก key (P2-H45):** เก็บแยกทีละ key เพื่อให้แต่ละโมดูล UI อ่าน/เขียนค่าของตัวเองโดยไม่ต้อง merge object ร่วม และค่าที่อ่านไม่ได้เสียแค่ค่าเดียว · ชื่อ key เป็น identifier (literal ได้) แต่ต้องขึ้นต้นด้วย `config/app/privacy.json#localData.storageKeyPrefix` และมี unit test กัน drift (F06-TG-04) · key ใหม่ใต้ `kw.p2.settings.` ไม่ต้องแก้ตารางนี้ถ้าไม่มีผลต่อเกม แต่ต้องอยู่ใน test ของ prefix
+- **`runClientStats` อยู่ในหน่วยความจำเท่านั้น (P2-H45):** ไม่มี key `kw.p2.runClientStats` · ตัวสะสม `{ pageHiddenMs, wakeLockHeldMs, wakeLockSupported }` อยู่ใน `WakeLockController` และถูกอ่านผ่าน `getRunClientStats()` ตอน engine ส่ง `dungeon_exited` เท่านั้น (`f04-app.ts`, `session/engine.ts`) · ผลที่ยอมรับ: reload ระหว่าง run ทำให้ยอดสะสมเริ่มนับใหม่จากตอนเปิดแอป จึงนับต่ำกว่าจริง (ทิศเดียวกับ "เวลาที่แอปปิดนับเป็นไม่ได้ถือ" ของ 10.2) · เป็น telemetry ของ UX ไม่มีผลต่อรางวัล จึงไม่คุ้มกับ key เพิ่มและการเขียน storage ทุกครั้งที่ wake lock เปลี่ยน · ถ้า product ต้องการค่าที่รอด reload ให้ส่ง handoff ถึง tech-lead ก่อนเพิ่ม key
 - `firstOpenAt_ms` ใช้คำนวณ `minutes_since_first_open_bucket` ของ `onboarding_first_reward_granted` เท่านั้น ไม่ export เป็นเวลาจริง (C2-4)
 - ผู้ที่อายุต่ำกว่าเกณฑ์: ไม่เขียน key ใดเลย (R46) · เปิดแอปครั้งถัดไปเจอ age gate อีก
 - ทุก key อ่านผ่าน envelope ของ `apps/client/src/storage/local-store.ts` · อ่านไม่ได้ = ใช้ค่าเริ่ม (ขั้นนั้นยังไม่ผ่าน) ไม่ crash
@@ -435,6 +436,17 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 
 **ผลต่อ telemetry (ถึง product-manager):** `dungeon_exited.exit_reason = manual_exit` สำหรับทั้งการกดออกเองและการถอน consent · แยกสองกรณีจาก `dungeon_exited` อย่างเดียวไม่ได้ · ถ้า PM ต้องการแยก ข้อเสนอของ tech-lead คือ event ของ client `location_consent_withdrawn { during_run: bool }` ยิงในข้อ 4 (ก่อน `dungeon_exited` ใน ring buffer ไม่ได้ เพราะ exit เกิดในข้อ 2 · ลำดับที่ได้คือ `dungeon_exited` → `location_consent_withdrawn` ที่ `at_ms` เดียวกัน · mapper จับคู่ได้ด้วยเวลา) · ไม่มีพิกัด ไม่มีข้อมูลตัวตน · PM ประกาศชื่อใน `product/telemetry-events.md` ก่อน client จึงจะยิง (ตามกติกา 10.1) · ถ้าไม่ประกาศ อัตรา `manual_exit` ของ Phase 2 รวมการถอนไว้ ซึ่งคาดว่าน้อยมากใน playtest
 
+### 8.5 จอพกกระเป๋า: key และท่าปัดขึ้นค้างเพื่อออก (P2-F06-T14 · D-134 · P2-H45)
+
+- โมดูล: `apps/client/src/ui/pocket-screen.ts` (DOM glue + ฟังก์ชัน pure `shouldTriggerPocketExit`) · ไม่มีผลต่อรางวัล ไม่แตะ engine นอกจากอ่าน selector ที่มีอยู่
+- key: `kw.p2.settings.pocketScreenEnabled`, `kw.p2.settings.pocketWakeHintShown`, `kw.p2.settings.screenLockNoticeShown` (แยก key ตาม 8.1) · ลบพร้อม `clearLocalData`
+- ท่าออก (design gate A 4.4 กฎข้อ 2, components.md 12.1): ต้องครบทั้งสองเงื่อนไข ข้อใดข้อเดียวไม่ออก
+  1. ยังกดค้างอยู่เมื่อครบ `config/app/client.json#pocketScreen.swipeUpHoldMinDuration_ms` นับจาก `pointerdown`
+  2. นิ้วเลื่อนขึ้นอย่างน้อย `threshold_px = window.innerHeight × pocketScreen.swipeUpMinDistance_ratio`
+- **D-134 (ACCEPTED, P2-F06-T20 6.1):** ระยะปัดเก็บเป็น **สัดส่วนของความสูง viewport** (`_ratio`, config-lint ตรวจช่วง 0–1) ไม่ใช่ px คงที่ · ไม่เพิ่มหน่วย `_px` ใน config-lint
+- **เงื่อนไขของ D-134:** แปลงเป็น px **ที่ `pointerdown` ทุกครั้ง** ไม่ใช่ครั้งเดียวตอน mount · เหตุผล: mount ตอนแนวนอนแล้วหมุนจอ (หรือแถบเบราว์เซอร์ยุบ/ขยาย) เกณฑ์ที่แคชไว้จะผิดสัดส่วน · ค่าที่ได้ตอน `pointerdown` ใช้ตลอดท่านั้น (ไม่คำนวณใหม่ระหว่างปัด) · โค้ด ณ `3b7e78c` ยังแปลงตอน mount (`ui/pocket-screen.ts:151-154`) → gameplay-programmer แก้ใน P2-X41 หรือครั้งถัดไปที่แตะไฟล์ (ไม่ blocking)
+- test: unit ของ `shouldTriggerPocketExit` (ค้างไม่ปัด / ปัดแล้วปล่อยก่อนเวลา / ครบทั้งคู่) · unit ที่เปลี่ยน `innerHeight` ระหว่างสอง gesture แล้วเกณฑ์ของ gesture ที่สองเปลี่ยนตาม
+
 ## 9. สถานะที่บ้าน: ไกล / นอกพื้นที่ / นอกย่านเปิดตัว / ไม่รู้ตำแหน่ง (R50–R55, D-064, D-073)
 
 แสดงผลเท่านั้น ไม่ตัดสินรางวัล · คำนวณใน client ได้ (ADR 0003 3.3 ข้อ 2, `unlocks.home._note`) · โมดูลเสนอ `apps/client/src/home/home-state.ts` เป็นฟังก์ชัน pure ที่ test ได้โดยไม่มี DOM
@@ -460,6 +472,8 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 3. หา dungeon ที่ **เปิดอยู่** ณ `now_ms`: ระยะ `d = pointInPolygon(pt, g) ? 0 : boundaryDistance_m(pt, g)` (ระยะเส้นตรงถึงขอบ polygon ก่อนปัด · F04-R34, R35) · **ชุดที่ใช้ตัดสินข้อ 4–5**: ระหว่าง onboarding (`lifetimeTicksGranted = 0`) = เฉพาะ dungeon ที่ครอบเลเวล (R37) · หลังจบ onboarding = dungeon ทั้งหมด (R50 ตามเดิม)
 4. **ไกล** (`far`): ไม่มี dungeon เปิดในชุดของข้อ 3 ที่ `d ≤ farDungeonThreshold_m`
    - หลังจบ onboarding: ย่อย `temporarilyClosed` เมื่อมี dungeon ในเกณฑ์แต่ปิดทั้งหมด (แสดงเวลาเปิดถัดไป · H-E21) · ระยะ ทิศ และปุ่มนำทางชี้ dungeon เปิดที่ใกล้สุด (R52 ข้อ 1)
+   - หลังจบ onboarding และ **ไม่มี dungeon ใดเปิดเลย** (ทุกระยะ · A-P2-X27-1 · D-136 ACCEPTED): `temporarilyClosed` ที่ dungeon ใกล้สุด (ตาม `d` ของข้อ 3 โดยไม่กรองสถานะเปิด) · เวลาเปิดถัดไปที่แสดง เป้าของทิศ และปุ่มนำทางเป็นแห่งเดียวกันนี้ · ไม่ใช่ `far` เพราะ `far` ต้องชี้ dungeon ที่เปิดอยู่ (F04-R33) · สมมาตรกับกรณีเดียวกันระหว่าง onboarding ด้านล่าง (A-P2-X31-1) · สรุป: ไม่มีกรณีใดที่ `far` ชี้ไป dungeon ที่ปิด
+   - caller ของ `home-state.ts` resolve `selectOpening` (จาก `@keep-walking/shared/session` ทางเดียว · ADR 0003 3.3) และ geometry ของ dungeon ก่อนเรียก · `home-state.ts` ไม่รู้รูปของ `SessionParams` และไม่โหลด asset (P2-F06-T20 6.3)
    - ระหว่าง onboarding (R37 ข้อ 1–2): ไม่มี dungeon ที่ครอบเลเวลเปิดอยู่เลย (ทุกระยะ) → `temporarilyClosed` แสดงเวลาเปิดถัดไปของแห่งที่ครอบเลเวล ไม่มีการ์ดแนะนำ (R37 ข้อ 2) · เวลาที่แสดง = เวลาเปิดถัดไปของแห่งที่ครอบเลเวลที่ใกล้สุด (ทางเดียวกับทิศและปุ่มนำทาง · A-P2-X31-1) · ไม่มี dungeon ใดครอบเลเวลเลยใน artifact = `temporarilyClosed` ที่ไม่มีเวลาและไม่มีเป้า (บั๊กของข้อมูล ไม่ใช่สถานะของเกม · build dungeon ควรตรวจว่าเลเวล 1 ถูกครอบ) · มีแห่งที่ครอบเลเวลเปิดอยู่แต่นอกเกณฑ์ → `far` ที่ระยะ ทิศ และปุ่มนำทางชี้ dungeon **ที่ครอบเลเวลและเปิดอยู่** ใกล้สุด ไม่ใช่ dungeon ใกล้สุดทั่วไป (R37 ข้อ 1, H-E26) · dungeon เปิดที่ไม่ครอบเลเวลภายในเกณฑ์ไม่ทำให้เป็น `near`
    - **นอกย่านเปิดตัว** (`outside_launch_district`): เป็น `far` และ `launchAreaMaskPath ≠ null` และ `!pointInPolygon(pt, launchMask)` · ถ้า `launchAreaMaskPath = null` ทุกคนที่เป็น `far` (ไม่ใช่ `temporarilyClosed`) เห็นการลงทะเบียนรายเขต (R55, A-P2-F06-T02-1)
 5. **ใกล้** (`near`): มี dungeon เปิดในชุดของข้อ 3 ภายในเกณฑ์ · รอยแยกที่แนะนำ:
@@ -497,7 +511,7 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 ### 10.2 คำตอบ
 
 - **A-P2-F04-T17-9 — ยืนยัน:** engine event `run_tick_denied` มี field `partial` (bool) ทุกครั้ง · `false` สำหรับหน้าต่างปกติ (tech note F05 5 ข้อ 2) · `true` สำหรับหน้าต่างที่ค้างตอน `dungeon_closed` / `emergency_close` ที่ไม่ผ่านเกณฑ์ย่อ หรือ `e < partialTickMinElapsed_s` (tech note F05 6) · ตาราง 2.5 ของ tech note F04 จะแก้ให้ตรงในงานถัดไปของ tech-lead (เอกสารนี้เป็นสัญญาปัจจุบัน) · หมายเหตุ: หน้าต่างที่ค้างแต่ `e < partialTickMinElapsed_s` ตาม F05 "ไม่จ่าย" จะส่ง `run_tick_denied { partial: true }` หนึ่งครั้งเพื่อให้ mapper นับได้ครบ (หน้าต่างที่ค้างของเหตุจบอื่นไม่มี event)
-- **Q-T17-3 — ใช้เวลาที่ถืออยู่จริง:** `wake_lock_engaged_share_bucket` = `wakeLockHeld_ms / (endedAt_ms − startedAt_ms)` ของ run · `wakeLockHeld_ms` นับจาก promise ของ `navigator.wakeLock.request('screen')` resolve จนถึง event `release` ของ `WakeLockSentinel` (รวมกรณีเบราว์เซอร์ปล่อยเองตอน tab hidden) · ขอใหม่ตอนกลับ visible ตาม D-063 แล้วนับต่อ · เวลาที่แอปปิดอยู่นับเป็นไม่ได้ถือ (ตัวหารคือเวลาจริงทั้ง run) · ใช้เวลา host เดียวกับ `now_ms` (Mock ใช้ game clock ให้ผลเร่งได้) · bucket: `0` = 0 พอดี, `0-25` = (0, 25], `25-75` = (25, 75], `75-100` = (75, 100] · `null` เมื่อไม่มี `navigator.wakeLock` · สะสมใน `kw.p2.runClientStats` เพื่อรอดจากการ reload ระหว่าง run (8.1) · `page_hidden_total_s_bucket` ใช้ตัวสะสมเดียวกัน (hidden → visible ตาม `visibilitychange`) · เหตุผล: เวลาที่ "ขอสำเร็จ" บอกไม่ได้ว่าจอดับจริงหรือไม่ ซึ่งเป็นคำถามของ D-063
+- **Q-T17-3 — ใช้เวลาที่ถืออยู่จริง:** `wake_lock_engaged_share_bucket` = `wakeLockHeld_ms / (endedAt_ms − startedAt_ms)` ของ run · `wakeLockHeld_ms` นับจาก promise ของ `navigator.wakeLock.request('screen')` resolve จนถึง event `release` ของ `WakeLockSentinel` (รวมกรณีเบราว์เซอร์ปล่อยเองตอน tab hidden) · ขอใหม่ตอนกลับ visible ตาม D-063 แล้วนับต่อ · เวลาที่แอปปิดอยู่นับเป็นไม่ได้ถือ (ตัวหารคือเวลาจริงทั้ง run) · ใช้เวลา host เดียวกับ `now_ms` (Mock ใช้ game clock ให้ผลเร่งได้) · bucket: `0` = 0 พอดี, `0-25` = (0, 25], `25-75` = (25, 75], `75-100` = (75, 100] · `null` เมื่อไม่มี `navigator.wakeLock` · สะสมในหน่วยความจำของ `WakeLockController` เท่านั้น ไม่รอดการ reload ระหว่าง run (8.1 · P2-H45) · `page_hidden_total_s_bucket` ใช้ตัวสะสมเดียวกัน (hidden → visible ตาม `visibilitychange`) · เหตุผล: เวลาที่ "ขอสำเร็จ" บอกไม่ได้ว่าจอดับจริงหรือไม่ ซึ่งเป็นคำถามของ D-063
 
 ## 11. คำตอบถึง backend-programmer: `PresenceStrategy.presence()` (A-P2-F04-T20-1)
 
@@ -523,7 +537,7 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 | FH-12 | กดลบข้อมูลในเครื่องระหว่าง run | `selectCanClearLocalData = false` | ปุ่ม disabled · ฟังก์ชันปฏิเสธ | 8.3, H-E23 |
 | FH-13 | damage มหาศาลจากห่างเลเวล (1.25^gap) | — | พื้น HP 1 เมื่อเปิด auto-retreat → ถอยทันที (H-E6) · ปิด auto-retreat = ตายในครั้งเดียว | 3.4 |
 | FH-14 | `level_range` ของ dungeon ขาด / ผิด | validator ของ `tools/dungeons` · engine throw ตอนสร้าง params | dungeon ไม่เข้า artifact / client ไม่เริ่ม | F04 13 |
-| FH-15 | storage เต็ม | `setItem` throw | ตาม F04 10.4 (session อยู่ในหน่วยความจำ + ธง) · `kw.p2.runClientStats` ถูกทิ้งก่อน session · property ของ `dungeon_exited` ที่มาจากตัวสะสมนี้เป็น `null` | F04 10.4 |
+| FH-15 | storage เต็ม | `setItem` throw | ตาม F04 10.4 (session อยู่ในหน่วยความจำ + ธง) · ตัวสะสมของ `dungeon_exited` (10.2) อยู่ในหน่วยความจำจึงไม่ถูกกระทบ (8.1 · P2-H45) | F04 10.4 |
 | FH-16 | Mock ×10 / ×60 | — | τ มาจาก timestamp ของ sample จึงได้การตีชุดเดียวกับ ×1 | F04 17 |
 | FH-17 | ถอน consent ระหว่าง run แล้ว callback ของ `watchPosition` ที่ค้างในคิวมาถึง | ธง `locationWithdrawn` (8.4 ข้อ 1) | sample ถูกทิ้งก่อนถึง `sessionStep` · ไม่มี approach / HUD / storage จาก sample นั้น | 8.4, R48 |
 | FH-18 | เบราว์เซอร์ถอน permission เอง (ผู้เล่นปิดในตั้งค่าเบราว์เซอร์ ไม่ได้กดถอนในแอป) | `watchPosition` error `PERMISSION_DENIED` | ไม่ใช่การถอน consent ในแอป: run ไม่มีหลักฐานแล้วเดินตาม F04 (Grace → Suspended → `timeout` ของครบ, F04-R13) · จอที่บ้านเป็น `unknown` · `kw.p2.consent` ไม่เปลี่ยน · เหตุผล: R48 ข้อ 2 สงวนทางนั้นไว้ให้สัญญาณหายโดยไม่ได้ถอนในแอป · owner ยืนยันการอ่านนี้: game-director (A-P2-X16-2) | 8.4, F04-R13 |

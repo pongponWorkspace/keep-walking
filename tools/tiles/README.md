@@ -128,13 +128,13 @@ fixture ลุมพินีเล็กเกินจอ S2, S5 และ S6 
 | name | จอ | center / zoom ของจอ | tile ใน fixture | ขนาดทั้งโฟลเดอร์ |
 | --- | --- | --- | --- | --- |
 | `s2-sukhumvit` | S2 ซอยสุขุมวิท | 100.56, 13.737 / z17 | z15 1 tile | 205,354 B |
-| `s5-chaophraya` | S5 แม่น้ำเจ้าพระยา | 100.495, 13.74 / z14 | z14 6 tile | 1,134,945 B |
+| `s5-chaophraya` | S5 แม่น้ำเจ้าพระยา | 100.514, 13.718 / z14 | z13 2 + z14 3 tile | 1,220,152 B |
 | `s6-coast-z10` | S6 ชายฝั่งสมุทรปราการ | 100.6, 13.5 / z10 | z10 4 tile | 764,074 B |
 | `s6-coast-z13` | S6 ชายฝั่งสมุทรปราการ | 100.6, 13.5 / z13 | z13 6 tile | 176,264 B |
 
 - แต่ละ fixture มีเฉพาะ zoom ที่ MapLibre ขอที่จอนั้น (แหล่ง maxzoom 15, สูงกว่านั้น overzoom) · bbox = viewport 390 × 844 ที่ zoom นั้นบวก 25% และ**อยู่ใน `area.bbox` เสมอ** (script และ test ตรวจ) เพื่อให้ S6 เห็นขอบเหมือน production: ทะเลเป็น `map.water` ถึง 13.4 N แล้วเป็นโซนดำ ซึ่งตอนนี้ตรงกับขอบรูของ mask ที่ตัดด้วย bbox เดียวกัน
 - โครงสร้างเหมือน fixture ลุมพินี (`pmtiles/<id>.pmtiles`, `tiles/<id>/tiles.json` + z/x/y, `manifest.json` ที่บอก screen/center/zoom/bbox) แต่**ไม่มี glyph และ sprite** ให้ใช้ของ `fixtures/lumpini/` · tileset id = `pm4-20260923-z<maxzoom>-<name>` · URL ใน `tiles.json` = `http://127.0.0.1:8765/fixtures/screens/<name>/...`
-- รวม 29 ไฟล์ 2,280,637 B (เพดาน `screenFixtures.maxDirBytes` 3 MiB, ต่อ fixture 1.5 MiB) · สร้างซ้ำได้ byte เดิม (ตรวจแล้ว) · ดึงจาก build ที่ pin ผ่าน range request ราว 1 MB หรือจาก archive z15 ในเครื่องถ้ามี
+- รวม 28 ไฟล์ 2,365,844 B (เพดาน `screenFixtures.maxDirBytes` 3 MiB, ต่อ fixture 1.5 MiB) · สร้างซ้ำได้ byte เดิม (ตรวจแล้ว) · ดึงจาก build ที่ pin ผ่าน range request ราว 1 MB หรือจาก archive z15 ในเครื่องถ้ามี
 - test (`test/run.sh`): bbox อยู่ใน `area.bbox`, center อยู่ใน bbox, bounds ของ `tiles.json` = config, จำนวน tile ตรง manifest, MVT ดิบ, `pmtiles verify`, XYZ = PMTiles ที่แตกออก
 
 ## 6. serve ในเครื่องและตรวจ range request

@@ -13,6 +13,7 @@ import { getCopyText } from '../copy/load';
 import { getDungeonFullName, getDungeonShortName } from '../copy/names';
 import type { CheckInPreview } from '@keep-walking/shared/session';
 import { checkInStatusView } from './checkin-status';
+import type { IconGlyphRenderer } from '../assets/icon-glyph';
 
 export interface ConfirmCandidate {
   readonly dungeonId: string;
@@ -25,6 +26,11 @@ export interface ConfirmPopupDeps {
   readonly onEnter: (dungeonId: string) => void;
   readonly onCancel: () => void;
   readonly onReasonElement?: (element: HTMLElement) => void;
+  /** `setIconGlyph` (components.md 13.3, V-30): renders the check-in row's 48px icon
+   * (`icon.ui.signal-wait`/`walk-in`/`speed-lock`) next to its status text. Optional so every
+   * existing test/call site that predates this field keeps building with no other change (same
+   * convention as `onReasonElement`) — the row simply stays icon-less without it. */
+  readonly iconGlyph?: IconGlyphRenderer;
 }
 
 export interface ConfirmPopup {
@@ -79,6 +85,10 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
   const closingSoon = el('div', 'chip-status closing-soon');
   closingSoon.hidden = true;
   const statusRow = el('div', 'checkin-status-row');
+  const statusIcon = el('span', 'checkin-status-icon');
+  statusIcon.hidden = true;
+  const statusText = el('span', 'checkin-status-text');
+  statusRow.append(statusIcon, statusText);
   const enterButton = el('button', 'btn btn-primary') as HTMLButtonElement;
   enterButton.disabled = true;
   const cancelButton = el('button', 'btn btn-secondary confirm-cancel') as HTMLButtonElement;
@@ -126,6 +136,28 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
     }
   }
 
+  /** Sets the row's text and its optional 48px icon (components.md 13.3) in one call, so every
+   * call site below clears/sets both together rather than leaving a stale icon next to new text
+   * (or vice versa). `iconId === undefined` hides the icon element entirely (text-only row). */
+  function setStatusText(text: string, iconId: string | undefined): void {
+    statusText.textContent = text;
+    if (iconId === undefined) {
+      statusIcon.hidden = true;
+      return;
+    }
+    statusIcon.hidden = false;
+    void deps.iconGlyph?.setIconGlyph(statusIcon, iconId, {
+      altText: text,
+      // Every id in `REASON_ICON_ID` (checkin-status.ts) is a plain outline glyph (tintable) whose
+      // colour matches the row's own `ink.900` text (components.md 13.3 has no per-reason colour of
+      // its own) — never a status colour (this row is a blocking condition, not a success/danger
+      // state).
+      colorCss: '#1A1A22',
+      onNightBackground: false,
+      nightPlateColorCss: '#FFFFFF',
+    });
+  }
+
   return {
     root: overlay,
     show(next) {
@@ -136,7 +168,7 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
       cardsRow.hidden = true;
       title.textContent = '';
       level.textContent = '';
-      statusRow.textContent = '';
+      setStatusText('', undefined);
       enterButton.disabled = true;
       enterButton.textContent = getCopyText('dungeon.confirmEnter');
       if (next.length === 1 && next[0] !== undefined) {
@@ -161,7 +193,7 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
       }
       enterButton.classList.remove('btn-spinner');
       if (preview.ok) {
-        statusRow.textContent = '';
+        setStatusText('', undefined);
         enterButton.disabled = selectedId === undefined;
         enterButton.textContent = getCopyText('dungeon.confirmEnter');
         enterButton.onclick = () => {
@@ -170,10 +202,12 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
         return;
       }
       const view = checkInStatusView(preview, isOutOfRangeNow);
-      statusRow.textContent =
+      setStatusText(
         view.countdownText === undefined
           ? getCopyText(view.copyKey)
-          : formatCopyText(view.copyKey, { countdown: view.countdownText });
+          : formatCopyText(view.copyKey, { countdown: view.countdownText }),
+        view.iconId,
+      );
       enterButton.disabled = true;
       enterButton.onclick = null;
     },
@@ -186,14 +220,14 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
         openTime !== undefined
           ? formatCopyText('dungeon.closedBody', { openTime })
           : getCopyText(emergency ? 'dungeon.closedEmergencyBody' : 'dungeon.closedBody');
-      statusRow.textContent = '';
+      setStatusText('', undefined);
       closingSoon.hidden = true;
       enterButton.hidden = true;
       enterButton.disabled = true;
       cancelButton.textContent = getCopyText('dungeon.closedDismiss');
     },
     showAlreadyActive() {
-      statusRow.textContent = getCopyText('dungeon.alreadyActive');
+      setStatusText(getCopyText('dungeon.alreadyActive'), undefined);
       enterButton.disabled = true;
     },
     hide() {

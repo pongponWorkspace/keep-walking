@@ -25,7 +25,9 @@ function autoUsedPotions(events: readonly SessionEvent[]) {
   );
 }
 function lowHpEvents(events: readonly SessionEvent[]) {
-  return events.filter((e): e is Extract<SessionEvent, { type: 'run_hp_low' }> => e.type === 'run_hp_low');
+  return events.filter(
+    (e): e is Extract<SessionEvent, { type: 'run_hp_low' }> => e.type === 'run_hp_low',
+  );
 }
 
 /** Sums per-item quantities across every `run_tick_granted.loot` in `events` (the run bag's total
@@ -155,7 +157,10 @@ describe('F06 HP safety — revive by time after death (R25, tech note F06 secti
 
     const hpRecovery = (
       JSON.parse(readFileSync('config/balance/progression.json', 'utf8')) as {
-        readonly hpRecovery: { readonly deathRecoveryTo_pct: number; readonly deathRecoveryDuration_s: number };
+        readonly hpRecovery: {
+          readonly deathRecoveryTo_pct: number;
+          readonly deathRecoveryDuration_s: number;
+        };
       }
     ).hpRecovery;
     const halfway_ms = (deathAt as number) + (hpRecovery.deathRecoveryDuration_s * 1000) / 2;

@@ -8,10 +8,10 @@
   "tiles": [
     "http://127.0.0.1:8765/fixtures/screens/s5-chaophraya/tiles/pm4-20260923-z14-s5-chaophraya/{z}/{x}/{y}.mvt"
   ],
-  "minzoom": 14,
+  "minzoom": 13,
   "maxzoom": 14,
-  "bounds": [100.4845, 13.718, 100.5055, 13.762],
-  "center": [100.495, 13.74, 11],
+  "bounds": [100.5035, 13.696, 100.5245, 13.74],
+  "center": [100.51400000000001, 13.718, 11],
   "vector_layers": [
     {
       "id": "boundaries",

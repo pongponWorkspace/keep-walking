@@ -35,14 +35,20 @@ const SEEDS = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
 function realCombatConfig() {
   return JSON.parse(readFileSync('config/balance/combat.json', 'utf8')) as {
-    readonly monsterAttack: { readonly monsterAtkCoef: number; readonly monsterAtkExponent: number };
+    readonly monsterAttack: {
+      readonly monsterAtkCoef: number;
+      readonly monsterAtkExponent: number;
+    };
     readonly defense: { readonly defSoftcap: number };
     readonly attackCheck: {
       readonly intervalMin_s: number;
       readonly intervalMax_s: number;
       readonly hitChancePerCheck_pct: number;
     };
-    readonly levelGapDamage: { readonly damageMultPerLevelBelowRange: number; readonly maxMult: number | null };
+    readonly levelGapDamage: {
+      readonly damageMultPerLevelBelowRange: number;
+      readonly maxMult: number | null;
+    };
     readonly raidFailPenalty: { readonly monsterAtkMultAfterFailedRaid: number };
   };
 }
@@ -88,7 +94,8 @@ describe('F06 survival — zone-level (level 1, matched-zone dungeon), no potion
       monsterParams,
     );
     const hits = hitsToThreshold(maxHp, damage, safety.hpSafety.autoRetreatThreshold_pct);
-    const meanInterval_s = (combat.attackCheck.intervalMin_s + combat.attackCheck.intervalMax_s) / 2;
+    const meanInterval_s =
+      (combat.attackCheck.intervalMin_s + combat.attackCheck.intervalMax_s) / 2;
     const predictedMin = expectedSurvival_min(
       hits,
       combat.attackCheck.hitChancePerCheck_pct,

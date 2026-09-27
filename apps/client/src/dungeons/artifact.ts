@@ -8,7 +8,7 @@
  * through `selectOpening` (`@keep-walking/shared/session`, P2-X10) — never a literal.
  */
 import artifactJson from '../../../../data/dungeons/artifact/dungeons.client.v1.json';
-import { getDungeonShortName } from '../copy/names';
+import { getDungeonShortName, isResolvedDungeonName } from '../copy/names';
 import { selectOpening } from '@keep-walking/shared/session';
 import type { SessionDungeonRecord, SessionParams } from '@keep-walking/shared/session';
 import type { DungeonGeometry, DungeonInput, DungeonStatus } from '../map/dungeons-source';
@@ -74,16 +74,21 @@ export function dungeonStatus(
 }
 
 /** The map source's per-dungeon input (tech note F02 15.2, D-089: `label_count` is never set in
- * Phase 2 — no player counts anywhere). `name`/`status` are resolved, never raw artifact fields. */
+ * Phase 2 — no player counts anywhere). `name`/`status` are resolved, never raw artifact fields.
+ * V-34 (art gate F04-F06 round 1): `name` is omitted entirely (never the raw `name_key`, e.g.
+ * `dungeon.leelawadeeLawn`) when it does not resolve through `names.th.json` — the map keeps
+ * drawing the rift's edge/crack icon either way (`map/dungeons-source.ts`'s own doc comment on why
+ * an absent property, not an empty string, is what hides `kw-rift-name`'s text). */
 export function toMapDungeonInput(
   dungeon: ArtifactDungeon,
   params: SessionParams,
   now_ms: number,
 ): DungeonInput {
+  // Short form (`nameReal` alone) — the map label has no room for the full `{zoneName}` (C-01).
+  const shortName = getDungeonShortName(dungeon.name_key);
   return {
     id: dungeon.id,
-    // Short form (`nameReal` alone) — the map label has no room for the full `{zoneName}` (C-01).
-    name: getDungeonShortName(dungeon.name_key),
+    ...(isResolvedDungeonName(dungeon.name_key, shortName) ? { name: shortName } : {}),
     geometry: dungeon.geometry,
     status: dungeonStatus(dungeon, params, now_ms),
     sponsored: false,

@@ -173,3 +173,17 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 158 | W14 | P2-H38 | qa-tester | 01:21 | 01:32:35 | DONE — qa e2e 36/36 ×2 ทั้งสอง project · เพิ่ม e2eSkipOnboarding + pin start + wake lock off · พบ root tsc แดงจาก H33 → X39 tech-lead |
 | 159 | W14 | P2-X39 | tech-lead | 01:44 | 01:32:59 | DONE — root tsc กลับมาเขียว (helper readonly) · config-lint 70/70 |
 | 160 | W14 | P2-X38 | gameplay-programmer | 01:21 | 02:22:57 | DONE — age gate/consent/S-23/settings + H32/O-2/H34/H39 · client e2e 50/50, root vitest 2906 · → H40 uiux (ไม่บล็อก), A-3 ttl hardcode + storageKeyPrefix → tech gate F06-T20 |
+| 161 | W15 | P2-F06-T22 | narrative-designer | 02:24 | 02:31:07 | NEEDS_CHANGES (รอบ 1) — ถ้อยคำผ่าน · blocker การแสดงผล C6-01..05 → X40 narrative (2 key), X41 gameplay (รวม finding gate อื่น) · uiux C6-03/09/10/11 → ส่งเข้า H40 · lint:copy (orchestrator) exit 0, 0 FAIL, 21 WARN |
+| 162 | W15 | P2-F06-T23 | art-director | 02:24 | 02:31:30 | NEEDS_CHANGES (รอบ 1) — avatar/icon/effect/privacy ผ่าน · CSS component ขาด V-30..V-34 → X42 gameplay (เริ่มทันที) · V-36 ภาพ 26 จอ → H41 qa · V-39 → H42 vfx · F-AD-5/6 → H43 art-director · V-38 → ส่งเข้า H40 · Q-P2-13 (PDPA sign-off, ไม่บล็อก) ลง open-questions |
+| 163 | W15 | P2-X40 | narrative-designer | 02:40 | 02:32:44 | DONE — 2 key ใหม่ · lint:copy exit 0 / 0 FAIL / 21 WARN (orchestrator รัน) · key พร้อมให้ X41 |
+| 164 | W15 | P2-H43 | art-director | 02:40 | 02:34:15 | DONE — S5 ย้ายพิกัด + เกณฑ์ป้ายแม่น้ำ, ตัวอย่าง S8 16 px · → H44 location rebuild fixture S5 (เริ่มทันที), qa context H41, uiux ตรวจขนาดตัวอักษร → ส่งเข้า H40 |
+| 165 | W15 | P2-H44 | location-engineer | 02:47 | 02:36:35 | DONE — fixture S5 ใหม่ มีป้ายแม่น้ำ · tiles test ล้ม 2 ข้อกับ config ที่ commit → X43 location (เริ่มทันที) |
+| 166 | W15 | P2-X43 | location-engineer | 02:50 | 02:37:18 | DONE — config/README tiles ตรง fixture S5 · tiles test 71/71 |
+| 167 | W15 | P2-F06-T20 | tech-lead | 02:24 | 02:40:27 | NEEDS_CHANGES (รอบ 1) — โครงสร้างผ่าน · blocker TG-01 → X44 qa, TG-02..06 → X41 gameplay, tech note → H45 · ไม่บล็อก TG-08/09 → H46 backend (หลัง X42), TG-14 → H47 systems, TG-12 → F06-T25 · D-134/135/136 ACCEPTED |
+| 168 | W15 | P2-H45 | tech-lead | 03:06 | 02:42:49 | DONE — tech note F04/F06 ตรง D-134/135/136 · handoff gameplay (px ตอน pointerdown) → X41, PM (telemetry นับขาดเมื่อ reload) → F06-T25 |
+| 169 | W15 | P2-X44 | qa-tester | 03:06 | 02:43:04 | DONE — TG-01 ปิด prettier ทั้ง repo สะอาด · eslint แดงจาก X42 (REASON_ICON_ID unused) ระหว่างทำ ให้ X42 ปิดเอง |
+| 170 | W15 | P2-H40 | uiux-designer | 02:24 | 02:46:43 | DONE — ตัดสิน X38 + copy/visual gate UX · client → X41 (priming screen, พ.ศ., screenLockNotice) + X42 (CSS V-38 ส่งข้อความ) · ia.md → H48 |
+| 171 | W15 | P2-H47 | systems-designer | 03:06 | 02:47:07 | PARTIAL→DONE ส่วนของ systems — vector ใหม่ถูกต้อง engine ตรง · evaluator ขาดใน packages/shared ทำ root vitest แดง 19 → X45 backend (เริ่มทันที, เป็น dep ของ tech gate รอบ 2) |
+| 172 | W15 | P2-H48 | uiux-designer | 03:40 | 02:48:43 | DONE — ia.md §3.6 override Phase 2 |
+| 173 | W15 | P2-X45 | backend-programmer | 03:40 | 02:52:37 | DONE — evaluator ครบ root vitest 2934 pass กลับมาเขียว · engine ไม่มีบั๊ก |
+| 174 | W15 | P2-X42 | gameplay-programmer | 02:40 | 03:03:33 | DONE — CSS component ครบ V-30..V-35 · e2e 50/50 · V-37 → X41 · → H49 uiux (gps pill/icon map) · W16 dispatch X41, H42, H46, H49 |

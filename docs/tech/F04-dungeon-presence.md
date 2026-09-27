@@ -648,14 +648,15 @@ client ห้าม import ไฟล์ `config/balance/*.json` ทั้งไ�
 | --- | --- |
 | `balance/location.json` | `homeState` |
 | `balance/unlocks.json` | `home`, `antiCheatHelp`, `parentalConsent` |
-| `balance/privacy.json` | `minAge_yr`, `minAgeComparison` (age gate) |
+| `balance/privacy.json` | `minAge_yr`, `minAgeComparison` (age gate) · `positionLogTtl_s` (ข้อความ `{ttlText}` บนจอ consent และ S-23 · แสดงผลเท่านั้น · D-135) |
 | `app/client.json`, `app/privacy.json`, `app/telemetry.json` | ทั้งไฟล์ (ไม่มีค่าลับ ไม่มีผลต่อรางวัล) |
 | `content/*.json` | ตาม copy loader เดิม |
 
 ### 15.3 กลุ่ม C — ห้ามเข้า bundle
 
-`dungeons.area`, `dungeons.coverageFilter`, `dungeons.safety`, `dungeons.temporaryDungeon`, `dungeons.offlineEvidence`, `dungeons.smallDungeon` (ของ tools; engine ใช้ `drops.smallDungeon`), `anticheat.offlineEvidence`, `anticheat.trustScore`, `anticheat.outputAudit`, `raid.*`, `enhance.*`, `equipment.*`, `economy` ส่วนที่ไม่อยู่ในกลุ่ม A, `combat.raidFailPenalty`, `classes.classChange`, `classes.levelGapContribution`, `unlocks` ส่วนที่ไม่อยู่ในกลุ่ม B, `balance.privacy.positionLogTtl_s` (ใช้โดย config lint ไม่ใช่ runtime)
+`dungeons.area`, `dungeons.coverageFilter`, `dungeons.safety`, `dungeons.temporaryDungeon`, `dungeons.offlineEvidence`, `dungeons.smallDungeon` (ของ tools; engine ใช้ `drops.smallDungeon`), `anticheat.offlineEvidence`, `anticheat.trustScore`, `anticheat.outputAudit`, `raid.*`, `enhance.*`, `equipment.*`, `economy` ส่วนที่ไม่อยู่ในกลุ่ม A, `combat.raidFailPenalty`, `classes.classChange`, `classes.levelGapContribution`, `unlocks` ส่วนที่ไม่อยู่ในกลุ่ม B
 
+- D-135 (P2-F06-T20 6.2 · P2-H45): `balance.privacy.positionLogTtl_s` ย้ายจากกลุ่ม C ไปกลุ่ม B (15.2) · เหตุผลที่เคยอยู่กลุ่ม C คือยังไม่มีโค้ด runtime ใช้ ไม่ใช่ค่าลับ · ค่านี้ต้องเปิดเผยต่อผู้เล่นอยู่แล้ว (privacy policy) และไม่มีผลต่อรางวัล · client ใช้เฉพาะคำนวณ `{ttlText}` (`positionLogTtl_s / SECONDS_PER_HOUR` format ด้วย `unit.hours`) ห้ามใช้ในตรรกะอื่น · ไม่ทำ mirror ใน `config/app/privacy.json` (ห้ามซ้ำค่าระหว่างสองไฟล์) · config lint ยังตรวจ `maxAge_s ≤ positionLogTtl_s` ตามเดิม · ค่าไม่เปลี่ยนจึงไม่ต้องให้ HUMAN รับรอง PDPA ใหม่ · โค้ดที่ต้องตรงกัน: `BALANCE_WHITELIST` แถว `privacy.json` และ `FORBIDDEN_ANYWHERE` ใน `apps/client/src/config/whitelist.ts` (P2-X41, F06-TG-03)
 - subtree ใหม่ที่ client ต้องการ = handoff ถึง tech-lead เพื่อเพิ่มในตารางนี้ก่อน · Phase 3 กลุ่ม A ย้ายออกจาก client ทั้งหมด (tech gate F08)
 
 ## 16. Failure modes

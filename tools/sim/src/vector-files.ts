@@ -4,6 +4,7 @@
 import { REPO_ROOT, loadBalanceConfig, readJsonFile } from './config';
 import { dropTableProblems } from './loot';
 import { runLoopVectors, tickRewardVectors } from './vectors-loop';
+import { hpRecoveryVectors } from './vectors-recovery';
 import { loadGddReference } from './gdd';
 import { dropParamsFromConfig } from './drops';
 import { paramsFromConfig } from './params';
@@ -59,5 +60,7 @@ export function generate(): Record<string, string> {
   if (problems.length > 0) throw new Error(`drop table rules failed: ${problems.join('; ')}`);
   out['tick-reward'] = serializeGateVectorFile(tickRewardVectors(cfg));
   out['run-loop'] = serializeGateVectorFile(runLoopVectors(cfg));
+  // P2-H47: HP recovery outside a run (tech note F06 13.5), incl. the regen/duration config lint.
+  out['hp-recovery'] = serializeGateVectorFile(hpRecoveryVectors(cfg));
   return out;
 }

@@ -1,6 +1,6 @@
 # Flow F06 — Onboarding นาที 0–10, HP/damage/auto-retreat/ตาย/ฟื้น, class, จอที่บ้าน, consent/age gate
 
-Task: P2-F06-T03 (แก้โดย P2-X11 รอบ 2, P2-X14 รอบ 3, P2-H09 รอบ 4, P2-H23 รอบ 5) · เจ้าของ: uiux-designer · สถานะ: รอบ 3 ปิดเศษ gate ครบแล้ว (PASS) — รอบ 4 (P2-H09) เสนอ D-120 (PROPOSED) เรื่องเหตุปฏิเสธ `no_class`/`no_hp` ของ confirm — **รอบ 5 (P2-H23) ปิดครบ:** D-120 ACCEPTED โดย game-director (`design/reviews/P2-H20-decisions.md`), D-126 (F2 ใช้ `launchAreaMaskPath` + body ใหม่ไม่มี `{areaName}`, S-09 รายเขตไม่มีค่าเริ่มต้น), D-127 (A7/F1 ชี้เป้าเดียวระหว่าง onboarding + กฎเสมอกัน) · วันที่: 2026-09-27
+Task: P2-F06-T03 (แก้โดย P2-X11 รอบ 2, P2-X14 รอบ 3, P2-H09 รอบ 4, P2-H23 รอบ 5, P2-H34 รอบ 6, P2-H40 รอบ 7) · เจ้าของ: uiux-designer · สถานะ: รอบ 3 ปิดเศษ gate ครบแล้ว (PASS) — รอบ 4 (P2-H09) เสนอ D-120 (PROPOSED) เรื่องเหตุปฏิเสธ `no_class`/`no_hp` ของ confirm — **รอบ 5 (P2-H23) ปิดครบ:** D-120 ACCEPTED โดย game-director (`design/reviews/P2-H20-decisions.md`), D-126 (F2 ใช้ `launchAreaMaskPath` + body ใหม่ไม่มี `{areaName}`, S-09 รายเขตไม่มีค่าเริ่มต้น), D-127 (A7/F1 ชี้เป้าเดียวระหว่าง onboarding + กฎเสมอกัน) — **รอบ 7 (P2-H40) ปิด 5 สมมติฐานค้างของ P2-X38** (build จริงของ age gate/consent/settings): บังคับใช้จอ `S-00-permission-browser` ก่อน native prompt, สไตล์ปุ่มทางลัดของ `S-23`, ขอบเขต 4 แถวของ `S-22-settings`, ปุ่ม "กลับหน้าแรก" ของ underage, ช่วงปีเกิด 100 ปี · วันที่: 2026-09-28
 แหล่งอ้างอิง: `design/features/F06-hp-damage-onboarding.md` (R01–R58, T1–T12, H-E1–H-E24 — สเปกหลักที่ flow นี้แปลงเป็นจอ) · `design/ux/flows/F04-dungeon-presence.md` (popup confirm, run-state pill, run summary headers ที่ flow นี้อ้างอิงแต่ไม่เขียนซ้ำ) · `design/ux/flows/F05-movement-gate-reward.md` (tick feedback ที่ชนกับ hit) · `design/ux/flows/F03-core-loop.md` (ฐานเดิมของ onboarding/HP/class/home states — ดูหมายเหตุ override หัวข้อถัดไป) · `design/ux/components.md` หัวข้อ 7 (HP bar เดิม), 12 (จอพกกระเป๋า/Wake Lock), 13.6 (เส้นแบ่งขอบ HP) · `design/ux/ia.md` หัวข้อ 3–4 (รหัสหน้าจอ, สถานะที่บ้าน) · `art/direction/briefs/P2-assets.md` หัวข้อ 3.8 (HP/ยา/ถอย/ตาย) · `config/content/copy.th.json` (key ที่ narrative เติมแล้วสำหรับ F06) · `product/prd/F06-hp-damage-onboarding.md` · `product/telemetry-events.md` · D-020, D-038 B, D-039, D-064, D-072, D-073, D-078, D-079, D-083, D-087, D-088, D-089, D-092, D-094, D-096, D-097, D-100
 คู่กับ: `design/ux/flows/F04-dungeon-presence.md` (run state, check-in, popup confirm, speed lock), `design/ux/flows/F05-movement-gate-reward.md` (tick/ของ, สรุป run)
 ลำดับอำนาจ: GDD > pillars.md > `design/features/F06-hp-damage-onboarding.md` > ia.md > เอกสารนี้ · ตัวเลขทุกตัวอ้างเป็น `config: <key>` เท่านั้น ค่าในวงเล็บหลัง `config:` เป็นค่าอ่านง่ายเท่านั้น ห้ามลอกไปเขียนโค้ดตรงๆ
@@ -37,6 +37,8 @@ Task: P2-F06-T03 (แก้โดย P2-X11 รอบ 2, P2-X14 รอบ 3, P2-
 15. รอบ 4: D-120 — เหตุปฏิเสธ `no_class`/`no_hp` ของ confirm ใช้ copy key ใหม่ (P2-H09)
 16. รอบ 5: D-120 อนุมัติแล้ว, D-126 (ย่านเปิดตัว), D-127 (เป้าเดียวระหว่าง onboarding) (P2-H23)
 17. รอบ 6: ก้อนแรกจาก tick บางส่วนของ D-059 แสดงบนหน้าสรุป ไม่ใช่ toast (P2-H34, ตอบ O-3)
+18. รอบ 7: ปิด 5 สมมติฐานค้างของ P2-X38 (age gate/consent/settings สร้างจริง) (P2-H40)
+19. รอบ 8: ปิดข้อค้างของ F06 copy gate และ visual gate ที่ส่งถึง uiux-designer (P2-H40)
 
 ## 1. หลักการอ่าน flow นี้
 
@@ -55,6 +57,10 @@ A1. **`S-00-intro`** — ข้อความเดียว `[onboarding.intro
 A2. **`S-00-age-gate`** — หัวจอ `[age.gateTitle]` ("ยืนยันอายุ") + `[age.gateBody]` ("เกมนี้สำหรับอายุ {minAge} ปีขึ้นไป เลือกปีเกิดแล้วกดยืนยัน") ตัวเลือกปีเกิดจากรายการ `[age.gateOptions]` (ไม่พิมพ์) + ปุ่มยืนยันแยก `[age.gateConfirm]` (`.btn-disabled` จนกว่าจะเลือกตัวเลือก) — เกณฑ์ผ่าน/ไม่ผ่านคำนวณจาก `config: privacy.minAge_yr` แบบ `minAgeComparison` เก็บในเครื่องเฉพาะธง "ผ่านแล้ว" ไม่เก็บปีเกิดหรือช่วงอายุ (F06-R45)
    ⤷ เงื่อนไข: ผ่านเกณฑ์ → `S-00-consent-location`
    ⤷ เงื่อนไข: ต่ำกว่าเกณฑ์ (หลังกดยืนยัน) → `S-00-underage` (`O-underage`, จบ flow): `[age.underMinTitle]` ("ยังเล่นไม่ได้ตอนนี้") + `[age.underMinBody]` (scaffold `config: unlocks.parentalConsent.enabled` ปิด — ไม่มีฟอร์ม ไม่เก็บข้อมูลใด ไม่ขอตำแหน่ง) ปุ่มเดียว `[age.underMinBack]` ("กลับหน้าแรก") กลับ `S-00-intro` **ไม่ไปต่อ flow onboarding ที่เหลือ** (F06-R46)
+   **ยืนยัน P2-H40 (ปิด A-P2-X38-1, ตอบคำถาม "R46 กลับหน้าแรก" ของ P2-H40):**
+   1. ปุ่ม "กลับหน้าแรก" ในทางปฏิบัติพาไปสู่ **ความพยายามใหม่ของ `S-00-age-gate` โดยตรง** ไม่ใช่การแสดงจอ `S-00-intro` ซ้ำ เพราะ `introSeen` ถูกเก็บถาวรไปแล้วตั้งแต่ก่อนถึงจอนี้ — เปิด `S-00-intro` ซ้ำจะบังคับให้ผู้เล่นแตะผ่านประโยคเดิมอีกครั้งโดยไม่มีประโยชน์ ขณะที่การล้าง "ตอบไม่ผ่านรอบนี้" ในความจำแล้วเปิดจอเลือกปีเกิดใหม่ทันทีตรงเจตนาของ R46 อยู่แล้ว (เจตนาคือ "ไม่ไปต่อ flow ที่เหลือ" ไม่ใช่ "ต้องเห็นจอ intro ซ้ำ") — โค้ดปัจจุบัน (`onboarding-flow.ts#returnFromUnderage`) ทำถูกต้องแล้ว **ไม่ต้องแก้**
+   2. รายการปีเกิด 100 ปี (`age-gate.ts#MAX_SELECTABLE_AGE_SPAN_YR`) **ยืนยันเป็นค่าสุดท้าย ไม่ต้องย้ายเข้า config**: เป็นค่าความยาวของจอแสดงผลล้วน ไม่กระทบผลผ่าน/ไม่ผ่านใดๆ (ตัดสินจาก `config: privacy.minAge_yr` เพียงค่าเดียวเมื่อเลือกปีแล้ว ตาม A2 ด้านบน) จึงไม่ใช่ "balance value" ที่ CLAUDE.md บังคับให้อยู่ใน config เข้าเงื่อนไขเดียวกับค่าคงที่ UI อื่นที่ไม่กระทบดุลเกม — ปิด [ASSUMPTION A-P2-X38-1] เจ้าของค่านี้คือ uiux-designer ผู้เดียว (ไม่ต้องส่งต่อ systems-designer/tech-lead ตามที่คอมเมนต์เดิมเผื่อไว้)
+   3. **ปิด C6-09 (F06 copy gate):** ตัวเลขปีในรายการ `age.gateOptions` แสดงเป็น **พ.ศ.** (`year + 543`) ไม่ใช่ ค.ศ. ดิบจาก `getFullYear()` — เหตุผล: "ปีเกิด" เป็นคำถามที่ผู้เล่นไทยเกือบทั้งหมดตอบเป็น พ.ศ. ในหัว การแสดง ค.ศ. เสี่ยงให้เลือกปีผิดในจอที่ผลลัพธ์ (ผ่าน/ไม่ผ่าน) สำคัญและกดยืนยันแล้วแก้คืนไม่ได้ง่าย — **ค่าที่ส่งเข้า `onConfirm(birthYear)` ยังเป็น ค.ศ. เหมือนเดิมทุกประการ** (`select.value` ไม่เปลี่ยน มีแค่ `option.textContent` ที่บวก 543 ก่อนแสดง) ไม่กระทบ `ageGatePassed()`/`minAge_yr` ใดๆ [handoff gameplay-programmer: แก้ `age-gate-screen.ts#populateOptions` ให้ `option.textContent = String(year + 543)` โดย `option.value` คง `String(year)` เดิม ไม่ blocking ด้าน PDPA]
 
 A3. **`S-00-consent-location`** — หัวจอ `[consent.locationTitle]` ("ขอใช้ตำแหน่งของคุณ") เนื้อหา `[consent.locationBody]` (วัตถุประสงค์ + TTL `{ttlText}` จาก `config: privacy.positionLogTtl_s` + ไม่เปิดเผยผู้เล่นอื่น + ถอนได้ทุกเมื่อ) ปุ่มคู่น้ำหนักเท่ากัน `[consent.locationAccept]` ("อนุญาต") / `[consent.locationDecline]` ("ไม่อนุญาต") — เป็นจอ consent แยกจอเดียว ไม่รวมกับ consent อื่น (Phase 2 ไม่มี consent อื่นในแอปเพราะไม่มีข้อมูลออกจากเครื่อง, F06-R47)
    ⤷ เงื่อนไข: อนุญาต → `S-00-permission-browser`
@@ -63,6 +69,7 @@ A3. **`S-00-consent-location`** — หัวจอ `[consent.locationTitle]` ("
 A4. **`S-00-permission-browser`** — หัวจอ `[consent.browserPrimingTitle]` ("อีกขั้นเดียว") + `[consent.browserPrimingBody]` ("เดี๋ยวเครื่องจะเด้งถามซ้ำอีกรอบ กดอนุญาตอีกทีก็จบ") ปุ่มเดียว `[consent.browserPrimingContinue]` ("ไปต่อ") → trigger native geolocation prompt ของเบราว์เซอร์/OS (ไม่ใช่ UI ของเกม)
    ⤷ เงื่อนไข: อนุญาตจริงจาก OS → `S-01-map` สถานะตามตำแหน่งจริง (ใกล้/ไกล/นอกพื้นที่)
    ⤷ เงื่อนไข: ปฏิเสธจาก OS (ต่างจากปฏิเสธ consent ในเกมที่ A3) → `S-01-map` สถานะไม่รู้ตำแหน่ง เหมือน A3 ปฏิเสธ
+   **ยืนยัน P2-H40 (ปิด A-P2-X38-2):** จอนี้เป็น **บังคับ (blocking) เสมอ** สำหรับผู้เล่นใหม่ทุกคนที่กด "อนุญาต" ที่ A3 ไม่ใช่ทางเลือก — build ปัจจุบันยังข้ามจอนี้ไป (`onboarding-flow.ts#acceptConsent` เรียก `startLocationProvider()` ทันที) เอกสารนี้ยืนยันว่า A4 (เขียนไว้ตั้งแต่รอบแรกของ flow นี้ ผ่าน design gate มาแล้วทุกรอบ, wireframe `F06-01-onboarding-intro-age-consent.html` เฟรม A4 มีอยู่แล้ว, copy `consent.browserPriming*` เขียนไว้แล้วใน `copy.th.json`) ยังเป็นตัวจริงสำหรับ build **build ต้องแก้ให้ตรงเอกสาร ไม่ใช่เอกสารแก้ตาม build** เหตุผลที่ยืนยันไม่ตัดออก: native prompt ของ OS/เบราว์เซอร์ที่โผล่ทันทีโดยไม่มีการเตือนล่วงหน้าเสี่ยงให้ผู้เล่นกด "บล็อก" แบบรีเฟล็กซ์เพราะเพิ่งกด "อนุญาต" ไปหมาดๆ ในจอของเราเอง (ดูเหมือนถูกถามซ้ำไม่มีเหตุผล) ซึ่งกระทบอัตราการได้ตำแหน่งจริงของทั้งเกม (ตำแหน่งคือกลไกหลักของเกมนี้ทั้งหมด ไม่ใช่แค่ความสวยงามของหน้าจอ) รายละเอียดขั้นตอนที่คาดหวังของการแก้ build ดูหัวข้อ 18.1
 
 A5. **`S-01-map`** (`O-map`) — แผนที่จริงปรากฏครั้งแรก สถานะใดก็ได้ตามตำแหน่งจริง (ใกล้/ไกล/นอกพื้นที่/ไม่รู้ตำแหน่ง) → ทันทีที่ถึงจอนี้ เปิด `S-00-class-select` sheet ทับแผนที่ (A6) **ไม่ต้องรอผู้เล่นทำอะไรก่อน** (แผนที่มาก่อนเลือกพลัง ตาม F-05 ของ ia.md แต่ sheet ทับขึ้นทันทีในเฟรมถัดไป ไม่ใช่ให้ผู้เล่นเลื่อนดูแผนที่ก่อน)
 
@@ -133,6 +140,7 @@ C9. **เข้า run ได้ทุกเมื่อที่ HP > 0 แม�
 ### 4.4 ป้ายค้างของ auto-retreat (สืบเนื่องจาก Flow D)
 
 C10. ขณะปิด auto-retreat อยู่ จอ `S-02-dungeon-confirm` (แทนที่ `dungeon.confirmLowHpNote`) และจอ `S-03-run`/จอพกกระเป๋าแสดงป้ายเล็กค้างตลอด `[run.autoRetreatOffBadge]` ("ถอยอัตโนมัติ: ปิด") ไม่ต้องรอ HP ต่ำ (F06-R21) — ป้ายนี้มีอยู่แล้วใน `copy.th.json` และ wireframe เดิม (`06-settings-autoretreat.html` เฟรมสุดท้าย) เอกสารนี้ยืนยันว่าใช้ตำแหน่งเดียวกันทั้งบน `S-02` และ `S-03`
+   **แก้ P2-H40 (ปิด V-32 ของ `art/reviews/F04-F06-visual-gate.md`, ป้าย `.auto-retreat-off-badge`):** ป้ายนี้ **ไม่ใช่คอมโพเนนต์แยกของตัวเอง** ให้ใช้ทรงเดียวกับ **`.banner.warn`** ที่นิยามไว้แล้วใน `components.md` หัวข้อ 6/9 ทุกประการ (พื้น `bg.surface` ทึบ + ขอบล่าง 2px `state.danger` + ข้อความ `state.danger` **16px ตัวหนา** + ไอคอนคู่ข้อความ) **ห้าม**พื้น `ink.900`+ข้อความ `bg.paper` (รูปแบบของป้าย sponsored) และห้ามต่ำกว่า 16px ไม่ว่ากรณีใด — ปิดช่องว่างที่ `components.md` ไม่เคยกำหนดขนาดตัวอักษรของป้ายนี้มาก่อน ซึ่งทำให้ build จริงใช้ 12px (V-32) [handoff gameplay-programmer: แก้ `.auto-retreat-off-badge` ให้ reuse กฎ `.banner.warn` ตรงๆ แทนคลาสเดิม ไม่ blocking ด้าน PDPA]
 
 ## 5. Flow D — ตั้งค่า auto-retreat (F06-R19..R22, NN-6) — แก้ไขจาก `06-settings-autoretreat.html` เฉพาะจุดที่ต่าง
 
@@ -149,8 +157,10 @@ D3. handoff: แก้ `design/ux/wireframes/06-settings-autoretreat.html` เ�
 โครงเต็มของจอพกกระเป๋าและ Wake Lock อยู่ใน `components.md` หัวข้อ 12 แล้ว (ทิศทาง A ตัดสินแล้ว) เอกสารนี้เติมแค่จุดที่ F06 เป็นเจ้าของ: จังหวะของ tutorial บรรทัดเดียว และการยืนยันว่าทางสำรอง B ไม่กระทบกลไก HP
 
 E1. **จังหวะ tutorial บรรทัดเดียวกับจอพกกระเป๋า (N-3, แก้ B-02)**: หลัง confirm สำเร็จ ถ้ายังไม่มีธง `first_reward` (เงื่อนไขเดียวกับ A9 — ไม่ใช่แค่ run แรก) ลำดับคือ (1) `S-03-run` ปรากฏพร้อม `[dungeon.confirmTutorialLine]` ทับสั้นๆ ก่อน (2) ถ้า Wake Lock ขอสำเร็จ (`'wakeLock' in navigator` ผ่าน feature detection) สลับเป็นจอพกกระเป๋าทันทีหลัง tutorial line หายไป (ไม่ทับซ้อนกัน เรียงต่อกัน) — ผู้เล่นเก็บมือถือได้ทันทีหลังอ่านบรรทัดเดียวนั้น ไม่ต้องรออะไรเพิ่ม
+   **ตอบ C6-10 (F06 copy gate) — ยอมรับได้ ไม่ต้องแก้ใน Phase 2:** ทางหลักของ run แรก (Wake Lock สำเร็จ, จอพกกระเป๋าเปิดเป็นค่าเริ่มต้น) ผู้เล่นจะไม่เห็น toast พิเศษ `run.tickGrantedFirst`/`run.continueCta` เลยถ้ารางวัลก้อนแรกมาถึงระหว่างจอพกกระเป๋ายังเปิดอยู่ เพราะ P2-H39 (components.md 15.4) ให้จอพกกระเป๋าทับ toast ทุกชนิดเสมอโดยตั้งใจ **ยืนยันว่าตรงตามคำตัดสินเดิม ไม่ใช่บั๊ก** เหตุผลที่ยอมรับ: (1) คงกฎเดียวกันกับ `run.hpLow` ไว้ไม่ยกเว้นเป็นกรณีพิเศษ กันความซับซ้อนของการ "จำรางวัลค้างไว้แสดงทีหลัง" ที่ไม่มีที่อื่นในระบบทำแบบนี้ (2) จังหวะนี้ยังมีเสียง effect เด่นกว่าปกติให้ได้ยิน (A11) และตัวเลข HP/tick บนจอพกกระเป๋าเองก็ขยับให้เห็นความคืบหน้าอยู่แล้ว (3) `O-done` ไม่เคยขึ้นกับการเห็น toast นี้ (ตั้งจากธง `first_reward`/`firstEver` เท่านั้น) onboarding จบถูกต้องแม้ผู้เล่นไม่เคยเห็นจอนี้เลย — บันทึกเป็นแนวคิดปรับปรุงในอนาคต (ไม่ blocking, ไม่ใช่งานของรอบนี้): อาจให้บรรทัดนี้ค้างแสดงบนจอ run ปกติจังหวะแรกหลังออกจากจอพกกระเป๋า (ไม่ว่าจะออกเองหรือ run จบ) แทนการหายไปเฉยๆ ถ้า playtest (P2-F06-T19) พบว่าผู้เล่นจำนวนมากพลาดจังหวะนี้จริง
 
 E2. **ทางสำรอง B (Wake Lock ใช้ไม่ได้)**: ถ้า `navigator.wakeLock` ไม่รองรับหรือ request ล้มเหลว → ไม่มีจอพกกระเป๋าเลย ใช้จอ run ปกติแทน (HP bar เต็มข้อมูล, tick timer เห็นตัวเลข) พร้อม toast ครั้งเดียวต่อบัญชี `[run.screenLockNotice]` ("จอดับ ระยะก็หยุดนับ เปิดจอไว้ระหว่างเดิน") — **ไม่กระทบกลไก HP ใดเลย**: การตี, แจ้ง 30%, ยาอัตโนมัติ, auto-retreat, ตาย ทำงานเหมือนกันทุกประการไม่ว่าจะอยู่จอพกกระเป๋าหรือจอปกติ (fire-together ใช้สั่น/เสียง/ภาพชุดเดียวกันทั้งสองจอ)
+   **ปิด C6-03 (F06 copy gate):** `run.screenLockNotice` เป็น **toast จางหายเอง** (คงคลาส `.toast.neutral` เดิม ไม่ใช่ banner) ไม่ใช่ป้ายค้าง เพราะข้อความนี้อธิบายเหตุการณ์ครั้งเดียวที่เพิ่งเกิด (เพิ่งเข้าสู่ทางสำรอง B) ไม่ใช่สถานะที่ยังเป็นจริงตลอดเวลาแบบ `gps.offline`/`run.stateGrace` ที่ต้องเป็น banner ค้าง — build ปัจจุบันแสดงครั้งเดียวต่อเครื่องถูกต้องแล้ว (`pocket-screen.ts#showFallbackNoticeOnce`) แต่ไม่เคยซ่อนตัวเองอีกเลย ทำให้ทับช่อง toast ตลอด run **แก้**: ให้จางหายเองหลัง `config: client.toast.screenLockNoticeHoldDurationMs` (เสนอ 4000 ms เท่ากับ `hpLowHoldDurationMs` เพราะความสำคัญ/ความยาวใกล้เคียงกัน) **และ**ซ่อนทันทีเมื่อ `dungeon_exited` ไม่ว่าจะยังไม่ครบเวลาหรือไม่ (กันค้างข้าม run) ยังคงกฎ "ห้าม toast สองตัวซ้อนกัน" เดิม (components.md หัวข้อ 6) — ถ้า `run.hpLow` ต้องโผล่ระหว่างที่ notice นี้ยังไม่จาง ให้ `run.hpLow` มาก่อนเสมอ (สำคัญกว่าเพราะเป็นเรื่องความปลอดภัยของ HP ส่วนแจ้งเรื่องจอดับเห็นไปแล้วครั้งก่อนในเซสชันนั้น) [handoff gameplay-programmer: เพิ่ม timer ซ่อน `fallbackToast` ใน `pocket-screen.ts` + config ใหม่ใน `client.json#toast`, ไม่ blocking ด้าน PDPA]
 
 E3. **ผู้เล่นล็อกจอเอง** (ต่างจาก Wake Lock ใช้ไม่ได้): กลับมาแสดง `[gps.suspended]` ("ช่วงจอดับไม่ได้นับระยะ") ตามข้อเท็จจริง **ไม่ใช่ tutorial ซ้ำ** — HP ระหว่างนั้นไม่มีการตี (ไม่มีหลักฐานว่า Active, F04-R13, H-E2 ของสเปก F06)
 
@@ -163,7 +173,7 @@ E4. **ปิดจอพกกระเป๋าได้ในตั้งค�
 ### 7.0 องค์ประกอบร่วมของทุกสถานะที่บ้าน (F06-R51, แก้ B-03)
 
 ทุกสถานะ (รวมไม่รู้ตำแหน่ง) มีทางลัดเหมือนกัน **5 อย่างเสมอ** ไม่ว่าจะมีอะไรอื่นเพิ่ม (เดิม 3 อย่าง — เพิ่ม 2 ข้อสุดท้ายตาม B-03 เพราะ R51 บังคับ "ดูของ, สรุป run ที่ผ่านมา, ใช้ยานอก run" ด้วย):
-- **ดู avatar ตัวเอง** — การ์ดอวตารบนแผ่น `bg.surface` (avatar-spec, A-P2-F06-T02-3: รูปลักษณ์ตั้งต้นเดียว ยังไม่มีหน้าสร้างตัวละคร) 3 มุม เลื่อนดูได้ → ทางลัดไป `S-10-profile`
+- **ดู avatar ตัวเอง** — การ์ดอวตารบนแผ่น `bg.surface` (avatar-spec, A-P2-F06-T02-3: รูปลักษณ์ตั้งต้นเดียว ยังไม่มีหน้าสร้างตัวละคร) 3 มุม เลื่อนดูได้ → ทางลัดไป `S-10-profile` **ยืนยัน `home.farProfileLink` ("ดูตัวละครของคุณ") ไม่ใช้ในเฟสนี้ (ตอบข้อค้างของ F06 copy/visual gate):** การ์ดอวตารเองเป็นตัวทางลัดอยู่แล้ว (แตะที่การ์ดโดยตรง) ไม่ต้องมีป้ายข้อความแยกอีกชั้น เพราะ `S-10-profile` เต็มรูปยังไม่มีใน Phase 2 (ไม่มีอะไรให้ดูเพิ่มนอกจากการ์ดเดิม) — key นี้สงวนไว้รอ `S-10-profile` เปิดจริง ไม่ต้องส่งต่อ narrative ว่าเป็น unused key ถาวร
 - **อ่านว่าแต่ละพลังทำอะไร** — ทางลัดไป `S-05-role-info` (Flow B หัวข้อ 3 ข้อ B2)
 - **เลือกพลังถ้ายังไม่เลือก** — sheet เดียวกับ Flow B ข้อ B1 ทับจอนี้ได้เหมือนทับแผนที่ (F06-R52 ยืนยันชัด)
 - **ดูของที่เก็บมา + ใช้ยา** — ทางลัดไป `[inventory.homeShortcut]` ("ของที่เก็บมา") → `S-11-inventory`: รายการของแยก rarity เหมือนหน้าสรุป run (F05 B1) + ปุ่ม `[inventory.usePotionButton]` ("ใช้ยา") ใช้ได้เมื่อ **ไม่มี run อยู่และ HP < maxHP** (F06-R26) + ปุ่ม `[inventory.useRevivePotionButton]` ("ใช้ยาฟื้น" — **แก้ R2-F3**, เดิมอ้าง `run.death.usePotion`) เมื่ออยู่สถานะ Recovering และมียาชนิดนั้น (C8, ตำแหน่งเดียวกัน ไม่ใช่ปุ่มซ้ำ) — **ไม่มีปุ่มขายให้ร้าน/ลงขายตลาด/ตีบวกใน Phase 2** (ดูหมายเหตุ override ข้อ 8 ด้านบน)
@@ -174,7 +184,8 @@ E4. **ปิดจอพกกระเป๋าได้ในตั้งค�
 ### 7.1 ไกล (`S-06-far-dungeon-panel`)
 
 F1. เกิดเมื่อ dungeon ที่เปิดอยู่ใกล้สุดห่างเกิน `config: unlocks.home.farDungeonThreshold_m` (ระยะเส้นตรงถึงขอบ polygon, F04-R35) **รวม "ไกลชั่วคราว"** ที่ dungeon ในเกณฑ์ปิดทั้งหมด → หัว `[home.farTitle]` ("รอยแยกใกล้สุดอยู่ไกล") + `[home.farBody]` ("ใกล้สุด {distanceText} ไกลก็จริง แต่ขามีไว้เดิน") ต่อชิป `nav.straightLineTag` เสมอ + ปุ่มนำทางเด่นสุด (F04 A2, A3 — พาไปเดินจริงแม้ไกล) + บรรทัด `nav.returnBeforeArrive` ใต้ปุ่ม (เหมือนแผงระยะของ F04) — นิยามนี้ (dungeon ใกล้สุดทั่วไป ไม่กรองช่วงเลเวล) ใช้หลังจบ onboarding (`O-done`) เท่านั้น ระหว่างที่ยังไม่จบ onboarding ดูข้อยกเว้นที่ A7 ⤷ **แก้ R2-F4/N-08**
-   ⤷ เงื่อนไข: ไกลชั่วคราว (dungeon ในเกณฑ์ปิดหมด, H-E21) → เพิ่มบรรทัด `[home.farNextOpen]` ("ที่ใกล้กว่าปิดอยู่ เปิดอีกที {openTime}") **ไม่มีการลงทะเบียนความสนใจในกรณีนี้** (ยังอยู่ในย่านเปิดตัว มีที่ให้ไปแค่ต้องรอเวลาเปิด) — ระหว่าง onboarding เงื่อนไขนี้คือกรณี "ไม่มี" ของ F06-R37 ข้อ 2 ด้วย (A7 ⤷)
+   ⤷ เงื่อนไข: ไกลชั่วคราว (dungeon ในเกณฑ์ปิดหมด, H-E21) → เพิ่มบรรทัด `[home.farNextOpen]` ("ที่ใกล้กว่าปิดอยู่ เปิดอีกที {openTime}") หรือ `[home.farNextOpenUnknown]` ("ที่ใกล้กว่าปิดอยู่ ยังไม่รู้ว่าเปิดเมื่อไร") เมื่อ `nextOpenAt_ms` เป็น `null` (ห้ามเติม `{openTime}` เป็นสตริงว่าง, ปิด C6-04 ของ F06 copy gate) **ไม่มีการลงทะเบียนความสนใจในกรณีนี้** (ยังอยู่ในย่านเปิดตัว มีที่ให้ไปแค่ต้องรอเวลาเปิด) — ระหว่าง onboarding เงื่อนไขนี้คือกรณี "ไม่มี" ของ F06-R37 ข้อ 2 ด้วย (A7 ⤷)
+   **ตอบ C6-11 (F06 copy gate) — หัว `home.farTitle` ("รอยแยกใกล้สุดอยู่ไกล") ใช้กับ "ไกลชั่วคราว" ด้วย ยืนยันว่าตั้งใจ (Q-T16-1 เดิม):** แม้ dungeon ที่ใกล้สุดจริงจะอยู่ใกล้แต่ปิดอยู่ (ไม่ใช่ไกลจริง) ก็ยังใช้หัวเดียวกัน ไม่แยกหัวใหม่ เหตุผล: (1) กันการเพิ่ม copy key/สถานะที่สามเฉพาะกรณีที่เกิดไม่บ่อย (dungeon ในเกณฑ์ปิดทั้งหมดพร้อมกัน) (2) บรรทัดถัดไปทันที (`home.farNextOpen`/`home.farNextOpenUnknown`) บอกเหตุจริง (ปิด ไม่ใช่ไกล) อยู่แล้วในกรอบเดียวกัน ผู้เล่นที่อ่านครบ 3 วินาทีตามโจทย์หลักของ flow นี้ (หัวข้อ 1) จะเห็นทั้งสองบรรทัดพร้อมกันเสมอ ไม่ใช่เห็นแค่หัวข้อลอยเดี่ยว (3) หัวข้อนี้ทำหน้าที่เป็นกรอบทั่วไป "มีรอยแยกให้ไปแต่ยังไปไม่ได้เดี๋ยวนี้" มากกว่าการยืนยันระยะทางตรงตัว ตรงกับที่ปุ่มนำทางเด่นสุดยังคงอยู่ (F1) แม้ในเคสนี้ปุ่มจะพาไปยัง dungeon เดียวกันที่กำลังปิดอยู่ก็ตาม (D-127 "เป้าเดียวเสมอ") — ไม่ใช่การหลอกผู้เล่นว่าไกล เพราะไม่มีจุดใดอ้างระยะจริงผิดพลาด (`home.farBody` ยังโชว์ `{distanceText}` จริงเสมอ) **ไม่แก้ ไม่เพิ่ม key ใหม่**
 
 ### 7.2 นอกย่านเปิดตัว (ยังใน `S-06-far-dungeon-panel` แต่เพิ่มส่วนลงทะเบียนรายเขต — สถานะย่อยของไกล, D-073, D-096)
 
@@ -203,6 +214,8 @@ F7. ตัวเลขระยะทุกจุดในหัวข้อ 7.1
 ## 8. Flow G — Consent, age gate, ลบข้อมูลในเครื่อง, Credits (F06-R44..R49, C2-6)
 
 age gate และ consent ตำแหน่งของ onboarding ครั้งแรกอยู่ที่ Flow A ข้อ A2/A3 แล้ว หัวข้อนี้ครอบสิ่งที่เข้าถึงได้ **ทีหลัง** จากหน้าตั้งค่า (ถอน/ให้ consent ใหม่, ลบข้อมูล, Credits) ซึ่งไม่มีเงื่อนไข consent/unlock ใดกั้น (เข้าถึงได้ตั้งแต่ก่อนเล่นเกม, ia.md หัวข้อ 3)
+
+**ยืนยัน P2-H40 (ปิดคำถามขอบเขตเมนูของ P2-X38):** `S-22-settings` ของ Phase 2 มีแค่ **4 แถวเท่านั้น**: ลิงก์การเดินและความปลอดภัย (`settings.walkingSafetyLink`), เครดิตและลิขสิทธิ์ (`settings.creditsLink`), ลบข้อมูลในเครื่อง (`settings.clearLocalDataLink`), และ `S-23-privacy` (`settings.privacyLink`) — ตรงกับที่ `apps/client/src/ui/settings-menu.ts` สร้างไว้แล้ว **ยืนยันถูกต้อง ไม่ต้องแก้เพิ่ม** สามแถวที่ `design/ux/ia.md` หัวข้อ 3.6 อ้างไว้แต่ยังไม่มีทางเข้าจาก `S-22` ของ Phase 2 (`S-17-report-block` รายงาน/บล็อก, `S-25-help` ศูนย์ช่วยเหลือ, `S-24-account-delete` ลบบัญชี) ด้วยเหตุผลคนละข้อ: `S-24-account-delete` ออกนอกขอบเขตอยู่แล้วตามหมายเหตุ override ข้อ 6 ด้านบน (ไม่มีบัญชีจริงใน Phase 2) ส่วน `S-17-report-block`/`S-25-help` ยังไม่มีจอใดๆ สร้างไว้เลยในโค้ด (ไม่ใช่ของที่ถูกซ่อนไว้รอปลด) — เหตุผลที่ยอมรับได้ในเฟสนี้: pillars U6 ที่บังคับให้ปุ่มรายงาน/บล็อก "เข้าถึงได้เสมอ" ตั้งอยู่บนสมมติฐานว่ามีผู้เล่นคนอื่นให้เจอ/รายงานได้ (Nearby Party, quick command) ซึ่ง Phase 2 ยังไม่มีเลย (หมายเหตุ override ข้อ 3, F06-R56/R57 — ไม่มีจำนวนคนหรือ role ของผู้อื่นที่ใดเลย) จึงยังไม่มีอะไรให้รายงานจริง กฎ "เข้าถึงได้เสมอ" จะกลับมามีผลบังคับตั้งแต่ build ที่เปิด Nearby Party จริง (F09, Phase 3) — **handoff (นอก `writes` ของงานนี้):** `ia.md` หัวข้อ 3.6/แถว `S-17`/`S-25` ต้องเพิ่มหมายเหตุ override Phase 2 แบบเดียวกับที่หัวข้อบนของเอกสารนี้ทำกับหัวข้ออื่น ทำในรอบถัดไปที่แตะ `ia.md` · `S-25-help` หัวข้อทั่วไป (ไม่ใช่ anti-cheat) อาจจำเป็นสำหรับคำถามพื้นฐานอย่าง "ทำไม GPS ไม่ทำงาน" — ถ้า game-director/product-manager เห็นว่าจำเป็นต่อ Phase 2 ให้เปิดงานใหม่แยกต่างหาก (ไม่ blocking ของ P2-H40)
 
 ### 8.1 `S-23-privacy` — ถอน/ให้ consent ใหม่ (ใช้โครงเดิมของ ia.md ได้ทั้งหมด)
 
@@ -393,21 +406,109 @@ G7. **ไม่มีข้อมูลส่วนตัวหรือที�
 
 **ตรวจกับโค้ดจริง (2026-09-28):** ดูผลตรวจใน `design/ux/flows/F05-movement-gate-reward.md` หัวข้อ 12 — `tick-toast.ts`/`f04-app.ts` ยังเรียก `showGranted` แบบไม่มีเงื่อนไขในกรณีนี้ ต่างจากที่ระบุ handoff ให้ gameplay-programmer อยู่ในเอกสาร F05 แล้ว (ไม่ซ้ำ handoff ที่นี่ เพราะเป็นโค้ดจุดเดียวกัน)
 
+## 18. รอบ 7: ปิด 5 สมมติฐานค้างของ P2-X38 (age gate/consent/settings สร้างจริง) (P2-H40)
+
+ที่มา: task P2-H40 ตรวจสมมติฐานที่ P2-X38 (build จริงของ age gate/consent/settings) ทิ้งไว้เป็นคอมเมนต์ `[ASSUMPTION A-P2-X38-*]` ในโค้ด (`apps/client/src/age-gate.ts`, `onboarding-flow.ts`, `ui/privacy-screen.ts`, `ui/settings-menu.ts`) — เอกสารนี้ปิดทั้ง 5 ข้อ รายละเอียดเต็มอยู่ตรงจุดในเอกสารที่ระบุ ตารางนี้เป็นดัชนีเท่านั้น
+
+| ข้อ | คำถาม | คำตัดสิน | รายละเอียดเต็ม |
+| --- | --- | --- | --- |
+| A-P2-X38-2 | ต้องมีจอบังคับ (blocking) ก่อน native permission prompt ไหม | **ต้องมี** — ยืนยัน A4 (`S-00-permission-browser`) เดิมของ flow นี้เป็นตัวจริง build ปัจจุบันข้ามจอนี้ไปต้องแก้ build ไม่ใช่แก้เอกสาร | Flow A ข้อ A4, หัวข้อ 18.1 ด้านล่าง |
+| A-P2-X38-4 | สไตล์ปุ่มทางลัด "ลบข้อมูลในเครื่อง" บน `S-23-privacy` | **ใช้ `.btn-secondary` เดิม** ไม่สร้างคลาส `.btn-link` ใหม่ | `design/ux/components.md` หัวข้อ 3.2 (ใหม่) |
+| ขอบเขตเมนู `S-22-settings` | 4 แถวพอไหมสำหรับ Phase 2 | **พอ ยืนยันถูกต้อง** — report/help/account-delete ยังไม่มีทางเข้าเพราะยังไม่มีจอ (help/report) หรือออกนอกขอบเขต (account-delete) | Flow G หัวข้อ 8 (ย่อหน้ายืนยันก่อน G1) |
+| R46 "กลับหน้าแรก" | กลับ `S-00-intro` จริงไหม | **ไม่ใช่ — กลับไปเป็นความพยายามใหม่ของ `S-00-age-gate` โดยตรง** (`introSeen` ถาวรแล้ว) ตรงเจตนา R46 อยู่แล้ว โค้ดถูกต้อง ไม่ต้องแก้ | Flow A ข้อ A2 |
+| A-P2-X38-1 | ช่วงปีเกิด 100 ปีต้องเป็น config ไหม | **ไม่ต้อง** — เป็นค่าจอแสดงผลล้วน ไม่กระทบผลผ่าน/ไม่ผ่าน ไม่ใช่ balance value | Flow A ข้อ A2 |
+
+### 18.1 ขั้นตอนที่คาดหวังสำหรับจอ `S-00-permission-browser` (handoff gameplay-programmer, ไม่ blocking ด้าน PDPA)
+
+ลำดับที่ควรเป็นหลังแก้ (ต่างจากปัจจุบันที่ `acceptConsent()` เรียก `startLocationProvider()` ทันที):
+1. ผู้เล่นกด `[consent.locationAccept]` บน `S-00-consent-location` → เขียน `kw.p2.consent = granted` เหมือนเดิม **แต่ยังไม่เรียก `startLocationProvider()`**
+2. `currentOnboardingStep()` คำนวณได้ `'permission'` อยู่แล้วตามโค้ดปัจจุบัน (เงื่อนไข `locationConsent === 'granted' && permissionGranted === null`) — แค่เพิ่มกิ่ง render ใน `f04-app.ts` ให้จอ `S-00-permission-browser` (ใหม่ ทรงเดียวกับ `consent-location-screen.ts`) แสดงตอนนี้แทนที่จะปล่อยผ่านไม่มีจอ
+3. ผู้เล่นกด `[consent.browserPrimingContinue]` ("ไปต่อ") → ตอนนี้เท่านั้นที่เรียก `startLocationProvider()` + เริ่ม `resolvePermission()` (ย้ายสองบรรทัดนี้จาก `acceptConsent()` ไปเมธอดใหม่ เช่น `confirmBrowserPriming()`)
+4. permission จริงจาก OS มาแล้ว (`permissionGranted` ไม่เป็น `null` อีกต่อไป) → step กลับไปเป็น `'map'`/`'class'` ตามปกติ ไม่ต้องแก้ตรงนี้
+5. telemetry `permission_browser_shown` ยิงตอนจอนี้ mount ครั้งแรก (แพทเทิร์นเดียวกับ `markConsentShown`/`markAgeGateShown` ที่มีอยู่แล้ว) — ยังไม่มีเมธอดนี้ในโค้ดปัจจุบัน ต้องเพิ่ม
+6. ผู้เล่นกลับมาเปิดแอปใหม่ (returning player, `locationConsent` เดิม `granted` จาก session ก่อน) **ไม่เห็นจอนี้ซ้ำ** เพราะ onboarding ผ่าน `'done'` ไปแล้ว (`classChosen`/`firstRunEntered`/`firstRewardDone` ล้วน `true`) `currentOnboardingStep()` ไม่มีทางคืน `'permission'` ให้คนกลุ่มนี้อีก (ตรวจแล้วจากโค้ด onboarding-step.ts) ไม่ต้องกังวลเรื่อง regression
+7. ไม่กระทบ PDPA/consent: consent ตำแหน่งจริงยังถูกขอแยกต่างหากที่ `S-00-consent-location` (A3) ก่อนจอนี้เสมออยู่แล้ว จอนี้เป็นแค่บทนำก่อน native prompt ไม่ใช่จุดขอ consent เพิ่ม — **blocking: ไม่ใช่ด้าน PDPA แต่แนะนำเร่งทำเพราะกระทบอัตราการได้ตำแหน่งจริงของทั้งเกม**
+
+## 19. รอบ 8: ปิดข้อค้างของ F06 copy gate และ visual gate ที่ส่งถึง uiux-designer (P2-H40)
+
+ที่มา: `design/reviews/F06-copy-gate.md` หัวข้อ 5/8 (C6-03, C6-09, C6-10, C6-11, ยืนยัน `run.hpBarLabel`/`home.farProfileLink`) และ `art/reviews/F04-F06-visual-gate.md` V-38 (ขนาดตัวอักษร toast/banner, GPS pill, ปุ่ม primary ของ inventory) — ตารางนี้เป็นดัชนี รายละเอียดเต็มอยู่ตรงจุดที่ระบุ (V-38 ทั้งหมดปิดใน `components.md` เพราะเป็นเรื่อง CSS/คอมโพเนนต์ล้วน)
+
+| ข้อ | คำตัดสิน | ตำแหน่งเต็ม |
+| --- | --- | --- |
+| C6-03 `run.screenLockNotice` | toast จางหายเอง (ไม่ใช่ banner) หลัง `client.toast.screenLockNoticeHoldDurationMs` (เสนอ 4000ms) และซ่อนเมื่อ `dungeon_exited` | Flow E ข้อ E2 |
+| C6-09 ปีเกิด พ.ศ./ค.ศ. | แสดง พ.ศ. (`year+543`) ค่าที่ส่งเข้า `onConfirm` ยังเป็น ค.ศ. เดิม | Flow A ข้อ A2 (ข้อ 3 ของหมายเหตุ P2-H40) |
+| C6-10 first-reward ใต้จอพกกระเป๋า | ยอมรับได้ ตรงคำตัดสิน P2-H39 เดิม ไม่ต้องแก้ในเฟสนี้ | Flow E ข้อ E1 |
+| C6-11 หัว `home.farTitle` ในสถานะไกลชั่วคราว | ยืนยันตั้งใจ ไม่แยกหัวใหม่ | Flow F ข้อ F1 |
+| `run.hpBarLabel` ไม่ถูกใช้ | ยืนยันตั้งใจ — ตัวเลข % + แถบสีพอแล้ว ไม่ต้องมีป้าย "HP" ซ้ำ | `design/ux/components.md` หัวข้อ 7 (หมายเหตุใหม่) |
+| `home.farProfileLink` ไม่ถูกใช้ | ยืนยันตั้งใจ — การ์ดอวตารเองเป็นทางลัดอยู่แล้ว ไม่ต้องมีป้ายซ้ำจนกว่า `S-10-profile` เต็มรูปจะมี | Flow F หัวข้อ 7.0 |
+| `run.autoRetreatOffBadge` (V-32) | reuse ทรง `.banner.warn` แทนคลาสเฉพาะที่ไม่เคยกำหนดขนาดตัวอักษร | Flow C ข้อ C10 |
+| C6-04 `home.farNextOpenUnknown` | อ้างอิง key ใหม่ของ narrative ในบรรทัด `home.farNextOpen` เดิม ไม่ส่ง `{openTime}` ว่าง | Flow F ข้อ F1 |
+| V-38 ขนาดตัวอักษร toast/banner, GPS pill, ปุ่ม primary ของ inventory | ปิดทั้งหมดใน `components.md` (ไม่ใช่ไฟล์นี้) | `design/ux/components.md` หัวข้อ 2.1, 6, 7, 13 (ดู REPORT) |
+
 ## REPORT
-task: P2-H34 (ส่วน F06)
+task: P2-H40
 status: DONE
-summary: เพิ่มเงื่อนไขใน Flow A ข้อ A11 ระบุว่าเมื่อรางวัลก้อนแรกมาจาก tick บางส่วนของ D-059 (ปิด dungeon กลาง run แรก) ไม่แสดง toast ก้อนแรกเลย สื่อสารผ่านหน้าสรุปเท่านั้น (เนื้อหาเต็มอยู่ flow F05 A2b) `O-done` ยังตั้งจากธง `first_reward`/`firstEver` ตามปกติ ไม่ใช่ทางให้รางวัลที่สอง (GD B-07) · เพิ่มหัวข้อ 17 (รอบ 6) ชี้กลับไปที่ F05 เป็นเจ้าของเนื้อหา ไม่เขียนซ้ำ · handoff โค้ดจุดเดียวกับที่ระบุไว้แล้วในเอกสาร F05 (ไม่ซ้ำ handoff คนละที่)
+summary: ปิดสมมติฐาน/ข้อค้างของ P2-X38 (age gate/consent/settings build) ทั้ง 5 ข้อในโจทย์เดิม บวกข้อเพิ่มจาก F06 copy gate (C6-03/09/10/11, ยืนยัน `run.hpBarLabel`/`home.farProfileLink`) และ F04-F06 visual gate (V-38: ขนาดตัวอักษร toast/banner, เลือกแบบ GPS pill, ยืนยันปุ่ม primary ของ inventory) รวมถึงตรวจ P2-H43 (tokens.json/components.md เทียบ style-guide S8) ตามที่ orchestrator ส่งเพิ่มระหว่างทำงาน ทุกข้อเขียนคำตัดสิน+เหตุผลลงจุดที่เกี่ยวข้องโดยตรงในเอกสาร ไม่ได้รวมไว้ที่เดียว เพื่อให้คนอ่านแต่ละ flow เจอคำตอบตรงจุดที่ใช้งานจริง — สรุปทีละข้อ:
+
+1. **A-P2-X38-2 (จอ priming ก่อน native permission)** — ตัดสิน **ต้องมี** ยืนยัน A4 (`S-00-permission-browser`) เดิมเป็นตัวจริง build ต้องแก้ให้ตรง (ไม่ blocking ด้าน PDPA เพราะ consent จริงขอแยกที่ A3 ไปแล้ว แต่แนะนำเร่งทำเพราะกระทบอัตราการได้ตำแหน่งจริง) — Flow A ข้อ A4, หัวข้อ 18.1 (ขั้นตอนละเอียดสำหรับ gameplay-programmer)
+2. **A-P2-X38-4 (สไตล์ปุ่มทางลัด `S-23`)** — ใช้ `.btn-secondary` เดิม ไม่สร้าง `.btn-link` ใหม่ (ไม่ต้องแก้โค้ด) — `components.md` หัวข้อ 3.2
+3. **ขอบเขตเมนู `S-22-settings` = 4 แถว** — ยืนยันถูกต้อง report/help/account-delete ยังไม่มีทางเข้าด้วยเหตุผลคนละข้อ (ไม่มีจอ vs. นอกขอบเขต Phase 2) พร้อมเหตุผลอิง pillars U6 (ยังไม่มีผู้เล่นอื่นให้รายงาน) — Flow G หัวข้อ 8 (ก่อน G1)
+4. **R46 "กลับหน้าแรก"** — ยืนยันโค้ดถูกต้อง (`returnFromUnderage`) พาไปสู่ความพยายามใหม่ของ age-gate ตรงๆ ไม่ใช่ intro ซ้ำ ตรงเจตนา R46 — Flow A ข้อ A2
+5. **A-P2-X38-1 (ช่วงปีเกิด 100 ปี)** — ยืนยันเป็นค่า UI ล้วน ไม่ย้ายเข้า config เจ้าของเดียวคือ uiux-designer — Flow A ข้อ A2
+
+เพิ่มจากข้อความของ orchestrator ระหว่างทาง:
+6. **C6-03 `run.screenLockNotice`** — toast จางหายเอง (ไม่ใช่ banner) หลัง hold duration ใหม่ + ซ่อนเมื่อ `dungeon_exited` — Flow E ข้อ E2
+7. **C6-09 ปีเกิด พ.ศ./ค.ศ.** — แสดง พ.ศ. ค่าที่ส่งเข้า engine ยังเป็น ค.ศ. เดิม — Flow A ข้อ A2
+8. **C6-10 first-reward ใต้จอพกกระเป๋า** — ยอมรับได้ ตรง P2-H39 เดิม ไม่แก้ในเฟสนี้ (บันทึกแนวคิดปรับปรุงอนาคตไว้ ไม่ blocking) — Flow E ข้อ E1
+9. **C6-11 หัว `home.farTitle` ในสถานะไกลชั่วคราว** — ยืนยันตั้งใจ ไม่แยกหัวใหม่ — Flow F ข้อ F1
+10. **`run.hpBarLabel`/`home.farProfileLink`** — ยืนยันตั้งใจไม่ใช้ทั้งคู่ ไม่ต้องย้ายเป็น key สงวนถาวร — `components.md` หัวข้อ 7, Flow F หัวข้อ 7.0
+11. **`run.autoRetreatOffBadge` (V-32)** — reuse ทรง `.banner.warn` เต็มรูปแบบ (พื้น `bg.surface`+ขอบ+ข้อความ `state.danger` 16px) แทนคลาสเฉพาะที่ไม่เคยกำหนดขนาด — Flow C ข้อ C10, `components.md` หัวข้อ 6
+12. **V-38 ขนาดตัวอักษร toast/banner** — กำหนด 16px เป็นค่าเดียวไม่มีข้อยกเว้นสำหรับสี state (คู่สี state บน `bg.surface` ได้แค่ 5.50–6.25:1 ไม่ถึง 7:1 ตามตาราง S8 ที่ P2-H43 เพิ่มใน style-guide) — `components.md` หัวข้อ 6
+13. **V-38 เลือกแบบ GPS pill** — เลือกทรง `bg.surface`+ขอบสี state เดิมของ 2.1 (ไม่ใช่พื้นทึบ `ink.900` ที่ build ทำอยู่) ข้อความแก้จาก "≥14px" เป็น 16px ตัวหนา ความสูง pill 24px→28px — `components.md` หัวข้อ 2.1
+14. **V-38 ปุ่ม primary ของ `S-11-inventory`** — ยืนยัน 0 ปุ่ม ทั้ง "ใช้ยา"/"ใช้ยาฟื้น" เป็น `.btn-secondary` เสมอ (ทั้งสองอาจโชว์พร้อมกันได้ ขัดกฎ 1-primary-ต่อจอถ้าเป็น primary ทั้งคู่) — `components.md` หัวข้อ 3.3
+15. **P2-H43 (ตรวจ tokens.json/components.md เทียบ style-guide S8)** — **ผล: `tokens.json` ไม่ต่ำกว่า S8 อยู่แล้ว** (`type.caption` 14px ผูกเงื่อนไข ≥7:1 ไว้ถูกต้องตั้งแต่ต้น) **`components.md` เคยต่ำกว่า S8 สามจุด** ได้แก่ GPS pill (2.1, "≥14px" ใช้กับสี state), ป้าย auto-retreat-off (ไม่เคยกำหนดขนาดเลย), และตาราง toast/banner (6, ไม่เคยเขียน px ชัดเจน) — ปิดครบทั้งสามจุดในรอบนี้ (ดูข้อ 11–13 ข้างบน)
+
 outputs:
-  - design/ux/flows/F06-hp-damage-onboarding.md — เพิ่มเงื่อนไขใน Flow A ข้อ A11, เพิ่มหัวข้อ 17 ในสารบัญและเนื้อหา, แก้ REPORT
+  - design/ux/flows/F06-hp-damage-onboarding.md — เพิ่มหัวข้อ 18 (รอบ 7, ปิด P2-X38 5 ข้อ + 18.1 ขั้นตอนสำหรับ gameplay-programmer) และหัวข้อ 19 (รอบ 8, ดัชนีปิดข้อค้างของ copy/visual gate) ในสารบัญและเนื้อหา · แก้ Flow A ข้อ A2 (underage back + ปีเกิด 100 ปี + พ.ศ./ค.ศ.), ข้อ A4 (ยืนยันจอ priming บังคับ) · แก้ Flow C ข้อ C10 (auto-retreat badge → `.banner.warn`) · แก้ Flow E ข้อ E1 (first-reward ใต้จอพกกระเป๋า), ข้อ E2 (screenLockNotice จางหายเอง) · แก้ Flow F ข้อ F1 (far title + `farNextOpenUnknown`), หัวข้อ 7.0 (`farProfileLink`) · แก้ Flow G หัวข้อ 8 (ยืนยันขอบเขตเมนู 4 แถว) · แก้ REPORT
+  - design/ux/components.md — เพิ่มหัวข้อ 3.2 (ปุ่มทางลัดในเนื้อหา, ปิด A-P2-X38-4), 3.3 (ยืนยันปุ่ม primary ของ inventory = 0) · แก้หัวข้อ 2.1 (GPS pill เป็น `bg.surface`+16px) · แก้หัวข้อ 6 (ตาราง toast/banner ครบ 16px ทุกแถว, รวม auto-retreat-off เข้า `.banner.warn`, เพิ่มกฎรวม 16px อ้าง style-guide S8 ของ P2-H43) · แก้หัวข้อ 7 (ยืนยัน `run.hpBarLabel` ไม่ใช้) · แก้บรรทัด revision หัวบทความ
+
 acceptance:
-  - [x] ระบุกรณีก้อนแรกจาก tick บางส่วน: แสดงบนหน้าสรุป, ปุ่ม continue ใช้ copy key เดียวกับ `run.continueCta` (D-050), ไม่มีทางให้รางวัลแยก (GD B-07) — evidence: Flow A ข้อ A11 (เงื่อนไข ⤷ ที่สอง), หัวข้อ 17
-  - [x] ถ้าโค้ดปัจจุบันต่างจากที่ระบุ เขียน handoff ให้ gameplay-programmer (ไม่ blocking) — evidence: หัวข้อ 17 ชี้ไปที่ handoff ในเอกสาร F05 หัวข้อ 12 (จุดโค้ดเดียวกัน ไม่ซ้ำ handoff)
-  - [x] ภาษาไทย ไม่มี emoji — evidence: ตรวจด้วยสายตาทั้งส่วนที่แก้
+  - [x] A-P2-X38-2: ตัดสินแล้วว่าบังคับต้องมี พร้อมขั้นตอนแก้ build — evidence: Flow A ข้อ A4, หัวข้อ 18.1
+  - [x] A-P2-X38-4: ตัดสินสไตล์ปุ่มทางลัด — evidence: `components.md` หัวข้อ 3.2
+  - [x] ขอบเขตเมนู `S-22-settings` 4 แถว: ยืนยัน — evidence: Flow G หัวข้อ 8
+  - [x] R46 "กลับหน้าแรก": ยืนยันพฤติกรรมโค้ดถูกต้อง — evidence: Flow A ข้อ A2
+  - [x] A-P2-X38-1: ตัดสินไม่ย้ายเข้า config — evidence: Flow A ข้อ A2
+  - [x] client change ทุกจุดมี handoff ระบุ blocking yes/no ชัดเจน (ไม่มีข้อใด blocking ด้าน PDPA — consent ตำแหน่งจริงถูกขอแยกไว้แล้วเสมอทุกกรณี) — evidence: หัวข้อ 18.1, Flow E ข้อ E2, Flow A ข้อ A2 (ข้อ 3), Flow C ข้อ C10, `components.md` หัวข้อ 2.1/3.3
+  - [x] ข้อเพิ่มจาก F06 copy gate (C6-03/09/10/11, hpBarLabel, farProfileLink) — evidence: หัวข้อ 19, จุดที่อ้างในตารางนั้น
+  - [x] ข้อเพิ่มจาก visual gate V-38 — evidence: `components.md` หัวข้อ 2.1, 3.3, 6
+  - [x] P2-H43 (ตรวจ tokens.json/components.md เทียบ S8) — evidence: ข้อ 15 ของ summary ข้างบน, `components.md` หัวข้อ 6/2.1
+  - [x] ภาษาไทย ไม่มี emoji — evidence: ตรวจด้วยสายตาทั้งส่วนที่แก้ทั้งสองไฟล์
+
 assumptions:
-  - none
+  - none (ทุกข้อเป็นคำตัดสินปิด ไม่ใช่สมมติฐานเปิดใหม่)
+
 handoffs:
-  - to: gameplay-programmer | need: (จุดเดียวกับ handoff ของ `design/ux/flows/F05-movement-gate-reward.md` หัวข้อ 12 — ไม่สร้าง handoff ซ้ำที่นี่) แก้ `tick-toast.ts`/`f04-app.ts` ให้ข้าม `showGranted` เมื่อ tick บางส่วนของ D-059 มากับ `dungeon_exited` ในรอบ event เดียวกัน | why: O-3, Flow A ข้อ A11 | blocking: no
+  - to: gameplay-programmer | need: สร้างจอ `S-00-permission-browser` จริง (ย้าย `startLocationProvider()`/`resolvePermission()` จาก `acceptConsent()` ไปเมธอดใหม่ที่ปุ่ม "ไปต่อ" เรียก, เพิ่ม branch render ใน `f04-app.ts`, เพิ่ม telemetry `permission_browser_shown`) | why: A-P2-X38-2, Flow A ข้อ A4/หัวข้อ 18.1 | blocking: no (ไม่ผิด PDPA — แนะนำเร่งทำเพราะกระทบอัตราการได้ตำแหน่งจริงของเกม)
+  - to: gameplay-programmer | need: แก้ `age-gate-screen.ts#populateOptions` ให้ `option.textContent = year+543` (พ.ศ.) โดย `option.value` คง ค.ศ. เดิม | why: C6-09, Flow A ข้อ A2 | blocking: no
+  - to: gameplay-programmer | need: เพิ่ม timer จางหาย + ซ่อนเมื่อ `dungeon_exited` ให้ `pocket-screen.ts#fallbackToast` (`run.screenLockNotice`) พร้อม config ใหม่ `client.json#toast.screenLockNoticeHoldDurationMs` (เสนอ 4000ms) | why: C6-03, Flow E ข้อ E2 | blocking: no
+  - to: gameplay-programmer | need: แก้ `.gps-pill` เป็นพื้น `bg.surface`+ขอบสี state (ไม่ใช่พื้น `ink.900` ทึบ) ข้อความ 16px ตัวหนา, แก้ `.toast.danger` เป็นพื้น `bg.surface`+ข้อความ `state.danger` 16px (เลิกพื้นแดงทึบ), แก้ `.auto-retreat-off-badge` ให้ reuse กฎ `.banner.warn`, แก้ `.banner.info`/`.banner.warn`/`.toast`/`.toast.faded` เป็น 16px ทุกจุด, ยืนยัน `S-11-inventory` ไม่มีปุ่ม `.btn-primary` เลย | why: V-38, V-32, V-22 ของ `art/reviews/F04-F06-visual-gate.md` | blocking: no
+  - to: narrative-designer | need: ไม่มี key ใหม่ที่ต้องเพิ่มจากงานนี้ (C6-04 `home.farNextOpenUnknown` เป็นของ F06 copy gate เดิมอยู่แล้ว อ้างอิงซ้ำในหัวข้อ 19 เท่านั้น) — ยืนยันว่า `run.hpBarLabel`/`home.farProfileLink` ยังไม่ต้องย้ายไปกลุ่ม key สงวนถาวร | why: หัวข้อ 19 | blocking: no
+  - to: ia.md (งานถัดไปที่แตะไฟล์นั้น, เจ้าของเดียวกันคือ uiux-designer) | need: เพิ่มหมายเหตุ override Phase 2 ที่แถว `S-17-report-block`/`S-25-help` ว่ายังไม่มีทางเข้าจาก `S-22-settings` จนกว่า Nearby Party จะเปิดจริง (F09) | why: ยืนยันขอบเขตเมนู 4 แถว, Flow G หัวข้อ 8 | blocking: no
+
 decisions:
-  - none
+  - A-P2-X38-2: จอ `S-00-permission-browser` เป็นจอบังคับ (blocking) เสมอ ยืนยัน A4 เดิม ไม่ตัดออก
+  - A-P2-X38-4: ปุ่มทางลัดใช้ `.btn-secondary` เดิม ไม่สร้างคลาสใหม่
+  - ขอบเขตเมนู `S-22-settings` = 4 แถว ยืนยันถูกต้องสำหรับ Phase 2
+  - R46 "กลับหน้าแรก" = ความพยายามใหม่ของ age-gate ไม่ใช่ intro ซ้ำ ยืนยันโค้ดถูกต้อง
+  - A-P2-X38-1: ช่วงปีเกิด 100 ปี เป็นค่า UI ล้วน ไม่ย้ายเข้า config
+  - `run.screenLockNotice` = toast จางหายเอง ไม่ใช่ banner
+  - ปีเกิดแสดงเป็น พ.ศ. (ค่าเก็บยังเป็น ค.ศ.)
+  - first-reward ใต้จอพกกระเป๋า (C6-10) ยอมรับได้ตาม P2-H39 ไม่แก้ในเฟสนี้
+  - หัว `home.farTitle` ใช้กับสถานะไกลชั่วคราวด้วย ยืนยันตั้งใจ
+  - `run.hpBarLabel`/`home.farProfileLink` ยืนยันไม่ใช้โดยตั้งใจ
+  - `run.autoRetreatOffBadge` reuse ทรง `.banner.warn`
+  - toast/banner ทุกตัวใช้ 16px เป็นค่าเดียวไม่มีข้อยกเว้นสำหรับสี state
+  - GPS pill ใช้ทรง `bg.surface`+ขอบสี state, ข้อความ 16px
+  - `S-11-inventory` มีปุ่ม primary = 0 ปุ่ม
 questions_for_human:
   - none
