@@ -11,7 +11,8 @@
 import { pointInPolygon, boundaryDistance_m, MS_PER_S } from '@keep-walking/geo';
 import type { PolygonGeometry as GeoPolygonGeometry } from '@keep-walking/geo';
 import { selectOpening, selectPlayerView, selectRunView } from '@keep-walking/shared/session';
-import type { SessionEvent, SessionState } from '@keep-walking/shared/session';
+import type { CheckInPreview, SessionEvent, SessionState } from '@keep-walking/shared/session';
+import type { LocationPermission } from '@keep-walking/location';
 import { play } from '../../../art/vfx/core/vfx';
 // Side-effect import: registers `run.hpLow`/`run.autoRetreat`/`run.death` (F06, art/vfx/
 // hp-critical/hp-critical.ts) — this module is the one that calls `play()` for the latter two
@@ -35,7 +36,9 @@ import type { ArtifactDungeon } from './dungeons/artifact';
 import { formatDistanceText } from './dungeons/distance';
 import { formatOpenTime } from './dungeons/open-time';
 import { formatCopyText } from './copy/format';
-import type { AssetRuntime } from './assets/icon-dom';
+import { getCopyText } from './copy/load';
+import { getDungeonShortName } from './copy/names';
+import type { AssetRuntimeController } from './assets/runtime';
 import { compassPointTo } from './dungeons/direction';
 import { parseE2eClassIdParam, parseRunSeedParam } from './clock/query-params';
 import type { PlayerClass } from '@keep-walking/shared/session';
@@ -58,6 +61,21 @@ import { mountSettingsWalkingSafety } from './ui/settings-walking-safety';
 import { createAudioPlayer } from './assets/audio-player';
 import type { DungeonSourceMap } from './map/dungeons-source';
 import { createDungeonLabelCache, setDungeonsSourceData } from './map/dungeons-source';
+import { HomeTracker } from './dungeons/home-tracker';
+import {
+  loadLaunchAreaDistrictIds,
+  loadLaunchAreaMask,
+  loadPlayAreaMask,
+} from './dungeons/home-geometry';
+import { mountHomePanel } from './ui/home-panel';
+import { mountRoleInfo } from './ui/role-info';
+import { mountInterestRegister } from './ui/interest-register';
+import { groupedSelectableDistricts, studyAreaProvinceOptions } from './copy/districts';
+import { mountIntroScreen } from './ui/intro-screen';
+import { mountClassSelect } from './ui/class-select';
+import { mountRunTutorialLine } from './ui/run-tutorial-line';
+import { OnboardingFlow } from './onboarding-flow';
+import { shouldSkipF04App } from './env';
 
 const TELEMETRY_STORAGE_KEY = 'kw.p2.telemetry';
 const SECONDS_PER_MINUTE = 60;
@@ -77,7 +95,11 @@ export interface F04AppDeps {
   readonly isOnline: () => boolean;
   readonly userAgent: string;
   readonly maxTouchPoints: number;
-  readonly assets: AssetRuntime;
+  /** P2-F06-T09 widens this from the plain icon-only `AssetRuntime` (`assets/icon-dom.ts`) to the
+   * full `AssetRuntimeController` (`assets/runtime.ts`) so `home-panel.ts` can reach
+   * `loadAvatarPart()` — every existing consumer of `deps.assets` only ever used the narrower
+   * icon-only surface, so this is a strictly wider type, not a breaking change to them. */
+  readonly assets: AssetRuntimeController;
   readonly copyToClipboard: (text: string) => Promise<boolean>;
   /** `new Audio(url).play()` (or equivalent) — the one place `assets/audio-player.ts` actually
    * starts real playback; injected so tests never touch a real `<audio>` element. */
@@ -100,6 +122,10 @@ export interface F04AppDeps {
    * (tech gate P2-F05-T15 TG-03/TG-04, decision 6.2: a real player on `?loc=web` must never be
    * able to pick their own RNG seed or skip class selection). */
   readonly isMockProvider: boolean;
+  /** `LocationProvider#getPermission()` (`@keep-walking/location`), never `navigator.permissions`
+   * directly (CLAUDE.md: "Use the LocationProvider interface only") — `onboarding-flow.ts`'s only
+   * source for resolving the onboarding step machine's `permission` step (P2-F06-T10). */
+  readonly getLocationPermission: () => Promise<LocationPermission>;
 }
 
 export interface F04App {
@@ -154,6 +180,23 @@ function edgeDistance_m(playerLat: number, playerLng: number, dungeon: ArtifactD
   return boundaryDistance_m({ lat: playerLat, lng: playerLng }, geoPolygon(dungeon.geometry));
 }
 
+/** `kw.p2.consent.location === 'granted'` — but a *missing* key (nobody has ever answered) also
+ * reads as granted, see this function's own call site's doc comment (P2-F06-T09 interim default,
+ * no consent screen built yet). Only an explicit, successfully-read `'declined'`/`'withdrawn'`
+ * value denies it. */
+function locationConsentGranted(storage: KeyValueStorage): boolean {
+  const result = readEnvelope(
+    storage,
+    'kw.p2.consent',
+    1,
+    (v): v is { readonly location: string } =>
+      typeof v === 'object' &&
+      v !== null &&
+      typeof (v as { location?: unknown }).location === 'string',
+  );
+  return !result.ok || result.envelope.state.location === 'granted';
+}
+
 export function createF04App(deps: F04AppDeps): F04App {
   const artifact = loadDungeonArtifact();
   const params = buildSessionParams(artifact.dungeons);
@@ -198,6 +241,55 @@ export function createF04App(deps: F04AppDeps): F04App {
     deps.now(),
   );
 
+  // --- P2-F06-T10: onboarding step machine wiring (tech note F06 section 8, R36/R44-R49) ---
+  const onboarding = new OnboardingFlow({
+    storage: deps.storage,
+    quotaDeps: {
+      trimTelemetryHalf: () => telemetry.trimHalf(),
+      clearTelemetryAll: () => telemetry.clear(),
+    },
+    now: deps.now,
+    record: (name, properties) => {
+      telemetry.record(name, properties);
+      persistTelemetry();
+    },
+    queryGeolocationPermission: deps.getLocationPermission,
+    onPermissionResolved: () => render(engine.getState(), deps.now()),
+    e2eSkipOnboarding: shouldSkipF04App(
+      deps.locationSearch,
+      clientConfig.providerQuery.paramNames.e2eSkipOnboarding,
+      deps.isMockProvider,
+    ),
+  });
+  const introScreen = mountIntroScreen(deps.hudContainer, () => {
+    onboarding.completeIntro();
+    render(engine.getState(), deps.now());
+  });
+  const classSelect = mountClassSelect(
+    deps.hudContainer,
+    (classId) => {
+      const events = engine.dispatch({ type: 'chooseClass', classId }, deps.now());
+      handleSessionEvents(events);
+      // Only the real `class_chosen` event (never `class_choice_rejected`, e.g. a double-tap after
+      // the sheet already closed) counts as the funnel's `class_selected` step.
+      if (events.some((event) => event.type === 'class_chosen')) {
+        onboarding.recordClassSelected(classId);
+      }
+      render(engine.getState(), deps.now());
+    },
+    deps.assets,
+  );
+  const runTutorialLine = mountRunTutorialLine(
+    deps.hudContainer,
+    clientConfig.onboarding.tutorialLineHoldDurationMs,
+  );
+  // D-120 table 1.3 (P2-H20): the *only* two `checkin_rejected` reasons that route to this status-
+  // row override — `selectCheckInPreview` never returns either (`checkInStatusView`'s own doc
+  // comment) — cleared the instant the underlying condition is no longer true (class chosen / HP
+  // recovered), checked fresh on every render, never a fixed timeout.
+  let confirmRejectOverride:
+    { readonly dungeonId: string; readonly reason: 'no_class' | 'no_hp' } | undefined;
+
   const labelCache = createDungeonLabelCache();
   function refreshMapDungeons(now_ms: number): void {
     if (deps.map === undefined) return;
@@ -221,15 +313,23 @@ export function createF04App(deps: F04AppDeps): F04App {
   // --- Screens (F04 flow priority: speed-lock > summary > run > confirm > map/nav) ---
   const confirmPopup = mountDungeonConfirm(deps.hudContainer, {
     onEnter: (dungeonId) => {
+      const at_ms = deps.now();
       const events = engine.dispatch(
         {
           type: 'confirm',
           dungeonId,
           runSeed: resolveRunSeed(deps.locationSearch, deps.isMockProvider),
         },
-        deps.now(),
+        at_ms,
       );
       handleSessionEvents(events);
+      // Swap rule 8 fix (P2-X37 finding): this dispatch alone never re-rendered — the popup stayed
+      // up (still showing the pre-confirm preview) until the next `onSample`/`onTick` call caught
+      // up, which qa's own e2e (`f04-checkin-confirm-flow.spec.ts`, "Active again (returned)")
+      // caught as a popup that does not hide on the very click that entered the run. `render()` is
+      // a function declaration (hoisted), so calling it here — before its own definition further
+      // down this closure — is safe: this callback only ever runs later, on a real tap.
+      render(engine.getState(), at_ms);
     },
     onCancel: () => confirmPopup.hide(),
   });
@@ -325,6 +425,33 @@ export function createF04App(deps: F04AppDeps): F04App {
     copyToClipboard: deps.copyToClipboard,
   });
 
+  // --- P2-F06-T09: home-state wiring (tech note F06 section 9, spec F06 R50-R58) ---
+  // Both mask geometries load async (`fetch`, `home-geometry.ts`); `homeTracker` stays `undefined`
+  // until they resolve, and `render()` below simply defers to the pre-existing `renderNearbyNav`
+  // behaviour (unchanged) while that is the case — never a guess at "far"/"out_of_area" from
+  // incomplete data.
+  let homeTracker: HomeTracker | undefined;
+  let launchDistrictIds: ReadonlySet<string> = new Set();
+  void Promise.all([
+    loadPlayAreaMask(),
+    loadLaunchAreaMask(balanceUnlocksHomeConfig.launchAreaMaskPath),
+    loadLaunchAreaDistrictIds(),
+  ]).then(([playAreaMask, launchAreaMask, excludedIds]) => {
+    homeTracker = new HomeTracker(
+      { dungeons: artifact.dungeons, sessionParams: params },
+      {
+        farDungeonThreshold_m: balanceUnlocksHomeConfig.farDungeonThreshold_m,
+        maxAccuracy_m: balanceLocationConfig.homeState.maxAccuracy_m,
+        sustainedPoorAccuracy_s: balanceLocationConfig.homeState.sustainedPoorAccuracy_s,
+        reevaluateDistance_m: balanceUnlocksHomeConfig.reevaluateDistance_m,
+        playAreaMask,
+        launchAreaMask,
+      },
+    );
+    launchDistrictIds = excludedIds;
+    render(engine.getState(), deps.now());
+  });
+
   // --- S-22/S-11 route screens (ia.md: the gear icon/inventory shortcut are reachable from every
   // state, NN-7 — never gated behind a run/consent/unlock check) ---
   // `#/settings...` also matches `speedLockOverlay`'s own `onSettings` hash; `#/inventory...` is
@@ -355,6 +482,123 @@ export function createF04App(deps: F04AppDeps): F04App {
     render(engine.getState(), deps.now());
   }
   window.addEventListener('hashchange', syncRouteScreens);
+
+  // --- P2-F06-T09: role info (S-05), interest registration (S-09), and the home-state panel
+  // itself (Flow F). `emptyScreenAcknowledged` backs `onboarding_empty_screen_abandoned`'s own
+  // "without pressing any button" clause (product/telemetry-events.md) — any of these shortcuts,
+  // or the register/navigate/consent CTAs below, counts as "not abandoned".
+  let emptyScreenAcknowledged = false;
+  const roleInfoScreen = mountRoleInfo(deps.hudContainer, () => roleInfoScreen.hide(), deps.assets);
+  const interestRegisterScreen = mountInterestRegister(deps.hudContainer, {
+    storage: deps.storage,
+    now: deps.now,
+    quotaDeps: {
+      trimTelemetryHalf: () => telemetry.trimHalf(),
+      clearTelemetryAll: () => telemetry.clear(),
+    },
+    onConfirmed: (record) => {
+      telemetry.record('interest_registered_outside_area', {
+        scope: record.scope,
+        area_name: record.areaId,
+      });
+      persistTelemetry();
+    },
+    onClose: () => interestRegisterScreen.hide(),
+  });
+  const homePanel = mountHomePanel(deps.hudContainer, {
+    assets: deps.assets,
+    utcOffsetMin: balanceOpeningHoursConfig.utcOffsetMin,
+    distanceDisplaySteps_m: balanceUnlocksHomeConfig.distanceDisplaySteps_m,
+    onOpenRoleInfo: () => {
+      emptyScreenAcknowledged = true;
+      roleInfoScreen.show();
+    },
+    onOpenInventory: () => {
+      emptyScreenAcknowledged = true;
+      window.location.hash = '#/inventory';
+    },
+    onOpenRecentRuns: () => {
+      emptyScreenAcknowledged = true;
+      const summary = engine.getState().lastSummary;
+      if (summary === null) {
+        homePanel.setRecentRunDetail(getCopyText('home.recentRunsEmpty'));
+      } else {
+        const dungeonName = getDungeonShortName(byId.get(summary.dungeonId)?.name_key ?? '');
+        const endedAt = formatOpenTime(
+          summary.endedAt_ms,
+          deps.now(),
+          balanceOpeningHoursConfig.utcOffsetMin,
+        );
+        homePanel.setRecentRunDetail(`${dungeonName} — ${endedAt}`);
+      }
+    },
+    onRegisterDistrict: () => {
+      emptyScreenAcknowledged = true;
+      const groups = groupedSelectableDistricts(launchDistrictIds).map((g) => ({
+        groupKey: g.provinceIso,
+        options: g.districts.map((d) => ({ id: d.id, label: d.name })),
+      }));
+      interestRegisterScreen.show('district', groups);
+    },
+    onRegisterProvince: () => {
+      emptyScreenAcknowledged = true;
+      const options = studyAreaProvinceOptions().map((p) => ({ id: p.id, label: p.name }));
+      interestRegisterScreen.show('province', [{ groupKey: 'all', options }]);
+    },
+    onRequestConsent: () => {
+      emptyScreenAcknowledged = true;
+      window.location.hash = '#/settings';
+    },
+  });
+
+  type EmptyScreenReason = 'far' | 'out_of_area' | 'outside_launch_district';
+  // `onboarding_empty_screen_abandoned.seconds_before_close_bucket` (product/telemetry-events.md):
+  // the enum's own literal bucket edges, not a config value (they define the enum itself).
+  const ABANDON_BUCKET_EDGE_10_S = 10;
+  const ABANDON_BUCKET_EDGE_30_S = 30;
+  const ABANDON_BUCKET_EDGE_60_S = 60;
+  function secondsBeforeCloseBucket(seconds: number): '0-10' | '10-30' | '30-60' | '60+' {
+    if (seconds <= ABANDON_BUCKET_EDGE_10_S) return '0-10';
+    if (seconds <= ABANDON_BUCKET_EDGE_30_S) return '10-30';
+    if (seconds <= ABANDON_BUCKET_EDGE_60_S) return '30-60';
+    return '60+';
+  }
+  let emptyScreenReason: EmptyScreenReason | undefined;
+  let emptyScreenShownAt_ms: number | undefined;
+  /** `onboarding_empty_screen_abandoned` (product/telemetry-events.md): "closed the app or
+   * switched away ... without pressing any button" — called both on a reason change (below) and
+   * on a real tab/app close (`visibilitychange`, further down). */
+  function abandonIfNeeded(now_ms: number): void {
+    if (emptyScreenReason === undefined || emptyScreenShownAt_ms === undefined) return;
+    if (!emptyScreenAcknowledged) {
+      telemetry.record('onboarding_empty_screen_abandoned', {
+        reason: emptyScreenReason,
+        seconds_before_close_bucket: secondsBeforeCloseBucket(
+          (now_ms - emptyScreenShownAt_ms) / MS_PER_S,
+        ),
+      });
+      persistTelemetry();
+    }
+  }
+  /** Called on every `render()` pass with the *current* reason (`undefined` = not an empty
+   * screen right now) — a no-op unless the reason actually changed since the last call. */
+  function recordEmptyScreenTransition(
+    reason: EmptyScreenReason | undefined,
+    now_ms: number,
+  ): void {
+    if (reason === emptyScreenReason) return;
+    abandonIfNeeded(now_ms);
+    emptyScreenReason = reason;
+    emptyScreenAcknowledged = false;
+    emptyScreenShownAt_ms = reason === undefined ? undefined : now_ms;
+    if (reason !== undefined) {
+      telemetry.record('onboarding_empty_screen_shown', { reason });
+      persistTelemetry();
+    }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') abandonIfNeeded(deps.now());
+  });
 
   let confirmPopupDungeonId: string | undefined;
   /** BUG-P2-003 fix: tracked separately from `confirmPopupDungeonId` so the two popup "modes"
@@ -442,7 +686,26 @@ export function createF04App(deps: F04AppDeps): F04App {
       );
     }
     if (confirmPopupDungeonId !== undefined) {
-      const preview = engine.previewCheckIn(confirmPopupDungeonId, now_ms);
+      const livePreview = engine.previewCheckIn(confirmPopupDungeonId, now_ms);
+      // D-120 table 1.3: override the status row with the real `confirm` rejection
+      // (`selectCheckInPreview` never returns `no_class`/`no_hp` itself) for exactly as long as
+      // the underlying condition still holds — checked fresh here every render, not a timeout.
+      const overrideStillActive =
+        confirmRejectOverride !== undefined &&
+        confirmRejectOverride.dungeonId === confirmPopupDungeonId &&
+        (confirmRejectOverride.reason === 'no_class'
+          ? selectPlayerView(state, now_ms, params).classId === null
+          : selectPlayerView(state, now_ms, params).hp <= 0);
+      if (confirmRejectOverride !== undefined && !overrideStillActive) {
+        confirmRejectOverride = undefined;
+      }
+      const preview: CheckInPreview = overrideStillActive
+        ? {
+            ok: false,
+            reason: (confirmRejectOverride as NonNullable<typeof confirmRejectOverride>).reason,
+            readyIn_s: null,
+          }
+        : livePreview;
       const dungeon = byId.get(confirmPopupDungeonId);
       const outOfRange =
         dungeon !== undefined &&
@@ -469,6 +732,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     if (state.run === null) {
       runBar.hide();
       hpBar.root.hidden = true;
+      runTutorialLine.hide();
       return false;
     }
     runBar.show();
@@ -573,6 +837,20 @@ export function createF04App(deps: F04AppDeps): F04App {
       if (event.type === 'dungeon_entered') {
         runBar.hideClosingSoonWarning();
         lastHitHp = undefined;
+        // F06 flow A9/E1, N-3: the single tutorial line of the whole game, every run while
+        // `!firstRewardDone` (R36/R38 — not merely "the first run ever", tech note F06 8.2).
+        if (!selectPlayerView(engine.getState(), event.at_ms, params).firstRewardDone) {
+          runTutorialLine.show();
+        }
+      } else if (event.type === 'checkin_rejected') {
+        // D-120 table 1.3 (P2-H20): `confirm` (never `selectCheckInPreview`) is the only source of
+        // `no_class`/`no_hp` — `no_class`'s main path is opening the class sheet immediately (it
+        // should already be open per R29, this is the fail-safe); `no_hp` overrides the status row
+        // until HP recovers (checked fresh every render, `renderConfirmIfNeeded`).
+        if (event.reason === 'no_class' || event.reason === 'no_hp') {
+          confirmRejectOverride = { dungeonId: event.dungeonId, reason: event.reason };
+          if (event.reason === 'no_class') classSelect.show();
+        }
       } else if (event.type === 'dungeon_closing_soon') {
         const minutes = Math.max(1, Math.ceil(event.closesIn_s / SECONDS_PER_MINUTE));
         runBar.showClosingSoonWarning(
@@ -676,6 +954,10 @@ export function createF04App(deps: F04AppDeps): F04App {
       hpBar.root.hidden = true;
       confirmPopup.hide();
       navPanel.root.hidden = true;
+      homePanel.hide();
+      introScreen.hide();
+      classSelect.hide();
+      runTutorialLine.hide();
       return;
     }
     if (state.lastSummary !== null && exitAnimationInFlight) {
@@ -687,6 +969,9 @@ export function createF04App(deps: F04AppDeps): F04App {
     speedLockOverlay.hide();
     runSummary.hide();
     if (state.lock.locked) {
+      introScreen.hide();
+      classSelect.hide();
+      runTutorialLine.hide();
       speedLockOverlay.show(state.run !== null);
       return;
     }
@@ -702,20 +987,85 @@ export function createF04App(deps: F04AppDeps): F04App {
       hpBar.root.hidden = true;
       confirmPopup.hide();
       navPanel.root.hidden = true;
+      homePanel.hide();
+      introScreen.hide();
+      classSelect.hide();
+      runTutorialLine.hide();
       runSummary.show(state.lastSummary);
       return;
     }
+    // --- P2-F06-T10: onboarding gate (acceptance order 1-2: map + opening text, then the class
+    // sheet layered on top of it) — takes over before the confirm popup/nav/home panel, but never
+    // before a route screen, the speed-lock overlay, or the run summary (checked above already).
+    // Steps other than `intro`/`class` (`permission`, `map`, `first_run`, `first_reward`, `done`)
+    // need no distinct screen of their own here: `permission` resolves itself in the background
+    // (`onboarding-flow.ts`), and `first_run`/`first_reward` are satisfied entirely by the normal
+    // run screen (N-3's tutorial line, `run.tickGrantedFirst`/`run.continueCta`, GD B-07 — no
+    // separate onboarding code path for either).
+    const onboardingStep = onboarding.currentStep(selectPlayerView(state, now_ms, params));
+    if (onboardingStep === 'intro') {
+      onboarding.markIntroShown();
+      classSelect.hide();
+      introScreen.show();
+      confirmPopup.hide();
+      navPanel.root.hidden = true;
+      homePanel.hide();
+      return;
+    }
+    introScreen.hide();
+    if (onboardingStep === 'class') {
+      onboarding.markClassSelectShown();
+      classSelect.show();
+      confirmPopup.hide();
+      navPanel.root.hidden = true;
+      homePanel.hide();
+      return;
+    }
+    classSelect.hide();
+
     const inRun = renderRun(state, now_ms);
     if (inRun) {
       confirmPopup.hide();
       navPanel.root.hidden = true;
+      homePanel.hide();
+      recordEmptyScreenTransition(undefined, now_ms);
       return;
     }
     const showingConfirm = renderConfirmIfNeeded(state, now_ms);
-    if (!showingConfirm) {
+    if (showingConfirm) {
+      navPanel.root.hidden = true;
+      homePanel.hide();
+      recordEmptyScreenTransition(undefined, now_ms);
+      return;
+    }
+    const homeState = homeTracker?.evaluate({
+      now_ms,
+      // Interim default (P2-F06-T09, no age-gate/consent screen built yet — that is P2-F06-T10's
+      // own onboarding flow): a *missing* `kw.p2.consent` key (nobody has ever answered) reads as
+      // granted, so every existing trace/e2e keeps behaving exactly as before this task. An
+      // explicit `declined`/`withdrawn` (only possible once T10's consent screen — or a direct
+      // storage seed, tech note F06 13.4's own e2e hook — writes the key) is the only way to see
+      // `unknown` from this input.
+      locationConsentGranted: locationConsentGranted(deps.storage),
+      permissionDenied: false,
+      position:
+        lastPlayer === undefined ? null : { ...lastPlayer, accuracy_m: lastAccuracy_m ?? 0 },
+      playerLevel: selectPlayerView(state, now_ms, params).level,
+      onboarding: !selectPlayerView(state, now_ms, params).firstRewardDone,
+    });
+    const emptyScreenReason =
+      homeState?.kind === 'far' ||
+      homeState?.kind === 'out_of_area' ||
+      homeState?.kind === 'outside_launch_district'
+        ? homeState.kind
+        : undefined;
+    recordEmptyScreenTransition(emptyScreenReason, now_ms);
+    if (homeState === undefined || homeState.kind === 'near') {
+      homePanel.hide();
       renderNearbyNav(state, now_ms);
     } else {
       navPanel.root.hidden = true;
+      homePanel.render(homeState, now_ms);
     }
   }
 

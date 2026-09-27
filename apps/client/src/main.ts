@@ -16,7 +16,7 @@ import {
 import { GpsStatusTracker } from './location/gps-status';
 import { selectProvider } from './location/select';
 import { createLocationProvider, wireProvider } from './location/session';
-import type { Clock, LocationProvider } from '@keep-walking/location';
+import type { LocationProvider } from '@keep-walking/location';
 import { windowNetworkStatus } from './location/network-status';
 import { mountGpsUi } from './ui/gps-ui';
 import type { createLocationLayerController, LocationLayerController } from './map/location-layer';
@@ -31,43 +31,20 @@ import { resolveReplayStartMs } from './clock/query-params';
 import { balanceOpeningHoursConfig } from './config/balance';
 import { createAssetRuntime } from './assets/runtime';
 import { injectFontFaces } from './assets/fonts';
+import { createMockOffsetClock } from './clock/mock-offset-clock';
 
 /** The four functions `loadMapModules` hands back, typed purely from `import type` (never a value
  * import — `@typescript-eslint/consistent-type-imports` forbids `import()` type annotations, and a
  * value import here would defeat the whole point of this task: pulling `maplibre-gl` back into the
  * initial static chunk). */
-/**
- * P2-F06-T08 fix: `resolveReplayStartMs`'s `start` test hook (`clock/query-params.ts`, tech note
- * F04 section 17) previously only reached `createGameClock` — the *tick* clock — never the Mock
- * provider itself. `MockTraceLocationProvider`'s own `LocationSample.timestamp` (`@keep-walking/
- * location`, its own doc comment: "Timestamp = replay start time from the Clock + t") is computed
- * from a *default* `systemClock`, i.e. the real wall-clock instant the provider's own `.start()`
- * happened to run at — completely independent of `?start=`. Every `sessionStep` dispatch this app
- * makes from a GPS sample (`f04-app.ts#onSample`, check-in, opening hours, HP hits, the movement
- * gate) uses that `timestamp` as `now_ms`, so a `?start=` scenario (a specific weekday/time to hit
- * a dungeon's opening-hours edge, closing-time behavior, or — this task's own e2e — a level range
- * that only pays off at a pinned date) never actually took effect for anything sample-driven, only
- * for the once-a-second tick/render pass — found while wiring this task's own `f06-hp.spec.ts`
- * (the confirm popup flashed `dungeon.closedTitle` almost every frame because `onSample`'s clock
- * disagreed with `onTick`'s correct one).
- *
- * Fix: give the Mock provider a `Clock` offset by a constant (`target_ms - Date.now()`, captured
- * once here) rather than a frozen one — real elapsed wall-clock time still advances normally (the
- * provider's own `setTimeout`-driven replay scheduling, and `speed`'s scaling of it, are untouched
- * by this), only the *reported* epoch shifts by that fixed amount. This is the exact same quantity
- * `createGameClock`'s Mock branch already computes (`replayStart_ms + provider.position()`) — this
- * clock is what makes `provider.position()` (and therefore every sample's own `timestamp`) agree
- * with it, rather than a second, disconnected reference. Web/Capacitor never use this (`deps.clock`
- * stays unset, falling back to the real platform clock, `location/session.ts`'s own doc comment).
- */
-function createMockOffsetClock(target_ms: number): Clock {
-  const offset_ms = target_ms - Date.now();
-  return {
-    now: () => Date.now() + offset_ms,
-    setTimeout: (callback, delayMs) => window.setTimeout(callback, delayMs),
-    clearTimeout: (handle) => window.clearTimeout(handle as ReturnType<typeof window.setTimeout>),
-  };
-}
+// P2-F06-T08 fix, R2-01 fix (P2-F06-T10): `resolveReplayStartMs`'s `start` test hook (`clock/
+// query-params.ts`, tech note F04 section 17) previously only reached `createGameClock` — the
+// *tick* clock — never the Mock provider itself, so a `?start=` scenario never took effect for
+// anything sample-driven. `createMockOffsetClock` (`clock/mock-offset-clock.ts`, its own doc
+// comment has the full history including the R2-01 lazy-offset fix) gives the Mock provider a
+// `Clock` that reports `replayStartMs` from its very first real call, the same reference point
+// `createGameClock`'s Mock branch (`replayStart_ms + provider.position()`) already uses. Web/
+// Capacitor never use this (`deps.clock` stays unset, falling back to the real platform clock).
 
 interface MapModules {
   readonly createMap: typeof createMap;
@@ -318,6 +295,10 @@ async function initLocation(
         // `speed=60` (P2-F05-T10); `createWebGameClock` is `Date.now` itself, so production (`loc=
         // web`) behavior is byte-for-byte the same as before this change.
         now: () => gameClock.now(),
+        // CLAUDE.md "Use the LocationProvider interface only": the onboarding step machine's
+        // `permission` step reads this, never `navigator.permissions` directly (`onboarding-flow.
+        // ts`'s own doc comment).
+        getLocationPermission: () => provider.getPermission(),
       });
       window.setInterval(
         () => f04App?.onTick(gameClock.now()),

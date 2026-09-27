@@ -3,8 +3,9 @@
  * C2-2..C2-4; docs/tech/F04-dungeon-presence.md section 12). Whole-file import is fine here (group
  * B, tech note F04 15.2: "`app/client.json`, `app/privacy.json`, `app/telemetry.json` ทั้งไฟล์"),
  * unlike `config/balance.ts`'s whitelist-filtered subset. This file only types the two subtrees
- * `apps/client/src/telemetry/*` actually reads (`sampling`, `timestamps`, `goldAmountBuckets` have
- * no client reader yet).
+ * `apps/client/src/telemetry/*` actually reads (`timestamps`, `goldAmountBuckets` have no client
+ * reader yet). P2-F06-T09 adds `sampling.emptyScreenAbandonTimeout_s`
+ * (`onboarding_empty_screen_abandoned`, `product/telemetry-events.md`).
  */
 import telemetryConfigJson from '../../../../config/app/telemetry.json';
 
@@ -27,9 +28,14 @@ export interface TelemetryExportConfig {
   readonly coordinateLikeNumberGuard: CoordinateLikeNumberGuardConfig;
 }
 
+export interface TelemetrySamplingConfig {
+  readonly emptyScreenAbandonTimeout_s: number;
+}
+
 export interface AppTelemetryConfig {
   readonly localSink: TelemetryLocalSinkConfig;
   readonly export: TelemetryExportConfig;
+  readonly sampling: TelemetrySamplingConfig;
 }
 
 type Json = Record<string, unknown>;
@@ -106,12 +112,23 @@ function parseExport(root: Json, path: string): TelemetryExportConfig {
   };
 }
 
+function parseSampling(root: Json, path: string): TelemetrySamplingConfig {
+  const node = obj(root['sampling'], path);
+  return {
+    emptyScreenAbandonTimeout_s: num(
+      node['emptyScreenAbandonTimeout_s'],
+      `${path}/emptyScreenAbandonTimeout_s`,
+    ),
+  };
+}
+
 /** Pure so tests can pass a fixture without touching the real JSON import. */
 export function parseAppTelemetryConfig(input: unknown): AppTelemetryConfig {
   const root = obj(input, '/');
   return {
     localSink: parseLocalSink(root, '/localSink'),
     export: parseExport(root, '/export'),
+    sampling: parseSampling(root, '/sampling'),
   };
 }
 

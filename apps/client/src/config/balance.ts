@@ -69,8 +69,29 @@ export interface DistanceDisplayStepConfig {
   readonly step_m: number;
 }
 
+/**
+ * P2-F06-T09 additions (tech note F06 section 9.1/9.2): the home-state wiring's own config, on top
+ * of `distanceDisplaySteps_m` above. `outOfAreaMaskPath`/`launchAreaMaskPath` are repo-relative
+ * paths to a `data/map/*.geojson` file (ADR 0001 3.10.6), never a config pointer to another config
+ * value — `home-geometry.ts` is the one place that turns either into real geometry.
+ * `launchAreaMaskPath` doubles as R55's own switch: `null` here means "not shipped yet", the only
+ * condition under which the far-district-interest fallback applies (D-126).
+ */
 export interface UnlocksHomeConfig {
   readonly distanceDisplaySteps_m: readonly DistanceDisplayStepConfig[];
+  readonly farDungeonThreshold_m: number;
+  readonly reevaluateDistance_m: number;
+  readonly outOfAreaMaskPath: string;
+  readonly launchAreaMaskPath: string | null;
+}
+
+/** `config/balance/dungeons.json#runState.clockSkewTolerance_s` (R2-01, tech gate P2-F05-T15/
+ * P2-F06-T10): the same tolerance `packages/shared/src/run/time.ts` uses to judge a sample/tick
+ * clock as `future`/`invalid` — read here only so `clock/mock-offset-clock.test.ts` can assert the
+ * Mock game clock and the first sample's own timestamp never disagree by more than this, without
+ * hardcoding the number a second time. */
+export interface RunStateConfig {
+  readonly clockSkewTolerance_s: number;
 }
 
 type Json = Record<string, unknown>;
@@ -208,13 +229,19 @@ export function parseOpeningHoursConfig(input: unknown): OpeningHoursConfig {
 
 /** Pure so tests can pass a fixture without touching the real JSON import. */
 export function parseUnlocksHomeConfig(input: unknown): UnlocksHomeConfig {
-  const { obj, positiveNum } = makeParsers('config/balance/unlocks.json');
+  const { obj, positiveNum, str } = makeParsers('config/balance/unlocks.json');
   const root = obj(input, '/');
   const home = obj(root['home'], '/home');
   const steps = home['distanceDisplaySteps_m'];
   if (!Array.isArray(steps) || steps.length === 0) {
     throw new Error(
       'config/balance/unlocks.json: /home/distanceDisplaySteps_m must be a non-empty array',
+    );
+  }
+  const launchAreaMaskPath = home['launchAreaMaskPath'];
+  if (launchAreaMaskPath !== null && typeof launchAreaMaskPath !== 'string') {
+    throw new Error(
+      'config/balance/unlocks.json: /home/launchAreaMaskPath must be a string or null',
     );
   }
   return {
@@ -227,7 +254,48 @@ export function parseUnlocksHomeConfig(input: unknown): UnlocksHomeConfig {
       }
       return { upTo_m, step_m: positiveNum(step['step_m'], `${path}/step_m`) };
     }),
+    farDungeonThreshold_m: positiveNum(
+      home['farDungeonThreshold_m'],
+      '/home/farDungeonThreshold_m',
+    ),
+    reevaluateDistance_m: positiveNum(home['reevaluateDistance_m'], '/home/reevaluateDistance_m'),
+    outOfAreaMaskPath: str(home['outOfAreaMaskPath'], '/home/outOfAreaMaskPath'),
+    launchAreaMaskPath,
   };
+}
+
+/** Pure so tests can pass a fixture without touching the real JSON import. */
+export function parseRunStateConfig(input: unknown): RunStateConfig {
+  const { obj, positiveNum } = makeParsers('config/balance/dungeons.json');
+  const root = obj(input, '/');
+  const runState = obj(root['runState'], '/runState');
+  return {
+    clockSkewTolerance_s: positiveNum(
+      runState['clockSkewTolerance_s'],
+      '/runState/clockSkewTolerance_s',
+    ),
+  };
+}
+
+/**
+ * `unlocks.<system>.unlockId` of every "must not be taught in the first 10 minutes" system the
+ * client is whitelisted to see (`config/whitelist.ts`'s own doc comment on the `unlocks.json`
+ * entry lists exactly which six and why `npcShop`/`classChange` are not among them) — the config
+ * side of `onboarding-step.ts#isSystemTeachLocked`'s `params.lockedSystemIds`
+ * (`config/unlocks-teach-lock.ts` wires the two together). Pure: takes the already-whitelisted
+ * `unlocks` subtree, never re-reads `config/balance/unlocks.json` itself (that file carries
+ * group-C keys this client must never import whole, ADR 0003 9.3).
+ */
+export function parseLockedSystemIds(input: unknown): readonly string[] {
+  const { obj } = makeParsers('config/balance/unlocks.json');
+  const root = obj(input, '/');
+  const ids: string[] = [];
+  for (const value of Object.values(root)) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) continue;
+    const unlockId = (value as Json)['unlockId'];
+    if (typeof unlockId === 'string') ids.push(unlockId);
+  }
+  return ids;
 }
 
 const balanceSubset = balanceSubsetJson as {
@@ -250,5 +318,9 @@ export const balanceOpeningHoursConfig: OpeningHoursConfig = parseOpeningHoursCo
   balanceSubset.dungeons,
 );
 export const balanceUnlocksHomeConfig: UnlocksHomeConfig = parseUnlocksHomeConfig(
+  balanceSubset.unlocks,
+);
+export const balanceRunStateConfig: RunStateConfig = parseRunStateConfig(balanceSubset.dungeons);
+export const balanceLockedSystemIds: readonly string[] = parseLockedSystemIds(
   balanceSubset.unlocks,
 );

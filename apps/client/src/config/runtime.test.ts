@@ -15,6 +15,7 @@ function validClient(): Record<string, unknown> {
         seed: 'seed',
         e2eClassId: 'e2eClassId',
         e2eSkipF04App: 'e2eSkipF04App',
+        e2eSkipOnboarding: 'e2eSkipOnboarding',
       },
       allowedProviders: ['web', 'mock', 'capacitor'],
       allowedMockSpeeds: [1, 10, 60],
@@ -43,6 +44,7 @@ function validClient(): Record<string, unknown> {
     bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
     vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
     toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3, hpLowHoldDurationMs: 4000 },
+    onboarding: { tutorialLineHoldDurationMs: 3000 },
   };
 }
 

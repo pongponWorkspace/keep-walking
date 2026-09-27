@@ -18,8 +18,11 @@ const MISSING_LOCAL_TILES_PATH = '/e2e-fixtures/does-not-exist.pmtiles';
 // guaranteed-missing path. These tests are about location, not tiles.
 const TILE_OVERRIDE = `e2eTilesUrl=${encodeURIComponent(MISSING_LOCAL_TILES_PATH)}&e2eGlyphsUrl=&e2eSpriteUrl=`;
 
+// `e2eSkipOnboarding=1` (D-130, P2-F06-T10): this spec is about LocationProvider <-> map wiring,
+// not onboarding — skips the intro/class-select screens so they never sit on top of the map/HUD
+// elements these tests query.
 function spikeUrl(query: string): string {
-  return `/?${query}&${TILE_OVERRIDE}`;
+  return `/?${query}&e2eSkipOnboarding=1&${TILE_OVERRIDE}`;
 }
 
 test.describe('location <-> map wiring (mock provider)', () => {

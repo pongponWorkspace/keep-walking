@@ -3,7 +3,7 @@
     "file": "config/content/names.th.json",
     "version": 1,
     "owner": "narrative-designer",
-    "task": "P1-F03-T04, P2-F04-T16 (pilot zone names, dungeon.<id>.search), P2-F05-T09 (D-107 PN-1 ออกจาก _held, D-108 PN-5, BR-2 _layer waterside, equipment.* ตาม drops.json#items), P2-X32 (district.* 79 เขต ตาม D-126)",
+    "task": "P1-F03-T04, P2-F04-T16 (pilot zone names, dungeon.<id>.search), P2-F05-T09 (D-107 PN-1 ออกจาก _held, D-108 PN-5, BR-2 _layer waterside, equipment.* ตาม drops.json#items), P2-X32 (district.* 79 เขต ตาม D-126), P2-H32 (province.* 6 จังหวัด หัวกลุ่ม S-09)",
     "doc": "design/narrative/world.md sections 5, 6, 9, 11, 11.1; design/narrative/style-guide.md section 6; design/levels/dungeon-rules.md sections 11, 12, 14; design/levels/pilot-dungeons.md; docs/tech/copy-schema.md section 1; docs/tech/F04-dungeon-presence.md 13.2, 14.3",
     "locale": "th",
     "date": "2026-09-27",
@@ -19,7 +19,8 @@
       "potion": "ยา 4 ขนาด · _configId ตรงกับ key ใน config/balance/economy.json#potions",
       "equipment": "อุปกรณ์ 1 ชื่อต่อช่อง (ทุก tier ทุก rarity ใช้ชื่อเดียวกัน ความต่างแสดงด้วยกรอบ rarity) · key ตรงกับ drops.json#items.<id>.nameKey · _slot ตรงกับ equipment.json#slots · ชื่อตามไอคอนใน art brief P2-assets 2.9 (ของที่คนกรุงเทพพกหน้าฝน) · ชื่อเฉพาะราย tier มาจากหลังบ้านภายหลังโดยไม่เปลี่ยน key",
       "boss": "บอส raid ตัวอย่าง · ชื่อรายสัปดาห์จริงมาจากหลังบ้าน",
-      "district": "P2-X32 (D-126, P2-H20 2.5, balance-model 21.2) ชื่อแสดงผลของเขต/อำเภอ 79 แห่งของ study area · field name · id หลังจุด = id ใน data/map/launch-area.geojson และไฟล์รายการเขต P2-H26 (camelCase จาก osmNameEn) · _osmRelationId ใช้ตรวจการ join · _provinceIso ใช้จัดกลุ่มเพื่อคนอ่านเท่านั้น (client จัดกลุ่มจากไฟล์ข้อมูล) · รายการที่ S-09 แสดง derive จากข้อมูล (study area ลบ launch-area = 76) ไม่ใช่จากไฟล์นี้ จึงมีชื่อของ 3 เขตเปิดตัวด้วยเผื่อ D-083 เปลี่ยน · ตัดคำนำหน้า เขต/อำเภอ · ชื่อ เมือง... คงชื่อจังหวัด · ชื่อจริงไม่ดัดแปลง ไม่มีคำขยาย ไม่เล่นคำ · ชื่อที่มีรากศาสนา (พระนคร พระโขนง พระประแดง พระสมุทรเจดีย์ พุทธมณฑล) ใช้ตาม H-04 A / D-108 · ไม่เกิน copy.th.json#_variables.areaName.maxCells (17)"
+      "district": "P2-X32 (D-126, P2-H20 2.5, balance-model 21.2) ชื่อแสดงผลของเขต/อำเภอ 79 แห่งของ study area · field name · id หลังจุด = id ใน data/map/launch-area.geojson และไฟล์รายการเขต P2-H26 (camelCase จาก osmNameEn) · _osmRelationId ใช้ตรวจการ join · _provinceIso ใช้จัดกลุ่มเพื่อคนอ่านเท่านั้น (client จัดกลุ่มจากไฟล์ข้อมูล) · รายการที่ S-09 แสดง derive จากข้อมูล (study area ลบ launch-area = 76) ไม่ใช่จากไฟล์นี้ จึงมีชื่อของ 3 เขตเปิดตัวด้วยเผื่อ D-083 เปลี่ยน · ตัดคำนำหน้า เขต/อำเภอ · ชื่อ เมือง... คงชื่อจังหวัด · ชื่อจริงไม่ดัดแปลง ไม่มีคำขยาย ไม่เล่นคำ · ชื่อที่มีรากศาสนา (พระนคร พระโขนง พระประแดง พระสมุทรเจดีย์ พุทธมณฑล) ใช้ตาม H-04 A / D-108 · ไม่เกิน copy.th.json#_variables.areaName.maxCells (17)",
+      "province": "P2-H32 ชื่อแสดงผลจังหวัด 6 แห่งของ study area ใช้เป็นหัวกลุ่มของรายการ S-09 รายเขต · field name · id หลังจุด = รหัส ISO 3166-2 ตัวพิมพ์เล็กไม่มีขีด (TH-10 → th10) เพราะ key regex ไม่รับตัวพิมพ์ใหญ่และขีด · _provinceIso = ค่า ISO เต็มสำหรับ join กับ district.*._provinceIso และไฟล์รายการเขต P2-H26 · ไม่เกิน copy.th.json#_variables.provinceName.maxCells (14) · กรุงเทพฯ ใช้ชื่อเต็ม กรุงเทพมหานคร เพราะ onboarding.intro (canon GDD) พิมพ์ กรุงเทพฯ ตรงในข้อความ ถ้าชื่อนี้เป็น กรุงเทพฯ lint S13 จะตีตก key canon"
     },
     "displayFormat": "{nameReal} — {nameSuffix} (ช่องว่าง + U+2014 + ช่องว่าง = 3 ช่อง) · พื้นที่ไม่พอให้แสดง nameReal อย่างเดียว",
     "dungeonFieldMapping": "names.th.json ใช้ camelCase ตาม convention ของ config (ADR 0001 3.10): nameReal = ชื่อจริงที่แสดง (ผ่านการตรวจความอ่อนไหวแล้ว อาจสั้นกว่า OSM เช่น สวนลุมพินี → ลุมพินี) · nameSuffix = คำขยาย · ต่างจาก name_real ใน data/dungeons ซึ่งเป็นชื่อ OSM ดิบใช้ใน pipeline เท่านั้น · name_key ใน data/dungeons = key dungeon.<id> ของไฟล์นี้",
@@ -239,5 +240,12 @@
   "district.samPhran": { "name": "สามพราน", "cells": 7, "_osmRelationId": 18931634, "_provinceIso": "TH-73" },
   "district.banPhaeo": { "name": "บ้านแพ้ว", "cells": 6, "_osmRelationId": 18931677, "_provinceIso": "TH-74" },
   "district.krathumBaen": { "name": "กระทุ่มแบน", "cells": 8, "_osmRelationId": 18934962, "_provinceIso": "TH-74" },
-  "district.mueangSamutSakhon": { "name": "เมืองสมุทรสาคร", "cells": 12, "_osmRelationId": 18935071, "_provinceIso": "TH-74" }
+  "district.mueangSamutSakhon": { "name": "เมืองสมุทรสาคร", "cells": 12, "_osmRelationId": 18935071, "_provinceIso": "TH-74" },
+
+  "province.th10": { "name": "กรุงเทพมหานคร", "cells": 12, "_provinceIso": "TH-10", "_note": "ไม่ใช้ กรุงเทพฯ เพราะชนกับ onboarding.intro ใน lint S13 (ดู _meta.groups.province)" },
+  "province.th11": { "name": "สมุทรปราการ", "cells": 10, "_provinceIso": "TH-11" },
+  "province.th12": { "name": "นนทบุรี", "cells": 5, "_provinceIso": "TH-12" },
+  "province.th13": { "name": "ปทุมธานี", "cells": 6, "_provinceIso": "TH-13" },
+  "province.th73": { "name": "นครปฐม", "cells": 6, "_provinceIso": "TH-73" },
+  "province.th74": { "name": "สมุทรสาคร", "cells": 8, "_provinceIso": "TH-74" }
 }

@@ -22,12 +22,25 @@ describe('createF04App', () => {
       isOnline: () => true,
       userAgent: 'Mozilla/5.0 (Linux; Android 14)',
       maxTouchPoints: 5,
-      assets: { getManifest: () => undefined, basePath: '/kw/', scale: 1, isProduction: false },
+      assets: {
+        getManifest: () => undefined,
+        basePath: '/kw/',
+        scale: 1,
+        isProduction: false,
+        load: () => Promise.resolve(),
+        getAvatarPart: () => undefined,
+        loadAvatarPart: () => Promise.resolve(),
+      },
       copyToClipboard: async () => true,
       playAudioUrl: () => undefined,
       now: () => Date.now(),
-      locationSearch: '',
-      isMockProvider: false,
+      // D-130: this file's own tests predate onboarding (P2-F06-T10) and exercise the confirm/run/
+      // telemetry loop directly, the same way the pre-existing e2e specs do — `e2eSkipOnboarding`
+      // (Mock-only) keeps every one of them booting straight past the intro/class-select screens,
+      // exactly like before this task. `onboarding-flow.test.ts` covers the step machine itself.
+      locationSearch: '?e2eSkipOnboarding=1',
+      isMockProvider: true,
+      getLocationPermission: () => Promise.resolve('granted'),
     });
   }
 

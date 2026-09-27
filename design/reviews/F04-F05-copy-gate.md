@@ -85,3 +85,52 @@
 | narrative-designer | เพิ่ม key ของ C-06 ใน `copy.th.json` (ต้องมี writes) | yes (F04) |
 | uiux-designer | ยืนยัน C-10 ใน flow F04 หัวข้อ 7 · ตรวจแผง A2 ที่ไม่มีชื่อปลายทาง · F05-N1 | no |
 | qa-tester | e2e ตรวจว่าไม่มีข้อความรูป `dungeon.` หรือ `{` บนจอ S-02, S-03, แผงนำทาง (จับ C-01, C-02, C-05, C-06 ได้ในทีเดียว) | no |
+
+---
+
+## รอบ 2 (หลัง P2-X36 copy + P2-X37 client) · 2026-09-27
+
+ขอบเขต: ตรวจเฉพาะ C-01 ถึง C-12, F05-N1 และแผง A2 เทียบกับการแก้ของ gameplay-programmer ใน P2-X37 · อ่านโค้ดตาม file:line ที่ orchestrator ส่งมา (ทุก path อยู่ใต้ `apps/client/src/`) · lint ยังไม่ได้รันในรอบนี้ (orchestrator รันเมื่อขอ)
+
+### คำตัดสินรอบ 2
+
+| Feature | verdict | เหตุผลสั้น |
+| --- | --- | --- |
+| F04 | **PASS** | C-01 ถึง C-12 แก้ครบตามที่ขอ ไม่เหลือทางที่ key ดิบ, `{ตัวแปร}` ดิบ, เลข epoch หรือหน่วย `m` จะขึ้นจอ · เหลือข้อสังเกต minor 2 ข้อ ไม่ blocking |
+| F05 | **PASS** | F05-N1 แก้แล้ว ไม่มีอะไรเปลี่ยนจากรอบ 1 ที่ทำให้ผลกลับ |
+
+### ผลรายข้อ
+
+| # | ผล | หลักฐาน |
+| --- | --- | --- |
+| C-01 | แก้แล้ว | `copy/names.ts:49` `getDungeonFullName` = `{nameReal} — {nameSuffix}` ตาม `names.th.json#_meta.displayFormat` · `:59` `getDungeonShortName` = `nameReal` · `ui/dungeon-confirm.ts:100` หัว popup ใช้ชื่อเต็ม (ไม่เกิน 34 ช่อง `zoneName`) · `:117` การ์ดซ้อนและ `dungeons/artifact.ts:86` ป้ายแผนที่ใช้ชื่อสั้น (ไม่เกิน 17 ช่อง `zoneRealName`) |
+| C-02 | แก้แล้ว | `ui/nav-panel.ts:242` อ่าน `dungeon.<id>.search` ผ่าน `getItemName` (field `name` ของ `names.th.json`) ทั้งค่าที่แสดงและค่าที่คัดลอก · artifact มี `search_name_key` 13 แห่ง ทุก key มีใน `names.th.json` |
+| C-03 | แก้แล้ว | `dungeons/distance.ts:43` `formatDistanceText`: ต่ำกว่า 1,000 ม. ใช้ `unit.m` ตั้งแต่ 1,000 ม. ใช้ `unit.km` ทศนิยม 1 ตำแหน่ง ตาม `copy-rules.json#formats` · ยังปัดขึ้นผ่าน `displayDistance` (R34) · `f04-app.ts:531` ไม่มี literal `'m'` แล้ว |
+| C-04 | แก้แล้ว | `dungeons/open-time.ts:55` `formatOpenTime` ใช้ `unit.today` / `unit.tomorrow` / `unit.onWeekday` + HH:mm ที่ offset กรุงเทพฯ จาก config · ตรวจวันในสัปดาห์: 1970-01-01 เป็นวันพฤหัส = index 4 ของตาราง อาทิตย์ก่อน ถูก · ยาวสุด `วันพฤหัสบดี 05:00` 14 ช่อง = `openTime.maxCells` · `f04-app.ts:411,541` ส่ง `undefined` เมื่อไม่มีเวลาเปิด → `dungeon.closedEmergencyBody` |
+| C-05 | แก้แล้ว (ดู R2-N1) | `f04-app.ts:476-483` เติม `{timeLeft}` ของ `run.stateSuspended` จาก `selectRunView().suspendedRemaining_s` · `:488-493` `run.tickTimer` ได้ค่าเฉพาะ Active, Grace/Suspended ใช้ `run.tickPausedLabel` |
+| C-06 | แก้แล้ว | `ui/checkin-status.ts:59-67` `readyIn_s === null` → `dungeon.checkinNotEnoughTraceWaiting` (P2-X36 ไม่มีตัวแปร 19 ช่อง) · มีตัวเลขแล้วกลับไปใช้ `dungeon.checkinNotEnoughTrace` พร้อม mm:ss |
+| C-07 | แก้แล้ว | `ui/nav-panel.ts:89` ใช้ `nav.copyPlaceLink` · `nav.fallbackOtherApp` ไม่ถูกใช้ ตรงกับ context ที่สงวนไว้ให้ลิงก์ iOS |
+| C-08 | แก้แล้ว | `ui/nav-panel.ts:113-114` `nav.fallbackBody` ใต้หัวแผงทุกสถานะ · `:166-170` clipboard ใช้ไม่ได้ แสดง `nav.fallbackManualCopy` คู่ช่อง input |
+| C-09 | แก้แล้ว | `f04-app.ts:527-529` `approximate` = accuracy ล่าสุดเกิน `homeState.maxAccuracy_m` (เกณฑ์เดียวกับ `gps.lowAccuracy`) → `nav.distanceApprox` |
+| C-10 | แก้แล้ว | `ui/run-state-view.ts:56` body เฉพาะ `timeout` → `run.summary.timeoutBody`, `clock_invalid` → `run.summary.clockInvalidBody` (uiux P2-H27) · `ui/run-summary.ts:111` แสดงใต้หัวข้อ ไม่ใช่ canon · `dungeon_closed` ไม่มี body เพราะหัวข้อบอกของครบแล้ว · `emergency_close` ไม่มี body จนถึง Phase 5 ยอมรับ |
+| C-11 | แก้แล้ว | `f04-app.ts:450-463` `{timeLeft}` จาก `selectOpening().closingSoon` + `changesAt_ms` จัดรูปด้วย `unit.minutes` ขั้นต่ำ 1 นาที · `ui/dungeon-confirm.ts:148-156` แสดง `dungeon.closingSoonTag` โดยไม่ขึ้นกับผล check-in ไม่บล็อกการเข้า |
+| C-12 | แก้แล้ว | `f04-app.ts:585-590` เรียกเมื่อ `run_state_changed` cause `returned` → `active` เท่านั้น · `ui/tick-toast.ts:218` toast จาง `run.stateResumed` ไม่มีเสียง |
+| F05-N1 | แก้แล้ว | `ui/tick-toast.ts:126-149` (บรรทัดจริง 137-145) `run.tickGrantedFirst` และ `run.continueCta` เป็นสอง element แยกบรรทัด ไม่ต่อด้วยช่องว่างแล้ว |
+| A2 | แก้แล้ว | `ui/nav-panel.ts:54-56` บรรทัดชื่อปลายทาง ซ่อนเป็นค่าเริ่ม · `:251-252` ใช้ชื่อสั้น และซ่อนทั้งบรรทัดเมื่อหาชื่อไม่เจอ (`copy/names.ts:66` `isResolvedDungeonName`) ไม่แสดง key ดิบ |
+
+key ใหม่ที่โค้ดเรียกในรอบนี้มีใน `copy.th.json` ครบ: `nav.copyPlaceLink`, `nav.fallbackBody`, `nav.fallbackManualCopy`, `dungeon.closingSoonTag`, `dungeon.checkinNotEnoughTraceWaiting`, `unit.m`, `unit.km`, `unit.today`, `unit.tomorrow`, `unit.onWeekday`, `weekday.*`, `run.summary.timeoutBody`, `run.summary.clockInvalidBody`, `run.stateResumed` · กฎ copy 6 ข้อไม่เปลี่ยนจากรอบ 1 เพราะไม่มีข้อความใหม่นอกจาก P2-X36 ซึ่งผ่านแล้ว
+
+### ข้อสังเกตรอบ 2 (minor ไม่ blocking)
+
+| # | key | ไฟล์ | ข้อสังเกต | owner |
+| --- | --- | --- | --- | --- |
+| R2-N1 | `_variables.timeLeft` (`run.tickTimer`, `run.stateSuspended`) | `f04-app.ts:481,491` (`formatCountdown` mm:ss) · `config/content/copy.th.json#_variables.timeLeft` | client แสดงเป็น mm:ss (5 ช่อง ไม่เกิน `maxCells` 8) ขณะที่ registry เขียนว่า format ด้วย `unit.*` ตัวอย่าง `12 นาที` · สำหรับตัวนับถอยหลังที่เดินทุกวินาที mm:ss อ่านง่ายกว่า จึงยอมรับฝั่ง client และแก้ note ของ registry ให้ตรง (countdown สด = mm:ss · ข้อความเตือนครั้งเดียว เช่น `run.closingSoonWarning` = `unit.minutes`) | narrative-designer (ต้องมี writes `copy.th.json`) |
+| R2-N2 | ไม่มี | `copy/names.ts:1-9` | comment หัวไฟล์ยังบอกว่า `dungeon.*` อ่านผ่าน `copy/load.ts` ซึ่งไม่จริงแล้วหลัง C-01 · เป็น comment เท่านั้น ไม่กระทบจอ | gameplay-programmer |
+
+### ส่งต่อรอบ 2
+
+| to | need | blocking |
+| --- | --- | --- |
+| orchestrator | รัน copy lint + config lint ยืนยันรอบ 2 · ให้ writes `copy.th.json` กับ narrative-designer ถ้าจะปิด R2-N1 | no |
+| gameplay-programmer | R2-N2 แก้ comment เมื่อแตะไฟล์ครั้งถัดไป | no |
+| qa-tester | e2e เดิมจากรอบ 1 (ไม่มี `dungeon.` หรือ `{` บนจอ) ยังควรทำ เพื่อจับการถอยหลังในอนาคต | no |

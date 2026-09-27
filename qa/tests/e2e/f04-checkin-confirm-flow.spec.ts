@@ -78,7 +78,15 @@ test.describe('F04 confirm popup — Cancel available in every check-in state (C
     page,
   }) => {
     test.setTimeout(120_000);
-    await page.goto(spikeUrl('loc=mock&trace=qa-e2e-leelawadee-checkin-01&speed=10'));
+    // `e2eClassId=tanker` (same hook `full-run.spec.ts`/`f04-origin-allowlist.spec.ts` already
+    // use): F06-T10's real class-picker screen does not exist yet, so `player.classId` stays
+    // `null` without it and the reducer's own fail-closed `no_class` guard
+    // (`packages/shared/src/session/reducer.ts` `handleConfirm`) rejects every `confirm` before it
+    // ever reaches `Active` — this test found that gap the hard way (QA fix, not a product bug:
+    // every other e2e spec that needs a real run already carries this hook).
+    await page.goto(
+      spikeUrl('loc=mock&trace=qa-e2e-leelawadee-checkin-01&speed=10&e2eClassId=tanker'),
+    );
     const popup = confirmPopup(page);
     const enterButton = popup.locator('button.btn-primary');
     await expect(enterButton).toBeEnabled({ timeout: 30_000 });
@@ -95,7 +103,11 @@ test.describe('F04 confirm popup — Cancel available in every check-in state (C
     await expect(pill).toHaveText(copyText('run.stateActiveLabel'), { timeout: 60_000 });
 
     // Clean up: exit the run through the real exit button + confirm, same as a player would.
+    // Scoped to `.run-bar` (same fix `f04-origin-allowlist.spec.ts` already applied): a bare
+    // `button.btn-danger-confirm` is a Playwright strict-mode violation once
+    // `ui/settings-walking-safety.ts`'s always-mounted (hidden) auto-retreat-off confirm button
+    // reuses the same class.
     await page.locator('.run-exit-button').click();
-    await page.locator('button.btn-danger-confirm').click();
+    await page.locator('.run-bar button.btn-danger-confirm').click();
   });
 });

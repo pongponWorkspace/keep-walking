@@ -2,13 +2,17 @@ import { describe, expect, it } from 'vitest';
 import {
   balanceCheckInConfig,
   balanceLocationConfig,
+  balanceLockedSystemIds,
   balanceMovementGateConfig,
   balanceOpeningHoursConfig,
+  balanceRunStateConfig,
   balanceUnlocksHomeConfig,
   parseBalanceLocationConfig,
   parseCheckInConfig,
+  parseLockedSystemIds,
   parseMovementGateConfig,
   parseOpeningHoursConfig,
+  parseRunStateConfig,
   parseUnlocksHomeConfig,
 } from './balance';
 
@@ -123,16 +127,24 @@ describe('parseOpeningHoursConfig', () => {
   });
 });
 
-describe('parseUnlocksHomeConfig (TG-07)', () => {
+/** P2-F06-T09: every field `parseUnlocksHomeConfig` requires beyond `distanceDisplaySteps_m`,
+ * spread into a fixture so each `it` below only overrides the one field it means to break. */
+function validHomeFields(): Record<string, unknown> {
+  return {
+    distanceDisplaySteps_m: [
+      { step_m: 50, upTo_m: 1000 },
+      { step_m: 1000, upTo_m: null },
+    ],
+    farDungeonThreshold_m: 1900,
+    reevaluateDistance_m: 200,
+    outOfAreaMaskPath: 'data/map/playarea-mask.geojson',
+    launchAreaMaskPath: 'data/map/launch-area.geojson',
+  };
+}
+
+describe('parseUnlocksHomeConfig (TG-07, P2-F06-T09)', () => {
   it('parses a well-formed distanceDisplaySteps_m array', () => {
-    const parsed = parseUnlocksHomeConfig({
-      home: {
-        distanceDisplaySteps_m: [
-          { step_m: 50, upTo_m: 1000 },
-          { step_m: 1000, upTo_m: null },
-        ],
-      },
-    });
+    const parsed = parseUnlocksHomeConfig({ home: validHomeFields() });
     expect(parsed.distanceDisplaySteps_m).toEqual([
       { step_m: 50, upTo_m: 1000 },
       { step_m: 1000, upTo_m: null },
@@ -144,9 +156,58 @@ describe('parseUnlocksHomeConfig (TG-07)', () => {
   });
 
   it('fails loudly when a step_m is not a positive number', () => {
-    expect(() =>
-      parseUnlocksHomeConfig({ home: { distanceDisplaySteps_m: [{ step_m: 0, upTo_m: null }] } }),
-    ).toThrow(/step_m/);
+    const home = { ...validHomeFields(), distanceDisplaySteps_m: [{ step_m: 0, upTo_m: null }] };
+    expect(() => parseUnlocksHomeConfig({ home })).toThrow(/step_m/);
+  });
+
+  it('parses farDungeonThreshold_m/reevaluateDistance_m/outOfAreaMaskPath', () => {
+    const parsed = parseUnlocksHomeConfig({ home: validHomeFields() });
+    expect(parsed.farDungeonThreshold_m).toBe(1900);
+    expect(parsed.reevaluateDistance_m).toBe(200);
+    expect(parsed.outOfAreaMaskPath).toBe('data/map/playarea-mask.geojson');
+  });
+
+  it('fails loudly when farDungeonThreshold_m is not a positive number', () => {
+    const home = { ...validHomeFields(), farDungeonThreshold_m: 0 };
+    expect(() => parseUnlocksHomeConfig({ home })).toThrow(/farDungeonThreshold_m/);
+  });
+
+  it('accepts launchAreaMaskPath: null (R55: geometry not shipped yet)', () => {
+    const home = { ...validHomeFields(), launchAreaMaskPath: null };
+    expect(parseUnlocksHomeConfig({ home }).launchAreaMaskPath).toBeNull();
+  });
+
+  it('fails loudly when launchAreaMaskPath is neither a string nor null', () => {
+    const home = { ...validHomeFields(), launchAreaMaskPath: 42 };
+    expect(() => parseUnlocksHomeConfig({ home })).toThrow(/launchAreaMaskPath/);
+  });
+});
+
+describe('parseRunStateConfig', () => {
+  it('parses a well-formed config', () => {
+    expect(parseRunStateConfig({ runState: { clockSkewTolerance_s: 5 } })).toEqual({
+      clockSkewTolerance_s: 5,
+    });
+  });
+
+  it('fails loudly when the value is missing', () => {
+    expect(() => parseRunStateConfig({ runState: {} })).toThrow(/clockSkewTolerance_s/);
+  });
+});
+
+describe('parseLockedSystemIds', () => {
+  it('collects every unlockId of every object entry, ignoring non-object values', () => {
+    const ids = parseLockedSystemIds({
+      market: { unlockId: 'U1' },
+      enhance: { unlockId: 'U2' },
+      parentalConsent: { enabled: false },
+      _meta: { file: 'unlocks.json' },
+    });
+    expect(ids).toEqual(['U1', 'U2']);
+  });
+
+  it('fails loudly on a non-object root', () => {
+    expect(() => parseLockedSystemIds(undefined)).toThrow(/must be an object/);
   });
 });
 
@@ -164,5 +225,15 @@ describe('the real committed config files (via the generated whitelist subset)',
     // TG-07: the client's displayed distance steps come from this same balance subset, never a
     // second hardcoded copy in f04-app.ts.
     expect(balanceUnlocksHomeConfig.distanceDisplaySteps_m.length).toBeGreaterThan(0);
+    // P2-F06-T09: home-state wiring reads these straight from the same generated subset.
+    expect(balanceUnlocksHomeConfig.farDungeonThreshold_m).toBe(1900);
+    expect(balanceUnlocksHomeConfig.reevaluateDistance_m).toBe(200);
+    expect(balanceUnlocksHomeConfig.outOfAreaMaskPath).toBe('data/map/playarea-mask.geojson');
+    expect(balanceUnlocksHomeConfig.launchAreaMaskPath).toBe('data/map/launch-area.geojson');
+    // R2-01 (tech gate P2-F05-T15, P2-F06-T10): the same tolerance the clock-skew test uses.
+    expect(balanceRunStateConfig.clockSkewTolerance_s).toBe(5);
+    // U1 (market), U2 (enhance), U3 (raid), U4 (statAllocation), U6 (partyDetail), U7
+    // (antiCheatHelp), U8 (lore) — U5 (classChange) is a documented gap, see whitelist.ts.
+    expect([...balanceLockedSystemIds].sort()).toEqual(['U1', 'U2', 'U3', 'U4', 'U6', 'U7', 'U8']);
   });
 });

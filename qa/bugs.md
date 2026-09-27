@@ -14,6 +14,8 @@
 
 **สถานะรวม (P2-H31, 2026-09-27):** BUG-P2-003 ปิดแล้ว (**CLOSED**, ยืนยันอิสระผ่าน build+Playwright จริง 5/5 tests เขียวทั้ง android-chrome/ios-safari) หลัง gameplay-programmer แก้ใน P2-F06-T08 — ไม่มี bug OPEN ใหม่จากงานนี้ (พบ finding เล็กเรื่อง `[hidden]` กับ CSS specificity ของ `.btn` แต่ไม่กระทบผู้เล่นจริง จึงบันทึกไว้ในหมายเหตุของ BUG-P2-003 แทนการเปิด bug ใหม่)
 
+**สถานะรวม (P2-F05-T16, 2026-09-27, QA gate F04+F05):** BUG-P2-005 ปิดแล้ว (**CLOSED**, ดูหลักฐานในรายการด้านล่าง — `qa/tests/F02/privacy-copy.test.ts` เขียว 233/233) · BUG-P2-002 ยังเป็น "FIXED, regression flip pending" เหมือนเดิม รอ P2-H30 (human) พลิก `it.fails` ที่ `qa/tests/F04/session-checkin-lifecycle.test.ts:44` — ไม่ใช่เหตุ NEEDS_CHANGES ตาม brief ของงานนี้ · BUG-P2-003 ยังปิดอยู่ · ไม่มี bug severity high ขึ้นไปที่ OPEN เหลืออยู่ในไฟล์นี้ · พบและแก้เองในไฟล์ทดสอบที่ QA เป็นเจ้าของ (ไม่ใช่ product bug จึงไม่เปิดรายการใหม่): `qa/tests/e2e/f04-checkin-confirm-flow.spec.ts`'s third case ("confirm -> Enter -> run bar Active ...") ขาด test hook `e2eClassId=tanker` ทำให้ `confirm` ถูก `no_class` ปฏิเสธเสมอตาม `packages/shared/src/session/reducer.ts`'s fail-closed guard (F06-T10's class-picker ยังไม่มี) และมี selector `button.btn-danger-confirm` ที่ไม่ unique อีกจุดหนึ่ง (ชนกับ `ui/settings-walking-safety.ts`) — แก้ทั้งสองจุดให้ตรงกับ convention ของ spec พี่น้องไฟล์อื่นแล้ว ยืนยันเขียว 3/3 ทั้ง android-chrome/ios-safari · ดูรายละเอียดใน `qa/reports/F04-F05-qa-gate.md`
+
 ---
 
 ## BUG-P1-H06
@@ -300,9 +302,18 @@
 - owner: gameplay-programmer (the three test files above — assert against
   `copy.th.json`'s key/value or a `t(key)` lookup instead of a literal Thai string, same pattern
   the other, passing, `apps/client/src/ui/*.test.ts` files already use)
-- status: **OPEN**
+- status: **CLOSED** (P2-F05-T16, 2026-09-27)
 - regression test: already exists and is red —
   `qa/tests/F02/privacy-copy.test.ts` `TC-COPY-01`, 3 of 161 files failing
 - not blocking: severity medium, does not block a QA-gate PASS for F05 on its own (out of this
   feature's scope) — but it does keep root `pnpm test` red, so it is called out explicitly in this
   task's REPORT rather than silently left for the next full-suite run to rediscover
+- closed_by: independent re-check for the F04+F05 QA gate (P2-F05-T16) — `pnpm exec vitest run
+  qa/tests/F02/privacy-copy.test.ts` now passes 233/233 (was 3 of 161 files failing), and a direct
+  grep for each of the four literal Thai strings quoted above across
+  `apps/client/src/ui/inventory-screen.test.ts`, `settings-walking-safety.test.ts` and
+  `tick-toast.test.ts` finds none of them — the three files now assert against the real
+  `copy.th.json` key/value the way the rest of `apps/client/src/ui/*.test.ts` already did. Full
+  root `pnpm test` at this task's own commit: 181/182 files, 2687/2690 tests passed, 2 skipped, the
+  one remaining failure being the declared, unrelated `it.fails` for BUG-P2-002 (P2-H30, pending
+  human flip)

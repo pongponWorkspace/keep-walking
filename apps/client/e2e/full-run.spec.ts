@@ -11,10 +11,13 @@
 // `dungeons.movementGate`, not from a second, hand-maintained implementation of the reward
 // formulas (CLAUDE.md: no game math on the client, and that includes the test for it).
 //
-// `?e2eClassId=tanker` (`clock/query-params.ts`): F06-T10's real class-picker screen does not
-// exist yet, so this is the only way today to get `player.classId` off `null` (otherwise every
-// `confirm` is rejected `no_class` and no run ever starts) — the same `chooseClass` input a real
-// tap would send (`session/engine.ts`'s own doc comment on `testForceClassId`).
+// `?e2eClassId=tanker` (`clock/query-params.ts`): the real class-picker screen (P2-F06-T10) still
+// requires a tap through onboarding, so this remains the fastest way today to get `player.classId`
+// off `null` (otherwise every `confirm` is rejected `no_class` and no run ever starts) — the same
+// `chooseClass` input a real tap would send (`session/engine.ts`'s own doc comment on
+// `testForceClassId`). `e2eSkipOnboarding=1` (D-130, P2-F06-T10) skips the intro/class-select
+// screens themselves, which this spec does not test (`onboarding-flow.test.ts` and a dedicated
+// onboarding e2e spec, qa-tester's own task, cover those).
 import { expect, test } from '@playwright/test';
 
 // `seed=1` (ADR 0003 section 6, `loc=mock`-only test hook): pins the RNG so the granted tick's
@@ -22,7 +25,7 @@ import { expect, test } from '@playwright/test';
 // tick (the timing-only prediction below never depends on the seed); `seed=1` additionally always
 // rolls at least one common item on that tick, so the loot-list assertion is deterministic too.
 const FIXTURE_URL =
-  '/?loc=mock&trace=e2e-full-run-01&speed=60&loop=0&hud=0&e2eClassId=tanker&seed=1';
+  '/?loc=mock&trace=e2e-full-run-01&speed=60&loop=0&hud=0&e2eClassId=tanker&seed=1&e2eSkipOnboarding=1';
 
 // The fixture's own reward math (config, not re-derived here):
 // dungeons.rewardTick.rewardTickInterval_s = 300, dungeons.movementGate.minDistancePerWindow_m =

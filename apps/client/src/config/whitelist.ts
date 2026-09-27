@@ -114,7 +114,31 @@ export const BALANCE_WHITELIST: readonly WhitelistEntry[] = [
   {
     file: 'unlocks.json',
     namespace: 'unlocks',
-    topLevelKeys: ['home', 'antiCheatHelp', 'parentalConsent'],
+    // P2-F06-T10 adds the six "must not be taught in the first 10 minutes" systems the client can
+    // safely see the *gate* of (unlockId/minLevel/minCompletedRuns, no formula, no price) so
+    // `config/unlocks-teach-lock.ts` can build `lockedSystemIds` for `onboarding-step.ts#
+    // isSystemTeachLocked` from config instead of a hardcoded list (CLAUDE.md "every name comes
+    // from config"). `npcShop` is deliberately left out (unlocks.json's own `_note`: the NPC shop
+    // is not on the GDD "do not teach" list — potions must stay reachable early). `classChange`
+    // (U5) is also left out even though it is one of the eight U-ids: its bare key name collides
+    // with the *forbidden* `classes.json#classChange` (a real group-C gold-cost table) in
+    // `FORBIDDEN_ANYWHERE` below, which checks for the literal string `"classChange"` anywhere in
+    // the generated output regardless of file/path. Including it here would trip that guard even
+    // though `unlocks.classChange`'s own content (unlockId/minLevel/minCompletedRuns) is harmless.
+    // No Phase 2 client screen exists for class-change yet, so this is a real but currently
+    // inconsequential gap — flagged as a handoff to tech-lead (scope `FORBIDDEN_ANYWHERE` by
+    // file+path, or rename one of the two colliding keys) rather than silently worked around.
+    topLevelKeys: [
+      'home',
+      'antiCheatHelp',
+      'parentalConsent',
+      'market',
+      'enhance',
+      'raid',
+      'statAllocation',
+      'partyDetail',
+      'lore',
+    ],
   },
   { file: 'privacy.json', namespace: 'privacy', topLevelKeys: ['minAge_yr', 'minAgeComparison'] },
 ];

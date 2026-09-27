@@ -161,3 +161,62 @@
 | ทั้งสอง | TG-02, TG-14 | `pnpm lint` exit 0 · `pnpm typecheck`, `pnpm test`, `pnpm build` exit 0 |
 
 ข้อที่ไม่ blocking (TG-08..TG-13) ไม่ต้องปิดก่อนรอบ 2 · TG-08 ปิดใน P2-F06-T08 · TG-11 เป็น decision สำหรับ Phase 3 · TG-12 เป็นงานเอกสารของ tech-lead
+
+---
+
+## 9. รอบ 2 (2026-09-27, commit `b8dc5fc`)
+
+| หัวข้อ | ค่า |
+| --- | --- |
+| ขอบเขต | ตรวจเฉพาะ finding ของรอบ 1 (TG-01..TG-07, TG-14) + `createMockOffsetClock` ใน `apps/client/src/main.ts` (F06-T08) + `config/app/client.json#requestOrigins` (C2-1) |
+| ฐานที่ตรวจ | working tree หลักที่ `b8dc5fc` · มีแค่ `studio/phases/phase-2/board.md` ที่ยังไม่ commit (ไม่อยู่ในขอบเขต) |
+| **verdict F04** | **PASS** (มีเงื่อนไขหลังผ่าน 1 ข้อ: P2-H30 ต้องพลิก `it.fails` ให้ `pnpm test` exit 0 · ไม่ต้องรัน gate ซ้ำ) |
+| **verdict F05** | **PASS** |
+| **verdict รวม** | **PASS** |
+
+### 9.1 หลักฐานที่รัน
+
+| คำสั่ง | ผล |
+| --- | --- |
+| `pnpm lint` | exit 0 (ESLint 0 error, prettier ผ่านทุกไฟล์, copy lint มีแค่ WARN S7 เดิม) |
+| `pnpm typecheck` | exit 0 |
+| `pnpm test` | **exit 1** · `Test Files 1 failed / 178 passed (179)` · `Tests 1 failed / 2654 passed / 2 skipped (2657)` · ข้อที่ล้มข้อเดียวคือ `qa/tests/F04/session-checkin-lifecycle.test.ts:44` ด้วย `Error: Expect test to fail` หมายความว่า assertion ที่ถูกต้องตาม spec **ผ่านแล้ว** และ `it.fails` ต้องพลิกเป็น `it` (P2-H30 · งานคน เพราะระบบ permission บล็อก) |
+| `pnpm build` | exit 0 |
+| `pnpm run lint:config` | exit 0 · `20 files, 0 errors, 2 warnings` (เหมือนรอบ 1) |
+| `pnpm run dungeons:build -- --check` | exit 0 · `errors 0 · warnings 31` · artifact ตรงกับที่ commit |
+
+### 9.2 ผลของ finding รอบ 1
+
+| ID | ผล | หลักฐาน |
+| --- | --- | --- |
+| TG-01 | **ปิด** | `packages/shared/src/session/reducer.ts` ใน `handleSample`: `gateFilterStep(s.checkInFilter, sample, gateParamsOf(params.config))` แล้ว `usableAndUnlocked = filterStep.verdict.kept && !lock.locked` · ป้อนทุก sample ตามลำดับเวลา · เกณฑ์ accuracy เดิม (`movementGate.maxSampleAccuracy_m`) อยู่ในตัวกรอง จึงไม่มีผลข้างเคียงกับการเดินเข้าจริง · sample ที่ถูกทิ้ง (รวม teleport) ทำให้ `approachStep` ล้างสายทั้งหมด (`packages/shared/src/run/approach.ts` `if (!sample.usableAndUnlocked) return { chainStartAt_ms: null, ... outsideSeenAt_ms: {} }`) ดังนั้นแม้ตัวกรอง re-anchor ที่จุดใหม่หลัง `outlierReanchorSamples` = 5 sample สายใหม่ก็เริ่มในเขต ไม่มีหลักฐานจากข้างนอก · `checkInFilter` ถูกล้างใน `purgeLocationData` และ strip ใน `stripCoordinates` (`persistence.ts`) · test: `packages/shared/src/session/checkin-teleport.test.ts:242` (teleport ค้าง `no_approach_from_outside`) และ `:247` (เดินเข้าจริงยังได้ `ok: true`) ผ่านทั้งคู่ผ่าน `sessionStep` สาธารณะ · test ของ QA ยืนยันผลเดียวกันจากฝั่ง black-box (ข้อความ "Expect test to fail") |
+| TG-02 | **ปิด** | `pnpm lint` exit 0 · ทั้ง 6 ไฟล์ของหัวข้อ 7 ผ่าน prettier |
+| TG-03 | **ปิด** | `apps/client/src/f04-app.ts` `resolveRunSeed(search, isMockProvider)` อ่าน `seed` เฉพาะเมื่อ `isMockProvider` · ชื่อ param จาก `clientConfig.providerQuery.paramNames.seed` · test `f04-app.test.ts:42-53` (Web ไม่อ่าน `?seed=42`, Mock อ่าน) |
+| TG-04 | **ปิด** | `resolveE2eClassId(search, isMockProvider)` คืน `undefined` เมื่อไม่ใช่ Mock · ชื่อ param ที่ `config/app/client.json` `providerQuery.paramNames.e2eClassId` อ่านผ่าน `config/runtime.ts:258` · ไม่มี literal `'e2eClassId'` ในโค้ด runtime · test `f04-app.test.ts:57-63` |
+| TG-05 | **ปิด** | `apps/client/src/env.ts` `shouldSkipF04App(search, paramName, isMockProvider)` คืน `false` เมื่อไม่ใช่ Mock · `main.ts` ส่ง `clientConfig.providerQuery.paramNames.e2eSkipF04App` และ `selection.provider === 'mock'` · test `env.test.ts:104` |
+| TG-06 | **ปิด** | `RunState` มี `expGained` / `levelsGained` (เริ่ม 0 ใน `handleConfirm`) สะสมใน `grantTick` จากตัวเลขเดียวกับที่ใส่ `player` · `endRun` อ่านค่าสะสมทุก exit reason รวม `death` (exp ไม่ย้อนตาม F05-R21, F06-R23) · `schemaVersion` 2 ทั้ง `SessionState` / `PersistedSession` (type literal `2` ใน `types.ts:350,545` ทำให้ typecheck จับการ drift กับ `persistence.ts:21`) · test `packages/shared/src/session/hp.test.ts:238-241,423-427` |
+| TG-07 | **ปิด** | `apps/client/src/config/balance.ts:63-73,214-222` อ่าน `unlocks.json#home.distanceDisplaySteps_m` พร้อมตรวจรูป · `f04-app.ts` ใช้ `balanceUnlocksHomeConfig.distanceDisplaySteps_m` และ `unit.m` / `unit.km` (C-03) · ไม่มี `DISTANCE_STEPS` แล้ว |
+| TG-14 | **ปิด** | ESLint 0 error ที่ `b8dc5fc` |
+| TG-08..TG-13 | ไม่ blocking ตามรอบ 1 | TG-09 (`map/geo-circle.ts:12`) ยังอยู่ · ติดตามครั้งถัดไปที่แตะไฟล์ |
+
+ผลข้างเคียงของ `schemaVersion` 2 (บันทึกไว้ ไม่ใช่ finding): เครื่องที่มี `kw.p2.session` v1 จะได้ `schema_mismatch` → ทิ้ง state + event `session_state_discarded` ครั้งเดียว · ยอมรับตาม C1-5 (Phase 2 ไม่มี migration และไม่มีรางวัลจริง) · kit ของ playtest (P2-F06-T18) ควรแจ้งผู้ร่วมที่เคยเล่น build ก่อนหน้า
+
+### 9.3 ของใหม่ที่ขอให้ตรวจ
+
+**`createMockOffsetClock` (`apps/client/src/main.ts:63-70`, ใช้ที่ `:225`) — รับได้**
+
+- ปัญหาที่แก้ถูกจุด: ก่อนหน้านี้ `?start=` ไปถึงแค่ game clock ของ tick แต่ `timestamp` ของ sample จาก Mock มาจาก `systemClock` จริง ทำให้ `onSample` กับ `onTick` ส่ง `now_ms` คนละเส้นเวลาเข้า `sessionStep`
+- ตรงหลัก: offset คงที่ที่คำนวณครั้งเดียว ไม่แช่แข็งเวลา · ใช้เฉพาะ `selection.provider === 'mock'` · Web / Capacitor ใช้นาฬิกาจริงเหมือนเดิม · `Date.now()` อยู่ใน `apps/client` ไม่ใช่ shared (ADR 0003 3.2 ข้อ 3) · ไม่แตะ reducer และไม่มีผลต่อรางวัลนอก Mock
+- ข้อสังเกต **R2-01 (low, gameplay-programmer, ไม่ blocking):** สองนาฬิกายังไม่ได้มาจากจุดอ้างอิงเดียวกันแบบเป๊ะ · `timestamp` ของ sample = `replayStartMs + δ + t` โดย δ คือเวลาตั้งแต่ `resolveReplayStartMs` จนถึง `provider.start()` (รวม dynamic import ของ trace chunk ใน `createLocationProvider`) ส่วน game clock = `replayStartMs + position()` · δ ปกติต่ำกว่าหนึ่งวินาที และอยู่ใต้ `runState.clockSkewTolerance_s` = 5 จึงไม่ทำให้ state ถอยหลัง (tech note F04 4.4) · ถ้าต้องการให้ตรงเป๊ะ ให้ game clock ของ Mock อ่าน time base ของ provider เอง (เช่น `sample.timestamp` ล่าสุด + เวลาที่เลื่อนไปตาม `position()`) หรือ capture offset ตอน `provider.start()` · ควรมี unit test ที่ assert ว่า `timestamp` ของ sample แรกกับ `gameClock.now()` ต่างกันไม่เกิน `clockSkewTolerance_s`
+
+**`config/app/client.json#requestOrigins.allowedOrigins = ["self"]` (C2-1) — รับ key และความหมาย พร้อมแก้รูปในรอบถัดไป**
+
+- ถูกต้องสำหรับสิ่งที่ C2-1 ต้องการ: app ไม่ส่งข้อมูลผู้เล่นไป origin ใด · ลิงก์นำทางภายนอกอยู่นอกรายการอย่างถูกต้อง (tech note F04 14.1) · e2e `qa/tests/e2e/f04-origin-allowlist.spec.ts:29-38` ตรวจ `page.on('request')` ระหว่าง run เต็ม
+- ข้อสังเกต **R2-02 (low, gameplay-programmer + qa-tester, ไม่ blocking):** `"self"` ตัวเดียวจริงเฉพาะตอน e2e ที่ tile / glyph / sprite มาจาก fixture บน origin เดียวกัน · build ที่ deploy ชี้ `VITE_TILES_URL`, `VITE_GLYPHS_URL`, `VITE_SPRITE_URL` ไปที่ Pages project ของแผนที่ ซึ่งเป็นอีก origin (`docs/tech/environments.md` แถว `VITE_TILES_URL`, `infra/pages/keep-walking-map/_headers` ที่ตั้ง CORS ไว้เพราะเหตุนี้) · request เหล่านี้เป็น GET ของเนื้อหาแผนที่ ไม่มีข้อมูลผู้เล่น แต่ tile ที่ขอบอกบริเวณที่ผู้เล่นดูแผนที่อยู่ จึงต้องเป็น origin ของเราเอง (first-party) เท่านั้น · คำตัดสินรูปของ key (ตอบ A-P2-F06-T08-1): `allowedOrigins` = `"self"` + ชื่อ env ของ origin แผนที่ในรูป `"env:VITE_TILES_URL"`, `"env:VITE_GLYPHS_URL"`, `"env:VITE_SPRITE_URL"` (resolve เป็น origin ตอน build) · ห้ามใส่ origin ของบุคคลที่สาม · e2e ของ C2-1 ควร resolve รายการนี้แทนการเทียบกับ origin ของหน้าอย่างเดียว เพื่อให้รันกับ build profile `playtest` ได้ด้วย
+
+### 9.4 คำตัดสินรอบ 2
+
+- **F04 PASS.** blocking ของรอบ 1 ปิดครบ (TG-01, TG-02, TG-04, TG-05, TG-07) · ข้อ `pnpm test` แดงเป็นหลักฐานว่า fix ของ TG-01 ทำงาน (assertion ที่ถูกต้องตาม spec ผ่านแล้ว) ไม่ใช่ข้อบกพร่องของ product · **เงื่อนไขหลังผ่าน:** P2-H30 (คน) เปลี่ยน `it.fails(` เป็น `it(` ที่ `qa/tests/F04/session-checkin-lifecycle.test.ts:44` แล้ว `pnpm test` ต้อง exit 0 · CI job test จะแดงจนกว่าจะทำ · ไม่ต้องรัน tech gate ซ้ำ orchestrator ยืนยันด้วยคำสั่งเดียว `pnpm test`
+- **F05 PASS.** blocking ของรอบ 1 ปิดครบ (TG-02, TG-03, TG-06)
+- finding ที่ยังเปิดแบบไม่ blocking: TG-08 (P2-F06-T08), TG-09, TG-10, TG-11 (D-131 · ก่อน F08), TG-12 (ปิดแล้วใน P2-H29), TG-13, R2-01, R2-02
+- QA gate (P2-F05-T16) เดินต่อได้ · ข้อเสนอสำหรับ QA: ตรวจว่า hook ทั้ง 4 ตัวไม่ทำงานภายใต้ `loc=web` ใน e2e (unit test ครอบแล้ว e2e เป็นชั้นที่สอง)

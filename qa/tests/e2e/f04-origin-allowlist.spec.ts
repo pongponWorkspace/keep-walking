@@ -1,22 +1,23 @@
-// P2-F04-T22 (C2-1): every request the app itself issues during a full run (confirm -> Active ->
-// exit) must stay within the app's own allowed origins — except the external navigation link,
+// P2-F04-T22 (C2-1), updated for D-133 (P2-F05-T16 QA gate): every request the app itself issues
+// during a full run (confirm -> Active -> exit) must stay within
+// `config/app/client.json#requestOrigins.allowedOrigins` — except the external navigation link,
 // which is a top-level navigation the player chooses themselves, not a `fetch`/`XHR` of the app
 // (tech note F04 14.1, `config/app/privacy.json`'s own comment on `navigation.externalOpenTimeout_ms`:
 // "the link is a top-level navigation chosen by the player ... outside the allowed-origin list of
 // config/app/client.json").
 //
-// [ASSUMPTION A-P2-F04-T22-2: `config/app/client.json` has no `allowedOrigins`/allowlist key at all
-// (grepped: only `allowedProviders`/`allowedMockSpeeds`, neither is an origin list), even though
-// `config/app/privacy.json`'s own comment and `docs/tech/F04-dungeon-presence.md` section 14.1 both
-// refer to "the allowed-origin list of config/app/client.json" as if it already existed. This is a
-// gap against P2-F04-T25's own acceptance ("รายการ origin ที่อนุญาตใน config/app/client.json
-// (C2-1)"), reported as a handoff to tech-lead/gameplay-programmer in this task's report (not filed
-// as a qa/bugs.md defect — it is a missing config entry, not a behavioural regression). Without a
-// declared allowlist to diff against, this spec instead asserts the strongest thing it can check
-// directly: every request the app issues during a full run stays same-origin as the page itself
-// (`baseURL`) — no third-party host is ever contacted, matching the doc's "ไม่มี request ออกนอก
-// เครื่อง" for telemetry and this env's own guaranteed-missing tile path (no map network at all).
-// Owner: qa-tester (this assumption), confirm: tech-lead.]
+// `allowedOrigins` now exists (`["self"]` at the time of writing, P2-F06-T08 closed the config gap
+// A-P2-F04-T22-2 used to describe): this spec resolves it for real instead of only ever comparing
+// against the page's own origin. `"self"` means the page's own origin; an `"env:VITE_..._URL"`
+// entry (the shape `docs/reviews/F04-F05-tech-gate.md` section 9.3 R2-02 says P2-F06-T10 will add,
+// once the map's tile/glyph/sprite CDN needs its own first-party-only entry) resolves to that env
+// var's own origin, read from `process.env` the same way Vite itself would have baked it in — and
+// is simply absent from the resolved set (not an error) when that env var is unset, matching this
+// spec's own `TILE_OVERRIDE` below, which always forces the map's env fully unconfigured so no
+// tile request is ever expected in the first place. An entry that is neither shape fails the spec
+// outright (fail-closed on a config typo) rather than silently allowing every request through.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 
 const MISSING_LOCAL_TILES_PATH = '/e2e-fixtures/does-not-exist.pmtiles';
@@ -26,20 +27,60 @@ function spikeUrl(query: string): string {
   return `/?${query}&${TILE_OVERRIDE}`;
 }
 
+const REPO_ROOT = join(import.meta.dirname, '..', '..', '..');
+const clientConfig = JSON.parse(
+  readFileSync(join(REPO_ROOT, 'config/app/client.json'), 'utf8'),
+) as { readonly requestOrigins: { readonly allowedOrigins: readonly string[] } };
+
+/** Resolves `requestOrigins.allowedOrigins` into a concrete set of origins for this test run.
+ * Handles both the current shape (`["self"]`) and the shape P2-F06-T10 is expected to add
+ * (`["self", "env:VITE_TILES_URL", ...]`, R2-02 above) without needing to know which one is live. */
+function resolveAllowedOrigins(pageOrigin: string, allowedOrigins: readonly string[]): string[] {
+  const origins: string[] = [];
+  for (const entry of allowedOrigins) {
+    if (entry === 'self') {
+      origins.push(pageOrigin);
+      continue;
+    }
+    const envMatch = /^env:(.+)$/.exec(entry);
+    if (envMatch !== null) {
+      const envVarName = envMatch[1] as string;
+      const value = process.env[envVarName]?.trim();
+      if (value !== undefined && value.length > 0) {
+        origins.push(new URL(value).origin);
+      }
+      // Unset env var: this deploy never configured that origin, so nothing to allow for it —
+      // never silently treated as "allow anything".
+      continue;
+    }
+    throw new Error(
+      `f04-origin-allowlist.spec.ts: unrecognized requestOrigins.allowedOrigins entry "${entry}" ` +
+        '(expected "self" or "env:<VAR_NAME>")',
+    );
+  }
+  return origins;
+}
+
 test.describe('C2-1 — every app request during a full run stays same-origin', () => {
   test("confirm -> Active -> exit issues no request to any origin other than the page's own", async ({
     page,
     baseURL,
   }) => {
     const baseOrigin = new URL(baseURL ?? 'http://localhost:4173').origin;
+    const allowedOrigins = resolveAllowedOrigins(
+      baseOrigin,
+      clientConfig.requestOrigins.allowedOrigins,
+    );
     const foreignRequests: string[] = [];
     page.on('request', (request) => {
       const url = new URL(request.url());
-      if (url.origin !== baseOrigin) foreignRequests.push(request.url());
+      if (!allowedOrigins.includes(url.origin)) foreignRequests.push(request.url());
     });
 
-    // `e2eClassId=tanker` (`clock/query-params.ts` E2E_CLASS_ID_PARAM, same test hook
-    // apps/client/e2e/full-run.spec.ts uses): F06-T10's real class-picker screen does not exist
+    // `e2eClassId=tanker` (read via `config/app/client.json#providerQuery.paramNames.e2eClassId`,
+    // `f04-app.ts`'s `resolveE2eClassId` — no standalone `E2E_CLASS_ID_PARAM` constant exists,
+    // unlike an earlier version of this comment claimed; the same test hook
+    // `apps/client/e2e/full-run.spec.ts` uses): F06-T10's real class-picker screen does not exist
     // yet, so without this every `confirm` is rejected `no_class` and no run ever starts — this
     // spec needs a real Active -> exit run, not just a rejected confirm. D-130 (P2-X37,
     // gameplay-programmer) requires every test hook to be read only under `loc=mock` — the query

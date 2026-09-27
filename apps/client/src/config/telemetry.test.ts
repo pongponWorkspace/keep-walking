@@ -10,6 +10,7 @@ function valid(): Record<string, unknown> {
       forbiddenPropertyNames: ['lat', 'lng'],
       coordinateLikeNumberGuard: { minDecimals: 4, latRange_deg: [5, 21], lngRange_deg: [97, 106] },
     },
+    sampling: { emptyScreenAbandonTimeout_s: 120 },
   };
 }
 
@@ -37,5 +38,6 @@ describe('the real committed config file', () => {
     expect(appTelemetryConfig.localSink.ringBufferMaxEvents).toBe(3000);
     expect(appTelemetryConfig.export.forbiddenPropertyNames).toContain('lat');
     expect(appTelemetryConfig.export.coordinateLikeNumberGuard.minDecimals).toBe(4);
+    expect(appTelemetryConfig.sampling.emptyScreenAbandonTimeout_s).toBe(120);
   });
 });

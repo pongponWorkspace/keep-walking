@@ -25,9 +25,11 @@ const MISSING_LOCAL_TILES_PATH = '/e2e-fixtures/does-not-exist.pmtiles';
 const TILE_OVERRIDE = `e2eTilesUrl=${encodeURIComponent(MISSING_LOCAL_TILES_PATH)}&e2eGlyphsUrl=&e2eSpriteUrl=`;
 
 function runUrl(extraHash = ''): string {
+  // `e2eSkipOnboarding=1` (D-130, P2-F06-T10): this spec drives the HP engine directly, not the
+  // onboarding screens themselves (`onboarding-flow.test.ts` covers those).
   return (
     `/?loc=mock&trace=e2e-f06-koa-run-01&speed=60&loop=0&hud=0&e2eClassId=ranged&seed=7` +
-    `&start=${encodeURIComponent(START)}&${TILE_OVERRIDE}${extraHash}`
+    `&start=${encodeURIComponent(START)}&e2eSkipOnboarding=1&${TILE_OVERRIDE}${extraHash}`
   );
 }
 
@@ -102,7 +104,7 @@ test.describe('F06 — HP bar, auto-retreat default, death, revive', () => {
     }, fixture);
 
     await page.goto(
-      `/?loc=mock&trace=e2e-f06-koa-run-01&speed=1&loop=0&hud=0&start=${encodeURIComponent(START)}&${TILE_OVERRIDE}#/inventory`,
+      `/?loc=mock&trace=e2e-f06-koa-run-01&speed=1&loop=0&hud=0&start=${encodeURIComponent(START)}&e2eSkipOnboarding=1&${TILE_OVERRIDE}#/inventory`,
     );
 
     const inventoryScreen = page.locator('.inventory-screen');

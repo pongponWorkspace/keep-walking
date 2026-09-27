@@ -147,3 +147,15 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 137 | W10 | P2-F06-T08 | gameplay-programmer | 15:00:53 | 15:44:18 | DONE — client F06 HP/settings/inventory, BUG-P2-003 ปิดฝั่งโค้ด, แก้ Mock clock · → H31 qa, context T15/T24/T09 |
 | 138 | W10 | P2-H31 | qa-tester | 15:44:25 | 16:10:57 | DONE — e2e 10/10, BUG-P2-003 ปิด · note CSS [hidden] ของ .btn → X37 |
 | 139 | W10 | P2-X37 | gameplay-programmer | 15:44:25 | 16:44:36 | DONE — ปิด finding ทั้งสอง gate · pnpm lint 0 · onEnter ไม่ render → F06-T09 |
+| 140 | W11 | P2-F05-T17 | narrative-designer | 16:44:36 | 16:46:48 | PASS (รอบ 2) — F04 + F05 · lint ผ่าน (orchestrator รัน) · R2-N1/N2 ไม่บล็อก |
+| 141 | W11 | P2-F05-T15 | tech-lead | 16:44:36 | 16:49:04 | PASS (รอบ 2) — F04 + F05 · D-133 · R2-01/R2-02 → F06-T10, F05-T16 |
+| 142 | W11 | P2-F05-T16, P2-F06-T09 | qa-tester, gameplay-programmer | 16:49 | 17:22:35 | STALL ครั้งที่ 1 ทั้งคู่ (stream watchdog) · resume |
+| 143 | W11 | P2-F05-T16 | qa-tester | 16:49:11 | 17:36:20 | PASS (รอบเดียว, หลัง stall 1 ครั้ง) — F04 + F05 · root 2687 pass + 1 known it.fails |
+| 144 | W11 | P2-F06-T09 | gameplay-programmer | 16:44:36 | 17:45:38 | DONE ส่วนหลัก (หลัง stall 1 ครั้ง) — home states + S-09 + telemetry · จอ consent/age gate/settings ยกไป X38 (ไม่ให้ e2e เดิมพัง) · A-1..3 ชื่อจังหวัด → H32 |
+| 145 | W11 | P2-H32 | narrative-designer | 17:45:38 | 17:47:42 | DONE — ชื่อจังหวัด 6 + key นอกพื้นที่ไม่มีตัวแปร · → X38 context |
+
+## Run 2 — started 2026-09-28 00:04
+
+| # | Wave | Task | Agent | Start | End | Result |
+| --- | --- | --- | --- | --- | --- | --- |
+| 146 | preflight | P2-F06-T10 | orchestrator | 00:04 | 00:04 | IN_PROGRESS ค้างจาก Run 1 → TODO (resume: ตรวจไฟล์ใน Writes ก่อนเขียน) |

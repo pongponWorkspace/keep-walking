@@ -44,6 +44,10 @@ export interface ProviderQueryConfig {
     /** `loc=mock` only (tech gate P2-F05-T15 decision 6.2): skips creating the F04 game loop
      * entirely, for a map-only e2e spec. */
     readonly e2eSkipF04App: string;
+    /** `loc=mock` only (D-130, P2-F06-T10): makes `onboarding-flow.ts#OnboardingFlow.currentStep`
+     * report `done` immediately, for the pre-existing e2e specs that boot straight into the map/
+     * run screens and do not themselves test onboarding. */
+    readonly e2eSkipOnboarding: string;
   };
   readonly allowedProviders: readonly LocationProviderKind[];
   readonly allowedMockSpeeds: readonly MockSpeed[];
@@ -131,6 +135,12 @@ export interface ToastConfig {
   readonly hpLowHoldDurationMs: number;
 }
 
+/** `client.json#onboarding` (P2-F06-T10, GDD N-3): the one tutorial-line screen-time knob outside
+ * `toast.*` (a different overlay, `ui/run-tutorial-line.ts`, never a game decision). */
+export interface OnboardingConfig {
+  readonly tutorialLineHoldDurationMs: number;
+}
+
 export interface ClientRuntimeConfig {
   readonly locationWeb: LocationWebConfig;
   readonly providerQuery: ProviderQueryConfig;
@@ -144,6 +154,7 @@ export interface ClientRuntimeConfig {
   readonly bundle: BundleConfig;
   readonly vibration: VibrationConfig;
   readonly toast: ToastConfig;
+  readonly onboarding: OnboardingConfig;
 }
 
 export interface RawTraceExportConfig {
@@ -257,6 +268,7 @@ function parseProviderQuery(root: Json, path: string): ProviderQueryConfig {
       seed: str(names['seed'], `${path}/paramNames/seed`),
       e2eClassId: str(names['e2eClassId'], `${path}/paramNames/e2eClassId`),
       e2eSkipF04App: str(names['e2eSkipF04App'], `${path}/paramNames/e2eSkipF04App`),
+      e2eSkipOnboarding: str(names['e2eSkipOnboarding'], `${path}/paramNames/e2eSkipOnboarding`),
     },
     allowedProviders,
     allowedMockSpeeds,
@@ -356,6 +368,16 @@ function parseToast(root: Json, path: string): ToastConfig {
   };
 }
 
+function parseOnboarding(root: Json, path: string): OnboardingConfig {
+  const node = obj(root['onboarding'], path);
+  return {
+    tutorialLineHoldDurationMs: num(
+      node['tutorialLineHoldDurationMs'],
+      `${path}/tutorialLineHoldDurationMs`,
+    ),
+  };
+}
+
 function parseBundle(root: Json, path: string): BundleConfig {
   const node = obj(root['bundle'], path);
   return {
@@ -383,6 +405,7 @@ export function parseClientConfig(input: unknown): ClientRuntimeConfig {
     bundle: parseBundle(root, '/bundle'),
     vibration: parseVibration(root, '/vibration'),
     toast: parseToast(root, '/toast'),
+    onboarding: parseOnboarding(root, '/onboarding'),
   };
 }
 
