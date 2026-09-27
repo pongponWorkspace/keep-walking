@@ -56,9 +56,18 @@ export function checkInStatusView(
   if (preview.reason === 'no_approach_from_outside' && isOutOfRangeNow) {
     return { copyKey: 'dungeon.outOfRangeTitle', countdownText: undefined };
   }
-  const countdownText =
-    preview.reason === 'not_enough_trace' && preview.readyIn_s !== null
-      ? formatCountdown(preview.readyIn_s)
-      : undefined;
-  return { copyKey: REASON_COPY_KEY[preview.reason], countdownText };
+  if (preview.reason === 'not_enough_trace') {
+    // C-06 (copy gate P2-X37): `readyIn_s === null` means the approach chain has not started yet
+    // (`packages/shared/src/run/check-in.ts`) — `dungeon.checkinNotEnoughTraceWaiting` has no
+    // `{countdown}` placeholder at all, rather than showing the normal key with a raw `{countdown}`
+    // left unfilled.
+    if (preview.readyIn_s === null) {
+      return { copyKey: 'dungeon.checkinNotEnoughTraceWaiting', countdownText: undefined };
+    }
+    return {
+      copyKey: 'dungeon.checkinNotEnoughTrace',
+      countdownText: formatCountdown(preview.readyIn_s),
+    };
+  }
+  return { copyKey: REASON_COPY_KEY[preview.reason], countdownText: undefined };
 }

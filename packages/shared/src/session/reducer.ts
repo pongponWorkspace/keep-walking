@@ -5,8 +5,6 @@
 //
 // Known simplifications of this pass (P2-X10 closed most of the P2-F05-T08 list; see report to
 // orchestrator for what is left):
-// - Presence hysteresis reuses the reward gate's own accuracy check for "usable" (not a fully
-//   separate step-1 outlier filter); the outlier *speed* re-anchor rule is not applied to presence.
 // - The settled horizon `H` (tech note F04 4.3) is approximated by `now_ms` itself: this session
 //   does not yet hold a timer's result open while a pending set could still back-date across it.
 //   In practice this only matters within one hysteresis/lock confirmation window of an edge.
@@ -14,7 +12,13 @@
 //   starts `run.clock` (speed lock, a confirmed Grace transition, a no-evidence gap, a game-side
 //   close) plus once more at the end of every step (the plain-`tick` catch-all): a hit is never
 //   judged against a clock state that does not hold at that instant yet (FH-01, H-E1, H-E3).
-import { boundaryDistance_m, pointInPolygon, MS_PER_S } from '@keep-walking/geo';
+import {
+  boundaryDistance_m,
+  gateFilterInit,
+  gateFilterStep,
+  pointInPolygon,
+  MS_PER_S,
+} from '@keep-walking/geo';
 import {
   APPROACH_INIT,
   approachStep,
@@ -118,10 +122,11 @@ export function createSession(
   player: PlayerState = createPlayer(now_ms, params.config),
 ): SessionState {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     clock: { lastNow_ms: now_ms, lastSample_ms: null, settled_ms: null },
     pre: APPROACH_INIT,
     lock: speedLockInit(),
+    checkInFilter: gateFilterInit(),
     run: null,
     player,
     lastSummary: null,
@@ -135,7 +140,13 @@ export function createSession(
  * payout path). Does not touch `player`, `lastSummary`, or `clock.lastNow_ms` (D-116). Pure: the
  * caller still has to persist the result and write `kw.p2.consent` itself. */
 export function purgeLocationData(state: SessionState): SessionState {
-  return { ...state, pre: APPROACH_INIT, lock: speedLockInit(), latestSample: null };
+  return {
+    ...state,
+    pre: APPROACH_INIT,
+    lock: speedLockInit(),
+    checkInFilter: gateFilterInit(),
+    latestSample: null,
+  };
 }
 
 function assertSupportedConfig(cfg: SessionConfig): void {
@@ -228,7 +239,17 @@ function grantTick(
   );
   const firstEver = player.lifetimeTicksGranted === 0;
   return {
-    run: { ...run, bag, hp, grantedCount: run.grantedCount + 1 },
+    // P2-X35 (gameplay's F05-T10 finding): `run.expGained`/`levelsGained` accumulate the exact same
+    // `expResult.exp` and level delta just applied to `player` below — the summary's total is never
+    // a second, separately-derived number, so it can never drift from what the player actually kept.
+    run: {
+      ...run,
+      bag,
+      hp,
+      grantedCount: run.grantedCount + 1,
+      expGained: run.expGained + expResult.exp,
+      levelsGained: run.levelsGained + (added.level - player.level),
+    },
     player: {
       ...player,
       level: added.level,
@@ -383,6 +404,15 @@ function endRun(
     for (const [id, qty] of Object.entries(r.bag.items)) inventory[id] = (inventory[id] ?? 0) + qty;
   }
   const lootList = Object.entries(r.bag.items).map(([id, qty]) => ({ id, qty }));
+  // P2-X35 (BUG source: gameplay's P2-F05-T10): exp/levels are never reversed on `death`, unlike
+  // the run bag (`keepsLoot` above) — F05-R21/R26 ("ตายแล้วของใน run หาย exp อยู่"), F06-R23 ("ของ
+  // ใน run หายทั้งหมด exp อยู่ เลเวลไม่ลด"), F05 G11 ("ของของ tick หายพร้อมของใน run" — only the
+  // *loot*, never the exp already banked into `player.exp`/`level` at grant time, tech note F06 2.4
+  // "no coordinates" — same spirit: `player`'s own progression is never staged/reversible the way
+  // `run.bag` is). `r.expGained`/`levelsGained` are read unconditionally here, for every exit
+  // reason including `death`, because `grantTick` already applied the exact same numbers straight
+  // to `player.exp`/`player.level` the instant each tick was granted (never held back in `run` the
+  // way loot sits in `run.bag` awaiting this function's `keepsLoot` decision).
   const summary: RunSummary = {
     dungeonId: r.dungeonId,
     exitReason: reason,
@@ -392,8 +422,8 @@ function endRun(
     ticksGranted: r.grantedCount,
     partialTick: partialTickResult,
     loot: keepsLoot ? lootList : [],
-    expGained: 0,
-    levelsGained: 0,
+    expGained: r.expGained,
+    levelsGained: r.levelsGained,
     hpAtEnd: r.hp.hp,
     maxHp,
     hitsLanded: r.hp.hitsLanded,
@@ -621,6 +651,8 @@ function handleConfirm(
     rewardScratch: null,
     scratchClosed: [],
     grantedCount: 0,
+    expGained: 0,
+    levelsGained: 0,
     bag: EMPTY_BAG,
     hp: runHpInit(hpNow.value, runSeed, hpParams),
     presence: presenceTrackerInit('inside', now_ms),
@@ -814,7 +846,13 @@ function handleSample(
     player = fed.player;
   }
 
-  const usableAndUnlocked = accuracyOk && !lock.locked;
+  // BUG-P2-002 (GD B-03, F04-R07(2)/E5 `teleportIntoPolygonAllowed: false`): the same ADR 0003 5.3
+  // step-1 outlier filter the movement gate and `checkInBatch` already use, fed every sample (kept
+  // or not) so its anchor/re-anchor state advances in real sample-time order — a single
+  // implausible-speed jump must never count as a genuine "seen from outside" approach sample.
+  const filterStep = gateFilterStep(s.checkInFilter, sample, gateParamsOf(params.config));
+  const checkInFilter = filterStep.state;
+  const usableAndUnlocked = filterStep.verdict.kept && !lock.locked;
   const outsideDungeonIds = usableAndUnlocked
     ? Object.keys(params.dungeons).filter((id) => !insideOf[id])
     : [];
@@ -946,6 +984,7 @@ function handleSample(
     ...s,
     pre,
     lock,
+    checkInFilter,
     run,
     player,
     lastSummary,

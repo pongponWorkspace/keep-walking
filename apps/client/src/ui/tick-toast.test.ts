@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from 'vitest';
 import { mountTickToast } from './tick-toast';
+import { getCopyText } from '../copy/load';
 import type { AssetRuntime } from '../assets/icon-dom';
 import type { AudioPlayer } from '../assets/audio-player';
 
@@ -25,6 +26,7 @@ describe('mountTickToast', () => {
       audio,
       holdDurationMs: 1000,
       maxIconsShown: 3,
+      hpLowHoldDurationMs: 3200,
     });
 
     toast.showGranted({ loot: [], firstEver: false, levelBefore: 1, levelAfter: 1, at_ms: 0 });
@@ -44,6 +46,7 @@ describe('mountTickToast', () => {
       audio,
       holdDurationMs: 1000,
       maxIconsShown: 3,
+      hpLowHoldDurationMs: 3200,
     });
 
     toast.showGranted({
@@ -60,6 +63,26 @@ describe('mountTickToast', () => {
     expect(submitted[0]).toEqual({ cueId: 'run.tickGrantedFirst', at: 500 });
   });
 
+  it('F05-N1: run.tickGrantedFirst and run.continueCta render as two separate lines, not one joined string', () => {
+    const container = document.createElement('div');
+    const { audio } = fakeAudio();
+    const toast = mountTickToast(container, {
+      assets: NO_MANIFEST_ASSETS,
+      audio,
+      holdDurationMs: 1000,
+      maxIconsShown: 3,
+      hpLowHoldDurationMs: 3200,
+    });
+
+    toast.showGranted({ loot: [], firstEver: true, levelBefore: 1, levelAfter: 1, at_ms: 0 });
+
+    const el = container.querySelector('.toast');
+    const lines = el?.querySelectorAll('.toast-line');
+    expect(lines?.length).toBe(2);
+    expect(lines?.[0]?.textContent).toBe(getCopyText('run.tickGrantedFirst'));
+    expect(lines?.[1]?.textContent).toBe(getCopyText('run.continueCta'));
+  });
+
   it('caps loot icons at maxIconsShown and submits the highest known rarity bonus cue', () => {
     const container = document.createElement('div');
     const { submitted, audio } = fakeAudio();
@@ -68,6 +91,7 @@ describe('mountTickToast', () => {
       audio,
       holdDurationMs: 1000,
       maxIconsShown: 2,
+      hpLowHoldDurationMs: 3200,
     });
 
     toast.showGranted({
@@ -99,6 +123,7 @@ describe('mountTickToast', () => {
       audio,
       holdDurationMs: 1000,
       maxIconsShown: 3,
+      hpLowHoldDurationMs: 3200,
     });
 
     toast.showDenied({ at_ms: 20 });
@@ -119,6 +144,7 @@ describe('mountTickToast', () => {
         audio,
         holdDurationMs: 1000,
         maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
       });
       toast.showDenied({ at_ms: 0 });
       expect(container.querySelectorAll('.toast').length).toBe(1);
@@ -128,5 +154,85 @@ describe('mountTickToast', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('showHpLow: the canon copy, .danger class, and the run.hpLow cue at its own (longer) hold time', () => {
+    vi.useFakeTimers();
+    try {
+      const container = document.createElement('div');
+      const { submitted, audio } = fakeAudio();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+      });
+
+      toast.showHpLow(42);
+
+      const el = container.querySelector('.toast');
+      expect(el?.className).toContain('danger');
+      expect(el?.textContent).toBe(getCopyText('run.hpLow'));
+      expect(submitted).toEqual([{ cueId: 'run.hpLow', at: 42 }]);
+
+      // Still up just before its own (longer) hold elapses...
+      vi.advanceTimersByTime(3199);
+      expect(container.querySelector('.toast')).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('showAutoPotionUsed: faded toast, fixed copy (no {itemId} variable), submits run.autoPotionUsed', () => {
+    const container = document.createElement('div');
+    const { submitted, audio } = fakeAudio();
+    const toast = mountTickToast(container, {
+      assets: NO_MANIFEST_ASSETS,
+      audio,
+      holdDurationMs: 1000,
+      maxIconsShown: 3,
+      hpLowHoldDurationMs: 3200,
+    });
+
+    toast.showAutoPotionUsed('hpSmall', 7);
+
+    const el = container.querySelector('.toast');
+    expect(el?.className).toContain('faded');
+    expect(el?.textContent).toBe(getCopyText('run.autoPotionUsed'));
+    expect(submitted).toEqual([{ cueId: 'run.autoPotionUsed', at: 7 }]);
+  });
+
+  it('C-12: showStateResumed shows the run.stateResumed toast', () => {
+    const container = document.createElement('div');
+    const { audio } = fakeAudio();
+    const toast = mountTickToast(container, {
+      assets: NO_MANIFEST_ASSETS,
+      audio,
+      holdDurationMs: 1000,
+      maxIconsShown: 3,
+      hpLowHoldDurationMs: 3200,
+    });
+
+    toast.showStateResumed(3);
+
+    const el = container.querySelector('.toast');
+    expect(el?.textContent).toBe(getCopyText('run.stateResumed'));
+  });
+
+  it('an hp-low toast replaces a still-showing tick toast (one shared slot, F06-R16)', () => {
+    const container = document.createElement('div');
+    const { audio } = fakeAudio();
+    const toast = mountTickToast(container, {
+      assets: NO_MANIFEST_ASSETS,
+      audio,
+      holdDurationMs: 1000,
+      maxIconsShown: 3,
+      hpLowHoldDurationMs: 3200,
+    });
+    toast.showGranted({ loot: [], firstEver: false, levelBefore: 1, levelAfter: 1, at_ms: 0 });
+    toast.showHpLow(1);
+    expect(container.querySelectorAll('.toast').length).toBe(1);
+    expect(container.querySelector('.toast')?.className).toContain('danger');
   });
 });

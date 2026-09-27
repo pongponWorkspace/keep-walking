@@ -4,10 +4,12 @@ import {
   balanceLocationConfig,
   balanceMovementGateConfig,
   balanceOpeningHoursConfig,
+  balanceUnlocksHomeConfig,
   parseBalanceLocationConfig,
   parseCheckInConfig,
   parseMovementGateConfig,
   parseOpeningHoursConfig,
+  parseUnlocksHomeConfig,
 } from './balance';
 
 describe('parseBalanceLocationConfig', () => {
@@ -121,6 +123,33 @@ describe('parseOpeningHoursConfig', () => {
   });
 });
 
+describe('parseUnlocksHomeConfig (TG-07)', () => {
+  it('parses a well-formed distanceDisplaySteps_m array', () => {
+    const parsed = parseUnlocksHomeConfig({
+      home: {
+        distanceDisplaySteps_m: [
+          { step_m: 50, upTo_m: 1000 },
+          { step_m: 1000, upTo_m: null },
+        ],
+      },
+    });
+    expect(parsed.distanceDisplaySteps_m).toEqual([
+      { step_m: 50, upTo_m: 1000 },
+      { step_m: 1000, upTo_m: null },
+    ]);
+  });
+
+  it('fails loudly when distanceDisplaySteps_m is missing', () => {
+    expect(() => parseUnlocksHomeConfig({ home: {} })).toThrow(/distanceDisplaySteps_m/);
+  });
+
+  it('fails loudly when a step_m is not a positive number', () => {
+    expect(() =>
+      parseUnlocksHomeConfig({ home: { distanceDisplaySteps_m: [{ step_m: 0, upTo_m: null }] } }),
+    ).toThrow(/step_m/);
+  });
+});
+
 describe('the real committed config files (via the generated whitelist subset)', () => {
   it('load and validate without throwing', () => {
     expect(balanceLocationConfig.homeState.maxAccuracy_m).toBeGreaterThan(0);
@@ -132,5 +161,8 @@ describe('the real committed config files (via the generated whitelist subset)',
     // fails loudly at import time instead of the HUD silently losing the filtered columns.
     expect(balanceMovementGateConfig.filter).toBeDefined();
     expect(balanceOpeningHoursConfig.utcOffsetMin).toBe(420);
+    // TG-07: the client's displayed distance steps come from this same balance subset, never a
+    // second hardcoded copy in f04-app.ts.
+    expect(balanceUnlocksHomeConfig.distanceDisplaySteps_m.length).toBeGreaterThan(0);
   });
 });

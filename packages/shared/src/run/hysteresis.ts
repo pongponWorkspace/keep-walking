@@ -62,7 +62,10 @@ export function presenceStep(
 ): { readonly tracker: PresenceTrackerState; readonly confirmed: PresenceConfirmed | null } {
   const { state, transition } = edgeHysteresisFeed(tracker.geo, obs, p);
   if (transition === null) return { tracker: { geo: state }, confirmed: null };
-  return { tracker: { geo: state }, confirmed: { to: transition.to, at_ms: transition.since_t_ms } };
+  return {
+    tracker: { geo: state },
+    confirmed: { to: transition.to, at_ms: transition.since_t_ms },
+  };
 }
 
 /** Batch form (design/systems/test-vectors/run-state.json `edgeHysteresis`): every confirmed

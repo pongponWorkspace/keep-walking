@@ -1,0 +1,11 @@
+{
+  "name": "@keep-walking/qa-tests-f05",
+  "version": "0.0.0",
+  "private": true,
+  "description": "QA black-box trace-replay tests for F05 (P2-F05-T11): movement gate, reward tick, exp/drop, and privacy, driven only through the session public interface (createSession/sessionStep/toPersisted/fromPersisted/selectors from @keep-walking/shared/session). Reuses qa/tests/F04/lib (qaSessionParams/driveTrace/step/chooseAnyClass, P2-F04-T22) by relative import instead of re-inventing the harness — those files stay owned by F04, read-only here. Owner: qa-tester.",
+  "type": "module",
+  "devDependencies": {
+    "@keep-walking/geo": "workspace:*",
+    "@keep-walking/shared": "workspace:*"
+  }
+}

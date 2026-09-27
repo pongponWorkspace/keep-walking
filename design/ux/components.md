@@ -19,6 +19,7 @@ Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อ
 12. จอพกกระเป๋า (Wake Lock pocket screen) — ทิศทาง A ตัดสินแล้ว (F-04)
 13. คอมโพเนนต์ F04 Phase 2 (state chip, run header, check-in row, speed-lock overlay, direction arrow card, HP bar edge marker, chip-sponsored, distance chip, run-state pill, 13.9 เทคนิคเรนเดอร์ icon ที่ต้อง tint)
 14. สมมติฐานและการส่งต่อ
+15. Z-index scale และโครง `#hud` (D-129, P2-H28)
 
 ## 1. หลักการออกแบบคอมโพเนนต์
 
@@ -72,7 +73,7 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 เริ่มจากแท็บเดียว ("แผนที่", `nav.map`) ตาม `ia.md` หัวข้อ 2 และ 6 · แท็บที่ 2 คือ "ร้าน" (`nav.shop`) โผล่ทันทีที่ปลด `unlocks.npcShop` (จบ run แรก) เร็วกว่าระบบอื่นทั้งหมด (F-01, ia.md หัวข้อ 2/6) ระบบอื่น (ตีบวก, ตลาด, stat, class, party, raid) ไม่ได้แท็บของตัวเอง อยู่เป็นปุ่ม/ลิงก์ในหน้าอื่นแทน กันแถบล่างยาวเกิน 2 แท็บในช่วงต้นเกม · แต่ละแท็บ ≥ 48×48 px จัดกลางแนวนอนเท่ากัน · แท็บที่ active ใช้พื้น `ink.100` (ไม่ใช่สีเดียวบอกความหมาย เพราะข้อความ label ยังอยู่) · **ไม่แสดงระหว่าง onboarding นาที 0–1** (ก่อนถึง `S-01-map` ครั้งแรก) ตามที่ `00-onboarding.html` เลือกออกแบบ — ดูหัวข้อ 13 ข้อ 1
 
 ### 2.3 Floating overlay banner
-ใช้กับป้ายเหตุการณ์สดที่ไม่ใช่ nav ถาวร (เช่น อยู่ใน dungeon, HP ต่ำ, raid ใกล้เริ่ม) วางไว้ใต้ header bar เสมอ ไม่ทับ context label · z-index = `zIndex.mapOverlayBanner` (10) ต่ำกว่า toast/popup เสมอ
+ใช้กับป้ายเหตุการณ์สดที่ไม่ใช่ nav ถาวร (เช่น อยู่ใน dungeon, HP ต่ำ, raid ใกล้เริ่ม) วางไว้ใต้ header bar เสมอ ไม่ทับ context label · z-index = `zIndex.banner` (10, **แก้ P2-H28** — เดิมชื่อ `zIndex.mapOverlayBanner`) ต่ำกว่า toast/popup เสมอ — สเกลเต็มและกฎการวางดู หัวข้อ 15
 
 ## 3. ปุ่ม
 
@@ -134,7 +135,7 @@ GPS pill ทุกหน้าใช้คำกำกับคงที่ `gps
 | Banner บนสุด (`.banner.info`) | `run.stateGrace`, `gps.offline` | พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบล่าง 2px และข้อความ `state.info` | ค้างตลอดสถานะนั้น ไม่ใช่ toast ชั่วคราว |
 | Banner เตือน (`.banner.warn`) | `run.stateSuspended`, ป้ายเตือน auto-retreat ปิดอยู่ | พื้น `bg.surface` เสมอ (ห้าม tint พื้นอ่อนนอก token) + ขอบล่าง 2px และข้อความ `state.danger` | ค้างตลอดสถานะนั้น |
 
-กฎร่วม: ทุก toast/banner มี **icon + ข้อความ** เสมอ ไม่ใช้สีอย่างเดียว (style-guide S4) · z-index ตาม `tokens.json`: banner (10) < drawer (20) < toast (30) < popup (40)
+กฎร่วม: ทุก toast/banner มี **icon + ข้อความ** เสมอ ไม่ใช้สีอย่างเดียว (style-guide S4) · z-index ตาม `tokens.json`: `map` (0) < `hud` (1) < `banner` (10) < `drawer` (20) < `toast` (30) < `popupModal` (40) < `overlay` (50) < `system` (60) — สเกลเต็ม กฎการวาง (`inset: 0` เฉพาะ modal, ห้าม `position: fixed` ใต้ `#hud`) และตารางคอมโพเนนต์→ระดับ ดูหัวข้อ 15 (**แก้ P2-H28**, D-129)
 
 ## 7. HP bar และตัวเลข
 
@@ -355,6 +356,46 @@ tag เล็กติดกับตัวเลขระยะเสมอท�
 - ~~to: tech-lead | need: (P2-H05) เพิ่ม field `assets[id].tintable: boolean`~~ **ปิดแล้ว (P2-H13, D-121):** field เป็น `tintable?: true` (optional, มีเฉพาะเมื่อ `true`) ไม่ใช่ `boolean` เสมอไป
 - to: gameplay-programmer | need: (P2-H05, อัปเดต P2-H19) เพิ่มเทคนิคเรนเดอร์ที่สองใน `apps/client/src/assets/` ข้าง `setIconImg` เดิม (เช่น `setIconGlyph`) สำหรับ entry ที่**มี** `tintable: true` (ตรวจด้วย `'tintable' in asset`, ดูหัวข้อ 13.9.3): fetch ข้อความ SVG จาก URL ที่ resolve ได้ (cache ใน memory ต่อ session), sanitize แบบ allowlist tag/attribute (ตัด `script`/`on*`/`href` ที่ไม่ใช่ `#local`), แทรกเข้า DOM, ตั้ง `aria-hidden="true"` + `focusable="false"`, ตั้ง `style.color` เป็น token ตามตาราง 13.9.1 · ถ้า fetch ล้มเหลวให้ถอยไปใช้ `setIconImg` เดิมกับ URL เดียวกัน **และถ้าตำแหน่งนั้นอยู่บนพื้น `bg.night` ให้วางแผ่นรอง `bg.surface` ขนาด glyph + 2px ไว้หลัง `<img>` ด้วย** (13.9.2, กฎ fallback บนพื้นมืด ใหม่จาก P2-H17) · ใช้ได้ทันทีกับ run-state pill ทั้ง 3 สถานะ (`icon.ui.grace`, `icon.ui.in-run` ทั้งกลางวัน/กลางคืน) และ chip สถานะทุกแถว เพราะพร้อมครบแล้วหลัง P2-H17 (ตาราง 13.9.1 คอลัมน์ขวาสุด = "พร้อม" ทุกแถว) · Suspended **ไม่ต้องใช้เทคนิคนี้** ยังเป็น `<img>` ปกติเหมือนเดิม (glyph สีตายตัวจาก D-123 ไม่มี `tintable`) | why: ปิดปัญหาที่ระบุใน P2-H05 (`<img>` รับ CSS `currentColor` ไม่ได้) | blocking: no
 - ~~to: art-director | need: (P2-H05) พิจารณาแก้ master `art/assets/icon/ui/in-run.svg`/`suspended.svg`~~ **ปิดแล้ว (P2-H17):** `in-run` แปลงเป็น `currentColor` ทั้ง 24px/16px (D-124) · `suspended` ตัดสินเป็นสีตายตัว fill `bg.surface` + ขอบ `ink.900` แทน (D-123, ไม่ใช่ `currentColor`) — ทั้งสองปิดครบ ดูหัวข้อ 13.9/13.9.1
+
+## 15. Z-index scale และโครง `#hud` (D-129, P2-H28)
+
+ที่มา: tech-lead อนุมัติฐาน layout `#hud { position: absolute; inset: 0 }` (D-129, ดูคอมเมนต์เต็มใน `apps/client/src/app.css` ที่อธิบายเหตุที่ต้องมี `position` ชัดเจน — ไม่งั้น `#map` ที่เป็น `position: absolute` เช่นกันจะวาดทับ `#hud` ทั้งก้อนตาม CSS2.1 Appendix E) เงื่อนไขที่แนบมา: ต้องมี z-index scale เป็น token ก่อนที่ flow F06 จะเพิ่มจอซ้อนกันอีก (speed-lock, HP ต่ำ, auto-retreat, ตาย, Recovering ฯลฯ) — หัวข้อนี้ปิดเงื่อนไขนั้น
+
+### 15.1 สเกลเต็ม (`tokens.json#zIndex`)
+
+| ระดับ | ค่า | ใช้กับ |
+| --- | --- | --- |
+| `map` | 0 | `#map` — ตัวแผนที่เอง (canvas ของ MapLibre หรือ fallback ข้อความ) |
+| `hud` | 1 | `#hud` เอง (container เดียวที่ลอยเหนือแผนที่เสมอ ทุกจอ/ทุกคอมโพเนนต์ในเอกสารนี้เป็นลูกของ container นี้) |
+| `banner` | 10 | ป้ายเหตุการณ์สดใต้ header (หัวข้อ 2.3), `.banner.info`/`.banner.warn` (หัวข้อ 6) |
+| `drawer` | 20 | bottom sheet ไม่บล็อกจอ (หัวข้อ 5) — Nearby Party, Quick command |
+| `toast` | 30 | `.toast.*` ทุกแบบ (หัวข้อ 6) รวม `run.hpLow` |
+| `popupModal` | 40 | popup/modal ที่บล็อกจอด้วยปุ่มยืนยัน (หัวข้อ 4) — `.popup-overlay`/`.popup` ทุกที่ที่ใช้ |
+| `overlay` | 50 | จอเต็มที่ทับทุกอย่างชั่วคราวระหว่างเปลี่ยนสถานะ — speed-lock (หัวข้อ 13.4), เอฟเฟกต์เปลี่ยนจอตอน auto-retreat, `S-04-run-summary` (จอเดียวที่แทนที่ทุกอย่างตอนจบ run) |
+| `system` | 60 | จอบังคับระดับระบบก่อนเล่นได้ — consent ตำแหน่ง, age gate (`S-00-consent-location`, `S-00-age-gate`) |
+| `nativePrompt` | 9999 | prompt ของเบราว์เซอร์/OS เอง (geolocation permission) — นอกสเกลนี้ ควบคุมไม่ได้ |
+
+ลำดับเดียวคงที่: `map < hud < banner < drawer < toast < popupModal < overlay < system < nativePrompt`
+
+### 15.2 ข้อบังคับคู่กัน (D-129)
+
+1. **มีแค่ระดับ `popupModal`/`overlay`/`system` เท่านั้นที่อนุญาตให้เป็นกล่องเต็มจอโปร่งใส** (`position: absolute; inset: 0` + พื้นหลังโปร่งแสง/ทึบคลุมทั้งจอ) — `banner`/`drawer`/`toast` ต้องวางเฉพาะพื้นที่จริงที่มองเห็น (เช่น banner ปักบนสุดเต็มความกว้างแต่สูงแค่แถบ, toast กึ่งกลางล่างกว้างเท่าข้อความ, drawer ปักล่างสูงเท่าเนื้อหา) **ห้ามใช้ `inset: 0` เด็ดขาด** เหตุผล: `#hud > *` ทุกตัวถูกตั้ง `pointer-events: auto` (`#hud` เองตั้ง `pointer-events: none`) ถ้า element ระดับ banner/toast เป็นกล่องเต็มจอ (แม้พื้นหลังจะโปร่งใสจนมองไม่เห็น) จะดักคลิกทั้งจอทับแผนที่ด้านล่างไปด้วยทั้งที่มองเห็นแค่แถบเล็กๆ
+2. **Child ของ `#hud` ห้ามใช้ `position: fixed` เด็ดขาด** ต้องเป็น `position: absolute` เพื่ออยู่ในบริบทตำแหน่งเดียวกับ `#hud` ที่ตั้ง `inset: 0` คลุมทั้งจอไว้แล้ว — กัน viewport/safe-area คลาดเคลื่อนบนมือถือจริงเวลาคีย์บอร์ดหรือแถบเบราว์เซอร์ย่อ/ขยาย (พฤติกรรม `position: fixed` ต่างจาก `absolute` บนมือถือจริงโดยเฉพาะ)
+
+### 15.3 คอมโพเนนต์/จอ → ระดับ (P2-H28)
+
+| คอมโพเนนต์/จอ | ระดับ | หมายเหตุ |
+| --- | --- | --- |
+| `.popup-overlay`/`.popup` (`S-02-dungeon-confirm`, popup ยืนยันออกใน `.run-bar`, แผง fallback ของ `.nav-panel`) | `popupModal` (40) | ทุกจุดที่ใช้ class เดียวกันนี้ใช้ระดับเดียวกันเสมอ ไม่ว่าจะเป็น popup ไหน |
+| `.run-bar` (run-state pill, tick timer, ปุ่มออกเอง) | `hud` (1, ไม่ยกระดับ) | เป็นแถบถาวรของจอ run ปกติ ไม่ใช่ overlay ชั่วคราว · ลูกของมันมีสองส่วนที่ยกระดับ: `.banner` ลูก (Grace/Suspended/ใกล้ปิด) ใช้ `banner` (10), ส่วน popup ยืนยันออกที่ฝังอยู่ในนั้นใช้ `popupModal` (40) ตามแถวบน |
+| `.overlay-speedlock` (หัวข้อ 13.4) | `overlay` (50) | "ทับทุกอย่าง" ตามสเปกเดิม — ต้องอยู่เหนือ `popupModal` เพราะอาจมี popup เปิดค้างอยู่ตอน speed-lock เริ่ม (race) |
+| `.screen.run-summary` (`S-04-run-summary`) | `overlay` (50) | เป็นจอแทนที่ทั้งหมดตอนจบ run เหมือนกันทุก `exit_reason` — ลำดับความสำคัญของแอป (`apps/client/src/f04-app.ts`) คือ speed-lock > summary > run > confirm > map/nav ทั้งสองจอที่สูงสุด (speed-lock, summary) จึงอยู่ระดับเดียวกัน โดยแอปเป็นคนตัดสินว่าจะ mount จอไหน ไม่ใช่ z-index ต่างกันที่ทำให้ exclusive กัน |
+| `.nav-panel` (แผงระยะ+ทิศ+ปุ่มนำทาง, A2) | `hud` (1, ไม่ยกระดับ) | แผงถาวรในเลย์เอาต์ ไม่ใช่ overlay · แผง fallback ภายในใช้ `popupModal` (40, แถวบน) และ toast ยืนยันคัดลอกใช้ `toast` (30) |
+| F06 — `run.hpLow` (แจ้ง HP ต่ำ 30%) | `toast` (30) | `.toast.danger` ตามหัวข้อ 6 ของเอกสารนี้ |
+| F06 — ตาย/`auto_retreat` | `overlay` (50) | Phase 2 ไม่มีสถานะล้มในดัน (F06 override ข้อ 2) ตายและ auto-retreat จบ run ทันทีแล้วสลับเข้า `.screen.run-summary` ตรงๆ จึงใช้ระดับเดียวกับแถวบน ไม่มีจอ/overlay แยกของตัวเอง |
+| `S-00-consent-location`, `S-00-age-gate` | `system` (60) | สูงสุดในสเกลนี้ (ไม่รวม `nativePrompt`) เพราะเป็นจอบังคับก่อนเล่นได้ ไม่ควรมีจอใดบังจอเหล่านี้ในทางทฤษฎี แม้ในทางปฏิบัติจะไม่เกิดพร้อมกับ `overlay`/`popupModal` เพราะเกิดก่อน onboarding เท่านั้น |
+
+**Handoff:** gameplay-programmer นำสเกลนี้ไปใส่ CSS จริงใน `apps/client/src/app.css` — ตอนนี้มีแค่ `.banner`(10)/`.toast`(30) ตรงกับสเกลอยู่แล้ว ยังไม่มี z-index บน `#map`/`#hud` เอง (0/1), `.popup-overlay` จริง (ควรเป็น 40 ให้ตรง wireframe), `.drawer` (20, ยังไม่มี component จริง), `.overlay-speedlock`/`.screen.run-summary` (50) และจอ consent/age gate (60) ที่ยังไม่ได้ build
 
 ## REPORT
 task: P1-F03-T17

@@ -60,6 +60,19 @@ export interface OpeningHoursConfig {
   readonly utcOffsetMin: number;
 }
 
+/** `config/balance/unlocks.json#home.distanceDisplaySteps_m` (F04-R34, TG-07 tech gate P2-F05-T15):
+ * the display-rounding bands for every on-screen distance (nearby panel, popup, map label) — read
+ * from the balance subset the client already loads, never a second hardcoded copy (CLAUDE.md
+ * "never fork the logic"). `upTo_m: null` = the last, unbounded band. */
+export interface DistanceDisplayStepConfig {
+  readonly upTo_m: number | null;
+  readonly step_m: number;
+}
+
+export interface UnlocksHomeConfig {
+  readonly distanceDisplaySteps_m: readonly DistanceDisplayStepConfig[];
+}
+
 type Json = Record<string, unknown>;
 
 function makeFail(file: string): (path: string, reason: string) => never {
@@ -193,10 +206,35 @@ export function parseOpeningHoursConfig(input: unknown): OpeningHoursConfig {
   return { utcOffsetMin: raw };
 }
 
+/** Pure so tests can pass a fixture without touching the real JSON import. */
+export function parseUnlocksHomeConfig(input: unknown): UnlocksHomeConfig {
+  const { obj, positiveNum } = makeParsers('config/balance/unlocks.json');
+  const root = obj(input, '/');
+  const home = obj(root['home'], '/home');
+  const steps = home['distanceDisplaySteps_m'];
+  if (!Array.isArray(steps) || steps.length === 0) {
+    throw new Error(
+      'config/balance/unlocks.json: /home/distanceDisplaySteps_m must be a non-empty array',
+    );
+  }
+  return {
+    distanceDisplaySteps_m: steps.map((raw, i) => {
+      const path = `/home/distanceDisplaySteps_m/${i}`;
+      const step = obj(raw, path);
+      const upTo_m = step['upTo_m'];
+      if (upTo_m !== null && (typeof upTo_m !== 'number' || !Number.isFinite(upTo_m))) {
+        throw new Error(`config/balance/unlocks.json: ${path}/upTo_m must be a number or null`);
+      }
+      return { upTo_m, step_m: positiveNum(step['step_m'], `${path}/step_m`) };
+    }),
+  };
+}
+
 const balanceSubset = balanceSubsetJson as {
   readonly location: unknown;
   readonly dungeons: unknown;
   readonly anticheat: unknown;
+  readonly unlocks: unknown;
 };
 
 // Fails loudly at import time, not on first use (config/balance/*.json _meta._note applies the
@@ -210,4 +248,7 @@ export const balanceMovementGateConfig: MovementGateConfig = parseMovementGateCo
 export const balanceCheckInConfig: CheckInConfig = parseCheckInConfig(balanceSubset.anticheat);
 export const balanceOpeningHoursConfig: OpeningHoursConfig = parseOpeningHoursConfig(
   balanceSubset.dungeons,
+);
+export const balanceUnlocksHomeConfig: UnlocksHomeConfig = parseUnlocksHomeConfig(
+  balanceSubset.unlocks,
 );

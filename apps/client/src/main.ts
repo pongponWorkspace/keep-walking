@@ -16,7 +16,7 @@ import {
 import { GpsStatusTracker } from './location/gps-status';
 import { selectProvider } from './location/select';
 import { createLocationProvider, wireProvider } from './location/session';
-import type { LocationProvider } from '@keep-walking/location';
+import type { Clock, LocationProvider } from '@keep-walking/location';
 import { windowNetworkStatus } from './location/network-status';
 import { mountGpsUi } from './ui/gps-ui';
 import type { createLocationLayerController, LocationLayerController } from './map/location-layer';
@@ -36,6 +36,39 @@ import { injectFontFaces } from './assets/fonts';
  * import — `@typescript-eslint/consistent-type-imports` forbids `import()` type annotations, and a
  * value import here would defeat the whole point of this task: pulling `maplibre-gl` back into the
  * initial static chunk). */
+/**
+ * P2-F06-T08 fix: `resolveReplayStartMs`'s `start` test hook (`clock/query-params.ts`, tech note
+ * F04 section 17) previously only reached `createGameClock` — the *tick* clock — never the Mock
+ * provider itself. `MockTraceLocationProvider`'s own `LocationSample.timestamp` (`@keep-walking/
+ * location`, its own doc comment: "Timestamp = replay start time from the Clock + t") is computed
+ * from a *default* `systemClock`, i.e. the real wall-clock instant the provider's own `.start()`
+ * happened to run at — completely independent of `?start=`. Every `sessionStep` dispatch this app
+ * makes from a GPS sample (`f04-app.ts#onSample`, check-in, opening hours, HP hits, the movement
+ * gate) uses that `timestamp` as `now_ms`, so a `?start=` scenario (a specific weekday/time to hit
+ * a dungeon's opening-hours edge, closing-time behavior, or — this task's own e2e — a level range
+ * that only pays off at a pinned date) never actually took effect for anything sample-driven, only
+ * for the once-a-second tick/render pass — found while wiring this task's own `f06-hp.spec.ts`
+ * (the confirm popup flashed `dungeon.closedTitle` almost every frame because `onSample`'s clock
+ * disagreed with `onTick`'s correct one).
+ *
+ * Fix: give the Mock provider a `Clock` offset by a constant (`target_ms - Date.now()`, captured
+ * once here) rather than a frozen one — real elapsed wall-clock time still advances normally (the
+ * provider's own `setTimeout`-driven replay scheduling, and `speed`'s scaling of it, are untouched
+ * by this), only the *reported* epoch shifts by that fixed amount. This is the exact same quantity
+ * `createGameClock`'s Mock branch already computes (`replayStart_ms + provider.position()`) — this
+ * clock is what makes `provider.position()` (and therefore every sample's own `timestamp`) agree
+ * with it, rather than a second, disconnected reference. Web/Capacitor never use this (`deps.clock`
+ * stays unset, falling back to the real platform clock, `location/session.ts`'s own doc comment).
+ */
+function createMockOffsetClock(target_ms: number): Clock {
+  const offset_ms = target_ms - Date.now();
+  return {
+    now: () => Date.now() + offset_ms,
+    setTimeout: (callback, delayMs) => window.setTimeout(callback, delayMs),
+    clearTimeout: (handle) => window.clearTimeout(handle as ReturnType<typeof window.setTimeout>),
+  };
+}
+
 interface MapModules {
   readonly createMap: typeof createMap;
   readonly createLocationLayerController: typeof createLocationLayerController;
@@ -173,9 +206,24 @@ async function initLocation(
     gpsUi.onFollowToggle((enabled) => layerController?.setFollowMode(enabled));
   }
 
+  // Computed once, before the provider exists, so both the provider's own Clock (mock only, just
+  // below) and `createGameClock` (further down) agree on the exact same reference instant —
+  // `createMockOffsetClock`'s own doc comment explains why this needs to reach the provider at
+  // all, not just the tick clock.
+  const replayStartMs = resolveReplayStartMs(
+    window.location.search,
+    clientConfig.providerQuery.paramNames.start,
+    balanceOpeningHoursConfig.utcOffsetMin,
+  );
+
   let provider: LocationProvider;
   try {
-    provider = await createLocationProvider(selection, clientConfig, appPrivacyConfig);
+    provider = await createLocationProvider(
+      selection,
+      clientConfig,
+      appPrivacyConfig,
+      selection.provider === 'mock' ? { clock: createMockOffsetClock(replayStartMs) } : {},
+    );
   } catch (error: unknown) {
     // Dev-facing only (e.g. an unknown ?trace= id): never a raw-coordinate log (tech note section 4).
     console.error('client: failed to create the location provider', error);
@@ -213,17 +261,19 @@ async function initLocation(
   // overwriting it — skip building `f04App` and its tick interval entirely rather than adding a
   // per-spec workaround. Everything else in this function (the provider itself, the HUD, the map
   // layers) still wires up normally; `f04App` simply stays `undefined`, and every call site below
-  // already reads it through `f04App?.` for exactly this reason.
-  if (!shouldSkipF04App(window.location.search)) {
+  // already reads it through `f04App?.` for exactly this reason. Gated to the Mock provider only
+  // (tech gate P2-F05-T15 TG-05, `env.ts#shouldSkipF04App`'s own doc comment) — `selection` is
+  // already resolved above.
+  const isMockProvider = selection.provider === 'mock';
+  if (
+    !shouldSkipF04App(
+      window.location.search,
+      clientConfig.providerQuery.paramNames.e2eSkipF04App,
+      isMockProvider,
+    )
+  ) {
     setTimeout(() => {
-      const gameClock = createGameClock(
-        provider,
-        resolveReplayStartMs(
-          window.location.search,
-          clientConfig.providerQuery.paramNames.start,
-          balanceOpeningHoursConfig.utcOffsetMin,
-        ),
-      );
+      const gameClock = createGameClock(provider, replayStartMs);
       f04App = createF04App({
         map: mapResult?.map,
         hudContainer: hudElement,
@@ -242,6 +292,11 @@ async function initLocation(
         userAgent: navigator.userAgent,
         maxTouchPoints: navigator.maxTouchPoints,
         assets: assetRuntime,
+        // TG-03/TG-04 (tech gate P2-F05-T15, decision 6.2): `resolveRunSeed`/`resolveE2eClassId`
+        // (`f04-app.ts`) only honor `?seed=`/`?e2eClassId=` when this is true — `selection` is the
+        // one place that already decided which provider the page resolved to.
+        isMockProvider,
+        locationSearch: window.location.search,
         copyToClipboard: async (text) => {
           try {
             await navigator.clipboard.writeText(text);

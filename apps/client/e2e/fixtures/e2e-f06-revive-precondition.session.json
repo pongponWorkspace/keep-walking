@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "savedAt_ms": 1790935200000,
+  "state": {
+    "schemaVersion": 2,
+    "clock": {
+      "lastNow_ms": 1790935200000,
+      "lastSample_ms": null,
+      "settled_ms": null
+    },
+    "pre": {
+      "chainStartAt_ms": null,
+      "lastAt_ms": null,
+      "outsideSeenAt_ms": {}
+    },
+    "lock": {
+      "locked": false,
+      "runStart_ms": null,
+      "lastAccurate": null
+    },
+    "checkInFilter": {
+      "anchor": null,
+      "pending": []
+    },
+    "run": null,
+    "player": {
+      "classId": "support",
+      "level": 1,
+      "exp": 0,
+      "allocated": {
+        "atk": 0,
+        "def": 0,
+        "hp": 0,
+        "vit": 0
+      },
+      "hp": {
+        "value": 145,
+        "anchorAt_ms": 1790935200000,
+        "recovering": true
+      },
+      "autoRetreatEnabled": true,
+      "inventory": {
+        "revive": 1
+      },
+      "firstRunEnteredAt_ms": 1790935200000,
+      "lifetimeTicksGranted": 1
+    },
+    "lastSummary": null,
+    "latestSample": null
+  }
+}

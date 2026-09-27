@@ -473,15 +473,24 @@ boot → อ่าน kw.p2.session
 | `hudSamplesMemoryOnly` | true | sample ย้อนหลังของ `gateDiagnosticWindows` อยู่ในหน่วยความจำของ HUD เท่านั้น |
 
 - ข้อจำกัดที่ config lint (P2-F04-T24) ตรวจ: `maxAge_s ≤ balance.privacy.positionLogTtl_s` (86,400) · `maxAge_s ≤ balance.dungeons.movementGate.window_s` (D-088 "ไม่เกินหนึ่งหน้าต่าง") · `maxAge_s ≥ maxSamplePairGap_s` · `maxCount ≥ 2 × (1 + outlierReanchorSamples) + 2`
+- **แก้ไข P2-H29 (TG-12 ของ tech gate F04 + F05):** ไม่มีโค้ด runtime ตัวใดอ่าน `maxAge_s`, `maxCount` หรือ `deleteOnRunEnd` · คำว่า "ถูกลบทุก step และตอนโหลด" ในตารางข้างบนหมายถึงผลที่ได้ ไม่ใช่ขั้นตรวจที่อ่านค่า · เพดานเป็นจริงเพราะรูปของ state:
+  1. state ไม่มีรายการ sample ใดเลย (ADR 0003 5.4) · field ที่มีพิกัดมีจำนวนคงที่ตาม 11.2
+  2. buffer `pending` ของตัวกรอง outlier ถูกตัดทิ้งเมื่อยาวถึง `outlierReanchorSamples` (`packages/geo/src/filter.ts` `gateFilterStep`) จึงไม่โตเกินค่านี้
+  3. จบ run = `run` เป็น `null` ตัวสะสมของ reward ทั้งสองชุดจึงหายไปพร้อมกัน
+  4. anchor ทุกตัวถูกแทนด้วย sample ใหม่ทุกครั้งที่รับ sample ที่ใช้ได้ จึงไม่มีพิกัดเก่าค้าง ยกเว้นช่วงที่ไม่มี sample เข้าเลย ซึ่งค้างอยู่ในหน่วยความจำเท่านั้น (ข้อ 5)
+  5. **persist ตัดพิกัดทุกตัวทิ้ง** (`packages/shared/src/session/persistence.ts` `stripCoordinates` ใช้ทั้งใน `toPersisted` และ `fromPersisted`): `latestSample` → `null` · `lock.lastAccurate` → `null` (พร้อม `runStart_ms`, คงไว้แค่ `locked`) · `run.reward` และ `run.rewardScratch`: `filter.anchor` / `filter.pending` → ค่าเริ่มต้น และ `grid.last` / `grid.lastPoint` → `null` (P2-H02) · `SessionState.checkInFilter` → ค่าเริ่มต้นของตัวกรอง (P2-X34, BUG-P2-002) · `pre` → `APPROACH_INIT` · blob เก่าที่ยังมีพิกัดถูกตัดตอนโหลดด้วย
+  6. ผลคือ `kw.p2.session` ไม่มีพิกัดเลย ซึ่งเข้มกว่า `maxAge_s` / `maxCount` / `deleteOnRunEnd` · ค่าทั้งสามจึงเป็นเพดานที่ config lint ยืนยันว่าโครงสร้างอยู่ใต้ ไม่ใช่ค่าที่โค้ดต้องอ่าน · field ใหม่ที่มีพิกัดต้องเพิ่มใน `stripCoordinates` พร้อม test (tech gate ตรวจ)
 
 ### 11.2 sample ที่ state มีได้ (ทั้งหมด)
 
 | ที่อยู่ | จำนวนสูงสุด | persist |
 | --- | --- | --- |
-| `pre.anchor` + `pre.reanchor` | 1 + `outlierReanchorSamples` | ไม่ |
-| `lock.anchor` (sample ล่าสุดที่ `accuracyOk`) | 1 | ใช่ |
-| `run.reward.main.anchor` + `reanchor` + `lastGrid` | 2 + `outlierReanchorSamples` | ใช่ |
-| `run.reward.scratch.*` (เมื่อมีชุดกลับเข้า/ปลด lock ที่รอยืนยัน) | 2 + `outlierReanchorSamples` | ใช่ |
+| `pre.anchor` + `pre.reanchor` | 1 + `outlierReanchorSamples` | ไม่ (`APPROACH_INIT`) |
+| `checkInFilter.anchor` + `pending` (P2-X34) | 1 + `outlierReanchorSamples` | ไม่ (ตัดพิกัด) |
+| `lock.lastAccurate` (sample ล่าสุดที่ `accuracyOk`) | 1 | ไม่ (ตัดพิกัด · P2-H02) |
+| `latestSample` | 1 | ไม่ (ตัดพิกัด) |
+| `run.reward` `filter.anchor` + `pending` + `grid.last` / `lastPoint` | 3 + `outlierReanchorSamples` | ไม่ (ตัดพิกัด · P2-H02) · ตัวนับระยะและ `k` คงไว้ |
+| `run.rewardScratch` (เมื่อมีชุดกลับเข้า/ปลด lock ที่รอยืนยัน) | 3 + `outlierReanchorSamples` | ไม่ (ตัดพิกัด · P2-H02) |
 
 - ไม่มีรายการ sample ของหน้าต่าง ของ approach หรือของชุดที่รอยืนยัน (ADR 0003 5.4 · ชุดรอยืนยันเก็บแค่จำนวนและเวลา)
 - `lastGrid` เป็นจุด interpolate ไม่ใช่ fix จริง แต่ถือเป็นพิกัดและอยู่ใต้เพดานเดียวกัน

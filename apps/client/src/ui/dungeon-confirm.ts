@@ -10,6 +10,7 @@
  */
 import { formatCopyText } from '../copy/format';
 import { getCopyText } from '../copy/load';
+import { getDungeonFullName, getDungeonShortName } from '../copy/names';
 import type { CheckInPreview } from '@keep-walking/shared/session';
 import { checkInStatusView } from './checkin-status';
 
@@ -34,7 +35,15 @@ export interface ConfirmPopup {
    * `selectCheckInPreview`-equivalent change, never a full re-open). `awaitingConfirmResult` shows
    * the button's spinner state while a real `confirm` dispatch is in flight (Flow C: this is
    * synchronous in Phase 2, so it is visible for at most one frame). */
-  update(preview: CheckInPreview, isOutOfRangeNow: boolean, awaitingConfirmResult: boolean): void;
+  /** `closingSoonTimeLeftText` (C-11, copy gate P2-X37): a pre-formatted `{timeLeft}` string
+   * (`unit.minutes`), or `undefined` to keep the closing-soon line hidden — this popup never
+   * derives the closing decision itself (R28, `selectOpening` is the caller's job). */
+  update(
+    preview: CheckInPreview,
+    isOutOfRangeNow: boolean,
+    awaitingConfirmResult: boolean,
+    closingSoonTimeLeftText?: string,
+  ): void;
   /** B4: dungeon closed (or `unsupported_mode`) — replaces the normal popup entirely, no "เข้า"
    * button at all (R27). `openTime` is `undefined` when there is no known next-open time. */
   showClosed(openTime: string | undefined, emergency: boolean): void;
@@ -84,8 +93,11 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
   let selectedId: string | undefined;
 
   function renderHeader(candidate: ConfirmCandidate): void {
+    // C-01 (copy gate P2-X37): the dungeon name comes from `names.th.json` (`getDungeonFullName`),
+    // never `copy.th.json` — `getCopyText(candidate.nameKey)` used to fall back to the raw
+    // `dungeon.<id>` key because that key does not exist in `copy.th.json` at all.
     title.textContent = formatCopyText('dungeon.confirmTitle', {
-      zoneName: getCopyText(candidate.nameKey),
+      zoneName: getDungeonFullName(candidate.nameKey),
     });
     level.textContent = formatCopyText('dungeon.confirmLevel', {
       levelMin: candidate.levelMin,
@@ -101,7 +113,8 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
     level.textContent = getCopyText('dungeon.overlapHint');
     for (const c of candidates) {
       const card = el('button', 'card confirm-overlap-card');
-      card.textContent = getCopyText(c.nameKey);
+      // C-01: the short form (`nameReal` alone) — a card has no room for the full `{zoneName}`.
+      card.textContent = getDungeonShortName(c.nameKey);
       card.classList.toggle('selected', c.dungeonId === selectedId);
       card.addEventListener('click', () => {
         selectedId = c.dungeonId;
@@ -132,7 +145,15 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
         renderOverlapCards();
       }
     },
-    update(preview, isOutOfRangeNow, awaitingConfirmResult) {
+    update(preview, isOutOfRangeNow, awaitingConfirmResult, closingSoonTimeLeftText) {
+      // C-11: independent of check-in status — the closing-soon line is about opening hours, not
+      // about whether the player can enter yet.
+      closingSoon.hidden = closingSoonTimeLeftText === undefined;
+      if (closingSoonTimeLeftText !== undefined) {
+        closingSoon.textContent = formatCopyText('dungeon.closingSoonTag', {
+          timeLeft: closingSoonTimeLeftText,
+        });
+      }
       if (awaitingConfirmResult) {
         enterButton.disabled = true;
         enterButton.classList.add('btn-spinner');

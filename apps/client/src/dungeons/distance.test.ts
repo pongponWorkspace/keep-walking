@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { displayDistance } from './distance';
+import { displayDistance, formatDistanceText } from './distance';
+import { formatCopyText } from '../copy/format';
 import openingHoursVectors from '../../../../design/systems/test-vectors/opening-hours.json';
 
 interface DisplayDistanceVector {
@@ -58,5 +59,32 @@ describe('displayDistance', () => {
     for (const distance of [1, 49, 50, 51, 999, 1001, 5000]) {
       expect(displayDistance(distance, steps)).toBeGreaterThanOrEqual(distance);
     }
+  });
+});
+
+// C-03 (copy gate P2-X37): `{distanceText}` through `unit.m`/`unit.km`, never a literal `'m'`.
+describe('formatDistanceText', () => {
+  const steps = [
+    { upTo_m: 1000, step_m: 50 },
+    { upTo_m: 10000, step_m: 100 },
+    { upTo_m: null, step_m: 1000 },
+  ];
+
+  it('formats under 1,000 m with unit.m', () => {
+    expect(formatDistanceText(650, steps)).toBe(formatCopyText('unit.m', { value: 650 }));
+  });
+
+  it('rounds up to the band step before formatting (R34)', () => {
+    expect(formatDistanceText(651, steps)).toBe(formatCopyText('unit.m', { value: 700 }));
+  });
+
+  it('formats 1,000 m and above with unit.km, one decimal place', () => {
+    expect(formatDistanceText(1901, steps)).toBe(formatCopyText('unit.km', { value: '2.0' }));
+    expect(formatDistanceText(12345, steps)).toBe(formatCopyText('unit.km', { value: '13.0' }));
+  });
+
+  it('never contains a literal ASCII "m" unit', () => {
+    expect(formatDistanceText(650, steps)).not.toMatch(/\dm\b/);
+    expect(formatDistanceText(12345, steps)).not.toMatch(/\dm\b/);
   });
 });

@@ -1,9 +1,9 @@
 {
   "_meta": {
     "file": "client.json",
-    "version": 2,
+    "version": 3,
     "owner": "tech-lead",
-    "task": "P1-H05; P2-F04-T25 added engine, storage, navigation, providerQuery.paramNames.start/seed",
+    "task": "P1-H05; P2-F04-T25 added engine, storage, navigation, providerQuery.paramNames.start/seed; P2-F06-T08 added requestOrigins (C2-1)",
     "doc": "docs/tech/F02-map-location-spike.md sections 3, 4, 8, 10.5, 11; docs/tech/F04-dungeon-presence.md sections 9, 10, 14, 17; ADR 0003 sections 3.2, 6, 8.4",
     "_note": "Runtime values of apps/client for the F02 spike (read by apps/client/src/config/runtime.ts). Build-time URLs stay in VITE_* env vars (tech note section 8), not here. Nothing in this file affects a reward; HUD numbers are spike measurements only. Keys starting with '_' are metadata: code skips them. null = not set yet: code must fail loudly. seeFile keys point at the single source of a value owned elsewhere."
   },
@@ -23,13 +23,15 @@
       "loop": "loop",
       "hud": "hud",
       "start": "start",
-      "seed": "seed"
+      "seed": "seed",
+      "e2eClassId": "e2eClassId",
+      "e2eSkipF04App": "e2eSkipF04App"
     },
     "allowedProviders": ["web", "mock", "capacitor"],
     "allowedMockSpeeds": [1, 10, 60],
     "traceWhenUnset": "firstInList",
     "onUnknownValue": "useDefaultAndWarn",
-    "_note": "capacitor is selectable but the stub reports not-implemented (tests the error path). traceWhenUnset: first trace of the import.meta.glob list (gps-trace-format section 5) that passes validateTrace. Boolean params use '1'/'0' in the URL. `start` and `seed` (F04-dungeon-presence.md section 17 test hooks) are read only when `loc=mock`: `start` sets the game clock's replay-start instant (integer epoch ms, or `YYYY-MM-DDTHH:mm` interpreted with `config/balance/dungeons.json#openingHours.utcOffset_min`, read via config/balance.ts); `seed` sets the uint32 RNG `runSeed` for every run started on that page load. Both are silently ignored outside `loc=mock` (Web always uses the real clock and `crypto.getRandomValues`, ADR 0003 section 6)"
+    "_note": "capacitor is selectable but the stub reports not-implemented (tests the error path). traceWhenUnset: first trace of the import.meta.glob list (gps-trace-format section 5) that passes validateTrace. Boolean params use '1'/'0' in the URL. `start`, `seed`, `e2eClassId` and `e2eSkipF04App` (F04-dungeon-presence.md section 17 test hooks, tech gate P2-F05-T15 decision 6.2) are read only when `loc=mock`: `start` sets the game clock's replay-start instant (integer epoch ms, or `YYYY-MM-DDTHH:mm` interpreted with `config/balance/dungeons.json#openingHours.utcOffset_min`, read via config/balance.ts); `seed` sets the uint32 RNG `runSeed` for every run started on that page load; `e2eClassId` dispatches a real `chooseClass` input once at boot for a spec that skips the (not yet built) class-picker screen; `e2eSkipF04App` skips creating the whole F04 game loop for a map-only spec. All four are silently ignored outside `loc=mock` (Web always uses the real clock and `crypto.getRandomValues`, ADR 0003 section 6) — see `apps/client/src/f04-app.ts`'s `resolveRunSeed`/`resolveE2eClassId` and `apps/client/src/env.ts`'s `shouldSkipF04App`, each gated on the selected provider, not a build-time flag"
   },
   "providerQueryDefaultsByMode": {
     "_source": {
@@ -118,11 +120,12 @@
     "_assumption": "A-P2-F04-T21-1: 200 ms reuses the probe's already-approved single-pulse length rather than inventing a new untuned number; revisit once a real-device pass (P2-C03) or an art/vfx brief gives a designed pattern. Owner: gameplay-programmer"
   },
   "toast": {
-    "_source": "P2-F05-T10 (design/ux/flows/F05-movement-gate-reward.md Flow A1/A2/A3: 'หายเองสั้นๆ' / 'toast จาง' — the flow never gives an exact on-screen hold duration or icon cap, only the effect/sound durations already in audio/manifest.json and art/vfx/*/timing.json.",
+    "_source": "P2-F05-T10 (design/ux/flows/F05-movement-gate-reward.md Flow A1/A2/A3: 'หายเองสั้นๆ' / 'toast จาง' — the flow never gives an exact on-screen hold duration or icon cap, only the effect/sound durations already in audio/manifest.json and art/vfx/*/timing.json). P2-F06-T08 added hpLowHoldDurationMs (design/ux/flows/F06-hp-damage-onboarding.md Flow C2 'run.hpLow' canon toast).",
     "tickHoldDurationMs": 2200,
     "tickMaxIconsShown": 3,
-    "_note": "apps/client/src/ui/tick-toast.ts: tickHoldDurationMs is how long a granted/denied tick toast stays fully visible (after its own vfx enter animation, before the shared exitToast animation starts) — long enough to read a short Thai sentence at a glance per the flow's own 'อ่านจบได้ในแวบเดียว' rule without outlasting the next tick window. tickMaxIconsShown is flow F05 A1's literal cap ('ไม่เกิน 3 ชิ้นที่เห็นพร้อมกัน ที่เหลือดูในสรุป run').",
-    "_assumption": "A-P2-F05-T10-1: 2200 ms is not tuned against a real device/field-walk pass yet (same caveat as A-P2-F04-T21-1); tickMaxIconsShown 3 matches the flow doc's own number exactly, not an assumption. Owner: gameplay-programmer, revisit tickHoldDurationMs with P2-C03/P2-F06-T12 field evidence."
+    "hpLowHoldDurationMs": 4000,
+    "_note": "apps/client/src/ui/tick-toast.ts: tickHoldDurationMs is how long a granted/denied tick toast stays fully visible (after its own vfx enter animation, before the shared exitToast animation starts) — long enough to read a short Thai sentence at a glance per the flow's own 'อ่านจบได้ในแวบเดียว' rule without outlasting the next tick window. tickMaxIconsShown is flow F05 A1's literal cap ('ไม่เกิน 3 ชิ้นที่เห็นพร้อมกัน ที่เหลือดูในสรุป run'). hpLowHoldDurationMs is the same 'stays fully visible before exit' hold, just for `run.hpLow`'s own, much longer canon sentence ('HP ต่ำ กลับบ้าน ซื้อยา หาเพื่อนที่มี Support หรือไม่ก็เลิกดื้อ', a full clause list vs a tick toast's few words) — its own key rather than reusing tickHoldDurationMs so the two can be tuned independently.",
+    "_assumption": "A-P2-F05-T10-1: 2200 ms is not tuned against a real device/field-walk pass yet (same caveat as A-P2-F04-T21-1); tickMaxIconsShown 3 matches the flow doc's own number exactly, not an assumption. Owner: gameplay-programmer, revisit tickHoldDurationMs with P2-C03/P2-F06-T12 field evidence. A-P2-F06-T08-2: hpLowHoldDurationMs 4000 ms is a proportional scale-up of tickHoldDurationMs (about 1.8x, roughly matching the ratio of sentence lengths) — not tuned against a real device/field-walk pass yet either. Owner: gameplay-programmer, revisit with P2-F06-T12/field evidence."
   },
   "bundle": {
     "_source": "ADR 0003 section 10 (N-13): JS-transfer budgets measured from apps/client/dist's Vite manifest by apps/client/scripts/measure-bundle.ts, brotli quality 11, same method for both keys.",
@@ -130,5 +133,11 @@
     "mapLazyJsBudget_bytes": 700000,
     "_note": "initialJsBudget_bytes covers the entry chunk + every chunk it statically imports (S5 <= 1.0 MB, 10^6 byte) — never maplibre-gl, which main.ts only reaches through await import(...) once hasRuntimeMapEnv(env) is true (P2-F04-T10 code-split). mapLazyJsBudget_bytes covers that lazy maplibre-gl + worker chunk group on its own, measured the same way. CSS/font/tile/trace bytes are excluded from both (ADR 0003 10.4). CI (P2-F06-T16) fails the build when either is exceeded.",
     "_assumption": "A-P2-F04-T10-2: this task's own `pnpm build` + `apps/client/scripts/measure-bundle.ts` measured the entry chunk (post code-split) at 48,303 B brotli and the maplibre-gl + worker lazy group at 350,208 B brotli. initialJsBudget_bytes keeps the S5 <= 1.0 MB ceiling from ADR 0003 unchanged (measured value is well under it already); mapLazyJsBudget_bytes is set to 700,000 B (about 2x the measured 350,208 B) for headroom before P2-F06 adds more map layers/assets, not tuned against a real device yet (revisit once P2-C03's real-device numbers land). Owner: gameplay-programmer, tech-lead"
+  },
+  "requestOrigins": {
+    "_source": "config/app/privacy.json#externalNavigation _note (\"outside the allowed-origin list of config/app/client.json\"); docs/tech/F04-dungeon-presence.md section 14.1 (\"e2e ตรวจ origin (C2-1, P2-F04-T22)\"); qa/plans/F04-test-plan.md section 6 (C2-1); filled by P2-F06-T08 after P2-F04-T25 missed it (A-P2-F04-T22-2, qa/tests/e2e/f04-origin-allowlist.spec.ts)",
+    "allowedOrigins": ["self"],
+    "_note": "Every request/fetch/XHR/WebSocket the app itself may issue must stay within this list. 'self' means the page's own origin. Phase 2 has no server (D-087): telemetry stays in localStorage/memory only, so this list has exactly one entry and is expected to stay that way until a real backend origin exists (Phase 3). The external navigation deep link (Google/Apple Maps, config/app/privacy.json#externalNavigation) is a top-level <a target=\"_blank\"> page navigation the player taps themselves, not a fetch/XHR of the app, and stays explicitly outside this list (tech note F04 14.1) — qa's e2e checks this directly by capturing page.on('request') during a full run rather than reading this key back, so no apps/client/src module parses this list yet; it exists to give the two doc references above (and any future automated diff) a real, single-source value instead of an undocumented gap.",
+    "_assumption": "A-P2-F06-T08-1: no spec/tech note pins an exact key name or shape for this list (P2-F04-T25's own acceptance only said \"a list of allowed origins in config/app/client.json (C2-1)\" without one) — one entry, 'self', matches D-087 (Phase 2 issues no request to any other origin) exactly and needs no client.schema.json change (the schema has no additionalProperties: false at any level, confirmed before adding this key). Owner: tech-lead to confirm the shape if a future task starts parsing it programmatically."
   }
 }

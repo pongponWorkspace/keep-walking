@@ -82,6 +82,8 @@ describe('TC-HUD-12b — main.ts only reaches the coordinate-bearing debug surfa
   });
 
   it('the one dynamic import of debug/hud-panel is inside an `if (selection.hud)` block', () => {
-    expect(MAIN_TS).toMatch(/if \(selection\.hud\) \{[\s\S]{0,200}import\(['"]\.\/debug\/hud-panel['"]\)/);
+    expect(MAIN_TS).toMatch(
+      /if \(selection\.hud\) \{[\s\S]{0,200}import\(['"]\.\/debug\/hud-panel['"]\)/,
+    );
   });
 });

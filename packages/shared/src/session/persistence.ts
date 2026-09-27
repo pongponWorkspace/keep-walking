@@ -9,6 +9,7 @@ import { APPROACH_INIT } from '../run';
 import { expToNext } from '../formulas';
 import { hpParamsFromConfig } from '../hp';
 import { hpConfigInputOf } from './types';
+import type { GateFilterState } from '@keep-walking/geo';
 import type { GateAccumulatorState } from '../reward';
 import type {
   FromPersistedRejectReason,
@@ -17,7 +18,7 @@ import type {
   SessionState,
 } from './types';
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2; // P2-X35: RunState gained expGained/levelsGained, no migration (Phase 2)
 const KNOWN_CLASSES: ReadonlySet<string> = new Set(['tanker', 'ranged', 'support', 'magic']);
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -81,6 +82,11 @@ function isCorruptPlayer(state: SessionState, params: SessionParams): boolean {
  *    (meaningless without the fix it was measured from). `locked` (a boolean, not a position) is
  *    kept: losing whether the player is currently speed-locked is a gameplay regression on reload,
  *    not a privacy requirement.
+ *  - `checkInFilter` (`GateFilterState`, P2-X34/BUG-P2-002: the check-in approach evidence's own
+ *    ADR 0003 5.3 step-1 outlier filter, independent of any run) — `anchor`/`pending` are raw
+ *    `GeoSample`s, stripped to the filter's own initial shape (`{ anchor: null, pending: [] }`),
+ *    same as `run.reward.filter` below. Losing the anchor on reload only costs one pair's worth of
+ *    speed-outlier context, same trade-off as `pre`.
  *  - `run.reward` / `run.rewardScratch` (`GateAccumulatorState`, ADR 0003 5.3-5.4, ships from
  *    `@keep-walking/geo`):
  *      - `filter.anchor` / `filter.pending` (`GateFilterState`) are raw `GeoSample`s — stripped to
@@ -106,10 +112,14 @@ function isCorruptPlayer(state: SessionState, params: SessionParams): boolean {
  * fix (or a hand-edited one) that still carries a coordinate in any of these fields never reaches
  * a running session either — it is silently dropped, not treated as `corrupt` (rule/mode/level
  * corruption is `isCorruptPlayer`'s job; a stray coordinate is this function's). */
+function stripGateFilter(): GateFilterState {
+  return { anchor: null, pending: [] };
+}
+
 function stripGateAccumulator(s: GateAccumulatorState): GateAccumulatorState {
   return {
     ...s,
-    filter: { anchor: null, pending: [] },
+    filter: stripGateFilter(),
     grid: { ...s.grid, last: null, lastPoint: null },
   };
 }
@@ -118,6 +128,7 @@ function stripCoordinates(state: SessionState): SessionState {
   return {
     ...state,
     lock: { locked: state.lock.locked, runStart_ms: null, lastAccurate: null },
+    checkInFilter: stripGateFilter(),
     run:
       state.run === null
         ? null

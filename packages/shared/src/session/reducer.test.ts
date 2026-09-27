@@ -473,7 +473,7 @@ describe('sessionStep: toPersisted / fromPersisted (tech note F04 2.1, 10.1, 10.
   it('discards a schemaVersion this build does not know (schema_mismatch)', () => {
     const params = testParams();
     const persisted = toPersisted(createSession(0, params), 0);
-    const wrongVersion = { ...persisted, schemaVersion: 2 };
+    const wrongVersion = { ...persisted, schemaVersion: 999 };
     expect(fromPersisted(wrongVersion, params)).toEqual({ ok: false, reason: 'schema_mismatch' });
   });
 

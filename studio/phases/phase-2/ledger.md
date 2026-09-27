@@ -130,3 +130,20 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 120 | W8 | P2-H24 | product-manager | 10:13:37 | 10:21:33 | DONE — รับความเห็น GD ทั้ง 9 ข้อ, inventory_potion_used ประกาศแล้ว (client ยิงใน F06-T10) |
 | 121 | W8 | P2-X27 | backend-programmer | 10:07:53 | 10:25:31 | DONE — home-state pure 28 test, privacy-copy 200 pass · A-P2-X27-1 → F06-T20 |
 | 122 | W8 | P2-F05-T10 | gameplay-programmer | 09:34:52 | 10:25:57 | DONE — client F05 ครบ, พบ+แก้ #hud คลิกไม่ได้ใน build จริง · handoff → X35 (expGained 0), F05-T11/T20/T08 context |
+| 123 | W9 | P2-H08 | qa-tester | 10:08:34 | 10:29:13 | DONE — S2/S5/S6 จับภาพครบ, ข้อจำกัดเก่าปิด · S5 note → F06-T23 |
+| 124 | W9 | P2-F05-T17 | narrative-designer | 10:26:45 | 10:31:42 | NEEDS_CHANGES (รอบ 1) — F04 6 blocker (ชื่อ dungeon เป็น key ดิบ, {timeLeft}, epoch, 'm'), F05 PASS · → X36 narrative, X37 gameplay, H27 uiux · gate รอบ 2 |
+| 125 | W9 | P2-X36 | narrative-designer | 10:31:42 | 10:32:08 | DONE — key C-06 |
+| 126 | W9 | P2-X34 | backend-programmer | 10:25:31 | 10:33:29 | DONE — BUG-P2-002 แก้ ใช้ filter ของ geo ซ้ำ + strip พิกัด · qa ต้องพลิก it.fails บรรทัด 44 (ส่งให้ F05-T11) |
+| 127 | W9 | P2-H27 | uiux-designer | 10:31:42 | 10:38:03 | DONE — C-10/A2/F05-N1 ตัดสินแล้ว → X37 context |
+| 128 | W9 | P2-F05-T15 | tech-lead | 10:26:45 | 10:39:24 | NEEDS_CHANGES (รอบ 1) — F04 + F05 · TG-01 (X34 เสร็จแล้ว), TG-06 (X35), TG-03/04/05/07 + prettier → X37, qa prettier → F05-T11, H28 uiux, H29 tech-lead · D-129, D-130, D-131 |
+| 129 | W9 | P2-H29 | tech-lead | 10:39:25 | 10:40:35 | DONE — TG-12 ปิด |
+| 130 | W9 | P2-X35 | backend-programmer | 10:33:29 | 10:42:27 | DONE — TG-06/TG-02(backend)/TG-14 ปิด · schemaVersion 2 (blob เก่าที่มี run จะ schema_mismatch) |
+| 131 | W9 | P2-H28 | uiux-designer | 10:39:25 | 11:01:51 | DONE — z-index token ครบ เงื่อนไข D-129 ฝั่ง design ปิด · client CSS → X37 |
+| 132 | W9 | P2-X28 | backend-programmer | 10:42:27 | 11:07:00 | DONE (รอบ 2 หลัง stall) — onboarding pure 26 test · typecheck client แดง 4 จุดจากงาน F06-T08 ที่กำลังทำ |
+| 133 | W10 | P2-X29 | backend-programmer | 11:07:00 | 11:20:28 | DONE — feedback + wake lock + icon glyph 26 test · wiring → F06-T14 |
+| 134 | W10 | P2-F05-T11 | qa-tester | 10:29:13 | 11:22:31 | DONE — black-box F05 10/10 · BUG-P2-005 (Thai literal ใน test ของ gameplay) · พลิก it.fails ถูกปฏิเสธโดยตัวจัดสิทธิ์ → H30 ถามผู้ใช้ |
+| 135 | W10 | P2-F06-T08 | gameplay-programmer | 10:26:45 | 15:00:41 | INTERRUPTED — API session limit (รีเซ็ต 14:00) · กลับเป็น TODO resume · ผู้ใช้อนุมัติ H30 (D-132) |
+| 136 | W10 | P2-H30 | qa-tester | 15:00:53 | 15:02:03 | BLOCKED — ตัวจัดสิทธิ์ปฏิเสธซ้ำ แม้ผู้ใช้อนุมัติ · orchestrator ไม่ทำแทน → HUMAN |
+| 137 | W10 | P2-F06-T08 | gameplay-programmer | 15:00:53 | 15:44:18 | DONE — client F06 HP/settings/inventory, BUG-P2-003 ปิดฝั่งโค้ด, แก้ Mock clock · → H31 qa, context T15/T24/T09 |
+| 138 | W10 | P2-H31 | qa-tester | 15:44:25 | 16:10:57 | DONE — e2e 10/10, BUG-P2-003 ปิด · note CSS [hidden] ของ .btn → X37 |
+| 139 | W10 | P2-X37 | gameplay-programmer | 15:44:25 | 16:44:36 | DONE — ปิด finding ทั้งสอง gate · pnpm lint 0 · onEnter ไม่ render → F06-T09 |

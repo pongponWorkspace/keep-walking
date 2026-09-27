@@ -78,3 +78,55 @@
 ## 4. ขนาดไฟล์ (เป้า ≤~150 KB, เป็นค่าประมาณตาม brief เดิม ไม่ใช่ hard limit)
 
 44/56 ไฟล์ ≤150 KB — 12 ไฟล์เกิน (ทั้งหมดเป็น S1 บน ios-safari ที่เกินอยู่แล้วตั้งแต่ P1-H06, กับ S5 ทั้งสอง engine และ S6-z10 บน ios-safari 360×800 หนึ่งไฟล์) เกิดจากปริมาณรายละเอียดจริงของพื้นที่ (S5 = เขตเมืองเก่ากรุงเทพชั้นในหนาแน่นถนน/คลอง/ชื่อสถานที่มาก, ios-safari dpr 3 = พิกเซลจริงมากกว่า) แม้ลด JPEG quality ลงถึงพื้น 15 แล้ว — เช่นเดียวกับที่ P1-H06 หัวข้อ 2.6 บันทึกไว้แล้วว่า "~150 KB" เป็นค่าประมาณ ไม่ใช่ hard limit จึงไม่ถือเป็นปัญหาที่บล็อก (ไฟล์ที่หนักสุดคือ `ios-safari--pmtiles--S5--360x800.jpg` ที่ 308,773 bytes)
+
+## 5. QA trace builder ใช้ `kind: 'qa'` ผ่าน `TraceHeader` แทนการ stamp ทีหลัง
+
+`qa/tests/traces/lib/qa-builder.ts`: `generateQa` เดิมสร้าง `TraceBuilder` โดยไม่ส่ง `kind` (ปล่อยให้เป็นค่าเริ่มต้น `'synthetic'` ของ `tools/traces`) แล้วค่อย `asQaTrace()` แก้ `meta.kind` เป็น `'qa'` หลัง `build()` เสร็จ — งานนี้ลบ `asQaTrace()` ออก เปลี่ยนเป็นส่ง `kind: 'qa'` เข้า `TraceHeader` ตอนสร้าง `TraceBuilder` ตรง ๆ (`tools/traces/src/builder.ts` รองรับฟิลด์นี้อยู่แล้วตั้งแต่ P2-F04-T23/tech-lead N-06 — `TraceHeader.kind`, `GeneratedTraceKind = 'synthetic' | 'qa'`) แล้วคืนค่า `b.build()` ตรง ๆ โดยไม่แก้ trace object หลังสร้างอีก
+
+ยืนยัน: `pnpm exec tsx qa/tests/traces/build.ts --check` → `ok` ทั้ง 7 ไฟล์ (6 trace + 1 polygon) — เอาต์พุตไบต์เหมือนเดิมทุกไฟล์ ไม่มีไฟล์ใด stale (การเปลี่ยนวิธี stamp `kind` ไม่กระทบผลลัพธ์สุดท้ายเลย เพราะ `TraceBuilder.build(kind?)` ให้ผลเดียวกันไม่ว่า `kind` จะมาจาก argument ของ `build()` หรือจาก header ตอนสร้าง)
+
+`build.test.ts`'s "every QA trace declares meta.kind 'qa'" ยังผ่าน (อยู่ใน 90 test ที่รันผ่านหัวข้อ 6)
+
+## 6. `gateWindows` ใน `engine-movement-gate.test.ts` ใช้ `loadTraceConfig()` ตรง ๆ
+
+`gateOpts` (object รูปแบบเก่า `{ window_s, minDistance_m, comparison }`, สร้างจาก `cfg` เพียงบางส่วน) ถูกลบทั้งหมด — เปลี่ยนทุกจุดที่เรียก `gateWindows(trace.samples, gateOpts)` เป็น `gateWindows(trace.samples, cfg)` (ส่ง `TraceConfig` เต็มจาก `loadTraceConfig()` ตรง ๆ) ตามที่ `tools/traces/src/metrics.ts` เองระบุ `GateOptions` เป็น `@deprecated` แนะนำให้ส่ง `TraceConfig` แทน
+
+ยืนยันว่าให้ผลเดียวกันทุกกรณี: `fromOptions(gateOpts)` ภายใน `gateWindows` เดิมสร้าง `TraceConfig` โดย spread ทับ `base = loadTraceConfig()` ด้วยค่าที่แกะมาจาก `cfg` เอง (`gateWindow_s`, `gateMinDistance_m`, `gateComparison` เท่ากับของ `cfg` ทุกตัว, `gateWindowStep_s` ใช้ `base.gateWindowStep_s` เดิมอยู่แล้วเพราะ `gateOpts` ไม่เคยส่ง `slide_s`) ผลคือ `TraceConfig` ที่ได้จาก `fromOptions(gateOpts)` เท่ากับ `cfg` ทุก field พอดี — การเปลี่ยนแปลงนี้จึงให้ windows เหมือนเดิมทุกประการ ไม่ใช่แค่ "ควรจะ" เหมือนกัน ยืนยันด้วยผลรันจริง (หัวข้อ 7): ทุก test ที่พึ่ง `gateWindows` (E3, E4, `qa-movement-gap-400m-01` 4 case) ยังผ่านครบ
+
+## 7. คำสั่งที่รันจริง
+
+| # | คำสั่ง | ผล |
+| --- | --- | --- |
+| 1 | `pnpm --filter @keep-walking/client build && pnpm --filter @keep-walking/client preview --port 4173` | build เขียว (`✓ built in 319ms`), preview ให้ HTTP 200 ที่ `localhost:4173` — ไม่แดงตามที่ context เตือนไว้ตอนรันงานนี้ |
+| 2 | `E2E_BASE_URL=http://localhost:4173 pnpm exec tsx qa/reports/F02/map-style/capture-screenshots.spec.ts` | 56/56 ภาพสำเร็จ, `externalRequests=0`, `consoleErrors` ว่างทุกภาพ, `animationCheck.identical: true` |
+| 3 | `npx tsc --noEmit -p tsconfig.json` | ผ่าน (root, ครอบ `qa/tests/traces` และ `qa/reports/F02`) |
+| 4 | `npx eslint qa/reports/F02/map-style/capture-screenshots.spec.ts qa/tests/traces/lib/qa-builder.ts qa/tests/traces/engine-movement-gate.test.ts` | 0 error |
+| 5 | `npx prettier --check` (ไฟล์ที่แก้ทั้งหมด รวม `results.json`) | ผ่านทุกไฟล์ (ก่อนหน้านี้ `results.json` ไม่ผ่านเพราะเพิ่งเขียนใหม่ด้วย `JSON.stringify` — รัน `--write` แล้วผ่าน) |
+| 6 | `pnpm exec tsx qa/tests/traces/build.ts --check` | `ok` ทั้ง 7 ไฟล์ (ไม่ stale) |
+| 7 | `npx vitest run qa/tests/traces tools/traces/src/generator.test.ts` | **6 test files passed, 90 tests passed** |
+
+## 8. Traceability — ข้อจำกัดเดิม → สถานะตอนนี้
+
+| ข้อจำกัดเดิม | จากไฟล์ | สถานะตอนนี้ |
+| --- | --- | --- |
+| S2 (ซอยสุขุมวิท) จอดำสนิท ไม่มีข้อมูล tile จริง | `P1-H06-screenshot-tests.md` หัวข้อ 0, 2.2 | **ปิดแล้ว** — หัวข้อ 2.1 ข้างต้น |
+| S5 (แม่น้ำเจ้าพระยา) จอดำสนิท ไม่มีข้อมูล tile จริง | `P1-H06-screenshot-tests.md` หัวข้อ 0, 2.5 | **ปิดแล้ว** (ขอบน้ำ+คลอง) — หัวข้อ 2.2; ชื่อแม่น้ำเป็นข้อค้นพบใหม่ ไม่บล็อก — หัวข้อ 3 |
+| S6 (ชายฝั่งสมุทรปราการ) พิสูจน์ "ไม่มีขอบดำกลางทะเล" ได้แค่ทางอ้อม (point-in-polygon) เพราะไม่มี `map.water` ให้เห็นจริง | `P2-F04-T09-rerun.md` หัวข้อ 5.3 | **ปิดแล้วด้วยภาพจริง** — หัวข้อ 2.3, 2.4 |
+
+## 9. Acceptance checklist (จาก detail block ของ P2-H08 บนบอร์ด)
+
+- [x] S2/S5/S6 ถ่ายภาพจริงด้วย fixture เฉพาะจอ พร้อม verdict ต่อจอเทียบ `art/direction/map-style.md` — หัวข้อ 2
+- [x] อัปเดตรายงาน F02 ปิด/บันทึกสถานะข้อจำกัดของ P1-H06 และ P2-F04-T09 หัวข้อ 5.3 — หัวข้อ 8
+- [x] qa-builder ใช้ `TraceHeader.kind: 'qa'` แทนการ stamp ทีหลัง — หัวข้อ 5
+- [x] `build.ts --check` ok — หัวข้อ 5, 7#6
+- [x] `pnpm exec vitest run qa/tests/traces` เขียว — หัวข้อ 7#7 (90/90 ผ่าน)
+- [x] `gateWindows` ใน `qa/tests/traces` ใช้ `loadTraceConfig()` แทน options เก่า ให้ผลเหมือนเดิม — หัวข้อ 6
+- [x] Prettier สะอาดบนไฟล์ของงานนี้ รวม `results.json` — หัวข้อ 7#5 (`qa/tests/F02/hud-flag-gate.test.ts` ไม่อยู่ใน `writes` ของงานนี้ ไม่แตะ)
+
+## 10. Verdict และ handoffs
+
+**Verdict: PASS** — ทุกเกณฑ์ใน acceptance มีหลักฐาน ไม่มีบั๊ก severity high/critical ใหม่ที่พบในงานนี้ ข้อค้นพบเดียว (S5, ชื่อแม่น้ำนอกกรอบ) ไม่บล็อกเพราะเป็นเรื่องตำแหน่งทดสอบ ไม่ใช่ข้อผิดพลาดของ style/โค้ด/ข้อมูล
+
+handoffs:
+- **ถึง art-director (blocking: no)**: พิจารณาขยับพิกัด/ซูมของ S2 ในตาราง 10.1 (หรือระบุพิกัดที่สองสำหรับ "ชื่อแม่น้ำ" โดยเฉพาะ) เล็กน้อยเพื่อให้ป้าย `แม่น้ำเจ้าพระยา` ตกอยู่ในกรอบ 390×844/360×800 พอดี — ข้อมูลมีอยู่แล้วและ render ถูกที่ viewport กว้างกว่า (หัวข้อ 3) เป็นแค่เรื่องตำแหน่งทดสอบ ไม่ใช่บั๊ก
+- **ถึง location-engineer (blocking: no)**: ขอบคุณสำหรับ fixture 4 ชุดใหม่ — ปิดข้อจำกัดของ P1-H06/P2-F04-T09 ได้ครบตามที่ตั้งใจ ไม่มีคำขอเพิ่มเติมในตอนนี้

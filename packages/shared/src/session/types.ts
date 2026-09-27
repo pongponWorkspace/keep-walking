@@ -2,6 +2,7 @@
 // each interface are this task's choice; the shapes and meanings are the contract every other
 // Phase 2 task (client plumbing, HP engine, QA) builds against.
 import type { Polygon, MultiPolygon } from 'geojson';
+import type { GateFilterState } from '@keep-walking/geo';
 import type { ApproachState, OpeningHours, PresenceTrackerState, SpeedLockState } from '../run';
 import type {
   ClosedGateWindow,
@@ -288,6 +289,15 @@ export interface RunState {
    * `main := scratch` promotion so a set that never confirms never grants anything. */
   readonly scratchClosed: readonly ClosedGateWindow[];
   readonly grantedCount: number;
+  /** Cumulative raw exp `grantTick` has added to `player.exp` so far this run (P2-X35): the exact
+   * same number every `run_tick_granted.expGained` already reported, summed. Read straight into
+   * `RunSummary.expGained` on every exit reason, `death` included (F05-R21/R26, F06-R23: exp is
+   * never reversed the way `run.bag`'s loot can be — it is applied to `player` the instant each
+   * tick grants, never staged). */
+  readonly expGained: number;
+  /** Cumulative `levelAfter - levelBefore` across every granted tick this run (P2-X35); same
+   * never-reversed-on-death rule as `expGained` above ("เลเวลไม่ลด", F06-R23). */
+  readonly levelsGained: number;
   readonly bag: RunBag;
   readonly hp: RunHpState;
   /** Presence tracker (run/hysteresis PresenceTrackerState), lazily typed to avoid an import cycle. */
@@ -314,6 +324,10 @@ export interface RunSummary {
   readonly ticksGranted: number;
   readonly partialTick: { readonly f: number; readonly granted: boolean } | null;
   readonly loot: readonly { readonly id: string; readonly qty: number }[];
+  /** Total exp/levels this run actually granted (`RunState.expGained`/`levelsGained`, P2-X35),
+   * unlike `loot`/`lost` above: never zeroed on `death` or any other exit reason — exp is applied
+   * to `player.exp`/`level` at grant time and is never reversible the way run-bag loot is
+   * (F05-R21/R26, F06-R23, flow F05 B2). */
   readonly expGained: number;
   readonly levelsGained: number;
   /** F06 2.4: HP the run ended at (not rounded), and the stats needed to read it (no coordinates
@@ -330,7 +344,10 @@ export interface RunSummary {
 }
 
 export interface SessionState {
-  readonly schemaVersion: 1;
+  /** P2-X35: bumped 1 -> 2 (`RunState` gained `expGained`/`levelsGained`, no migration in Phase 2 —
+   * `fromPersisted` drops any older blob as `schema_mismatch`, same rule this file already used for
+   * the P2-X10 launch shape). */
+  readonly schemaVersion: 2;
   readonly clock: {
     readonly lastNow_ms: number | null;
     readonly lastSample_ms: number | null;
@@ -338,6 +355,14 @@ export interface SessionState {
   };
   readonly pre: ApproachState;
   readonly lock: SpeedLockState;
+  /** ADR 0003 5.3 step-1 outlier filter (accuracy + speed re-anchor), fed every sample regardless
+   * of any run, so `pre`'s approach-chain evidence (`usableAndUnlocked`, `outsideSeenAt_ms`) can
+   * never be produced by a physically-impossible jump (BUG-P2-002, GD B-03,
+   * F04-R07(2)/E5 `teleportIntoPolygonAllowed: false`). Independent of `run.reward.filter` /
+   * `run.rewardScratch.filter`, which only exist once a run has started; this one runs from the
+   * very first sample of a session. Reset alongside `pre`/`lock` on consent withdrawal
+   * (`purgeLocationData`) and never persisted (`anchor`/`pending` are raw `GeoSample`s, `./persistence.ts`). */
+  readonly checkInFilter: GateFilterState;
   readonly run: RunState | null;
   readonly player: PlayerState;
   readonly lastSummary: RunSummary | null;
@@ -517,7 +542,7 @@ export type SessionEvent =
 /** Storage-adapter envelope (tech note F04 10.1): `JSON.stringify` of this is the whole value of
  * the `kw.p2.session` key. `toPersisted` / `fromPersisted` (P2-X10) live in `./persistence`. */
 export interface PersistedSession {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly savedAt_ms: number;
   readonly state: SessionState;
 }

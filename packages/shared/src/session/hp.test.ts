@@ -235,6 +235,18 @@ function feed(state: SessionState, params: SessionParams, samples: ReturnType<ty
   return { state: s, events };
 }
 
+/** P2-X35: sum of every `run_tick_granted.expGained`/level delta this run's events actually
+ * carried — the same total `RunSummary.expGained`/`levelsGained` must report. */
+function sumExpGained(events: readonly SessionEvent[]): number {
+  return events.reduce((sum, e) => (e.type === 'run_tick_granted' ? sum + e.expGained : sum), 0);
+}
+function sumLevelsGained(events: readonly SessionEvent[]): number {
+  return events.reduce(
+    (sum, e) => (e.type === 'run_tick_granted' ? sum + (e.levelAfter - e.levelBefore) : sum),
+    0,
+  );
+}
+
 const WARMUP_MS = 10000;
 
 function enterRun(
@@ -406,6 +418,68 @@ describe('sessionStep: HP engine (tech note F06 section 4)', () => {
     expect(state.player.inventory).toEqual({ hpSmall: 1 });
     expect(state.player.hp.recovering).toBe(true);
     expect(state.player.hp.value).toBe(0);
+    // P2-X35 (F05-R21/R26, F06-R23 "ของใน run หาย exp อยู่ เลเวลไม่ลด"): unlike the run bag above
+    // (lost entirely), the tick granted before this hit already banked its exp into `player`
+    // permanently — `death` must not zero `RunSummary.expGained`/`levelsGained` the way it zeros
+    // `loot`.
+    const grantedExp = sumExpGained(r.events);
+    expect(grantedExp).toBeGreaterThan(0);
+    expect(state.lastSummary?.expGained).toBeCloseTo(grantedExp, 9);
+    expect(state.lastSummary?.levelsGained).toBe(sumLevelsGained(r.events));
+  });
+
+  it('P2-X35: multi-tick run accumulates expGained across every tick, no level-up yet', () => {
+    const params = testParams();
+    let state = enterRun(params, 6).state;
+    // 10 minutes = two full 300 s reward windows (same GDD cadence as reducer.test.ts's own
+    // "grants a tick every 5 minutes" test): 18 exp/tick (level 1, ranged solo, noMagicMult 0.6),
+    // 36 total — well under the 60 exp level 1 needs, so no level-up here (that is the next test).
+    const r = feed(state, params, walkSamples(WARMUP_MS + 5000, 120));
+    state = r.state;
+    const granted = r.events.filter((e) => e.type === 'run_tick_granted');
+    expect(granted.length).toBe(2);
+    const grantedExp = sumExpGained(r.events);
+    expect(grantedExp).toBeCloseTo(36, 9);
+    expect(sumLevelsGained(r.events)).toBe(0);
+
+    const exited = sessionStep(
+      state,
+      { type: 'exit' },
+      WARMUP_MS + 5000 + 120 * 5000,
+      params,
+    ).state;
+    // Consistent with `player.exp`/`level`, not a second, separately-derived number (P2-X35):
+    // starting from exp 0 with no level crossed, the summary total and `player.exp` are identical.
+    expect(exited.lastSummary?.expGained).toBeCloseTo(grantedExp, 9);
+    expect(exited.lastSummary?.levelsGained).toBe(0);
+    expect(exited.player.level).toBe(1);
+    expect(exited.player.exp).toBeCloseTo(grantedExp, 9);
+  });
+
+  it('P2-X35: a level-up mid-run is reflected in levelsGained, consistent with player.level', () => {
+    const params = testParams();
+    let state = enterRun(params, 7).state;
+    // 20 minutes = four ticks, 18 exp each (72 total): the 4th tick crosses the 60-exp level-1
+    // threshold, landing at level 2 with 12 exp remaining (verified by hand: 18*3=54,
+    // need=60-54=6, remaining 18-6=12 carries into level 2).
+    const r = feed(state, params, walkSamples(WARMUP_MS + 5000, 240));
+    state = r.state;
+    const granted = r.events.filter((e) => e.type === 'run_tick_granted');
+    expect(granted.length).toBe(4);
+    const grantedExp = sumExpGained(r.events);
+    expect(grantedExp).toBeCloseTo(72, 9);
+    expect(sumLevelsGained(r.events)).toBe(1);
+
+    const exited = sessionStep(
+      state,
+      { type: 'exit' },
+      WARMUP_MS + 5000 + 240 * 5000,
+      params,
+    ).state;
+    expect(exited.lastSummary?.expGained).toBeCloseTo(72, 9);
+    expect(exited.lastSummary?.levelsGained).toBe(1);
+    expect(exited.player.level).toBe(2);
+    expect(exited.player.exp).toBeCloseTo(12, 9);
   });
 
   it('recovering player: usePotion revive works only while Recovering, and heals HP potions outside a run', () => {

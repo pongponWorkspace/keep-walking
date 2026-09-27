@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
 import { mountNavPanel } from './nav-panel';
+import { getDungeonShortName } from '../copy/names';
+import { getCopyText } from '../copy/load';
 
 function baseDeps(overrides: Partial<Parameters<typeof mountNavPanel>[1]> = {}) {
   return {
@@ -22,6 +24,7 @@ describe('mountNavPanel', () => {
       lat: 13.7627981,
       lng: 100.4944865,
       searchNameKey: 'dungeon.baanPhraAthit.search',
+      nameKey: 'dungeon.baanPhraAthit',
     });
     const link = panel.root.querySelector('.nav-navigate-button') as HTMLAnchorElement;
     expect(link.href).toContain('google.com/maps/dir');
@@ -40,6 +43,7 @@ describe('mountNavPanel', () => {
       lat: 13.7627981,
       lng: 100.4944865,
       searchNameKey: 'dungeon.baanPhraAthit.search',
+      nameKey: 'dungeon.baanPhraAthit',
     });
     const link = panel.root.querySelector('.nav-navigate-button') as HTMLAnchorElement;
     expect(link.href).toContain('maps.apple.com');
@@ -63,9 +67,61 @@ describe('mountNavPanel', () => {
       lat: 13.76,
       lng: 100.49,
       searchNameKey: 'dungeon.baanPhraAthit.search',
+      nameKey: 'dungeon.baanPhraAthit',
     });
     (container.querySelector('.nav-fallback-open-link') as HTMLElement).click();
     expect(lastAuto).toBe(false);
+  });
+
+  it('C-02: the fallback destination name comes from names.th.json, never the raw key', () => {
+    const container = document.createElement('div');
+    mountNavPanel(container, baseDeps()).setDestination({
+      lat: 13.76,
+      lng: 100.49,
+      searchNameKey: 'dungeon.rommaninatPark.search',
+      nameKey: 'dungeon.rommaninatPark',
+    });
+    expect(container.textContent).not.toContain('dungeon.rommaninatPark.search');
+  });
+
+  it('C-07: the secondary link reads nav.copyPlaceLink, not nav.fallbackOtherApp', () => {
+    const container = document.createElement('div');
+    mountNavPanel(container, baseDeps());
+    const link = container.querySelector('.nav-fallback-open-link') as HTMLElement;
+    expect(link.textContent).toBe(getCopyText('nav.copyPlaceLink'));
+  });
+
+  it('C-08: the fallback panel shows nav.fallbackBody', () => {
+    const container = document.createElement('div');
+    mountNavPanel(container, baseDeps());
+    expect(container.textContent).toContain(getCopyText('nav.fallbackBody'));
+  });
+
+  it('A2: shows the resolved destination name line', () => {
+    const container = document.createElement('div');
+    const panel = mountNavPanel(container, baseDeps());
+    panel.setDestination({
+      lat: 13.76,
+      lng: 100.49,
+      searchNameKey: 'dungeon.baanPhraAthit.search',
+      nameKey: 'dungeon.baanPhraAthit',
+    });
+    const line = container.querySelector('.nav-panel-destination-name') as HTMLElement;
+    expect(line.hidden).toBe(false);
+    expect(line.textContent).toBe(getDungeonShortName('dungeon.baanPhraAthit'));
+  });
+
+  it('A2: hides the destination name line entirely when it does not resolve', () => {
+    const container = document.createElement('div');
+    const panel = mountNavPanel(container, baseDeps());
+    panel.setDestination({
+      lat: 13.76,
+      lng: 100.49,
+      searchNameKey: 'dungeon.doesNotExist.search',
+      nameKey: 'dungeon.doesNotExist',
+    });
+    const line = container.querySelector('.nav-panel-destination-name') as HTMLElement;
+    expect(line.hidden).toBe(true);
   });
 
   it('offline shows the fallback panel immediately on tap (tech note 14.2)', () => {
@@ -75,6 +131,7 @@ describe('mountNavPanel', () => {
       lat: 13.76,
       lng: 100.49,
       searchNameKey: 'dungeon.baanPhraAthit.search',
+      nameKey: 'dungeon.baanPhraAthit',
     });
     const link = container.querySelector('.nav-navigate-button') as HTMLAnchorElement;
     link.addEventListener('click', (e) => e.preventDefault());

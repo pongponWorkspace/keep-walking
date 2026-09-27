@@ -24,12 +24,12 @@ describe('checkInStatusView', () => {
     expect(view.countdownText).toBe('01:05');
   });
 
-  it('maps not_enough_trace with no countdown when readyIn_s is null (backend still landing)', () => {
+  it('maps not_enough_trace with readyIn_s null to checkinNotEnoughTraceWaiting (C-06: no raw {countdown})', () => {
     const view = checkInStatusView(
       { ok: false, reason: 'not_enough_trace', readyIn_s: null },
       false,
     );
-    expect(view.copyKey).toBe('dungeon.checkinNotEnoughTrace');
+    expect(view.copyKey).toBe('dungeon.checkinNotEnoughTraceWaiting');
     expect(view.countdownText).toBeUndefined();
   });
 

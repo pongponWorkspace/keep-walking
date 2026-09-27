@@ -91,14 +91,22 @@ function overrideIfPresent(
  * `window.setInterval(... f04App?.onTick ...)`), which rebuilds those same sources from the real
  * dungeon artifact roughly once a second — the spec's injected fixture data would eventually be
  * silently overwritten mid-test. Setting `e2eSkipF04App=1` skips creating `f04App` and its tick
- * interval entirely, leaving the map's dungeon sources solely under the spec's own control. Has no
- * effect unless present (same "presence, not merely a non-blank value" rule as the other e2e
- * overrides) and reads nothing that affects a reward (ADR 0001 3.8) — it only decides whether the
- * F04/F05 game loop is wired up at all, for a spec that only needs the raw map. */
-export const E2E_SKIP_F04APP_PARAM = 'e2eSkipF04App';
-
-export function shouldSkipF04App(search: string): boolean {
-  return new URLSearchParams(search).has(E2E_SKIP_F04APP_PARAM);
+ * interval entirely, leaving the map's dungeon sources solely under the spec's own control.
+ *
+ * Gated to the Mock provider only (tech gate P2-F05-T15 TG-05, decision 6.2 — the same rule as
+ * `start`/`seed`/`e2eClassId`): a plain playtest/production URL under `?loc=web` (the default)
+ * must never be able to silently go quiet with no game loop and no message. The param *name*
+ * itself comes from `config/app/client.json#providerQuery.paramNames.e2eSkipF04App`, never a
+ * literal — `main.ts` passes it in alongside whether the page's own provider selection resolved
+ * to Mock, so this one pure function is both the parser and the gate, directly unit-testable
+ * without touching `window.location`. */
+export function shouldSkipF04App(
+  search: string,
+  paramName: string,
+  isMockProvider: boolean,
+): boolean {
+  if (!isMockProvider) return false;
+  return new URLSearchParams(search).has(paramName);
 }
 
 /**

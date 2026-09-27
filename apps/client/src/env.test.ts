@@ -79,17 +79,29 @@ describe('withTestEnvOverrides', () => {
 
 describe('shouldSkipF04App', () => {
   it('is false with no query params at all', () => {
-    expect(shouldSkipF04App('')).toBe(false);
+    expect(shouldSkipF04App('', 'e2eSkipF04App', true)).toBe(false);
   });
 
   it('is false when the param is absent, even alongside other params', () => {
-    expect(shouldSkipF04App('?hud=1')).toBe(false);
+    expect(shouldSkipF04App('?hud=1', 'e2eSkipF04App', true)).toBe(false);
   });
 
-  it('is true whenever the param is present, regardless of its value', () => {
-    expect(shouldSkipF04App('?e2eSkipF04App=1')).toBe(true);
-    expect(shouldSkipF04App('?e2eSkipF04App=')).toBe(true);
-    expect(shouldSkipF04App('?hud=1&e2eSkipF04App=0')).toBe(true);
+  it('is true whenever the param is present under the Mock provider, regardless of its value', () => {
+    expect(shouldSkipF04App('?e2eSkipF04App=1', 'e2eSkipF04App', true)).toBe(true);
+    expect(shouldSkipF04App('?e2eSkipF04App=', 'e2eSkipF04App', true)).toBe(true);
+    expect(shouldSkipF04App('?hud=1&e2eSkipF04App=0', 'e2eSkipF04App', true)).toBe(true);
+  });
+
+  it('uses the configured param name, not a literal "e2eSkipF04App"', () => {
+    expect(shouldSkipF04App('?skip=1', 'skip', true)).toBe(true);
+    expect(shouldSkipF04App('?e2eSkipF04App=1', 'skip', true)).toBe(false);
+  });
+
+  // TG-05 (tech gate P2-F05-T15, decision 6.2): outside the Mock provider this must never take
+  // effect, even when the param is present on the URL — a plain playtest/production link must
+  // never be able to silently go quiet with no game loop and no message.
+  it('is false outside the Mock provider even when the param is present (TG-05)', () => {
+    expect(shouldSkipF04App('?e2eSkipF04App=1', 'e2eSkipF04App', false)).toBe(false);
   });
 });
 

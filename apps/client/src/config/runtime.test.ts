@@ -13,6 +13,8 @@ function validClient(): Record<string, unknown> {
         hud: 'hud',
         start: 'start',
         seed: 'seed',
+        e2eClassId: 'e2eClassId',
+        e2eSkipF04App: 'e2eSkipF04App',
       },
       allowedProviders: ['web', 'mock', 'capacitor'],
       allowedMockSpeeds: [1, 10, 60],
@@ -40,7 +42,7 @@ function validClient(): Record<string, unknown> {
     probe: { vibrateTestPattern_ms: 200 },
     bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
     vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
-    toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3 },
+    toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3, hpLowHoldDurationMs: 4000 },
   };
 }
 
@@ -70,6 +72,8 @@ describe('parseClientConfig', () => {
     expect(parsed.providerQueryDefaultsByMode.production.provider).toBe('web');
     expect(parsed.providerQuery.paramNames.start).toBe('start');
     expect(parsed.providerQuery.paramNames.seed).toBe('seed');
+    expect(parsed.providerQuery.paramNames.e2eClassId).toBe('e2eClassId');
+    expect(parsed.providerQuery.paramNames.e2eSkipF04App).toBe('e2eSkipF04App');
     expect(parsed.engine).toEqual({ tickInterval_ms: 1000 });
     expect(parsed.storage).toEqual({ sessionPersistInterval_s: 5 });
     expect(parsed.navigation).toEqual({ coordinateDecimals: 5, externalOpenTimeout_ms: 2500 });

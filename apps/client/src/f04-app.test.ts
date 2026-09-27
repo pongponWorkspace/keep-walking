@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from 'vitest';
-import { createF04App } from './f04-app';
+import { describe, expect, it, vi } from 'vitest';
+import { createF04App, resolveE2eClassId, resolveRunSeed } from './f04-app';
 import { createMemoryStorage } from './storage/local-store';
 import { loadDungeonArtifact } from './dungeons/artifact';
 
@@ -10,9 +10,7 @@ describe('createF04App', () => {
   if (dungeon === undefined) throw new Error('fixture: artifact has no dungeons');
   const [lng, lat] = dungeon.geometry.coordinates[0]?.[0] as unknown as readonly [number, number];
 
-  function makeApp() {
-    const container = document.createElement('div');
-    document.body.append(container);
+  function makeAppIn(container: HTMLElement) {
     return createF04App({
       map: undefined,
       hudContainer: container,
@@ -28,8 +26,43 @@ describe('createF04App', () => {
       copyToClipboard: async () => true,
       playAudioUrl: () => undefined,
       now: () => Date.now(),
+      locationSearch: '',
+      isMockProvider: false,
     });
   }
+
+  function makeApp() {
+    const container = document.createElement('div');
+    document.body.append(container);
+    return makeAppIn(container);
+  }
+
+  // TG-03/TG-04 (tech gate P2-F05-T15, decision 6.2): the Web provider must never read `?seed=`
+  // or `?e2eClassId=` — both hooks are Mock-only.
+  describe('resolveRunSeed (TG-03)', () => {
+    it('ignores ?seed= outside the Mock provider, uses crypto.getRandomValues instead', () => {
+      const spy = vi.spyOn(crypto, 'getRandomValues').mockImplementation((arr) => {
+        (arr as Uint32Array)[0] = 999;
+        return arr;
+      });
+      expect(resolveRunSeed('?seed=42', false)).toBe(999);
+      spy.mockRestore();
+    });
+
+    it('honors ?seed= under the Mock provider', () => {
+      expect(resolveRunSeed('?seed=42', true)).toBe(42);
+    });
+  });
+
+  describe('resolveE2eClassId (TG-04)', () => {
+    it('ignores ?e2eClassId= outside the Mock provider', () => {
+      expect(resolveE2eClassId('?e2eClassId=tanker', false)).toBeUndefined();
+    });
+
+    it('honors ?e2eClassId= under the Mock provider', () => {
+      expect(resolveE2eClassId('?e2eClassId=tanker', true)).toBe('tanker');
+    });
+  });
 
   it('boots without throwing and starts with no run', () => {
     const app = makeApp();
@@ -55,5 +88,51 @@ describe('createF04App', () => {
     for (const record of app.telemetry.snapshot()) {
       expect(JSON.stringify(record.properties)).not.toMatch(/1[0-9]\.\d{4,}/);
     }
+  });
+
+  // BUG-P2-003 (qa/bugs.md): walking into a closed dungeon's polygon must show the B4 closed
+  // popup (`.popup` with `.confirm-cancel`, no enabled Enter button) — previously nothing opened
+  // at all. `khlong-ong-ang` (`data/dungeons/artifact/dungeons.client.v1.json`) is closed all day
+  // every Monday (`weekly["1"] = []`); 2026-09-28 is a Monday (same fixture qa's own
+  // `qa/tests/e2e/f04-closed-dungeon.spec.ts` pins down).
+  describe('BUG-P2-003 — walking into a closed dungeon', () => {
+    const closedDungeon = artifact.dungeons.find((d) => d.id === 'khlong-ong-ang');
+    if (closedDungeon === undefined) throw new Error('fixture: khlong-ong-ang missing');
+    const [closedLng, closedLat] = closedDungeon.geometry
+      .coordinates[0]?.[0] as unknown as readonly [number, number];
+    const monday_ms = Date.parse('2026-09-28T10:00:00+07:00');
+
+    /** The confirm popup's overlay is the one `.popup-overlay` whose popup contains
+     * `.confirm-cancel`, scoped to this test's own `container` — `document.querySelector` would
+     * find the first match across every app instance any earlier test in this file created
+     * (happy-dom keeps one `document` per file, and `makeApp` never removes old containers). */
+    function findConfirmOverlay(container: HTMLElement): HTMLElement | null {
+      const cancel = container.querySelector('.confirm-cancel');
+      return cancel?.closest('.popup-overlay') as HTMLElement | null;
+    }
+
+    it('shows the closed popup (title + dismiss, no enter button) instead of no popup at all', () => {
+      const container = document.createElement('div');
+      document.body.append(container);
+      const app = makeAppIn(container);
+      app.onSample(closedLat, closedLng, 5, monday_ms);
+      const overlay = findConfirmOverlay(container);
+      expect(overlay?.hidden).toBe(false);
+      const enterButton = overlay?.querySelector('.btn-primary') as HTMLButtonElement | null;
+      expect(enterButton?.hidden).toBe(true);
+      const cancelButton = overlay?.querySelector('.confirm-cancel') as HTMLButtonElement | null;
+      expect(cancelButton?.hidden ?? false).toBe(false);
+    });
+
+    it('hides the closed popup again once the player walks back out', () => {
+      const container = document.createElement('div');
+      document.body.append(container);
+      const app = makeAppIn(container);
+      app.onSample(closedLat, closedLng, 5, monday_ms);
+      // Well outside every fixture dungeon (mid-river, no polygon covers it).
+      app.onSample(13.7, 100.4, 5, monday_ms + 1000);
+      const overlay = findConfirmOverlay(container);
+      expect(overlay?.hidden).toBe(true);
+    });
   });
 });

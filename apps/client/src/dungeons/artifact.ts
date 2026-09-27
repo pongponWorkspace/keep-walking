@@ -3,12 +3,12 @@
  * section 13): builds the `SessionDungeonRecord` map `session/config.ts` needs, and the map's view
  * model (`kw-dungeons`/`kw-dungeon-labels`, tech note F02 15.2 / D-075) via
  * `map/dungeons-source.ts#setDungeonsSourceData`. This file never invents a `name`/`status` field
- * itself: `name` resolves `name_key` through `copy/load.ts` (names.th.json is loaded the same way,
- * P1 convention), `status` resolves through `selectOpening` (`@keep-walking/shared/session`,
- * P2-X10) — never a literal.
+ * itself: `name` resolves `name_key` through `copy/names.ts#getDungeonShortName` (`names.th.json`,
+ * C-01 copy gate P2-X37 — `copy.th.json` has no `dungeon.<id>` keys at all), `status` resolves
+ * through `selectOpening` (`@keep-walking/shared/session`, P2-X10) — never a literal.
  */
 import artifactJson from '../../../../data/dungeons/artifact/dungeons.client.v1.json';
-import { getCopyText } from '../copy/load';
+import { getDungeonShortName } from '../copy/names';
 import { selectOpening } from '@keep-walking/shared/session';
 import type { SessionDungeonRecord, SessionParams } from '@keep-walking/shared/session';
 import type { DungeonGeometry, DungeonInput, DungeonStatus } from '../map/dungeons-source';
@@ -82,7 +82,8 @@ export function toMapDungeonInput(
 ): DungeonInput {
   return {
     id: dungeon.id,
-    name: getCopyText(dungeon.name_key),
+    // Short form (`nameReal` alone) — the map label has no room for the full `{zoneName}` (C-01).
+    name: getDungeonShortName(dungeon.name_key),
     geometry: dungeon.geometry,
     status: dungeonStatus(dungeon, params, now_ms),
     sponsored: false,

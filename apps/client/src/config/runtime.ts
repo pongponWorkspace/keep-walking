@@ -38,6 +38,12 @@ export interface ProviderQueryConfig {
     readonly start: string;
     /** `loc=mock` only: RNG `runSeed` test hook (ADR 0003 section 6). */
     readonly seed: string;
+    /** `loc=mock` only (tech gate P2-F05-T15 decision 6.2): dispatches a real `chooseClass` once
+     * at boot, standing in for the not-yet-built class-picker screen. */
+    readonly e2eClassId: string;
+    /** `loc=mock` only (tech gate P2-F05-T15 decision 6.2): skips creating the F04 game loop
+     * entirely, for a map-only e2e spec. */
+    readonly e2eSkipF04App: string;
   };
   readonly allowedProviders: readonly LocationProviderKind[];
   readonly allowedMockSpeeds: readonly MockSpeed[];
@@ -120,6 +126,9 @@ export interface VibrationConfig {
 export interface ToastConfig {
   readonly tickHoldDurationMs: number;
   readonly tickMaxIconsShown: number;
+  /** `client.json#toast.hpLowHoldDurationMs` (P2-F06-T08, F06 flow Flow C2): `run.hpLow`'s own,
+   * longer hold time — its canon sentence is much longer than a tick toast's. */
+  readonly hpLowHoldDurationMs: number;
 }
 
 export interface ClientRuntimeConfig {
@@ -246,6 +255,8 @@ function parseProviderQuery(root: Json, path: string): ProviderQueryConfig {
       hud: str(names['hud'], `${path}/paramNames/hud`),
       start: str(names['start'], `${path}/paramNames/start`),
       seed: str(names['seed'], `${path}/paramNames/seed`),
+      e2eClassId: str(names['e2eClassId'], `${path}/paramNames/e2eClassId`),
+      e2eSkipF04App: str(names['e2eSkipF04App'], `${path}/paramNames/e2eSkipF04App`),
     },
     allowedProviders,
     allowedMockSpeeds,
@@ -341,6 +352,7 @@ function parseToast(root: Json, path: string): ToastConfig {
   return {
     tickHoldDurationMs: num(node['tickHoldDurationMs'], `${path}/tickHoldDurationMs`),
     tickMaxIconsShown: num(node['tickMaxIconsShown'], `${path}/tickMaxIconsShown`),
+    hpLowHoldDurationMs: num(node['hpLowHoldDurationMs'], `${path}/hpLowHoldDurationMs`),
   };
 }
 

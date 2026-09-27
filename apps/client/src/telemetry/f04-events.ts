@@ -45,6 +45,31 @@ export function durationBucket(duration_ms: number): DurationBucket {
   return '60m+';
 }
 
+export type MinutesSinceRunStartBucket = '0-15' | '15-30' | '30-45' | '45-60' | '60+';
+
+const RUN_START_EDGE_15_MIN = 15;
+const RUN_START_EDGE_30_MIN = 30;
+const RUN_START_EDGE_45_MIN = 45;
+const RUN_START_EDGE_60_MIN = 60;
+const MINUTES_SINCE_RUN_START_EDGES: readonly (readonly [number, MinutesSinceRunStartBucket])[] = [
+  [RUN_START_EDGE_15_MIN, '0-15'],
+  [RUN_START_EDGE_30_MIN, '15-30'],
+  [RUN_START_EDGE_45_MIN, '30-45'],
+  [RUN_START_EDGE_60_MIN, '45-60'],
+];
+
+/** `run_auto_retreat.minutes_since_run_start_bucket` (product/telemetry-events.md section 3):
+ * relative time since `RunState.startedAt_ms`, from the event's own `sinceStart_ms` — never joined
+ * against wall-clock time. */
+export function minutesSinceRunStartBucket(sinceStart_ms: number): MinutesSinceRunStartBucket {
+  for (const [edgeMin, label] of MINUTES_SINCE_RUN_START_EDGES) {
+    if (sinceStart_ms < edgeMin * MS_PER_MIN) {
+      return label;
+    }
+  }
+  return '60+';
+}
+
 /** Phase 2 is always solo (D-039/D-089): every party-shaped property is a fixed, documented value
  * rather than a computed one, so nobody ever has to explain "why is this always 1". */
 const PARTY_SIZE_BUCKET_SOLO = '1';
@@ -116,10 +141,13 @@ export function dungeonClosingSoonNotifiedEvent(dungeonId: string): MappedTeleme
 }
 
 /**
- * One `SessionEvent` -> zero or one telemetry record (`sample_rejected` and `run_hp_low`/
- * `run_auto_retreat`/`run_death` are not in `SessionEvent` yet — F06/HP engine's own events map
- * separately once P2-F06-T06 lands). `playerClass` is read once per step from `SessionState.player`
- * (never from the event itself, which has no class field).
+ * One `SessionEvent` -> zero or one telemetry record, including the HP engine's own events
+ * (P2-F06-T06, `docs/tech/F06-hp-damage-onboarding.md` 12.3): `run_hp_low`/`run_auto_retreat`/
+ * `run_death` carry their own `classId` (used directly, not `playerClass`, since they can fire on
+ * the same step a `run_death`/`run_auto_retreat` ends the run and `state.player.classId` never
+ * changes mid-session anyway — same value either way). `playerClass` (the F04 events' own source)
+ * is read once per step from `SessionState.player` (never from the event itself, which has no
+ * class field for the older F04 events).
  */
 export function mapSessionEvent(
   event: SessionEvent,
@@ -186,22 +214,54 @@ export function mapSessionEvent(
     }
     case 'dungeon_closing_soon':
       return dungeonClosingSoonNotifiedEvent(event.dungeonId);
-    // `sample_rejected`, plus the HP engine's own events (P2-F06-T06, `docs/tech/
-    // F06-hp-damage-onboarding.md` 12.3): their telemetry mapping belongs to the client task that
-    // actually builds the HP UI (P2-F06-T08), the same call site this task's own F04 events are
-    // wired from — not forked here ahead of that build (`run_hp_low`/`run_auto_retreat`/
-    // `run_death`/`run_potion_auto_used` are already in `telemetry/known-events.ts`, waiting for
-    // that mapper). Every case below falls through to the same `return undefined`.
+    case 'run_hp_low':
+      return {
+        name: 'run_hp_low',
+        properties: { dungeon_id: event.dungeonId, class: event.classId },
+      };
+    case 'run_auto_retreat':
+      return {
+        name: 'run_auto_retreat',
+        properties: {
+          dungeon_id: event.dungeonId,
+          class: event.classId,
+          minutes_since_run_start_bucket: minutesSinceRunStartBucket(event.sinceStart_ms),
+        },
+      };
+    case 'run_death':
+      return {
+        name: 'run_death',
+        properties: { dungeon_id: event.dungeonId, class: event.classId },
+      };
+    case 'run_potion_auto_used':
+      return {
+        name: 'run_potion_auto_used',
+        properties: { dungeon_id: event.dungeonId, item_id: event.itemId },
+      };
+    case 'auto_retreat_setting_changed':
+      return {
+        name: 'auto_retreat_setting_changed',
+        properties: { enabled: event.enabled },
+      };
+    // `potion_used` (F06 tech note 6.3, P2-H24): fires outside any run (Recovering/home use of a
+    // potion from the inventory), so it maps to `inventory_potion_used` — never `dungeon_id`,
+    // never merged with `run_potion_auto_used` (product/telemetry-events.md section 3, "ห้ามรวม
+    // สอง event นี้เป็นตัวเดียวกัน").
+    case 'potion_used':
+      return {
+        name: 'inventory_potion_used',
+        properties: { item_id: event.itemId, revived: event.revived },
+      };
+    // `sample_rejected`, `run_hit` (per-attempt, no telemetry event of its own — `run_hp_low`/
+    // `run_auto_retreat`/`run_death` already cover the thresholds that matter), `class_chosen`/
+    // `class_choice_rejected` (no telemetry event declared for these in
+    // product/telemetry-events.md), `potion_use_rejected` (same — only the successful `potion_used`
+    // is a declared event) and `player_recovered` (no telemetry event; Recovering's own UI is
+    // display-only) never map to a telemetry record.
     case 'sample_rejected':
     case 'run_hit':
-    case 'run_hp_low':
-    case 'run_auto_retreat':
-    case 'run_death':
-    case 'run_potion_auto_used':
     case 'class_chosen':
     case 'class_choice_rejected':
-    case 'auto_retreat_setting_changed':
-    case 'potion_used':
     case 'potion_use_rejected':
     case 'player_recovered':
       return undefined;

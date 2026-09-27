@@ -59,7 +59,12 @@ function fakeTimers() {
 describe('createAudioPlayer', () => {
   it('plays a known cue immediately and vibrates once for a single-beat pattern', () => {
     const manifest = fakeManifest({
-      'run.tickGranted': { url: 'audio/run.tickGranted.wav', priority: 6, durationMs: 45, vibration_ms: [45] },
+      'run.tickGranted': {
+        url: 'audio/run.tickGranted.wav',
+        priority: 6,
+        durationMs: 45,
+        vibration_ms: [45],
+      },
     });
     const timers = fakeTimers();
     const played: string[] = [];
@@ -122,8 +127,18 @@ describe('createAudioPlayer', () => {
 
   it('queues an equal-priority cue behind the one already playing and starts it once the first ends', () => {
     const manifest = fakeManifest({
-      'run.tickGranted': { url: 'audio/run.tickGranted.wav', priority: 6, durationMs: 100, vibration_ms: [45] },
-      'drop.rarity.rare': { url: 'audio/drop.rarity.rare.wav', priority: 6, durationMs: 275, vibration_ms: [45, 70, 45, 70, 45] },
+      'run.tickGranted': {
+        url: 'audio/run.tickGranted.wav',
+        priority: 6,
+        durationMs: 100,
+        vibration_ms: [45],
+      },
+      'drop.rarity.rare': {
+        url: 'audio/drop.rarity.rare.wav',
+        priority: 6,
+        durationMs: 275,
+        vibration_ms: [45, 70, 45, 70, 45],
+      },
     });
     const timers = fakeTimers();
     const played: string[] = [];
@@ -146,8 +161,18 @@ describe('createAudioPlayer', () => {
 
   it('hard-cuts to a strictly more urgent (lower priority number) cue', () => {
     const manifest = fakeManifest({
-      'run.tickGranted': { url: 'audio/run.tickGranted.wav', priority: 6, durationMs: 1000, vibration_ms: [45] },
-      'run.death': { url: 'audio/run.death.wav', priority: 0, durationMs: 870, vibration_ms: [150, 120, 600] },
+      'run.tickGranted': {
+        url: 'audio/run.tickGranted.wav',
+        priority: 6,
+        durationMs: 1000,
+        vibration_ms: [45],
+      },
+      'run.death': {
+        url: 'audio/run.death.wav',
+        priority: 0,
+        durationMs: 870,
+        vibration_ms: [150, 120, 600],
+      },
     });
     const timers = fakeTimers();
     const played: string[] = [];

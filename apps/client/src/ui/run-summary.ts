@@ -16,7 +16,7 @@
 import { getCopyText } from '../copy/load';
 import { formatCopyText } from '../copy/format';
 import type { RunSummary } from '@keep-walking/shared/session';
-import { runSummaryHeaderKey } from './run-state-view';
+import { runSummaryBodyKey, runSummaryHeaderKey } from './run-state-view';
 import { itemLineView, rarityRank } from './item-line-view';
 import { buildItemIconElement } from './item-icon-dom';
 import type { AssetRuntime } from '../assets/icon-dom';
@@ -105,7 +105,16 @@ export function mountRunSummary(
         bodyLine.hidden = true;
       } else {
         canonLine.hidden = true;
-        bodyLine.hidden = true;
+        // C-10: `timeout`/`clock_invalid` get a body line too (not canon, uiux decision P2-H27) —
+        // every other `exit_reason` here (manual_exit, dungeon_closed, emergency_close) keeps the
+        // body hidden, same as before this task.
+        const bodyKey = runSummaryBodyKey(summary.exitReason);
+        if (bodyKey !== undefined) {
+          bodyLine.hidden = false;
+          bodyLine.textContent = getCopyText(bodyKey);
+        } else {
+          bodyLine.hidden = true;
+        }
       }
 
       // Flow B2/B3: engine numbers only, shown for every `exit_reason` including `death` (N-06 —

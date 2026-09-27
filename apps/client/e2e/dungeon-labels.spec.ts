@@ -101,6 +101,11 @@ function spikeUrl(): string {
     e2eTilesUrl: PMTILES_URL,
     e2eGlyphsUrl: GLYPHS_URL,
     e2eSpriteUrl: SPRITE_URL,
+    // Tech gate P2-F05-T15 TG-05 (decision 6.2): `e2eSkipF04App` (like every other query test hook)
+    // is only honored under the Mock provider — this spec builds/previews in production mode
+    // (`playwright.config.ts`'s `webServer`), whose own default provider is `web`, so `loc=mock`
+    // must be explicit here even though this spec never drives a location flow itself.
+    loc: 'mock',
     // P2-H03: this spec injects its own kw-rift/kw-rift-count source data below
     // (`setDungeonsSourceData`) — without this, `f04App`'s own periodic `refreshMapDungeons`
     // (main.ts) eventually overwrites it with the real dungeon artifact, a race this spec does

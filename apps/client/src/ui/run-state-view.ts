@@ -43,6 +43,20 @@ export function runSummaryHeaderKey(exitReason: RunSummary['exitReason']): strin
   return EXIT_REASON_SUMMARY_KEY[exitReason];
 }
 
+/** C-10 (copy gate P2-X37, uiux decision P2-H27): a body line shown under the header for
+ * `timeout`/`clock_invalid` only — `dungeon_closed`'s header already says everything (its own
+ * `dungeonClosedBody` is unnecessary) and `emergency_close` is unused until Phase 5. `death`'s own
+ * body (`run.summary.diedBody`) and `auto_retreat` (no body) are handled directly by
+ * `ui/run-summary.ts`, not through this map. */
+const EXIT_REASON_BODY_KEY: Partial<Record<RunSummary['exitReason'], string>> = {
+  timeout: 'run.summary.timeoutBody',
+  clock_invalid: 'run.summary.clockInvalidBody',
+};
+
+export function runSummaryBodyKey(exitReason: RunSummary['exitReason']): string | undefined {
+  return EXIT_REASON_BODY_KEY[exitReason];
+}
+
 /** Speed-lock overlay button set (F04 flow D1, GD B-03, components.md 13.4): settings-only before
  * any run exists, settings + exit once a run is active/grace/suspended. Never a "dismiss"/"close"
  * button (R21/R23: the overlay only ever leaves through a real unlock). */

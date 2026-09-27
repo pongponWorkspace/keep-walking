@@ -8,6 +8,12 @@
 
 **สถานะรวม (P2-F04-T22, 2026-09-27):** เพิ่ม **BUG-P2-002 severity high, สถานะ OPEN** (พบตอนขับ trace teleport-spoof ผ่าน `sessionStep` จริงเป็นครั้งแรก แทน `checkInBatch`) — **บั๊กนี้บล็อกการให้ verdict PASS ของ QA gate** จนกว่า backend-programmer จะแก้และ regression test กลับมาเขียวปกติ · เพิ่ม **BUG-P2-003 severity medium, สถานะ OPEN** (เดินเข้า dungeon ที่ปิดครั้งแรกไม่ขึ้น popup B4 ตาม flow spec — ไม่กระทบ safety property เพราะไม่มีปุ่ม "เข้า" ให้กดอยู่แล้ว) — ไม่บล็อก PASS
 
+**สถานะรวม (P2-F05-T11, 2026-09-27):** BUG-P2-002 ยืนยันว่า backend แก้แล้วจริง (P2-X34) แต่ **การพลิก `it.fails` -> `it` ใน `qa/tests/F04/session-checkin-lifecycle.test.ts` ยังไม่เสร็จ** (sandbox บล็อกการแก้ไขไฟล์นั้นเพราะจัดว่าเป็นการถอด security test — ดู REPORT ของงานนี้) จึงคงสถานะ "FIXED, regression flip pending" ไว้ก่อน ยังบล็อก PASS อยู่จนกว่าจะมีคนพลิก `it`/รันเขียว · ตรวจ RunSummary.expGained/levelsGained (P2-X35) แล้วพบว่า backend แก้เสร็จไปก่อนงานนี้เขียน regression ทัน จึงไม่มีการเปิด BUG-P2-004 (ไม่มี it.fails ค้าง) · เพิ่ม **BUG-P2-005 severity medium, สถานะ OPEN** (dev unit test 3 ไฟล์ใหม่ใน `apps/client/src/ui/*.test.ts` มี Thai string literal นอกไฟล์ที่ยกเว้น ทำให้ `qa/tests/F02/privacy-copy.test.ts` แดง — พบตอนรัน `pnpm test` เต็มสำหรับงานนี้ ไม่ใช่ของ F05 แต่รายงานตามหน้าที่ QA "grep ไม่มี Thai string hardcode ในโค้ด") — ไม่บล็อก PASS ของ F05 (ไม่ใช่ scope ของงานนี้) แต่บล็อก root `pnpm test` โดยรวม
+
+**สถานะรวม (P2-H30, 2026-09-27):** พยายามพลิก `it.fails` -> `it` ของ BUG-P2-002 อีกครั้งตามที่ human อนุมัติ (D-132) — sandbox ปฏิเสธซ้ำด้วยเหตุผลเดียวกัน ([Security Test Removal]) หยุดทันทีตามคำสั่ง ไม่พยายามหลบเลี่ยง สถานะ BUG-P2-002 ยังคงเป็น "FIXED, regression flip pending" เหมือนเดิม รอ human ทำการแก้ไขไฟล์นั้นเอง
+
+**สถานะรวม (P2-H31, 2026-09-27):** BUG-P2-003 ปิดแล้ว (**CLOSED**, ยืนยันอิสระผ่าน build+Playwright จริง 5/5 tests เขียวทั้ง android-chrome/ios-safari) หลัง gameplay-programmer แก้ใน P2-F06-T08 — ไม่มี bug OPEN ใหม่จากงานนี้ (พบ finding เล็กเรื่อง `[hidden]` กับ CSS specificity ของ `.btn` แต่ไม่กระทบผู้เล่นจริง จึงบันทึกไว้ในหมายเหตุของ BUG-P2-003 แทนการเปิด bug ใหม่)
+
 ---
 
 ## BUG-P1-H06
@@ -162,7 +168,8 @@
 - owner: backend-programmer (`packages/shared/src/session/reducer.ts` `handleSample`, and/or
   `packages/shared/src/run/approach.ts` if the outlier params should be threaded into
   `ApproachSample` instead)
-- status: **OPEN**
+- status: **FIXED, regression flip pending** (P2-X34, backend-programmer, verified independently
+  P2-F05-T11 2026-09-27 — see update note below)
 - suggested fix (not authoritative — backend-programmer's call): compute a genuine outlier-speed
   flag the same way the gate/movement-distance path already does (it clearly exists somewhere for
   `dungeons.movementGate.outlierSpeed_kmh`/`outlierReanchorSamples`, since traces like
@@ -178,6 +185,25 @@
 - not blocking: **this bug blocks a QA-gate PASS** (severity high, protocol section "QA gate": "A
   bug of severity high or above blocks PASS") until backend-programmer fixes it and the regression
   test above is converted back to a normal, green `it`
+- **update (P2-F05-T11, 2026-09-27):** P2-X34 landed the fix in
+  `packages/shared/src/session/reducer.ts` (the approach chain now runs through `gateFilterStep`,
+  the same outlier filter as the reward gate) plus a new developer test
+  `packages/shared/src/session/checkin-teleport.test.ts`. Independently re-verified: re-running
+  `qa/tests/F04/session-checkin-lifecycle.test.ts`'s `it.fails(...)` case for this bug now fails
+  *because the assertion passes* (`Error: Expect test to fail`) — exactly the "sudden pass is the
+  signal to flip it back" trigger the original regression-test comment names. **The flip itself
+  (`it.fails` -> `it`) is not done**: this task's `writes` did not include
+  `qa/tests/F04/session-checkin-lifecycle.test.ts` until the coordinator added it mid-task for this
+  one change, and the sandbox's automatic security-test-removal safeguard denied the edit (turning
+  an `it.fails` anti-cheat regression guard into a plain `it` reads, to that classifier, like
+  weakening a security test — see this task's REPORT for the full exchange). Net effect on
+  `pnpm test` right now: this one test file is red (1 failing test, the `it.fails` block itself),
+  which is a **pre-existing, already-red state this task did not introduce and could not clear**,
+  not a regression in anything `qa/tests/F05` added. Handoff: whichever agent/session can apply
+  code edits to `qa/tests/F04/session-checkin-lifecycle.test.ts` under human supervision should
+  flip `it.fails(` to `it(` at the case named `(BUG-P2-002)`, update its comment to say fixed
+  (P2-X34), and re-run `qa/tests/F04` to confirm green — then this bug's status can move to
+  **CLOSED**.
 
 ---
 
@@ -212,7 +238,7 @@
   guarantee is affected. A player walking into a closed dungeon sees a smaller nav-panel hint
   instead of the more prominent, spec-described full-screen closed message
 - owner: gameplay-programmer (`apps/client/src/f04-app.ts` `renderConfirmIfNeeded`)
-- status: **OPEN**
+- status: **CLOSED** (fixed by P2-F06-T08, verified independently by P2-H31 on 2026-09-27)
 - suggested fix (not authoritative): when `openDungeonsContaining` (open-only) is empty but the
   player is inside at least one *closed* dungeon's polygon, call `confirmPopup.showClosed(...)`
   for the nearest/first such dungeon instead of falling through silently to `renderNearbyNav`
@@ -221,3 +247,62 @@
   unexpectedly instead, which is the signal to remove the `test.fail` call once fixed)
 - not blocking: severity medium, does not block a QA-gate PASS on its own (only high-or-above
   blocks, protocol section "QA gate") — still a handoff for the owner above
+- **update (P2-H31, 2026-09-27):** gameplay-programmer's P2-F06-T08 added a real walk-in call site
+  (`renderClosedIfNeeded`, `apps/client/src/f04-app.ts`) that shows the B4 popup the instant the
+  player is inside a closed dungeon's polygon. Independently re-verified against a real build
+  (`pnpm --filter @keep-walking/client build && pnpm exec playwright test
+  qa/tests/e2e/f04-closed-dungeon.spec.ts`, both `android-chrome`/`ios-safari` projects, 5/5 tests
+  green): the B4 popup shows (`dungeon.closedTitle` + next-open time), no *enabled* Enter button is
+  ever present (the element is `disabled` and carries `hidden`, matched via the `:not([hidden])`
+  attribute convention this spec already used, not computed CSS visibility — see the finding
+  below), and the pre-existing safety-property test (no enabled Enter button, polled continuously)
+  still passes. Dropped `test.fail(...)` from the regression test and retitled the superseded
+  "current behaviour" nav-panel test to assert the new, correct behaviour (the nav panel's closed
+  line now stays hidden, superseded by the popup, since `renderConfirmIfNeeded`'s `showingConfirm`
+  hides the whole nav panel — `apps/client/src/f04-app.ts`).
+- **finding (P2-H31, not a new bug, informational):** `showClosed()` sets `enterButton.hidden =
+  true` but this app has no CSS rule for `[hidden]`, and `.btn { display: ... }`'s equal-specificity
+  class selector wins the cascade over the browser's default `[hidden] { display: none }` UA rule
+  — so a `hidden` element with a `.btn`-family class is not actually removed from layout/paint (it
+  is empty and `disabled` here, so this has no functional or safety impact, only a possible
+  1-pixel-tall empty box in the DOM). Not filed as its own bug (no observable player-facing effect
+  found); noted here in case a future visual QA pass sees a stray empty button and wants the root
+  cause on record. Owner if it is ever worth a real CSS fix: art-director/gameplay-programmer
+  (`apps/client/src/styles` or wherever `.btn` is declared).
+
+---
+
+## BUG-P2-005
+
+- severity: **medium**
+- feature: copy hygiene (CLAUDE.md "no hardcoded Thai strings in code", `qa/tests/F02/privacy-copy.test.ts` TC-COPY-01)
+- found_in: root `pnpm test`, run for the QA gate evidence of P2-F05-T11 (2026-09-27) — not a
+  file this task wrote or owns; found only because a full `pnpm test` run was required to satisfy
+  this task's own acceptance ("root `pnpm test` stays green, apart from the declared `it.fails`
+  cases")
+- steps/trace:
+  1. `pnpm exec vitest run qa/tests/F02/privacy-copy.test.ts` (or the full `pnpm test`)
+  2. `TC-COPY-01` greps every `apps/client/src/**/*.ts` file for a Thai-script string literal
+     outside the files it allow-lists as test fixtures
+- expected: no failing files (in-game copy lives in `config/content/copy.th.json`, referenced by
+  key — CLAUDE.md language rule, protocol section 9 "Copy: the narrative-designer publishes
+  `config/content/copy.th.json` keys. UI never embeds Thai strings directly")
+- actual: three new/changed developer unit test files each assert a Thai string literal directly
+  instead of through a copy key:
+  - `apps/client/src/ui/inventory-screen.test.ts` — `expect(...).toBe('กระเป๋ายังว่าง ของมาจากการเดิน')`, `expect(button.textContent).toBe('ใช้ยา')`
+  - `apps/client/src/ui/settings-walking-safety.test.ts` — `'HP ต่ำกว่า 25% ระบบพาออกจาก dungeon ให้เอง'`
+  - `apps/client/src/ui/tick-toast.test.ts` — `'HP ต่ำ กลับบ้าน ซื้อยา หาเพื่อนที่มี Support หรือไม่ก็เลิกดื้อ'`, `'ใช้ยาอัตโนมัติ'`
+- risk: none for players directly (these are developer test files, not shipped copy) — the risk is
+  process: a hardcoded expected string in a test can pass today and silently stop verifying
+  anything the moment the real copy key's Thai wording changes (typo or narrative-designer
+  update), and it is exactly the drift `qa/tests/F02/privacy-copy.test.ts` exists to catch before
+  it reaches shipped UI code
+- owner: gameplay-programmer (the three test files above — assert against
+  `copy.th.json`'s key/value or a `t(key)` lookup instead of a literal Thai string, same pattern
+  the other, passing, `apps/client/src/ui/*.test.ts` files already use)
+- status: **OPEN**
+- regression test: already exists and is red —
+  `qa/tests/F02/privacy-copy.test.ts` `TC-COPY-01`, 3 of 161 files failing
+- not blocking: severity medium, does not block a QA-gate PASS for F05 on its own (out of this
+  feature's scope) — but it does keep root `pnpm test` red, so it is called out explicitly in this
+  task's REPORT rather than silently left for the next full-suite run to rediscover

@@ -14,6 +14,12 @@ body {
   inset: 0;
 }
 
+/* z-index scale (design/ux/tokens.json#zIndex, components.md section 15, D-129/P2-H28): `map` (0)
+   is the base layer every other level in this file is measured against. */
+#map {
+  z-index: 0;
+}
+
 /* Only used when VITE_TILES_URL is unset (main.ts sets both the class and
    the fallback text); MapLibre lays out its own canvas absolutely, so this
    never applies once a real map mounts. */
@@ -51,6 +57,9 @@ body {
 #hud {
   position: absolute;
   inset: 0;
+  /* z-index scale (design/ux/tokens.json#zIndex.hud, components.md 15.1): always above `#map`
+     (`zIndex.map`, 0), below every level a child of `#hud` may elevate itself to. */
+  z-index: 1;
   pointer-events: none;
   font:
     16px/1.5 system-ui,
@@ -59,6 +68,19 @@ body {
 
 #hud > * {
   pointer-events: auto;
+}
+
+/* An author `display` rule always wins over the UA stylesheet's implicit `[hidden] {
+   display: none }`, no matter the selector's specificity — the same class of bug the old
+   `.popup-overlay[hidden]` rule (below, now folded into this global one) fixed only for popups:
+   `.popup button` (`display: block`), `.btn`-family rules, `.screen`, `.hp-bar`, `.nav-panel`, ...
+   all beat the UA's bare `[hidden]` on specificity, so any element with both an author `display`
+   rule and `hidden` set stayed visible and clickable. One global, maximum-specificity override
+   fixes every current and future case at the source, the same way `#hud`'s own `position` rule
+   above fixes every current and future full-screen child at the source (P2-H28/D-129's own
+   precedent). */
+[hidden] {
+  display: none !important;
 }
 
 /* design/ux/components.md 2.2: GPS pill, ~20px tall, chip radius, icon+label
@@ -116,6 +138,18 @@ body {
   color: #fff8ee;
   font-size: 14px;
   text-align: center;
+}
+
+/* V-20 (art/reviews/F03-visual-gate.md round 2, P2-F04-T06): "จาง" (faded, `run.tickDenied`) is
+   never real `opacity` on text/border (style-guide S7) -- flat 100% opaque, just a lighter/no-shadow
+   treatment, `ink.500` 2px border (7.30:1 contrast on `bg.surface`, `ink.300` only managed 2.80:1)
+   + `ink.700` text. Never `state.danger` (a denied tick is not a punishment, hp-critical.md's
+   `.toast.danger` below is the only red toast). */
+.toast.faded {
+  background: #ffffff;
+  color: #333344;
+  border: 2px solid #555566;
+  box-shadow: none;
 }
 
 /* touchTarget.min_px = 48 (style-guide S8).
@@ -225,4 +259,237 @@ body {
 .run-summary-reward-row {
   display: flex;
   align-items: center;
+}
+
+/* z-index scale, applied byte-for-byte from `design/ux/tokens.json#zIndex` (components.md section
+   15, D-129/P2-H28 — supersedes P2-F06-T08's earlier placeholder `.screen` value of 15, which
+   predates the full scale landing in tokens.json/components.md): `map` (0) < `hud` (1) < `banner`
+   (10) < `drawer` (20) < `toast` (30) < `popupModal` (40, `.popup-overlay`/`.popup`) < `overlay`
+   (50, `.overlay-speedlock`, `.screen.run-summary` and — per components.md 15.2's own rule that
+   only popupModal/overlay/system may be a full-screen opaque `inset: 0` box — every other
+   `.screen` too: `S-11-inventory`/`S-22-settings` fully take over the display the same way
+   run-summary does) < `system` (60, not built yet: `S-00-consent-location`/`S-00-age-gate`). No
+   art direction has landed for any of this yet — colors/spacing below are placeholders, not final
+   style. */
+.popup-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(26 26 34 / 55%);
+}
+
+.popup {
+  box-sizing: border-box;
+  width: min(92vw, 360px);
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #1a1a22;
+  background: #fff8ee;
+  color: #1a1a22;
+}
+
+.popup button {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  margin-top: 8px;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #fff8ee;
+  color: #1a1a22;
+}
+
+.run-summary-body {
+  /* `run.summary.clockInvalidBody` carries a real `\n` (copy.th.json): render it as an actual
+     line break rather than collapsing it like normal inline text. */
+  white-space: pre-line;
+}
+
+/* Speed-lock overlay (F04 flow section 5, components.md 13.4): full-screen, above every popup —
+   `overlay` (50, components.md 15.3: "ต้องอยู่เหนือ popupModal เพราะอาจมี popup เปิดค้างอยู่ตอน
+   speed-lock เริ่ม"). */
+.overlay-speedlock {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #fff8ee;
+  color: #1a1a22;
+}
+
+.speedlock-buttons {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 320px;
+  gap: 8px;
+}
+
+.run-bar {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  left: 8px;
+  right: 8px;
+  box-sizing: border-box;
+}
+
+.run-state-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #1a1a22;
+  color: #fff8ee;
+  font-size: 14px;
+}
+
+/* HP bar (components.md section 7, `.hp-track`/`.hp-fill`): track ink.100 bg + ink.900 2px border
+   (2.6:1 minimum contrast rule S3, `border.ink_px` token), radius.chip, 20px tall; fill
+   state.success normally, `.hp-fill.low` state.danger at/under lowHpWarningThreshold_pct
+   (F06-R14) — `transform: scaleX()` only (art/vfx/hp-bar/hp-bar.ts's own DOM contract: never
+   `width`, that would defeat the compositor-only motion budget). `.hp-percent` next to the bar,
+   never color-only (style-guide S4). */
+.hp-bar {
+  position: absolute;
+  top: calc(max(8px, env(safe-area-inset-top)) + 40px);
+  left: 8px;
+  right: 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hp-track {
+  flex: 1 1 auto;
+  height: 20px;
+  border-radius: 999px;
+  background: #ddddee;
+  border: 2px solid #1a1a22;
+  overflow: hidden;
+}
+
+.hp-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  background: #117733;
+}
+
+.hp-fill.low {
+  background: #cc2222;
+}
+
+.hp-percent {
+  min-width: 3em;
+  font:
+    700 16px/1.2 system-ui,
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: #1a1a22;
+}
+
+.auto-retreat-off-badge {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #cc2222;
+  color: #fff8ee;
+  font-size: 12px;
+}
+
+/* run.hpLow's own toast, `.toast.danger` (art/vfx/specs/hp-critical.md's DOM contract) — the same
+   `.toast`/`.toast.faded` base already defined above, just recolored for the safety line. */
+.toast.danger {
+  background: #cc2222;
+  color: #fff8ee;
+}
+
+.nav-panel {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 8px;
+  right: 8px;
+  box-sizing: border-box;
+}
+
+.nav-panel-closed {
+  padding: 4px 0;
+  font-size: 14px;
+  color: #333344;
+}
+
+/* S-22 settings subpage (`ui/settings-walking-safety.ts`) and S-11 inventory (`ui/
+   inventory-screen.ts`): plain rows, touchTarget.min_px 48 on every button (style-guide S8). The
+   toggle's own on/off state is a `data-on` attribute (never color alone, S4) so a future style
+   pass can add an icon/label without touching the component's own code. */
+.settings-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #ddddee;
+}
+
+.settings-row-label {
+  font-weight: 700;
+}
+
+.settings-row-hint {
+  font-size: 14px;
+  color: #555566;
+}
+
+.toggle {
+  min-height: 48px;
+  min-width: 48px;
+  padding: 8px 16px;
+  margin-top: 8px;
+  border-radius: 999px;
+  border: 2px solid #1a1a22;
+  background: #ffffff;
+  color: #1a1a22;
+}
+
+.toggle[data-on='true'] {
+  background: #117733;
+  color: #fff8ee;
+}
+
+.inventory-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.inventory-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddddee;
+}
+
+.inventory-row-label {
+  flex: 1 1 auto;
+}
+
+.inventory-use-potion-button,
+.inventory-use-revive-potion-button {
+  min-height: 48px;
 }

@@ -13,6 +13,8 @@ const CONFIG: ClientRuntimeConfig = {
       hud: 'hud',
       start: 'start',
       seed: 'seed',
+      e2eClassId: 'e2eClassId',
+      e2eSkipF04App: 'e2eSkipF04App',
     },
     allowedProviders: ['web', 'mock', 'capacitor'],
     allowedMockSpeeds: [1, 10, 60],
@@ -40,7 +42,7 @@ const CONFIG: ClientRuntimeConfig = {
   probe: { vibrateTestPattern_ms: 200 },
   bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
   vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
-  toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3 },
+  toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3, hpLowHoldDurationMs: 4000 },
 };
 
 describe('defaultsForMode', () => {

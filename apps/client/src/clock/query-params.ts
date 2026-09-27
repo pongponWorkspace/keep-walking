@@ -97,9 +97,10 @@ export function parseRunSeedParam(search: string, paramName: string): number | u
  * hatch (P2-F05-T10) for driving a whole run through an e2e spec before F06-T10's real class-
  * picker screen exists. `session/engine.ts`'s boot sequence dispatches `chooseClass` with this
  * value once, only when the loaded player has no class yet — the exact same `sessionStep` input a
- * future real picker screen would send, never a separate code path. */
-export const E2E_CLASS_ID_PARAM = 'e2eClassId';
-
+ * future real picker screen would send, never a separate code path. The param *name* comes from
+ * `config/app/client.json#providerQuery.paramNames.e2eClassId` (tech gate P2-F05-T15 TG-04), never
+ * a literal — `f04-app.ts`'s `resolveE2eClassId` is the one call site, gated to the Mock provider
+ * only (decision 6.2). */
 const KNOWN_E2E_CLASS_IDS = ['tanker', 'ranged', 'support', 'magic'] as const;
 
 /** Parses `?<paramName>=` as one of the four known `PlayerClass` values (same "warn and ignore an

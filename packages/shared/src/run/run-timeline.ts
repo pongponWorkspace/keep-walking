@@ -15,9 +15,7 @@ import { presenceStep, presenceTrackerInit } from './hysteresis';
 import type { PresenceSample } from './sample';
 
 export interface RunStateParams
-  extends GateFilterParams,
-    EdgeHysteresisParams,
-    EdgeHysteresisGapParams {
+  extends GateFilterParams, EdgeHysteresisParams, EdgeHysteresisGapParams {
   readonly maxSamplePairGap_s: number;
   readonly graceMax_s: number;
   readonly suspendedMax_s: number;
@@ -153,7 +151,13 @@ export function runTimeline(
   };
 
   const toActive = (at_ms: number): void => {
-    events.push({ type: 'run_state_changed', from: run.status, to: 'active', cause: 'returned', at_ms });
+    events.push({
+      type: 'run_state_changed',
+      from: run.status,
+      to: 'active',
+      cause: 'returned',
+      at_ms,
+    });
     run.exitAt = null;
     run.status = 'active';
     run.exitCause = null;

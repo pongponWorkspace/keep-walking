@@ -4,6 +4,7 @@ import { mountRunSummary } from './run-summary';
 import type { RunSummaryDeps } from './run-summary';
 import type { RunSummary } from '@keep-walking/shared/session';
 import type { AssetRuntime } from '../assets/icon-dom';
+import { getCopyText } from '../copy/load';
 
 const NO_MANIFEST_ASSETS: AssetRuntime = {
   getManifest: () => undefined,
@@ -121,6 +122,32 @@ describe('mountRunSummary', () => {
     // rare before uncommon before common (names come from names.th.json, order is what matters).
     const riftIndex = rows.findIndex((t) => t?.includes('x1'));
     expect(riftIndex).toBeGreaterThanOrEqual(0);
+  });
+
+  it('C-10: timeout shows run.summary.timeoutBody under the header (not canon)', () => {
+    const { container, screen } = mount();
+    screen.show(baseSummary({ exitReason: 'timeout' }));
+    const root = container.querySelector('.run-summary');
+    const canonEl = root?.querySelector('.run-summary-canon') as HTMLElement;
+    expect(canonEl.hidden).toBe(true);
+    const bodyEl = root?.querySelector('.run-summary-body') as HTMLElement;
+    expect(bodyEl.hidden).toBe(false);
+    expect(bodyEl.textContent).toBe(getCopyText('run.summary.timeoutBody'));
+  });
+
+  it('C-10: clock_invalid shows run.summary.clockInvalidBody under the header', () => {
+    const { container, screen } = mount();
+    screen.show(baseSummary({ exitReason: 'clock_invalid' }));
+    const bodyEl = container.querySelector('.run-summary-body') as HTMLElement;
+    expect(bodyEl.hidden).toBe(false);
+    expect(bodyEl.textContent).toBe(getCopyText('run.summary.clockInvalidBody'));
+  });
+
+  it('dungeon_closed keeps the body hidden (its header already says enough, C-10)', () => {
+    const { container, screen } = mount();
+    screen.show(baseSummary({ exitReason: 'dungeon_closed' }));
+    const bodyEl = container.querySelector('.run-summary-body') as HTMLElement;
+    expect(bodyEl.hidden).toBe(true);
   });
 
   it('manual_exit with empty loot shows the empty (not lost) label', () => {

@@ -6,6 +6,7 @@
  */
 import { formatCopyText } from '../copy/format';
 import { getCopyText } from '../copy/load';
+import { getDungeonShortName, getItemName, isResolvedDungeonName } from '../copy/names';
 import type { CompassPoint } from '../dungeons/direction';
 import { DIRECTION_COPY_KEY } from '../dungeons/direction';
 import { navUrlFor, primaryNavTarget } from '../nav/links';
@@ -27,6 +28,9 @@ export interface NavPanelDestination {
   readonly lat: number;
   readonly lng: number;
   readonly searchNameKey: string;
+  /** `ArtifactDungeon.name_key` (A2, copy gate P2-X37): the destination name line hides entirely
+   * when this does not resolve through `names.th.json` (never a raw key on screen). */
+  readonly nameKey: string;
 }
 
 export interface NavPanel {
@@ -44,6 +48,12 @@ export interface NavPanel {
 export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPanel {
   const root = document.createElement('div');
   root.className = 'nav-panel';
+
+  // A2 (copy gate P2-X37): the destination's own name line — hidden entirely (never a raw key)
+  // when `setDestination`'s `nameKey` does not resolve through `names.th.json`.
+  const destinationName = document.createElement('div');
+  destinationName.className = 'nav-panel-destination-name';
+  destinationName.hidden = true;
 
   const distanceChip = document.createElement('span');
   distanceChip.className = 'chip-distance';
@@ -71,11 +81,15 @@ export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPa
   returnBeforeArrive.className = 'nav-return-before-arrive';
   returnBeforeArrive.textContent = getCopyText('nav.returnBeforeArrive');
 
+  // C-07 (copy gate P2-X37): this link opens the copy-name fallback panel, so it must read
+  // `nav.copyPlaceLink` ("คัดลอกชื่อสถานที่") — `nav.fallbackOtherApp` is reserved for a real
+  // "open a different maps app" link (iOS only, not built yet).
   const fallbackOpenLink = document.createElement('button');
   fallbackOpenLink.className = 'nav-fallback-open-link';
-  fallbackOpenLink.textContent = getCopyText('nav.fallbackOtherApp');
+  fallbackOpenLink.textContent = getCopyText('nav.copyPlaceLink');
 
   root.append(
+    destinationName,
     distanceChip,
     straightLineTag,
     arrow,
@@ -95,6 +109,9 @@ export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPa
   fallbackPopup.className = 'popup';
   const fallbackTitle = document.createElement('div');
   fallbackTitle.textContent = getCopyText('nav.fallbackTitle');
+  // C-08: how to use what gets copied — shown under the title in every state.
+  const fallbackBody = document.createElement('div');
+  fallbackBody.textContent = getCopyText('nav.fallbackBody');
   const fallbackDestLabel = document.createElement('div');
   fallbackDestLabel.textContent = getCopyText('nav.fallbackDestinationLabel');
   const fallbackDestValue = document.createElement('div');
@@ -119,6 +136,7 @@ export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPa
 
   fallbackPopup.append(
     fallbackTitle,
+    fallbackBody,
     fallbackDestLabel,
     fallbackDestValue,
     fallbackCopyName,
@@ -144,10 +162,17 @@ export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPa
       fallbackToast.hidden = false;
       fallbackToast.textContent = getCopyText('nav.fallbackCopied');
     } else {
+      // C-08: `navigator.clipboard` unavailable — the button becomes a read-only, pre-selected
+      // input (tech note F04 14.3) with `nav.fallbackManualCopy` telling the player what to do
+      // with it, instead of a silent field.
+      const wrapper = document.createElement('div');
+      const label = document.createElement('div');
+      label.textContent = getCopyText('nav.fallbackManualCopy');
       const input = document.createElement('input');
       input.readOnly = true;
       input.value = text;
-      button.replaceWith(input);
+      wrapper.append(label, input);
+      button.replaceWith(wrapper);
       input.select();
     }
   }
@@ -211,13 +236,20 @@ export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPa
         destination = next;
         currentTarget = primaryNavTarget(deps.userAgent, deps.maxTouchPoints);
         navLink.href = navUrlFor(currentTarget, next.lat, next.lng);
-        fallbackDestValue.textContent = getCopyText(next.searchNameKey);
+        // C-02 (copy gate P2-X37): `dungeon.<id>.search` is a `names.th.json` key (artifact
+        // `search_name_key`), not a `copy.th.json` one — `getCopyText` had no entry for it at all
+        // and fell back to the raw key.
+        const searchName = getItemName(next.searchNameKey);
+        fallbackDestValue.textContent = searchName;
         const DECIMALS = 5;
         fallbackCoordValue.textContent = `${next.lat.toFixed(DECIMALS)}, ${next.lng.toFixed(DECIMALS)}`;
-        fallbackCopyName.onclick = () =>
-          void copyWithToast(fallbackCopyName, getCopyText(next.searchNameKey));
+        fallbackCopyName.onclick = () => void copyWithToast(fallbackCopyName, searchName);
         fallbackCopyCoord.onclick = () =>
           void copyWithToast(fallbackCopyCoord, fallbackCoordValue.textContent ?? '');
+        // A2: the destination name line hides entirely rather than show a raw, unresolved key.
+        const shortName = getDungeonShortName(next.nameKey);
+        destinationName.hidden = !isResolvedDungeonName(next.nameKey, shortName);
+        destinationName.textContent = shortName;
       },
       openFallbackPanel(fallbackAuto) {
         clearOpenTimer();

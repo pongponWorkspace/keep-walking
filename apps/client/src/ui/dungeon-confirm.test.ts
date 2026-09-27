@@ -1,6 +1,9 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
 import { mountDungeonConfirm } from './dungeon-confirm';
+import { getDungeonFullName, getDungeonShortName } from '../copy/names';
+import { getCopyText } from '../copy/load';
+import { formatCopyText } from '../copy/format';
 
 const CANDIDATE = {
   dungeonId: 'baan-phra-athit',
@@ -98,6 +101,76 @@ describe('mountDungeonConfirm — D-089 (no player counts anywhere, no element, 
     const second = { ...CANDIDATE, dungeonId: 'other' };
     popup.show([CANDIDATE, second]);
     expect(popup.root.querySelectorAll('.confirm-overlap-card.selected').length).toBe(0);
+  });
+});
+
+describe('mountDungeonConfirm — C-01 (name from names.th.json, never a raw key)', () => {
+  it('shows the full zone name (nameReal + nameSuffix) in the title, not the raw name_key', () => {
+    const container = document.createElement('div');
+    const popup = mountDungeonConfirm(container, {
+      onEnter: () => undefined,
+      onCancel: () => undefined,
+    });
+    popup.show([CANDIDATE]);
+    const title = container.querySelector('.confirm-title') as HTMLElement;
+    expect(title.textContent).toContain(getDungeonFullName(CANDIDATE.nameKey));
+    expect(title.textContent).not.toContain(CANDIDATE.nameKey);
+  });
+
+  it('shows the short name (nameReal alone) on each overlap card', () => {
+    const container = document.createElement('div');
+    const popup = mountDungeonConfirm(container, {
+      onEnter: () => undefined,
+      onCancel: () => undefined,
+    });
+    const second = { ...CANDIDATE, dungeonId: 'other' };
+    popup.show([CANDIDATE, second]);
+    const card = container.querySelector('.confirm-overlap-card') as HTMLElement;
+    expect(card.textContent).toBe(getDungeonShortName(CANDIDATE.nameKey));
+  });
+});
+
+describe('mountDungeonConfirm — C-06 (not_enough_trace with no countdown yet)', () => {
+  it('uses checkinNotEnoughTraceWaiting, never a raw {countdown} placeholder', () => {
+    const container = document.createElement('div');
+    const popup = mountDungeonConfirm(container, {
+      onEnter: () => undefined,
+      onCancel: () => undefined,
+    });
+    popup.show([CANDIDATE]);
+    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false);
+    const statusRow = container.querySelector('.checkin-status-row') as HTMLElement;
+    expect(statusRow.textContent).toBe(getCopyText('dungeon.checkinNotEnoughTraceWaiting'));
+    expect(statusRow.textContent).not.toContain('{countdown}');
+  });
+});
+
+describe('mountDungeonConfirm — C-11 (closing-soon tag)', () => {
+  it('shows dungeon.closingSoonTag with {timeLeft} filled when passed a value', () => {
+    const container = document.createElement('div');
+    const popup = mountDungeonConfirm(container, {
+      onEnter: () => undefined,
+      onCancel: () => undefined,
+    });
+    popup.show([CANDIDATE]);
+    const timeLeftText = formatCopyText('unit.minutes', { value: 5 });
+    popup.update({ ok: true }, false, false, timeLeftText);
+    const tag = container.querySelector('.closing-soon') as HTMLElement;
+    expect(tag.hidden).toBe(false);
+    expect(tag.textContent).not.toContain('{timeLeft}');
+    expect(tag.textContent).toContain(timeLeftText);
+  });
+
+  it('stays hidden when no closing-soon time is passed', () => {
+    const container = document.createElement('div');
+    const popup = mountDungeonConfirm(container, {
+      onEnter: () => undefined,
+      onCancel: () => undefined,
+    });
+    popup.show([CANDIDATE]);
+    popup.update({ ok: true }, false, false);
+    const tag = container.querySelector('.closing-soon') as HTMLElement;
+    expect(tag.hidden).toBe(true);
   });
 });
 

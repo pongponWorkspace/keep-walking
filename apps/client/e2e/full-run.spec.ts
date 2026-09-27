@@ -21,7 +21,8 @@ import { expect, test } from '@playwright/test';
 // loot roll is reproducible. Every seed this task tried against this fixture granted exactly one
 // tick (the timing-only prediction below never depends on the seed); `seed=1` additionally always
 // rolls at least one common item on that tick, so the loot-list assertion is deterministic too.
-const FIXTURE_URL = '/?loc=mock&trace=e2e-full-run-01&speed=60&loop=0&hud=0&e2eClassId=tanker&seed=1';
+const FIXTURE_URL =
+  '/?loc=mock&trace=e2e-full-run-01&speed=60&loop=0&hud=0&e2eClassId=tanker&seed=1';
 
 // The fixture's own reward math (config, not re-derived here):
 // dungeons.rewardTick.rewardTickInterval_s = 300, dungeons.movementGate.minDistancePerWindow_m =

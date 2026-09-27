@@ -45,6 +45,10 @@ export interface RuntimeAsset {
   readonly sheet?: RuntimeAssetSheet;
   readonly variants?: RuntimeAssetVariants;
   readonly replacedBy?: string;
+  /** D-121, `docs/tech/asset-delivery.md` 6.1, `design/ux/components.md` 13.9.3: present only when
+   * `true` — `assets/icon-glyph.ts#setIconGlyph` is the one place this gates the inline-SVG
+   * tintable-icon technique instead of the plain `<img>` `setIconImg` (6.4). */
+  readonly tintable?: true;
   readonly files: readonly RuntimeFile[];
 }
 
