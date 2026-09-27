@@ -13,12 +13,12 @@
  * requires (turning it back on needs no confirmation, same asymmetry `ia.md` section 5 item 6
  * describes).
  *
- * Mounting note (handoff, see this task's REPORT): the `S-22-settings` home menu itself
- * (`settings.walkingSafetyLink` entry point, `settings.creditsLink` -> `ui/credits.ts`,
- * `settings.clearLocalDataLink` -> `storage/clear-local-data.ts`, `settings.privacyLink`,
- * `settings.reportBlockLink`, `settings.helpLink`) is P2-F06-T09's build — this module is the
- * subpage content T09 links to, the same division of labor as `ui/credits.ts`/`ui/inventory-
- * screen.ts`.
+ * Mounting note: the `S-22-settings` home menu itself (`ui/settings-menu.ts`, P2-X38 —
+ * `settings.walkingSafetyLink` entry point, `settings.creditsLink` -> `ui/credits.ts`,
+ * `settings.clearLocalDataLink` -> `storage/clear-local-data.ts`, `settings.privacyLink` ->
+ * `ui/privacy-screen.ts`) links here as one of its subpages — `settings.reportBlockLink`/
+ * `settings.helpLink` have no screen anywhere in this repo yet and are out of P2-X38's own scope
+ * (that task's own REPORT), same division of labor as `ui/credits.ts`/`ui/inventory-screen.ts`.
  */
 import { formatCopyText } from '../copy/format';
 import { getCopyText } from '../copy/load';

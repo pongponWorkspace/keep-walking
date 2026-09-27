@@ -10,7 +10,12 @@
  */
 import { pointInPolygon, boundaryDistance_m, MS_PER_S } from '@keep-walking/geo';
 import type { PolygonGeometry as GeoPolygonGeometry } from '@keep-walking/geo';
-import { selectOpening, selectPlayerView, selectRunView } from '@keep-walking/shared/session';
+import {
+  selectCanClearLocalData,
+  selectOpening,
+  selectPlayerView,
+  selectRunView,
+} from '@keep-walking/shared/session';
 import type { CheckInPreview, SessionEvent, SessionState } from '@keep-walking/shared/session';
 import type { LocationPermission } from '@keep-walking/location';
 import { play } from '../../../art/vfx/core/vfx';
@@ -37,7 +42,7 @@ import { formatDistanceText } from './dungeons/distance';
 import { formatOpenTime } from './dungeons/open-time';
 import { formatCopyText } from './copy/format';
 import { getCopyText } from './copy/load';
-import { getDungeonShortName } from './copy/names';
+import { getDungeonShortName, getProvinceName } from './copy/names';
 import type { AssetRuntimeController } from './assets/runtime';
 import { compassPointTo } from './dungeons/direction';
 import { parseE2eClassIdParam, parseRunSeedParam } from './clock/query-params';
@@ -45,6 +50,7 @@ import type { PlayerClass } from '@keep-walking/shared/session';
 import {
   balanceLocationConfig,
   balanceOpeningHoursConfig,
+  balancePrivacyConfig,
   balanceUnlocksHomeConfig,
 } from './config/balance';
 import { mountDungeonConfirm } from './ui/dungeon-confirm';
@@ -87,6 +93,14 @@ import { mountClassSelect } from './ui/class-select';
 import { mountRunTutorialLine } from './ui/run-tutorial-line';
 import { OnboardingFlow } from './onboarding-flow';
 import { shouldSkipF04App } from './env';
+import { mountAgeGateScreen } from './ui/age-gate-screen';
+import { mountConsentLocationScreen } from './ui/consent-location-screen';
+import { mountSettingsMenu } from './ui/settings-menu';
+import { mountPrivacyScreen } from './ui/privacy-screen';
+import { mountCredits } from './ui/credits';
+import { withdrawConsent } from './privacy/withdraw-consent';
+import { readLocationConsent, writeLocationConsent } from './storage/onboarding';
+import { clearLocalData } from './storage/clear-local-data';
 
 const TELEMETRY_STORAGE_KEY = 'kw.p2.telemetry';
 const SECONDS_PER_MINUTE = 60;
@@ -137,6 +151,14 @@ export interface F04AppDeps {
    * directly (CLAUDE.md: "Use the LocationProvider interface only") — `onboarding-flow.ts`'s only
    * source for resolving the onboarding step machine's `permission` step (P2-F06-T10). */
   readonly getLocationPermission: () => Promise<LocationPermission>;
+  /** `provider.start()` (`main.ts`'s own gate, `env.ts`'s doc comment for the whole task) — the one
+   * real GPS-requesting call, reached only from `OnboardingFlow#acceptConsent()`
+   * (R47/CLAUDE.md "GPS never requested without consent"). Idempotent (`main.ts`'s own
+   * `startLocationNow` already guards against a double `provider.start()`). */
+  readonly startLocationProvider: () => void;
+  /** `provider.stop()` (`@keep-walking/location#LocationProvider`) — the withdraw-consent
+   * sequence's own step 3 (docs/tech/F06-hp-damage-onboarding.md 8.4). */
+  readonly stopLocationProvider: () => void;
   /** `assets/icon-glyph.ts#FetchTextLike` (P2-F06-T14, components.md 13.9): `(url) => fetch(url)`,
    * the same-origin asset fetch `createIconGlyphRenderer` uses to pull an `icon.ui.*` SVG's raw
    * text once per id per session — injected so this module (and every screen it mounts) never
@@ -302,7 +324,22 @@ export function createF04App(deps: F04AppDeps): F04App {
     deps.now(),
   );
 
-  // --- P2-F06-T10: onboarding step machine wiring (tech note F06 section 8, R36/R44-R49) ---
+  // P2-X38 (docs/tech/F06-hp-damage-onboarding.md 8.4 step 1): flipped by `withdrawConsentNow`
+  // below, checked first thing in `onSample` — a `LocationProvider` sample callback already queued
+  // when the player withdraws must still be dropped, never reach `sessionStep`/the HUD.
+  let locationWithdrawn = false;
+  // P2-X38: the consent screen reopened for a returning player who declined/withdrew earlier
+  // (R48 "ปุ่มเดียวกลับไปให้ใหม่", `home.unknownCta`/`privacy.locationStatusNotGranted`'s own button) —
+  // `true` only while that manual re-entry is on screen; the onboarding step machine's own
+  // `'consent'` step (fresh players) never touches this flag at all.
+  let manualConsentScreenOpen = false;
+  function openManualConsentScreen(): void {
+    manualConsentScreenOpen = true;
+    if (window.location.hash !== '') window.location.hash = '';
+    render(engine.getState(), deps.now());
+  }
+
+  // --- P2-F06-T10/P2-X38: onboarding step machine wiring (tech note F06 section 8, R36/R44-R49) ---
   const onboarding = new OnboardingFlow({
     storage: deps.storage,
     quotaDeps: {
@@ -314,6 +351,12 @@ export function createF04App(deps: F04AppDeps): F04App {
       telemetry.record(name, properties);
       persistTelemetry();
     },
+    minAge_yr: balancePrivacyConfig.minAge_yr,
+    minAgeComparison: balancePrivacyConfig.minAgeComparison,
+    // R47/CLAUDE.md "GPS never requested without consent": the one and only call site this reaches
+    // is `OnboardingFlow#acceptConsent()`, itself only ever called from `consentLocationScreen`'s
+    // own accept handler below.
+    startLocationProvider: deps.startLocationProvider,
     queryGeolocationPermission: deps.getLocationPermission,
     onPermissionResolved: () => render(engine.getState(), deps.now()),
     e2eSkipOnboarding: shouldSkipF04App(
@@ -325,6 +368,30 @@ export function createF04App(deps: F04AppDeps): F04App {
   const introScreen = mountIntroScreen(deps.hudContainer, () => {
     onboarding.completeIntro();
     render(engine.getState(), deps.now());
+  });
+  const ageGateScreen = mountAgeGateScreen(deps.hudContainer, {
+    minAge_yr: balancePrivacyConfig.minAge_yr,
+    now: deps.now,
+    onConfirm: (birthYear) => {
+      onboarding.confirmAge(birthYear);
+      render(engine.getState(), deps.now());
+    },
+    onUnderageBack: () => {
+      onboarding.returnFromUnderage();
+      render(engine.getState(), deps.now());
+    },
+  });
+  const consentLocationScreen = mountConsentLocationScreen(deps.hudContainer, {
+    onAccept: () => {
+      onboarding.acceptConsent();
+      manualConsentScreenOpen = false;
+      render(engine.getState(), deps.now());
+    },
+    onDecline: () => {
+      onboarding.declineConsent();
+      manualConsentScreenOpen = false;
+      render(engine.getState(), deps.now());
+    },
   });
   const classSelect = mountClassSelect(
     deps.hudContainer,
@@ -463,6 +530,9 @@ export function createF04App(deps: F04AppDeps): F04App {
     holdDurationMs: clientConfig.toast.tickHoldDurationMs,
     maxIconsShown: clientConfig.toast.tickMaxIconsShown,
     hpLowHoldDurationMs: clientConfig.toast.hpLowHoldDurationMs,
+    // P2-H39 (design/ux/components.md 15.4): the toast/vfx stay hidden under the pocket screen's
+    // own dark overlay, but audio/vibration always fires — `tick-toast.ts`'s own doc comment.
+    isPocketOverlayShowing: () => !pocketScreen.overlayRoot.hidden,
   });
   // F06 flow section 4.1 (C1): permanent on `S-03-run` in every run status — shown/hidden
   // together with `runBar` (`renderRun` below), never on its own.
@@ -506,6 +576,12 @@ export function createF04App(deps: F04AppDeps): F04App {
       hasRun: state.run !== null,
     });
   }
+  // `#/settings` subpages close back up to the `S-22-settings` menu itself, one level at a time —
+  // never all the way out to the main app in one tap (only the menu's own close button does that,
+  // `settingsMenu` below).
+  function closeSettingsSubpage(): void {
+    window.location.hash = '#/settings';
+  }
   const settingsWalkingSafety = mountSettingsWalkingSafety(deps.hudContainer, {
     storage: deps.storage,
     autoRetreatThresholdPct: params.config.hpSafety.autoRetreatThreshold_pct,
@@ -513,7 +589,83 @@ export function createF04App(deps: F04AppDeps): F04App {
       handleSessionEvents(engine.dispatch({ type: 'setAutoRetreat', enabled }, deps.now()));
       settingsWalkingSafety.setAutoRetreatEnabled(engine.getState().player.autoRetreatEnabled);
     },
+    onClose: closeSettingsSubpage,
+  });
+  const creditsScreen = mountCredits(deps.hudContainer, closeSettingsSubpage);
+  const settingsMenu = mountSettingsMenu(deps.hudContainer, {
+    selectCanClearLocalData: () => selectCanClearLocalData(engine.getState()),
+    onOpenWalkingSafety: () => {
+      window.location.hash = '#/settings/walking-safety';
+    },
+    onOpenCredits: () => {
+      window.location.hash = '#/settings/credits';
+    },
+    onOpenPrivacy: () => {
+      window.location.hash = '#/settings/privacy';
+    },
+    onClearLocalDataConfirmed: () => {
+      clearLocalData({
+        storage: deps.storage,
+        // `config/app/privacy.json#localData.storageKeyPrefix` — `AppPrivacyConfig`
+        // (`config/runtime.ts`) does not parse this subtree yet (no other client code reads it at
+        // runtime either; every `kw.p2.<name>` storage key elsewhere in this codebase already
+        // hardcodes the same prefix as its own literal, e.g. `storage/onboarding.ts`'s
+        // `ONBOARDING_STORAGE_KEY`) — matches that same established convention rather than adding a
+        // new config-parsing surface for one call site. owner: tech-lead, a real
+        // `appPrivacyConfig.localData.storageKeyPrefix` accessor replaces this literal with no
+        // other change (handoff in this task's REPORT).
+        storageKeyPrefix: 'kw.p2.',
+        telemetryStorageKey: TELEMETRY_STORAGE_KEY,
+        telemetrySchemaVersion: 1,
+        sink: {
+          config: appTelemetryConfig.localSink,
+          forbiddenPropertyNames: appTelemetryConfig.export.forbiddenPropertyNames,
+          coordinateGuard: appTelemetryConfig.export.coordinateLikeNumberGuard,
+          knownEventNames: KNOWN_EVENT_NAMES,
+          sessionId: deps.sessionId,
+          platform: deps.platform,
+          appVersion: deps.appVersion,
+          now: Date.now,
+        },
+        now: deps.now,
+        reload: () => window.location.reload(),
+      });
+    },
     onClose: closeRouteScreen,
+  });
+  const privacyScreen = mountPrivacyScreen(deps.hudContainer, {
+    hasActiveRun: () => engine.getState().run !== null,
+    onRequestReconsent: openManualConsentScreen,
+    onWithdrawConfirmed: () => {
+      withdrawConsent({
+        hasActiveRun: () => engine.getState().run !== null,
+        exitRun: (now_ms) => {
+          handleSessionEvents(engine.dispatch({ type: 'exit' }, now_ms));
+        },
+        stopLocationProvider: deps.stopLocationProvider,
+        purgeLocation: () => engine.purgeLocation(),
+        writeConsentWithdrawn: () =>
+          writeLocationConsent(deps.storage, 'withdrawn', deps.now(), {
+            trimTelemetryHalf: () => telemetry.trimHalf(),
+            clearTelemetryAll: () => telemetry.clear(),
+          }),
+        setLocationWithdrawn: () => {
+          locationWithdrawn = true;
+        },
+        record: (name, properties) => {
+          telemetry.record(name, properties as Record<string, string | number | boolean | null>);
+          persistTelemetry();
+        },
+        now: deps.now,
+      });
+      // Tech note F06 8.4 step 5: leaves the settings route entirely (never just "up" to the
+      // settings menu, `closeSettingsSubpage`) — `render()`'s own top-level guard needs
+      // `currentRoute === 'main'` to show the run summary this may have just produced (or, with no
+      // run, the home panel's now-`unknown` state) instead of the settings chrome hiding it.
+      window.location.hash = '';
+    },
+    onClearLocalDataShortcut: closeSettingsSubpage,
+    onClose: closeSettingsSubpage,
   });
   const navPanel = mountNavPanel(deps.hudContainer, {
     externalOpenTimeout_ms: clientConfig.navigation.externalOpenTimeout_ms,
@@ -552,29 +704,47 @@ export function createF04App(deps: F04AppDeps): F04App {
     render(engine.getState(), deps.now());
   });
 
-  // --- S-22/S-11 route screens (ia.md: the gear icon/inventory shortcut are reachable from every
-  // state, NN-7 — never gated behind a run/consent/unlock check) ---
-  // `#/settings...` also matches `speedLockOverlay`'s own `onSettings` hash; `#/inventory...` is
-  // the one this task adds for `S-11-inventory`. Both route screens fully take over the display
-  // while open (`render()`'s own top guard below) — the real `S-22-settings` home menu and its
-  // `settings.walkingSafetyLink`/`inventory.homeShortcut` entry points are P2-F06-T09's build
-  // (`ui/settings-walking-safety.ts`/`ui/inventory-screen.ts`'s own doc comments); this hash is a
-  // stand-in front door onto the exact same screens until that chrome exists.
-  type RouteScreen = 'main' | 'settingsWalkingSafety' | 'inventory';
+  // --- S-22/S-23/S-26/S-11 route screens (ia.md: the gear icon/inventory shortcut are reachable
+  // from every state, NN-7 — never gated behind a run/consent/unlock check) ---
+  // `#/settings` is `S-22-settings`'s own real home menu (P2-X38, replacing the previous "stand-in
+  // front door onto the walking-safety subpage directly" `settingsWalkingSafety`'s own doc comment
+  // used to describe) — `#/settings/walking-safety`, `#/settings/privacy`, `#/settings/credits` are
+  // its three subpages, `#/inventory` is `S-11-inventory`. Every route screen fully takes over the
+  // display while open (`render()`'s own top guard below).
+  type RouteScreen =
+    | 'main'
+    | 'settingsMenu'
+    | 'settingsWalkingSafety'
+    | 'settingsPrivacy'
+    | 'settingsCredits'
+    | 'inventory';
   function routeFromHash(): RouteScreen {
     const hash = window.location.hash;
-    if (hash.startsWith('#/settings')) return 'settingsWalkingSafety';
+    if (hash.startsWith('#/settings/walking-safety')) return 'settingsWalkingSafety';
+    if (hash.startsWith('#/settings/privacy')) return 'settingsPrivacy';
+    if (hash.startsWith('#/settings/credits')) return 'settingsCredits';
+    if (hash.startsWith('#/settings')) return 'settingsMenu';
     if (hash.startsWith('#/inventory')) return 'inventory';
     return 'main';
   }
   let currentRoute: RouteScreen = 'main';
   function syncRouteScreens(): void {
     currentRoute = routeFromHash();
+    settingsMenu.hide();
     settingsWalkingSafety.hide();
+    privacyScreen.hide();
+    creditsScreen.hide();
     inventoryScreen.hide();
-    if (currentRoute === 'settingsWalkingSafety') {
+    if (currentRoute === 'settingsMenu') {
+      settingsMenu.show();
+    } else if (currentRoute === 'settingsWalkingSafety') {
       settingsWalkingSafety.setAutoRetreatEnabled(engine.getState().player.autoRetreatEnabled);
       settingsWalkingSafety.show();
+    } else if (currentRoute === 'settingsPrivacy') {
+      privacyScreen.render(readLocationConsent(deps.storage));
+      privacyScreen.show();
+    } else if (currentRoute === 'settingsCredits') {
+      creditsScreen.show();
     } else if (currentRoute === 'inventory') {
       renderInventoryScreen();
       inventoryScreen.show();
@@ -634,8 +804,11 @@ export function createF04App(deps: F04AppDeps): F04App {
     },
     onRegisterDistrict: () => {
       emptyScreenAcknowledged = true;
+      // P2-H32: a real Thai province heading per group (`copy/names.ts#getProvinceName`), not the
+      // bare `provinceIso` this stood in for before `names.th.json#province.*` existed.
       const groups = groupedSelectableDistricts(launchDistrictIds).map((g) => ({
         groupKey: g.provinceIso,
+        groupLabel: getProvinceName(g.provinceIso),
         options: g.districts.map((d) => ({ id: d.id, label: d.name })),
       }));
       interestRegisterScreen.show('district', groups);
@@ -647,7 +820,9 @@ export function createF04App(deps: F04AppDeps): F04App {
     },
     onRequestConsent: () => {
       emptyScreenAcknowledged = true;
-      window.location.hash = '#/settings';
+      // P2-X38 (flow F06 F6, R48): reopens `S-00-consent-location` directly, never `S-22-settings`
+      // (the previous interim wiring, `openManualConsentScreen`'s own doc comment).
+      openManualConsentScreen();
     },
   });
 
@@ -945,6 +1120,11 @@ export function createF04App(deps: F04AppDeps): F04App {
    * `run_state_changed`/`dungeon_entered` also resets the banner so a later run never starts with a
    * previous run's warning still "seen" (`run-bar.ts`'s own `wasHidden` bookkeeping). */
   function handleSessionEvents(events: readonly SessionEvent[]): void {
+    // H34 fix (flow F05 A2b): a `run_tick_granted` that lands in the very same dispatch batch as a
+    // `dungeon_exited` (e.g. the tick that also crosses the closing-time/auto-retreat boundary)
+    // never gets its own toast/audio/vibrate/effect below — the run is already over by the time
+    // anyone could see it, and the run-summary screen takes over on this very same render pass.
+    const exitsInSameBatch = events.some((event) => event.type === 'dungeon_exited');
     for (const event of events) {
       if (event.type === 'dungeon_entered') {
         runBar.hideClosingSoonWarning();
@@ -1015,14 +1195,17 @@ export function createF04App(deps: F04AppDeps): F04App {
       } else if (event.type === 'run_tick_granted') {
         // F05 flow Flow A1/A2/A4: the toast is the one place icon/effect/sound/vibration for a
         // granted tick come together — `event` already carries everything `sessionStep` decided
-        // (loot, firstEver, levelBefore/After), never recomputed here.
-        tickToast.showGranted({
-          loot: event.loot,
-          firstEver: event.firstEver,
-          levelBefore: event.levelBefore,
-          levelAfter: event.levelAfter,
-          at_ms: event.at_ms,
-        });
+        // (loot, firstEver, levelBefore/After), never recomputed here. H34: skipped entirely when
+        // `exitsInSameBatch` (see this function's own doc comment above).
+        if (!exitsInSameBatch) {
+          tickToast.showGranted({
+            loot: event.loot,
+            firstEver: event.firstEver,
+            levelBefore: event.levelBefore,
+            levelAfter: event.levelAfter,
+            at_ms: event.at_ms,
+          });
+        }
       } else if (event.type === 'run_tick_denied') {
         tickToast.showDenied({ at_ms: event.at_ms });
       } else if (event.type === 'run_hit') {
@@ -1102,6 +1285,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       navPanel.root.hidden = true;
       homePanel.hide();
       introScreen.hide();
+      ageGateScreen.hide();
+      consentLocationScreen.hide();
       classSelect.hide();
       runTutorialLine.hide();
       // P2-F06-T14: the pocket screen's own dark overlay must never linger behind (or block
@@ -1121,6 +1306,8 @@ export function createF04App(deps: F04AppDeps): F04App {
     runSummary.hide();
     if (state.lock.locked) {
       introScreen.hide();
+      ageGateScreen.hide();
+      consentLocationScreen.hide();
       classSelect.hide();
       runTutorialLine.hide();
       speedLockOverlay.show(state.run !== null);
@@ -1140,6 +1327,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       navPanel.root.hidden = true;
       homePanel.hide();
       introScreen.hide();
+      ageGateScreen.hide();
+      consentLocationScreen.hide();
       classSelect.hide();
       runTutorialLine.hide();
       pocketScreen.hideOverlay();
@@ -1147,18 +1336,21 @@ export function createF04App(deps: F04AppDeps): F04App {
       runSummary.show(state.lastSummary);
       return;
     }
-    // --- P2-F06-T10: onboarding gate (acceptance order 1-2: map + opening text, then the class
-    // sheet layered on top of it) — takes over before the confirm popup/nav/home panel, but never
-    // before a route screen, the speed-lock overlay, or the run summary (checked above already).
-    // Steps other than `intro`/`class` (`permission`, `map`, `first_run`, `first_reward`, `done`)
-    // need no distinct screen of their own here: `permission` resolves itself in the background
-    // (`onboarding-flow.ts`), and `first_run`/`first_reward` are satisfied entirely by the normal
-    // run screen (N-3's tutorial line, `run.tickGrantedFirst`/`run.continueCta`, GD B-07 — no
-    // separate onboarding code path for either).
+    // --- P2-F06-T10/P2-X38: onboarding gate (acceptance order: intro -> age gate -> consent ->
+    // (permission, no screen of its own) -> map + opening text -> the class sheet layered on top of
+    // it, F06-R44) — takes over before the confirm popup/nav/home panel, but never before a route
+    // screen, the speed-lock overlay, or the run summary (checked above already). Steps other than
+    // `intro`/`age`/`underage`/`consent`/`class` (`permission`, `map`, `first_run`, `first_reward`,
+    // `done`) need no distinct screen of their own here: `permission` resolves itself in the
+    // background (`onboarding-flow.ts`, A-P2-X38-2), and `first_run`/`first_reward` are satisfied
+    // entirely by the normal run screen (N-3's tutorial line, `run.tickGrantedFirst`/
+    // `run.continueCta`, GD B-07 — no separate onboarding code path for either).
     const onboardingStep = onboarding.currentStep(selectPlayerView(state, now_ms, params));
     if (onboardingStep === 'intro') {
       onboarding.markIntroShown();
       classSelect.hide();
+      ageGateScreen.hide();
+      consentLocationScreen.hide();
       introScreen.show();
       confirmPopup.hide();
       navPanel.root.hidden = true;
@@ -1166,6 +1358,35 @@ export function createF04App(deps: F04AppDeps): F04App {
       return;
     }
     introScreen.hide();
+    if (onboardingStep === 'age' || onboardingStep === 'underage') {
+      onboarding.markAgeGateShown();
+      classSelect.hide();
+      consentLocationScreen.hide();
+      if (onboardingStep === 'underage') {
+        ageGateScreen.showUnderage();
+      } else {
+        ageGateScreen.showGate();
+      }
+      confirmPopup.hide();
+      navPanel.root.hidden = true;
+      homePanel.hide();
+      return;
+    }
+    ageGateScreen.hide();
+    // R48 "ปุ่มเดียวกลับไปให้ใหม่": `manualConsentScreenOpen` reopens this exact same screen for a
+    // returning player who declined/withdrew earlier — outside the pure step machine entirely (it
+    // has already reported `'done'` for that player), so it is checked here as its own condition,
+    // never folded into `onboardingStep`.
+    if (onboardingStep === 'consent' || manualConsentScreenOpen) {
+      onboarding.markConsentShown();
+      classSelect.hide();
+      consentLocationScreen.show();
+      confirmPopup.hide();
+      navPanel.root.hidden = true;
+      homePanel.hide();
+      return;
+    }
+    consentLocationScreen.hide();
     if (onboardingStep === 'class') {
       onboarding.markClassSelectShown();
       classSelect.show();
@@ -1230,6 +1451,10 @@ export function createF04App(deps: F04AppDeps): F04App {
     telemetry,
     engine,
     onSample(lat, lng, accuracy_m, t_ms) {
+      // P2-X38 (docs/tech/F06-hp-damage-onboarding.md 8.4 step 1, FH-17): a `LocationProvider`
+      // sample callback already queued when the player withdrew consent must be dropped here,
+      // before it touches `lastPlayer`/the engine/the HUD — never stored, never dispatched.
+      if (locationWithdrawn) return;
       lastPlayer = { lat, lng };
       lastAccuracy_m = accuracy_m;
       const wasLocked = engine.getState().lock.locked;
@@ -1253,9 +1478,14 @@ export function createF04App(deps: F04AppDeps): F04App {
           mapped.properties as Record<string, string | number | boolean | null>,
         );
         persistTelemetry();
-        if (stateAfter.lock.locked) {
-          deps.vibrate(clientConfig.vibration.speedLockEnter_ms);
-        }
+        // O-2 fix (F04-R23): vibrate exactly once on entering the lock — `speed-lock-overlay.ts`'s
+        // own `show()` already vibrates the instant it transitions from hidden to shown (the exact
+        // same `stateAfter.lock.locked` edge this block just detected, since `render()` calls
+        // `speedLockOverlay.show(...)` a few lines below whenever `state.lock.locked` is true), so
+        // a second `deps.vibrate(...)` here double-fired the pattern every time the lock engaged.
+        // The overlay is the one and only call site now — it also covers the one case this block
+        // cannot (a page reload that resumes with the lock already engaged, no sample transition to
+        // detect at all).
       }
       // `refreshMapDungeons` is deliberately not called here: it rebuilds two whole GeoJSON
       // `FeatureCollection`s (13+ dungeons, one label-point cache lookup each), which is far more

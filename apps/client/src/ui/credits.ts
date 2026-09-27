@@ -1,8 +1,6 @@
 /**
  * `S-26-credits` (flow F06 G6): a read-only screen, one `common.close` button, reachable from
- * `settings.creditsLink` without any consent/unlock gate. This task lands the screen itself; the
- * settings entry point that opens it belongs to `P2-F06-T09` (the settings screen does not exist
- * yet) — handoff in this task's REPORT.
+ * `settings.creditsLink` (`ui/settings-menu.ts`, P2-X38) without any consent/unlock gate.
  */
 import { getCopyText } from '../copy/load';
 import { creditsGroupViews } from './credits-view';

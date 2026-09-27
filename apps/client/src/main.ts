@@ -32,6 +32,7 @@ import { balanceOpeningHoursConfig } from './config/balance';
 import { createAssetRuntime } from './assets/runtime';
 import { injectFontFaces } from './assets/fonts';
 import { createMockOffsetClock } from './clock/mock-offset-clock';
+import { readLocationConsent } from './storage/onboarding';
 
 /** The four functions `loadMapModules` hands back, typed purely from `import type` (never a value
  * import — `@typescript-eslint/consistent-type-imports` forbids `import()` type annotations, and a
@@ -210,6 +211,27 @@ async function initLocation(
     spikeHook.provider = provider.kind;
   }
 
+  // P2-X38 (R47/CLAUDE.md "GPS never requested without consent"): the one real GPS-requesting call
+  // (`provider.start()`, which is what actually triggers the native `getCurrentPosition`/
+  // `watchPosition` permission prompt) — idempotent (`locationStarted` guard), so it is safe to call
+  // both from this file's own boot check below *and* from `f04App`'s consent screen
+  // (`onboarding-flow.ts#acceptConsent`, wired through `deps.startLocationProvider`) without ever
+  // double-starting the provider.
+  let locationStarted = false;
+  function startLocationNow(): void {
+    if (locationStarted) return;
+    locationStarted = true;
+    if (selection.provider === 'web') {
+      gpsUi.showStartButton(() => {
+        hudPanel?.recordProviderStart();
+        void provider.start();
+      });
+    } else {
+      hudPanel?.recordProviderStart();
+      void provider.start();
+    }
+  }
+
   // F04 (P2-F04-T21): the session engine + every F04 screen, wired to this same provider's
   // samples and to a game-clock-driven tick (ADR 0003 3.2 item 3 — Mock replays x10/x60 without
   // changing tick/hit timing relative to trace time, tech note F04 section 17).
@@ -299,6 +321,8 @@ async function initLocation(
         // `permission` step reads this, never `navigator.permissions` directly (`onboarding-flow.
         // ts`'s own doc comment).
         getLocationPermission: () => provider.getPermission(),
+        startLocationProvider: startLocationNow,
+        stopLocationProvider: () => provider.stop(),
         // P2-F06-T14: `setIconGlyph`'s (`assets/icon-glyph.ts`) two browser-API hooks — the real
         // same-origin `fetch` and `DOMParser`, never touched directly inside `f04-app.ts` itself
         // (ADR 0001 3.6).
@@ -356,14 +380,20 @@ async function initLocation(
     },
   });
 
-  if (selection.provider === 'web') {
-    gpsUi.showStartButton(() => {
-      hudPanel?.recordProviderStart();
-      void provider.start();
-    });
-  } else {
-    hudPanel?.recordProviderStart();
-    void provider.start();
+  // P2-X38: only ever auto-started here when consent is already granted from an earlier session
+  // (`kw.p2.consent.location === 'granted'`), or under the Mock-only e2e skip-onboarding hook
+  // (D-130, every pre-existing e2e spec that never built/answers a real consent screen) — a brand-
+  // new player (no `kw.p2.consent` key at all, `readLocationConsent`'s own "unanswered" default) or
+  // one who declined/withdrew never reaches this call at boot; `startLocationNow` is reached only
+  // through `f04App`'s own consent screen (`deps.startLocationProvider` above) once they accept.
+  const consentAtBoot = readLocationConsent(window.localStorage);
+  const skipOnboardingMock = shouldSkipF04App(
+    window.location.search,
+    clientConfig.providerQuery.paramNames.e2eSkipOnboarding,
+    isMockProvider,
+  );
+  if (consentAtBoot === 'granted' || skipOnboardingMock) {
+    startLocationNow();
   }
 }
 

@@ -220,6 +220,129 @@ describe('mountTickToast', () => {
     expect(el?.textContent).toBe(getCopyText('run.stateResumed'));
   });
 
+  // P2-H39 (design/ux/components.md 15.4): the pocket screen overlay hides the visible toast/vfx,
+  // but audio/vibration must always fire.
+  describe('isPocketOverlayShowing', () => {
+    it('showGranted: no .toast DOM while the overlay is showing, but the cue(s) still submit', () => {
+      const container = document.createElement('div');
+      const { submitted, audio } = fakeAudio();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+        isPocketOverlayShowing: () => true,
+      });
+
+      toast.showGranted({
+        loot: [{ id: 'riftStone', qty: 1 }],
+        firstEver: false,
+        levelBefore: 1,
+        levelAfter: 1,
+        at_ms: 5,
+      });
+
+      expect(container.querySelector('.toast')).toBeNull();
+      expect(submitted).toEqual([
+        { cueId: 'run.tickGranted', at: 5 },
+        { cueId: 'drop.rarity.rare', at: 5 },
+      ]);
+    });
+
+    it('showDenied: no .toast DOM, cue still submits', () => {
+      const container = document.createElement('div');
+      const { submitted, audio } = fakeAudio();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+        isPocketOverlayShowing: () => true,
+      });
+
+      toast.showDenied({ at_ms: 6 });
+
+      expect(container.querySelector('.toast')).toBeNull();
+      expect(submitted).toEqual([{ cueId: 'run.tickDenied', at: 6 }]);
+    });
+
+    it('showHpLow: no .toast DOM, cue still submits', () => {
+      const container = document.createElement('div');
+      const { submitted, audio } = fakeAudio();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+        isPocketOverlayShowing: () => true,
+      });
+
+      toast.showHpLow(7);
+
+      expect(container.querySelector('.toast')).toBeNull();
+      expect(submitted).toEqual([{ cueId: 'run.hpLow', at: 7 }]);
+    });
+
+    it('showAutoPotionUsed: no .toast DOM, cue still submits', () => {
+      const container = document.createElement('div');
+      const { submitted, audio } = fakeAudio();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+        isPocketOverlayShowing: () => true,
+      });
+
+      toast.showAutoPotionUsed('hpSmall', 8);
+
+      expect(container.querySelector('.toast')).toBeNull();
+      expect(submitted).toEqual([{ cueId: 'run.autoPotionUsed', at: 8 }]);
+    });
+
+    it('showStateResumed: no .toast DOM (no cue exists for this one either way)', () => {
+      const container = document.createElement('div');
+      const { audio } = fakeAudio();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+        isPocketOverlayShowing: () => true,
+      });
+
+      toast.showStateResumed(9);
+
+      expect(container.querySelector('.toast')).toBeNull();
+    });
+
+    it('a toast shown while covered, then revealed by a later call once the overlay lifts, mounts normally', () => {
+      const container = document.createElement('div');
+      const { audio } = fakeAudio();
+      let overlayShowing = true;
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+        isPocketOverlayShowing: () => overlayShowing,
+      });
+
+      toast.showDenied({ at_ms: 0 });
+      expect(container.querySelector('.toast')).toBeNull();
+
+      overlayShowing = false;
+      toast.showGranted({ loot: [], firstEver: false, levelBefore: 1, levelAfter: 1, at_ms: 1 });
+      expect(container.querySelector('.toast')).not.toBeNull();
+    });
+  });
+
   it('an hp-low toast replaces a still-showing tick toast (one shared slot, F06-R16)', () => {
     const container = document.createElement('div');
     const { audio } = fakeAudio();

@@ -160,6 +160,18 @@ test.describe('map spike shell', () => {
     // `client.mapSpike.*` copy key (TL-N06: no narrative-designer text exists for these two
     // dev-only affordances yet) rather than final short Thai copy. This guards both halves: no
     // duplicate element, and the two boxes never overlap regardless of copy length (src/app.css).
+    //
+    // P2-X38 (R47/CLAUDE.md "GPS never requested without consent"): `#start-location` is now shown
+    // only once `kw.p2.consent.location === 'granted'` (`main.ts`'s own boot-time gate) — this is a
+    // rendering-regression test about the button's own layout, not about the consent flow itself, so
+    // it seeds an already-granted consent the same way a returning, previously-onboarded tester's
+    // browser would already have, rather than driving the real onboarding screens first.
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        'kw.p2.consent',
+        JSON.stringify({ schemaVersion: 1, savedAt_ms: 0, state: { location: 'granted' } }),
+      );
+    });
     await page.goto(spikeUrl(baseURL ?? 'http://localhost:4173'));
 
     const startButton = page.locator('#start-location');

@@ -94,6 +94,15 @@ export interface RunStateConfig {
   readonly clockSkewTolerance_s: number;
 }
 
+/** `config/balance/privacy.json#minAge_yr`/`#minAgeComparison` (S-00-age-gate, F06-R45): the same
+ * `GateComparison` vocabulary `movementGate.comparison` already uses (`privacy.json`'s own
+ * `minAgeComparison` value today is `'greaterThanOrEqual'`, the only variant `age-gate.ts` needs to
+ * support so far). P2-X38. */
+export interface BalancePrivacyConfig {
+  readonly minAge_yr: number;
+  readonly minAgeComparison: GateComparison;
+}
+
 type Json = Record<string, unknown>;
 
 function makeFail(file: string): (path: string, reason: string) => never {
@@ -206,6 +215,20 @@ export function parseMovementGateConfig(input: unknown): MovementGateConfig {
 }
 
 /** Pure so tests can pass a fixture without touching the real JSON import. */
+export function parseBalancePrivacyConfig(input: unknown): BalancePrivacyConfig {
+  const { obj, positiveNum, str } = makeParsers('config/balance/privacy.json');
+  const root = obj(input, '/');
+  const minAge_yr = positiveNum(root['minAge_yr'], '/minAge_yr');
+  const comparisonRaw = str(root['minAgeComparison'], '/minAgeComparison');
+  if (!GATE_COMPARISONS.includes(comparisonRaw as GateComparison)) {
+    throw new Error(
+      `config/balance/privacy.json: /minAgeComparison must be one of ${GATE_COMPARISONS.join(', ')}`,
+    );
+  }
+  return { minAge_yr, minAgeComparison: comparisonRaw as GateComparison };
+}
+
+/** Pure so tests can pass a fixture without touching the real JSON import. */
 export function parseCheckInConfig(input: unknown): CheckInConfig {
   const { obj, positiveNum } = makeParsers('config/balance/anticheat.json');
   const root = obj(input, '/');
@@ -303,6 +326,7 @@ const balanceSubset = balanceSubsetJson as {
   readonly dungeons: unknown;
   readonly anticheat: unknown;
   readonly unlocks: unknown;
+  readonly privacy: unknown;
 };
 
 // Fails loudly at import time, not on first use (config/balance/*.json _meta._note applies the
@@ -323,4 +347,7 @@ export const balanceUnlocksHomeConfig: UnlocksHomeConfig = parseUnlocksHomeConfi
 export const balanceRunStateConfig: RunStateConfig = parseRunStateConfig(balanceSubset.dungeons);
 export const balanceLockedSystemIds: readonly string[] = parseLockedSystemIds(
   balanceSubset.unlocks,
+);
+export const balancePrivacyConfig: BalancePrivacyConfig = parseBalancePrivacyConfig(
+  balanceSubset.privacy,
 );

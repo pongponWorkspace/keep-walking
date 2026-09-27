@@ -49,8 +49,18 @@ const RAW_BRACE_PATTERN = /[{}]/;
 const MISSING_LOCAL_TILES_PATH = '/e2e-fixtures/does-not-exist.pmtiles';
 const TILE_OVERRIDE = `e2eTilesUrl=${encodeURIComponent(MISSING_LOCAL_TILES_PATH)}&e2eGlyphsUrl=&e2eSpriteUrl=`;
 
+// P2-H38: every case here walks into `leelawadee-lawn` (05:00-21:00 daily, `data/dungeons/dungeons.json`
+// -- `temporary: null`, no exception dates), so without a pinned clock these specs only passed
+// while the machine running them happened to be inside that window in its own real local time. Same
+// value, same reasoning as `apps/client/e2e/full-run.spec.ts`'s own `START`.
+const START = '2026-10-02T12:00';
+
+// `e2eSkipOnboarding=1` (D-130, P2-F06-T10): without it a fresh page load now boots straight into
+// the S-00 intro screen (`onboarding-flow.ts`) and none of S-02/S-03/the nav panel ever render —
+// same hook `apps/client/e2e/full-run.spec.ts` already carries (this file predates onboarding
+// shipping).
 function spikeUrl(query: string): string {
-  return `/?${query}&${TILE_OVERRIDE}`;
+  return `/?${query}&${TILE_OVERRIDE}&start=${encodeURIComponent(START)}&e2eSkipOnboarding=1`;
 }
 
 /** Asserts a screen's own rendered text never shows a raw copy key or a raw `{variable}` — reads
@@ -103,6 +113,16 @@ test.describe('F04/F05 no raw copy key or {variable} on S-02, S-03 or the nav pa
     page: Page;
   }) => {
     test.setTimeout(60_000);
+    // P2-H38: this test reaches `dungeon_entered` and keeps reading `.run-bar`'s own rendered text
+    // afterwards (Active, then Grace) — the pocket screen's dark overlay (design gate A 4.4,
+    // P2-F06-T14) sits on top of and hides the run bar entirely once Wake Lock is supported. Forced
+    // unsupported so this stays on the normal run screen the whole time (same fix as
+    // `f04-checkin-confirm-flow.spec.ts`'s own Active-reaching case).
+    await page.addInitScript(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- browser-context patch, no DOM lib type for a prototype delete
+      delete (Navigator.prototype as any).wakeLock;
+    });
+
     // `e2eClassId=tanker`: without it `confirm` fails closed on `no_class`
     // (`packages/shared/src/session/reducer.ts`'s `handleConfirm`, F06-T10's real class-picker
     // screen does not exist yet) and the run bar never appears at all — same hook every other e2e

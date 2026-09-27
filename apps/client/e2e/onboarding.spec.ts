@@ -4,9 +4,10 @@
 // off the rendered DOM only (CLAUDE.md: no reward logic on the client, and that includes the test
 // for it):
 //
-//   map + opening line (S-00-intro) -> class-select sheet (S-00-class-select, R29) -> nearest
-//   OPEN, level-covering rift with straight-line distance + navigate link (F06-R37, the nav panel
-//   P2-F04-T06 already built) -> confirm popup with the real level range + the single N-3
+//   map + opening line (S-00-intro) -> age gate (S-00-age-gate, F06-R44/R45) -> consent location
+//   (S-00-consent-location, F06-R47/R48, P2-X38) -> class-select sheet (S-00-class-select, R29) ->
+//   nearest OPEN, level-covering rift with straight-line distance + navigate link (F06-R37, the nav
+//   panel P2-F04-T06 already built) -> confirm popup with the real level range + the single N-3
 //   tutorial line -> first reward (a normal `sessionStep` tick, GD B-07 -- `run.tickGrantedFirst`/
 //   `run.continueCta` are display-only emphasis, never a second reward code path).
 //
@@ -58,10 +59,20 @@ const FIXTURE_URL =
   `&start=${encodeURIComponent(START)}`;
 
 test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
-  test('intro -> class select -> nearby open rift -> confirm + N-3 line -> first reward -> continue prompt', async ({
+  test('intro -> age gate -> consent -> class select -> nearby open rift -> confirm + N-3 line -> first reward -> continue prompt', async ({
     page,
   }) => {
     test.setTimeout(60_000);
+
+    // P2-F06-T14/P2-H39 (design/ux/components.md 15.4): this spec asserts on the granted-tick toast
+    // right after `dungeon_entered`, an element the pocket screen's own dark overlay deliberately
+    // covers (and, since P2-H39, suppresses entirely) while it is showing — forcing Wake Lock
+    // unsupported keeps this spec on the normal run screen the whole time, same as `full-run.spec.
+    // ts`'s own identical fix; `pocket-screen.spec.ts` is the one that exercises both paths.
+    await page.addInitScript(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- browser-context patch, no DOM lib type for a prototype delete
+      delete (Navigator.prototype as any).wakeLock;
+    });
 
     await page.goto(FIXTURE_URL);
 
@@ -70,6 +81,29 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
     await expect(intro).toBeVisible({ timeout: 10_000 });
     await expect(page.locator('.intro-message')).toHaveText(getCopyText('onboarding.intro'));
     await intro.click();
+
+    // F06-R44/R45 (P2-X38): age gate before anything else -- pick a real, passing birth year from
+    // the <select> (never typed), confirm button disabled until a year is picked.
+    const ageGate = page.locator('.age-gate-screen:not([hidden])');
+    await expect(ageGate).toBeVisible({ timeout: 5_000 });
+    const ageConfirmButton = page.locator('.age-gate-confirm');
+    await expect(ageConfirmButton).toBeDisabled();
+    await page.locator('.age-gate-birth-year-select').selectOption('1990');
+    await expect(ageConfirmButton).toBeEnabled();
+    await ageConfirmButton.click();
+
+    // F06-R47/R48 (P2-X38): consent, separate from and before the first GPS request -- no sample
+    // has been dispatched to the engine yet at this point (`kw.p2.consent` is still unset).
+    const consentScreenBeforeAccept = await page.evaluate(() =>
+      window.localStorage.getItem('kw.p2.consent'),
+    );
+    expect(consentScreenBeforeAccept).toBeNull();
+    const consentScreen = page.locator('.consent-location-screen:not([hidden])');
+    await expect(consentScreen).toBeVisible({ timeout: 5_000 });
+    await page.locator('.consent-location-accept').click();
+    await expect
+      .poll(() => page.evaluate(() => window.localStorage.getItem('kw.p2.consent')))
+      .toContain('"granted"');
 
     // Minute 0-1: the class-select sheet (R29) -- forced before the map is usable, no separate
     // confirm layered on top, exactly the four `PlayerClass` cards.
@@ -115,5 +149,66 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
     for (const forbidden of ['.market', '.enhance-screen', '.raid-screen', '.stat-allocation']) {
       await expect(page.locator(forbidden)).toHaveCount(0);
     }
+  });
+
+  // F06-R46 (P2-X38): an honestly-answered under-`minAge_yr` birth year blocks -- no consent screen,
+  // no GPS, no `kw.p2.onboarding.ageGatePassed` write -- until the player goes back and picks a real
+  // passing year.
+  test('age gate: an under-min birth year blocks with no consent screen; going back retries', async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await page.goto(FIXTURE_URL);
+
+    await page.locator('.intro-screen:not([hidden])').click();
+    const ageGate = page.locator('.age-gate-screen:not([hidden])');
+    await expect(ageGate).toBeVisible({ timeout: 5_000 });
+    // `start=2026-10-02` -> nowYear 2026; 2020 is 6 years old, well under minAge_yr (15).
+    await page.locator('.age-gate-birth-year-select').selectOption('2020');
+    await page.locator('.age-gate-confirm').click();
+
+    await expect(page.locator('.age-gate-underage-view:not([hidden])')).toBeVisible({
+      timeout: 5_000,
+    });
+    await expect(page.locator('.consent-location-screen')).toBeHidden();
+    const onboardingStorage = await page.evaluate(() =>
+      window.localStorage.getItem('kw.p2.onboarding'),
+    );
+    expect(onboardingStorage).not.toBeNull();
+    expect(onboardingStorage).toContain('"ageGatePassed":false');
+    expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.consent'))).toBeNull();
+
+    // R46 "ปุ่มเดียวกลับหน้าแรก": the one button goes back to a fresh age-gate attempt.
+    await page.locator('.age-gate-underage-back').click();
+    await expect(page.locator('.age-gate-view:not([hidden])')).toBeVisible({ timeout: 5_000 });
+    await page.locator('.age-gate-birth-year-select').selectOption('1990');
+    await page.locator('.age-gate-confirm').click();
+    await expect(page.locator('.consent-location-screen:not([hidden])')).toBeVisible({
+      timeout: 5_000,
+    });
+  });
+
+  // F06-R48 (P2-X38): declining consent still lets the player pick a class and see the map --
+  // just with no GPS ever requested.
+  test('declining consent never starts GPS but still reaches class select (R48)', async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await page.goto(FIXTURE_URL);
+
+    await page.locator('.intro-screen:not([hidden])').click();
+    await page.locator('.age-gate-birth-year-select').selectOption('1990');
+    await page.locator('.age-gate-confirm').click();
+    await expect(page.locator('.consent-location-screen:not([hidden])')).toBeVisible({
+      timeout: 5_000,
+    });
+    await page.locator('.consent-location-decline').click();
+
+    await expect
+      .poll(() => page.evaluate(() => window.localStorage.getItem('kw.p2.consent')))
+      .toContain('"declined"');
+    await expect(page.locator('.class-select-overlay:not([hidden])')).toBeVisible({
+      timeout: 5_000,
+    });
   });
 });

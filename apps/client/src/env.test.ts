@@ -103,6 +103,15 @@ describe('shouldSkipF04App', () => {
   it('is false outside the Mock provider even when the param is present (TG-05)', () => {
     expect(shouldSkipF04App('?e2eSkipF04App=1', 'e2eSkipF04App', false)).toBe(false);
   });
+
+  // D-130/P2-X38: the exact same generic function backs the `e2eSkipOnboarding` hook too
+  // (`f04-app.ts`'s own `shouldSkipF04App(..., paramNames.e2eSkipOnboarding, ...)` call site) —
+  // spelled out here with that hook's own real param name so the Mock-only gate is unmissable for
+  // this specific hook, on top of the generic TG-05 case above.
+  it('e2eSkipOnboarding: true under Mock, false under Web even when the param is present', () => {
+    expect(shouldSkipF04App('?e2eSkipOnboarding=1', 'e2eSkipOnboarding', true)).toBe(true);
+    expect(shouldSkipF04App('?e2eSkipOnboarding=1', 'e2eSkipOnboarding', false)).toBe(false);
+  });
 });
 
 describe('readBuildProfile', () => {

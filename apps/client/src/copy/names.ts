@@ -32,6 +32,34 @@ function buildNameIndex(file: unknown): ReadonlyMap<string, NameEntry> {
 
 const nameIndex = buildNameIndex(namesThJson);
 
+/** `province.<iso>` entries carry a `_provinceIso` field (ISO 3166-2 `TH-xx`, uppercase-with-dash)
+ * alongside the usual `name` — a second, small index built once, keyed by that raw ISO value so a
+ * caller with a `study-districts.json`/`districts.ts#DistrictOption.provinceIso`-shaped id (already
+ * `TH-xx`) never has to guess the `names.th.json` key's own lowercase-no-dash convention (`th10`,
+ * `names.th.json#_meta.groups.province`'s own doc comment explains why the key itself cannot carry
+ * the dash/uppercase — the content-key regex). P2-H32. */
+const provinceNameByIso = ((): ReadonlyMap<string, string> => {
+  const index = new Map<string, string>();
+  if (typeof namesThJson !== 'object' || namesThJson === null) return index;
+  for (const value of Object.values(namesThJson as Record<string, unknown>)) {
+    if (typeof value !== 'object' || value === null) continue;
+    const entry = value as { readonly _provinceIso?: unknown; readonly name?: unknown };
+    if (typeof entry._provinceIso === 'string' && typeof entry.name === 'string') {
+      index.set(entry._provinceIso, entry.name);
+    }
+  }
+  return index;
+})();
+
+/** The Thai display name for a study-area province ISO code (`TH-10`, ...), or the raw code itself
+ * as an honest fallback (same "never crash on missing content" convention as `getItemName`) when no
+ * `province.*` entry declares that `_provinceIso` yet — e.g. a province outside the 6 study-area
+ * ones `names.th.json` covers today. P2-H32 (S-09 group headers, `home.outOfAreaBody`'s future real
+ * `{provinceName}` lookup). */
+export function getProvinceName(provinceIso: string): string {
+  return provinceNameByIso.get(provinceIso) ?? provinceIso;
+}
+
 /** `entry.name` (or `entry.nameReal` for a `dungeon.*`-shaped entry), or the key itself as an
  * honest fallback (same "never crash on missing content" convention as `getCopyText`, TL-N06). Also
  * resolves `dungeon.<id>.search` (`search_name_key`, field `name`) — the same lookup, one path. */

@@ -20,8 +20,22 @@ import type { Page } from '@playwright/test';
 const MISSING_LOCAL_TILES_PATH = '/e2e-fixtures/does-not-exist.pmtiles';
 const TILE_OVERRIDE = `e2eTilesUrl=${encodeURIComponent(MISSING_LOCAL_TILES_PATH)}&e2eGlyphsUrl=&e2eSpriteUrl=`;
 
+// P2-H38: every case here walks into `leelawadee-lawn` (05:00-21:00 daily, `data/dungeons/dungeons.json`
+// -- `temporary: null`, no exception dates), so without a pinned clock these specs only passed while
+// the machine running them happened to be inside that window in its own real local time, and failed
+// the rest of the day with the confirm popup's "เข้า" button never enabling (the dungeon reads as
+// closed, honestly, outside its hours). Same value, same reasoning as
+// `apps/client/e2e/full-run.spec.ts`'s and `apps/client/e2e/pocket-screen.spec.ts`'s own `START`
+// (Friday noon, well inside the window regardless of `speed`).
+const START = '2026-10-02T12:00';
+
+// `e2eSkipOnboarding=1` (D-130, P2-F06-T10): without it a fresh page load (no prior session) now
+// boots straight into the S-00 intro screen (`onboarding-flow.ts`) and the confirm popup this file
+// is actually about never renders at all — same hook `apps/client/e2e/full-run.spec.ts`,
+// `apps/client/e2e/location-mock.spec.ts` and `apps/client/e2e/f06-hp.spec.ts` already carry for the
+// same reason (this file predates the onboarding flow shipping).
 function spikeUrl(query: string): string {
-  return `/?${query}&${TILE_OVERRIDE}`;
+  return `/?${query}&${TILE_OVERRIDE}&start=${encodeURIComponent(START)}&e2eSkipOnboarding=1`;
 }
 
 const REPO_ROOT = join(import.meta.dirname, '..', '..', '..');
@@ -78,6 +92,18 @@ test.describe('F04 confirm popup — Cancel available in every check-in state (C
     page,
   }) => {
     test.setTimeout(120_000);
+    // P2-H38: this is the one case in this file that reaches `dungeon_entered` and keeps
+    // interacting with the normal run screen (`.run-state-pill`, `.run-exit-button`) afterwards —
+    // the pocket screen's own dark overlay (design gate A 4.4, P2-F06-T14) sits on top of and
+    // blocks exactly those elements once Wake Lock is supported. Forcing it unsupported keeps this
+    // spec on the normal run screen the whole time, same fix/reasoning as
+    // `apps/client/e2e/full-run.spec.ts`'s own `addInitScript` (`pocket-screen.spec.ts` is the one
+    // that actually exercises the overlay path).
+    await page.addInitScript(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- browser-context patch, no DOM lib type for a prototype delete
+      delete (Navigator.prototype as any).wakeLock;
+    });
+
     // `e2eClassId=tanker` (same hook `full-run.spec.ts`/`f04-origin-allowlist.spec.ts` already
     // use): F06-T10's real class-picker screen does not exist yet, so `player.classId` stays
     // `null` without it and the reducer's own fail-closed `no_class` guard

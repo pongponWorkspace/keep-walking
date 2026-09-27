@@ -5,9 +5,11 @@ import {
   balanceLockedSystemIds,
   balanceMovementGateConfig,
   balanceOpeningHoursConfig,
+  balancePrivacyConfig,
   balanceRunStateConfig,
   balanceUnlocksHomeConfig,
   parseBalanceLocationConfig,
+  parseBalancePrivacyConfig,
   parseCheckInConfig,
   parseLockedSystemIds,
   parseMovementGateConfig,
@@ -235,5 +237,28 @@ describe('the real committed config files (via the generated whitelist subset)',
     // U1 (market), U2 (enhance), U3 (raid), U4 (statAllocation), U6 (partyDetail), U7
     // (antiCheatHelp), U8 (lore) — U5 (classChange) is a documented gap, see whitelist.ts.
     expect([...balanceLockedSystemIds].sort()).toEqual(['U1', 'U2', 'U3', 'U4', 'U6', 'U7', 'U8']);
+    // P2-X38: S-00-age-gate's own config, from the same generated subset.
+    expect(balancePrivacyConfig.minAge_yr).toBe(15);
+    expect(balancePrivacyConfig.minAgeComparison).toBe('greaterThanOrEqual');
+  });
+});
+
+const WELL_FORMED_PRIVACY = { minAge_yr: 15, minAgeComparison: 'greaterThanOrEqual' };
+
+describe('parseBalancePrivacyConfig', () => {
+  it('parses a well-formed config', () => {
+    expect(parseBalancePrivacyConfig(WELL_FORMED_PRIVACY)).toEqual(WELL_FORMED_PRIVACY);
+  });
+
+  it('fails loudly on a missing minAge_yr', () => {
+    expect(() =>
+      parseBalancePrivacyConfig({ ...WELL_FORMED_PRIVACY, minAge_yr: undefined }),
+    ).toThrow(/minAge_yr/);
+  });
+
+  it('fails loudly on an unknown minAgeComparison rather than guessing', () => {
+    expect(() =>
+      parseBalancePrivacyConfig({ ...WELL_FORMED_PRIVACY, minAgeComparison: 'nope' }),
+    ).toThrow(/minAgeComparison/);
   });
 });

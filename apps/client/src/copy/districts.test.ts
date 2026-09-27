@@ -55,6 +55,14 @@ describe('studyAreaProvinceOptions', () => {
         expect(prev.provinceIso < cur.provinceIso).toBe(true);
     }
   });
+
+  it('P2-H32: resolves a real Thai display name per province, not the raw ISO code', () => {
+    const options = studyAreaProvinceOptions();
+    for (const option of options) {
+      expect(option.name).not.toBe(option.provinceIso);
+      expect(option.name.length).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe('groupedSelectableDistricts', () => {

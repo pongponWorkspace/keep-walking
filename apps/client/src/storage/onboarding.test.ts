@@ -4,6 +4,7 @@ import {
   loadOnboardingStorage,
   readLocationConsent,
   saveOnboardingStorage,
+  writeLocationConsent,
   CONSENT_STORAGE_KEY,
 } from './onboarding';
 import { applyOnboardingEvent } from '../onboarding/onboarding-step';
@@ -61,5 +62,23 @@ describe('readLocationConsent', () => {
       JSON.stringify({ schemaVersion: 1, savedAt_ms: 1, state: { location: 'nonsense' } }),
     );
     expect(readLocationConsent(storage)).toBe('unanswered');
+  });
+});
+
+describe('writeLocationConsent', () => {
+  it('round-trips granted/declined/withdrawn through readLocationConsent', () => {
+    for (const value of ['granted', 'declined', 'withdrawn'] as const) {
+      const storage = createMemoryStorage();
+      writeLocationConsent(storage, value, 1234, NOOP_QUOTA);
+      expect(readLocationConsent(storage)).toBe(value);
+    }
+  });
+
+  it('overwrites a previous answer (re-granting after a decline)', () => {
+    const storage = createMemoryStorage();
+    writeLocationConsent(storage, 'declined', 1, NOOP_QUOTA);
+    expect(readLocationConsent(storage)).toBe('declined');
+    writeLocationConsent(storage, 'granted', 2, NOOP_QUOTA);
+    expect(readLocationConsent(storage)).toBe('granted');
   });
 });

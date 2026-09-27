@@ -61,7 +61,7 @@ test.describe('F06 — HP bar, auto-retreat default, death, revive', () => {
     page,
   }) => {
     test.setTimeout(60_000);
-    await page.goto(runUrl('#/settings'));
+    await page.goto(runUrl('#/settings/walking-safety'));
 
     const settingsScreen = page.locator('.settings-walking-safety');
     await expect(settingsScreen).not.toBeHidden();
@@ -70,8 +70,15 @@ test.describe('F06 — HP bar, auto-retreat default, death, revive', () => {
     // Turning off requires the one-layer confirm popup (NN-6) — never applied on the first click.
     await expect(offConfirmOverlay).not.toBeHidden();
     await offConfirmOverlay.locator('.btn-danger-confirm').click();
+    // P2-X38: closing a `#/settings/*` subpage goes up one level, to the real `S-22-settings` menu
+    // itself (`#/settings`) — not all the way back to the map in one tap anymore (`f04-app.ts`'s own
+    // `closeSettingsSubpage` doc comment) — so leaving settings now takes two closes.
     await page.locator('.settings-close-button').click();
     await expect(settingsScreen).toBeHidden();
+    const settingsMenu = page.locator('.settings-menu');
+    await expect(settingsMenu).not.toBeHidden();
+    await page.locator('.settings-menu-close').click();
+    await expect(settingsMenu).toBeHidden();
 
     const enterButton = page.locator('.popup-overlay:not([hidden]) .btn.btn-primary');
     await expect(enterButton).toBeEnabled({ timeout: 30_000 });

@@ -11,8 +11,13 @@ const MISSING_LOCAL_TILES_PATH = '/e2e-fixtures/does-not-exist.pmtiles';
 const TILE_OVERRIDE = `e2eTilesUrl=${encodeURIComponent(MISSING_LOCAL_TILES_PATH)}&e2eGlyphsUrl=&e2eSpriteUrl=`;
 const START_MONDAY = '2026-09-28T10:00';
 
+// P2-H38: `e2eSkipOnboarding=1` (D-130, P2-F06-T10) -- without it a fresh page load (no prior
+// session) now boots straight into the S-00 intro screen (`onboarding-flow.ts`) and the B4 closed
+// popup this file is actually about never renders at all (every case below was silently passing
+// vacuously against the intro screen, not the real closed-dungeon UI, until this fix). Same hook
+// `apps/client/e2e/full-run.spec.ts` already carries (this file predates onboarding shipping).
 function spikeUrl(query: string): string {
-  return `/?${query}&${TILE_OVERRIDE}`;
+  return `/?${query}&${TILE_OVERRIDE}&e2eSkipOnboarding=1`;
 }
 
 test.describe('F04 — a closed dungeon cannot be entered', () => {

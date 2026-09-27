@@ -140,13 +140,17 @@ export function mountHomePanel(container: HTMLElement, deps: HomePanelDeps): Hom
     }
     if (state.kind === 'out_of_area') {
       title.textContent = getCopyText('home.outOfAreaTitle');
-      // [ASSUMPTION A-P2-F06-T09-2: `{provinceName}` is left empty (the sentence still reads fine
-      // in Thai without it, "ยังไม่เปิด อยากให้เปิด...") because no province-boundary-to-name lookup
-      // exists anywhere in this repo yet (`data/map/provinces.geojson`'s own features carry only
-      // `{kind: "border"}`, no name) — resolving the real province from an out-of-play-area point
-      // needs a full nationwide province polygon set, out of this task's scope. owner: location-
-      // engineer/tech-lead, a real lookup slots in here with no other change.]
-      body.textContent = formatCopyText('home.outOfAreaBody', { provinceName: '' });
+      // P2-H32 fix (closes the A-P2-F06-T09-2 assumption): `home.outOfAreaBody` (with its
+      // `{provinceName}` variable) is reserved for a future build that actually resolves the real
+      // province name a player is standing in — Phase 2 has no nationwide province-boundary-to-name
+      // lookup anywhere in this repo (`data/map/provinces.geojson`'s own features carry only
+      // `{kind: "border"}`, no name), so every `out_of_area` player in Phase 2 hits this branch.
+      // `home.outOfAreaBodyUnknown` is the key written for exactly this case (its own copy context:
+      // "ใช้เมื่อผู้เล่นอยู่นอกพื้นที่เล่นและ client ไม่รู้ชื่อจังหวัด ซึ่งคือทุกกรณีของ Phase 2") — never send
+      // `home.outOfAreaBody` with an empty `{provinceName}` (the copy's own context line now forbids
+      // it explicitly). owner: location-engineer/tech-lead, a real per-point province lookup swaps
+      // this back to `home.outOfAreaBody` with no other change.
+      body.textContent = getCopyText('home.outOfAreaBodyUnknown');
       primaryCta.hidden = false;
       primaryCta.textContent = getCopyText('home.outOfAreaCta');
       primaryCta.onclick = () => deps.onRegisterProvince();

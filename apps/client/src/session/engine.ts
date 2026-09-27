@@ -10,7 +10,12 @@
  * failure -> immediate `tick` so time lost while the app was closed is judged before the first
  * frame renders.
  */
-import { createSession, selectCheckInPreview, sessionStep } from '@keep-walking/shared/session';
+import {
+  createSession,
+  purgeLocationData,
+  selectCheckInPreview,
+  sessionStep,
+} from '@keep-walking/shared/session';
 import type {
   CheckInPreview,
   PlayerClass,
@@ -56,6 +61,12 @@ export interface SessionEngine {
   /** Speculative, side-effect-free check-in preview (`selectCheckInPreview`, tech note F04 7.4) —
    * never call `dispatch` for a preview: that would actually attempt the check-in. */
   previewCheckIn(dungeonId: string, now_ms: number): CheckInPreview;
+  /** `purgeLocationData(state)` (docs/tech/F06-hp-damage-onboarding.md 8.4 step 4, P2-X38's own
+   * withdraw-consent sequence): a pure state transform, not a `dispatch()` — it emits no
+   * `SessionEvent` and needs none (nothing in `reward`/`hp`/`RunSummary` changes, only the raw
+   * position fields tech note F04 section 11 already caps). Persists immediately, same as every
+   * other mutation this engine makes. */
+  purgeLocation(): void;
 }
 
 /** Boots (or recovers) the session, then does the same catch-up `tick` tech note 10.2 requires
@@ -129,6 +140,10 @@ export function createSessionEngine(
     },
     previewCheckIn(dungeonId, at_ms) {
       return selectCheckInPreview(state, dungeonId, at_ms, params);
+    },
+    purgeLocation() {
+      state = purgeLocationData(state);
+      saveSession(deps.storage, key, state, now_ms, deps.quotaDeps);
     },
   };
 }

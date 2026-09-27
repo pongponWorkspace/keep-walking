@@ -28,7 +28,7 @@ function mutate(path: string, dotted: string, value: Json): ConfigFile[] {
   });
 }
 
-const schemaErrorsFor = (files: ConfigFile[], path: string): string[] =>
+const schemaErrorsFor = (files: readonly ConfigFile[], path: string): string[] =>
   checkSchemas(repoRoot, files)
     .filter((f) => f.file === path && f.rule === 'schema')
     .map((f) => f.at);

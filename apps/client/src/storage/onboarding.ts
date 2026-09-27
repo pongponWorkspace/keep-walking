@@ -54,6 +54,7 @@ export function saveOnboardingStorage(
 }
 
 export type LocationConsent = 'granted' | 'declined' | 'withdrawn' | 'unanswered';
+type AnsweredLocationConsent = Exclude<LocationConsent, 'unanswered'>;
 
 /** `kw.p2.consent.location`, mapped to `onboarding-step.ts#OnboardingStepInput.locationConsent`.
  * A *missing* key (nobody has ever answered, including every player before P2-X38 builds a real
@@ -77,4 +78,23 @@ export function readLocationConsent(storage: KeyValueStorage): LocationConsent {
   return location === 'granted' || location === 'declined' || location === 'withdrawn'
     ? location
     : 'unanswered';
+}
+
+/** Writes `kw.p2.consent = { schemaVersion: 1, location: value }` — the one function every consent
+ * screen/withdraw call site uses (`S-00-consent-location`'s accept/decline, `S-23-privacy`'s
+ * withdraw/re-grant, `docs/tech/F06-hp-damage-onboarding.md` 8.4 step 4's own "เขียน kw.p2.consent").
+ * Never writes `'unanswered'` (that value only ever comes from a *missing* key, `readLocationConsent`
+ * above — there is no reason to persist it explicitly). */
+export function writeLocationConsent(
+  storage: KeyValueStorage,
+  value: AnsweredLocationConsent,
+  now_ms: number,
+  quotaDeps: QuotaFallbackDeps,
+): void {
+  const json = JSON.stringify({
+    schemaVersion: CONSENT_SCHEMA_VERSION,
+    savedAt_ms: now_ms,
+    state: { location: value },
+  });
+  writeWithQuotaFallback(storage, CONSENT_STORAGE_KEY, json, quotaDeps);
 }

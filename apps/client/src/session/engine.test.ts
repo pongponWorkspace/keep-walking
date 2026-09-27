@@ -138,4 +138,50 @@ describe('createSessionEngine', () => {
     expect(engine.getState().run).toBeNull();
     expect(recorder.records.some((r) => r.name === 'session_state_discarded')).toBe(true);
   });
+
+  // P2-X38 (docs/tech/F06-hp-damage-onboarding.md 8.4 step 4): withdraw-consent's own state purge.
+  describe('purgeLocation', () => {
+    it('clears the latest sample, emits no SessionEvent, and persists immediately', () => {
+      const storage = createMemoryStorage();
+      const recorder = fakeRecorder();
+      const now_ms = Date.parse('2026-10-05T09:00:00+07:00');
+      const engine = createSessionEngine(
+        params,
+        { storage, quotaDeps: NOOP_QUOTA_DEPS, record: recorder.record },
+        now_ms,
+      );
+      engine.dispatch(
+        { type: 'sample', sample: { t_ms: now_ms, lat, lng, accuracy_m: 5 } },
+        now_ms,
+      );
+      expect(engine.getState().latestSample).not.toBeNull();
+      recorder.records.length = 0;
+
+      engine.purgeLocation();
+
+      expect(engine.getState().latestSample).toBeNull();
+      expect(recorder.records).toEqual([]);
+      // Re-opening from storage proves it actually persisted, not just the in-memory state.
+      const reopened = createSessionEngine(
+        params,
+        { storage, quotaDeps: NOOP_QUOTA_DEPS, record: recorder.record },
+        now_ms,
+      );
+      expect(reopened.getState().latestSample).toBeNull();
+    });
+
+    it('never touches player/lastSummary (tech note 8.4 step 4)', () => {
+      const storage = createMemoryStorage();
+      const recorder = fakeRecorder();
+      const now_ms = Date.parse('2026-10-05T09:00:00+07:00');
+      const engine = createSessionEngine(
+        params,
+        { storage, quotaDeps: NOOP_QUOTA_DEPS, record: recorder.record },
+        now_ms,
+      );
+      const playerBefore = JSON.stringify(engine.getState().player);
+      engine.purgeLocation();
+      expect(JSON.stringify(engine.getState().player)).toBe(playerBefore);
+    });
+  });
 });

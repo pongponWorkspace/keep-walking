@@ -169,3 +169,7 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 154 | W13 | P2-H36 | tech-lead | 00:57 | 00:57:27 | DONE — qa/tests/F06 เป็น workspace member · lockfile +9 importer เท่านั้น · handoff qa (ยืนยันรันจาก root) → context F06-T21 |
 | 155 | W13 | P2-H37 | location-engineer | 00:57 | 00:58:02 | DONE — README 6.1 trace ใน qa/ + แถว home-states · synthetic ยืนยัน · handoff qa (รายชื่อ trace qa ที่เหลือ) → context CLOSE-QA |
 | 156 | W13 | P2-F06-T14 | gameplay-programmer | 00:22:49 | 01:20:32 | DONE — pocket screen + Wake Lock + fire-together + setIconGlyph + telemetry · client e2e 42/42 ไม่ขึ้นกับเวลา · root vitest 2831 pass · _px → _ratio (D-134 PROPOSED → T20) · → H38 qa e2e pin start, H39 uiux toast ใต้ pocket screen |
+| 157 | W14 | P2-H39 | uiux-designer | 01:21 | 01:28:22 | DONE — cue บนจอพกกระเป๋าใช้เสียง/สั่น/ตัวเลขบนจอ ไม่เพิ่ม z-index · handoff client → ส่งเข้า X38 ที่กำลังทำ · GD รับทราบใน F06-T24 |
+| 158 | W14 | P2-H38 | qa-tester | 01:21 | 01:32:35 | DONE — qa e2e 36/36 ×2 ทั้งสอง project · เพิ่ม e2eSkipOnboarding + pin start + wake lock off · พบ root tsc แดงจาก H33 → X39 tech-lead |
+| 159 | W14 | P2-X39 | tech-lead | 01:44 | 01:32:59 | DONE — root tsc กลับมาเขียว (helper readonly) · config-lint 70/70 |
+| 160 | W14 | P2-X38 | gameplay-programmer | 01:21 | 02:22:57 | DONE — age gate/consent/S-23/settings + H32/O-2/H34/H39 · client e2e 50/50, root vitest 2906 · → H40 uiux (ไม่บล็อก), A-3 ttl hardcode + storageKeyPrefix → tech gate F06-T20 |

@@ -22,6 +22,12 @@ export interface InterestOption {
 
 export interface InterestOptionGroup {
   readonly groupKey: string;
+  /** P2-H32: a real, already-resolved display heading for this group (e.g. a province name for a
+   * district-scope group) — shown as an `.interest-group-heading` right above the group's own
+   * options. `undefined`/empty (the province-scope caller's own single `'all'` group) renders no
+   * heading at all, same as before this field existed — never a raw `groupKey` fallback (a bare
+   * ISO/internal id is not Thai copy, CLAUDE.md). */
+  readonly groupLabel?: string;
   readonly options: readonly InterestOption[];
 }
 
@@ -109,6 +115,12 @@ export function mountInterestRegister(
       for (const group of groups) {
         const groupEl = el('div', 'interest-group');
         groupEl.dataset['group'] = group.groupKey;
+        if (group.groupLabel !== undefined && group.groupLabel.length > 0) {
+          const heading = document.createElement('div');
+          heading.className = 'interest-group-heading';
+          heading.textContent = group.groupLabel;
+          groupEl.append(heading);
+        }
         for (const option of group.options) {
           const button = document.createElement('button');
           button.type = 'button';

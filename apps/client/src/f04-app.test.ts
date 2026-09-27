@@ -41,6 +41,8 @@ describe('createF04App', () => {
       locationSearch: '?e2eSkipOnboarding=1',
       isMockProvider: true,
       getLocationPermission: () => Promise.resolve('granted'),
+      startLocationProvider: () => undefined,
+      stopLocationProvider: () => undefined,
       // P2-F06-T14: no `icon.ui.*` glyph ever resolves in this file's tests (no manifest is
       // loaded, `assets.getManifest()` above always returns `undefined`) — `fetchText`/
       // `parseSvgDocument` are never actually called, `setIconGlyph` falls back to `setIconImg`

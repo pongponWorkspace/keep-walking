@@ -55,6 +55,17 @@ export interface TickToastDeps {
    * longer than a tick toast's, so it gets its own, longer hold time rather than reusing
    * `holdDurationMs`. */
   readonly hpLowHoldDurationMs: number;
+  /** P2-H39 (`design/ux/components.md` 15.4): `true` while the pocket screen's own dark overlay is
+   * showing (`pocket-screen.ts#overlayRoot.hidden === false`) — every `show*` method below skips
+   * mounting its visible `.toast` DOM and the visual vfx `play()` call while this is `true` (the
+   * overlay already covers the whole screen; a toast/vfx underneath it would never be seen and
+   * would only leave a stray DOM node behind once the overlay lifts), but still **always** calls
+   * `deps.audio.submit(...)` first — sound and vibration (the audio cue's own `vibration_ms`,
+   * `audio/manifest.json`) are the whole point of the pocket-screen experience (design gate A 4.4:
+   * "ใช้เสียง/สั่นแทนจอ") and must never be silenced by the overlay. Optional so every pre-existing
+   * caller/test that has no pocket screen at all keeps behaving exactly as before (defaults to
+   * "never showing"). */
+  readonly isPocketOverlayShowing?: () => boolean;
 }
 
 export interface TickToast {
@@ -100,6 +111,7 @@ function highestKnownRarityCueId(
 }
 
 export function mountTickToast(container: HTMLElement, deps: TickToastDeps): TickToast {
+  const isPocketOverlayShowing = deps.isPocketOverlayShowing ?? (() => false);
   let current: { readonly el: HTMLElement; timer: ReturnType<typeof setTimeout> } | undefined;
 
   function clearCurrent(): void {
@@ -129,8 +141,17 @@ export function mountTickToast(container: HTMLElement, deps: TickToastDeps): Tic
 
   return {
     showGranted(event) {
-      const el = mount(false);
       const textKey = event.firstEver ? 'run.tickGrantedFirst' : 'run.tickGranted';
+      // P2-H39: audio/vibration always fires, even while the pocket screen overlay hides the
+      // toast/vfx below.
+      deps.audio.submit(textKey, event.at_ms);
+      const bonusCue = highestKnownRarityCueId(event.loot);
+      if (bonusCue !== undefined) deps.audio.submit(bonusCue, event.at_ms);
+      if (isPocketOverlayShowing()) {
+        clearCurrent();
+        return;
+      }
+      const el = mount(false);
       // F05-N1 (copy gate P2-X37): `run.tickGrantedFirst` and `run.continueCta` are two separate
       // elements/lines, not one line joined by a space — lets a narrow viewport wrap each key on
       // its own terms instead of an arbitrary mid-sentence break.
@@ -178,23 +199,29 @@ export function mountTickToast(container: HTMLElement, deps: TickToastDeps): Tic
       }
 
       void play(textKey, el);
-      deps.audio.submit(textKey, event.at_ms);
-      const bonusCue = highestKnownRarityCueId(event.loot);
-      if (bonusCue !== undefined) deps.audio.submit(bonusCue, event.at_ms);
 
       scheduleExit(el, deps.holdDurationMs);
     },
     showDenied(event) {
+      deps.audio.submit('run.tickDenied', event.at_ms);
+      if (isPocketOverlayShowing()) {
+        clearCurrent();
+        return;
+      }
       const el = mount(true);
       const line = document.createElement('div');
       line.className = 'toast-line';
       line.textContent = getCopyText('run.tickDenied');
       el.append(line);
       void play('run.tickDenied', el);
-      deps.audio.submit('run.tickDenied', event.at_ms);
       scheduleExit(el, deps.holdDurationMs);
     },
     showHpLow(atMs) {
+      deps.audio.submit('run.hpLow', atMs);
+      if (isPocketOverlayShowing()) {
+        clearCurrent();
+        return;
+      }
       const el = mount(false);
       el.classList.add('danger');
       const line = document.createElement('div');
@@ -202,20 +229,29 @@ export function mountTickToast(container: HTMLElement, deps: TickToastDeps): Tic
       line.textContent = getCopyText('run.hpLow');
       el.append(line);
       void play('run.hpLow', el);
-      deps.audio.submit('run.hpLow', atMs);
       scheduleExit(el, deps.hpLowHoldDurationMs);
     },
     showAutoPotionUsed(itemId, atMs) {
+      deps.audio.submit('run.autoPotionUsed', atMs);
+      if (isPocketOverlayShowing()) {
+        clearCurrent();
+        return;
+      }
       const el = mount(true);
       el.dataset['itemId'] = itemId;
       const line = document.createElement('div');
       line.className = 'toast-line';
       line.textContent = getCopyText('run.autoPotionUsed');
       el.append(line);
-      deps.audio.submit('run.autoPotionUsed', atMs);
       scheduleExit(el, deps.holdDurationMs);
     },
     showStateResumed() {
+      // No audio cue exists for this one (this interface's own doc comment) — nothing to fire
+      // "always", so the pocket-screen check simply skips the toast entirely.
+      if (isPocketOverlayShowing()) {
+        clearCurrent();
+        return;
+      }
       const el = mount(true);
       const line = document.createElement('div');
       line.className = 'toast-line';

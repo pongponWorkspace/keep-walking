@@ -20,16 +20,13 @@
  *
  * Province grouping: `study-districts.json`'s own `provinceIso` (ISO 3166-2 TH-xx) is the group
  * key, sorted ascending (a stable, data-driven order — TH-10 Bangkok, then the five ปริมณฑล
- * provinces). No `province.<iso>` display-name content key exists yet anywhere in this repo
- * (checked: `names.th.json`, `copy.th.json`, `data/map/provinces.geojson`'s own properties carry
- * only `{kind: "border"}`, no name) — [ASSUMPTION A-P2-F06-T09-1: groups are separated visually
- * (`.interest-district-group` boundary in the DOM) without an invented province-name heading,
- * rather than fabricating Thai text this module has no content key for. owner: narrative-designer/
- * systems-designer, a real `province.<iso>` key would replace `provinceIso` as the group label
- * here with no other change]
+ * provinces). Display names resolve through `copy/names.ts#getProvinceName` (`names.th.json`'s
+ * `province.<iso>` entries, added P2-H32) — [ASSUMPTION A-P2-F06-T09-1 CLOSED by P2-H32: the
+ * `province.*` content keys now exist, so `groupedSelectableDistricts`'s caller (`f04-app.ts`) can
+ * show a real Thai heading per group instead of the bare ISO code this module used as a stand-in].
  */
 import studyDistrictsJson from '../../../../data/map/study-districts.json';
-import { getItemName } from './names';
+import { getItemName, getProvinceName } from './names';
 
 export interface DistrictOption {
   readonly id: string;
@@ -77,13 +74,13 @@ export function groupedSelectableDistricts(excludedIds: ReadonlySet<string>): Re
 
 /**
  * The province-scope option list for `S-09` when *entirely* outside the play area (`out_of_area`/
- * `unknown`, F06-R52 items 3-4) — every distinct `provinceIso` in the study area, sorted. [ASSUMPTION
- * A-P2-F06-T09-3: this is only the 6 study-area provinces, not a full 77-province list, and each
- * option's `name` is its raw ISO code (`TH-10`, ...) rather than a real Thai province name — no
- * `province.<iso>` content key exists anywhere in this repo yet (this module's own doc comment).
- * Genuinely outside all 6 (e.g. another region of Thailand) has no matching option today. owner:
- * narrative-designer/product-manager, a real province-name list replaces this with no other change
- * to `home-panel.ts`/`interest-register.ts`.]
+ * `unknown`, F06-R52 items 3-4) — every distinct `provinceIso` in the study area, sorted, with its
+ * real Thai display name (`copy/names.ts#getProvinceName`, P2-H32; closes A-P2-F06-T09-3, which
+ * used the raw ISO code as a stand-in before `province.<iso>` content keys existed). [ASSUMPTION
+ * A-P2-F06-T09-3 still open in part: this is only the 6 study-area provinces, not a full
+ * 77-province list — genuinely outside all 6 (e.g. another region of Thailand) has no matching
+ * option today. owner: product-manager, a full province list replaces this with no other change to
+ * `home-panel.ts`/`interest-register.ts`.]
  */
 export function studyAreaProvinceOptions(): readonly DistrictOption[] {
   const seen = new Set<string>();
@@ -96,7 +93,7 @@ export function studyAreaProvinceOptions(): readonly DistrictOption[] {
     options.push({
       id: record.provinceIso,
       provinceIso: record.provinceIso,
-      name: record.provinceIso,
+      name: getProvinceName(record.provinceIso),
     });
   }
   return [...options].sort((a, b) => (a.provinceIso < b.provinceIso ? -1 : 1));

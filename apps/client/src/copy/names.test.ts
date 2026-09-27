@@ -3,6 +3,7 @@ import {
   getDungeonFullName,
   getDungeonShortName,
   getItemName,
+  getProvinceName,
   isResolvedDungeonName,
 } from './names';
 // Read the real names directly from the data file rather than hardcoding Thai text in this file
@@ -71,5 +72,18 @@ describe('isResolvedDungeonName', () => {
     expect(
       isResolvedDungeonName('dungeon.doesNotExist', getDungeonShortName('dungeon.doesNotExist')),
     ).toBe(false);
+  });
+});
+
+// P2-H32: S-09 group headers / `home.outOfAreaBody`'s future real `{provinceName}` both resolve
+// through this, matched by `province.<iso>._provinceIso`, never by guessing the key's own
+// lowercase-no-dash id shape.
+describe('getProvinceName', () => {
+  it('resolves Bangkok (TH-10) to the real committed name.th.json entry', () => {
+    expect(getProvinceName('TH-10')).toBe(names['province.th10']?.name);
+  });
+
+  it('falls back to the raw ISO code for a province with no province.* entry yet', () => {
+    expect(getProvinceName('TH-99')).toBe('TH-99');
   });
 });
