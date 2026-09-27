@@ -94,3 +94,39 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 84 | W6 | P2-X21 | gameplay-programmer | 04:50 | 09:31:23 | PARTIAL — adapter สลับของจริง, asset runtime/fonts/icon/audio core, ชื่อไอเทม+กรอบ rarity, countdown, credits, e2e แก้ · client 437/437 · ส่งกลับทำ parts/type/dist-kw ของ X24 · handoff → H02 (privacy latestSample), H03 (e2e flaky), H04 copy, H05 icon render |
 | 85 | W6 | P2-F06-T06 | backend-programmer | 04:50 | 09:31:57 | DONE — HP engine ใน packages/shared/src/hp + session (chooseClass, usePotion, processHits, selectPlayerView, readyIn_s) · แก้บั๊ก lastSummary หายใน handleSample · shared 590 pass |
 | 86 | W6 | P2-F04-T23 | location-engineer | 04:50 | 09:31:57 | DONE — location hygiene ครบ, mask hole ตัดตาม tile bbox (S6 ขอบดำจริง), bbox check ใน CI, gateWindows เข้ากันได้ย้อนหลัง · root 2354 pass · handoff → H06 tech-lead, H07 systems, H08 qa, T16 context |
+| 87 | W7 | P2-H04 | narrative-designer | 09:31:01 | 09:34:05 | DONE — 2 copy key · ไม่มี shell จึง orchestrator รัน lint (163 pass) · ขัด flow §9 → D-120 PROPOSED + H09 |
+| 88 | W7 | P2-H07 | systems-designer | 09:32:06 | 09:34:05 | DONE — reviewFlagTags civic_building/rooftop · พบ D-109 ยังไม่ลง excludeOsmIds → H10, rerun → H11 |
+| 89 | W7 | P2-H06 | tech-lead | 09:32:06 | 09:34:05 | DONE — geo workspace dep, lockfile +3 |
+| 90 | W7 | P2-X21 | gameplay-programmer | 09:25 | 09:34:45 | DONE (addendum) — parts avatar loader, type ตรง tools/art, Vite /kw/ + dist/kw · client 449 pass · handoff → H12 |
+| 91 | W7 | P2-H10 | systems-designer | 09:34:13 | 09:35:30 | DONE — D-109 ลง config · coverage pytest 1 fail (test hard-code D-083) → รวมเข้า H11 |
+| 92 | W7 | P2-H12 | tech-lead | 09:34:52 | 09:37:16 | DONE — ทาง (a): header production จาก _headers เท่านั้น · preview ควรเสิร์ฟ dist/kw (ต่อท้าย H03) |
+| 93 | W7 | P2-H02 | backend-programmer | 09:32:06 | 09:38:40 | DONE — พบพิกัดอีก 3 จุด (lock.lastAccurate, gate filter, grid) ตัดหมด · blob เก่าถูก sanitize ตอนโหลด |
+| 94 | W7 | P2-F06-T16 | devops-engineer | 09:32:06 | 09:39:50 | DONE — CI bundle budget + bbox guard, negative test ผ่าน, ไม่มีค่าใช้จ่าย |
+| 95 | W7 | P2-H05 | uiux-designer | 09:31:01 | 09:40:08 | DONE — §13.9 inline SVG ตาม tintable · D-121 PROPOSED · handoff → H13 tech-lead, H14 gameplay, H15 artist-2d |
+| 96 | W7 | P2-H11 | location-engineer | 09:35 | 09:41:14 | DONE — rerun coverage, SHA ใหม่, ปทุมวันตก G1 · root test พัง 1 จาก H07 (tools/dungeons roof ซ้ำ) → X25 · pilot/G1 → H16 |
+| 97 | W7 | P2-X25 | location-engineer | 09:41:14 | 09:43:07 | DONE — tools/dungeons 138 · root เหลือ fail persist.test (F05-T10) + qa/tests/F04 2 ข้อ (งาน T22 กำลังทำ) |
+| 98 | W7 | P2-H13 | tech-lead | 09:40:08 | 09:43:58 | DONE — tintable field +448 B, D-121 ACCEPTED |
+| 99 | W7 | P2-H09 | uiux-designer | 09:40:08 | 09:45:45 | DONE — D-120 ฝั่ง uiux รับ, flow §9/§15 · game-director อนุมัติใน T24 |
+| 100 | W7 | P2-H15 | artist-2d | 09:40:08 | 09:46:21 | DONE — in-run ปิดบั๊กกลางคืน · D-122 PROPOSED · → H17 art-director |
+| 101 | W7 | P2-F06-T05 | vfx-animator | 04:50 | 09:48:52 | DONE — VFX F06 4 module + 10 emote · handoff → H18 sound, T08 context, F09 review (Phase 3) |
+| 102 | W7 | P2-H17 | art-director | 09:46:21 | 09:55:00 | DONE (NEEDS_CHANGES) — in-run PASS, D-122 REJECTED → D-123, D-124 ui16 rule + composite conditional · → X26 artist, H19 uiux, H14 context |
+| 103 | W7 | P2-H18 | sound-designer | 09:48:52 | 09:57:45 | DONE — cue inventory.potionUsed / inventory.reviveUsed (22 cue, deterministic) · handoff: gameplay ต่อ potion_used.revived, toast copy (narrative/uiux), telemetry potion_used (PM) |
+| 104 | W7 | P2-H16 | level-designer | 09:41:14 | 09:59:40 | DONE — pilot 20 แห่งยัง valid, SHA/ตัวเลขใหม่, §10 ทางเลือก G1/G2 (แนะนำยอมรับใน Phase 2 + ตรวจภาคสนามคู่ขนาน) · คำถามรวมเข้า Q-P2-11 |
+| 105 | W7 | P2-H19 | uiux-designer | 09:55:00 | 09:59:45 | DONE — components.md §13.9 ตรง D-121/D-123/D-124 · ยืนยัน A-P2-H17-2 |
+| 106 | W7 | P2-PLAN-SYNC-W7 | producer | 09:42 | 10:06:28 | PARTIAL — ใช้ O-01..O-45 แล้ว (+8 แถว H20, X27–X33, CUT H03/H14) · ตัวจัดสิทธิ์ปฏิเสธ 4 edit (O-01, O-10, O-14, O-43/44 รวมกฎ backend เขียนใน apps/client) → ถามผู้ใช้ ไม่ทำแทน |
+| 107 | W7 | P2-F04-T22 | qa-tester | 04:50 | 10:08:28 | DONE — black-box F04 ครบ, พบ BUG-P2-002 (teleport check-in ผ่าน sessionStep, high → X34 บล็อก F05-T16) + BUG-P2-003 (→ F06-T08) · origin allowlist key หาย (→ F06-T08) · qa แตะ pnpm-lock.yaml (workspace qa/tests/F04) |
+| 108 | W8 | P2-X26 | artist-2d | 09:55:00 | 10:09:36 | DONE — icon + composite แก้ครบ, composite-f03 approved · art-director ยืนยันซ้ำใน content gate F06-T23 |
+| 109 | W8 | P2-X31 | tech-lead | 10:06:28 | 10:10:11 | DONE — tech note §9.2 แก้ตาม R37, scaffold _bytes · handoff → X27 (relay), H21 tech-lead, H22 location, A-P2-X31-1 → H20 |
+| 110 | W8 | P2-X30 | uiux-designer | 10:06:28 | 10:10:45 | DONE — key rename + wireframe เก่าติดหมายเหตุ |
+| 111 | W8 | P2-H21 | tech-lead | 10:10:11 | 10:11:47 | DONE — $defs bytes/minutes/degrees · telemetry/dungeons schema ยัง inline (ค่าบวกเท่านั้น ใช้ได้กับกรุงเทพฯ) เลื่อนไปทำพร้อมงาน schema ครั้งถัดไป |
+| 112 | W8 | P2-H20 | game-director | 10:06:28 | 10:12:37 | DONE — D-120 ACCEPTED, D-126 §21 ข, D-127 3A, D-128 gate/auto-retreat ผ่าน GD+HUMAN · → X32 ready, H23 uiux, H24 PM, H25 GD, context T09/T10/T21 |
+| 113 | W8 | P2-H22 | location-engineer | 10:10:11 | 10:13:12 | DONE — ตรวจ dungeon ครอบเลเวลเริ่มต้น · ข้อมูลจริงผ่าน |
+| 114 | W8 | P2-X33 | product-manager | 10:06:28 | 10:13:37 | DONE — GR-1 PASS 3 ย่าน, แนะนำ Q-P2-11 (ก), O-22 ปฏิเสธ, inventory_potion_used → H24 |
+| 115 | W8 | P2-H25 | game-director | 10:12:53 | 10:14:10 | DONE — spec F06 ตาม D-126/D-127 · spec 276 บรรทัด แยกไฟล์หลัง design gate (บันทึกไว้ plan-sync ถัดไป) |
+| 116 | W8 | P2-X32 | narrative-designer | 10:12:53 | 10:16:33 | PARTIAL — 2 body ใหม่ (outOfAreaBody เดิมผิด R57 แก้แล้ว) lint 171 pass · ขยาย writes names.th.json ส่งกลับเขียนชื่อ 79 เขต · → H26 location |
+| 117 | W8 | P2-X32 | narrative-designer | 10:12:53 | 10:18:39 | DONE — ชื่อ 79 เขต ใน names.th.json · lint 208 pass (orchestrator รัน) · id ส่งต่อ H26 |
+| 118 | W8 | P2-H23 | uiux-designer | 10:12:53 | 10:18:39 | DONE — flow F06 ตรง D-120/126/127 + body ใหม่ |
+| 119 | W8 | P2-H26 | location-engineer | 10:16:42 | 10:20:53 | DONE — study-districts.json 79 เขต, id ตรงทั้ง 2 ไฟล์ · root test แดงจาก home-state.test.ts (X27 กำลังทำ) |
+| 120 | W8 | P2-H24 | product-manager | 10:13:37 | 10:21:33 | DONE — รับความเห็น GD ทั้ง 9 ข้อ, inventory_potion_used ประกาศแล้ว (client ยิงใน F06-T10) |
+| 121 | W8 | P2-X27 | backend-programmer | 10:07:53 | 10:25:31 | DONE — home-state pure 28 test, privacy-copy 200 pass · A-P2-X27-1 → F06-T20 |
+| 122 | W8 | P2-F05-T10 | gameplay-programmer | 09:34:52 | 10:25:57 | DONE — client F05 ครบ, พบ+แก้ #hud คลิกไม่ได้ใน build จริง · handoff → X35 (expGained 0), F05-T11/T20/T08 context |

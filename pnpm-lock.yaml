@@ -116,6 +116,15 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/shared
 
+  qa/tests/F04:
+    devDependencies:
+      '@keep-walking/geo':
+        specifier: workspace:*
+        version: link:../../../packages/geo
+      '@keep-walking/shared':
+        specifier: workspace:*
+        version: link:../../../packages/shared
+
   qa/tests/traces:
     devDependencies:
       '@keep-walking/geo':
@@ -182,6 +191,9 @@ importers:
 
   tools/traces:
     dependencies:
+      '@keep-walking/geo':
+        specifier: workspace:*
+        version: link:../../packages/geo
       '@keep-walking/shared':
         specifier: workspace:*
         version: link:../../packages/shared

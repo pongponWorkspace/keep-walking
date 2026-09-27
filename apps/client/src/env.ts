@@ -84,6 +84,23 @@ function overrideIfPresent(
   return nonEmpty(params.get(key) ?? undefined);
 }
 
+/** Same e2e-only convention as `E2E_ENV_OVERRIDE_PARAMS` above: a query key an e2e spec sets to
+ * get a known, isolated environment that plain production/dev URLs never trigger. A map-rendering
+ * spec that injects its own `kw-rift`/`kw-rift-count` source data (e.g. `e2e/dungeon-labels.spec.
+ * ts`) races against `f04App`'s own periodic `refreshMapDungeons` (`main.ts`'s
+ * `window.setInterval(... f04App?.onTick ...)`), which rebuilds those same sources from the real
+ * dungeon artifact roughly once a second — the spec's injected fixture data would eventually be
+ * silently overwritten mid-test. Setting `e2eSkipF04App=1` skips creating `f04App` and its tick
+ * interval entirely, leaving the map's dungeon sources solely under the spec's own control. Has no
+ * effect unless present (same "presence, not merely a non-blank value" rule as the other e2e
+ * overrides) and reads nothing that affects a reward (ADR 0001 3.8) — it only decides whether the
+ * F04/F05 game loop is wired up at all, for a spec that only needs the raw map. */
+export const E2E_SKIP_F04APP_PARAM = 'e2eSkipF04App';
+
+export function shouldSkipF04App(search: string): boolean {
+  return new URLSearchParams(search).has(E2E_SKIP_F04APP_PARAM);
+}
+
 /**
  * Build profile (TL B-10, docs/tech/F04-dungeon-presence.md section 17, ADR 0003 8.1): two env
  * vars read at build time only (`import.meta.env`, never re-read at runtime). `dev` is every

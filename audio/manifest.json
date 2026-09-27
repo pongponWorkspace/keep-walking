@@ -229,6 +229,36 @@
       "loudness_lufs": -16.7
     },
     {
+      "id": "inventory.potionUsed",
+      "file": "inventory.potionUsed.wav",
+      "vibration_ms": [
+        35
+      ],
+      "priority": 6,
+      "tier": "normal",
+      "telemetry": null,
+      "silentFallback": "inventory.usePotionButton HP-bar tween (200ms, existing)",
+      "durationMs": 35,
+      "loudness_lufs": -16.7
+    },
+    {
+      "id": "inventory.reviveUsed",
+      "file": "inventory.reviveUsed.wav",
+      "vibration_ms": [
+        35,
+        50,
+        40,
+        50,
+        55
+      ],
+      "priority": 5,
+      "tier": "normal",
+      "telemetry": null,
+      "silentFallback": "inventory.useRevivePotionButton HP-bar tween (200ms, existing) + Recovering card disappears from home",
+      "durationMs": 230,
+      "loudness_lufs": -17
+    },
+    {
       "id": "run.stateSuspended",
       "file": "run.stateSuspended.wav",
       "vibration_ms": [

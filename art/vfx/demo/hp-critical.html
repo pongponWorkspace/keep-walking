@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VFX demo — HP critical (P2-F06-T05)</title>
+    <link rel="stylesheet" href="./shared/demo.css" />
+  </head>
+  <body>
+    <h1>HP critical — HP ต่ำ, auto-retreat, ตาย, ฟื้น (HP bar tween)</h1>
+    <p class="demo-note"><a href="./index.html">&larr; all demos</a> · loads <code>art/vfx/dist/</code> — Firefox opens via file:// directly; Chromium/WebKit need a static server (see index.html).</p>
+    <p class="demo-note">
+      Source: <code>art/vfx/hp-critical/hp-critical.ts</code>, <code>art/vfx/hp-bar/hp-bar.ts</code>
+      · specs: <code>art/vfx/specs/hp-critical.md</code>, <code>art/vfx/specs/hp-bar.md</code> ·
+      motion-direction §6 · D-096, D-089.
+    </p>
+    <div class="demo-row" id="rows"></div>
+
+    <script type="module">
+      import { play } from '../dist/core/vfx.js';
+      import '../dist/hp-critical/hp-critical.js';
+      import { tweenHpFill, hardCutHpFill, runAutoRetreatScreenTransition } from '../dist/hp-critical/hp-critical.js';
+
+      const rows = document.getElementById('rows');
+
+      function card(title) {
+        const el = document.createElement('div');
+        el.className = 'demo-card';
+        el.innerHTML = `<h3>${title}</h3>`;
+        rows.appendChild(el);
+        return el;
+      }
+
+      // --- run.hpLow ---------------------------------------------------------------------
+      {
+        const c = card('run.hpLow — แจ้ง 30% (toast + 3-beat pulse แล้วนิ่ง)');
+        c.innerHTML += `
+          <div style="min-height:70px; display:flex; align-items:center;">
+            <div class="demo-toast danger" data-toast style="opacity:0;">HP ต่ำ กลับบ้าน ซื้อยา หาเพื่อนที่มี Support หรือไม่ก็เลิกดื้อ</div>
+          </div>
+          <button data-play>Play run.hpLow</button>
+          <div class="demo-measure" data-measure></div>`;
+        const button = c.querySelector('[data-play]');
+        const measure = c.querySelector('[data-measure]');
+        button.addEventListener('click', async () => {
+          const host = c.querySelector('[data-toast]').parentElement;
+          const fresh = document.createElement('div');
+          fresh.className = 'demo-toast danger';
+          fresh.textContent = 'HP ต่ำ กลับบ้าน ซื้อยา หาเพื่อนที่มี Support หรือไม่ก็เลิกดื้อ';
+          fresh.style.opacity = '0';
+          host.replaceChildren(fresh);
+          performance.mark('hpLow-start');
+          await play('run.hpLow', fresh);
+          performance.mark('hpLow-end');
+          const m = performance.measure('hpLow', 'hpLow-start', 'hpLow-end');
+          measure.textContent = `measured: ${m.duration.toFixed(1)} ms · holds still afterward, no loop`;
+        });
+      }
+
+      // --- run.autoRetreat (3 nudges + real screen swap) ----------------------------------
+      {
+        const c = card('run.autoRetreat — 3 nudge + screen transition (S-03 → S-04)');
+        c.innerHTML += `
+          <div style="position:relative; height:90px; overflow:hidden; border:2px solid var(--ink-900); border-radius:8px; background:var(--bg-paper);">
+            <div data-s03 style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:700;">S-03-run (HP 24%)</div>
+            <div data-s04 style="position:absolute; inset:0; display:none; align-items:center; justify-content:center; font-weight:700; background:var(--bg-surface);">S-04-run-summary — ถอยอัตโนมัติ ของอยู่ครบ</div>
+          </div>
+          <button data-play style="margin-top:8px;">Play run.autoRetreat</button>
+          <div class="demo-measure" data-measure></div>`;
+        const s03 = c.querySelector('[data-s03]');
+        const s04 = c.querySelector('[data-s04]');
+        const button = c.querySelector('[data-play]');
+        const measure = c.querySelector('[data-measure]');
+        button.addEventListener('click', async () => {
+          s03.style.display = 'flex';
+          s04.style.display = 'none';
+          s03.style.transform = 'translateY(0)';
+          s03.style.opacity = '1';
+          performance.mark('retreat-start');
+          await play('run.autoRetreat', s03);
+          s04.style.display = 'flex';
+          const [outAnim, inAnim] = runAutoRetreatScreenTransition(s03, s04);
+          await Promise.all([outAnim.finished, inAnim.finished]);
+          s03.style.display = 'none';
+          performance.mark('retreat-end');
+          const m = performance.measure('retreat', 'retreat-start', 'retreat-end');
+          measure.textContent = `measured: ${m.duration.toFixed(1)} ms (spec: 700 ms total)`;
+        });
+      }
+
+      // --- run.death (HP bar hard-cut + grayscale) ---------------------------------------
+      {
+        const c = card('run.death — hard-cut ลง 0 + grayscale 600ms (ไม่มีจอกลาง, D-096)');
+        c.innerHTML += `
+          <div class="demo-hp-track"><div class="demo-hp-fill" data-fill></div></div>
+          <button data-play>Play run.death</button>
+          <div class="demo-measure" data-measure></div>`;
+        const fill = c.querySelector('[data-fill]');
+        const button = c.querySelector('[data-play]');
+        const measure = c.querySelector('[data-measure]');
+        button.addEventListener('click', async () => {
+          fill.style.filter = 'grayscale(0)';
+          fill.style.transform = 'scaleX(0.22)';
+          performance.mark('death-start');
+          await play('run.death', fill);
+          performance.mark('death-end');
+          const m = performance.measure('death', 'death-start', 'death-end');
+          measure.textContent = `measured: ${m.duration.toFixed(1)} ms · bar at 0, filter grayscale(1) held`;
+        });
+      }
+
+      // --- HP bar tween (recovery / heal / damage — no dedicated cue) --------------------
+      {
+        const c = card('HP bar tween — ฟื้น / ใช้ยา (tweenHpFill, ไม่มี cue เฉพาะ)');
+        c.innerHTML += `
+          <div class="demo-hp-track"><div class="demo-hp-fill low" data-fill style="transform:scaleX(0.12)"></div></div>
+          <button data-play>tweenHpFill(0.12 → 0.55)</button>
+          <div class="demo-measure" data-measure></div>`;
+        const fill = c.querySelector('[data-fill]');
+        const button = c.querySelector('[data-play]');
+        const measure = c.querySelector('[data-measure]');
+        button.addEventListener('click', async () => {
+          fill.style.transform = 'scaleX(0.12)';
+          performance.mark('tween-start');
+          await tweenHpFill(fill, { fromRatio: 0.12, toRatio: 0.55 }).finished;
+          performance.mark('tween-end');
+          const m = performance.measure('tween', 'tween-start', 'tween-end');
+          measure.textContent = `measured: ${m.duration.toFixed(1)} ms (spec: 200 ms)`;
+        });
+      }
+    </script>
+  </body>
+</html>

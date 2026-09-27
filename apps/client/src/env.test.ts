@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { readBuildProfile, readMapEnv, withTestEnvOverrides } from './env';
+import { readBuildProfile, readMapEnv, shouldSkipF04App, withTestEnvOverrides } from './env';
 
 describe('readMapEnv', () => {
   it('passes through set values', () => {
@@ -74,6 +74,22 @@ describe('withTestEnvOverrides', () => {
       glyphsUrl: undefined,
       spriteUrl: undefined,
     });
+  });
+});
+
+describe('shouldSkipF04App', () => {
+  it('is false with no query params at all', () => {
+    expect(shouldSkipF04App('')).toBe(false);
+  });
+
+  it('is false when the param is absent, even alongside other params', () => {
+    expect(shouldSkipF04App('?hud=1')).toBe(false);
+  });
+
+  it('is true whenever the param is present, regardless of its value', () => {
+    expect(shouldSkipF04App('?e2eSkipF04App=1')).toBe(true);
+    expect(shouldSkipF04App('?e2eSkipF04App=')).toBe(true);
+    expect(shouldSkipF04App('?hud=1&e2eSkipF04App=0')).toBe(true);
   });
 });
 

@@ -52,48 +52,62 @@ function kwBalanceSubsetPlugin(): Plugin {
   };
 }
 
+const DIST_KW = resolve(CLIENT_ROOT, 'dist', 'kw');
+
 /**
  * `docs/tech/asset-delivery.md` section 6.1: "Vite ของ client copy `tools/art/out/client/` ทั้ง
  * โฟลเดอร์ไปที่ `dist/kw/` ตอน build ... และตอน dev เสิร์ฟโฟลเดอร์เดียวกันที่ `/kw/`" — this plugin
- * is both halves. `configureServer`/`configurePreviewServer` serve `ART_OUT_CLIENT` under `/kw/`
- * with a plain static-file middleware (no new dependency, ADR 0001: a dependency needs a
- * tech-lead task); `closeBundle` copies the same folder into `dist/kw/` once the build's own JS/CSS
- * output has been written. A missing `ART_OUT_CLIENT` (prebuild not run, or nothing built yet) is
- * a no-op everywhere — the client's own `assets/manifest.ts` fallback (`§6.4`) handles a missing
- * `/kw/asset-manifest.json` at runtime; this plugin never fails the build over it.
+ * is both halves. `configureServer` (`pnpm dev`) serves `ART_OUT_CLIENT` directly, straight off the
+ * `tools/art prebuild` output, so an iterating dev sees an asset change without a full build.
+ * `configurePreviewServer` (`pnpm preview`, and the `webServer` every e2e spec runs against, root
+ * `playwright.config.ts`) instead serves the resolved `DIST_KW` — the exact bytes `closeBundle`
+ * copied there, the same ones a real deploy ships — so an e2e spec checks the actual committed
+ * `closeBundle` copy step, not a dev-only shortcut around it (P2-H03: `configurePreviewServer`
+ * previously also pointed at `ART_OUT_CLIENT`, so a bug only `closeBundle`'s copy could introduce
+ * would never have shown up under `pnpm test:e2e`). No `Cache-Control` header is added here (TL
+ * P2-H12): this middleware only serves bytes, it does not decide caching policy for either root.
+ * `closeBundle` copies the same folder into `dist/kw/` once the build's own JS/CSS output has been
+ * written. A missing root (prebuild not run, or nothing built yet) is a no-op everywhere — the
+ * client's own `assets/manifest.ts` fallback (`§6.4`) handles a missing `/kw/asset-manifest.json`
+ * at runtime; this plugin never fails the build over it.
  */
 function kwAssetStagePlugin(): Plugin {
-  function serveKw(req: IncomingMessage, res: ServerResponse, next: () => void): void {
-    const url = req.url;
-    if (url === undefined || !url.startsWith(KW_PREFIX)) {
-      next();
-      return;
-    }
-    const relative = decodeURIComponent(url.slice(KW_PREFIX.length).split('?')[0] ?? '');
-    const resolved = normalize(join(ART_OUT_CLIENT, relative));
-    if (resolved !== ART_OUT_CLIENT && !resolved.startsWith(ART_OUT_CLIENT + sep)) {
-      next();
-      return;
-    }
-    if (!existsSync(resolved) || !statSync(resolved).isFile()) {
-      next();
-      return;
-    }
-    res.setHeader('content-type', KW_CONTENT_TYPES[extname(resolved)] ?? 'application/octet-stream');
-    res.end(readFileSync(resolved));
+  function serveKwFrom(root: string) {
+    return (req: IncomingMessage, res: ServerResponse, next: () => void): void => {
+      const url = req.url;
+      if (url === undefined || !url.startsWith(KW_PREFIX)) {
+        next();
+        return;
+      }
+      const relative = decodeURIComponent(url.slice(KW_PREFIX.length).split('?')[0] ?? '');
+      const resolved = normalize(join(root, relative));
+      if (resolved !== root && !resolved.startsWith(root + sep)) {
+        next();
+        return;
+      }
+      if (!existsSync(resolved) || !statSync(resolved).isFile()) {
+        next();
+        return;
+      }
+      res.setHeader(
+        'content-type',
+        KW_CONTENT_TYPES[extname(resolved)] ?? 'application/octet-stream',
+      );
+      res.end(readFileSync(resolved));
+    };
   }
 
   return {
     name: 'kw-asset-stage',
     configureServer(server) {
-      server.middlewares.use(serveKw);
+      server.middlewares.use(serveKwFrom(ART_OUT_CLIENT));
     },
     configurePreviewServer(server) {
-      server.middlewares.use(serveKw);
+      server.middlewares.use(serveKwFrom(DIST_KW));
     },
     closeBundle(): void {
       if (!existsSync(ART_OUT_CLIENT)) return;
-      cpSync(ART_OUT_CLIENT, resolve(CLIENT_ROOT, 'dist', 'kw'), { recursive: true });
+      cpSync(ART_OUT_CLIENT, DIST_KW, { recursive: true });
     },
   };
 }

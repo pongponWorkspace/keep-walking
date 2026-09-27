@@ -11,6 +11,7 @@ import { readAudioManifest } from './audio';
 import type { FontsManifest } from './fonts';
 import type { BuildManifest, Manifest, ManifestEntry } from './manifest';
 import { isShipped, repoPath } from './manifest';
+import { usesCurrentColor } from './svg';
 
 /** Characters of sha256 used as the `?v=` cache key (asset-pipeline 5). */
 const VERSION_CHARS = 8;
@@ -35,6 +36,12 @@ export interface RuntimeAsset {
   sheet?: ManifestEntry['sheet'];
   variants?: ManifestEntry['variants'];
   replacedBy?: string;
+  /**
+   * Present (always `true`) only when the entry is of a `svg.currentColorKinds` kind and one of
+   * its shipped SVG files uses `currentColor` (P2-H13, D-121). Absent = not tintable: the client
+   * renders `<img>`. Omitted when false to keep asset-manifest.json inside its byte budget.
+   */
+  tintable?: true;
   files: RuntimeFile[];
 }
 
@@ -98,6 +105,8 @@ export function runtimeManifest(
   for (const e of manifest.assets) {
     if (!isShipped(e) || e.status === 'prompt-only') continue;
     const files: RuntimeFile[] = [];
+    const scanTint = cfg.svg.currentColorKinds.includes(e.kind);
+    let tintable = false;
     const built = build.assets.find((b) => b.id === e.id)?.files ?? [];
     for (const f of [...e.files, ...built]) {
       const from = repoPath(manifest.baseDir, f.path);
@@ -105,6 +114,9 @@ export function runtimeManifest(
       if (from.startsWith(`${cfg.paths.srcDir}/`) || !existsSync(join(root, from))) continue;
       const to = `art/${from.slice(cfg.paths.assetsDir.length + 1)}`;
       copies.push({ from, to });
+      if (scanTint && !tintable && f.format === 'svg') {
+        tintable = usesCurrentColor(readFileSync(join(root, from), 'utf8'), cfg.svg.colorAttributes);
+      }
       files.push({
         url: versioned(to, root, from),
         format: f.format,
@@ -120,6 +132,7 @@ export function runtimeManifest(
     if (e.sheet !== undefined) asset.sheet = e.sheet;
     if (e.variants !== undefined) asset.variants = e.variants;
     if (e.replacedBy !== undefined) asset.replacedBy = e.replacedBy;
+    if (tintable) asset.tintable = true;
     const partName = Object.entries(cfg.runtimeParts.parts).find(([, p]) => p.kinds.includes(e.kind))?.[0];
     if (partName === undefined) assets[e.id] = asset;
     else (partAssets[partName] ??= {})[e.id] = asset;

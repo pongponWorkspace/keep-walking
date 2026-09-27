@@ -10,6 +10,15 @@
   <h1>S-03-run — HP ต่ำ (30%), Auto-retreat (25%), ตาย, ออกเอง (Flow C หัวข้อ 4.2–4.7, MF-1)</h1>
   <p>ทำงานตั้งแต่นาทีแรกโดยไม่ต้องสอน · ทุกตัวเลขอ้าง config เท่านั้น</p>
 </div>
+<div class="issue-box" style="margin:16px 0;padding:16px;border:2px solid var(--state-danger);">
+  <strong>เอกสารนี้เป็น Phase 1 (F03) — ถูกแทนที่แล้วสำหรับ Phase 2 (P2-X30, carry-over จาก P2-X14):</strong> ใช้ต่อไม่ได้ตรงๆ เพราะเฟรม 4.5 (ตาย) ยังวาดโมเดลเดิมที่ยังมีสถานะ "ล้มในดัน" อยู่ใน <code>S-03-run</code> พร้อมทางฟื้น 3 ทาง (<code>run.death.waitRecover</code>, <code>run.death.usePotion</code>, <code>run.death.reviveHint</code>) — Phase 2 **ตายจบ run ทันทีเสมอ ไม่มีสถานะกลางนี้** (`design/ux/flows/F06-hp-damage-onboarding.md` หมายเหตุ override ข้อ 2, F06-R23) ทั้งสามคีย์นั้นสงวนไว้ให้สถานะล้มในดันของ Phase 3 (F09) เท่านั้น
+  <ul style="margin:8px 0 0 20px;">
+    <li>เฟรม 4.2 (HP ต่ำ 30%) และ 4.4 (auto-retreat 25%) → แทนที่ด้วย <code>design/ux/wireframes/F04-04-run-state-summary.html</code> และ <code>design/ux/wireframes/F06-03-hp-warning-autoretreat-death-recovering.html</code> (มีบรรทัด canon <code>run.autoRetreat</code>/<code>run.death</code> ครบตาม B-01 ของ `design/reviews/F05-F06-flow-approval.md`)</li>
+    <li>เฟรม 4.5 (ตาย) → แทนที่ด้วย <code>design/ux/wireframes/F06-03-hp-warning-autoretreat-death-recovering.html</code> เฟรม C6 (จบ run ทันที ไม่มีปุ่มฟื้นบนจอนี้ ปุ่มยาฟื้นย้ายไปจอที่บ้านสถานะ Recovering แทน)</li>
+    <li>เฟรม 4.7 (ออกเอง) → แทนที่ด้วย <code>design/ux/wireframes/F04-03-checkin-speedlock.html</code>/<code>F04-04-run-state-summary.html</code> (ปุ่มยกเลิก/ยืนยันออกยังอยู่ตำแหน่งเดิม แก้ตาม C-1 ของรีวิว F04 รอบ 2)</li>
+  </ul>
+  ไม่ลบไฟล์นี้เพราะยังมีค่าอ้างอิงเชิงประวัติ (โครง HP bar/toast/popup พื้นฐานของ Phase 1 ที่ Phase 2 สืบทอดมาบางส่วน) แต่ **ห้ามใช้เป็นฐาน build ของ Phase 2**
+</div>
 <div class="storyboard">
 
 <div class="frame-block">

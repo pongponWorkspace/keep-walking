@@ -1,0 +1,11 @@
+{
+  "name": "@keep-walking/qa-tests-f04",
+  "version": "0.0.0",
+  "private": true,
+  "description": "QA black-box trace-replay + telemetry-contract tests for F04 (P2-F04-T22). Drives the session public interface (createSession/sessionStep/toPersisted/fromPersisted/selectors from @keep-walking/shared/session) and reads apps/client's own shipped modules by relative import (session/config.ts, telemetry/f04-events.ts, nav/links.ts, ui/dungeon-confirm.ts) — never a dev unit test file, never apps/client internals not exported for this purpose. Owner: qa-tester.",
+  "type": "module",
+  "devDependencies": {
+    "@keep-walking/geo": "workspace:*",
+    "@keep-walking/shared": "workspace:*"
+  }
+}

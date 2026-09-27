@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { parseReplayStartParam, parseRunSeedParam, resolveReplayStartMs } from './query-params';
+import {
+  parseE2eClassIdParam,
+  parseReplayStartParam,
+  parseRunSeedParam,
+  resolveReplayStartMs,
+} from './query-params';
 
 const BANGKOK_UTC_OFFSET_MIN = 420;
 
@@ -72,5 +77,27 @@ describe('parseRunSeedParam', () => {
     expect(parseRunSeedParam('?seed=-1', 'seed')).toBeUndefined();
     expect(parseRunSeedParam('?seed=1.5', 'seed')).toBeUndefined();
     expect(warn).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('parseE2eClassIdParam', () => {
+  it('returns undefined when absent', () => {
+    expect(parseE2eClassIdParam('', 'e2eClassId')).toBeUndefined();
+  });
+
+  it('accepts every known PlayerClass value', () => {
+    for (const classId of ['tanker', 'ranged', 'support', 'magic']) {
+      expect(parseE2eClassIdParam(`?e2eClassId=${classId}`, 'e2eClassId')).toBe(classId);
+    }
+  });
+
+  it('warns and returns undefined for an unrecognized value', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    expect(parseE2eClassIdParam('?e2eClassId=wizard', 'e2eClassId')).toBeUndefined();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('wizard'));
+  });
+
+  it('uses the configured param name, not a literal "e2eClassId"', () => {
+    expect(parseE2eClassIdParam('?cls=tanker', 'cls')).toBe('tanker');
   });
 });

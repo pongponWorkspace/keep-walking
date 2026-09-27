@@ -6,7 +6,7 @@ import schema from '@keep-walking/shared/schemas/gps-trace.schema.json';
 import { Ajv2020 } from 'ajv/dist/2020.js';
 import { describe, expect, it } from 'vitest';
 import type { GpsTrace } from '@keep-walking/shared';
-import { haversine_m as geoHaversine } from '../../../packages/geo/src/index';
+import { haversine_m as geoHaversine } from '@keep-walking/geo';
 import { COORDINATE_DECIMALS, TraceBuilder, serializeTrace } from './builder';
 import { SCENARIOS, generate } from './catalog';
 import { SYNTHETIC_DIR, loadTraceConfig } from './config';

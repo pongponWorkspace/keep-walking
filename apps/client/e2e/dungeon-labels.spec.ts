@@ -101,6 +101,11 @@ function spikeUrl(): string {
     e2eTilesUrl: PMTILES_URL,
     e2eGlyphsUrl: GLYPHS_URL,
     e2eSpriteUrl: SPRITE_URL,
+    // P2-H03: this spec injects its own kw-rift/kw-rift-count source data below
+    // (`setDungeonsSourceData`) — without this, `f04App`'s own periodic `refreshMapDungeons`
+    // (main.ts) eventually overwrites it with the real dungeon artifact, a race this spec does
+    // not need to run against at all (it never drives a session/location flow).
+    e2eSkipF04App: '1',
   });
   return `/?${params.toString()}`;
 }

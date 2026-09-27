@@ -6,12 +6,13 @@
     <link rel="stylesheet" href="./shared/demo.css" />
   </head>
   <body>
-    <h1>art/vfx demos (P2-F05-T05)</h1>
+    <h1>art/vfx demos (P2-F05-T05, P2-F06-T05)</h1>
     <p class="demo-note">
       These pages load the pre-compiled <code>art/vfx/dist/**/*.js</code> (plain ES modules, no
       bundler, no game, no dependency) — <code>art/vfx/dist/</code> is generated from the
-      TypeScript source (<code>art/vfx/{core,tick-feedback,rarity-reveal,rift-reveal}/*.ts</code>)
-      via <code>pnpm exec tsc -p art/vfx/tsconfig.json</code>; rerun that after editing any
+      TypeScript source (<code>art/vfx/{core,tick-feedback,rarity-reveal,rift-reveal,hp-bar,
+      hp-critical,run-state,quick-command}/*.ts</code>) via
+      <code>pnpm exec tsc -p art/vfx/tsconfig.json</code>; rerun that after editing any
       <code>.ts</code> source. <b>Opening via <code>file://</code> works directly in Firefox.</b>
       Chromium and WebKit/Safari block ES module <code>import</code> across <code>file://</code>
       resources as a CORS policy (unrelated to this codebase); for those, serve the repo root
@@ -20,9 +21,12 @@
       with the Performance API.
     </p>
     <ul>
-      <li><a href="./tick-feedback.html">Tick feedback</a> — run.tickGranted / run.tickGrantedFirst / run.tickDenied / run.levelUp</li>
+      <li><a href="./tick-feedback.html">Tick feedback</a> — run.tickGranted / run.tickGrantedFirst (first reward, D-089) / run.tickDenied / run.levelUp</li>
       <li><a href="./rarity-reveal.html">Drop reveal, 5 rarity tiers</a> — drop.rarity.common..legendary (V-21)</li>
       <li><a href="./rift-reveal.html">Rift unfold</a> — icon.ui.rift one-shot reveal</li>
+      <li><a href="./hp-critical.html">HP critical (P2-F06-T05)</a> — run.hpLow / run.autoRetreat (+ screen transition) / run.death (grayscale) / HP bar tween (recovery)</li>
+      <li><a href="./run-state.html">Run state (P2-F06-T05)</a> — dungeon.confirmEnter / run.stateGrace / run.stateSuspended / run.stateResumed</li>
+      <li><a href="./quick-command.html">Quick-command emotes (P2-F06-T05)</a> — 10 emotes, avatar-spec §10 pose kit</li>
       <li><a href="./visibility-and-reduced-motion.html">Visibility + reduced-motion checklist</a> — the mandatory pre-gate checklist from motion-direction §10</li>
     </ul>
   </body>

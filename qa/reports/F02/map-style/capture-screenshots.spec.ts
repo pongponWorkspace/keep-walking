@@ -4,11 +4,14 @@
 // same route-helper pattern as `apps/client/e2e/map-real-fixture.spec.ts` and
 // `qa/tests/e2e/f02-map-fixture-tile.spec.ts` (fake origin, Range/206, real style, real fixture).
 //
-// Captures S1-S5 (art/direction/map-style.md section 10.1) at 390x844 and 360x800 CSS px, for
-// both PMTiles and TileJSON tile sources, on both android-chrome (chromium/Pixel 7 UA) and
-// ios-safari (webkit/iPhone 14 UA) — 5 screens x 2 viewports x 2 tile formats x 2 engines = 40
-// screenshots, saved as JPEG (quality tuned to stay near/under ~150 KB) under
-// qa/reports/F02/map-style/screenshots/.
+// Captures S1-S6 (art/direction/map-style.md section 10.1; S6 has two required zooms, z10/z13,
+// per D-060) at 390x844 and 360x800 CSS px, for both PMTiles and TileJSON tile sources, on both
+// android-chrome (chromium/Pixel 7 UA) and ios-safari (webkit/iPhone 14 UA) — 7 screens x 2
+// viewports x 2 tile formats x 2 engines = 56 screenshots, saved as JPEG (quality tuned to stay
+// near/under ~150 KB) under qa/reports/F02/map-style/screenshots/. S1/S3/S4 read the shared
+// Lumpini fixture (tools/tiles/fixtures/lumpini); S2/S5/S6 each read their own dedicated fixture
+// under tools/tiles/fixtures/screens/<slug>/ (location-engineer, P2-F04-T23) — see
+// `screenFixture()` below (P2-H08).
 //
 // Prerequisite: `pnpm --filter @keep-walking/client build && pnpm --filter @keep-walking/client
 // preview` (port 4173) must already be running — this script does not start it (kept a plain
@@ -21,16 +24,29 @@ import { chromium, webkit, devices } from '@playwright/test';
 import type { Page, Route, Browser } from '@playwright/test';
 
 const REPO_ROOT = join(import.meta.dirname, '..', '..', '..', '..');
-const FIXTURE_DIR = join(REPO_ROOT, 'tools/tiles/fixtures/lumpini');
+/** Glyphs/sprites are shared by every screen — each per-screen fixture's own manifest.json
+ * declares `"glyphs_and_sprites_from": "fixtures/lumpini"` (location-engineer, P2-F04-T23) — so
+ * these are always served from here regardless of which screen's tiles/pmtiles are being read. */
+const LUMPINI_DIR = join(REPO_ROOT, 'tools/tiles/fixtures/lumpini');
+/** P2-H08: S2/S5/S6 each get their own dedicated fixture directory built by location-engineer in
+ * P2-F04-T23 (screen-fixture layout, real basemap data at the screen's own coordinates) instead of
+ * sharing the Lumpini-only fixture, which closes the "no basemap data, black screen" limitation
+ * recorded in P1-H06-screenshot-tests.md section 0 and P2-F04-T09-rerun.md section 5.3. */
+const SCREENS_FIXTURE_ROOT = join(REPO_ROOT, 'tools/tiles/fixtures/screens');
 const OUT_DIR = join(import.meta.dirname, 'screenshots');
-const TILESET_ID = 'pm4-20260923-z15-lumpini';
+const LUMPINI_TILESET_ID = 'pm4-20260923-z15-lumpini';
 const BASE_URL = process.env['E2E_BASE_URL'] ?? 'http://localhost:4173';
 
 const FIXTURE_ORIGIN = 'https://qa-h06-fixture.invalid';
-const PMTILES_URL = `pmtiles://${FIXTURE_ORIGIN}/pmtiles/${TILESET_ID}.pmtiles`;
-const TILEJSON_URL = `${FIXTURE_ORIGIN}/tiles/${TILESET_ID}/tiles.json`;
 const GLYPHS_URL = `${FIXTURE_ORIGIN}/glyphs/{fontstack}/{range}.pbf`;
 const SPRITE_URL = `${FIXTURE_ORIGIN}/sprites/v4/light`;
+
+function pmtilesUrl(tilesetId: string): string {
+  return `pmtiles://${FIXTURE_ORIGIN}/pmtiles/${tilesetId}.pmtiles`;
+}
+function tilejsonUrl(tilesetId: string): string {
+  return `${FIXTURE_ORIGIN}/tiles/${tilesetId}/tiles.json`;
+}
 
 const LOAD_TIMEOUT_MS = 15_000;
 
@@ -106,14 +122,43 @@ function selectedScreens(): readonly Screen[] {
   return SCREENS.filter((s) => ids.has(s.id));
 }
 
+/** S1/S3/S4 have no dedicated directory here (yet) and stay on the shared Lumpini fixture — S2,
+ * S5, and both S6 zooms each read `tools/tiles/fixtures/screens/<slug>/`. */
+const SCREEN_FIXTURE_SLUGS: Partial<Record<string, string>> = {
+  S2: 's2-sukhumvit',
+  S5: 's5-chaophraya',
+  'S6-z10': 's6-coast-z10',
+  'S6-z13': 's6-coast-z13',
+};
+
+interface ScreenFixture {
+  readonly tileDir: string;
+  readonly tilesetId: string;
+}
+
+/** `tileset_id` is read from each fixture's own manifest.json rather than hardcoded here, so a
+ * location-engineer rebuild (new `build_key`, new tileset id) does not require touching this
+ * script — only the fixture directory name (SCREEN_FIXTURE_SLUGS) is this script's concern. */
+function screenFixture(screen: Screen): ScreenFixture {
+  const slug = SCREEN_FIXTURE_SLUGS[screen.id];
+  if (slug === undefined) return { tileDir: LUMPINI_DIR, tilesetId: LUMPINI_TILESET_ID };
+  const tileDir = join(SCREENS_FIXTURE_ROOT, slug);
+  const manifest = JSON.parse(readFileSync(join(tileDir, 'manifest.json'), 'utf-8')) as {
+    tileset_id: string;
+  };
+  return { tileDir, tilesetId: manifest.tileset_id };
+}
+
+function formatsFor(tilesetId: string): readonly { tag: string; tilesUrl: string }[] {
+  return [
+    { tag: 'pmtiles', tilesUrl: pmtilesUrl(tilesetId) },
+    { tag: 'tilejson', tilesUrl: tilejsonUrl(tilesetId) },
+  ] as const;
+}
+
 const VIEWPORTS = [
   { w: 390, h: 844, dpr: 3, tag: '390x844' },
   { w: 360, h: 800, dpr: 2, tag: '360x800' },
-] as const;
-
-const FORMATS = [
-  { tag: 'pmtiles', tilesUrl: PMTILES_URL },
-  { tag: 'tilejson', tilesUrl: TILEJSON_URL },
 ] as const;
 
 const ENGINES = [
@@ -121,10 +166,15 @@ const ENGINES = [
   { tag: 'ios-safari', launcher: webkit, device: devices['iPhone 14'] },
 ] as const;
 
-function fixturePathFor(url: string): string | undefined {
+/** Glyphs and sprites (`/glyphs/**`, `/sprites/**`) always resolve against the shared Lumpini
+ * fixture; only `/pmtiles/**` and `/tiles/**` resolve against the screen's own fixture dir (P2-H08
+ * — see `screenFixture` above). */
+function fixturePathFor(url: string, tileDir: string): string | undefined {
   const pathname = decodeURIComponent(new URL(url).pathname);
-  const resolved = normalize(join(FIXTURE_DIR, pathname));
-  if (!resolved.startsWith(FIXTURE_DIR + sep)) return undefined;
+  const base =
+    pathname.startsWith('/pmtiles/') || pathname.startsWith('/tiles/') ? tileDir : LUMPINI_DIR;
+  const resolved = normalize(join(base, pathname));
+  if (!resolved.startsWith(base + sep)) return undefined;
   try {
     return statSync(resolved).isFile() ? resolved : undefined;
   } catch {
@@ -134,15 +184,19 @@ function fixturePathFor(url: string): string | undefined {
 
 /** The committed tiles.json points at serve.py (127.0.0.1:8765); re-point it at the fake origin,
  * same as apps/client/e2e/map-real-fixture.spec.ts's `rewriteTileJson`. */
-function rewriteTileJson(bytes: Buffer): Buffer {
+function rewriteTileJson(bytes: Buffer, tilesetId: string): Buffer {
   const doc = JSON.parse(bytes.toString('utf-8')) as Record<string, unknown>;
-  doc['tiles'] = [`${FIXTURE_ORIGIN}/tiles/${TILESET_ID}/{z}/{x}/{y}.mvt`];
+  doc['tiles'] = [`${FIXTURE_ORIGIN}/tiles/${tilesetId}/{z}/{x}/{y}.mvt`];
   return Buffer.from(JSON.stringify(doc), 'utf-8');
 }
 
 const externalRequests: string[] = [];
 
-async function fulfillFromFixture(route: Route, served: string[]): Promise<void> {
+async function fulfillFromFixture(
+  route: Route,
+  served: string[],
+  fixture: ScreenFixture,
+): Promise<void> {
   const request = route.request();
   const url = request.url();
   if (!url.startsWith(FIXTURE_ORIGIN) && !url.startsWith(BASE_URL)) {
@@ -152,14 +206,14 @@ async function fulfillFromFixture(route: Route, served: string[]): Promise<void>
     await route.fulfill({ status: 204, headers: CORS_HEADERS });
     return;
   }
-  const path = fixturePathFor(url);
+  const path = fixturePathFor(url, fixture.tileDir);
   if (path === undefined) {
     await route.fulfill({ status: 404, headers: CORS_HEADERS, body: '' });
     return;
   }
   served.push(new URL(url).pathname);
   const raw = readFileSync(path);
-  const body = path.endsWith('tiles.json') ? rewriteTileJson(raw) : raw;
+  const body = path.endsWith('tiles.json') ? rewriteTileJson(raw, fixture.tilesetId) : raw;
   const headers = {
     ...CORS_HEADERS,
     'accept-ranges': 'bytes',
@@ -318,42 +372,54 @@ async function run(): Promise<void> {
   let animationCheck:
     { engine: string; identical: boolean; bytesA: number; bytesB: number } | undefined;
 
+  // P2-H08: the outer loop is now engine -> screen -> format (was engine -> format -> screen).
+  // Each screen may carry its own fixture + tileset (screenFixture), so each (screen, format)
+  // pair gets its own fresh context/page pointed at that screen's own tiles — S1/S3/S4 still
+  // share one browser per engine with S2/S5/S6, just no longer one shared *page* across screens.
   for (const engine of ENGINES) {
     const browser: Browser = await engine.launcher.launch();
-    for (const format of FORMATS) {
-      const context = await browser.newContext({ ...engine.device, locale: 'th-TH' });
-      const page = await context.newPage();
-      const served: string[] = [];
-      const consoleErrors: string[] = [];
-      page.on('console', (msg) => {
-        if (msg.type() === 'error') consoleErrors.push(msg.text());
-      });
-      await page.route(`${FIXTURE_ORIGIN}/**`, (route) => fulfillFromFixture(route, served));
+    for (const screen of selectedScreens()) {
+      const fixture = screenFixture(screen);
+      for (const format of formatsFor(fixture.tilesetId)) {
+        const context = await browser.newContext({ ...engine.device, locale: 'th-TH' });
+        const page = await context.newPage();
+        const served: string[] = [];
+        const consoleErrors: string[] = [];
+        page.on('console', (msg) => {
+          if (msg.type() === 'error') consoleErrors.push(msg.text());
+        });
+        await page.route(`${FIXTURE_ORIGIN}/**`, (route) =>
+          fulfillFromFixture(route, served, fixture),
+        );
 
-      await page.goto(spikeUrl(format.tilesUrl));
-      await page.waitForFunction(
-        () =>
-          (window as unknown as { __kwSpike?: { map?: { _loaded?: boolean } } }).__kwSpike?.map
-            ?._loaded === true,
-        undefined,
-        { timeout: LOAD_TIMEOUT_MS },
-      );
-      // Follow mode (on by default, main.ts) recenters the camera on every mock-trace sample,
-      // fighting this script's own `jumpTo` per screen and pegging the (software/swiftshader)
-      // GPU under continuous easeTo animation until it crashes. Turn it off once per page so this
-      // script's jumpTo is authoritative — matches a real player tapping the follow button off.
-      await page.click('#follow-toggle');
-      // `#hud-panel` (debug/hud-panel.ts) is a dev-only measurement overlay (P1-F02-T11), not
-      // player-facing UI — it would cover most of the map in every screenshot otherwise. Hidden
-      // with CSS only (element still exists, `window.__kwSpike.hud` keeps updating); the small
-      // GPS pill/toast/follow button (ui/gps-ui.ts) are real game chrome and stay visible.
-      await page.evaluate(() => {
-        const panel = document.getElementById('hud-panel');
-        if (panel !== null) panel.style.display = 'none';
-      });
-      await loadDungeonSamples(page, dungeonPolygonSamples, dungeonLabelSamples);
+        await page.goto(spikeUrl(format.tilesUrl));
+        await page.waitForFunction(
+          () =>
+            (window as unknown as { __kwSpike?: { map?: { _loaded?: boolean } } }).__kwSpike?.map
+              ?._loaded === true,
+          undefined,
+          { timeout: LOAD_TIMEOUT_MS },
+        );
+        // Follow mode (on by default, main.ts) recenters the camera on every mock-trace sample,
+        // fighting this script's own `jumpTo` per screen and pegging the (software/swiftshader)
+        // GPU under continuous easeTo animation until it crashes. Turn it off once per page so
+        // this script's jumpTo is authoritative — matches a real player tapping follow off.
+        await page.click('#follow-toggle');
+        // `#hud-panel` (debug/hud-panel.ts) is a dev-only measurement overlay (P1-F02-T11), not
+        // player-facing UI — it would cover most of the map in every screenshot otherwise. Hidden
+        // with CSS only (element still exists, `window.__kwSpike.hud` keeps updating); the small
+        // GPS pill/toast/follow button (ui/gps-ui.ts) are real game chrome and stay visible.
+        await page.evaluate(() => {
+          const panel = document.getElementById('hud-panel');
+          if (panel !== null) panel.style.display = 'none';
+        });
+        // Only S1 (rift crack, self dot) and S3 (sponsored label) need the sample dungeon —
+        // it sits far from S2/S5/S6's coordinates and would just be invisible there anyway, but
+        // skipping it keeps each screen's page setup honest about what it actually needs.
+        if (screen.id === 'S1' || screen.id === 'S3') {
+          await loadDungeonSamples(page, dungeonPolygonSamples, dungeonLabelSamples);
+        }
 
-      for (const screen of selectedScreens()) {
         for (const viewport of VIEWPORTS) {
           await page.setViewportSize({ width: viewport.w, height: viewport.h });
           await jumpToAndIdle(page, screen);
@@ -404,8 +470,8 @@ async function run(): Promise<void> {
             };
           }
         }
+        await context.close();
       }
-      await context.close();
     }
     await browser.close();
   }

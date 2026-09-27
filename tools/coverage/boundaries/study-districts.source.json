@@ -1,0 +1,406 @@
+{
+  "attribution": "© OpenStreetMap contributors",
+  "license": "ODbL-1.0 (https://opendatacommons.org/licenses/odbl/1-0/)",
+  "source": {
+    "dataDate": "2026-09-01T20:20:50Z",
+    "derivedFrom": "tools/coverage/out/boundaries.geojson",
+    "tool": "tools/coverage/boundaries/districts.py (P2-H26)"
+  },
+  "districts": [
+    {
+      "osmRelationId": 92053,
+      "osmNameEn": "Phra Nakhon District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 92056,
+      "osmNameEn": "Samphanthawong District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 92058,
+      "osmNameEn": "Pom Prap Sattru Phai District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 92061,
+      "osmNameEn": "Bang Rak District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 92063,
+      "osmNameEn": "Pathum Wan District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 92064,
+      "osmNameEn": "Ratchathewi District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 92068,
+      "osmNameEn": "Phaya Thai District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 92069,
+      "osmNameEn": "Dusit District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 1639285,
+      "osmNameEn": "Bang Sue District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 1639286,
+      "osmNameEn": "Chatuchak District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 1639287,
+      "osmNameEn": "Don Mueang District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 1639288,
+      "osmNameEn": "Lak Si District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2938030,
+      "osmNameEn": "Bang Khen District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2938031,
+      "osmNameEn": "Din Daeng District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2938032,
+      "osmNameEn": "Huai Khwang District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2938033,
+      "osmNameEn": "Khlong Toei District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2938034,
+      "osmNameEn": "Lat Phrao District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2938035,
+      "osmNameEn": "Sai Mai District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2938036,
+      "osmNameEn": "Vadhana District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2939952,
+      "osmNameEn": "Bang Kapi District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2939953,
+      "osmNameEn": "Bangkok Yai District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2939954,
+      "osmNameEn": "Taling Chan District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2939955,
+      "osmNameEn": "Thawi Watthana District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2939956,
+      "osmNameEn": "Wang Thonglang District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2942281,
+      "osmNameEn": "Bang Phlat District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2942282,
+      "osmNameEn": "Bangkok Noi District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2942283,
+      "osmNameEn": "Nong Khaem District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2946804,
+      "osmNameEn": "Bang Khae District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2946805,
+      "osmNameEn": "Bueng Kum District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2946806,
+      "osmNameEn": "Khan Na Yao District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2946807,
+      "osmNameEn": "Phasi Charoen District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2997412,
+      "osmNameEn": "Khlong Sam Wa District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3146412,
+      "osmNameEn": "Bang Na District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3146413,
+      "osmNameEn": "Min Buri District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3146414,
+      "osmNameEn": "Prawet District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3146415,
+      "osmNameEn": "Saphan Sung District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3146642,
+      "osmNameEn": "Phra Khanong District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3146643,
+      "osmNameEn": "Suan Luang District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147007,
+      "osmNameEn": "Chom Thong District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147008,
+      "osmNameEn": "Rat Burana District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147104,
+      "osmNameEn": "Thung Khru District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147280,
+      "osmNameEn": "Khlong San District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147281,
+      "osmNameEn": "Thon Buri District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147312,
+      "osmNameEn": "Bang Bon District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147313,
+      "osmNameEn": "Bang Khun Thian District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147425,
+      "osmNameEn": "Sathon District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147455,
+      "osmNameEn": "Bang Kho Laem District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147456,
+      "osmNameEn": "Yan Nawa District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147500,
+      "osmNameEn": "Lat Krabang District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 3147501,
+      "osmNameEn": "Nong Chok District",
+      "provinceIso": "TH-10"
+    },
+    {
+      "osmRelationId": 2688299,
+      "osmNameEn": "Bang Kruai District",
+      "provinceIso": "TH-12"
+    },
+    {
+      "osmRelationId": 2688300,
+      "osmNameEn": "Mueang Nonthaburi District",
+      "provinceIso": "TH-12"
+    },
+    {
+      "osmRelationId": 2688301,
+      "osmNameEn": "Pak Kret District",
+      "provinceIso": "TH-12"
+    },
+    {
+      "osmRelationId": 2689552,
+      "osmNameEn": "Bang Bua Thong District",
+      "provinceIso": "TH-12"
+    },
+    {
+      "osmRelationId": 2689553,
+      "osmNameEn": "Bang Yai District",
+      "provinceIso": "TH-12"
+    },
+    {
+      "osmRelationId": 2689554,
+      "osmNameEn": "Sai Noi District",
+      "provinceIso": "TH-12"
+    },
+    {
+      "osmRelationId": 2913006,
+      "osmNameEn": "Khlong Luang District",
+      "provinceIso": "TH-13"
+    },
+    {
+      "osmRelationId": 2913007,
+      "osmNameEn": "Lam Luk Ka District",
+      "provinceIso": "TH-13"
+    },
+    {
+      "osmRelationId": 2913008,
+      "osmNameEn": "Lat Lum Kaeo District",
+      "provinceIso": "TH-13"
+    },
+    {
+      "osmRelationId": 2913009,
+      "osmNameEn": "Mueang Pathum Thani District",
+      "provinceIso": "TH-13"
+    },
+    {
+      "osmRelationId": 2913010,
+      "osmNameEn": "Nong Suea District",
+      "provinceIso": "TH-13"
+    },
+    {
+      "osmRelationId": 2913011,
+      "osmNameEn": "Sam Khok District",
+      "provinceIso": "TH-13"
+    },
+    {
+      "osmRelationId": 2913012,
+      "osmNameEn": "Thanyaburi District",
+      "provinceIso": "TH-13"
+    },
+    {
+      "osmRelationId": 10958328,
+      "osmNameEn": "Phra Samut Chedi District",
+      "provinceIso": "TH-11"
+    },
+    {
+      "osmRelationId": 11580980,
+      "osmNameEn": "Bang Bo District",
+      "provinceIso": "TH-11"
+    },
+    {
+      "osmRelationId": 11580981,
+      "osmNameEn": "Bang Sao Thong District",
+      "provinceIso": "TH-11"
+    },
+    {
+      "osmRelationId": 11580982,
+      "osmNameEn": "Bang Phli District",
+      "provinceIso": "TH-11"
+    },
+    {
+      "osmRelationId": 11580983,
+      "osmNameEn": "Mueang Samut Prakan District",
+      "provinceIso": "TH-11"
+    },
+    {
+      "osmRelationId": 11580984,
+      "osmNameEn": "Phra Pradaeng District",
+      "provinceIso": "TH-11"
+    },
+    {
+      "osmRelationId": 18931677,
+      "osmNameEn": "Ban Phaeo District",
+      "provinceIso": "TH-74"
+    },
+    {
+      "osmRelationId": 18934962,
+      "osmNameEn": "Krathum Baen District",
+      "provinceIso": "TH-74"
+    },
+    {
+      "osmRelationId": 18935071,
+      "osmNameEn": "Mueang Samut Sakhon District",
+      "provinceIso": "TH-74"
+    },
+    {
+      "osmRelationId": 18929643,
+      "osmNameEn": "Bang Len District",
+      "provinceIso": "TH-73"
+    },
+    {
+      "osmRelationId": 18931310,
+      "osmNameEn": "Don Tum District",
+      "provinceIso": "TH-73"
+    },
+    {
+      "osmRelationId": 18931389,
+      "osmNameEn": "Kamphaeng Saen District",
+      "provinceIso": "TH-73"
+    },
+    {
+      "osmRelationId": 18931445,
+      "osmNameEn": "Mueang Nakhon Pathom District",
+      "provinceIso": "TH-73"
+    },
+    {
+      "osmRelationId": 18931531,
+      "osmNameEn": "Nakhon Chai Si District",
+      "provinceIso": "TH-73"
+    },
+    {
+      "osmRelationId": 18931587,
+      "osmNameEn": "Phutthamonthon District",
+      "provinceIso": "TH-73"
+    },
+    {
+      "osmRelationId": 18931634,
+      "osmNameEn": "Sam Phran District",
+      "provinceIso": "TH-73"
+    }
+  ]
+}

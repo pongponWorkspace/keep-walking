@@ -26,6 +26,8 @@ describe('createF04App', () => {
       maxTouchPoints: 5,
       assets: { getManifest: () => undefined, basePath: '/kw/', scale: 1, isProduction: false },
       copyToClipboard: async () => true,
+      playAudioUrl: () => undefined,
+      now: () => Date.now(),
     });
   }
 

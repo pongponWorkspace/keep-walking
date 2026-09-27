@@ -40,6 +40,7 @@ function validClient(): Record<string, unknown> {
     probe: { vibrateTestPattern_ms: 200 },
     bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
     vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
+    toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3 },
   };
 }
 

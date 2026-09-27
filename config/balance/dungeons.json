@@ -184,13 +184,13 @@
       "blocklistDisabledCategories": "switch for D-026: add 'cemetery' to turn the cemetery category off",
       "blocklistDisabledTags": "switch for D-027: add amenity=university, amenity=college, building=university, building=college to allow campus parks",
       "blocklistAreaOnlyTags": "METHOD 7.1 (amenity=clinic counts only as an area)",
-      "excludeOsmIds": "D-083 (HUMAN 2026-09-25) permanently excluded, coverage-report.md section 6 #1-5, #8, #12-17, #20, #22, #23 (P2-F04-T03); reason_excluded = excluded_osm_id; pieces nested inside get review_required (inside_excluded_osm_id); format osm-w<id> / osm-r<id>",
-      "reviewOsmIds": "METHOD 7.1 (SF-9) · D-083 'not used until further checks' #6, #7, #10, #18, #19, #21, #24, #25: review_required (review_osm_id), not counted, never dropped; format osm-w<id> / osm-r<id>",
+      "excludeOsmIds": "D-083 (HUMAN 2026-09-25) permanently excluded, coverage-report.md section 6 #1-5, #8, #12-17, #20, #22, #23 (P2-F04-T03) · D-109 (HUMAN 2026-09-26, P2-H10) ไปรษณีย์กลาง osm-w231293478; reason_excluded = excluded_osm_id; pieces nested inside get review_required (inside_excluded_osm_id); format osm-w<id> / osm-r<id>",
+      "reviewOsmIds": "METHOD 7.1 (SF-9) · D-083 'not used until further checks' #6, #7, #10, #18, #19, #21, #24, #25 · D-109 (HUMAN 2026-09-26, P2-H10) parked: สวนดุสิตอรุณ (field check) and the 5 One Bangkok ids (held with #25), pilot-dungeons.md 2: review_required (review_osm_id), not counted, never dropped; format osm-w<id> / osm-r<id>",
       "releaseOsmIds": "D-083 released #9, #11: clears automatic review_required reasons (name, tag, inherited) for that id only; never clears an exclusion reason. An id may appear in only one of excludeOsmIds / reviewOsmIds / releaseOsmIds (the pipeline refuses)",
       "_osmIdNotes": "human-readable label per id (coverage-report.md section 6 numbering); not read by the pipeline",
       "reviewTags": "METHOD 7.1 (palace)",
       "reviewNamePatterns": "METHOD 7.1 (palace and royal residence names; substring match on name, name:th, name:en) · design gate F01 N-01 royal words (เฉลิมพระเกียรติ, ราชานุสรณ์, ราชานุสาวรีย์, พระบรม, ราชอุทยาน, สมเด็จ). Pieces inside a flagged split parent inherit the flag",
-      "reviewFlagTags": "design gate F01 N-01 · coverage-report.md 6.3 / 6.4: flag name -> tag specs on the candidate itself; a match adds the flag and review_required (flag_<name>)",
+      "reviewFlagTags": "design gate F01 N-01 · coverage-report.md 6.3 / 6.4: flag name -> tag specs on the candidate itself; a match adds the flag and review_required (flag_<name>). civic_building / rooftop added by P2-H07 (P2-F04-T23, qa request)",
       "reviewMinAreaTags": "METHOD 7.1 (monument / memorial at or above area.minArea_m2)",
       "outdoorBuildingValues": "METHOD 6.1 (marketplace with building other than these = indoor_market)",
       "privateGardenTypes": "METHOD 6.1 (garden:type)",
@@ -314,7 +314,8 @@
       "osm-w25714940",
       "osm-w1312281461",
       "osm-r18050303",
-      "osm-w341577338"
+      "osm-w341577338",
+      "osm-w231293478"
     ],
     "reviewOsmIds": [
       "osm-w1193776536",
@@ -324,7 +325,13 @@
       "osm-w349606263",
       "osm-w751895050",
       "osm-w538798649",
-      "osm-w1328095238"
+      "osm-w1328095238",
+      "osm-w1427083286",
+      "osm-r20081092",
+      "osm-r21198582",
+      "osm-w1477362258",
+      "osm-w1547833479",
+      "osm-w145573677"
     ],
     "releaseOsmIds": ["osm-w1511272937", "osm-w584857320"],
     "_osmIdNotes": {
@@ -351,6 +358,13 @@
       "osm-w751895050": "D-083 pending #21 unnamed courtyard garden near #12",
       "osm-w538798649": "D-083 pending #24 ปาร์คนายเลิศ",
       "osm-w1328095238": "D-083 pending #25 วัน แบงค็อก พาร์ค",
+      "osm-w231293478": "D-109 exclude ไปรษณีย์กลาง (building=civic, active state-enterprise building; pilot-dungeons.md 2)",
+      "osm-w1427083286": "D-109 pending สวนดุสิตอรุณ (location=roof, awaiting field check of a public entrance; pilot-dungeons.md 2)",
+      "osm-r20081092": "D-109 pending One Bangkok group ไวร์เลส ปาร์ (held with #25; land status)",
+      "osm-r21198582": "D-109 pending One Bangkok group พาเหรด ปาร์ค (held with #25; land status)",
+      "osm-w1477362258": "D-109 pending One Bangkok group, unnamed (held with #25; land status)",
+      "osm-w1547833479": "D-109 pending One Bangkok group, unnamed (held with #25; land status)",
+      "osm-w145573677": "D-109 pending One Bangkok group, unnamed, also class=pitch (held with #25; land status)",
       "osm-w1511272937": "D-083 release #9 ตลาดน้ำวัดไทร",
       "osm-w584857320": "D-083 release #11 สวนสาธารณะ หมู่บ้านวังทองริเวอร์ปาร์ค"
     },
@@ -371,7 +385,10 @@
     ],
     "reviewFlagTags": {
       "railway_station": ["railway=station", "building=train_station", "public_transport=station"],
-      "fee_entry": ["fee=yes", "tourism=museum"]
+      "fee_entry": ["fee=yes", "tourism=museum"],
+      "civic_building": ["building=civic"],
+      "rooftop": ["location=roof"],
+      "_source": "civic_building, rooftop: P2-H07 (qa request relayed by location-engineer in P2-F04-T23; origin design/levels/pilot-dungeons.md 2: ไปรษณีย์กลาง osm-w231293478 building=civic, สวนดุสิตอรุณ osm-w1427083286 location=roof). Civic building grounds and rooftop spaces conflict with outdoor-only v1 (GDD non-negotiable 5) and the public-footway entrance rule (dungeon-rules.md 4), so they get review_required, never an automatic drop"
     },
     "reviewMinAreaTags": ["historic=monument", "historic=memorial"],
     "outdoorBuildingValues": ["no", "roof"],

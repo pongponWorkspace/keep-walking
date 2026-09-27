@@ -2,6 +2,7 @@
 
 Task: P1-F03-T10 · เจ้าของ: art-director · สถานะ: ฉบับเสนอ รอ HUMAN อนุมัติทิศทางภาพ · วันที่: 2026-09-23
 แก้ใน P2-F05-T03 (2026-09-26): 3 และ 8 ข้อยกเว้น miter ของรอยแยก (F-AD-4) · 4.2/4.3 พิกัดเส้นของกรอบแบบวัดได้ (V-12) · 5.1/5.2 ขนนก Ranged และ stroke glyph 2 px (V-13) · 7.1 glyph ใหม่ของ Phase 2 (7.1.1) · 7.3 id ยาและอุปกรณ์ของ Phase 2 · 9 กฎลูกศรไม่ชนกัน · รายการ asset และสถานะของ Phase 2 อยู่ใน `art/direction/briefs/P2-assets.md`
+แก้ใน P2-H17 (2026-09-27): 7.1.1 แถว `in-run` (`currentColor`) และ `suspended` (ตายตัว `bg.surface` ขอบหมึก) · 8 กฎ `currentColor` และ ui16 ตามกลุ่ม ui · ผลตรวจอยู่ใน `art/direction/reviews/P2-H17-icon-night-and-composite.md`
 อ้างอิง: `art/direction/style-guide.md` (token สี, contrast, เส้น, แสงเงา, motif ที่ห้าม) · GDD "Class และ Party", "Quick command", "อุปกรณ์", "วัตถุดิบและการตีบวก", "Drop table" · `design/narrative/world.md` หัวข้อ 9, 12
 สีทุกค่าในเอกสารนี้คือ token ใน style guide หัวข้อ 3 · ค่า contrast อ้างตารางหัวข้อ 4 ของ style guide
 
@@ -209,12 +210,12 @@ kind `icon-ui` · 24 px = `icon.ui.<name>` · 16 px วาดแยก = `icon.u
 | `icon.ui.navigate` | เปิดแอปแผนที่ของเครื่อง | แผ่นแผนที่พับของ `icon.ui.map` ย่อไปมุมซ้ายล่าง + ลูกศรออกนอกกรอบที่มุมขวาบน (สัญลักษณ์ลิงก์ภายนอก) | outline | โลโก้ หมุด หรือสีของผู้ให้บริการแผนที่รายใด |
 | `icon.ui.copy` | คัดลอกชื่อสถานที่ (fallback ของนำทาง) | สี่เหลี่ยมมุมมน 2 แผ่นซ้อนเยื้อง | outline | — |
 | `icon.ui.rift` | dungeon เปิด (การ์ด, list, popup) | รอยแตกซิกแซกแนวตั้ง 3–4 หักมุม เหมือน `map.icon.rift-crack` แบบย่อ | เติม `rift.500` แกน `bg.paper` ขอบ `ink.900` 2 px · miter | วงกลมประตูมิติ อักขระ |
-| `icon.ui.in-run` | dungeon ที่ run ของผู้เล่นอยู่ | รอยแตกเดียวกับ `icon.ui.rift` | เติม `ink.900` แกน `bg.paper` (กฎ active = เติม `ink.900` ในหัวข้อ 3) · miter | — |
+| `icon.ui.in-run` | dungeon ที่ run ของผู้เล่นอยู่ | รอยแตกเดียวกับ `icon.ui.rift` | เติม `currentColor` (code ตั้งเป็น `ink.900` กลางวัน, `bg.paper` บน `bg.night` · กฎ active = เติม `ink.900` ในหัวข้อ 3) แกน `bg.paper` ตายตัว (กลางคืนแกนกลืนกับตัว ยอมรับ) · miter · ประเด็นมองไม่เห็นบน `bg.night` ปิดแล้วใน P2-H17 สำหรับ 24 px · 16 px รอ V-23 | — |
 | `icon.ui.closing-soon` | ใกล้ปิดทำการ | หน้าปัดของ `icon.ui.hours` + ลิ่มทึบ `ink.900` จากตำแหน่ง 11 ถึง 12 นาฬิกา (เวลาที่เหลือน้อย) | outline + ลิ่มเติม · ใช้บน chip `accent.signal` | ตัวเลขในหน้าปัด · สีแดง (ไม่ใช่อันตราย) |
 | `icon.ui.closed` | ปิดทำการ | ประตูม้วนเหล็กของตึกแถว: สี่เหลี่ยมตั้ง เส้นแนวนอน 3 เส้น มือจับที่ขอบล่าง | outline | แม่กุญแจ (สงวนให้ speed lock) · กากบาท · ตัวอักษร "CLOSED" |
 | `icon.ui.signal-wait` | รอสัญญาณ (check-in `poor_accuracy`, `not_enough_trace`) | หมุดแผนที่ + ขีดสัญญาณ 3 ขั้นสูงขึ้นทางขวา | outline · ขั้นที่ 1 เติม `ink.900` ขั้น 2–3 outline · **ภาพนิ่ง** ไม่มีขั้นวิ่ง | spinner, จุดวน, นาฬิกาทราย (ชน Grace) |
 | `icon.ui.walk-in` | เดินออกนอกเขตแล้วเดินกลับเข้ามา (`no_approach_from_outside`) | รอยเท้า 2 รอยข้ามเส้นประแนวตั้งเข้าหารอยแตกเล็กด้านขวา | outline · รอยแตกเติม `rift.500` | ลูกศรวงกลม (อ่านเป็นรีเฟรช) |
-| `icon.ui.suspended` | run สถานะ Suspended | นาฬิกาทรายของ `icon.ui.grace` นอนตะแคง (เวลาหยุด) | เติม `state.info` | — |
+| `icon.ui.suspended` | run สถานะ Suspended | นาฬิกาทรายของ `icon.ui.grace` นอนตะแคง (เวลาหยุด) | เติม `bg.surface` ขอบ `ink.900` 2 px **สีตายตัว ไม่ tint** ทั้ง 24 และ 16 px (P2-H17, D-122 ตัดสินแทน: พื้นแถบ Suspended คือ `state.info` สีเติม `state.info` จึงหาย · ความหมาย info มาจากพื้นแถบและข้อความ) | เติม `state.info` |
 | `icon.ui.exit` | ออกจาก run เอง | ประตูเปิด + ลูกศรออก (ความหมายเดียวกับ `icon.qc.retreating` วาดบน grid 24) | outline | — |
 | `icon.ui.hp-low` | HP ต่ำถึงเกณฑ์แจ้ง | หยดของ `icon.ui.hp` เติมครึ่งล่าง ครึ่งบน outline | เติม `state.danger` ครึ่งล่าง | กะโหลก · หัวใจ |
 | `icon.ui.potion-used` | ใช้ยาอัตโนมัติแล้ว | ขวดหน้าตรงก้อนกลม + หยด HP เล็กมุมขวาบน | outline · หยดเติม `state.danger` | กากบาทแดง · ขวดที่คล้ายแบรนด์ |
@@ -278,7 +279,7 @@ kind `icon-item` · id = `icon.item.<category>-<name>` (asset-pipeline 3.3) · `
 | ข้อความ | ห้าม `<text>` ห้ามแปลงตัวอักษรเป็น path ใน icon |
 | สี | hex จาก token เท่านั้น ใส่ใน attribute `fill` / `stroke` ตรง ไม่มี `opacity` ยกเว้นเงาตกกระทบของ item icon (`ink.900` ความทึบ 0.2) |
 | เส้น | ใช้ `stroke` จริง (`stroke-width="2"`, `stroke-linecap="round"`, `stroke-linejoin="round"`) ใน UI glyph เพื่อให้ uiux ปรับสีเส้นได้ · item icon แปลง stroke เป็น path ได้ · **ข้อยกเว้นรอยแยก:** glyph และ map icon ของรอยแยกใช้ `stroke-linejoin="miter"` `stroke-miterlimit="4"` (style guide 6.2) และ SVGO ต้องไม่เปลี่ยนค่านี้ |
-| สีที่ code เปลี่ยนได้ | UI glyph แบบ outline ใช้ `stroke="currentColor"` ได้ (ค่าที่ code ส่งต้องเป็น token) · อย่างอื่นใช้ hex ตายตัว |
+| สีที่ code เปลี่ยนได้ | UI glyph แบบ outline และ glyph เติมทึบสี active (`ink.900` ตามหัวข้อ 3 เช่น `icon.ui.in-run`) ใช้ `currentColor` ได้ (ค่าที่ code ส่งต้องเป็น token ตาม components 13.9.1) · glyph ที่เติมสีความหมาย (`state.*`, `rift.*`, `accent.*`) หรือออกแบบให้อ่านได้บนพื้นสี (`icon.ui.suspended`) ใช้ hex ตายตัว · `icon.ui16.<name>` อยู่กลุ่มเดียวกับ `icon.ui.<name>` เสมอ (P2-H17) · อย่างอื่นใช้ hex ตายตัว |
 | rarity frame | 1 ไฟล์ต่อระดับต่อขนาด (10 ไฟล์) ไม่รวม item icon · code ประกอบ frame + icon เอง |
 | class badge | 1 ไฟล์ต่อ class ต่อขนาด (12 ไฟล์ที่ 20/32/48) |
 | id ภายใน SVG | ห้าม id ซ้ำข้ามไฟล์ (prefix ด้วยชื่อไฟล์) เพราะ SVG อาจ inline หลายตัวในหน้าเดียว |

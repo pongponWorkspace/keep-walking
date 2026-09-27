@@ -9,9 +9,20 @@ import type { QaScenarioDef } from './lib/qa-builder';
 import { checkinAccuracy35Scenario } from './scenarios/checkin-accuracy';
 import { movementGap400mScenario } from './scenarios/movement-gap';
 import { polygonOverlapScenario } from './scenarios/polygon-overlap';
+import {
+  e2eLeelawadeeCheckinScenario,
+  e2eLeelawadeePoorAccuracyScenario,
+  e2eKhlongOngAngClosedScenario,
+} from './scenarios/e2e-real-dungeons';
 
 export const QA_SCENARIOS: readonly QaScenarioDef[] = [
   checkinAccuracy35Scenario,
   movementGap400mScenario,
   polygonOverlapScenario,
+  // P2-F04-T22: real-dungeon traces for the F04 e2e specs (qa/tests/e2e/f04-*.spec.ts) — these are
+  // the only three traces in this file whose coordinates are inside a real committed dungeon
+  // polygon rather than a QA-only test rectangle (see scenarios/e2e-real-dungeons.ts header).
+  e2eLeelawadeeCheckinScenario,
+  e2eLeelawadeePoorAccuracyScenario,
+  e2eKhlongOngAngClosedScenario,
 ];

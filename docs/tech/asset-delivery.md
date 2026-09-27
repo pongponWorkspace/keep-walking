@@ -103,7 +103,8 @@ tools/art/out/client/
 | `runtimeVersion` | 1 · client ปฏิเสธค่าอื่น |
 | `avatarRig` | ตรงกับ `manifest.json` · renderer ปฏิเสธ rig ที่ไม่ตรง (asset-pipeline 6.1) |
 | `parts[name]` | `url` (มี `?v=<sha256 8 ตัว>` ของเนื้อไฟล์ part), `bytes` · ตอนนี้มี `avatar` ตัวเดียว (5.1) · field ใหม่ของ P2-X24 เพิ่มแบบไม่ทำลายของเดิม (`runtimeVersion` ยังเป็น 1) |
-| `assets[id]` | `kind`, `status`, `placeholder`, `size`, `layer?`, `sheet?`, `variants?`, `replacedBy?`, `files[]` |
+| `assets[id]` | `kind`, `status`, `placeholder`, `size`, `layer?`, `sheet?`, `variants?`, `replacedBy?`, `tintable?`, `files[]` |
+| `assets[id].tintable` | P2-H13 (D-121) · มีเฉพาะเมื่อเป็น `true` (ไม่มี key = ไม่ tint ได้) · `stage` คำนวณเอง: entry ที่ kind อยู่ใน config `svg.currentColorKinds` (วันนี้ `icon-ui` = `icon.ui.*` และ `icon.ui16.*`) และไฟล์ SVG ที่ ship อย่างน้อยหนึ่งไฟล์ใช้ `currentColor` ใน attribute สี (`svg.colorAttributes`, รวม `style`) หรือใน `<style>` · ไม่มีใครตั้งมือ · kind อื่นไม่สแกน (V7 ห้าม `currentColor` อยู่แล้ว) · field เพิ่มแบบไม่ทำลายของเดิม (`runtimeVersion` ยังเป็น 1) · ต้นทุน 16 B ต่อ entry ที่เป็น `true` (วันนี้ 28 entry = +448 B) |
 | `assets[id].files[]` | `url` (สัมพัทธ์กับฐานของชุด เช่น `art/avatar/hair/buzz-hair-3@2x.png?v=1a2b3c4d`), `format`, `scale`, `variant`, `width`, `height`, `bytes` · รวมไฟล์ของ artist และไฟล์ PNG จาก `manifest.build.json` |
 | `fonts[]` | `id`, `role` (`ui`/`map`), `family`, `weight`, `url`, `format`, `bytes` |
 | `audio[cueId]` | `url` + field อื่นของ cue จาก `audio/manifest.json` ตามที่ sound-designer เขียน (เช่น `vibration_ms`, `priority`, `loudness`) ส่งต่อตรงตัว |
@@ -135,11 +136,11 @@ tools/art/out/client/
 ส่วนนี้เป็นสัญญาที่ gameplay-programmer implement ใน `apps/client/` (task นี้ไม่แก้ `apps/client`)
 
 ### 6.1 path
-- Vite ของ client copy `tools/art/out/client/` ทั้งโฟลเดอร์ไปที่ `dist/kw/` ตอน build (plugin copy หรือ `publicDir` เพิ่มเติม) และตอน dev เสิร์ฟโฟลเดอร์เดียวกันที่ `/kw/` · ฐาน = `import.meta.env.BASE_URL + 'kw/'` · ห้าม import ไฟล์จาก `tools/` เป็น module (ESLint `TOOLS_IMPORT_BAN`) อ่านเป็นไฟล์ static เท่านั้น
+- Vite ของ client copy `tools/art/out/client/` ทั้งโฟลเดอร์ไปที่ `dist/kw/` ตอน build (plugin copy หรือ `publicDir` เพิ่มเติม) และตอน `vite dev` กับ `vite preview` เสิร์ฟโฟลเดอร์เดียวกันที่ `/kw/` (ทำแล้ว: `kwAssetStagePlugin()` P2-X21 · header ดู 6.2.1 · หมายเหตุ: middleware ของ preview อ่านจาก `tools/art/out/client/` ตรง ไม่ใช่จาก `dist/kw/` ที่ `closeBundle` copy ไว้) · ฐาน = `import.meta.env.BASE_URL + 'kw/'` · ห้าม import ไฟล์จาก `tools/` เป็น module (ESLint `TOOLS_IMPORT_BAN`) อ่านเป็นไฟล์ static เท่านั้น
 - client โหลด `kw/asset-manifest.json` ครั้งเดียวต่อ session ก่อนแสดง icon/ฟอนต์/เสียงแรก · URL จริง = ฐาน + `files[].url` ตรงตัว (มี `?v=` แล้ว) · ห้ามประกอบ path จาก id เอง
 - part แบบ lazy (5.1): อ่าน `parts[name].url` จากไฟล์หลักแล้วโหลด ฐาน + url ตรงตัว ครั้งเดียวต่อ session · part `avatar` โหลดเมื่อจะวาดอวตารตัวแรก (หลังแผนที่แสดงแล้ว, asset-pipeline 7.2) ไม่ block icon/ฟอนต์/เสียง · entry `avatar-layer` หาใน `assets` ของ part ไม่ใช่ไฟล์หลัก · ตรวจ `runtimeVersion` และ `avatarRig` ของ part เหมือนไฟล์หลัก
 - sprite sheet: `devicePixelRatio >= 1.5` → `scale: 2` ไม่งั้น `scale: 1` · ตัดสินครั้งเดียวต่อ session (asset-pipeline 5) · เลือกไฟล์ด้วย (`variant`, `scale`) · ตำแหน่ง frame จาก `sheet` (คอลัมน์ × `frameW`, แถว × `frameH`) ไม่ hardcode
-- SVG icon ใช้เป็น `<img>` หรือ inline หลัง fetch · glyph ที่ใช้ `currentColor` ต้อง inline (img ไม่รับสีจาก CSS)
+- SVG icon: client เลือกเทคนิคด้วย `assets[id].tintable` **อย่างเดียว** (P2-H13, D-121, components.md 13.9) · `tintable === true` → fetch ข้อความ SVG จาก ฐาน + `files[].url` ครั้งเดียวต่อ id ต่อ session, sanitize แบบ allowlist (ตัด `script`, `on*`, `href` ที่ไม่ใช่ `#local`) แล้ว inline พร้อม `aria-hidden="true"` `focusable="false"` และตั้ง `color` ที่ตัวห่อเป็น token · ไม่มี key `tintable` → `<img>` เหมือนเดิม · ห้ามเดาจาก id, prefix หรือ `kind` (kind `icon-ui` เดียวกันมีทั้ง glyph `currentColor` และ glyph สีตายตัว เช่น `icon.ui.in-run`, `icon.ui.suspended` วันนี้) และห้าม hardcode รายชื่อ id ใน client · fetch หรือ sanitize ล้มเหลว → ถอยไป `<img>` URL เดียวกัน (ได้รูปสีตาม SVG แทนสีตามโทน ไม่ใช่รูปแตก, 6.4) · entry จะกลายเป็น tintable เมื่อ artist แก้ SVG เป็น `currentColor` แล้ว `stage` รันใหม่ โดย client ไม่ต้องแก้
 - ถ้า entry มีทั้ง SVG (placeholder master ที่อยู่ใน `art/assets`) และ PNG ของ build ให้ใช้ PNG สำหรับ sheet อวตาร · entry ที่ยังไม่มี PNG (สถานะ placeholder ตอนนี้) ใช้ SVG แผ่นเดียวแทนได้ใน dev/preview เพราะ viewBox = ขนาด sheet ที่ 1x
 
 ### 6.2 cache
@@ -150,6 +151,19 @@ tools/art/out/client/
 | `/kw/fonts/*.woff2` | `Content-Type: font/woff2` · `*.ttf` → `font/ttf` | |
 - ไม่ใช้ CDN ภายนอกหรือ Google Fonts (PDPA: ไม่ส่ง IP ผู้เล่นให้บุคคลที่สาม, asset-pipeline 4.5)
 - service worker (ถ้ามีภายหลัง) cache ตาม URL เต็มรวม `?v=`
+
+#### 6.2.1 ใครส่ง header: ที่ deploy vs local (P2-H12 ตัดสิน)
+| environment | ผู้เสิร์ฟ `/kw/*` | header cache | แหล่งจริงของ header |
+| --- | --- | --- | --- |
+| Pages ที่ deploy (วันนี้มีแค่ `keep-walking-preview`, ยังไม่มี production ตาม `docs/tech/environments.md` 1) | Cloudflare Pages จาก `dist/kw/` | ตามตาราง 6.2 ทุกแถว | `infra/pages/keep-walking-preview/_headers` (devops-engineer) · `infra/scripts/publish-client.sh` copy ไฟล์นี้เข้า `dist/_headers` ก่อน deploy · `infra/scripts/lint-headers.sh` ตรวจ path `/kw/*` ทั้ง 5 แบบ |
+| `vite dev` / `vite preview` บนเครื่อง และ e2e (`playwright.config.ts` `webServer` = build + preview) | middleware `serveKw` ของ `kwAssetStagePlugin()` ใน `apps/client/vite.config.ts` | **ไม่ส่ง** `Cache-Control` (ยอมรับ) · ส่งแค่ `content-type` ตาม `KW_CONTENT_TYPES` | ไม่มี: local ไม่ใช่สัญญา cache |
+
+กฎ
+1. `_headers` ของ Pages project เป็นแหล่งจริงแหล่งเดียวของ header cache ของ `/kw/*` · Pages project ใหม่ (production ในอนาคต) ต้อง copy `_headers` ที่มีกฎ `/kw/*` ชุดเดียวกันใน publish script ของตัวเอง และเพิ่มไฟล์นั้นใน `lint-headers.sh` · ห้ามย้ายกฎไปไว้ในโค้ด client
+2. middleware ของ Vite **ห้าม** จำลอง header ของ 6.2 · เหตุผล: (ก) ถ้ามีสองที่ ค่าจะเลื่อนจากกันโดยไม่มี lint จับ (ข) `immutable` บน local ทำให้ browser ของนักพัฒนาถือไฟล์เก่าหลังรัน prebuild ใหม่ เพราะ URL ของฟอนต์และ URL ที่ใส่ใน dev มือไม่มี `?v=` เสมอ (ค) ไม่มี header = browser ใช้ heuristic ซึ่งบน localhost ไม่ทำให้อะไรผิด · ถ้าต่อไปอยากตั้งอะไรบน local ให้ตั้งได้อย่างเดียวคือ `Cache-Control: no-store` (ผ่าน tech-lead ก่อน)
+3. ความถูกต้องของ client ไม่พึ่ง header: `fetchAssetManifest` ส่ง `{ cache: 'no-cache' }` เอง (`apps/client/src/assets/manifest.ts`) และไฟล์ art/audio ใช้ URL ที่มี `?v=` · e2e จึงไม่ต้องตรวจ header · การตรวจ header จริงทำบน URL ที่ deploy ตาม `infra/runbooks/preview-setup.md` (คำสั่ง `curl -D -` ของ `/kw/*`)
+4. ไฟล์ `/kw/*` ที่ไม่มีอยู่: middleware เรียก `next()` จึงตกไปที่ SPA fallback ของ Vite (ได้ `index.html` 200 `text/html`) เหมือน Pages ที่ไม่มี `404.html` · loader ต้องถือว่า JSON parse ไม่ผ่าน = โหลดไม่ได้ (ตอนนี้ `fetchAssetManifest`/`fetchManifestPart` จับใน `catch` แล้ว) แล้วไป fallback 6.4 · path ที่หนีออกนอก `tools/art/out/client/` (`..`, `%2e%2e`) ก็ตกไป SPA fallback เช่นกัน ไม่รั่วไฟล์ (ตรวจแล้ว 2026-09-27)
+5. ผลตรวจ 2026-09-27 (`vite preview` บน `apps/client`): `/kw/asset-manifest.json` → 200 `application/json`, `/kw/fonts/.../*.ttf` → 200 `font/ttf`, ไม่มี `Cache-Control` ตามที่ยอมรับข้างบน
 
 ### 6.3 สถานะและ environment
 | `status` | dev / preview | production |
@@ -257,6 +271,7 @@ environment อ่านจาก `env.ts` ที่มีอยู่ของ 
 - [ASSUMPTION A-P2-F06-T07-1] ฐาน URL ของชุด asset ใน client คือ `<BASE_URL>kw/` · gameplay-programmer เปลี่ยนชื่อโฟลเดอร์ได้ถ้าแจ้ง devops-engineer พร้อมกัน (header ใน 6.2 ผูกกับ path) (ยืนยัน: gameplay-programmer, devops-engineer)
 - [ASSUMPTION A-P2-F06-T07-2] รูปแบบ `audio/manifest.json` ตามหัวข้อ 8 · ถ้า sound-designer ต้องการรูปแบบอื่น ส่ง handoff ถึง tech-lead ก่อนแก้ ไม่งั้น hook ตก (ยืนยัน: sound-designer)
 - [ASSUMPTION A-P2-F06-T07-3] ตัวเลขทุกตัวใน `tools/art/pipeline.config.json` คัดจาก asset-pipeline 7 และ avatar-spec 6/7.4 · art-director ปรับงบ ±30% ตาม A-P1-F03-T11-8 ได้โดยแก้เอกสารแล้วแจ้ง tech-lead แก้ config (ยืนยัน: art-director)
+- [ASSUMPTION A-P2-X21-6] `vite preview` เสิร์ฟ `/kw/` เหมือน `vite dev` · **ยืนยันแล้ว (tech-lead, P2-H12, 2026-09-27)**: `configurePreviewServer` ลง middleware เดียวกัน และ probe จริงได้ 200 ทั้ง manifest และฟอนต์ · ข้อจำกัด: preview อ่านจาก `tools/art/out/client/` ไม่ใช่ `dist/kw/` จึงไม่ได้พิสูจน์ว่า `closeBundle` copy ถูก (ดูความเสี่ยงและส่งต่อด้านล่าง)
 - [ASSUMPTION A-P2-F06-T07-4] SVGO ยังไม่เป็น dependency (task นี้แก้ lockfile ไม่ได้) · config อยู่ที่ `tools/art/svgo.config.mjs` และรันผ่าน `pnpm dlx` เมื่อจำเป็น · V7 ป้องกันผลที่ SVGO อาจทำพัง (miter, สี) อยู่แล้ว (ยืนยัน: tech-lead ในงาน dependency ถัดไป)
 
 ความเสี่ยง
@@ -266,12 +281,14 @@ environment อ่านจาก `env.ts` ที่มีอยู่ของ 
 | path build อื่นข้าม root build (หัวข้อ 3) | client ได้ชุด asset ว่าง ใช้ fallback ทั้งหมด | ปิดโดย P2-X22: prebuild อยู่ใน script ของ `apps/client` ที่ทุกทางใช้ |
 | `art/assets/manifest.json` โตเกิน 60 KB (101,448 B ที่ 88 entry) | V13 เตือน | ปิดโดย P2-X22: tools/art อ่านทะเบียนแยกตาม root (10.1) · เหลือ artist-2d ย้าย entry (ส่งต่อด้านล่าง) |
 | `manifest.icon.json` โตเกินงบใน Phase 3 (วันนี้ 83%) | V13 เตือน | แยกต่อตาม group (10.1 ข้อท้าย) |
+| `closeBundle` copy ไป `dist/kw/` พัง แต่ e2e ยังผ่าน เพราะ preview เสิร์ฟจาก `tools/art/out/client/` (P2-H12) | deploy ได้ `/kw/*` 404 ทั้งชุด client ไป fallback ทั้งหมด โดยไม่มี test ใดจับ | ส่งต่อ gameplay-programmer ด้านล่าง (ไม่ block) · ระหว่างนี้ตรวจด้วย `curl` ตาม `infra/runbooks/preview-setup.md` หลัง deploy |
+| header cache ของ `/kw/*` มีสองที่ (P2-H12) | ค่าเลื่อนจากกัน | ปิดโดย 6.2.1: `_headers` ของ Pages เป็นแหล่งเดียว middleware ห้ามจำลอง |
 
 ส่งต่อ
 | ถึง | เรื่อง |
 | --- | --- |
 | gameplay-programmer (P2-F05-T10, P2-F06-T09) | implement หัวข้อ 6: copy `tools/art/out/client/` → `dist/kw/`, loader ของ `asset-manifest.json`, `@font-face` จาก `fonts[]`, เสียงตาม `audio[cueId]`, fallback 6.4, หน้าเครดิตจาก `credits[]` · (script `build`/`dev` รัน prebuild แล้ว: P2-X22) |
-| devops-engineer (P2-F04-T08 / P2-F06-T16) | header 6.2 ใน `_headers` · `deploy-preview.yml` ได้ `tools/art/out/client` จาก script build ของ client แล้ว (P2-X22) · ถ้า V12 ต่าง platform ให้เพิ่มขั้น build อวตารใน CI |
+| devops-engineer (P2-F04-T08 / P2-F06-T16) | header 6.2 ใน `_headers`: **ปิดแล้ว** (P2-H12 ตรวจ `infra/pages/keep-walking-preview/_headers` มีครบ 5 กฎ `/kw/*` และ `publish-client.sh` copy เข้า `dist/`) · ไม่มีงาน infra ใหม่จาก P2-H12 · เมื่อสร้าง Pages project production ให้ทำตามกฎ 1 ของ 6.2.1 · `deploy-preview.yml` ได้ `tools/art/out/client` จาก script build ของ client แล้ว (P2-X22) · ถ้า V12 ต่าง platform ให้เพิ่มขั้น build อวตารใน CI |
 | sound-designer (P2-F05-T06, P2-F06-T13) | สัญญาหัวข้อ 8 |
 | artist-2d (P2-F05-T04, P2-F05-T07) | รัน `build --write` แล้ว commit PNG + `manifest.build.json` · ลงทะเบียน `map.icon.rift-crack` ตาม brief 3.10 (validator ตรวจ miter ให้แล้ว) |
 | qa-tester | test hook: `pnpm exec tsx tools/art/src/cli.ts validate`, `tools/art/test/*.test.ts`, `asset-manifest.json` สำหรับตรวจ fallback |
@@ -280,4 +297,5 @@ environment อ่านจาก `env.ts` ที่มีอยู่ของ 
 | art-director (P2-X22) | บันทึกรูปแบบ 10.1 ใน asset-pipeline 2 (โครงโฟลเดอร์), 6 (ระบุว่าทะเบียนมีหลายไฟล์ schema เดียว) และ 7.2 (ข้อเสนอแยกไฟล์ปิดแล้ว) |
 | devops-engineer (P2-X22) | ลบบรรทัด `pnpm exec tsx tools/art/src/cli.ts prebuild` (และ log นำหน้า) ใน `infra/scripts/publish-client.sh` เพราะ `pnpm --filter @keep-walking/client build` รันให้แล้ว (หัวข้อ 3) |
 | tech-lead (P2-X24) | ปิดแล้ว: root `build` = `pnpm -r --if-present run build` |
-| gameplay-programmer (P2-X24 · งานถัดไปใน `apps/client/src/assets/`) | (1) type `RuntimeManifest` เพิ่ม `parts?: Record<string, { url: string; bytes: number }>` และ loader ของ part avatar ตาม 6.1/6.4 (ยังไม่มี renderer อวตาร จึงยังไม่มีอะไรพัง) · (2) type เดิมไม่ตรงกับที่ stage จริง: `RuntimeAssetSheet` ใช้ `columns`/`rows: number` แต่จริงคือ `cols`/`rows: string[]` (+ `frames?`, `fps?`) และ `variants` จริงคือ `{ axis, values }` ไม่ใช่ `string[]` · แหล่งจริง `tools/art/src/manifest.ts` `ManifestEntry` · (3) Vite ยังไม่ copy `tools/art/out/client/` ไป `dist/kw/` (`pnpm build` แล้วไม่มี `dist/kw/`) ตาม 6.1 |
+| gameplay-programmer (P2-X24 · งานถัดไปใน `apps/client/src/assets/`) | (1) type `RuntimeManifest` เพิ่ม `parts?: Record<string, { url: string; bytes: number }>` และ loader ของ part avatar ตาม 6.1/6.4 (ยังไม่มี renderer อวตาร จึงยังไม่มีอะไรพัง) · (2) type เดิมไม่ตรงกับที่ stage จริง: `RuntimeAssetSheet` ใช้ `columns`/`rows: number` แต่จริงคือ `cols`/`rows: string[]` (+ `frames?`, `fps?`) และ `variants` จริงคือ `{ axis, values }` ไม่ใช่ `string[]` · แหล่งจริง `tools/art/src/manifest.ts` `ManifestEntry` · (3) Vite ยังไม่ copy `tools/art/out/client/` ไป `dist/kw/` (`pnpm build` แล้วไม่มี `dist/kw/`) ตาม 6.1 · ข้อ (3) ปิดแล้วโดย P2-X21 (`kwAssetStagePlugin()` `closeBundle`, ตรวจใน P2-H12) |
+| gameplay-programmer (P2-H12 · ไม่ block · ไม่ต้องแก้ header) | middleware `/kw/` ไม่ต้องเพิ่ม `Cache-Control` (6.2.1 กฎ 2) · ข้อเสนอให้ทำในงานถัดไปที่แตะ `apps/client/vite.config.ts`: ให้ `configurePreviewServer` เสิร์ฟจาก `dist/kw/` (outDir ที่ resolve แล้ว) แทน `tools/art/out/client/` เพื่อให้ e2e พิสูจน์ผลของ `closeBundle` ด้วย · `configureServer` (dev) คงอ่าน `tools/art/out/client/` ตามเดิม |

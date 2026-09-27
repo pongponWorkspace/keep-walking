@@ -1,6 +1,6 @@
 // QA's own trace generator wrapper (P2-F04-T19, tech-lead N-08). Reuses the location-engineer's
 // builder primitives from tools/traces (never forked, never modified: this file only imports
-// them) but stamps `meta.kind = 'qa'` instead of `tools/traces`'s hardcoded 'synthetic', and
+// them) but builds with `meta.kind = 'qa'` instead of `tools/traces`'s default 'synthetic', and
 // writes into data/gps-traces/qa/ instead of data/gps-traces/synthetic/.
 //
 // Naming follows data/gps-traces/README.md section 3: `qa-<situation>-<seq 2-digit>`, same
@@ -43,13 +43,10 @@ export interface QaGenerated {
   readonly trace: GpsTrace;
 }
 
-/** `TraceBuilder.build()` always stamps `meta.kind = 'synthetic'` (it is location-engineer's
- * builder for its own synthetic/ corpus). QA overrides just that one field afterwards rather than
- * forking or editing tools/traces/src/builder.ts. */
-function asQaTrace(trace: GpsTrace): GpsTrace {
-  return { ...trace, meta: { ...trace.meta, kind: 'qa' } };
-}
-
+/** `TraceBuilder.build()` defaults to `meta.kind = 'synthetic'` unless the header (or `build()`
+ * itself) says otherwise (tools/traces/src/builder.ts, P2-F04-T23 N-06 added `TraceHeader.kind`
+ * for exactly this). QA passes `kind: 'qa'` through the header — never a post-build patch, and
+ * never a fork of tools/traces/src/builder.ts. */
 export function generateQa(
   def: QaScenarioDef,
   cfg: TraceConfig,
@@ -57,13 +54,14 @@ export function generateQa(
 ): QaGenerated {
   const b = new TraceBuilder({
     id: def.id,
+    kind: 'qa',
     scenario: def.scenario,
     seed,
     description: def.description,
     environment: def.environment,
   });
   def.build({ rng: createRng(seed), cfg }, b);
-  return { def, trace: asQaTrace(b.build()) };
+  return { def, trace: b.build() };
 }
 
 export function generateAllQa(defs: readonly QaScenarioDef[], cfg: TraceConfig): QaGenerated[] {

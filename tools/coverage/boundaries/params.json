@@ -60,6 +60,12 @@
     "maxFileBytes": 51200,
     "output": "../../data/map/playable-provinces.geojson"
   },
+  "studyDistricts": {
+    "_note": "P2-H26 (D-126): every study-area district with a stable camelCase id (boundaries/districts.py). input is the git-ignored pipeline output (extract step only); output is committed and checked by `build --check` in pnpm test. Ids must equal launchArea.districts ids and config/content/names.th.json district.<id> keys.",
+    "input": "out/boundaries.geojson",
+    "output": "../../data/map/study-districts.json",
+    "maxFileBytes": 20480
+  },
   "maxFileBytes": 307200,
   "attribution": "© OpenStreetMap contributors (ODbL)",
   "outputs": {

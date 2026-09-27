@@ -12,19 +12,18 @@ import { gateWindows, traceStats } from '../../../tools/traces/src/metrics';
 import { loadTraceConfig } from './lib/qa-builder';
 import { loadCommittedTrace } from './lib/load-trace';
 
+// `gateWindows` takes the full TraceConfig (loadTraceConfig()) directly — the first-draft
+// GateOptions shape (tools/traces/src/metrics.ts, window_s/minDistance_m/comparison only) is
+// `@deprecated`; passing `cfg` here gives identical windows since GateOptions was always just
+// those three fields carved out of the same config.
 const cfg = loadTraceConfig();
-const gateOpts = {
-  window_s: cfg.gateWindow_s,
-  minDistance_m: cfg.gateMinDistance_m,
-  comparison: cfg.gateComparison,
-};
 const SYNTHETIC = 'data/gps-traces/synthetic/';
 const QA = 'data/gps-traces/qa/';
 
 describe('E3 — synthetic-table-still-01 (location-engineer, read-only): a still phone gives 0 passing windows', () => {
   it('no 5-minute sliding window clears minDistancePerWindow_m', () => {
     const trace = loadCommittedTrace(`${SYNTHETIC}synthetic-table-still-01.trace.json`);
-    const windows = gateWindows(trace.samples, gateOpts);
+    const windows = gateWindows(trace.samples, cfg);
     expect(windows.length).toBeGreaterThan(0);
     expect(windows.every((w) => !w.pass)).toBe(true);
   });
@@ -33,7 +32,7 @@ describe('E3 — synthetic-table-still-01 (location-engineer, read-only): a stil
 describe('E4 — synthetic-bench-jitter-01 (location-engineer, read-only): natural jitter on a bench still clears the gate', () => {
   it('every 5-minute sliding window clears minDistancePerWindow_m', () => {
     const trace = loadCommittedTrace(`${SYNTHETIC}synthetic-bench-jitter-01.trace.json`);
-    const windows = gateWindows(trace.samples, gateOpts);
+    const windows = gateWindows(trace.samples, cfg);
     expect(windows.length).toBeGreaterThan(0);
     expect(windows.every((w) => w.pass)).toBe(true);
   });
@@ -58,7 +57,7 @@ function findGap(trace: ReturnType<typeof loadCommittedTrace>): {
 describe('qa-movement-gap-400m-01 — the ~400 m walked during the 5-minute signal loss is not counted (F05 G2, GD B-04)', () => {
   const trace = loadCommittedTrace(`${QA}qa-movement-gap-400m-01.trace.json`);
   const stats = traceStats(trace);
-  const windows = gateWindows(trace.samples, gateOpts);
+  const windows = gateWindows(trace.samples, cfg);
   const gap = findGap(trace);
 
   it('has a real ~5-minute gap and a ~30-minute walk, matching the scenario description', () => {

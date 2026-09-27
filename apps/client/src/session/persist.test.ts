@@ -83,14 +83,12 @@ describe('session persistence', () => {
     expect(loaded?.ok && loaded.state.pre.chainStartAt_ms).toBeNull();
   });
 
-  // KNOWN GAP (handoff: backend-programmer, `packages/shared/src/session/persistence.ts`):
-  // `SessionState.latestSample`'s own doc comment says "not persisted (same privacy class as
-  // `pre`, tech note F04 7.2)", and F04 10.1 documents the same intent, but the real `toPersisted`
-  // (landed P2-X10) only strips `pre` — it does not null out `latestSample` before the envelope is
-  // serialized. This test records today's actual (privacy-relevant) behavior rather than asserting
-  // the intended one, so it stays honest instead of silently masking the gap; see this task's
-  // REPORT for the handoff. Flip this assertion once `toPersisted` also strips `latestSample`.
-  it('CURRENTLY still writes latestSample to storage (see KNOWN GAP comment above)', () => {
+  // P2-H02 (`packages/shared/src/session/persistence.ts`): `toPersisted` now strips every
+  // coordinate-bearing field before the envelope is serialized — `latestSample` (this test), plus
+  // `lock.lastAccurate` and the gate `filter`/`grid` inside `run.reward`/`run.rewardScratch`
+  // (`stripCoordinates`/`stripGateAccumulator`). This test previously recorded the opposite (a
+  // KNOWN GAP handoff to backend-programmer); it now asserts the fixed, intended behavior.
+  it('never persists latestSample or any raw lat/lng value', () => {
     const storage = createMemoryStorage();
     const state = createSession(1000, params);
     const withSample = {
@@ -99,6 +97,9 @@ describe('session persistence', () => {
     };
     saveSession(storage, KEY, withSample, 1000, NOOP_QUOTA_DEPS);
     const raw = storage.getItem(KEY) ?? '';
-    expect(raw).toContain('13.7');
+    expect(raw).not.toContain('13.7');
+    expect(raw).not.toContain('100.5');
+    const loaded = loadSession(storage, KEY, params);
+    expect(loaded?.ok && loaded.state.latestSample).toBeNull();
   });
 });

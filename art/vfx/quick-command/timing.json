@@ -1,0 +1,20 @@
+{
+  "_meta": {
+    "task": "P2-F06-T05",
+    "owner": "vfx-animator",
+    "source": "art/vfx/specs/motion-direction.md §5 · art/direction/avatar-spec.md §10 · audio/cue-list.md §3 (qc.sent/qc.received, shared cue for all 10)",
+    "integrationNote": "client wiring into a live Nearby Party card is Phase 3 F09 scope (board 1.9) — this module is demoable/testable standalone today, same precedent as rarity-reveal.ts/tick-feedback.ts ahead of P2-F05-T10"
+  },
+  "qc.arrived": { "durationMs": 700, "easing": "ease-out", "properties": ["transform"], "face": "smile", "pose_prop": null },
+  "qc.onMyWay": { "durationMs": 900, "easing": "ease-out", "properties": ["transform"], "face": "wince", "pose_prop": null },
+  "qc.goOn": { "durationMs": 400, "easing": "ease-out", "properties": ["transform"], "face": "smile", "pose_prop": null },
+  "qc.needHeal": { "durationMs": 800, "easing": "ease-out", "properties": ["transform"], "face": "wince", "pose_prop": null },
+  "qc.hpCritical": { "durationMs": 600, "easing": "ease-out", "properties": ["transform"], "face": "dizzy", "pose_prop": null },
+  "qc.needCover": { "durationMs": 500, "easing": "ease-out", "properties": ["transform"], "face": "wince", "pose_prop": "shield" },
+  "qc.needBreak": { "durationMs": 900, "easing": "ease-in-out", "properties": ["transform"], "face": "content", "pose_prop": "cup" },
+  "qc.retreating": { "durationMs": 700, "easing": "ease-out", "properties": ["transform"], "face": "content", "pose_prop": null },
+  "qc.goodDrop": { "durationMs": 500, "easing": "ease-out", "properties": ["transform"], "face": "smile", "pose_prop": null },
+  "qc.thanks": { "durationMs": 350, "easing": "ease-out", "properties": ["transform"], "face": "smile", "pose_prop": null },
+  "cueId (all 10, shared)": "qc.sent (sender) / qc.received (recipient), audio/cue-list.md §3, vibration_ms [15] identical for all 10 — meaning is carried by glyph + copy text, not by sound/vibration shape",
+  "reducedMotion": { "durationMs": 100, "properties": ["opacity"], "note": "shared reducedFade() for all 10 — cross-fades to whatever discrete pose/face/prop state the caller already swapped in" }
+}

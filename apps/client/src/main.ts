@@ -1,5 +1,11 @@
 import './app.css';
-import { readBuildProfile, readMapEnv, withTestEnvOverrides, hasRuntimeMapEnv } from './env';
+import {
+  readBuildProfile,
+  readMapEnv,
+  withTestEnvOverrides,
+  hasRuntimeMapEnv,
+  shouldSkipF04App,
+} from './env';
 import type { createMap, CreateMapResult } from './map';
 import { clientConfig, appPrivacyConfig } from './config/runtime';
 import {
@@ -202,38 +208,68 @@ async function initLocation(
       injectFontFaces(document, manifest);
     }
   });
-  setTimeout(() => {
-    const gameClock = createGameClock(
-      provider,
-      resolveReplayStartMs(
-        window.location.search,
-        clientConfig.providerQuery.paramNames.start,
-        balanceOpeningHoursConfig.utcOffsetMin,
-      ),
-    );
-    f04App = createF04App({
-      map: mapResult?.map,
-      hudContainer: hudElement,
-      storage: window.localStorage,
-      sessionId: crypto.randomUUID().slice(0, TELEMETRY_SESSION_ID_HEX_LENGTH),
-      appVersion,
-      platform: 'web',
-      vibrate: (pattern_ms) => navigator.vibrate?.(pattern_ms),
-      isOnline: () => navigator.onLine,
-      userAgent: navigator.userAgent,
-      maxTouchPoints: navigator.maxTouchPoints,
-      assets: assetRuntime,
-      copyToClipboard: async (text) => {
-        try {
-          await navigator.clipboard.writeText(text);
-          return true;
-        } catch {
-          return false;
-        }
-      },
-    });
-    window.setInterval(() => f04App?.onTick(gameClock.now()), clientConfig.engine.tickInterval_ms);
-  }, 0);
+  // `e2eSkipF04App=1` (P2-H03/P2-F05-T10): a map-only spec that injects its own dungeon source
+  // data must never race against this task's own periodic `refreshMapDungeons` (below) silently
+  // overwriting it — skip building `f04App` and its tick interval entirely rather than adding a
+  // per-spec workaround. Everything else in this function (the provider itself, the HUD, the map
+  // layers) still wires up normally; `f04App` simply stays `undefined`, and every call site below
+  // already reads it through `f04App?.` for exactly this reason.
+  if (!shouldSkipF04App(window.location.search)) {
+    setTimeout(() => {
+      const gameClock = createGameClock(
+        provider,
+        resolveReplayStartMs(
+          window.location.search,
+          clientConfig.providerQuery.paramNames.start,
+          balanceOpeningHoursConfig.utcOffsetMin,
+        ),
+      );
+      f04App = createF04App({
+        map: mapResult?.map,
+        hudContainer: hudElement,
+        storage: window.localStorage,
+        sessionId: crypto.randomUUID().slice(0, TELEMETRY_SESSION_ID_HEX_LENGTH),
+        appVersion,
+        platform: 'web',
+        vibrate: (pattern_ms) => {
+          if (typeof pattern_ms === 'number') {
+            navigator.vibrate?.(pattern_ms);
+          } else {
+            navigator.vibrate?.([...pattern_ms]);
+          }
+        },
+        isOnline: () => navigator.onLine,
+        userAgent: navigator.userAgent,
+        maxTouchPoints: navigator.maxTouchPoints,
+        assets: assetRuntime,
+        copyToClipboard: async (text) => {
+          try {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        // `assets/audio-player.ts`'s only real-playback call site (docs/tech/asset-delivery.md
+        // section 8, F05 flow Flow A): a fresh `Audio` element per cue, fire-and-forget — a
+        // rejected `play()` (autoplay policy, missing file) never blocks or throws (visual
+        // feedback is the guaranteed baseline regardless, audio/cue-list.md 4.4).
+        playAudioUrl: (url) => {
+          const audio = new Audio(url);
+          void audio.play().catch(() => undefined);
+        },
+        // Same clock `onTick` below already uses (`gameClock.now()`) — a tap dispatched through
+        // `Date.now()` instead would drift from the replayed `now_ms` under a Mock trace at
+        // `speed=60` (P2-F05-T10); `createWebGameClock` is `Date.now` itself, so production (`loc=
+        // web`) behavior is byte-for-byte the same as before this change.
+        now: () => gameClock.now(),
+      });
+      window.setInterval(
+        () => f04App?.onTick(gameClock.now()),
+        clientConfig.engine.tickInterval_ms,
+      );
+    }, 0);
+  }
 
   wireProvider(provider, {
     onStateChange: (state) => {

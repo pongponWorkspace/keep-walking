@@ -2,7 +2,7 @@
 
 | หัวข้อ | ค่า |
 | --- | --- |
-| task | P2-F06-T04 · เจ้าของ tech-lead · วันที่ 2026-09-26 · สถานะ: ฉบับแรก (สัญญาสำหรับ P2-F06-T06, P2-F06-T08, P2-F06-T09, P2-F06-T17, qa-tester) · แก้ P2-X16 2026-09-27: ถอน consent ระหว่าง run (8.4, B-06, D-116), เวลาที่เหลือถึง 50% (6.2), ยืนยัน J-P2-T30-4 (15) |
+| task | P2-F06-T04 · เจ้าของ tech-lead · วันที่ 2026-09-26 · สถานะ: ฉบับแรก (สัญญาสำหรับ P2-F06-T06, P2-F06-T08, P2-F06-T09, P2-F06-T17, qa-tester) · แก้ P2-X16 2026-09-27: ถอน consent ระหว่าง run (8.4, B-06, D-116), เวลาที่เหลือถึง 50% (6.2), ยืนยัน J-P2-T30-4 (15) · แก้ P2-X31 2026-09-27: 9.1–9.2 รอยแยกที่แนะนำของ onboarding ตาม F06-R37 ฉบับ P2-X15 (K-11, D-116 · ไม่มีทางสำรองนอกช่วงเลเวล) |
 | คู่กับ | `docs/tech/F04-dungeon-presence.md` (tech note F04: `sessionStep`, เวลา, `H`, ลำดับ 9.3, storage, telemetry) · `docs/tech/F05-movement-gate-reward.md` (tech note F05: `ActiveClock`, tick, drop, การจ่ายตอนจบ run) |
 | อ้างอิง | ADR 0003 (3.1 โมดูล, 3.2 สัญญา reducer, 3.4 C1-1/C1-5, 6.4 stream `hit`, 7 `PresenceStrategy`) · `design/features/F06-hp-damage-onboarding.md` (spec F06, R01–R58, H-E1–H-E24) · `design/systems/balance-model.md` 3.1, 3.1.1 (R-B1), 17 · `design/systems/test-vectors/{damage,run-loop}.json` · `tools/sim/src/{hit,loop}.ts` (reference) · `product/telemetry-events.md` · D-020, D-038 B, D-078, D-089, D-094, D-096, D-110 (PROPOSED) |
 | ผู้ใช้เอกสาร | backend-programmer (`src/hp`, `src/session`), gameplay-programmer (จอ run, ตั้งค่า, onboarding, จอที่บ้าน), systems-designer (key + vector), qa-tester (test plan), product-manager (telemetry) |
@@ -449,15 +449,24 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 | mask ย่านเปิดตัว | key ใหม่ที่เสนอ `balance.unlocks.home.launchAreaMaskPath` (สตริง path แบบเดียวกับ `outOfAreaMaskPath` ตาม P2-X06 · แทนชื่อ `seeLaunchAreaMask` ใน spec) · `null` = ยังไม่มี geometry → ใช้ R55 |
 | dungeon | artifact (tech note F04 13) + `selectOpening(dungeonId, now_ms, params)` |
 | เลเวลผู้เล่น | `selectPlayerView` |
+| อยู่ใน onboarding หรือไม่ | `!selectPlayerView(...).firstRewardDone` (= `player.lifetimeTicksGranted = 0` · 8.2 · แหล่งเดียวกับขั้น `first_reward`) |
+
+นิยาม **ครอบเลเวล**: `level_range.min ≤ level ≤ level_range.max` (ปลายทั้งสองรวม · `level_range` จาก artifact dungeon, `level` ณ ขณะประเมิน)
 
 ### 9.2 ลำดับการตัดสิน (ข้อแรกที่เข้าเงื่อนไขชนะ)
 
 1. **ไม่รู้ตำแหน่ง** (`unknown`): `consent.location ≠ granted` หรือ permission ถูกปฏิเสธ หรือไม่มี fix หรือ accuracy แย่ตาม `balance.location.homeState.{maxAccuracy_m, sustainedPoorAccuracy_s}`
 2. **นอกพื้นที่** (`out_of_area`): `!inPlayArea(pt, playAreaMask)` (geo · อยู่นอกรูของ mask · ไม่ใช่ระยะ D-064)
-3. หา dungeon ที่ **เปิดอยู่** ณ `now_ms`: ระยะ `d = pointInPolygon(pt, g) ? 0 : boundaryDistance_m(pt, g)` (ระยะเส้นตรงถึงขอบ polygon ก่อนปัด · F04-R34, R35)
-4. **ไกล** (`far`): ไม่มี dungeon เปิดที่ `d ≤ farDungeonThreshold_m` · ย่อย `temporarilyClosed` เมื่อมี dungeon ในเกณฑ์แต่ปิดทั้งหมด (แสดงเวลาเปิดถัดไป · H-E21)
+3. หา dungeon ที่ **เปิดอยู่** ณ `now_ms`: ระยะ `d = pointInPolygon(pt, g) ? 0 : boundaryDistance_m(pt, g)` (ระยะเส้นตรงถึงขอบ polygon ก่อนปัด · F04-R34, R35) · **ชุดที่ใช้ตัดสินข้อ 4–5**: ระหว่าง onboarding (`lifetimeTicksGranted = 0`) = เฉพาะ dungeon ที่ครอบเลเวล (R37) · หลังจบ onboarding = dungeon ทั้งหมด (R50 ตามเดิม)
+4. **ไกล** (`far`): ไม่มี dungeon เปิดในชุดของข้อ 3 ที่ `d ≤ farDungeonThreshold_m`
+   - หลังจบ onboarding: ย่อย `temporarilyClosed` เมื่อมี dungeon ในเกณฑ์แต่ปิดทั้งหมด (แสดงเวลาเปิดถัดไป · H-E21) · ระยะ ทิศ และปุ่มนำทางชี้ dungeon เปิดที่ใกล้สุด (R52 ข้อ 1)
+   - ระหว่าง onboarding (R37 ข้อ 1–2): ไม่มี dungeon ที่ครอบเลเวลเปิดอยู่เลย (ทุกระยะ) → `temporarilyClosed` แสดงเวลาเปิดถัดไปของแห่งที่ครอบเลเวล ไม่มีการ์ดแนะนำ (R37 ข้อ 2) · เวลาที่แสดง = เวลาเปิดถัดไปของแห่งที่ครอบเลเวลที่ใกล้สุด (ทางเดียวกับทิศและปุ่มนำทาง · A-P2-X31-1) · ไม่มี dungeon ใดครอบเลเวลเลยใน artifact = `temporarilyClosed` ที่ไม่มีเวลาและไม่มีเป้า (บั๊กของข้อมูล ไม่ใช่สถานะของเกม · build dungeon ควรตรวจว่าเลเวล 1 ถูกครอบ) · มีแห่งที่ครอบเลเวลเปิดอยู่แต่นอกเกณฑ์ → `far` ที่ระยะ ทิศ และปุ่มนำทางชี้ dungeon **ที่ครอบเลเวลและเปิดอยู่** ใกล้สุด ไม่ใช่ dungeon ใกล้สุดทั่วไป (R37 ข้อ 1, H-E26) · dungeon เปิดที่ไม่ครอบเลเวลภายในเกณฑ์ไม่ทำให้เป็น `near`
    - **นอกย่านเปิดตัว** (`outside_launch_district`): เป็น `far` และ `launchAreaMaskPath ≠ null` และ `!pointInPolygon(pt, launchMask)` · ถ้า `launchAreaMaskPath = null` ทุกคนที่เป็น `far` (ไม่ใช่ `temporarilyClosed`) เห็นการลงทะเบียนรายเขต (R55, A-P2-F06-T02-1)
-5. **ใกล้** (`near`): รอยแยกที่แนะนำ = dungeon เปิดที่ใกล้สุดภายในเกณฑ์ที่ช่วงเลเวลครอบเลเวลผู้เล่น · ไม่มีก็ใช้ dungeon เปิดที่ใกล้สุดภายในเกณฑ์ (R37 · ห้ามแนะนำ dungeon ที่ปิด)
+5. **ใกล้** (`near`): มี dungeon เปิดในชุดของข้อ 3 ภายในเกณฑ์ · รอยแยกที่แนะนำ:
+   - ระหว่าง onboarding: dungeon ใกล้สุดที่ **เปิดอยู่ และ** ครอบเลเวล ภายในเกณฑ์ · ต้องครบทั้งสองเงื่อนไข **ไม่มีทางสำรอง** ไป dungeon ที่ไม่ครอบเลเวล (F06-R37, K-11, D-116, F04-R33)
+   - หลังจบ onboarding: dungeon เปิดที่ใกล้สุดภายในเกณฑ์ที่ครอบเลเวลก่อน · ไม่มีก็ใช้ dungeon เปิดที่ใกล้สุดภายในเกณฑ์ (F04-R33 "ก่อน" · ไม่ใช่ R37)
+   - ทั้งสองช่วงห้ามแนะนำ dungeon ที่ปิด (F04-R33, D-089) · dungeon ที่ไม่ถูกแนะนำยังแสดงบนแผนที่พร้อมช่วงเลเวลจริง และเข้าได้ตาม R05, F04-R32 (ไม่ซ่อน แค่ไม่แนะนำ · R37 ข้อ 3) · `home-state.ts` คืนแค่ id ของแห่งที่แนะนำ ไม่กรองรายการบนแผนที่
+   - onboarding ค้างที่ `O-home` จนกว่าข้อ 5 จะเป็นจริงด้วยชุดของ onboarding (R37 ข้อ 3) · การเปลี่ยนชุดเกิดเองเมื่อ `lifetimeTicksGranted > 0` ไม่มีธงแยก
 
 - ประเมินเมื่อเปิดแอป และเมื่อตำแหน่งขยับเกิน `reevaluateDistance_m` จากจุดที่ประเมินครั้งก่อน (`haversine_m`) และเมื่อ `selectOpening` ของ dungeon ในเกณฑ์เปลี่ยน · จุดที่ประเมินครั้งก่อนอยู่ในหน่วยความจำเท่านั้น
 - ระยะที่แสดง = `ceil(d / step_m) × step_m` ตาม `distanceDisplaySteps_m` (F04-R34 · ฟังก์ชัน `displayDistance` ของ P2-F04-T25) · ทิศเป็นลูกศรเท่านั้น ไม่วาดเส้น (F04-R36)
@@ -571,6 +580,7 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 | ดูค่า | `window.__kwSession` (เฉพาะ `hud=1`) เพิ่ม `selectPlayerView` และ `selectRunView.hp` (ไม่มีพิกัด ไม่มี `nextAttemptTau_ms`) | e2e assertion |
 | ไม่มีทางเพิ่มยา | e2e / tech gate: ไม่มี query, input หรือปุ่ม debug ที่เพิ่ม inventory | B-06 |
 | ถอน consent ระหว่าง run | Mock trace เดินใน dungeon → ตั้งค่า → ถอน consent ตอน Active, ตอน Grace และตอน Suspended (อย่างละครั้ง) · assert: `lastSummary.exitReason = manual_exit`, ของครบ, ไม่มี `run_state_changed` หลังกด, Mock provider หยุด (ไม่มี sample ถูกส่งเข้า `sessionStep` หลังกด), `selectPlayerView` ใช้ได้, `kw.p2.session` ไม่มี `lat`/`lng`, `kw.p2.consent.location = withdrawn` | 8.4, spec F06 หัวข้อ 8 ข้อ 18 |
+| รอยแยกที่แนะนำ (R37) | unit test ของ `home-state.ts` (pure · ไม่ต้องใช้ Mock) · กรณีบังคับ: (ก) onboarding + แห่งไม่ครอบเลเวลใกล้กว่าในเกณฑ์ + แห่งครอบเลเวลในเกณฑ์ → แนะนำแห่งที่ครอบ (ข) onboarding + มีแค่แห่งไม่ครอบในเกณฑ์ + แห่งครอบเปิดอยู่นอกเกณฑ์ → `far` ชี้แห่งที่ครอบ ไม่มี id แนะนำ (H-E26) (ค) onboarding + แห่งที่ครอบปิดทั้งหมด → `temporarilyClosed` เวลาของแห่งที่ครอบใกล้สุด (ง) หลัง onboarding + กรณี (ข) → `near` แนะนำแห่งไม่ครอบ (F04-R33 ทางสำรอง) (จ) แห่งที่ปิดไม่ถูกแนะนำทุกกรณี · assert ว่าไม่มีกรณี onboarding ใดคืน id ที่ไม่ครอบเลเวล | 9.2 ข้อ 3–5, spec F06 หัวข้อ 8 ข้อ 12 |
 | เวลาที่เหลือถึง 50% | ตาย → reload ที่ `start` +10 นาที → `recoveryTimeLeft_ms` ≈ 20 นาที (± 1 วิ ที่ VIT 0) · +30 นาที → `null` และไม่ Recovering | 6.2 |
 
 - selector ใหม่ของ `session`: `selectPlayerView(state, now_ms, params)` → `{ classId, level, exp, expToNext, statPointsUnspent, hp, maxHp, hpRatio, recovering, recoveryTimeLeft_ms, recoveryTo_pct, autoRetreatEnabled, inventory, firstRunEntered, firstRewardDone }` (`recoveryTimeLeft_ms` ตาม 6.2 · P2-X16) · `selectRunView(...).hp` → `{ hp, maxHp, hpRatio, shield, belowWarningLine, autoRetreatEnabled }` · `selectCanClearLocalData(state)` · ตัวเลข HP ที่แสดงใช้ `Math.ceil` (ผู้เล่นที่ยังมี HP ไม่เห็น 0 · แถบใช้ `hpRatio` ตรง)
@@ -590,6 +600,7 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 - A-P2-F06-T04-4: การฟื้นหลังตายใช้อัตรา `outsideDungeonRegen_pctMaxHpPerMin` ตัวเดียว · `deathRecoveryDuration_s` เป็นค่าตรวจความสอดคล้อง ±1 วิ (6.2) · owner: systems-designer
 - A-P2-F06-T04-5: เหตุ `no_class`, `no_hp` ของ `checkin_rejected` (6.3) · owner: game-director (กฎ), product-manager (enum telemetry)
 - A-P2-F06-T04-6: หน้าต่างที่ค้างตอนปิดแต่ `e < partialTickMinElapsed_s` ส่ง `run_tick_denied { partial: true }` หนึ่งครั้ง (10.2) · owner: product-manager, backend-programmer
+- A-P2-X31-1: `temporarilyClosed` ระหว่าง onboarding (9.2 ข้อ 4) แสดงเวลาเปิดถัดไปของ dungeon ที่ครอบเลเวลที่ **ใกล้สุด** ไม่ใช่แห่งที่เปิดเร็วสุด · เหตุผล: เป้าเดียวกับทิศและปุ่มนำทาง · spec R37 ข้อ 2 ไม่ระบุว่าแห่งใด · owner: game-director (กฎ), uiux-designer (จอ)
 - A-P2-F06-T04-7: key `unlocks.home.launchAreaMaskPath` (สตริง path, `null` = ยังไม่มี) แทน `seeLaunchAreaMask` ที่ spec เสนอ (9.1) · owner: systems-designer (key), location-engineer (ข้อมูล)
 - A-P2-X16-1: การถอน consent ในแอประหว่าง run ใช้ `exitReason = manual_exit` และ input `exit` เดิม (8.4) · telemetry แยกไม่ได้จนกว่า PM จะประกาศ `location_consent_withdrawn` · owner: product-manager (telemetry), game-director (ยืนยันว่าไม่ต้องแยกเชิงกติกา)
 - A-P2-X16-2: permission ที่เบราว์เซอร์ถอนเอง (ไม่ได้กดในแอป) ไม่ใช่การถอน consent ตาม R48 ข้อ 2 จึงเดินตาม F04-R13 (FH-18) · owner: game-director

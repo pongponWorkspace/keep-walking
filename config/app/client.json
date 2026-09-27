@@ -117,6 +117,13 @@
     "_note": "apps/client/src/f04-app.ts's only two vibrate() call sites outside the HUD probe (client.json#probe.vibrateTestPattern_ms, a different button for a different purpose).",
     "_assumption": "A-P2-F04-T21-1: 200 ms reuses the probe's already-approved single-pulse length rather than inventing a new untuned number; revisit once a real-device pass (P2-C03) or an art/vfx brief gives a designed pattern. Owner: gameplay-programmer"
   },
+  "toast": {
+    "_source": "P2-F05-T10 (design/ux/flows/F05-movement-gate-reward.md Flow A1/A2/A3: 'หายเองสั้นๆ' / 'toast จาง' — the flow never gives an exact on-screen hold duration or icon cap, only the effect/sound durations already in audio/manifest.json and art/vfx/*/timing.json.",
+    "tickHoldDurationMs": 2200,
+    "tickMaxIconsShown": 3,
+    "_note": "apps/client/src/ui/tick-toast.ts: tickHoldDurationMs is how long a granted/denied tick toast stays fully visible (after its own vfx enter animation, before the shared exitToast animation starts) — long enough to read a short Thai sentence at a glance per the flow's own 'อ่านจบได้ในแวบเดียว' rule without outlasting the next tick window. tickMaxIconsShown is flow F05 A1's literal cap ('ไม่เกิน 3 ชิ้นที่เห็นพร้อมกัน ที่เหลือดูในสรุป run').",
+    "_assumption": "A-P2-F05-T10-1: 2200 ms is not tuned against a real device/field-walk pass yet (same caveat as A-P2-F04-T21-1); tickMaxIconsShown 3 matches the flow doc's own number exactly, not an assumption. Owner: gameplay-programmer, revisit tickHoldDurationMs with P2-C03/P2-F06-T12 field evidence."
+  },
   "bundle": {
     "_source": "ADR 0003 section 10 (N-13): JS-transfer budgets measured from apps/client/dist's Vite manifest by apps/client/scripts/measure-bundle.ts, brotli quality 11, same method for both keys.",
     "initialJsBudget_bytes": 1000000,

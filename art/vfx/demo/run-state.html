@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VFX demo — Run state (P2-F06-T05)</title>
+    <link rel="stylesheet" href="./shared/demo.css" />
+  </head>
+  <body>
+    <h1>Run state — เข้า dungeon / Grace / Suspended / Resumed</h1>
+    <p class="demo-note"><a href="./index.html">&larr; all demos</a> · loads <code>art/vfx/dist/</code> — Firefox opens via file:// directly; Chromium/WebKit need a static server (see index.html).</p>
+    <p class="demo-note">
+      Source: <code>art/vfx/run-state/run-state.ts</code> · spec:
+      <code>art/vfx/specs/run-state.md</code> · motion-direction §3, §9 ·
+      design/ux/flows/F04-dungeon-presence.md Flow E.
+    </p>
+    <div class="demo-row" id="rows"></div>
+
+    <script type="module">
+      import { play } from '../dist/core/vfx.js';
+      import '../dist/run-state/run-state.js';
+      import { bannerExit } from '../dist/run-state/run-state.js';
+
+      const rows = document.getElementById('rows');
+
+      const cases = [
+        { id: 'dungeon.confirmEnter', label: 'เข้า dungeon สำเร็จ', kind: 'screen', text: 'S-03-run' },
+        { id: 'run.stateGrace', label: 'Grace (ไม่มี cue เสียง)', kind: 'banner', full: false, text: 'กำลังยืนยันตำแหน่ง' },
+        { id: 'run.stateSuspended', label: 'Suspended', kind: 'banner', full: true, text: 'run หยุดชั่วคราว กลับเข้าเขตภายใน 2:40' },
+        { id: 'run.stateResumed', label: 'กลับเข้าเขตแล้ว', kind: 'toast', text: 'กลับเข้าเขตแล้ว' },
+      ];
+
+      for (const c of cases) {
+        const card = document.createElement('div');
+        card.className = 'demo-card';
+        const stageHtml =
+          c.kind === 'screen'
+            ? `<div style="min-height:60px; display:flex; align-items:center; justify-content:center; font-weight:700; background:var(--bg-paper); border-radius:8px;" data-el>${c.text}</div>`
+            : c.kind === 'banner'
+              ? `<div class="demo-banner${c.full ? ' full' : ''}" data-el style="opacity:0;">${c.text}</div>`
+              : `<div class="demo-toast" data-el style="opacity:0;">${c.text}</div>`;
+        card.innerHTML = `
+          <h3>${c.label}</h3>
+          <div style="min-height:70px; display:flex; align-items:center;">${stageHtml}</div>
+          <button data-play>Play ${c.id}</button>
+          <div class="demo-measure" data-measure></div>
+        `;
+        rows.appendChild(card);
+
+        const button = card.querySelector('[data-play]');
+        const measure = card.querySelector('[data-measure]');
+
+        button.addEventListener('click', async () => {
+          const el = card.querySelector('[data-el]');
+          if (c.kind !== 'screen') {
+            el.style.opacity = '0';
+          }
+          performance.mark(`${c.id}-start`);
+          await play(c.id, el);
+          performance.mark(`${c.id}-end`);
+          const m = performance.measure(c.id, `${c.id}-start`, `${c.id}-end`);
+          measure.textContent = `measured: ${m.duration.toFixed(1)} ms`;
+
+          if (c.kind === 'banner') {
+            setTimeout(async () => {
+              await bannerExit(el).finished;
+              measure.textContent += '\nexited (150 ms ease-in)';
+            }, 1200);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

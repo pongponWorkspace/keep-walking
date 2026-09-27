@@ -92,3 +92,29 @@ export function parseRunSeedParam(search: string, paramName: string): number | u
   }
   return value;
 }
+
+/** No real onboarding path sets `PlayerState.classId` from a URL — this is a test-only escape
+ * hatch (P2-F05-T10) for driving a whole run through an e2e spec before F06-T10's real class-
+ * picker screen exists. `session/engine.ts`'s boot sequence dispatches `chooseClass` with this
+ * value once, only when the loaded player has no class yet — the exact same `sessionStep` input a
+ * future real picker screen would send, never a separate code path. */
+export const E2E_CLASS_ID_PARAM = 'e2eClassId';
+
+const KNOWN_E2E_CLASS_IDS = ['tanker', 'ranged', 'support', 'magic'] as const;
+
+/** Parses `?<paramName>=` as one of the four known `PlayerClass` values (same "warn and ignore an
+ * unrecognized value" convention as the rest of this module). */
+export function parseE2eClassIdParam(
+  search: string,
+  paramName: string,
+): (typeof KNOWN_E2E_CLASS_IDS)[number] | undefined {
+  const raw = new URLSearchParams(search).get(paramName);
+  if (raw === null) {
+    return undefined;
+  }
+  if ((KNOWN_E2E_CLASS_IDS as readonly string[]).includes(raw)) {
+    return raw as (typeof KNOWN_E2E_CLASS_IDS)[number];
+  }
+  warnUnknown(paramName, raw);
+  return undefined;
+}

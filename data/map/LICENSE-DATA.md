@@ -19,6 +19,8 @@
 | `data/map/launch-area.geojson` (เขตเปิดตัว D-083) | `python -m boundaries.launch build` (P2-H01) | ODbL 1.0 (derivative database) | © OpenStreetMap contributors (อยู่ใน `attribution` และ `license`) |
 | `tools/coverage/boundaries/launch-area.source.geojson` (ต้นทางความละเอียดเต็มของไฟล์บน) | `python -m boundaries.launch extract` | ODbL 1.0 (derivative database) | © OpenStreetMap contributors (อยู่ใน `attribution` และ `license`) |
 | `data/map/playable-provinces.geojson` (polygon เล็กของ 6 จังหวัดที่เล่นได้ สำหรับตรวจ bbox ใน CI) | `python -m boundaries.playable` (P2-F04-T23) จากเขต/อำเภอใน `tools/coverage/out/boundaries.geojson` | ODbL 1.0 (derivative database) | © OpenStreetMap contributors (อยู่ใน `attribution` และ `license`) |
+| `data/map/study-districts.json` (79 เขต/อำเภอของพื้นที่ศึกษา: `id`, `osmRelationId`, `provinceIso` ไม่มี geometry · D-126) | `python -m boundaries.districts build` (P2-H26) | ODbL 1.0 (derivative database) | © OpenStreetMap contributors (อยู่ใน `attribution` และ `license`) |
+| `tools/coverage/boundaries/study-districts.source.json` (ต้นทางของไฟล์บน: relation id, `name:en`, จังหวัด) | `python -m boundaries.districts extract` จาก `tools/coverage/out/boundaries.geojson` | ODbL 1.0 (derivative database) | © OpenStreetMap contributors (อยู่ใน `attribution` และ `license`) |
 | `data/map/LICENSE-DATA.md` | เอกสารนี้ | ตาม license ของ repo | |
 
 ## 3. ข้อควรรู้

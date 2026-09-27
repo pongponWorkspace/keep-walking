@@ -57,6 +57,21 @@
     "pctOf": { "type": "number" },
     "ratio": { "type": "number", "minimum": 0, "maximum": 1 },
     "positiveSeconds": { "type": "number", "exclusiveMinimum": 0 },
-    "positiveMeters": { "type": "number", "exclusiveMinimum": 0 }
+    "positiveMeters": { "type": "number", "exclusiveMinimum": 0 },
+    "minutes": {
+      "description": "ADR 0001 3.10.3 _min: minutes of an external definition (UTC offset, minute of day). Signed because a UTC offset can be negative.",
+      "type": "number"
+    },
+    "degrees": {
+      "description": "ADR 0001 3.10.3 _deg: latitude, longitude or angle in degrees.",
+      "type": "number",
+      "minimum": -360,
+      "maximum": 360
+    },
+    "bytes": {
+      "description": "ADR 0001 3.10.3 _bytes (P2-X12): whole bytes.",
+      "type": "integer",
+      "minimum": 0
+    }
   }
 }

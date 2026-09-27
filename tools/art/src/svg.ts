@@ -97,3 +97,17 @@ export function swapKeys(svg: string, keys: Record<RampSlot, string>, ramp: Reco
   }
   return out;
 }
+
+const CURRENT_COLOR = 'currentcolor';
+
+/**
+ * True when a colour attribute (or its `style` declaration) or a `<style>` block uses the
+ * `currentColor` keyword (P2-H13, components.md 13.9): the glyph takes its colour from CSS, so
+ * the client must inline it. Comments are ignored; the CSS keyword is matched case-insensitively.
+ */
+export function usesCurrentColor(svg: string, colorAttributes: readonly string[]): boolean {
+  for (const a of attributes(svg)) {
+    if (colorAttributes.includes(a.name) && a.value.trim().toLowerCase() === CURRENT_COLOR) return true;
+  }
+  return styleBlocks(svg).some((css) => css.toLowerCase().includes(CURRENT_COLOR));
+}

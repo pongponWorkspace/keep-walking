@@ -28,6 +28,8 @@ export interface BuildConfig {
     candidates: string | null;
     excludedZones: string | null;
     majorWays: string | null;
+    /** Pointer to the player's start level (P2-H22): `key` is a dotted path inside `file`. */
+    startLevel: { file: string; key: string };
   };
   validator: {
     maxOverlap_m2: number;
@@ -82,6 +84,8 @@ export interface RuleContext {
   candidateFlags: Map<string, string[]>;
   excludedZones: Zone[] | null;
   majorWays: Way[] | null;
+  /** config/balance/progression.json#level.startLevel: the level onboarding recommends for. */
+  startLevel: number;
 }
 
 function readJson(path: string): unknown {
@@ -156,6 +160,18 @@ function stringLists(value: unknown): Record<string, string[]> {
   return out;
 }
 
+/** Reads the start level through paths.startLevel. Fail-closed: anything but an integer >= 1 throws. */
+export function loadStartLevel(root: string, ref: { file: string; key: string }): number {
+  let node: unknown = readJson(resolve(root, ref.file));
+  for (const part of ref.key.split('.')) {
+    node = obj(node, `${ref.file}#${ref.key}`)[part];
+  }
+  if (typeof node !== 'number' || !Number.isInteger(node) || node < 1) {
+    throw new Error(`${ref.file}#${ref.key} must be an integer >= 1, got ${JSON.stringify(node)}`);
+  }
+  return node;
+}
+
 /** Read every input of the validator from the repo (offline). */
 export function loadContext(
   root = REPO_ROOT,
@@ -227,5 +243,6 @@ export function loadContext(
     candidateFlags,
     excludedZones,
     majorWays,
+    startLevel: loadStartLevel(root, build.paths.startLevel),
   };
 }

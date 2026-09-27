@@ -353,3 +353,24 @@ git -C ../.. show cb3672c:data/coverage/district-counts.csv > /tmp/before.csv
 - พระนครหาย 10 แห่ง = ตัดถาวร #12–17, #20 (7) + pending #18, #19, #21 (3) · #4 ไม่นับอยู่แล้ว · ปทุมวันหาย 4 = #22, #23 ตัด + #24, #25 pending · บางรักไม่เปลี่ยน (#6 วังประมวลไม่นับอยู่แล้ว)
 - อันดับ 1 ใหม่ = เขตดินแดง (0.8879) เพราะ min-max ของ density เปลี่ยนเมื่อพระนครลดลง
 - สูตร transit D-069 ทำให้ `transit_mean_m` ลดลงหรือเท่าเดิมทุกเขต (พระนคร 416 → 182 ม. ส่วนหนึ่งเพราะชิ้นที่ถูกตัดอยู่ไกลราง)
+
+## 12. รันซ้ำหลัง D-109 และ flag ใหม่ P2-H07 (P2-H11, 2026-09-27)
+
+- config ที่เปลี่ยน (systems-designer): `coverageFilter.reviewFlagTags` เพิ่ม `civic_building` (`building=civic`) และ `rooftop` (`location=roof`) · `excludeOsmIds` เพิ่ม `osm-w231293478` ไปรษณีย์กลาง (รวม 16) · `reviewOsmIds` เพิ่มสวนดุสิตอรุณ `osm-w1427083286` และกลุ่ม One Bangkok 5 id (รวม 14) · ป้ายใน `_osmIdNotes` รูปแบบ `D-109 exclude|pending ...`
+- คำสั่งเดียวกับ 11.1 (`analysis all --offline` แล้ว `analysis.compare --before` ที่ `cb3672c`) · รันสองครั้งได้ SHA เท่ากันทุกไฟล์ · ข้อมูลเข้าเดิม (D1 OSM 2026-09-01, D2 WorldPop R2025A)
+- test: `pipeline/tests/test_human_ids.py::test_config_matches_human_decisions` มีตารางต่อ decision (D-083 ตามเลขข้อ, D-109 ตาม osm id) · id ทุกตัวต้องมีป้าย, สถานะในป้ายต้องตรงกับรายการที่อยู่, ชุดของแต่ละ decision ต้องตรงตารางพอดี · decision ใหม่ต้องเพิ่มตารางใหม่
+
+| | หลัง D-083 (11.2) | หลัง D-109 |
+| --- | --- | --- |
+| candidates | 726 | 725 (ไปรษณีย์กลางเป็น `excluded_osm_id`) |
+| dungeon ที่ใช้ได้ | 693 | 685 |
+| `review_required` ไม่นับ | 33 | 40 (`review_osm_id` 14 · `flag_rooftop` 2 · `review_name` 18 · `inside_review_parent` 5 · `flag_fee_entry` 4 · `monument_area` 1 · บางแห่งมีหลายเหตุผล) |
+| `civic_building` / `rooftop` | - | 0 / 2 (ดุสิตอรุณ เขตบางรัก, คลาวด์ 11 พาร์ค เขตพระโขนง) · ที่เดียวที่เป็น `building=civic` คือไปรษณีย์กลาง ซึ่งถูกตัดด้วย id ก่อน |
+| ประชากรโซนเขียว / แดง | 10.04% / 35.18% | 9.95% / 35.19% |
+| SHA-256 `candidates.geojson` | `9a0605cd...e286` | `3c75c91e...3b2c` |
+
+| ย่าน | valid (ก่อน → หลัง) | g2 รวม multi | G1 เขียว | ผล G1 / G2 |
+| --- | --- | --- | --- | --- |
+| เขตพระนคร | 10 → 10 | 10 | 68.48% | ผ่าน / ผ่าน (พอดีขอบ) |
+| เขตปทุมวัน | 18 → 13 | 19 → 14 | 61.42% → 46.29% | **ไม่ผ่าน** / ผ่าน · กลุ่ม One Bangkok เป็นพื้นที่เขียวหลักของโซนตะวันออก |
+| เขตบางรัก | 6 → 4 | 6 → 4 | 73.01% → 69.74% | ผ่าน / ไม่ผ่าน (ต้อง ≥ 10) |

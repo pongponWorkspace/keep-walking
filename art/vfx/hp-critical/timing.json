@@ -1,0 +1,41 @@
+{
+  "_meta": {
+    "task": "P2-F06-T05",
+    "owner": "vfx-animator",
+    "source": "art/vfx/specs/motion-direction.md §6, §9 · design/ux/flows/F06-hp-damage-onboarding.md Flow C · D-096, D-089, D-076, D-077"
+  },
+  "run.hpLow": {
+    "cueId": "run.hpLow",
+    "durationMs": 550,
+    "easing": "ease-out",
+    "beatPatternMs": [80, 80, 80, 80, 80],
+    "properties": ["transform", "opacity"],
+    "note": "150ms toast enter (translateY+opacity) then a literal-timed 400ms 3-beat scale pulse (1 -> 1.06 -> 1 x3), holds at neutral scale afterward until caller's own dismiss timer",
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "run.autoRetreat": {
+    "cueId": "run.autoRetreat",
+    "durationMs": 700,
+    "easing": "ease-out",
+    "beatPatternMs": [100, 80, 100, 80, 100],
+    "properties": ["transform"],
+    "note": "350ms 3-nudge phase (translateY -3px x3, proportionally scaled from the cue's 460ms raw nudge pattern to fit the ≤700ms sequence budget) + 350ms screen transition (S-03-run -> S-04-run-summary) via runAutoRetreatScreenTransition — the transition IS the cue's documented final 350ms beat, not decoration",
+    "reducedMotion": { "durationMs": 100, "properties": [], "note": "nudges skipped entirely; screen hand-off uses runAutoRetreatScreenTransitionReduced (opacity cross-fade only)" }
+  },
+  "run.death": {
+    "cueId": "run.death",
+    "durationMs": 720,
+    "easing": "linear",
+    "beatPatternMs": [150, 120, 600],
+    "properties": ["transform", "filter"],
+    "note": "hard-cut HP bar to scaleX(0) at t=0 (0ms, no drain) + 120ms silent gap + 600ms grayscale(0->1) filter tween on the same .hp-fill element — the one filter exception this game allows outside Legendary. No recovery-choice UI fades in afterward in Phase 2 (D-096); caller hands off straight to run summary.",
+    "filterException": "grayscale() only, motion-direction §2 table row 1",
+    "reducedMotion": { "durationMs": 100, "properties": ["filter"], "note": "same end state (HP 0, filter grayscale(1)) with no intermediate tween" }
+  },
+  "screenTransitionOut/In (shared helper, core/beats.ts, not a registered effect)": {
+    "durationMs": 350,
+    "easing": "ease-out",
+    "properties": ["transform", "opacity"],
+    "reusedBy": ["run.autoRetreat final beat", "dungeon.confirmEnter", "run.death hand-off (integration note only)"]
+  }
+}

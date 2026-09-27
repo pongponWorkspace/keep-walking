@@ -34,8 +34,23 @@ body {
    survives the "tiles URL not configured" fallback above. Values below are
    copied byte-for-byte from design/ux/tokens.json; no visual/motion design
    has landed for this exact spike screen yet (P1-F03-T22/T25/T27 are still
-   open), so layout here is minimal placement, not final art direction. */
+   open), so layout here is minimal placement, not final art direction.
+   `position: absolute; inset: 0` (P2-F05-T10, found while wiring this task's own e2e): without a
+   `position`, `#hud` is a non-positioned box, which CSS paints *before* any positioned box in the
+   same stacking context regardless of DOM order (CSS2.1 Appendix E) — `#map` is `position:
+   absolute` (above), so it was painted on top of the whole `#hud` subtree, not the other way
+   round the code comment above already assumed. Every screen mounted straight into `#hud` with no
+   `position` of its own (`.popup-overlay`, `.run-bar`, `.overlay-speedlock`, `.screen.run-summary`,
+   `.nav-panel` — none of them have a rule in this file yet) was invisible/unclickable behind the
+   map in a real build, real map or the empty fallback alike; only the handful of elements that
+   already declare their own `position: absolute` (`.gps-pill`, `.banner`, `.toast`,
+   `#start-location`, `#follow-toggle`) escaped it by becoming positioned themselves. Positioning
+   `#hud` once here fixes every current and future screen at the source instead of requiring every
+   new screen to remember its own escape hatch; `inset: 0` matches `#app`/`#map` exactly (same
+   value, same box) so no already-positioned child's coordinates move. */
 #hud {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
   font:
     16px/1.5 system-ui,

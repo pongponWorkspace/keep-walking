@@ -19,5 +19,14 @@
     "declaration": false,
     "removeComments": true
   },
-  "include": ["core/**/*.ts", "tick-feedback/**/*.ts", "rarity-reveal/**/*.ts", "rift-reveal/**/*.ts"]
+  "include": [
+    "core/**/*.ts",
+    "tick-feedback/**/*.ts",
+    "rarity-reveal/**/*.ts",
+    "rift-reveal/**/*.ts",
+    "hp-bar/**/*.ts",
+    "hp-critical/**/*.ts",
+    "run-state/**/*.ts",
+    "quick-command/**/*.ts"
+  ]
 }

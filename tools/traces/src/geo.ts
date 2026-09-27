@@ -5,8 +5,8 @@
 // [ASSUMPTION A-P2-F04-T23-1] Imported by path until tech-lead adds `@keep-walking/geo` to
 // tools/traces/package.json (lockfile rule TL-M01, ADR 0001 3.3). This file and metrics.ts are
 // the only importers; the switch is one line each.
-import type { LatLng } from '../../../packages/geo/src/index';
-import { DEG_TO_RAD, EARTH_MEAN_RADIUS_M, haversine_m } from '../../../packages/geo/src/index';
+import type { LatLng } from '@keep-walking/geo';
+import { DEG_TO_RAD, EARTH_MEAN_RADIUS_M, haversine_m } from '@keep-walking/geo';
 
 export type { LatLng };
 export { haversine_m };

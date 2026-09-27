@@ -9,6 +9,7 @@ import { APPROACH_INIT } from '../run';
 import { expToNext } from '../formulas';
 import { hpParamsFromConfig } from '../hp';
 import { hpConfigInputOf } from './types';
+import type { GateAccumulatorState } from '../reward';
 import type {
   FromPersistedRejectReason,
   PersistedSession,
@@ -69,13 +70,77 @@ function isCorruptPlayer(state: SessionState, params: SessionParams): boolean {
   return false;
 }
 
-/** Strips `pre` and stamps `savedAt_ms`; the on-device sample caps themselves (tech note F04 11)
- * are `sessionStep`'s own job on every step, not this envelope's. */
+/** Coordinate audit of `SessionState` (P2-H02, CLAUDE.md non-negotiable 7 / PDPA — `kw.p2.session`
+ * is `localStorage`, unlike `position_log` it has no TTL at all, so nothing raw may ever land in
+ * it). Every field that can carry a real `lat`/`lng`/`accuracy_m` tied to a position, and what
+ * happens to each before it reaches the envelope:
+ *  - `latestSample` (`RawSample`, tech note F04 7.1/7.2): the raw fix itself; the whole reason this
+ *    field is documented "not persisted" — stripped to `null`.
+ *  - `lock.lastAccurate` (`SpeedLockState`, tech note F04 section 6): the last accurate fix paired
+ *    for the speed check (`{ t_ms, lat, lng }`) — stripped to `null` along with `runStart_ms`
+ *    (meaningless without the fix it was measured from). `locked` (a boolean, not a position) is
+ *    kept: losing whether the player is currently speed-locked is a gameplay regression on reload,
+ *    not a privacy requirement.
+ *  - `run.reward` / `run.rewardScratch` (`GateAccumulatorState`, ADR 0003 5.3-5.4, ships from
+ *    `@keep-walking/geo`):
+ *      - `filter.anchor` / `filter.pending` (`GateFilterState`) are raw `GeoSample`s — stripped to
+ *        the filter's own initial shape (`{ anchor: null, pending: [] }`).
+ *      - `grid.last` / `grid.lastPoint` (`GridState`) carry `lat`/`lng` — stripped to `null`.
+ *      - `k`, `distance_m` (`filter`/`grid`'s other counters: `nextSeg`, `nextIndex`) are plain
+ *        numbers with no position; kept, so a reload does not also erase already-earned
+ *        reward-window progress. The cost of stripping the fix/point above is that the very next
+ *        sample after a reload starts a fresh pair (no distance credited for that one pair) —
+ *        the same trade-off already accepted for `pre` below.
+ *  - `pre` (`ApproachState`): already reset to `APPROACH_INIT` on every save and load (tech note
+ *    F04 7.2, unchanged by this task).
+ *  - Everything else in `SessionState` carries no coordinate, checked by inspection of every type
+ *    it holds (2026-09-27 audit): `clock` (three `*_ms` numbers); `player` (`PlayerState` — level,
+ *    exp, allocated points, `PlayerHpState`, inventory counts, ms timestamps); `run`'s own
+ *    non-reward fields (`presence` is `EdgeHysteresisState` — a side, two counts, two `*_ms`
+ *    fields, geo's own comment "only a handful of numbers, no fix list"; `hp` is `RunHpState` —
+ *    hp/shield/indices; `bag`, `notices`, `scratchClosed`, `grantedCount`, `closesAt_ms`, ids,
+ *    `clock` — none of these are positions); `lastSummary` (`RunSummary`, already documented
+ *    "no coordinates in any of these fields", C2-4).
+ *
+ * Applied on save (`toPersisted`) and on load (`fromPersisted`): an old blob written before this
+ * fix (or a hand-edited one) that still carries a coordinate in any of these fields never reaches
+ * a running session either — it is silently dropped, not treated as `corrupt` (rule/mode/level
+ * corruption is `isCorruptPlayer`'s job; a stray coordinate is this function's). */
+function stripGateAccumulator(s: GateAccumulatorState): GateAccumulatorState {
+  return {
+    ...s,
+    filter: { anchor: null, pending: [] },
+    grid: { ...s.grid, last: null, lastPoint: null },
+  };
+}
+
+function stripCoordinates(state: SessionState): SessionState {
+  return {
+    ...state,
+    lock: { locked: state.lock.locked, runStart_ms: null, lastAccurate: null },
+    run:
+      state.run === null
+        ? null
+        : {
+            ...state.run,
+            reward: stripGateAccumulator(state.run.reward),
+            rewardScratch:
+              state.run.rewardScratch === null
+                ? null
+                : stripGateAccumulator(state.run.rewardScratch),
+          },
+    latestSample: null,
+  };
+}
+
+/** Strips `pre`, every coordinate-bearing field (`stripCoordinates` above), and stamps
+ * `savedAt_ms`; the on-device sample caps themselves (tech note F04 11) are `sessionStep`'s own
+ * job on every step, not this envelope's. */
 export function toPersisted(state: SessionState, now_ms: number): PersistedSession {
   return {
     schemaVersion: SCHEMA_VERSION,
     savedAt_ms: now_ms,
-    state: { ...state, pre: APPROACH_INIT },
+    state: stripCoordinates({ ...state, pre: APPROACH_INIT }),
   };
 }
 
@@ -98,5 +163,5 @@ export function fromPersisted(raw: unknown, params: SessionParams): FromPersiste
     return { ok: false, reason: 'unknown_dungeon' };
   }
   if (isCorruptPlayer(state, params)) return { ok: false, reason: 'corrupt' };
-  return { ok: true, state: { ...state, pre: APPROACH_INIT } };
+  return { ok: true, state: stripCoordinates({ ...state, pre: APPROACH_INIT }) };
 }

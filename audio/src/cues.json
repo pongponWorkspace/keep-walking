@@ -187,6 +187,32 @@
       "loudnessRank": 2
     },
     {
+      "_comment": "P2-H18 (F06-T05 gap fix): the manual HP-potion button (`inventory.usePotionButton`, S-11-inventory / home Recovering card) fires `session` event `potion_used { revived: false }` and previously had no sound/vibration at all, only a 200ms HP-bar tween. Deliberately reuses the exact 'pok' identity of run.autoPotionUsed (same click wave/freq/gain/single-pulse vibration) so both the automatic in-run safety net and the manual at-home top-up read as the same underlying action ('a potion was used') — the two never co-occur (one only fires mid-run, the other only outside a run), so the screen context disambiguates automatic vs. deliberate, not the sound. See cue-list.md 3 for the full rationale.",
+      "id": "inventory.potionUsed",
+      "vibrationMs": [35],
+      "notes": [{ "freq": 900, "wave": "click", "gain": 0.6 }],
+      "tier": "normal",
+      "priority": 6,
+      "telemetry": null,
+      "silentFallback": "inventory.usePotionButton HP-bar tween (200ms, existing)",
+      "loudnessRank": 2
+    },
+    {
+      "_comment": "P2-H18: the revive-potion button (`inventory.useRevivePotionButton`, shown only in Recovering state) fires the same reducer event `potion_used` but with `revived: true` — a materially bigger moment (leaving Recovering, not just topping up HP) than a plain heal, so it gets its own 3-pulse ascending pattern in the spirit of `run.revived` (ascending = recovery, mirrors direction.md 3's 'opposite of death, which descends') rather than reusing the flat single 'pok'.",
+      "id": "inventory.reviveUsed",
+      "vibrationMs": [35, 50, 40, 50, 55],
+      "notes": [
+        { "freq": 900, "freqEnd": 1050, "wave": "bell", "gain": 0.7 },
+        { "freq": 1050, "freqEnd": 1250, "wave": "bell", "gain": 0.85 },
+        { "freq": 1250, "freqEnd": 1500, "wave": "bell", "gain": 1.0 }
+      ],
+      "tier": "normal",
+      "priority": 5,
+      "telemetry": null,
+      "silentFallback": "inventory.useRevivePotionButton HP-bar tween (200ms, existing) + Recovering card disappears from home",
+      "loudnessRank": 3
+    },
+    {
       "id": "run.stateSuspended",
       "vibrationMs": [60, 60, 60],
       "notes": [

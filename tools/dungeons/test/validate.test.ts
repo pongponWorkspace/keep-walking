@@ -1,7 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { loadStartLevel, REPO_ROOT } from '../src/context';
 import type { SourceRecord } from '../src/types';
 import {
   codes,
+  fixtureBuild,
   fixtureContext,
   offset,
   rect,
@@ -36,6 +40,15 @@ const yard =
   (f: (r: SourceRecord) => void): Mutation =>
   (rs) =>
     f(record(rs, 'fx-yard'));
+
+/** Keeps the start level covered by another published record (fx-market 1-20) when a test takes
+ * fx-yard, the fixture's only level-1 dungeon, out of the artifact (P2-H22). */
+const alsoCoverStart =
+  (m: Mutation): Mutation =>
+  (rs) => {
+    m(rs);
+    record(rs, 'fx-market').level_range = { min: 1, max: 20 };
+  };
 
 // failing fixtures: mutation of the passing fixture → error code on fx-yard (dungeon-rules.md)
 const FAILS: [string, Mutation, string][] = [
@@ -141,7 +154,7 @@ const FAILS: [string, Mutation, string][] = [
   [
     'location=roof (level-designer request)',
     yard((r) => (r.osm_tags = { leisure: 'garden', location: 'roof' })),
-    'review_flag_roof',
+    'review_flag_rooftop',
   ],
   [
     'railway station tag',
@@ -213,11 +226,11 @@ describe('review acknowledgements, drafts, retired, duplicates', () => {
     const run = runFixture(
       yard((r) => {
         r.osm_tags = { location: 'roof' };
-        r.review_acknowledged = [{ flag: 'review_flag_roof', ref: 'field check 2026-10-01' }];
+        r.review_acknowledged = [{ flag: 'review_flag_rooftop', ref: 'field check 2026-10-01' }];
       }),
     );
     expect(run.ok).toBe(true);
-    expect(codes(run, 'fx-yard', 'warning')).toContain('review_flag_roof');
+    expect(codes(run, 'fx-yard', 'warning')).toContain('review_flag_rooftop');
     expect(run.publishable.map((p) => p.record.id)).toContain('fx-yard');
   });
 
@@ -233,11 +246,13 @@ describe('review acknowledgements, drafts, retired, duplicates', () => {
 
   it('a draft with errors reports warnings and does not fail the run', () => {
     const run = runFixture(
-      yard((r) => {
-        r.status = 'draft';
-        r.geometry = rect(YARD_CENTRE, 40, 40);
-        r.osm_tags = { building: 'civic' };
-      }),
+      alsoCoverStart(
+        yard((r) => {
+          r.status = 'draft';
+          r.geometry = rect(YARD_CENTRE, 40, 40);
+          r.osm_tags = { building: 'civic' };
+        }),
+      ),
     );
     expect(run.ok).toBe(true);
     expect(codes(run, 'fx-yard', 'warning')).toContain('area_out_of_range');
@@ -247,10 +262,12 @@ describe('review acknowledgements, drafts, retired, duplicates', () => {
 
   it('a draft overlapping a published dungeon is a warning on both', () => {
     const run = runFixture(
-      yard((r) => {
-        r.status = 'draft';
-        r.geometry = rect(offset(PARK_CENTRE, 60, 0), 70, 70);
-      }),
+      alsoCoverStart(
+        yard((r) => {
+          r.status = 'draft';
+          r.geometry = rect(offset(PARK_CENTRE, 60, 0), 70, 70);
+        }),
+      ),
     );
     expect(run.ok).toBe(true);
     expect(codes(run, 'fx-park', 'warning')).toContain('overlap_dungeon');
@@ -258,11 +275,13 @@ describe('review acknowledgements, drafts, retired, duplicates', () => {
 
   it('a retired record is checked by the schema only', () => {
     const run = runFixture(
-      yard((r) => {
-        r.status = 'retired';
-        r.geometry = rect(YARD_CENTRE, 10, 10);
-        r.opening_hours = { source: 'manual_required' };
-      }),
+      alsoCoverStart(
+        yard((r) => {
+          r.status = 'retired';
+          r.geometry = rect(YARD_CENTRE, 10, 10);
+          r.opening_hours = { source: 'manual_required' };
+        }),
+      ),
     );
     expect(run.ok).toBe(true);
     expect(run.issues.filter((i) => i.id === 'fx-yard')).toEqual([]);
@@ -355,5 +374,74 @@ describe('coverage context: excluded zones, candidate flags, major ways', () => 
     };
     const run = runFixture(undefined, fixtureContext({ majorWays: waysOf([clip]) }));
     expect(run.ok).toBe(true);
+  });
+});
+
+describe('start level is covered (P2-H22, tech note F06 9.2 data bug case)', () => {
+  const START = fixtureContext().startLevel;
+  const noStart: Mutation = (rs) => {
+    for (const r of rs) {
+      if (r.level_range.min <= START) r.level_range = { min: START + 1, max: START + 10 };
+    }
+  };
+
+  it('reads the start level from config/balance/progression.json, not a literal', () => {
+    const progression = JSON.parse(
+      readFileSync(resolve(REPO_ROOT, 'config/balance/progression.json'), 'utf8'),
+    ) as { level: { startLevel: number } };
+    expect(START).toBe(progression.level.startLevel);
+    expect(fixtureBuild().paths.startLevel).toEqual({
+      file: 'config/balance/progression.json',
+      key: 'level.startLevel',
+    });
+  });
+
+  it('passes when a published record covers the start level (fx-yard 1-5)', () => {
+    const run = runFixture();
+    expect(run.ok).toBe(true);
+    expect(codes(run, '(file)', 'error')).not.toContain('start_level_not_covered');
+  });
+
+  it('fails when no record covers the start level', () => {
+    const run = runFixture(noStart);
+    expect(run.ok).toBe(false);
+    expect(codes(run, '(file)', 'error')).toEqual(['start_level_not_covered']);
+  });
+
+  it('a covering record that is only a draft, or blocked by an error, does not count', () => {
+    const draftOnly = runFixture((rs) => {
+      noStart(rs);
+      record(rs, 'fx-draft').level_range = { min: START, max: START + 4 };
+    });
+    expect(codes(draftOnly, '(file)', 'error')).toContain('start_level_not_covered');
+    const blocked = runFixture((rs) => {
+      noStart(rs);
+      const y = record(rs, 'fx-yard');
+      y.level_range = { min: START, max: START + 4 };
+      y.osm_tags = { amenity: 'place_of_worship' };
+    });
+    expect(codes(blocked, '(file)', 'error')).toContain('start_level_not_covered');
+  });
+
+  it('both ends are inclusive (fx-yard 1-5 covers start levels 1 and 5, not 6)', () => {
+    const at = (level: number) =>
+      runFixture(
+        (rs) => {
+          for (const r of rs) if (r.id !== 'fx-yard') r.level_range = { min: 20, max: 35 };
+        },
+        fixtureContext({ startLevel: level }),
+      );
+    expect(codes(at(1), '(file)', 'error')).not.toContain('start_level_not_covered');
+    expect(codes(at(5), '(file)', 'error')).not.toContain('start_level_not_covered');
+    expect(codes(at(6), '(file)', 'error')).toContain('start_level_not_covered');
+  });
+
+  it('a missing or non-integer start level stops the build (fail-closed)', () => {
+    expect(() =>
+      loadStartLevel(REPO_ROOT, { file: 'config/balance/progression.json', key: 'level.nope' }),
+    ).toThrow();
+    expect(() =>
+      loadStartLevel(REPO_ROOT, { file: 'config/balance/progression.json', key: 'level' }),
+    ).toThrow();
   });
 });

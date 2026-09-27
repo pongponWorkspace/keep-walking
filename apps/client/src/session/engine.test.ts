@@ -85,6 +85,46 @@ describe('createSessionEngine', () => {
     expect(reopened.getState().player.level).toBe(engine.getState().player.level);
   });
 
+  it('testForceClassId (e2e-only hook) sets classId once at boot for a fresh player', () => {
+    const storage = createMemoryStorage();
+    const recorder = fakeRecorder();
+    const now_ms = Date.parse('2026-10-05T09:00:00+07:00');
+    const engine = createSessionEngine(
+      params,
+      {
+        storage,
+        quotaDeps: NOOP_QUOTA_DEPS,
+        record: recorder.record,
+        testForceClassId: 'tanker',
+      },
+      now_ms,
+    );
+    expect(engine.getState().player.classId).toBe('tanker');
+  });
+
+  it('testForceClassId never overwrites a class the loaded player already chose', () => {
+    const storage = createMemoryStorage();
+    const recorder = fakeRecorder();
+    const now_ms = Date.parse('2026-10-05T09:00:00+07:00');
+    const first = createSessionEngine(
+      params,
+      { storage, quotaDeps: NOOP_QUOTA_DEPS, record: recorder.record, testForceClassId: 'magic' },
+      now_ms,
+    );
+    expect(first.getState().player.classId).toBe('magic');
+    const reopened = createSessionEngine(
+      params,
+      {
+        storage,
+        quotaDeps: NOOP_QUOTA_DEPS,
+        record: recorder.record,
+        testForceClassId: 'tanker',
+      },
+      now_ms,
+    );
+    expect(reopened.getState().player.classId).toBe('magic');
+  });
+
   it('discards a corrupt stored session instead of throwing, and records session_state_discarded', () => {
     const storage = createMemoryStorage();
     storage.setItem('kw.p2.session', '{not json');

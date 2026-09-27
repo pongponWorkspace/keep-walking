@@ -114,6 +114,14 @@ export interface VibrationConfig {
   readonly closingSoonWarning_ms: number;
 }
 
+/** `client.json#toast` (P2-F05-T10, F05 flow Flow A): the tick-feedback toast's own screen-time
+ * knobs — never a game decision (the movement gate/drop table already decided everything this
+ * toast shows; this is only how long it stays up and how many loot icons it draws at once). */
+export interface ToastConfig {
+  readonly tickHoldDurationMs: number;
+  readonly tickMaxIconsShown: number;
+}
+
 export interface ClientRuntimeConfig {
   readonly locationWeb: LocationWebConfig;
   readonly providerQuery: ProviderQueryConfig;
@@ -126,6 +134,7 @@ export interface ClientRuntimeConfig {
   readonly probe: ProbeConfig;
   readonly bundle: BundleConfig;
   readonly vibration: VibrationConfig;
+  readonly toast: ToastConfig;
 }
 
 export interface RawTraceExportConfig {
@@ -327,6 +336,14 @@ function parseVibration(root: Json, path: string): VibrationConfig {
   };
 }
 
+function parseToast(root: Json, path: string): ToastConfig {
+  const node = obj(root['toast'], path);
+  return {
+    tickHoldDurationMs: num(node['tickHoldDurationMs'], `${path}/tickHoldDurationMs`),
+    tickMaxIconsShown: num(node['tickMaxIconsShown'], `${path}/tickMaxIconsShown`),
+  };
+}
+
 function parseBundle(root: Json, path: string): BundleConfig {
   const node = obj(root['bundle'], path);
   return {
@@ -353,6 +370,7 @@ export function parseClientConfig(input: unknown): ClientRuntimeConfig {
     probe: parseProbe(root, '/probe'),
     bundle: parseBundle(root, '/bundle'),
     vibration: parseVibration(root, '/vibration'),
+    toast: parseToast(root, '/toast'),
   };
 }
 

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { fetchAssetManifest, fetchManifestPart, isRuntimeManifest, isRuntimeManifestPart } from './manifest';
+import {
+  fetchAssetManifest,
+  fetchManifestPart,
+  isRuntimeManifest,
+  isRuntimeManifestPart,
+} from './manifest';
 import type { RuntimeManifest, RuntimeManifestPart } from './manifest';
 
 const HELP_ICON = {
@@ -75,7 +80,8 @@ describe('isRuntimeManifest', () => {
   });
 
   it('accepts a manifest with no parts field (P2-X24 additive, backward compatible)', () => {
-    const { parts: _parts, ...withoutParts } = VALID;
+    const withoutParts: Record<string, unknown> = { ...VALID };
+    delete withoutParts['parts'];
     expect(isRuntimeManifest(withoutParts)).toBe(true);
   });
 
@@ -117,6 +123,47 @@ describe('fetchAssetManifest', () => {
   it('returns undefined when the fetch itself throws (offline)', async () => {
     const throwing = (() => Promise.reject(new Error('network'))) as never;
     const result = await fetchAssetManifest(throwing, '/kw/');
+    expect(result).toBeUndefined();
+  });
+});
+
+describe('fetchManifestPart', () => {
+  it('returns undefined when the main manifest has no ref for this part', async () => {
+    const result = await fetchManifestPart(
+      fakeFetch(200, VALID_PART) as never,
+      '/kw/',
+      undefined,
+      1,
+    );
+    expect(result).toBeUndefined();
+  });
+
+  it('fetches basePath + part.url and returns the part on success', async () => {
+    let requested: string | undefined;
+    const fetchImpl = (input: string) => {
+      requested = input;
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(VALID_PART) });
+    };
+    const part = VALID.parts?.['avatar'];
+    const result = await fetchManifestPart(fetchImpl as never, '/kw/', part, 1);
+    expect(result).toEqual(VALID_PART);
+    expect(requested).toBe(`/kw/${part?.url}`);
+  });
+
+  it('returns undefined when the part avatarRig does not match the expected one (§6.4)', async () => {
+    const part = VALID.parts?.['avatar'];
+    const result = await fetchManifestPart(
+      fakeFetch(200, VALID_PART) as never,
+      '/kw/',
+      part,
+      2 as unknown as 1,
+    );
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined on a non-ok response', async () => {
+    const part = VALID.parts?.['avatar'];
+    const result = await fetchManifestPart(fakeFetch(404, {}) as never, '/kw/', part, 1);
     expect(result).toBeUndefined();
   });
 });

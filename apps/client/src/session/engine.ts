@@ -13,6 +13,7 @@
 import { createSession, selectCheckInPreview, sessionStep } from '@keep-walking/shared/session';
 import type {
   CheckInPreview,
+  PlayerClass,
   SessionEvent,
   SessionInput,
   SessionParams,
@@ -30,6 +31,12 @@ export interface SessionEngineDeps {
   readonly quotaDeps: QuotaFallbackDeps;
   readonly record: (eventName: string, properties?: Record<string, unknown>) => void;
   readonly storageKey?: string;
+  /** e2e-only test hook (`clock/query-params.ts`'s `parseE2eClassIdParam`, P2-F05-T10): dispatched
+   * as a real `chooseClass` input once at boot, only when the loaded player has no class yet —
+   * F06-T10's real class-picker screen will send the exact same input from a tap, never a
+   * different code path. `undefined` in every real build (main.ts only reads the query param under
+   * `?loc=mock`-style test URLs). */
+  readonly testForceClassId?: PlayerClass;
 }
 
 export interface SessionEngine {
@@ -84,6 +91,20 @@ export function createSessionEngine(
     const stepped = sessionStep(state, { type: 'tick' }, now_ms, params);
     state = stepped.state;
     persistAndMap(state, stepped.events, beforeDungeonId);
+  }
+
+  // e2e-only class hook (`testForceClassId`, see the field's own doc comment): applied last, once,
+  // only for a player who has never chosen one — a real class already on the loaded/created player
+  // is never overwritten.
+  if (deps.testForceClassId !== undefined && state.player.classId === null) {
+    const stepped = sessionStep(
+      state,
+      { type: 'chooseClass', classId: deps.testForceClassId },
+      now_ms,
+      params,
+    );
+    state = stepped.state;
+    persistAndMap(state, stepped.events);
   }
 
   return {

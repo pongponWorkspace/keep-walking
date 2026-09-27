@@ -7,7 +7,11 @@
 # dependency caching (actions/cache; optimizes cost, never changes what runs or its result).
 #
 # Jobs:
-#   build-test        pnpm lint / typecheck / trace-generator check / golden-vectors check / test / build
+#   build-test        pnpm lint / typecheck / trace-generator check / golden-vectors check / test /
+#                      build, then apps/client/scripts/measure-bundle.ts (P2-F04-T10, wired here by
+#                      P2-F06-T16): fails the build when the client's initial JS or lazy map-module
+#                      JS group exceeds config/app/client.json#bundle. Reads only the just-built
+#                      apps/client/dist manifest -- no extra install, no separate job.
 #   e2e               playwright install --with-deps (Linux system libs, CI only, P1-X38) then
 #                      pnpm test:e2e (separate job, browsers are heavy). playwright.config.ts's own
 #                      `webServer` builds the client and starts `vite preview` on :4173 -- this job
@@ -22,6 +26,11 @@
 #                      products. Never reads a token or calls an API -- see the script's own header
 #                      comment and infra/runbooks/billing-guard.md for why a HUMAN, not this job,
 #                      verifies the real Cloudflare API token scope and the billing pages
+#   map-bbox-guard    infra/scripts/test/test-bbox-guard.sh (P2-F06-T16): runs
+#                      tools/tiles/bin/verify-bbox.py (stdlib python3, delivered by P1-F02-T06,
+#                      P2-F04-T23) directly, unconditionally -- fails when a playable province or
+#                      the playarea mask hole falls outside tools/tiles/config.json#area.bbox.
+#                      Uses only the committed data/map/*.geojson, no build, no other setup.
 #
 # build-test also creates tools/coverage/.venv (Python pytest bridges, P1-X05/P1-X07:
 # tools/coverage/pipeline/tests and tools/coverage/boundaries/tests run inside `pnpm test` via
@@ -106,6 +115,12 @@ jobs:
           COVERAGE_PYTEST_REQUIRED: '1'
         run: pnpm test
       - run: pnpm build
+      - name: Client bundle JS budget (measure-bundle.ts; ADR 0003 section 10, P2-F04-T10, P2-F06-T16)
+        # Reads apps/client/dist/.vite/manifest.json (just built above) and checks the "initial"
+        # and "map lazy" JS groups against config/app/client.json#bundle. Exits 1 when either is
+        # exceeded (apps/client/src/bundle/measure.ts's own measure.test.ts already covers the
+        # over-budget path; this step is the real build's own numbers).
+        run: pnpm exec tsx apps/client/scripts/measure-bundle.ts
 
   e2e:
     name: e2e (Playwright)
@@ -271,3 +286,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run infra/scripts/test/test-billing-guard.sh (static grep, no token, no network, no API call)
         run: bash infra/scripts/test/test-billing-guard.sh
+
+  map-bbox-guard:
+    name: bbox covers every playable province + mask hole (verify-bbox.py, P2-F04-T23/P2-F06-T16)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run infra/scripts/test/test-bbox-guard.sh (Python stdlib only, no network, no credential)
+        run: bash infra/scripts/test/test-bbox-guard.sh

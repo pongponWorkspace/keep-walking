@@ -28,14 +28,16 @@
     "dropTables": { "file": "config/balance/drops.json", "key": "dropTables" },
     "candidates": "data/coverage/candidates.geojson",
     "excludedZones": "data/coverage/excluded.geojson",
-    "majorWays": null
+    "majorWays": null,
+    "startLevel": { "file": "config/balance/progression.json", "key": "level.startLevel" }
   },
   "validator": {
     "_note": {
+      "startLevel": "P2-H22 (paths.startLevel): tech note F06 9.2 'data bug case'. At least one published dungeon in the artifact must have level_range.min <= startLevel <= level_range.max, or onboarding has nothing to recommend. Read from progression.json (never a literal); a missing or non-integer value stops the build (fail-closed). Error code start_level_not_covered.",
       "maxOverlap_m2": "Tolerance for floating point slivers only. dungeon-rules.md 2 point B: published dungeons never overlap.",
       "excludedZoneReasons": "reason_excluded values of data/coverage/excluded.geojson that mark a zone a dungeon must not overlap (blocklist, religious, D-083 exclusions, private land). area_too_small / area_too_large / nested_in are ordinary parks, and indoor / indoor_market are halls inside a market or park: none of them is a zone.",
       "entranceMaxBoundaryDistance_m": "dungeon-rules.md 4 point B: the pinned entrance sits on the real polygon edge. Tolerance for pin placement on imagery; PROPOSED, systems-designer may move it to config/balance.",
-      "extraReviewFlagTags": "level-designer request (pilot-dungeons.md 2 and 9): building=civic and location=roof need a review. Merged with coverageFilter.reviewFlagTags; handoff asks systems-designer to add them there so point A uses them too.",
+      "extraReviewFlagTags": "Local review flags merged with coverageFilter.reviewFlagTags. Empty since P2-X25: building=civic (civic_building) and location=roof (rooftop) moved to config/balance/dungeons.json#coverageFilter.reviewFlagTags in P2-H07, so point A (coverage) and this validator use one list; a copy here raised the roof flag twice. Add a tag here only while a request waits for systems-designer.",
       "inheritedCandidateFlags": "Flags on the matching candidate (by osm_id) that stay review flags until the record acknowledges them (point B: redraw around the shrine, off the major road).",
       "bounds": "[minLng, minLat, maxLng, maxLat] around Bangkok and the five vicinity provinces; a coordinate outside is a data error (swapped lat/lng).",
       "nameKeyMissing": "error | warn: a published name_key / search_name_key that is not in config/content/names.th.json."
@@ -57,10 +59,7 @@
       "private_garden"
     ],
     "entranceMaxBoundaryDistance_m": 20,
-    "extraReviewFlagTags": {
-      "civic_building": ["building=civic"],
-      "roof": ["location=roof"]
-    },
+    "extraReviewFlagTags": {},
     "inheritedCandidateFlags": [
       "crosses_major_way",
       "contains_religious_feature",

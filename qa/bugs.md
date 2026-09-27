@@ -6,6 +6,8 @@
 
 **สถานะรวม (P2-F04-T09, 2026-09-27):** เพิ่ม 2 รายการย้อนหลัง (P1-H06 severity high, บันทึกตอนพบใน P1-F03-T22 แต่ยังไม่เคยลงในไฟล์นี้ · BUG-P2-001 severity medium จาก P2-F04-T19) — ทั้งสองปิดแล้วพร้อมหลักฐานตรวจซ้ำอิสระด้านล่าง ไม่มี bug OPEN เหลืออยู่ในไฟล์นี้
 
+**สถานะรวม (P2-F04-T22, 2026-09-27):** เพิ่ม **BUG-P2-002 severity high, สถานะ OPEN** (พบตอนขับ trace teleport-spoof ผ่าน `sessionStep` จริงเป็นครั้งแรก แทน `checkInBatch`) — **บั๊กนี้บล็อกการให้ verdict PASS ของ QA gate** จนกว่า backend-programmer จะแก้และ regression test กลับมาเขียวปกติ · เพิ่ม **BUG-P2-003 severity medium, สถานะ OPEN** (เดินเข้า dungeon ที่ปิดครั้งแรกไม่ขึ้น popup B4 ตาม flow spec — ไม่กระทบ safety property เพราะไม่มีปุ่ม "เข้า" ให้กดอยู่แล้ว) — ไม่บล็อก PASS
+
 ---
 
 ## BUG-P1-H06
@@ -114,3 +116,108 @@
   3. Full `pnpm test` at the start of this task's run (before an unrelated, concurrent in-progress edit to `packages/shared/src/session/types.ts` / `packages/shared/src/hp/` — outside this task's `writes`, apparently a different in-flight task building F06 HP/damage — began transiently failing `packages/shared/src/session/reducer.test.ts` on a `SessionConfig` fixture shape mismatch unrelated to zoneLevel/soloTickExp): `Test Files 140 passed (140)`, `Tests 2217 passed | 2 skipped (2219)` — zero failures anywhere, including every formula/reward/session file. See this task's QA gate report for the exact timestamp and the note on the later transient unrelated failures.
 - not blocking: closed — the specific D-112 zoneLevel/soloTickExp vectors this bug is about remain green in every run performed during this task, including the most recent one done in isolation.
 - note (unrelated, not part of this bug): later in this same task, `packages/shared/src/formulas/vectors.test.ts` itself started failing on *new* `fn` cases ("vectors.test.ts does not know how to evaluate fn=...") because a different, concurrent in-progress task (outside this task's `writes`) was mid-edit adding HP/damage vector coverage to that file. Confirmed unrelated by filtering to only this bug's own cases (`-t "zoneLevel"` / `-t "soloTickExp"`), both still fully green — see evidence item 2.
+
+---
+
+## BUG-P2-002
+
+- severity: **high**
+- feature: F04 — check-in anti-cheat (`teleportIntoPolygonAllowed: false`, GD B-03, F04-R07(2)/E5)
+- found_in: `qa/tests/F04/session-checkin-lifecycle.test.ts` (P2-F04-T22, 2026-09-27) — the first
+  time the teleport-spoof case was driven through the *real* public entry point
+  (`createSession`/`sessionStep`, `@keep-walking/shared/session`) instead of the standalone
+  `checkInBatch` helper `qa/tests/traces/engine-checkin.test.ts` (P2-F04-T19) uses
+- steps/trace:
+  1. Replay `data/gps-traces/synthetic/synthetic-teleport-spoof-01.trace.json` (stand ~1.3 km away
+     for 90 s, one 1-second-gap fix teleports into the middle of the polygon, then a legitimate
+     3-minute loop inside) sample-by-sample through `sessionStep` (`{type:'sample', ...}` per
+     trace sample), against a QA dungeon whose config comes from the client's own real
+     `buildSessionConfig()` (`config/balance/anticheat.json#checkIn.teleportIntoPolygonAllowed =
+     false`)
+  2. Call `selectCheckInPreview(state, dungeonId, now_ms, params)` at the end of the trace
+  3. Compare against `checkInBatch` called on the identical trace/samples
+     (`qa/tests/traces/engine-checkin.test.ts`, already green)
+- expected: `{ ok: false, reason: 'no_approach_from_outside' }` forever (same as `checkInBatch`) —
+  a single implausible-speed jump into the polygon must never count as a legitimate "seen from
+  outside, then walked in" approach
+- actual: `sessionStep` returns `{ ok: true }` once 60+ seconds have elapsed inside after the
+  teleport. Root cause (`packages/shared/src/session/reducer.ts`, function `handleSample`):
+  `usableAndUnlocked = accuracyOk && !lock.locked` is fed straight into `approachStep` — there is
+  no speed-outlier check at all here, even though `packages/shared/src/run/approach.ts`'s own
+  `ApproachSample.usableAndUnlocked` field comment documents it as "Passed the gate outlier filter
+  (accuracy + speed, ADR 0003 5.3 step 1) and not speed-locked". Because the outlier-speed filter
+  never breaks the chain: (a) the 1-second gap between the last far-away fix and the teleported fix
+  is far under `maxSamplePairGap_s` (30 s), so `approachStep` treats it as one unbroken chain
+  instead of restarting it at the teleported fix, and (b) the far-away fix immediately before the
+  teleport gets recorded as a genuine `outsideSeenAt_ms[dungeonId]` sighting, which is exactly what
+  `teleportIntoPolygonAllowed: false`'s own check in `packages/shared/src/run/check-in.ts` treats as
+  proof of "seen from outside" — so the anti-teleport rule is satisfied by a sighting that was never
+  a real walk, only a jump
+- risk: a player can teleport (GPS spoof) directly into any dungeon and, after standing still for
+  just over `minContinuousApproach_s`, check in without ever having been physically near it —
+  exactly the attack GD B-03 names by ID as forbidden. Does not by itself grant any reward (the
+  separate movement gate still requires real movement for a tick), but it does grant a real,
+  provable `dungeon_entered`/run/HP-hit-clock start on zero real presence, which is the specific
+  guarantee this config flag and this GD ruling exist to give
+- owner: backend-programmer (`packages/shared/src/session/reducer.ts` `handleSample`, and/or
+  `packages/shared/src/run/approach.ts` if the outlier params should be threaded into
+  `ApproachSample` instead)
+- status: **OPEN**
+- suggested fix (not authoritative — backend-programmer's call): compute a genuine outlier-speed
+  flag the same way the gate/movement-distance path already does (it clearly exists somewhere for
+  `dungeons.movementGate.outlierSpeed_kmh`/`outlierReanchorSamples`, since traces like
+  `synthetic-drift-spike-01` prove distance-accumulation already ignores spikes) and AND it into
+  `usableAndUnlocked` before calling `approachStep`, so a physically-impossible jump breaks the
+  approach chain (and is never recorded as an `outsideSeenAt_ms` sighting) the same way a
+  poor-accuracy or speed-locked sample already does
+- regression test: `qa/tests/F04/session-checkin-lifecycle.test.ts` — `it.fails(...)` case named
+  with `(BUG-P2-002)` encodes the spec-correct expectation as an expected-red test (passes the
+  suite only while the assertion still fails); flip it back to a plain `it` once fixed, at which
+  point `it.fails` itself will fail loudly (Vitest fails an `it.fails` block that unexpectedly
+  passes), forcing that flip to happen
+- not blocking: **this bug blocks a QA-gate PASS** (severity high, protocol section "QA gate": "A
+  bug of severity high or above blocks PASS") until backend-programmer fixes it and the regression
+  test above is converted back to a normal, green `it`
+
+---
+
+## BUG-P2-003
+
+- severity: **medium**
+- feature: F04 — dungeon presence, closed-dungeon UX (flow B4)
+- found_in: `qa/tests/e2e/f04-closed-dungeon.spec.ts` (P2-F04-T22, 2026-09-27)
+- steps/trace:
+  1. `data/gps-traces/qa/qa-e2e-khlong-ong-ang-closed-01.trace.json` (stand inside the real
+     committed `khlong-ong-ang` dungeon, closed all day every Monday —
+     `data/dungeons/artifact/dungeons.client.v1.json` `weekly["1"] = []`)
+  2. Load the client with `loc=mock&trace=qa-e2e-khlong-ong-ang-closed-01&start=2026-09-28T10:00`
+     (a Monday, `openingHours.utcOffset_min` = UTC+7) and watch `.popup`/`.nav-panel-closed`
+  3. Compare against `design/ux/flows/F04-dungeon-presence.md` line 80 (B4): "เกิดได้ทั้งตอนเดินเข้า
+     เขตครั้งแรก (แทน B1) และตอนกด 'เข้า' แล้ว engine ปฏิเสธ" (occurs both walking in for the first
+     time, replacing B1, and when pressing Enter and the engine rejects)
+- expected: walking into a closed dungeon for the first time shows the B4 closed popup
+  (`dungeon.closedTitle` + next-open time via `dungeon.closedBody`, no Enter button, only
+  `dungeon.closedDismiss`) — the same screen a mid-confirm rejection would show
+- actual: no popup appears at all. `apps/client/src/f04-app.ts`'s `renderConfirmIfNeeded` computes
+  `openDungeonsContaining` filtered to `dungeonStatus(d, params, now_ms) === 'open'` *before*
+  building any candidate list, so a closed dungeon is invisible to the whole confirm-popup code
+  path — `ui/dungeon-confirm.ts`'s own `showClosed()` method has no real call site anywhere in
+  `apps/client/src` (grepped: the only two matches are the method's own definition and the
+  developer's isolated unit test `ui/dungeon-confirm.test.ts`). The only visible signal is the nav
+  panel's `.nav-panel-closed` line (distance chip + `dungeon.closedBody`/`dungeon.closedEmergencyBody`),
+  which does correctly show a next-opening-time value — so the player is not left with *no*
+  information, just not the B4 screen the flow spec describes
+- risk: UX/discoverability gap only — the safety property still holds (there is no Enter button
+  anywhere to press, proven by the passing case in the same spec file), so no reward or anti-cheat
+  guarantee is affected. A player walking into a closed dungeon sees a smaller nav-panel hint
+  instead of the more prominent, spec-described full-screen closed message
+- owner: gameplay-programmer (`apps/client/src/f04-app.ts` `renderConfirmIfNeeded`)
+- status: **OPEN**
+- suggested fix (not authoritative): when `openDungeonsContaining` (open-only) is empty but the
+  player is inside at least one *closed* dungeon's polygon, call `confirmPopup.showClosed(...)`
+  for the nearest/first such dungeon instead of falling through silently to `renderNearbyNav`
+- regression test: `qa/tests/e2e/f04-closed-dungeon.spec.ts` — `test.fail(true, 'BUG-P2-003: ...')`
+  encodes the spec-correct expectation (Playwright fails the suite if this test starts *passing*
+  unexpectedly instead, which is the signal to remove the `test.fail` call once fixed)
+- not blocking: severity medium, does not block a QA-gate PASS on its own (only high-or-above
+  blocks, protocol section "QA gate") — still a handoff for the owner above

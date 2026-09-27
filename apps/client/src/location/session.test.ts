@@ -84,6 +84,7 @@ const CLIENT_CONFIG: ClientRuntimeConfig = {
   probe: { vibrateTestPattern_ms: 200 },
   bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
   vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
+  toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3 },
 };
 
 const PRIVACY_CONFIG: AppPrivacyConfig = {

@@ -25,7 +25,7 @@
     },
     "candidates": {
       "path": "data/coverage/candidates.geojson",
-      "sha256": "9a0605cdacea56e12cd09e9d8b44948fb9221654643f73bd8315907c0e41e286"
+      "sha256": "3c75c91e49b70c7fa17511b9774ac1d34eeb87ceeb6f938ae5f84faffc013b2c"
     },
     "boundaries": {
       "path": "tools/coverage/out/boundaries.geojson",
@@ -180,8 +180,8 @@
     "cells_snapped_too_far": 66593,
     "pop_share_snapped_too_far": 0.0335,
     "dungeon_snap_m": {
-      "p50": 37.0,
-      "p90": 99.9,
+      "p50": 37.1,
+      "p90": 100.0,
       "p100": 1506.5
     },
     "cell_snap_m": {
@@ -197,13 +197,13 @@
       "dy_deg": 0.00083333333
     },
     "measured_route_factor": {
-      "cells": 690749,
+      "cells": 690846,
       "min_straight_m": 250.0,
       "quantiles": {
         "p25": 1.293,
         "p50": 1.445,
         "p75": 1.705,
-        "p90": 2.153
+        "p90": 2.152
       },
       "pop_weighted_median": 1.518
     },
@@ -216,24 +216,24 @@
       },
       "study": {
         "network": {
-          "green": 0.1004,
-          "yellow": 0.5478,
-          "red": 0.3518
+          "green": 0.0995,
+          "yellow": 0.5486,
+          "red": 0.3519
         },
         "straight_x1.2": {
-          "green": 0.2404,
-          "yellow": 0.5824,
+          "green": 0.2395,
+          "yellow": 0.5833,
           "red": 0.1772
         },
         "straight_x1.4": {
-          "green": 0.1906,
-          "yellow": 0.5778,
-          "red": 0.2316
+          "green": 0.1896,
+          "yellow": 0.5787,
+          "red": 0.2317
         },
         "straight_x1.6": {
-          "green": 0.1545,
-          "yellow": 0.562,
-          "red": 0.2835
+          "green": 0.1535,
+          "yellow": 0.5625,
+          "red": 0.284
         }
       },
       "districts": {
@@ -355,8 +355,8 @@
           },
           "straight_x1.2": {
             "green": 0.1667,
-            "yellow": 0.7757,
-            "red": 0.0576
+            "yellow": 0.7749,
+            "red": 0.0585
           },
           "straight_x1.4": {
             "green": 0.1304,
@@ -1405,24 +1405,24 @@
         },
         "3146412": {
           "network": {
-            "green": 0.1203,
-            "yellow": 0.8091,
+            "green": 0.1127,
+            "yellow": 0.8167,
             "red": 0.0707
           },
           "straight_x1.2": {
-            "green": 0.3561,
-            "yellow": 0.6401,
+            "green": 0.3553,
+            "yellow": 0.6409,
             "red": 0.0038
           },
           "straight_x1.4": {
-            "green": 0.28,
-            "yellow": 0.6984,
-            "red": 0.0216
+            "green": 0.2793,
+            "yellow": 0.6983,
+            "red": 0.0224
           },
           "straight_x1.6": {
-            "green": 0.2293,
-            "yellow": 0.7235,
-            "red": 0.0472
+            "green": 0.2269,
+            "yellow": 0.7255,
+            "red": 0.0476
           }
         },
         "3146413": {
@@ -1493,24 +1493,24 @@
         },
         "3146642": {
           "network": {
-            "green": 0.0273,
-            "yellow": 0.85,
-            "red": 0.1227
+            "green": 0.0258,
+            "yellow": 0.8444,
+            "red": 0.1297
           },
           "straight_x1.2": {
-            "green": 0.1652,
-            "yellow": 0.8348,
+            "green": 0.1118,
+            "yellow": 0.8882,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.1196,
-            "yellow": 0.8754,
-            "red": 0.005
+            "green": 0.0751,
+            "yellow": 0.9065,
+            "red": 0.0185
           },
           "straight_x1.6": {
-            "green": 0.091,
-            "yellow": 0.8697,
-            "red": 0.0393
+            "green": 0.0544,
+            "yellow": 0.8478,
+            "red": 0.0977
           }
         },
         "3146643": {
@@ -1608,18 +1608,18 @@
             "red": 0.0
           },
           "straight_x1.2": {
-            "green": 0.7359,
-            "yellow": 0.2641,
+            "green": 0.7341,
+            "yellow": 0.2659,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.5701,
-            "yellow": 0.4299,
+            "green": 0.5665,
+            "yellow": 0.4335,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.4489,
-            "yellow": 0.5511,
+            "green": 0.4475,
+            "yellow": 0.5525,
             "red": 0.0
           }
         },
@@ -1691,23 +1691,23 @@
         },
         "3147425": {
           "network": {
-            "green": 0.4024,
-            "yellow": 0.5916,
+            "green": 0.3617,
+            "yellow": 0.6323,
             "red": 0.006
           },
           "straight_x1.2": {
-            "green": 0.6125,
-            "yellow": 0.3875,
+            "green": 0.5662,
+            "yellow": 0.4338,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.4915,
-            "yellow": 0.5085,
+            "green": 0.4477,
+            "yellow": 0.5523,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.3832,
-            "yellow": 0.6168,
+            "green": 0.3444,
+            "yellow": 0.6556,
             "red": 0.0
           }
         },
@@ -1823,23 +1823,23 @@
         },
         "92056": {
           "network": {
-            "green": 0.4317,
-            "yellow": 0.5683,
+            "green": 0.4183,
+            "yellow": 0.5817,
             "red": 0.0
           },
           "straight_x1.2": {
-            "green": 0.8019,
-            "yellow": 0.1981,
+            "green": 0.8005,
+            "yellow": 0.1995,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.6424,
-            "yellow": 0.3576,
+            "green": 0.6142,
+            "yellow": 0.3858,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.5296,
-            "yellow": 0.4704,
+            "green": 0.5054,
+            "yellow": 0.4946,
             "red": 0.0
           }
         },
@@ -1867,45 +1867,45 @@
         },
         "92061": {
           "network": {
-            "green": 0.7301,
-            "yellow": 0.2699,
+            "green": 0.6974,
+            "yellow": 0.3026,
             "red": 0.0
           },
           "straight_x1.2": {
-            "green": 0.9156,
-            "yellow": 0.0844,
+            "green": 0.9146,
+            "yellow": 0.0854,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.8122,
-            "yellow": 0.1878,
+            "green": 0.7818,
+            "yellow": 0.2182,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.686,
-            "yellow": 0.314,
+            "green": 0.6353,
+            "yellow": 0.3647,
             "red": 0.0
           }
         },
         "92063": {
           "network": {
-            "green": 0.6142,
-            "yellow": 0.3852,
+            "green": 0.4629,
+            "yellow": 0.5365,
             "red": 0.0006
           },
           "straight_x1.2": {
-            "green": 0.8901,
-            "yellow": 0.1099,
+            "green": 0.857,
+            "yellow": 0.143,
             "red": 0.0
           },
           "straight_x1.4": {
-            "green": 0.8168,
-            "yellow": 0.1832,
+            "green": 0.7525,
+            "yellow": 0.2475,
             "red": 0.0
           },
           "straight_x1.6": {
-            "green": 0.7364,
-            "yellow": 0.2636,
+            "green": 0.642,
+            "yellow": 0.358,
             "red": 0.0
           }
         },
@@ -1984,23 +1984,37 @@
     "rail_acceptable_walk_m": 800
   },
   "outputs_sha256": {
-    "data/coverage/candidates.geojson": "9a0605cdacea56e12cd09e9d8b44948fb9221654643f73bd8315907c0e41e286",
-    "data/coverage/excluded.geojson": "db5a7039f2023be1a9438c2de71f91084cfb6b6a9e6869c08ea9badc674eb060",
+    "data/coverage/candidates.geojson": "3c75c91e49b70c7fa17511b9774ac1d34eeb87ceeb6f938ae5f84faffc013b2c",
+    "data/coverage/excluded.geojson": "5a8aca173b26f352761751176b114b47940ea41ca694cad604e591b41945dd12",
     "data/coverage/points-unmatched.geojson": "9398bf0e8117cf601d59231234949887bb37a118eab46e0add7847c2baeeb927",
-    "data/coverage/district-counts.csv": "457c1bdae7798fb5eb96f8c12e99548ac99dc4dbed3328b2f169bb7bd723345e",
-    "data/coverage/heatmap/distance-zones.png": "db034690a263d4ce6c5759806067ffc1f47d2a5868583581e16798a6d5f8b777",
-    "data/coverage/heatmap/index.html": "a9002f734c5ffbb5e936dca5029bf880ada46d0ac628d39fb0aca19bce37a2b4",
+    "data/coverage/district-counts.csv": "d95b32e877a1df281e97a94e9335a18e79c808f33ce16e50dfb84e97963cb028",
+    "data/coverage/heatmap/distance-zones.png": "f38738efe94749e9de12fd0b26018484b60e3ed03662e2796f0015fccdf9fff5",
+    "data/coverage/heatmap/index.html": "8045606ea0819fb940e4a41b3dd6c4fdb0152280a14b30296122194fc9c02651",
     "data/coverage/heatmap/population-density.png": "36ca74b08013cf1d5b0c0a2a5d6fa17ba500e5e0f492dd9d1f9a0143df063b98"
   },
   "counts": {
-    "candidates": 726,
-    "usable": 693,
+    "candidates": 725,
+    "usable": 685,
     "not_counted_review_required": {
       "osm-r16179381": {
         "name": "อุทยานเฉลิมพระเกียรติสมเด็จพระศรีนครินทราบรมราชชนนี",
         "district_osm_id": 3147280,
         "review_reasons": [
           "review_name"
+        ]
+      },
+      "osm-r20081092": {
+        "name": "ไวร์เลส ปาร์",
+        "district_osm_id": 92063,
+        "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-r21198582": {
+        "name": "พาเหรด ปาร์ค",
+        "district_osm_id": 92063,
+        "review_reasons": [
+          "review_osm_id"
         ]
       },
       "osm-w1182846804": {
@@ -2079,6 +2093,42 @@
         "district_osm_id": 3147312,
         "review_reasons": [
           "inside_review_parent"
+        ]
+      },
+      "osm-w1427083286": {
+        "name": "สวนดุสิตอรุณ",
+        "district_osm_id": 92061,
+        "review_reasons": [
+          "flag_rooftop",
+          "review_osm_id"
+        ]
+      },
+      "osm-w145573677": {
+        "name": null,
+        "district_osm_id": 92063,
+        "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-w1477362258": {
+        "name": null,
+        "district_osm_id": 92063,
+        "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-w1547833479": {
+        "name": null,
+        "district_osm_id": 92063,
+        "review_reasons": [
+          "review_osm_id"
+        ]
+      },
+      "osm-w1553932651": {
+        "name": "คลาวด์ 11 พาร์ค",
+        "district_osm_id": 3146642,
+        "review_reasons": [
+          "flag_rooftop"
         ]
       },
       "osm-w168687083": {
@@ -2233,20 +2283,20 @@
     }
   },
   "totals": {
-    "usable_dungeons": 693,
+    "usable_dungeons": 685,
     "districts": 79,
     "districts_with_usable_dungeon": 76,
     "population": 21304949,
-    "pop_share_green": 0.1004,
-    "pop_share_yellow": 0.5478,
-    "pop_share_red": 0.3518,
+    "pop_share_green": 0.0995,
+    "pop_share_yellow": 0.5486,
+    "pop_share_red": 0.3519,
     "pop_share_red_snap": 0.0335
   },
   "pipeline": {
     "pipeline_version": "1.1.0",
     "final": {
-      "candidates": 726,
-      "excluded": 6302,
+      "candidates": 725,
+      "excluded": 6303,
       "points_unmatched": 581,
       "district_unassigned": 0
     },
@@ -2266,19 +2316,19 @@
       {
         "step": "blocklist",
         "in": 1591,
-        "out": 734,
-        "removed": 857
+        "out": 733,
+        "removed": 858
       },
       {
         "step": "overlap",
-        "in": 734,
-        "out": 726,
+        "in": 733,
+        "out": 725,
         "removed": 8
       }
     ],
     "run": {
-      "started_unix": 1790423017,
-      "duration_s": 47.2,
+      "started_unix": 1790476674,
+      "duration_s": 47.6,
       "python": "3.14.7",
       "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
       "packages": {
@@ -2292,17 +2342,17 @@
   },
   "output_bytes": {
     "districtCounts": 34105,
-    "heatmapHtml": 576850,
-    "heatmapPngs": 193519
+    "heatmapHtml": 575309,
+    "heatmapPngs": 193523
   },
   "run": {
-    "started_unix": 1790423065,
-    "duration_s": 18.4,
+    "started_unix": 1790476722,
+    "duration_s": 18.7,
     "timings_s": {
       "load_and_verify": 0.2,
       "walk_graph": 0.0,
       "population_raster": 1.4,
-      "routing_and_metrics": 16.2,
+      "routing_and_metrics": 16.5,
       "write_outputs": 0.3
     },
     "python": "3.14.7",

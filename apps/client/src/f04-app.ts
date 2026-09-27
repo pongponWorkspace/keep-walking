@@ -30,12 +30,14 @@ import { displayDistance } from './dungeons/distance';
 import { formatCopyText } from './copy/format';
 import type { AssetRuntime } from './assets/icon-dom';
 import { compassPointTo } from './dungeons/direction';
-import { parseRunSeedParam } from './clock/query-params';
+import { E2E_CLASS_ID_PARAM, parseE2eClassIdParam, parseRunSeedParam } from './clock/query-params';
 import { mountDungeonConfirm } from './ui/dungeon-confirm';
 import { mountRunBar } from './ui/run-bar';
 import { mountSpeedLockOverlay } from './ui/speed-lock-overlay';
 import { mountRunSummary } from './ui/run-summary';
 import { mountNavPanel } from './ui/nav-panel';
+import { mountTickToast } from './ui/tick-toast';
+import { createAudioPlayer } from './assets/audio-player';
 import type { DungeonSourceMap } from './map/dungeons-source';
 import { createDungeonLabelCache, setDungeonsSourceData } from './map/dungeons-source';
 
@@ -54,12 +56,28 @@ export interface F04AppDeps {
   readonly sessionId: string;
   readonly appVersion: string;
   readonly platform: string;
-  readonly vibrate: (pattern_ms: number) => void;
+  /** Widened (P2-F05-T10) to accept a full `navigator.vibrate` pattern array, not just one
+   * duration — every reward-tick/drop cue in `audio/manifest.json` carries `vibration_ms` as an
+   * array (the two existing single-number call sites below still work: `number` is assignable
+   * wherever `number | readonly number[]` is expected). */
+  readonly vibrate: (pattern_ms: number | readonly number[]) => void;
   readonly isOnline: () => boolean;
   readonly userAgent: string;
   readonly maxTouchPoints: number;
   readonly assets: AssetRuntime;
   readonly copyToClipboard: (text: string) => Promise<boolean>;
+  /** `new Audio(url).play()` (or equivalent) — the one place `assets/audio-player.ts` actually
+   * starts real playback; injected so tests never touch a real `<audio>` element. */
+  readonly playAudioUrl: (url: string) => void;
+  /** The game clock's own `now()` (`clock/game-clock.ts`), not a bare `Date.now()`: every
+   * dispatch this module makes — including the ones triggered by a tap (confirm/exit/ack), not
+   * just `onSample`/`onTick` — must share the same clock. Web's game clock already is
+   * `Date.now`, so production behavior is unchanged; a Mock replay at `speed=60` is where these
+   * two clocks diverge (the replayed `now_ms` races ahead of real wall time), and a tap dispatched
+   * with a stale wall-clock `at_ms` at that point would look like the session clock running
+   * backwards to `sessionStep` (fixed while wiring this task's own e2e, P2-F05-T10).
+   */
+  readonly now: () => number;
 }
 
 export interface F04App {
@@ -128,6 +146,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     });
   }
 
+  const e2eClassId = parseE2eClassIdParam(window.location.search, E2E_CLASS_ID_PARAM);
   const engine = createSessionEngine(
     params,
     {
@@ -140,8 +159,9 @@ export function createF04App(deps: F04AppDeps): F04App {
         telemetry.record(name, properties as Record<string, string | number | boolean | null>);
         persistTelemetry();
       },
+      ...(e2eClassId !== undefined ? { testForceClassId: e2eClassId } : {}),
     },
-    Date.now(),
+    deps.now(),
   );
 
   const labelCache = createDungeonLabelCache();
@@ -150,38 +170,59 @@ export function createF04App(deps: F04AppDeps): F04App {
     const inputs = artifact.dungeons.map((d) => toMapDungeonInput(d, params, now_ms));
     setDungeonsSourceData(deps.map, inputs, labelCache);
   }
-  refreshMapDungeons(Date.now());
+  refreshMapDungeons(deps.now());
+
+  // Reward-tick sound + vibration (F05 flow Flow A5, audio/cue-list.md section 4's single
+  // priority-queue channel — the safety cues F06-T14 adds later share this exact same instance,
+  // never a second queue): `assets/audio.ts`'s pure queue driven by real playback/timers here.
+  const audioPlayer = createAudioPlayer({
+    assets: deps.assets,
+    vibrate: deps.vibrate,
+    playUrl: deps.playAudioUrl,
+    now: Date.now,
+    setTimer: (run, delay_ms) => window.setTimeout(run, delay_ms),
+    clearTimer: (handle) => window.clearTimeout(handle),
+  });
 
   // --- Screens (F04 flow priority: speed-lock > summary > run > confirm > map/nav) ---
   const confirmPopup = mountDungeonConfirm(deps.hudContainer, {
     onEnter: (dungeonId) => {
       const events = engine.dispatch(
         { type: 'confirm', dungeonId, runSeed: resolveRunSeed() },
-        Date.now(),
+        deps.now(),
       );
       handleSessionEvents(events);
     },
     onCancel: () => confirmPopup.hide(),
   });
   const runBar = mountRunBar(deps.hudContainer, {
-    onExitConfirmed: () => handleSessionEvents(engine.dispatch({ type: 'exit' }, Date.now())),
+    onExitConfirmed: () => handleSessionEvents(engine.dispatch({ type: 'exit' }, deps.now())),
   });
   const speedLockOverlay = mountSpeedLockOverlay(deps.hudContainer, {
     onSettings: () => {
       window.location.hash = '#/settings';
     },
-    onExit: () => engine.dispatch({ type: 'exit' }, Date.now()),
+    onExit: () => engine.dispatch({ type: 'exit' }, deps.now()),
     vibrate: deps.vibrate,
     vibrateOnEnterPattern_ms: clientConfig.vibration.speedLockEnter_ms,
   });
   const runSummary = mountRunSummary(
     deps.hudContainer,
     () => {
-      engine.dispatch({ type: 'ackSummary' }, Date.now());
+      engine.dispatch({ type: 'ackSummary' }, deps.now());
       runSummary.hide();
     },
-    deps.assets,
+    {
+      assets: deps.assets,
+      autoRetreatThresholdPct: params.config.hpSafety.autoRetreatThreshold_pct,
+    },
   );
+  const tickToast = mountTickToast(deps.hudContainer, {
+    assets: deps.assets,
+    audio: audioPlayer,
+    holdDurationMs: clientConfig.toast.tickHoldDurationMs,
+    maxIconsShown: clientConfig.toast.tickMaxIconsShown,
+  });
   const navPanel = mountNavPanel(deps.hudContainer, {
     externalOpenTimeout_ms: clientConfig.navigation.externalOpenTimeout_ms,
     onNavigationLinkOpened: () => undefined,
@@ -304,6 +345,19 @@ export function createF04App(deps: F04AppDeps): F04App {
         );
       } else if (event.type === 'dungeon_exited') {
         runBar.hideClosingSoonWarning();
+      } else if (event.type === 'run_tick_granted') {
+        // F05 flow Flow A1/A2/A4: the toast is the one place icon/effect/sound/vibration for a
+        // granted tick come together — `event` already carries everything `sessionStep` decided
+        // (loot, firstEver, levelBefore/After), never recomputed here.
+        tickToast.showGranted({
+          loot: event.loot,
+          firstEver: event.firstEver,
+          levelBefore: event.levelBefore,
+          levelAfter: event.levelAfter,
+          at_ms: event.at_ms,
+        });
+      } else if (event.type === 'run_tick_denied') {
+        tickToast.showDenied({ at_ms: event.at_ms });
       }
     }
   }

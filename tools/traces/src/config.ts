@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url';
 export const REPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 export const SYNTHETIC_DIR = `${REPO_ROOT}data/gps-traces/synthetic/`;
 
-export type { GateComparison } from '../../../packages/geo/src/index';
-import type { GateComparison } from '../../../packages/geo/src/index';
+export type { GateComparison } from '@keep-walking/geo';
+import type { GateComparison } from '@keep-walking/geo';
 
 export interface TraceConfig {
   /** dungeons.json#movementGate.minDistancePerWindow_m */

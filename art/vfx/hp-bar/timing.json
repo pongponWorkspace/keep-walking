@@ -1,0 +1,26 @@
+{
+  "_meta": {
+    "task": "P2-F06-T05",
+    "owner": "vfx-animator",
+    "source": "art/vfx/specs/motion-direction.md §3 (\"HP bar เปลี่ยนค่า\"), §6.3 point 1 (death hard-cut) · design/ux/components.md §7, §13.6"
+  },
+  "tweenHpFill": {
+    "cueId": null,
+    "durationMs": 200,
+    "easing": "ease-out",
+    "properties": ["transform"],
+    "note": "used for every HP change except death's hard-cut: damage, auto-potion/heal, passive Recovering regen, revive potion — none of these have a dedicated audio cue of their own beyond run.hpLow/run.autoPotionUsed which animate the toast, not the bar"
+  },
+  "hardCutHpFill": {
+    "cueId": null,
+    "durationMs": 0,
+    "properties": ["transform"],
+    "note": "death only (motion-direction §6.3 point 1) — bar snaps to scaleX(0) with no drain animation"
+  },
+  "setHpFillReduced": {
+    "cueId": null,
+    "durationMs": 0,
+    "properties": ["transform"],
+    "note": "reduced-motion variant for tweenHpFill/hardCutHpFill alike — same end state, no intermediate motion"
+  }
+}

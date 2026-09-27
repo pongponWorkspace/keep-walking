@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>VFX demo — Quick-command emotes (P2-F06-T05)</title>
+    <link rel="stylesheet" href="./shared/demo.css" />
+    <style>
+      .qc-stage {
+        position: relative;
+        width: 84px;
+        height: 84px;
+        margin: 0 auto 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-night);
+        border-radius: 8px;
+      }
+      .qc-hand {
+        position: absolute;
+        top: 18px;
+        right: 6px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent-signal);
+        transform-origin: -14px 6px;
+      }
+      .qc-arm {
+        position: absolute;
+        top: 22px;
+        left: 4px;
+        width: 4px;
+        height: 20px;
+        background: var(--ink-300);
+        transform-origin: top center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Quick-command emotes — pose kit (avatar-spec §10)</h1>
+    <p class="demo-note"><a href="./index.html">&larr; all demos</a> · loads <code>art/vfx/dist/</code> — Firefox opens via file:// directly; Chromium/WebKit need a static server (see index.html).</p>
+    <p class="demo-note">
+      Source: <code>art/vfx/quick-command/quick-command.ts</code> · spec:
+      <code>art/vfx/specs/quick-command.md</code> · motion-direction §5 ·
+      art/direction/avatar-spec.md §10. <b>Client integration into a live Nearby Party card is
+      Phase 3 F09 scope</b> — this demo plays each emote on a generic layered stand-in
+      (<code>.avatar-root</code> + optional <code>.pose-hand</code>/<code>.arm-p</code>), not real
+      sprite art.
+    </p>
+    <div class="demo-row" id="rows"></div>
+
+    <script type="module">
+      import { play } from '../dist/core/vfx.js';
+      import '../dist/quick-command/quick-command.js';
+
+      const cases = [
+        { id: 'qc.arrived', label: 'มาแล้วจ้า', child: 'hand' },
+        { id: 'qc.onMyWay', label: 'กำลังไป รอแป๊บ', child: 'arm' },
+        { id: 'qc.goOn', label: 'ไปต่อ', child: null },
+        { id: 'qc.needHeal', label: 'ขอเลือดหน่อย', child: null },
+        { id: 'qc.hpCritical', label: 'เลือดจะหมดแล้ว', child: null },
+        { id: 'qc.needCover', label: 'ช่วยบังหน่อย', child: null },
+        { id: 'qc.needBreak', label: 'ขอพักแป๊บ', child: null },
+        { id: 'qc.retreating', label: 'ขอถอยก่อนนะ', child: 'arm' },
+        { id: 'qc.goodDrop', label: 'ของออกแล้ว', child: null },
+        { id: 'qc.thanks', label: 'ขอบคุณ', child: null },
+      ];
+
+      const rows = document.getElementById('rows');
+
+      for (const c of cases) {
+        const card = document.createElement('div');
+        card.className = 'demo-card';
+        const childHtml =
+          c.child === 'hand'
+            ? '<div class="qc-hand pose-hand"></div>'
+            : c.child === 'arm'
+              ? '<div class="qc-arm arm-p"></div>'
+              : '';
+        card.innerHTML = `
+          <h3>${c.label}</h3>
+          <div class="qc-stage">
+            <div class="demo-avatar-root avatar-root" data-root>P${childHtml}</div>
+          </div>
+          <button data-play>Play ${c.id}</button>
+          <div class="demo-measure" data-measure></div>
+        `;
+        rows.appendChild(card);
+
+        const button = card.querySelector('[data-play]');
+        const measure = card.querySelector('[data-measure]');
+
+        button.addEventListener('click', async () => {
+          const root = card.querySelector('[data-root]');
+          performance.mark(`${c.id}-start`);
+          await play(c.id, root);
+          performance.mark(`${c.id}-end`);
+          const m = performance.measure(c.id, `${c.id}-start`, `${c.id}-end`);
+          measure.textContent = `measured: ${m.duration.toFixed(1)} ms · one-shot, no loop`;
+        });
+      }
+    </script>
+  </body>
+</html>

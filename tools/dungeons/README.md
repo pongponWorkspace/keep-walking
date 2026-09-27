@@ -36,6 +36,7 @@
 | --- | --- | --- |
 | `schema` | error | `dungeon.schema.json` (รวม field บังคับ `verification_mode`, `floor_level`) |
 | `duplicate_id` | error | tech note 13.2 |
+| `start_level_not_covered` (id `(file)`) | error | tech note F06 9.2 (กรณีบั๊กของข้อมูล, P2-H22) · ไม่มี dungeon ที่ publish ได้ (อยู่ใน artifact) ที่ `level_range.min ≤ startLevel ≤ level_range.max` · `startLevel` อ่านจาก `paths.startLevel` → `config/balance/progression.json#level.startLevel` · ค่าหายหรือไม่ใช่จำนวนเต็ม ≥ 1 = build หยุด |
 | `geometry_missing`, `geometry_invalid`, `geometry_out_of_bounds` | error | ring ปิด ≥ 4 จุด, ไม่ตัดตัวเอง, hole อยู่ใน, ส่วนของ MultiPolygon ไม่ทับกัน, อยู่ใน `validator.bounds` |
 | `area_out_of_range` | error (`area.outOfRange`) | กฎข้อ 1 · `config/balance/dungeons.json#area` · คำนวณใน EPSG:32647 เท่ากับ `tools/coverage` |
 | `overlap_dungeon` | error (published ทั้งคู่) / warning | กฎข้อ 2 · เกิน `validator.maxOverlap_m2` |
@@ -48,7 +49,7 @@
 | `opening_hours_manual_required`, `opening_hours_outside_grammar`, `opening_hours_invalid` | error | F04-R26 · tech note 8.1 |
 | `blocklist_tag`, `religious_name`, `osm_id_excluded` | error | กฎข้อ 8, 10 · D-006 · D-083 |
 | `review_tag`, `review_name`, `review_osm_id` | review | กฎข้อ 9 (SF-9) |
-| `review_flag_<ชื่อ>` | review | `coverageFilter.reviewFlagTags` + `validator.extraReviewFlagTags` (`civic_building` = `building=civic`, `roof` = `location=roof`) |
+| `review_flag_<ชื่อ>` | review | `coverageFilter.reviewFlagTags` (รวม `civic_building` = `building=civic`, `rooftop` = `location=roof` ตั้งแต่ P2-H07) + `validator.extraReviewFlagTags` (ว่างตั้งแต่ P2-X25) |
 | `candidate_<flag>` | review | flag ของ candidate ที่ `osm_id` ตรง (`contains_religious_feature`, `crosses_major_way`, `review_required`) |
 | `aspect_ratio` | review | กฎข้อ 12 · `coverageFilter.maxAspectRatio` (minRotatedRectangle) |
 | `entrance_far_from_edge` | error | กฎข้อ 4 · `validator.entranceMaxBoundaryDistance_m` |

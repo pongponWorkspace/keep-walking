@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "task": "P2-F06-T05",
+    "owner": "vfx-animator",
+    "source": "art/vfx/specs/motion-direction.md §3 (Banner/Toast เข้า/ออก), §9 · design/ux/components.md §6 · design/ux/flows/F04-dungeon-presence.md §6 (แก้ C-5)"
+  },
+  "run.stateGrace": {
+    "cueId": null,
+    "durationMs": 200,
+    "easing": "ease-out",
+    "properties": ["transform", "opacity"],
+    "note": "no audio cue exists for entering Grace (only Suspended/Resumed do) — banner-entrance motion still applies, same cueId:null precedent as run.levelUp",
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "run.stateSuspended": {
+    "cueId": "run.stateSuspended",
+    "durationMs": 200,
+    "easing": "ease-out",
+    "properties": ["transform", "opacity"],
+    "note": "identical entrance shape to run.stateGrace — separate registration only because it is a separate cue id; visual distinction (info vs info-full banner width/tint) is a CSS/class concern, not motion",
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "run.stateResumed": {
+    "cueId": "run.stateResumed",
+    "durationMs": 150,
+    "easing": "ease-out",
+    "properties": ["transform", "opacity"],
+    "reducedMotion": { "durationMs": 100, "properties": ["opacity"] }
+  },
+  "dungeon.confirmEnter": {
+    "cueId": "dungeon.confirmEnter",
+    "durationMs": 300,
+    "easing": "ease-out",
+    "properties": ["transform", "opacity"],
+    "note": "reuses the shared screenTransitionIn primitive (core/beats.ts) on the incoming S-03-run root; the outgoing confirm popup has no prescribed exit motion in any spec read for this task",
+    "reducedMotion": { "durationMs": 150, "properties": ["opacity"] }
+  },
+  "bannerExit (shared helper, not a registered effect)": {
+    "durationMs": 150,
+    "easing": "ease-in",
+    "properties": ["transform", "opacity"]
+  }
+}

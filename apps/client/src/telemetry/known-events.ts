@@ -36,6 +36,11 @@ export const KNOWN_EVENT_NAMES: ReadonlySet<string> = new Set([
   'run_death',
   'auto_retreat_setting_changed',
   'run_potion_auto_used',
+  // P2-H24 (product/telemetry-events.md): `potion_used`/`potion_use_rejected` SessionEvents (used
+  // outside a run, F06) map to this event — the mapper itself is P2-F06-T08/T09's build (same
+  // "declared here, wired by the client task that builds the screen" convention `run_hp_low` etc.
+  // already followed in `telemetry/f04-events.ts`'s own comment).
+  'inventory_potion_used',
   'anticheat_speed_lock_triggered',
   'session_state_discarded',
   'storage_quota_exceeded',

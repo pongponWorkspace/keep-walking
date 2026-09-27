@@ -86,6 +86,22 @@ cd tools/coverage
 - test: `tests/test_playable_outputs.py` ตรวจไฟล์ที่ commit โดยไม่ต้องมี D1 (ขนาด, 6 จังหวัดตาม params, bbox ตรงกับ geometry ในระยะ buffer, tile bbox ครอบทุกจังหวัด) · `--check` รันเมื่อมี `out/` เท่านั้น (ข้ามพร้อมเหตุผลใน CI)
 - ผลบนข้อมูล 2026-09-01: เหมือนการตรวจแบบเดิมจาก `out/` ทุกตัวเลข (ขอบห่าง bbox ตะวันตก 1,806 ม. ตะวันออก 3,902 ม. ใต้ 2,788 ม. เหนือ 8,177 ม.)
 
+## รายชื่อเขต/อำเภอของพื้นที่ศึกษา (P2-H26, D-126) → `data/map/study-districts.json`
+
+รายการ S-09 = เขตในพื้นที่ศึกษา ลบ `data/map/launch-area.geojson` (76 เขตภายใต้ D-083) · ทั้งสองไฟล์มาจากชุดข้อมูลเดียวกัน (D1)
+
+- ต่อเขต: `id`, `osmRelationId`, `provinceIso` · ไม่มี geometry · 79 เขตรวม 3 เขตเปิดตัว · ลำดับตามจังหวัดใน `tools/coverage/params.json#pipeline.studyArea.provinces` แล้วตาม relation id · 6,411 byte
+- กฎของ id: `name:en` ของ OSM ตัด " District" ท้ายออก แล้วต่อคำแบบ lowerCamelCase (`Phra Nakhon District` → `phraNakhon`, `Mueang Samut Prakan District` → `mueangSamutPrakan`, `Vadhana District` → `vadhana`, `Bangkok Yai District` → `bangkokYai`, `Thon Buri District` → `thonBuri`) · ชื่อที่มีอักษรนอก A–Z, 0–9, เว้นวรรค, ขีด = build หยุด
+- build หยุดถ้า id ซ้ำ, จำนวนต่อจังหวัดไม่ตรง `expectedDistricts`, หรือ id/relation ของเขตเปิดตัวไม่ตรง `launchArea.districts`
+- test (`tests/test_study_districts.py`, อยู่ใน `pnpm test`): `build --check` · 79 เขต/76 หลังลบเขตเปิดตัว · id ตรงกับ `launch-area.geojson` · ชุด id เท่ากับคีย์ `district.<id>` ใน `config/content/names.th.json` และ `_osmRelationId`/`_provinceIso` ตรงกัน
+
+```sh
+cd tools/coverage
+.venv/bin/python -m boundaries.districts extract          # ต้องมี out/boundaries.geojson (รัน pipeline ก่อน)
+.venv/bin/python -m boundaries.districts build            # ไม่ต้องมี D1 · < 1 วินาที
+.venv/bin/python -m boundaries.districts build --check    # เทียบกับไฟล์ที่ commit · exit 1 ถ้าไม่ตรง
+```
+
 ## License
 
 ทุกไฟล์ใน `data/map/` และ `launch-area.source.geojson`: ODbL 1.0 · © OpenStreetMap contributors · ตารางเต็มใน `data/map/LICENSE-DATA.md`

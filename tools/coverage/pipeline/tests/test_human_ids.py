@@ -134,24 +134,71 @@ def test_bad_id_lists_stop_the_run(tmp_path, over):
         load_config(DEFAULT_PARAMS, _write(tmp_path, **over))
 
 
-# D-083 (HUMAN 2026-09-25), numbering = design/levels/coverage-report.md section 6.
+# Every HUMAN decision that sets osm id statuses, one exact table each. A new decision gets a
+# new table here; an id in the config that no table names (or a table id missing from the
+# config, or in the wrong list) fails the test.
+# D-083 (HUMAN 2026-09-25): numbered items of design/levels/coverage-report.md section 6.
 D083 = {
     "exclude": {1, 2, 3, 4, 5, 8, 12, 13, 14, 15, 16, 17, 20, 22, 23},
     "pending": {6, 7, 10, 18, 19, 21, 24, 25},
     "release": {9, 11},
 }
+# D-109 (HUMAN 2026-09-26, P2-H10): no item numbers, so the table holds the osm ids.
+D109 = {
+    "exclude": {"osm-w231293478"},  # Post Office (building=civic)
+    "pending": {
+        "osm-w1427083286",  # Dusit Arun (location=roof)
+        # One Bangkok group, held with D-083 #25
+        "osm-r20081092", "osm-r21198582", "osm-w1477362258", "osm-w1547833479", "osm-w145573677",
+    },
+    "release": set(),
+}
+STATUS_LIST = {"exclude": "excludeOsmIds", "pending": "reviewOsmIds", "release": "releaseOsmIds"}
 
 
-def test_config_matches_d083():
+def _note(osm_id: str, note: str) -> tuple[str, str, str | None]:
+    """(decision, status, item) from '<D-nnn> <status> [#<n>] <label>'."""
+    words = note.split()
+    assert len(words) >= 3 and words[0] in ("D-083", "D-109"), (osm_id, note)
+    item = words[2].lstrip("#") if words[2].startswith("#") else None
+    return words[0], words[1], item
+
+
+def test_config_matches_human_decisions():
     cf = CFG.cf
     notes = cf["_osmIdNotes"]
-    lists = {"exclude": cf["excludeOsmIds"], "pending": cf["reviewOsmIds"], "release": cf["releaseOsmIds"]}
-    for status, ids in lists.items():
-        nums = set()
+    seen: dict[str, dict[str, set]] = {d: {s: set() for s in STATUS_LIST} for d in ("D-083", "D-109")}
+    for status, key in STATUS_LIST.items():
+        ids = cf[key]
+        assert len(ids) == len(set(ids)), key
         for i in ids:
-            words = notes[i].split()
-            assert words[0] == "D-083" and words[1] == status, (i, notes[i])
-            nums.add(int(words[2].lstrip("#")))
-        assert nums == D083[status], status
-        assert len(ids) == len(D083[status])
-    assert set(notes) == set().union(*lists.values())
+            assert i in notes, f"{key}: {i} has no _osmIdNotes label"
+            decision, note_status, item = _note(i, notes[i])
+            # the note's status must match the list the id sits in
+            assert note_status == status, (i, key, notes[i])
+            if decision == "D-083":
+                assert item is not None and item.isdigit(), (i, notes[i])
+                seen[decision][status].add(int(item))
+            else:
+                assert item is None, (i, notes[i])
+                seen[decision][status].add(i)
+    assert seen["D-083"] == D083
+    assert seen["D-109"] == D109
+    assert len(cf["excludeOsmIds"]) == 16 and len(cf["reviewOsmIds"]) == 14
+    assert len(cf["releaseOsmIds"]) == 2
+    assert set(notes) == {i for key in STATUS_LIST.values() for i in cf[key]}
+
+
+def test_decision_tables_do_not_overlap():
+    for table in (D083, D109):
+        buckets = list(table.values())
+        for k, a in enumerate(buckets):
+            for b in buckets[k + 1:]:
+                assert not (a & b)
+
+
+def test_d109_flag_tags_present():
+    """P2-H07: the two flags D-109 is based on are configured (area-independent review)."""
+    flags = CFG.cf["reviewFlagTags"]
+    assert flags["civic_building"] == ["building=civic"]
+    assert flags["rooftop"] == ["location=roof"]

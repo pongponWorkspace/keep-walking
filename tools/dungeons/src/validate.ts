@@ -407,6 +407,20 @@ export function validateRecords(
       publishable.push(result.prepared);
     }
   }
+  // P2-H22 (tech note F06 9.2 data bug case): onboarding needs a dungeon for the start level.
+  // Checked on the artifact input itself, so a record that covers the level but is blocked by an
+  // error does not count. Fail-closed: no covering record is an error, even with zero records.
+  const start = ctx.startLevel;
+  if (
+    !publishable.some((p) => p.record.level_range.min <= start && start <= p.record.level_range.max)
+  ) {
+    issues.push({
+      id: FILE_ID,
+      code: 'start_level_not_covered',
+      severity: 'error',
+      message: `no publishable dungeon has level_range covering startLevel ${start} (${ctx.build.paths.startLevel.file}#${ctx.build.paths.startLevel.key}); onboarding would recommend nothing`,
+    });
+  }
   issues.sort(compareIssues);
   publishable.sort((a, b) => (a.record.id < b.record.id ? -1 : a.record.id > b.record.id ? 1 : 0));
   return { ok: !issues.some((i) => i.severity === 'error'), issues, publishable };

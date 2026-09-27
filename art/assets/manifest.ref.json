@@ -7,7 +7,7 @@
     {
       "id": "ref.avatar.composite-f03",
       "kind": "reference",
-      "status": "draft",
+      "status": "approved",
       "placeholder": false,
       "size": {
         "width": 552,
@@ -19,21 +19,21 @@
           "format": "svg",
           "scale": null,
           "variant": null,
-          "bytes": 182709,
+          "bytes": 184762,
           "width": 552,
           "height": 636,
-          "sha256": "6401b497b271038e579ebc0882632a1354698646c956daa39b6f1f399543e8d7"
+          "sha256": "29de298914d89723d729ac767927409265f86419ffeb0b0299bb4c2371d62597"
         }
       ],
       "source": {
         "method": "agent-svg",
         "author": "artist-2d",
-        "task": "P2-F05-T04",
+        "task": "P2-X26",
         "master": null,
         "prompt": null,
         "tool": null,
         "origin": null,
-        "date": "2026-09-24"
+        "date": "2026-09-27"
       },
       "license": {
         "spdx": "LicenseRef-KeepWalking-Original",
@@ -44,7 +44,12 @@
         "modified": false
       },
       "shipped": false,
-      "notes": "V-19 (P2-F05-T04): เพิ่มแถว side และ back ขนาด/พื้นหลังเดียวกับแถว front (3 แถว x 4 แผงต่อแถว = bg.paper และ bg.surface บน bg.night จริงที่ 128x160 และ 96x120) · เนื้อหาทั้ง 3 view ดึงจาก art/src/avatar และ art/assets/avatar โดยตรง (extraction script, ไม่ใช่คัดลอกมือ) จึงได้ V-18 clipPath fix ติดมาด้วยทุก view · panel การ์ดกลางคืนวางแผ่น bg.surface สีขาวทับพื้น bg.night #1A1A22 จริง (เว้น padding ซ้าย/ขวา/ล่าง 10px ให้เห็นขอบมืด) แทนแผ่นขาวเดี่ยวๆ เดิม · id ภายในทุกแผงถูก namespace แยกไม่ซ้ำกัน (363 id, 0 ซ้ำ) · z-order ตาม avatar-spec 5.2: shadow, hair_back, body, face, hair, outfit_feet, outfit_body, weapon (ไม่รวมวงมือจับที่ถูกมือจริงทับ), arm/sleeve x2, accessory_charm/head/face · ด้วย ramp.skin-1 และ ramp.hair-1 (ไม่ใช่ key color) · เรนเดอร์ตรวจแล้วด้วย resvg (ดู PNG ที่แนบใน report P2-F05-T04) · ไม่ใช่ asset ที่ส่งถึงผู้เล่น (shipped:false) ใช้ตรวจ content gate เท่านั้น · มี <text> ป้ายกำกับได้เพราะเป็นไฟล์ reference (เหมือน ref.style-tile.v1) · สถานะยังเป็น draft รอ art-director ตรวจรอบใหม่ก่อนเปลี่ยนเป็น approved (R2-6 ของ F03-visual-gate.md)"
+      "notes": "V-19 (P2-F05-T04): เพิ่มแถว side และ back ขนาด/พื้นหลังเดียวกับแถว front (3 แถว x 4 แผงต่อแถว = bg.paper และ bg.surface บน bg.night จริงที่ 128x160 และ 96x120) · เนื้อหาทั้ง 3 view ดึงจาก art/src/avatar และ art/assets/avatar โดยตรง (extraction script, ไม่ใช่คัดลอกมือ) จึงได้ V-18 clipPath fix ติดมาด้วยทุก view · id ภายในทุกแผงถูก namespace แยกไม่ซ้ำกัน · ด้วย ramp.skin-1 และ ramp.hair-1 (ไม่ใช่ key color) · มี <text> ป้ายกำกับได้เพราะเป็นไฟล์ reference (เหมือน ref.style-tile.v1) · ไม่ใช่ asset ที่ส่งถึงผู้เล่น (shipped:false) ใช้ตรวจ content gate เท่านั้น — P2-X26 (art-director review P2-H17, D-124 conditional approval): แก้ V-26 (view side: ย้าย arm_p+sleeve_p ไปหลัง hair_back ก่อน body แก้ปัญหา 'แขนที่สาม' ทับลำตัว) และ V-27 (view back: ย้าย weapon ไปก่อน body/E3, ย้าย hair_back ไปหลัง outfit_body ก่อน arm_w/E2 แก้ร่มทับหัวและผมหายใต้เสื้อ) ด้วยสคริปต์ reorder บล็อกต่อ layer (defs+clipPath+g ต่อ r-index) แล้ว assert จำนวน/ลำดับก่อนเขียนไฟล์ ตรวจผลด้วย resvg render+PIL diff เทียบก่อน/หลังที่ 4x (ดู REPORT ของ P2-X26) · แก้ V-28 ไปพร้อมกัน (ไม่ blocking): rect พื้น bg.night ของแผงกลางคืนเพิ่มระยะขอบบน y=-10/h=180 (128px) และ y=-10/h=140 (96px) ให้เท่ากับซ้าย/ขวา/ล่าง 10px ทุกด้าน พร้อมขยับป้ายชื่อแผงกลางคืน (label) ขึ้น 10px กันชนพื้นมืดที่ขยายขึ้น (ตรวจแล้วไม่ชนหัวข้อแถวด้านบน) · ตาราง avatar-spec 5.2 ไม่เปลี่ยน จึงไม่กระทบ avatarRig:1 และไม่ต้องวาด layer ใหม่ (แก้เฉพาะลำดับประกอบใน ref) · เปลี่ยนสถานะจาก draft เป็น approved ตามเงื่อนไขที่ art-director ระบุไว้ล่วงหน้าใน `art/direction/reviews/P2-H17-icon-night-and-composite.md` หัวข้อ 4 (ยืนยันซ้ำที่ content gate ถัดไปที่ใช้ avatar)",
+      "review": {
+        "gate": "art/direction/reviews/P2-H17-icon-night-and-composite.md",
+        "verdict": "PASS",
+        "date": "2026-09-27"
+      }
     },
     {
       "id": "ref.style-tile.v1",

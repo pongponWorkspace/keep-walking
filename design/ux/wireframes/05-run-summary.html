@@ -10,6 +10,14 @@
   <h1>S-04-run-summary — ทางออกเดียวของทุกเส้นทางใน Flow C (หัวข้อ 4.8)</h1>
   <p>หัวข้อบอกสาเหตุที่จบให้ชัด ไม่ใช้คำเดียวกันทุกกรณี · ปุ่มเดียวเด่นสุดกลับ S-01-map เสมอ ไม่มีหน้าจอปลายทางอื่น</p>
 </div>
+<div class="issue-box" style="margin:16px 0;padding:16px;border:2px solid var(--state-danger);">
+  <strong>เอกสารนี้เป็น Phase 1 (F03) — ถูกแทนที่แล้วสำหรับ Phase 2 (P2-X30, carry-over จาก P2-X14):</strong> copy key และเนื้อหาไม่ตรงกับ Phase 2 อีกต่อไป (เช่น <code>run.summary.completed</code> ไม่ใช่ key จริงใน <code>copy.th.json</code>, thaidraft ของ <code>run.summary.died</code> ยังเป็น "คุณตาย ของหายหมด" เดิมที่ narrative แก้เป็น "HP หมด" แล้ว, ไม่มีบรรทัด canon <code>run.death</code>/<code>run.autoRetreat</code> ตาม B-01) ใช้ต่อไม่ได้ตรงๆ
+  <ul style="margin:8px 0 0 20px;">
+    <li>ทุกสถานะ (จบปกติ, ตาย, ออกเอง, ปิดฉุกเฉิน) → แทนที่ด้วย <code>design/ux/wireframes/F05-02-run-summary-detail.html</code> (โครงหน้าสรุปเต็มของ Phase 2 ตามลำดับ B-01: หัวข้อ → canon → รายละเอียด → รายการของ → ปุ่มเดียว)</li>
+    <li>สถานะตายและ auto-retreat โดยเฉพาะ → ดู <code>design/ux/wireframes/F06-03-hp-warning-autoretreat-death-recovering.html</code> และ <code>design/ux/wireframes/F04-04-run-state-summary.html</code> ด้วย (ปิด run.death.waitRecover ฯลฯ ที่สงวนไว้ Phase 3)</li>
+  </ul>
+  ไม่ลบไฟล์นี้เพราะยังมีค่าอ้างอิงเชิงประวัติ (บันทึก D-050 เรื่องเพดาน <code>buttonFullWidth</code> ของ <code>run.summaryContinue</code> ท้ายไฟล์ยังใช้ได้จริงและยังไม่ซ้ำที่อื่น) แต่ **ห้ามใช้เป็นฐาน build ของ Phase 2**
+</div>
 <div class="storyboard">
 
 <div class="frame-block">

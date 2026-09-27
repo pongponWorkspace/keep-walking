@@ -1023,16 +1023,16 @@
           "format": "svg",
           "scale": null,
           "variant": null,
-          "bytes": 397,
+          "bytes": 409,
           "width": 24,
           "height": 24,
-          "sha256": "353b71ea3787ce5372c4bc7e9d0d1ee74c1003fdb6fa2815ed6401969574e68b"
+          "sha256": "e6c1ab3008836f3738d5c3b590f29a31b57a5afd733a23da10c7b6d953f4fb6b"
         }
       ],
       "source": {
         "method": "agent-svg",
         "author": "artist-2d",
-        "task": "P2-F05-T07",
+        "task": "P2-X26",
         "master": null,
         "prompt": null,
         "tool": null,
@@ -1046,7 +1046,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-H15: แก้ fill+stroke=#1A1A22 คงที่ (บังเอิญตรงกับ bg.night) เป็น currentColor ตาม components.md 13.9.1 — เส้นไฮไลต์ (fill=none stroke=#FFF8EE) คงค่าคงที่ไว้ · P2-X26 (art-director review P2-H17, PASS + V-25): ขยับจุดยอดบนของรอยแตกจาก y=2 เป็น y=2.8 กันปลาย miter ล้นขอบ viewBox (path เดียวกับ icon.ui.rift ทุกพิกัดหลังแก้)"
     },
     {
       "id": "icon.ui.knocked-out",
@@ -1343,16 +1344,16 @@
           "format": "svg",
           "scale": null,
           "variant": null,
-          "bytes": 397,
+          "bytes": 399,
           "width": 24,
           "height": 24,
-          "sha256": "75f302402b372cf3eb688e106ad43c60efa86b44df645970c7b9989c4afe4fd5"
+          "sha256": "7c5e2a7d9a7c08aa3724270f1a6fc0c7fe7ca63801a9caaf5abe9f2d561497c7"
         }
       ],
       "source": {
         "method": "agent-svg",
         "author": "artist-2d",
-        "task": "P2-F05-T07",
+        "task": "P2-X26",
         "master": null,
         "prompt": null,
         "tool": null,
@@ -1366,7 +1367,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-X26 (art-director review P2-H17, V-25): ขยับจุดยอดบนของรอยแตกจาก y=2 เป็น y=2.8 กันปลาย miter ล้นขอบ viewBox บน (path เดียวกับ icon.ui.in-run ทุกพิกัดหลังแก้ ไม่แตะสี/เส้นแกน)"
     },
     {
       "id": "icon.ui.settings",
@@ -1506,13 +1508,13 @@
           "bytes": 197,
           "width": 24,
           "height": 24,
-          "sha256": "d357d7ae9fab1b3e687a4d278678a978fc12e9a275b280fbb15fe12d77af59bd"
+          "sha256": "2a30b1a6f61f02ac458c29d3fe82d78016a1ad18fd5f7751d67b31bcdc5e7771"
         }
       ],
       "source": {
         "method": "agent-svg",
         "author": "artist-2d",
-        "task": "P2-F05-T07",
+        "task": "P2-X26",
         "master": null,
         "prompt": null,
         "tool": null,
@@ -1526,7 +1528,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-H15: เสนอคง fill=#006699 (state.info) ไว้ ไม่แปลงเป็น currentColor — ส่วนนี้ art-director ยืนยันแล้วใน P2-H17 (ไม่ใช้ currentColor ถูกต้อง เป็น badge สีตายตัว) แต่ REJECT สีเติมเดิม (D-122 REJECTED) เพราะพื้นแถบ Suspended เองก็เป็น state.info สีเดียวกันทุกกรณี ทำให้ fill ตกคอนทราสต์ S3 ใน 2 ใน 3 บริบทใช้จริง (ดูตาราง contrast ใน art/direction/reviews/P2-H17-icon-night-and-composite.md หัวข้อ 2) · P2-X26 (D-123): แก้เป็น fill=#FFFFFF (bg.surface) ขอบ stroke=#1A1A22 2px round เดิม ไม่มี currentColor ทั้งไฟล์ — contrast ≥6.25 ทุกพื้นที่ใช้จริง (header/pocket state.info, bg.night, toast bg.surface)"
     },
     {
       "id": "icon.ui.walk-in",
@@ -1863,16 +1866,16 @@
           "format": "svg",
           "scale": null,
           "variant": null,
-          "bytes": 241,
+          "bytes": 249,
           "width": 16,
           "height": 16,
-          "sha256": "8723dafc092b31ad57d9179c52ef2647a5cca8a1a0682c31a351585b7b2552a8"
+          "sha256": "51b395c8be6104d50a2e37e000fa8c01b7cd63d3df6af544b405a4dd4bf7c801"
         }
       ],
       "source": {
         "method": "agent-svg",
         "author": "artist-2d",
-        "task": "P2-F05-T07",
+        "task": "P2-X26",
         "master": null,
         "prompt": null,
         "tool": null,
@@ -1886,7 +1889,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-X26 (art-director review P2-H17, V-23+V-25): fill/stroke #1A1A22 คงที่ → currentColor (16 px อยู่กลุ่มสีเดียวกับ icon.ui.in-run 24 px เสมอตามกฎใหม่ icon-grammar 8) พร้อมขยับจุดยอดบน y=1.4→2 กันปลาย miter ล้นขอบ · tools/art stage จะคำนวณ tintable:true ให้ id นี้อัตโนมัติจากการสแกน currentColor"
     },
     {
       "id": "icon.ui16.location-off",
@@ -1943,16 +1947,16 @@
           "format": "svg",
           "scale": null,
           "variant": null,
-          "bytes": 241,
+          "bytes": 239,
           "width": 16,
           "height": 16,
-          "sha256": "8da14be8f9a383a3a20e587a6ce69ac37f5c6aa4dc7112edd49d9e5010e09d08"
+          "sha256": "b8843c9e4125d93d4725f5bbc7f144fd421783ec3a03791deb2cd6b3854ea2bd"
         }
       ],
       "source": {
         "method": "agent-svg",
         "author": "artist-2d",
-        "task": "P2-F05-T07",
+        "task": "P2-X26",
         "master": null,
         "prompt": null,
         "tool": null,
@@ -1966,7 +1970,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-X26 (art-director review P2-H17, V-25): ขยับจุดยอดบน y=1.4→2 กันปลาย miter ล้นขอบ viewBox (path เดียวกับ icon.ui16.in-run ทุกพิกัดหลังแก้ ไม่แตะสี — ยังตายตัวเหมือนเดิม)"
     },
     {
       "id": "icon.ui16.suspended",
@@ -1983,16 +1988,16 @@
           "format": "svg",
           "scale": null,
           "variant": null,
-          "bytes": 151,
+          "bytes": 209,
           "width": 16,
           "height": 16,
-          "sha256": "f475d226d6992d598014c38bc7922f81d54f789ed5be4b8c95628f5c35f2106a"
+          "sha256": "7b20d4ab08f151648a6086ca9692f803df9dcf2dac2da9413105d09a18c0396e"
         }
       ],
       "source": {
         "method": "agent-svg",
         "author": "artist-2d",
-        "task": "P2-F05-T07",
+        "task": "P2-X26",
         "master": null,
         "prompt": null,
         "tool": null,
@@ -2006,7 +2011,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-X26 (art-director review P2-H17, V-24, D-123): ไฟล์เดิมไม่มีขอบหมึกเลย (fill=#006699 ไม่มี stroke) ตกบนพื้น state.info เดียวกันสนิท (contrast 1.00) — แก้เป็น fill=#FFFFFF (bg.surface) เพิ่ม stroke=#1A1A22 stroke-width=2 stroke-linejoin=round บน path เดิม ไม่มี currentColor (ตายตัวเหมือน icon.ui.suspended 24 px)"
     }
   ]
 }

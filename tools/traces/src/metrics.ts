@@ -5,8 +5,8 @@
 // hudMeasurement.gateWindowStep_s from the first fix), `filtered*` the reward pipeline (ADR 0003
 // 5.3). Expectations for QA, not the reward decision itself.
 import type { GpsTrace, TraceSample } from '@keep-walking/shared';
-import type { GateComparison, GeoSample } from '../../../packages/geo/src/index';
-import { MS_PER_S, gateDiagnosticWindows } from '../../../packages/geo/src/index';
+import type { GateComparison, GeoSample } from '@keep-walking/geo';
+import { MS_PER_S, gateDiagnosticWindows } from '@keep-walking/geo';
 import type { TraceConfig } from './config';
 import { loadTraceConfig } from './config';
 import { haversine_m } from './geo';

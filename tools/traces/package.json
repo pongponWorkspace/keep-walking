@@ -5,6 +5,7 @@
   "description": "Offline tools for GPS traces: validate, sanitize (strip raw location), convert CSV/GPX. Owner: location-engineer. Never imported by apps/* or packages/*.",
   "type": "module",
   "dependencies": {
+    "@keep-walking/geo": "workspace:*",
     "@keep-walking/shared": "workspace:*",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1"
