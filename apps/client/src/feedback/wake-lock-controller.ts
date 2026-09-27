@@ -54,12 +54,28 @@ export interface WakeLockRunTotals {
   readonly hiddenMs: number;
 }
 
+/** `wake_lock_state_changed.state` (product/telemetry-events.md section 7, P2-F06-T14): the four
+ * states the telemetry event declares — `granted` on a successful request, `request_denied` when
+ * the promise rejects/throws (low battery mode, permission policy), `released` on the sentinel's
+ * own `release` event (covers both an explicit `stop()` and the browser silently reclaiming the
+ * lock while hidden), and `unsupported` once, the instant `start()` runs on a device with no
+ * `navigator.wakeLock` at all. */
+export type WakeLockState = 'granted' | 'request_denied' | 'released' | 'unsupported';
+
 export interface WakeLockControllerDeps {
   readonly nav: NavigatorWithWakeLock;
   readonly doc: DocumentVisibilityLike;
   /** Injected clock (ADR 0003 C1-3 style discipline, kept even outside the game core): every
-   * duration below is computed from values this returns, never `Date.now()`. */
+   * duration below is computed from values this returns, never `Date.now()`. Tech note F06 section
+   * 10.2 (Q-T17-3) asks for the *same* clock `sessionStep`'s `now_ms` uses (real `Date.now` on Web,
+   * the accelerated game clock under a Mock replay) so a sped-up e2e trace also sees a sped-up
+   * wake-lock/hidden duration, never real wall time racing ahead of it. */
   readonly now: () => number;
+  /** `wake_lock_state_changed` (product/telemetry-events.md section 7): fired at most once per
+   * real transition, never for the totals themselves (those stay in `stop()`'s/`snapshot()`'s
+   * return value only, per-run and bucketed, not a live stream). Optional so every existing
+   * fixture/test that only cares about totals keeps compiling unchanged. */
+  readonly onStateChange?: (state: WakeLockState) => void;
 }
 
 /** One run's worth of Wake Lock lifecycle + totals. Construct once per run (`start`), read the
@@ -91,7 +107,25 @@ export class WakeLockController {
     this.heldSince_ms = null;
     this.hiddenSince_ms = this.deps.doc.hidden ? this.deps.now() : null;
     this.deps.doc.addEventListener('visibilitychange', this.onVisibilityChange);
+    if (!this.supported) {
+      this.deps.onStateChange?.('unsupported');
+      return;
+    }
     this.requestLock();
+  }
+
+  /** A non-destructive read of the totals so far, mid-run — never releases the sentinel, never
+   * stops listening, never resets the accumulators (`stop()` does all three; this does none). Used
+   * to attach `page_hidden_total_s_bucket`/`wake_lock_engaged_share_bucket` to the exact
+   * `dungeon_exited` telemetry record the moment it is mapped (tech note F06 section 10.2), which
+   * happens *before* the caller gets a chance to call `stop()` for the same run. */
+  snapshot(): WakeLockRunTotals {
+    const now_ms = this.deps.now();
+    const heldMs =
+      this.heldSince_ms === null ? this.heldMs : this.heldMs + (now_ms - this.heldSince_ms);
+    const hiddenMs =
+      this.hiddenSince_ms === null ? this.hiddenMs : this.hiddenMs + (now_ms - this.hiddenSince_ms);
+    return { supported: this.supported, heldMs, hiddenMs };
   }
 
   /** Ends the run: closes any in-progress held/hidden interval, releases the sentinel, stops
@@ -120,15 +154,21 @@ export class WakeLockController {
         }
         this.sentinel = sentinel;
         this.heldSince_ms = this.deps.now();
+        this.deps.onStateChange?.('granted');
         sentinel.addEventListener('release', () => {
           this.sentinel = null;
           this.closeHeldInterval(this.deps.now());
+          // Real transition either way: an explicit stop() (release() called just above in
+          // `stop()`) or the browser reclaiming the lock on its own while hidden — both are
+          // `released` per the event's own doc comment (`WakeLockState`).
+          this.deps.onStateChange?.('released');
           this.maybeReacquire();
         });
       })
       .catch(() => {
         // Denied/failed request (e.g. low battery mode): stays unheld, no throw (same "handle the
         // real world" rule as debug/wake-lock.ts). A later visibilitychange may retry.
+        this.deps.onStateChange?.('request_denied');
       });
   }
 

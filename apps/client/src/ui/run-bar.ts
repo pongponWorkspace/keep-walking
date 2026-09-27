@@ -8,9 +8,16 @@ import { formatCopyText } from '../copy/format';
 import { getCopyText } from '../copy/load';
 import type { RunStatus } from '@keep-walking/shared/session';
 import { runStatePillView, tickTimerCopyKey } from './run-state-view';
+import { runStatePillIconTone, NIGHT_BACKING_PLATE_COLOR_CSS } from './icon-tone';
+import type { IconGlyphRenderer } from '../assets/icon-glyph';
 
 export interface RunBarDeps {
   readonly onExitConfirmed: () => void;
+  /** `setIconGlyph` (P2-F06-T14, components.md 13.2/13.9): renders `icon.ui.in-run`/`icon.ui.grace`/
+   * `icon.ui.suspended` inside the pill next to its text label — the icon is always decorative
+   * (`icon-glyph.ts` sets `aria-hidden` itself on the tintable path; the fallback `<img>` carries
+   * the same label text as its own `alt`, `icon-tone.ts`'s own doc comment). */
+  readonly iconGlyph: IconGlyphRenderer;
 }
 
 export interface RunBar {
@@ -35,6 +42,11 @@ export function mountRunBar(container: HTMLElement, deps: RunBarDeps): RunBar {
 
   const pill = document.createElement('div');
   pill.className = 'run-state-pill';
+  const pillIcon = document.createElement('span');
+  pillIcon.className = 'run-state-pill-icon';
+  const pillLabel = document.createElement('span');
+  pillLabel.className = 'run-state-pill-label';
+  pill.append(pillIcon, pillLabel);
   const banner = document.createElement('div');
   banner.className = 'banner info';
   banner.hidden = true;
@@ -89,8 +101,17 @@ export function mountRunBar(container: HTMLElement, deps: RunBarDeps): RunBar {
     },
     setStatus(status, bannerVars) {
       const view = runStatePillView(status);
-      pill.textContent = getCopyText(view.labelKey);
+      pillLabel.textContent = getCopyText(view.labelKey);
       pill.dataset['tone'] = view.tone;
+      // [ASSUMPTION A-P2-F06-T14-1 (icon-tone.ts): no night theme exists in this client yet, so
+      // `onNightBackground` is always `false` here — see that file's own doc comment.]
+      const tone = runStatePillIconTone(status, false);
+      void deps.iconGlyph.setIconGlyph(pillIcon, tone.id, {
+        altText: getCopyText(view.labelKey),
+        colorCss: tone.colorCss,
+        onNightBackground: false,
+        nightPlateColorCss: NIGHT_BACKING_PLATE_COLOR_CSS,
+      });
       if (view.bannerKey === undefined) {
         banner.hidden = true;
       } else {

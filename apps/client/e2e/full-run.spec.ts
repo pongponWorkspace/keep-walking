@@ -24,8 +24,17 @@ import { expect, test } from '@playwright/test';
 // loot roll is reproducible. Every seed this task tried against this fixture granted exactly one
 // tick (the timing-only prediction below never depends on the seed); `seed=1` additionally always
 // rolls at least one common item on that tick, so the loot-list assertion is deterministic too.
+//
+// `start=2026-10-02T12:00` (Friday noon, `clock/query-params.ts`'s `YYYY-MM-DDTHH:mm` test hook,
+// P2-F06-T14): pins the game clock inside `leelawadee-lawn`'s own daily 05:00-21:00 opening window
+// (`data/dungeons/dungeons.json`) -- without it, this spec only passed while the machine running it
+// happened to be inside that window in its own real local time, and failed the rest of the day with
+// the confirm popup's "เข้า" button never enabling (the dungeon reads as closed, honestly, outside
+// its hours). Same fix, same reasoning as `onboarding.spec.ts`'s own `START`/`f06-hp.spec.ts`'s.
+const START = '2026-10-02T12:00';
 const FIXTURE_URL =
-  '/?loc=mock&trace=e2e-full-run-01&speed=60&loop=0&hud=0&e2eClassId=tanker&seed=1&e2eSkipOnboarding=1';
+  '/?loc=mock&trace=e2e-full-run-01&speed=60&loop=0&hud=0&e2eClassId=tanker&seed=1' +
+  `&e2eSkipOnboarding=1&start=${encodeURIComponent(START)}`;
 
 // The fixture's own reward math (config, not re-derived here):
 // dungeons.rewardTick.rewardTickInterval_s = 300, dungeons.movementGate.minDistancePerWindow_m =
@@ -42,6 +51,17 @@ test.describe('F04/F05 whole run (Mock provider, speed=60)', () => {
     page,
   }) => {
     test.setTimeout(60_000);
+
+    // P2-F06-T14: this spec predates the pocket screen (design gate A 4.4) and asserts on
+    // `.run-exit-button`/`.hp-bar`, elements the pocket screen's own dark overlay deliberately sits
+    // on top of and blocks (no button anywhere on it, rule 2 of the 8 rules) while it is showing —
+    // forcing Wake Lock unsupported keeps this spec on the normal run screen the whole time, the
+    // same screen it tested before that feature existed (`pocket-screen.spec.ts` is the one that
+    // actually exercises both paths).
+    await page.addInitScript(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- browser-context patch, no DOM lib type for a prototype delete
+      delete (Navigator.prototype as any).wakeLock;
+    });
 
     await page.goto(FIXTURE_URL);
 

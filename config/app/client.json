@@ -134,6 +134,13 @@
     "_note": "apps/client/src/ui/run-tutorial-line.ts's only hold duration. Slightly longer than toast.tickHoldDurationMs (2200) because this sentence is the very first one a brand-new player reads mid-run, unaided by any prior tick toast's shorter, familiar shape.",
     "_assumption": "A-P2-F06-T10-1: 3000 ms is not tuned against a real device/field-walk pass yet (same caveat as toast.tickHoldDurationMs's own A-P2-F05-T10-1). Owner: gameplay-programmer, revisit with P2-F06-T12/field evidence."
   },
+  "pocketScreen": {
+    "_source": "P2-F06-T14 (design/ux/components.md section 12.1 'ปัดขึ้นค้าง ระยะเวลาขั้นต่ำเป็น implementation ของ gameplay-programmer แต่ต้องนานพอกันปัดผ่านโดยบังเอิญ'). No flow/spec doc gives exact numbers for either the hold duration or the swipe distance.",
+    "swipeUpHoldMinDuration_ms": 600,
+    "swipeUpMinDistance_ratio": 0.03,
+    "_note": "apps/client/src/ui/pocket-screen.ts#shouldTriggerPocketExit's only two thresholds: the pointer must both move up by at least swipeUpMinDistance_ratio's share of the viewport height AND still be held down once swipeUpHoldMinDuration_ms has elapsed since pointerdown — either alone (a plain long-press with no movement, or a quick flick released early) must not exit the pocket screen (rule 2 of design gate A 4.4's 8 rules). A ratio of the viewport height (resolved to real px by ui/pocket-screen.ts at mount time), not a fixed px count, so the threshold scales the same way across a small and a large phone screen (P2-lint: config-lint's 3.10.3 unit table has no _px entry — a viewport-relative _ratio is both config-lint-legal today and the more correct choice for a real range of device screens; tech-lead may still add _px later if a future value genuinely wants absolute pixels).",
+    "_assumption": "A-P2-F06-T14-2: 600 ms (about 2x the single-pulse vibration length elsewhere in this file) and 0.03 (about 24 px on a ~800 px-tall mobile viewport — a typical single-step drag threshold, clearly more than incidental finger jitter in a pocket) are not tuned against a real device/field-walk pass yet. Owner: gameplay-programmer, revisit with P2-F06-T12/P2-F06-T26 field evidence."
+  },
   "bundle": {
     "_source": "ADR 0003 section 10 (N-13): JS-transfer budgets measured from apps/client/dist's Vite manifest by apps/client/scripts/measure-bundle.ts, brotli quality 11, same method for both keys.",
     "initialJsBudget_bytes": 1000000,

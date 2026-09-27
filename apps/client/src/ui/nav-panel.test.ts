@@ -12,6 +12,7 @@ function baseDeps(overrides: Partial<Parameters<typeof mountNavPanel>[1]> = {}) 
     userAgent: 'Mozilla/5.0 (Linux; Android 14)',
     maxTouchPoints: 5,
     copyToClipboard: async () => true,
+    iconGlyph: { setIconGlyph: async () => undefined },
     ...overrides,
   };
 }

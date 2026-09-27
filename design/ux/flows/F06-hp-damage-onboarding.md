@@ -36,6 +36,7 @@ Task: P2-F06-T03 (แก้โดย P2-X11 รอบ 2, P2-X14 รอบ 3, P2-
 14. รอบ 3: สิ่งที่แก้ (P2-X14 ตอบ gate รอบ 2)
 15. รอบ 4: D-120 — เหตุปฏิเสธ `no_class`/`no_hp` ของ confirm ใช้ copy key ใหม่ (P2-H09)
 16. รอบ 5: D-120 อนุมัติแล้ว, D-126 (ย่านเปิดตัว), D-127 (เป้าเดียวระหว่าง onboarding) (P2-H23)
+17. รอบ 6: ก้อนแรกจาก tick บางส่วนของ D-059 แสดงบนหน้าสรุป ไม่ใช่ toast (P2-H34, ตอบ O-3)
 
 ## 1. หลักการอ่าน flow นี้
 
@@ -86,6 +87,7 @@ A10. **นาที 6–8 (party) ข้ามทั้งช่วงใน Pha
 
 A11. **รางวัลก้อนแรก (นาที 8–10)** — รายละเอียดเต็มอยู่ flow F05 หัวข้อ 2 (Flow A ข้อ A2): tick ปกติที่ผ่าน gate ครั้งแรกในชีวิตผู้เล่น ใช้ `[run.tickGrantedFirst]` + effect เด่นกว่า ตามด้วย `[run.continueCta]` — **onboarding จบที่จังหวะนี้ (`O-done`) แม้ run นั้นจะจบด้วย `death` ภายหลัง** (F06-R40) ไม่มีจอสรุป onboarding แยก ไม่มี badge ไม่มีของแถมพิเศษ (F06-R39, D-089) ผู้เล่นเข้าสู่ core loop ปกติทันที
    ⤷ เงื่อนไข: tick แรกไม่ผ่าน gate (H-E20) → `[run.tickDenied]` ตามปกติ (flow F05 A3) **ไม่มีทางลัดของ onboarding** รอ tick ถัดไป — เกิดขึ้นได้และไม่ใช่บั๊ก
+   ⤷ เงื่อนไข: **tick ก้อนแรกมาจาก tick บางส่วนของ D-059 (ปิด dungeon กลาง run แรก, แก้ O-3 ของ `design/reviews/F04-F05-design-gate.md` — รายละเอียดเต็มอยู่ flow F05 หัวข้อ 2 ข้อ A2b)** → **ไม่แสดง toast ของ A2 เลย** เพราะ `dungeon_exited` เกิดพร้อมกัน จอสลับไป `S-04-run-summary` ทันที ก้อนแรกนี้สื่อสารผ่านหน้าสรุปเท่านั้น (แถวของ/exp/จำนวน tick ปกติ ไม่มี badge "ก้อนแรก" แยก) ปุ่มเดียวคือ `[run.summaryContinue]` ซึ่งใช้วลีเต็มเดียวกับ `[run.continueCta]` ตาม D-050 — **onboarding ยังจบที่จังหวะนี้เหมือนเดิม** (`O-done` ตั้งจาก `firstEver`/ธง `first_reward` ของ tick นั้น ไม่ใช่จากการเห็น toast) ไม่ใช่ทางให้รางวัลที่สองหรือ code path แยก (GD B-07)
 
 ## 3. Flow B — เลือก class (sheet บนแผนที่) และหน้าอ่าน role (F06-R29..R32)
 
@@ -380,27 +382,31 @@ G7. **ไม่มีข้อมูลส่วนตัวหรือที�
 | D-126 | F2: config `unlocks.home.seeLaunchAreaMask` → `unlocks.home.launchAreaMaskPath` (แก้ชื่อผิด) · body `home.outsideLaunchBody` เลิกร่างเดิมที่มี `{areaName}` และความหมาย "ไม่มีใคร" — **แก้เพิ่ม (narrative P2-X32):** ข้อความสุดท้าย "แถวนี้ยังไม่เปิด อยากให้ย่านไหนเปิด ยื่นเรื่องได้เลย ไม่ต้องรับบัตรคิว" (ไม่มีตัวแปร) · `home.outOfAreaBody` (F3, S-07) แก้ตามเหตุผลเดียวกัน (ขัด R57) เป็น "{provinceName}ยังไม่เปิด อยากให้เปิด ยื่นเรื่องได้เลย ไม่ต้องรับบัตรคิว" (ยังมี `{provinceName}` ได้เพราะมาจากเส้นแบ่งจังหวัดบนแผนที่ ไม่ใช่ reverse lookup) · S-09 โหมดรายเขต (F5): ไม่มีเขตเลือกไว้ล่วงหน้า รายชื่อ = 76 เขต derive จาก study area ลบ launch-area ชื่อแสดงผลอยู่ใน `names.th.json` (`district.<id>`) | Flow F ข้อ F2, F3, F5 (หัวข้อ 7.4) |
 | D-127 | A7 สาขา `O-home` ไกล: เพิ่มกฎ "เป้าเดียวเสมอ" (เวลา/ระยะ/ทิศ/ปุ่มนำทางชี้ dungeon เดียวกัน ทั้งกรณีครอบเลเวลเปิดอยู่และ `temporarilyClosed`) + กฎเสมอกัน (เปิดก่อน → `dungeon_id` ต่ำกว่า) + จังหวะประเมินใหม่ตาม R50/เป้าเดิมเปิดแล้ว + สมมติฐานข้อมูล (เลเวล 1 ต้องถูกครอบเสมอ) | Flow A ข้อ A7 (สาขา ⤷ ที่สอง เพิ่มย่อหน้าใหม่ 4 ข้อ) |
 
+## 17. รอบ 6: ก้อนแรกจาก tick บางส่วนของ D-059 แสดงบนหน้าสรุป ไม่ใช่ toast (P2-H34)
+
+ที่มา: O-3 ของ `design/reviews/F04-F05-design-gate.md` หัวข้อ 7 (non-blocking, ส่งถึง uiux-designer) — เอกสารเจ้าของเนื้อหาเต็มของกรณีนี้คือ `design/ux/flows/F05-movement-gate-reward.md` หัวข้อ 2 ข้อ A2b และหัวข้อ 12 (ไม่เขียนซ้ำเนื้อหาที่นี่) เอกสารนี้เพิ่มแค่จุดที่กระทบ onboarding: A11 ยังจบที่ `O-done` ตามปกติแม้ก้อนแรกจะแสดงบนหน้าสรุปแทน toast
+
+| ข้อ | สิ่งที่แก้ | ตำแหน่งในเอกสารนี้ |
+| --- | --- | --- |
+| O-3 | ก้อนแรกจาก tick บางส่วนของ D-059 ไม่แสดง toast A2 เลย สื่อสารผ่านหน้าสรุป (ปุ่ม `run.summaryContinue` ใช้วลีเดียวกับ `run.continueCta` ตาม D-050) `O-done` ยังตั้งจากธง `first_reward`/`firstEver` ของ tick นั้นตามปกติ ไม่ใช่ทางให้รางวัลที่สอง (GD B-07) | Flow A ข้อ A11 (เงื่อนไข ⤷ ที่สอง) |
+
+**ตรวจกับโค้ดจริง (2026-09-28):** ดูผลตรวจใน `design/ux/flows/F05-movement-gate-reward.md` หัวข้อ 12 — `tick-toast.ts`/`f04-app.ts` ยังเรียก `showGranted` แบบไม่มีเงื่อนไขในกรณีนี้ ต่างจากที่ระบุ handoff ให้ gameplay-programmer อยู่ในเอกสาร F05 แล้ว (ไม่ซ้ำ handoff ที่นี่ เพราะเป็นโค้ดจุดเดียวกัน)
+
 ## REPORT
-task: P2-X14 (ส่วน F06)
+task: P2-H34 (ส่วน F06)
 status: DONE
-summary: ปิดเศษรอบ 2 ของ gate F05-F06 ทั้งหมด (R2-F1..R2-F5), N-10 (ย้ายจาก handoff เป็นงานจริง), และ copy alignment ของ P2-F05-T09 (`nav.distanceApprox`, ตัด `credits.osmAttribution`) ก่อน design gate F06 (P2-F06-T24) — ไม่มีข้อใดเหลือค้าง
+summary: เพิ่มเงื่อนไขใน Flow A ข้อ A11 ระบุว่าเมื่อรางวัลก้อนแรกมาจาก tick บางส่วนของ D-059 (ปิด dungeon กลาง run แรก) ไม่แสดง toast ก้อนแรกเลย สื่อสารผ่านหน้าสรุปเท่านั้น (เนื้อหาเต็มอยู่ flow F05 A2b) `O-done` ยังตั้งจากธง `first_reward`/`firstEver` ตามปกติ ไม่ใช่ทางให้รางวัลที่สอง (GD B-07) · เพิ่มหัวข้อ 17 (รอบ 6) ชี้กลับไปที่ F05 เป็นเจ้าของเนื้อหา ไม่เขียนซ้ำ · handoff โค้ดจุดเดียวกับที่ระบุไว้แล้วในเอกสาร F05 (ไม่ซ้ำ handoff คนละที่)
 outputs:
-  - design/ux/flows/F06-hp-damage-onboarding.md — แก้ override ข้อ 8, Flow A (A7/F1), Flow C (C6/C7/C8), Flow F (F7), Flow G (G6), ตารางหัวข้อ 9, หัวข้อ 11 (copy key), หัวข้อ 12 (ปิด 2 assumption), เพิ่มหัวข้อ 14 (รอบ 3: สิ่งที่แก้)
+  - design/ux/flows/F06-hp-damage-onboarding.md — เพิ่มเงื่อนไขใน Flow A ข้อ A11, เพิ่มหัวข้อ 17 ในสารบัญและเนื้อหา, แก้ REPORT
 acceptance:
-  - [x] R2-F1 (ลำดับเฟรม C6 ตรง F04-04/F05-02) — evidence: หัวข้อ 14 แถว R2-F1, Flow C ข้อ C6
-  - [x] R2-F2 (thaidraft `run.summary.died` = "HP หมด" ทุกที่) — evidence: หัวข้อ 14 แถว R2-F2, Flow C ข้อ C6, wireframe F04-04/F05-02
-  - [x] R2-F3 (`inventory.useRevivePotionButton` แทน `run.death.usePotion` ทุกจุด) — evidence: หัวข้อ 14 แถว R2-F3, override ข้อ 8, Flow C ข้อ C7/C8, หัวข้อ 7.0/11.2/11.3
-  - [x] R2-F4 (onboarding สายไกลระบุ dungeon ปลายทางของระยะ + กรณีไม่มี) — evidence: หัวข้อ 14 แถว R2-F4, Flow A ข้อ A7, Flow F ข้อ F1
-  - [x] N-10 (ia.md 3.4/6 + หัว F03-core-loop.md) — evidence: หัวข้อ 14 แถว N-10 (ดูไฟล์ ia.md, F03-core-loop.md)
-  - [x] copy alignment (`nav.distanceApprox`, ตัด `credits.osmAttribution` ใช้ `credits.json`+`licenseLine` แทน) — evidence: หัวข้อ 14 สองแถวสุดท้าย, Flow F ข้อ F7, Flow G ข้อ G6
-  - [x] ทวนการถอน consent ระหว่าง run (R48) ตรงสเปกที่แก้แล้ว ไม่ต้องแก้เพิ่ม — evidence: หัวข้อ 14 แถว "ทวนซ้ำ B-06/R48"
-  - [x] ภาษาไทย ไม่มี emoji — evidence: ตรวจด้วยสายตาทั้งไฟล์ที่แก้
+  - [x] ระบุกรณีก้อนแรกจาก tick บางส่วน: แสดงบนหน้าสรุป, ปุ่ม continue ใช้ copy key เดียวกับ `run.continueCta` (D-050), ไม่มีทางให้รางวัลแยก (GD B-07) — evidence: Flow A ข้อ A11 (เงื่อนไข ⤷ ที่สอง), หัวข้อ 17
+  - [x] ถ้าโค้ดปัจจุบันต่างจากที่ระบุ เขียน handoff ให้ gameplay-programmer (ไม่ blocking) — evidence: หัวข้อ 17 ชี้ไปที่ handoff ในเอกสาร F05 หัวข้อ 12 (จุดโค้ดเดียวกัน ไม่ซ้ำ handoff)
+  - [x] ภาษาไทย ไม่มี emoji — evidence: ตรวจด้วยสายตาทั้งส่วนที่แก้
 assumptions:
-  - none ใหม่ (ปิด A-P2-F06-T03-3, A-P2-F06-T03-4 ในหัวข้อ 12 ด้วยหลักฐานจาก credits.json และ copy.th.json)
+  - none
 handoffs:
-  - to: game-director | need: ยืนยันรอบ 3 นี้ปิดเศษ R2-F1..R2-F5 ครบก่อน P2-F06-T24 (R2-F5 เป็นงานของ game-director เองใน P2-X15 ซึ่ง DONE แล้วตาม board) | why: หัวข้อ 7/R2-6 ของ `design/reviews/F05-F06-flow-approval.md` | blocking: yes (ก่อน design gate F06)
-  - to: gameplay-programmer | need: build ปุ่มยาฟื้นนอก run ด้วย `inventory.useRevivePotionButton` (ไม่ใช่ `run.death.usePotion`) และ credits ด้วยข้อมูลจาก `config/content/credits.json` (ไม่ผูก `credits.osmAttribution`) | why: R2-F3, copy alignment | blocking: no (ข้อมูลสำหรับ P2-F06-T09/T10 ที่ยังไม่เริ่ม)
+  - to: gameplay-programmer | need: (จุดเดียวกับ handoff ของ `design/ux/flows/F05-movement-gate-reward.md` หัวข้อ 12 — ไม่สร้าง handoff ซ้ำที่นี่) แก้ `tick-toast.ts`/`f04-app.ts` ให้ข้าม `showGranted` เมื่อ tick บางส่วนของ D-059 มากับ `dungeon_exited` ในรอบ event เดียวกัน | why: O-3, Flow A ข้อ A11 | blocking: no
 decisions:
-  - none (ทุกคำตัดสินเป็นของ game-director ที่มีอยู่แล้วในรีวิวรอบ 2 และ P2-X15)
+  - none
 questions_for_human:
   - none

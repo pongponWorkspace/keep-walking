@@ -41,6 +41,18 @@ describe('createF04App', () => {
       locationSearch: '?e2eSkipOnboarding=1',
       isMockProvider: true,
       getLocationPermission: () => Promise.resolve('granted'),
+      // P2-F06-T14: no `icon.ui.*` glyph ever resolves in this file's tests (no manifest is
+      // loaded, `assets.getManifest()` above always returns `undefined`) — `fetchText`/
+      // `parseSvgDocument` are never actually called, `setIconGlyph` falls back to `setIconImg`
+      // (which also never resolves an id here) before either would run.
+      fetchText: () => Promise.reject(new Error('fetchText: not used in this fixture')),
+      parseSvgDocument: () => document.implementation.createDocument(null, 'svg'),
+      nav: {},
+      documentVisibility: {
+        hidden: false,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      },
     });
   }
 

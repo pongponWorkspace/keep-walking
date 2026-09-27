@@ -153,4 +153,86 @@ describe('WakeLockController, supported device', () => {
 
     expect(totals).toEqual({ supported: true, heldMs: 0, hiddenMs: 300 });
   });
+
+  it('snapshot() reads live totals without releasing the sentinel or resetting anything', async () => {
+    const clock = fakeClock(0);
+    const doc = fakeDoc(false);
+    const sentinel = fakeSentinel();
+    const nav: NavigatorWithWakeLock = { wakeLock: { request: vi.fn(async () => sentinel) } };
+    const controller = new WakeLockController({ nav, doc, now: clock.now });
+
+    controller.start();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    clock.set(700);
+    // A mid-run peek: the sentinel is still held (open interval), so snapshot must include the
+    // still-open 700 ms, not just the closed portion (there is none yet).
+    expect(controller.snapshot()).toEqual({ supported: true, heldMs: 700, hiddenMs: 0 });
+    // stop() a moment later still sees the full run, proving snapshot() closed nothing early.
+    clock.set(900);
+    expect(controller.stop()).toEqual({ supported: true, heldMs: 900, hiddenMs: 0 });
+  });
+
+  it('reports the four wake_lock_state_changed states in order: granted, released', async () => {
+    const clock = fakeClock(0);
+    const doc = fakeDoc(false);
+    const sentinel = fakeSentinel();
+    const nav: NavigatorWithWakeLock = { wakeLock: { request: vi.fn(async () => sentinel) } };
+    const states: string[] = [];
+    const controller = new WakeLockController({
+      nav,
+      doc,
+      now: clock.now,
+      onStateChange: (s) => states.push(s),
+    });
+
+    controller.start();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(states).toEqual(['granted']);
+
+    controller.stop();
+    expect(states).toEqual(['granted', 'released']);
+  });
+
+  it('reports request_denied on a rejected request', async () => {
+    const clock = fakeClock(0);
+    const doc = fakeDoc(false);
+    const nav: NavigatorWithWakeLock = {
+      wakeLock: { request: vi.fn(async () => Promise.reject(new Error('denied'))) },
+    };
+    const states: string[] = [];
+    const controller = new WakeLockController({
+      nav,
+      doc,
+      now: clock.now,
+      onStateChange: (s) => states.push(s),
+    });
+    // Flushes several microtask hops of the async-function-rejects -> .then() skip -> .catch()
+    // chain (not a real sequential wait for anything external) — each `await` is its own
+    // statement rather than a loop so no lint rule mistakes this for a real sequential wait.
+    controller.start();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(states).toEqual(['request_denied']);
+  });
+
+  it('reports unsupported once, immediately, on an unsupported device', () => {
+    const clock = fakeClock(0);
+    const states: string[] = [];
+    const controller = new WakeLockController({
+      nav: {},
+      doc: fakeDoc(),
+      now: clock.now,
+      onStateChange: (s) => states.push(s),
+    });
+    controller.start();
+    expect(states).toEqual(['unsupported']);
+    controller.stop();
+    expect(states).toEqual(['unsupported']);
+  });
 });

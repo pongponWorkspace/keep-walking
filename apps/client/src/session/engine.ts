@@ -23,6 +23,7 @@ import type { KeyValueStorage, QuotaFallbackDeps } from '../storage/local-store'
 import { loadSession, saveSession } from './persist';
 import { sessionStateDiscardedEvent } from '../telemetry/f04-events';
 import { mapSessionEvent } from '../telemetry/f04-events';
+import type { RunClientStats } from '../telemetry/f04-events';
 
 const SESSION_STORAGE_KEY = 'kw.p2.session';
 
@@ -37,6 +38,13 @@ export interface SessionEngineDeps {
    * different code path. `undefined` in every real build (main.ts only reads the query param under
    * `?loc=mock`-style test URLs). */
   readonly testForceClassId?: PlayerClass;
+  /** P2-F06-T14 (tech note F06 10.2 Q-T17-3): read once, synchronously, only when the events a
+   * `dispatch()` call returns include `dungeon_exited` — a live peek at the current run's Wake
+   * Lock/page-hidden totals (`WakeLockController.snapshot()` in `f04-app.ts`), never a value the
+   * engine stores or the `SessionEvent` itself carries (the reducer has no idea Wake Lock exists,
+   * ADR 0003 C1-1). `undefined` in every test/fixture that does not care about these two telemetry
+   * properties — `mapSessionEvent`'s own default (`f04-events.ts`) covers that case honestly. */
+  readonly getRunClientStats?: () => RunClientStats;
 }
 
 export interface SessionEngine {
@@ -76,7 +84,9 @@ export function createSessionEngine(
     atRunDungeonId?: string,
   ): void {
     for (const event of events) {
-      const mapped = mapSessionEvent(event, next.player.classId, atRunDungeonId);
+      const runClientStats =
+        event.type === 'dungeon_exited' ? deps.getRunClientStats?.() : undefined;
+      const mapped = mapSessionEvent(event, next.player.classId, atRunDungeonId, runClientStats);
       if (mapped !== undefined) {
         deps.record(mapped.name, mapped.properties as Record<string, unknown>);
       }

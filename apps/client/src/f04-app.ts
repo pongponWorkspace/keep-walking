@@ -58,7 +58,18 @@ import { formatCountdown } from './ui/checkin-status';
 import { mountInventoryScreen } from './ui/inventory-screen';
 import type { InventoryPotionCatalog } from './ui/inventory-screen';
 import { mountSettingsWalkingSafety } from './ui/settings-walking-safety';
-import { createAudioPlayer } from './assets/audio-player';
+import { createIconGlyphRenderer } from './assets/icon-glyph';
+import type { FetchTextLike, ParseSvgDocument } from './assets/icon-glyph';
+import { createCueFeedback } from './feedback/cue-feedback';
+import type { NavigatorWithVibrate } from './feedback/cue-feedback';
+import { WakeLockController, isWakeLockSupported } from './feedback/wake-lock-controller';
+import type {
+  DocumentVisibilityLike,
+  NavigatorWithWakeLock,
+} from './feedback/wake-lock-controller';
+import { mountPocketScreen } from './ui/pocket-screen';
+import { pocketScreenPrefEnabled } from './ui/settings-walking-safety';
+import { mountCueVisual } from './ui/cue-visual';
 import type { DungeonSourceMap } from './map/dungeons-source';
 import { createDungeonLabelCache, setDungeonsSourceData } from './map/dungeons-source';
 import { HomeTracker } from './dungeons/home-tracker';
@@ -126,6 +137,21 @@ export interface F04AppDeps {
    * directly (CLAUDE.md: "Use the LocationProvider interface only") — `onboarding-flow.ts`'s only
    * source for resolving the onboarding step machine's `permission` step (P2-F06-T10). */
   readonly getLocationPermission: () => Promise<LocationPermission>;
+  /** `assets/icon-glyph.ts#FetchTextLike` (P2-F06-T14, components.md 13.9): `(url) => fetch(url)`,
+   * the same-origin asset fetch `createIconGlyphRenderer` uses to pull an `icon.ui.*` SVG's raw
+   * text once per id per session — injected so this module (and every screen it mounts) never
+   * touches the global `fetch` itself (ADR 0001 3.6). */
+  readonly fetchText: FetchTextLike;
+  /** `assets/icon-glyph.ts#ParseSvgDocument` — `(text) => new DOMParser().parseFromString(text,
+   * 'image/svg+xml')`, injected for the same reason. */
+  readonly parseSvgDocument: ParseSvgDocument;
+  /** `feedback/cue-feedback.ts#NavigatorWithVibrate` and `feedback/wake-lock-controller.ts
+   * #NavigatorWithWakeLock` both narrow this — the real `window.navigator` (P2-F06-T14 context:
+   * "wire createCueFeedback (nav=window.navigator, ...)"), never read as a bare global from inside
+   * this module. */
+  readonly nav: NavigatorWithVibrate & NavigatorWithWakeLock;
+  /** `feedback/wake-lock-controller.ts#DocumentVisibilityLike` — the real `window.document`. */
+  readonly documentVisibility: DocumentVisibilityLike;
 }
 
 export interface F04App {
@@ -223,6 +249,28 @@ export function createF04App(deps: F04AppDeps): F04App {
     });
   }
 
+  // Screen Wake Lock (design gate A 4.4, components.md 12.2): constructed before `engine` on
+  // purpose — the boot-time catch-up `tick` inside `createSessionEngine` can itself produce a
+  // `dungeon_exited` event (a run that timed out while the app was closed) and `session/engine.ts`
+  // reads `getRunClientStats()` synchronously for every `dungeon_exited`, including that one.
+  // `deps.now` (not `Date.now`) so a sped-up Mock replay also sees sped-up held/hidden totals (tech
+  // note F06 10.2 Q-T17-3). `onStateChange`'s own `engine.getState()` read is safe despite `engine`
+  // being declared below: the callback only ever runs later (on a real request's async
+  // resolution, or from an explicit `start()` call `handleSessionEvents` makes long after this
+  // whole function returns) — never synchronously during construction.
+  const wakeLockController = new WakeLockController({
+    nav: deps.nav,
+    doc: deps.documentVisibility,
+    now: deps.now,
+    onStateChange: (state) => {
+      telemetry.record('wake_lock_state_changed', {
+        state,
+        dungeon_id: engine.getState().run?.dungeonId ?? null,
+      });
+      persistTelemetry();
+    },
+  });
+
   const e2eClassId = resolveE2eClassId(deps.locationSearch, deps.isMockProvider);
   const engine = createSessionEngine(
     params,
@@ -235,6 +283,19 @@ export function createF04App(deps: F04AppDeps): F04App {
       record: (name, properties) => {
         telemetry.record(name, properties as Record<string, string | number | boolean | null>);
         persistTelemetry();
+      },
+      // P2-F06-T14 (tech note F06 10.2 Q-T17-3): a live peek at this run's Wake Lock/page-hidden
+      // totals, read only for `dungeon_exited` (`session/engine.ts#persistAndMap`'s own guard) —
+      // `WakeLockRunTotals`'s field names (`heldMs`/`hiddenMs`/`supported`) are renamed to
+      // `RunClientStats`'s (`wakeLockHeldMs`/`pageHiddenMs`/`wakeLockSupported`) here rather than
+      // in either module, since neither owns the other's vocabulary.
+      getRunClientStats: () => {
+        const totals = wakeLockController.snapshot();
+        return {
+          pageHiddenMs: totals.hiddenMs,
+          wakeLockHeldMs: totals.heldMs,
+          wakeLockSupported: totals.supported,
+        };
       },
       ...(e2eClassId !== undefined ? { testForceClassId: e2eClassId } : {}),
     },
@@ -298,16 +359,53 @@ export function createF04App(deps: F04AppDeps): F04App {
   }
   refreshMapDungeons(deps.now());
 
-  // Reward-tick sound + vibration (F05 flow Flow A5, audio/cue-list.md section 4's single
-  // priority-queue channel — the safety cues F06-T14 adds later share this exact same instance,
-  // never a second queue): `assets/audio.ts`'s pure queue driven by real playback/timers here.
-  const audioPlayer = createAudioPlayer({
+  // `setIconGlyph` (P2-F06-T14, components.md 13.9): one renderer, shared by every screen that
+  // needs a colour-tinted `icon.ui.*` glyph (run-state pill, closed chip) — a single in-memory SVG-
+  // text cache per session, not one per call site.
+  const iconGlyph = createIconGlyphRenderer({
+    runtime: deps.assets,
+    fetchText: deps.fetchText,
+    parseSvgDocument: deps.parseSvgDocument,
+  });
+
+  // Fire-together cue coordinator (F05 flow Flow A5, audio/cue-list.md section 4's single
+  // priority-queue channel — every cue below, plus F06's safety cues, share this exact same
+  // instance, never a second queue): `createCueFeedback` (P2-X29) wraps `assets/audio-player.ts`'s
+  // queue+audio+vibration with the visual leg (`cuePulse.pulse`, `ui/cue-visual.ts`) fired at the
+  // instant the queue actually promotes a cue to playing — never at `submit()` time, which could be
+  // earlier than a lower-priority cue's real turn (cue-feedback.ts's own doc comment). The detailed,
+  // per-event toasts (`tickToast`, `run.autoRetreat`/`run.death` vfx below) stay exactly as they
+  // were; this pulse is the supplementary, always-synced visual the fire-together contract itself
+  // asks for on top of them (context: "nav=window.navigator, playUrl=Audio, showVisual=toast/banner").
+  const cuePulse = mountCueVisual(deps.hudContainer);
+  const cueFeedback = createCueFeedback({
     assets: deps.assets,
-    vibrate: deps.vibrate,
+    nav: deps.nav,
+    showVisual: () => cuePulse.pulse(),
     playUrl: deps.playAudioUrl,
     now: Date.now,
     setTimer: (run, delay_ms) => window.setTimeout(run, delay_ms),
     clearTimer: (handle) => window.clearTimeout(handle),
+  });
+  const audioPlayer = cueFeedback;
+
+  // Pocket screen (design gate A 4.4, components.md 12.1): `wakeLockController` itself is
+  // constructed above `engine` (see that construction's own doc comment) — requested on every
+  // `dungeon_entered` and released on every exit path, `handleSessionEvents` below.
+  const pocketScreen = mountPocketScreen(deps.hudContainer, {
+    storage: deps.storage,
+    now: deps.now,
+    setTimer: (run, delay_ms) => window.setTimeout(run, delay_ms),
+    clearTimer: (handle) => window.clearTimeout(handle),
+    gesture: clientConfig.pocketScreen,
+    onExit: () => {
+      pocketScreen.hideOverlay();
+      pocketScreen.showEnterButton();
+    },
+    onEnterRequested: () => {
+      pocketScreen.hideEnterButton();
+      pocketScreen.showOverlay();
+    },
   });
 
   // --- Screens (F04 flow priority: speed-lock > summary > run > confirm > map/nav) ---
@@ -335,6 +433,7 @@ export function createF04App(deps: F04AppDeps): F04App {
   });
   const runBar = mountRunBar(deps.hudContainer, {
     onExitConfirmed: () => handleSessionEvents(engine.dispatch({ type: 'exit' }, deps.now())),
+    iconGlyph,
   });
   const speedLockOverlay = mountSpeedLockOverlay(deps.hudContainer, {
     onSettings: () => {
@@ -423,6 +522,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     userAgent: deps.userAgent,
     maxTouchPoints: deps.maxTouchPoints,
     copyToClipboard: deps.copyToClipboard,
+    iconGlyph,
   });
 
   // --- P2-F06-T09: home-state wiring (tech note F06 section 9, spec F06 R50-R58) ---
@@ -733,6 +833,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       runBar.hide();
       hpBar.root.hidden = true;
       runTutorialLine.hide();
+      pocketScreen.hideOverlay();
+      pocketScreen.hideEnterButton();
       return false;
     }
     runBar.show();
@@ -762,6 +864,16 @@ export function createF04App(deps: F04AppDeps): F04App {
         belowWarningLine: view.hp.belowWarningLine,
         autoRetreatEnabled: view.hp.autoRetreatEnabled,
       });
+      // Pocket screen (components.md 12.1): same two numbers as the pill/HP bar above, mirrored
+      // onto the dark overlay whenever it happens to be showing — `showOverlay()`/`hideOverlay()`
+      // (dungeon_entered/exited below, plus the swipe-out gesture) decide *whether* it is visible;
+      // this only keeps its two live numbers current while it is.
+      pocketScreen.setHp(view.hp.hpRatio);
+      pocketScreen.setTick(
+        state.run.status === 'active' && view.nextTickIn_s !== null
+          ? formatCountdown(view.nextTickIn_s)
+          : undefined,
+      );
     }
     return true;
   }
@@ -839,8 +951,33 @@ export function createF04App(deps: F04AppDeps): F04App {
         lastHitHp = undefined;
         // F06 flow A9/E1, N-3: the single tutorial line of the whole game, every run while
         // `!firstRewardDone` (R36/R38 — not merely "the first run ever", tech note F06 8.2).
-        if (!selectPlayerView(engine.getState(), event.at_ms, params).firstRewardDone) {
+        const showingTutorial = !selectPlayerView(engine.getState(), event.at_ms, params)
+          .firstRewardDone;
+        if (showingTutorial) {
           runTutorialLine.show();
+        }
+        // Wake Lock + pocket screen (design gate A 4.4, components.md 12.2): requested on every
+        // `dungeon_entered`, regardless of the pocket-screen preference (12.4 — "ปิดแล้วยัง request
+        // Wake Lock เหมือนเดิม", turning the toggle off only changes whether the dark overlay shows,
+        // never whether the lock is held). Flow F06 E1's own "ขอสำเร็จ" is defined as passing
+        // `'wakeLock' in navigator` feature detection alone, not waiting on the async request's
+        // resolution — the overlay switches in immediately (after the tutorial line, if shown),
+        // never blocked on a promise.
+        wakeLockController.start();
+        const wakeLockSupported = isWakeLockSupported(deps.nav);
+        if (!wakeLockSupported) {
+          // Path B (12.3): normal run screen, once-per-device toast.
+          pocketScreen.showFallbackNoticeOnce();
+        }
+        if (wakeLockSupported && pocketScreenPrefEnabled(deps.storage)) {
+          if (showingTutorial) {
+            window.setTimeout(
+              () => pocketScreen.showOverlay(),
+              clientConfig.onboarding.tutorialLineHoldDurationMs,
+            );
+          } else {
+            pocketScreen.showOverlay();
+          }
         }
       } else if (event.type === 'checkin_rejected') {
         // D-120 table 1.3 (P2-H20): `confirm` (never `selectCheckInPreview`) is the only source of
@@ -860,6 +997,15 @@ export function createF04App(deps: F04AppDeps): F04App {
         );
       } else if (event.type === 'dungeon_exited') {
         runBar.hideClosingSoonWarning();
+        // The engine already mapped this event's telemetry (including
+        // `page_hidden_total_s_bucket`/`wake_lock_engaged_share_bucket`, read from
+        // `deps.getRunClientStats`/`wakeLockController.snapshot()` — session/engine.ts's own
+        // wiring) synchronously *before* `dispatch()` returned these events, so calling `stop()`
+        // here (a moment later, same run) only needs to do its other job: release the sentinel and
+        // stop listening for the next run.
+        wakeLockController.stop();
+        pocketScreen.hideOverlay();
+        pocketScreen.hideEnterButton();
       } else if (event.type === 'run_state_changed') {
         // C-12 (copy gate P2-X37): a short toast confirming the run came back from Grace/Suspended
         // to Active — never a client re-derivation of "did presence return", just this event.
@@ -958,6 +1104,11 @@ export function createF04App(deps: F04AppDeps): F04App {
       introScreen.hide();
       classSelect.hide();
       runTutorialLine.hide();
+      // P2-F06-T14: the pocket screen's own dark overlay must never linger behind (or block
+      // pointer events for) a route screen (`#/settings`/`#/inventory`) that fully takes over the
+      // display the same way this whole guard already does for every other run-screen element.
+      pocketScreen.hideOverlay();
+      pocketScreen.hideEnterButton();
       return;
     }
     if (state.lastSummary !== null && exitAnimationInFlight) {
@@ -991,6 +1142,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       introScreen.hide();
       classSelect.hide();
       runTutorialLine.hide();
+      pocketScreen.hideOverlay();
+      pocketScreen.hideEnterButton();
       runSummary.show(state.lastSummary);
       return;
     }

@@ -100,6 +100,14 @@ client โหลด `synthetic/`, `qa/`, `recorded/` ผ่าน `import.meta.g
 
 การจับคู่กับ acceptance ของบอร์ด: เดินวนในสวน = `park-loop` · นั่งม้านั่งมี jitter = `bench-jitter` · มือถือวางนิ่งบนโต๊ะ = `table-still` · เดินเลียบขอบ polygon = `edge-walk` · drift spike = `drift-spike` · เดินในซอยตึกบัง = `soi-occluded` · QA test plan หัวข้อ 6 = `table-still`, `bench-jitter`, `boundary-50m` · ที่เหลือเป็นชุดเพิ่มที่ location-engineer ต้องมีตามหน้าที่ (ขับรถ, teleport, walk-in) และ event ของ provider สำหรับ TC-LOC-04/05/06 และ TC-HUD-08/09
 
+### 6.1 trace ใน `qa/` (เจ้าของ qa-tester)
+
+ไฟล์ใน `qa/` ไม่ได้มาจาก generator จึงไม่อยู่ใน `stats.ts` · ระยะดิบคำนวณด้วย `haversine_m` ของ `tools/traces/src/geo.ts` · ทุกไฟล์ที่ลงตารางนี้ต้องเป็น synthetic (`meta.platform = synthetic`) ไม่มีข้อมูลการเดินจริง
+
+| id | เจ้าของ | สภาพ | เวลา | sample | ระยะดิบ | accuracy (min/กลาง/max ม.) | speed/heading | จำลองอะไร |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `qa-home-states-walk-01` (P2-F06-T17, synthetic ไม่มี seed) | qa-tester | other | 10:00 | 12 (ทุก 30 วินาที, 4 ช่วง ช่วงละ 3 จุด) | 85.5 กม. (ส่วนใหญ่คือการกระโดดระหว่างช่วง 74.0 / 6.8 / 4.6 กม. ภายในช่วงไม่เกิน 3.1 ม.) | 5.9 / 7.3 / 8.2 | ไม่มี | replay home state ของ `home-state.ts` ทีละ sample: ช่วง 1 นอก play-area → `out_of_area` · ช่วง 2 ใน play-area และ launch-area แต่ไกลดันเจี้ยน → `far` · ช่วง 3 ใน play-area นอก launch-area → `outside_launch_district` · ช่วง 4 บนดันเจี้ยน test สลับ flag เปิดปิด → `temporarilyClosed` (ปิด) และ near (เปิด เป็นตัวควบคุม) · polygon play-area/launch-area/ดันเจี้ยนสร้างเองใน test อยู่ใน bbox กรุงเทพฯ และ 5 จังหวัด (TC-PRIVACY-02) แต่ไม่ผูกกับสถานที่จริง · แสดงผลอย่างเดียว ไม่เรียก `sessionStep` · ใช้ใน `qa/tests/F06/home-states-trace-replay.test.ts` · ห้ามใช้ทดสอบ movement gate หรือ speed lock เพราะการกระโดดระหว่างช่วงเป็นการตั้งตำแหน่งของ test ไม่ใช่การเดิน |
+
 ## 7. รายละเอียดและสิ่งที่คาดว่าจะเกิด
 
 เวลาเป็น วินาที นับจาก sample แรก (mm:ss ในวงเล็บ)

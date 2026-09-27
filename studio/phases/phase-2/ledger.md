@@ -159,3 +159,13 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | # | Wave | Task | Agent | Start | End | Result |
 | --- | --- | --- | --- | --- | --- | --- |
 | 146 | preflight | P2-F06-T10 | orchestrator | 00:04 | 00:04 | IN_PROGRESS ค้างจาก Run 1 → TODO (resume: ตรวจไฟล์ใน Writes ก่อนเขียน) |
+| 147 | W12 | P2-H30 | user | — | 00:08 | DONE — ผู้ใช้พลิก it.fails → it เอง · vitest session-checkin-lifecycle 5/5 pass (orchestrator รัน) · ปิด BUG-P2-002 ใน bugs.md → P2-F06-T17 |
+| 148 | W12 | P2-F06-T10 | gameplay-programmer | 00:05:22 | 00:22 | DONE — Run 1 ทำไว้เกือบครบ ตรวจแล้วถูก · เพิ่ม e2e onboarding.spec.ts (android+ios ผ่าน) · vitest 710/710 · full-run.spec.ts flake ตามเวลาจริง → F06-T14 · orchestrator เพิ่ม dep X38 ให้ F06-T20..T23 (consent/age gate ต้องผ่าน gate) |
+| 149 | W13 | P2-F05-T18 | game-director | 00:22:49 | 00:29:24 | PASS (รอบ 1) — F04 PASS, F05 PASS · gate F04+F05 ครบทั้ง tech/QA/copy/design · O-1..O-4 ไม่บล็อก → H33 tech-lead, H34 uiux, H35 GD, O-2 → X38 |
+| 150 | W13 | P2-H33 | tech-lead | 00:29:40 | 00:30:46 | DONE — schema speedLock.action const lockPlay + test · config-lint 70/70 · ไม่มี handoff |
+| 151 | W13 | P2-H35 | game-director | 00:29:40 | 00:32:08 | DONE — spec F04/F05 สถานะผ่าน gate + sync ชื่อ key กับ config/ADR · ไม่เปลี่ยนกฎ ไม่มี handoff |
+| 152 | W13 | P2-H34 | uiux-designer | 00:29:40 | 00:34:33 | DONE — flow F05 A2b / F06 A11: firstEver จาก partial tick ไม่แสดง toast ไปจอสรุป · handoff gameplay (ไม่บล็อก) → context X38 |
+| 153 | W13 | P2-F06-T17 | qa-tester | 00:22:49 | 00:56:38 | DONE — black-box F06 31/31, QA suites 378 pass, BUG-P2-002 CLOSED, ไม่มีบั๊กใหม่ · → H36 tech-lead (lockfile), H37 location (README) · _px lint → แจ้ง T14 |
+| 154 | W13 | P2-H36 | tech-lead | 00:57 | 00:57:27 | DONE — qa/tests/F06 เป็น workspace member · lockfile +9 importer เท่านั้น · handoff qa (ยืนยันรันจาก root) → context F06-T21 |
+| 155 | W13 | P2-H37 | location-engineer | 00:57 | 00:58:02 | DONE — README 6.1 trace ใน qa/ + แถว home-states · synthetic ยืนยัน · handoff qa (รายชื่อ trace qa ที่เหลือ) → context CLOSE-QA |
+| 156 | W13 | P2-F06-T14 | gameplay-programmer | 00:22:49 | 01:20:32 | DONE — pocket screen + Wake Lock + fire-together + setIconGlyph + telemetry · client e2e 42/42 ไม่ขึ้นกับเวลา · root vitest 2831 pass · _px → _ratio (D-134 PROPOSED → T20) · → H38 qa e2e pin start, H39 uiux toast ใต้ pocket screen |

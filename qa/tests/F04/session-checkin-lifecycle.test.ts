@@ -41,7 +41,7 @@ describe('F04-C03a — checkin_rejected reasons through sessionStep (public inte
   // time after the teleport is enough to check in. `it.fails`: this assertion is the *spec-correct*
   // expectation and is expected to keep failing until backend-programmer fixes the reducer; a
   // sudden pass here is the signal to flip this back to a normal `it`.
-  it.fails(
+  it(
     'synthetic-teleport-spoof-01: no_approach_from_outside once the trace ends (BUG-P2-002)',
     () => {
       const trace = loadCommittedTrace(

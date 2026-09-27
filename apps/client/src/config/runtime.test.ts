@@ -45,6 +45,7 @@ function validClient(): Record<string, unknown> {
     vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
     toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3, hpLowHoldDurationMs: 4000 },
     onboarding: { tutorialLineHoldDurationMs: 3000 },
+    pocketScreen: { swipeUpHoldMinDuration_ms: 600, swipeUpMinDistance_ratio: 0.03 },
   };
 }
 
@@ -90,6 +91,18 @@ describe('parseClientConfig', () => {
     const broken = validClient();
     delete (broken['bundle'] as Record<string, unknown>)['initialJsBudget_bytes'];
     expect(() => parseClientConfig(broken)).toThrow(/initialJsBudget_bytes/);
+  });
+
+  it('fails loudly when pocketScreen.swipeUpHoldMinDuration_ms is missing', () => {
+    const broken = validClient();
+    delete (broken['pocketScreen'] as Record<string, unknown>)['swipeUpHoldMinDuration_ms'];
+    expect(() => parseClientConfig(broken)).toThrow(/swipeUpHoldMinDuration_ms/);
+  });
+
+  it('fails loudly when pocketScreen.swipeUpMinDistance_ratio is missing', () => {
+    const broken = validClient();
+    delete (broken['pocketScreen'] as Record<string, unknown>)['swipeUpMinDistance_ratio'];
+    expect(() => parseClientConfig(broken)).toThrow(/swipeUpMinDistance_ratio/);
   });
 
   it('fails loudly when engine.tickInterval_ms is missing', () => {

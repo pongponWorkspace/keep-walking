@@ -1,0 +1,11 @@
+{
+  "name": "@keep-walking/qa-tests-f06",
+  "version": "0.0.0",
+  "private": true,
+  "description": "QA black-box tests for F06 (P2-F06-T17): survival, auto-retreat, death/revive, potions-from-drops-only, first reward, onboarding, far/out-of-area home states + PM-M2 events, S-09 (76 districts), clear-local-data. Drives the session public interface (createSession/sessionStep/selectors from @keep-walking/shared/session) and reads apps/client's own shipped modules by relative import (home/home-state.ts, onboarding/onboarding-step.ts, ui/interest-register.ts, copy/districts.ts, storage/*.ts, telemetry/*.ts) — never a dev unit test file, never apps/client internals not exported for this purpose. Same workspace-member shape as qa/tests/F04 and qa/tests/F05 (mirrors their package.json). Owner: qa-tester.",
+  "type": "module",
+  "devDependencies": {
+    "@keep-walking/geo": "workspace:*",
+    "@keep-walking/shared": "workspace:*"
+  }
+}

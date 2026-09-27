@@ -1,9 +1,9 @@
 # F04 — Dungeon Presence และ Run State
 
-Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร่าง (รอ design gate รวม F04 + F05 ใน P2-F05-T18) · วันที่: 2026-09-26 · แก้ล่าสุด: 2026-09-27 (P2-X15 ดูหัวข้อ 11)
+Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ผ่าน design gate P2-F05-T18 (2026-09-28 · `design/reviews/F04-F05-design-gate.md`) · วันที่: 2026-09-26 · แก้ล่าสุด: 2026-09-28 (P2-H35 ดูหัวข้อ 11)
 แหล่งอ้างอิง: GDD "หลักการที่ใช้ตัดสินทุกข้อขัดแย้ง", "การเข้าและออก", "เวลาทำการ", "ระดับเลเวลที่เหมาะสม", "Core loop ใน Dungeon", "10 นาทีแรกของคนใหม่", "Anti-cheat > มาตรการเป็นชั้น" (ชั้น 1), "ความปลอดภัยทางกายภาพ", "สัญญาณขาดและแอปถูกปิด" · `design/pillars.md` (P2, P4, NN-1, NN-4, NN-5, หัวข้อ 6.2 U7, หัวข้อ 7) · `design/ux/flows/F03-core-loop.md` (Flow B, C 4.1, D) · plan review GD หัวข้อ 1, B-02, B-03, B-04, B-05, N-03 · D-063, D-064, D-072, D-075, D-079, D-083, D-087, D-088, D-089
 คู่กับ: `design/features/F05-movement-gate-reward.md` (gate, rewardWindow, tick, drop, สรุป run) · ส่วน HP / auto-retreat / onboarding อยู่ใน spec F06 (P2-F06-T02)
-ตัวเลขทุกตัวเป็น `config: <key>` ไม่เขียนค่า · key ที่ขึ้นต้นด้วย "เสนอ:" ยังไม่มีใน config เป็นข้อเสนอให้ systems-designer ตั้งชื่อและค่าใน P2-F05-T20
+ตัวเลขทุกตัวเป็น `config: <key>` ไม่เขียนค่า · key ที่เคยเสนอให้ systems-designer ตั้งไว้แล้วใน P2-F05-T20 ด้วยชื่อตาม config และ ADR 0003
 
 ## 1. ผู้เล่นทำอะไร เห็นอะไร รู้สึกอะไร
 
@@ -36,7 +36,7 @@ Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร
 ### 3.2 Check-in (GDD "Anti-cheat" ชั้น 1 · GD B-03)
 
 - F04-R07 ตอนกด "เข้า" engine ประเมิน check-in จาก sample ก่อนหน้า · ผ่านเมื่อครบทุกข้อ
-  1. มีลำดับ sample ต่อเนื่อง ยาวอย่างน้อย `config: anticheat.checkIn.minContinuousApproach_s` สิ้นสุดที่ sample ล่าสุด · "ต่อเนื่อง" = ไม่มีคู่ sample ติดกันที่ห่างเกิน `config: dungeons.movementGate.maxSamplePairGap_s` (เสนอ ดู F05) และไม่มี sample ที่ตัวกรอง outlier ทิ้ง (ADR 0003)
+  1. มีลำดับ sample ต่อเนื่อง ยาวอย่างน้อย `config: anticheat.checkIn.minContinuousApproach_s` สิ้นสุดที่ sample ล่าสุด · "ต่อเนื่อง" = ไม่มีคู่ sample ติดกันที่ห่างเกิน `config: dungeons.movementGate.maxSamplePairGap_s` (ดู F05) และไม่มี sample ที่ตัวกรอง outlier ทิ้ง (ADR 0003 · `config: dungeons.movementGate.outlierSpeed_kmh`, `outlierReanchorSamples`)
   2. ในลำดับนั้นมี sample ที่อยู่นอก polygon ที่เลือก และ sample ล่าสุดอยู่ใน polygon ที่เลือก (เดินเข้ามาจากข้างนอก ไม่ใช่โผล่กลาง polygon · `config: anticheat.checkIn.teleportIntoPolygonAllowed`)
   3. sample ล่าสุด accuracy น้อยกว่า `config: anticheat.checkIn.maxAccuracy_m` (เปรียบเทียบแบบน้อยกว่า ไม่ใช่น้อยกว่าหรือเท่ากับ)
   4. ไม่อยู่ในสถานะ speed lock (3.4) ณ ตอนกด และลำดับ sample ข้อ 1 ไม่มีช่วงที่ lock
@@ -48,8 +48,8 @@ Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร
 ### 3.3 Run state (GDD "การเข้าและออก", "สัญญาณขาดและแอปถูกปิด")
 
 นิยามที่ใช้ทั้งหัวข้อ
-- **sample ที่ใช้ได้** = sample ที่ตัวกรอง outlier ไม่ทิ้ง (ADR 0003) และ accuracy ไม่แย่กว่า `config: dungeons.movementGate.maxSampleAccuracy_m` (เสนอ)
-- **หลักฐานว่าอยู่ใน** = sample ที่ใช้ได้ล่าสุดอยู่ใน polygon ของ run · **หลักฐานว่าอยู่นอก** = sample ที่ใช้ได้ล่าสุดอยู่นอก polygon · **ไม่มีหลักฐาน** = ไม่มี sample ที่ใช้ได้นานกว่า `config: dungeons.movementGate.maxSamplePairGap_s` (เสนอ) เช่น จอล็อก หน้าเว็บ hidden แอปถูกปิด GPS หาย หรือ accuracy แย่ต่อเนื่อง
+- **sample ที่ใช้ได้** = sample ที่ตัวกรอง outlier ไม่ทิ้ง (ADR 0003 · `config: dungeons.movementGate.outlierSpeed_kmh`, `outlierReanchorSamples`) และ accuracy ไม่แย่กว่า `config: dungeons.movementGate.maxSampleAccuracy_m`
+- **หลักฐานว่าอยู่ใน** = sample ที่ใช้ได้ล่าสุดอยู่ใน polygon ของ run · **หลักฐานว่าอยู่นอก** = sample ที่ใช้ได้ล่าสุดอยู่นอก polygon · **ไม่มีหลักฐาน** = ไม่มี sample ที่ใช้ได้นานกว่า `config: dungeons.movementGate.maxSamplePairGap_s` เช่น จอล็อก หน้าเว็บ hidden แอปถูกปิด GPS หาย หรือ accuracy แย่ต่อเนื่อง
 - **เวลานอก** = เวลาต่อเนื่องนับจากจุดเริ่มของการออกครั้งนี้ (R14) ถึงปัจจุบัน · รีเซ็ตเป็นศูนย์เมื่อกลับ Active
 
 - F04-R12 สถานะและเงื่อนไข (ขอบตาม `_note` ของ `dungeons.runState`)
@@ -67,7 +67,7 @@ Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร
   1. Active → ออก ยืนยันเมื่อมี sample ที่ใช้ได้ฝั่งนอก `config: dungeons.runState.edgeHysteresisSamples` ตัวติดกัน **และ** แต่ละตัวห่างขอบเกิน `config: dungeons.runState.edgeHysteresis_m` ต้องครบทั้งสองอย่าง (D-103, J-9) · sample ฝั่งตรงข้ามที่อยู่ในแถบ (ห่างขอบไม่เกิน `edgeHysteresis_m`) เป็นกลาง ไม่นับเข้าชุดและไม่ล้มชุด · sample ฝั่งเดิมล้มชุด · ออก → Active ใช้เกณฑ์เดียวกันฝั่งใน · กรณีขอบของ config: `edgeHysteresis_m` = 0 คือนับจำนวนอย่างเดียว, `edgeHysteresisSamples` = 1 คือใช้ระยะอย่างเดียว (tech note F04 5.2)
   2. hysteresis ตัดสิน "เปลี่ยนหรือไม่" ไม่ตัดสิน "เปลี่ยนเมื่อไร" · เมื่อยืนยันแล้ว การเปลี่ยนมีผลย้อนไปที่ sample ฝั่งตรงข้ามตัวแรกของชุด ซึ่งนับตัวที่อยู่ในแถบด้วย (R14, D-103)
   3. hysteresis ไม่ขยาย polygon สำหรับรางวัล: ระยะนับเฉพาะคู่ sample ที่อยู่ใน polygon ทั้งคู่ (F05-R05)
-  4. กรอบค่า: ระยะ hysteresis เล็กเมื่อเทียบกับ dungeon เล็กสุด (`config: dungeons.area.minArea_m2` เทียบเท่าวงกลมรัศมีราว 31 ม. และแถบริมน้ำกว้างราว 20 ม.) ข้อเสนอของ game-director คือไม่เกินราวหนึ่งในสามของรัศมีนั้น · เวลาที่ใช้ยืนยัน (จำนวน sample × cadence) ไม่เกินราวหนึ่งในหกของ `graceMax_s` เพื่อไม่ซ้อนหน้าที่กับ Grace ที่รองรับ drift อยู่แล้ว · systems-designer ตั้งค่าจริงพร้อม vector เลียบขอบ/drift ใน P2-F05-T20
+  4. กรอบค่า: ระยะ hysteresis เล็กเมื่อเทียบกับ dungeon เล็กสุด (`config: dungeons.area.minArea_m2` เทียบเท่าวงกลมรัศมีราว 31 ม. และแถบริมน้ำกว้างราว 20 ม.) ข้อเสนอของ game-director คือไม่เกินราวหนึ่งในสามของรัศมีนั้น · เวลาที่ใช้ยืนยัน (`edgeHysteresisSamples` × `config: dungeons.movementGate.sampleCadence_s`) ไม่เกินราวหนึ่งในหกของ `graceMax_s` เพื่อไม่ซ้อนหน้าที่กับ Grace ที่รองรับ drift อยู่แล้ว · systems-designer ตั้งค่าจริงพร้อม vector เลียบขอบ/drift ใน P2-F05-T20
   5. ระหว่างรอยืนยัน สถานะยังเป็นสถานะเดิม · tick ที่ครบระหว่างรอยืนยันถูกประเมินเมื่อได้ผลยืนยันแล้ว (ช้าไม่เกินเวลายืนยัน)
   6. พฤติกรรมที่รู้แล้วของ Phase 2 (J-P2-T30-2, D-118): Phase 2 ไม่มีเพดานเวลาของชุดรอยืนยัน · ขากลับที่ sample ฝั่งในอยู่ในแถบตลอดจึงค้าง Grace ได้ไม่จำกัด หรือเมื่อเดินลึกเข้าไปภายหลังจะยืนยันและย้อน Active ไปที่ sample แรกในแถบ · ระหว่างค้างไม่มี tick ไม่มี damage และออกเองได้ทุกเมื่อแบบของครบ · การย้อน Active นับระยะเฉพาะคู่ใน polygon (F05-R05) และ tick ยังต้องผ่าน gate · `timeout` ของครบใน Phase 2 ถึงได้ทางช่องว่างเกิน `maxSamplePairGap_s` เท่านั้น (D-104) · ไม่ใช่บั๊ก และ **ห้ามแก้ใน Phase 2 ด้วยการยืนยันตามเวลา** (หลักการข้อ 2, D-103) · เพดาน `dungeons.runState.pendingSetMax_s` (fail closed: ชุดที่ยาวเกินล้มเหมือนเจอ sample ฝั่งเดิม ไม่ยืนยันอัตโนมัติ) เป็นแผนของ Phase 3 ตาม P-4 ของ `design/reviews/F05-F06-flow-approval.md` ต้องอยู่ใน spec F08 ก่อน engine ย้ายไป server · ไม่ใส่ config ใน Phase 2
   7. การกลับจากไม่มีหลักฐานไม่ผ่าน hysteresis (J-P2-T30-4, D-118): หลังช่วงไม่มีหลักฐาน (R13, E3, E7) sample ที่ใช้ได้ตัวแรกที่อยู่ฝั่งใน = กลับ Active ที่เวลาของ sample นั้นทันที เพราะไม่มีการข้ามขอบให้กรอง · ขอบเขต 3 ข้อ
@@ -82,18 +82,18 @@ Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร
 
 ### 3.4 Speed lock (GDD "ความปลอดภัยทางกายภาพ", ชั้น 1 · GD B-02)
 
-- F04-R20 เมื่อความเร็วเกิน `config: anticheat.speedLock.speedLock_kmh` เกมเข้าสถานะ lock (`config: anticheat.speedLock.action` = ล็อกการเล่น ไม่ใช่เตือน) · ความเร็ววัดตามวิธีใน ADR 0003 ต่อเนื่องอย่างน้อย `config: anticheat.speedLock.lockSustained_s` (เสนอ ต้องสั้นพอให้ lock ก่อนรถออกตัวเต็มที่ และยาวพอไม่ให้ spike เดียวของ GPS ล็อกคนเดิน) · Phase 2 ใช้ความเร็วจาก sample ที่ใช้ได้ด้วย `speedLock_kmh` ดิบ แล้วสลับเป็นความเร็วแบบกรองเมื่อ P2-F05-T13 เสร็จ โดยกฎนี้ไม่เปลี่ยน
+- F04-R20 เมื่อความเร็วเกิน `config: anticheat.speedLock.speedLock_kmh` เกมเข้าสถานะ lock (`config: anticheat.speedLock.action` = ล็อกการเล่น ไม่ใช่เตือน) · ความเร็ววัดตามวิธีใน ADR 0003 ต่อเนื่องอย่างน้อย `config: anticheat.speedLock.lockSustained_s` (ต้องสั้นพอให้ lock ก่อนรถออกตัวเต็มที่ และยาวพอไม่ให้ spike เดียวของ GPS ล็อกคนเดิน) · Phase 2 ใช้ความเร็วจาก sample ที่ใช้ได้ด้วย `speedLock_kmh` ดิบ แล้วสลับเป็นความเร็วแบบกรองเมื่อ P2-F05-T13 เสร็จ โดยกฎนี้ไม่เปลี่ยน
 - F04-R21 ระหว่าง lock: ไม่มี tick นาฬิกา rewardWindow หยุด ระยะไม่นับ ไม่มีการทอย damage · ไม่เปิด popup confirm และ check-in ไม่ผ่าน · run state ยังตัดสินจากตำแหน่งตาม 3.3 (lock ไม่ทำให้ run จบเอง และไม่นับเป็นเวลานอก ถ้าตำแหน่งยังอยู่ใน polygon)
-- F04-R22 ปลด lock เมื่อความเร็วต่ำกว่าหรือเท่ากับ `speedLock_kmh` ต่อเนื่อง `config: anticheat.speedLock.unlockSustained_s` (เสนอ ยาวกว่าไฟแดงหนึ่งจังหวะ เพื่อไม่ให้ปลดสลับล็อกตอนรถติด) · ปลดเอง ไม่ต้องกดอะไร
+- F04-R22 ปลด lock เมื่อความเร็วต่ำกว่าหรือเท่ากับ `speedLock_kmh` ต่อเนื่อง `config: anticheat.speedLock.unlockSustained_s` (ยาวกว่าไฟแดงหนึ่งจังหวะ เพื่อไม่ให้ปลดสลับล็อกตอนรถติด) · ปลดเอง ไม่ต้องกดอะไร
 - F04-R23 จอ: overlay เต็มจอทับแผนที่และจอ run (รวมจอพกกระเป๋า) ข้อความสั้นหนึ่งบรรทัดว่าเร็วเกินเดินจึงล็อก และจะปลดเองเมื่อกลับมาเดิน · ไม่อธิบายวิธีวัด (U7) · ไม่มีปุ่มที่ชวนเล่นต่อ มีแค่ปุ่มตั้งค่าและปุ่มออกจาก run ขนาดปกติ (ออกได้ทุกเมื่อตาม P2) · สั่นหนึ่งครั้งตอนเข้า lock ไม่มีเสียงวนซ้ำ
 - F04-R24 event `anticheat_speed_lock_triggered` ตอนเข้าและออก lock (P2-F04-T17) · lock ครั้งแรกเป็นเงื่อนไขปลดหัวข้อช่วยเหลือ anti-cheat ตาม `config: unlocks.antiCheatHelp` (pillars 6.2 ข้อ 6)
 
 ### 3.5 เวลาทำการ (GDD "เวลาทำการ", "ความปลอดภัยทางกายภาพ")
 
-- F04-R25 runtime อ่านเฉพาะเวลาทำการแบบ normalized ที่สร้างตอน build (P2-F04-T26) · ประเมินด้วย offset คงที่ `config: dungeons.openingHours.utcOffset_min` (เสนอ ชื่อสุดท้ายตาม P2-F05-T20) ไม่ใช้ timezone ของเครื่อง · ช่วงเปิดเป็นแบบ [เปิด, ปิด) คือวินาทีที่ถึงเวลาปิดถือว่าปิดแล้ว
+- F04-R25 runtime อ่านเฉพาะเวลาทำการแบบ normalized ที่สร้างตอน build (P2-F04-T26) · ประเมินด้วย offset คงที่ `config: dungeons.openingHours.utcOffset_min` ไม่ใช้ timezone ของเครื่อง · ช่วงเปิดเป็นแบบ [เปิด, ปิด) คือวินาทีที่ถึงเวลาปิดถือว่าปิดแล้ว
 - F04-R26 dungeon นำร่องทุกแห่งต้องมีเวลาทำการแบบ normalized (เปิด 24 ชม. ต้องระบุชัด) · ค่าที่ build แปลงไม่ได้ (เช่น `PH`) เป็นงานของ level-designer ก่อน publish ไม่ใช่การเดาตอน runtime (`manual_required`, TL B-12)
 - F04-R27 dungeon ที่ปิดอยู่เข้าไม่ได้ (`config: dungeons.entry.respectOpeningHours`) · เข้าเขตแล้วเห็นแผงปิด (Flow B4) พร้อมเวลาเปิดถัดไป ไม่มีปุ่ม "เข้า"
-- F04-R28 ถ้าเหลือเวลาถึงปิดไม่เกิน `config: dungeons.openingHours.closingSoonNotice_s` (เสนอ) popup confirm แสดงว่าจะปิดในอีกกี่นาที · ยังเข้าได้ ไม่บล็อก
+- F04-R28 ถ้าเหลือเวลาถึงปิดไม่เกิน `config: dungeons.openingHours.closingSoonNotice_s` popup confirm แสดงว่าจะปิดในอีกกี่นาที · ยังเข้าได้ ไม่บล็อก
 - F04-R29 ระหว่าง run เมื่อเหลือเวลาถึงปิดเท่ากับ `closingSoonNotice_s` แจ้งหนึ่งครั้ง (สั่น + ข้อความสั้น)
 - F04-R30 ถึงเวลาปิดระหว่าง run ไม่ว่าอยู่สถานะใด: run จบด้วย `dungeon_closed` · ของใน run เก็บครบ · tick ที่ค้างจ่ายตามกฎ D-059 (F05 หัวข้อ 3.5) · ไม่มีการเตะแบบลงโทษและไม่ต้องเดินออกเพื่อจบ
 - F04-R31 การประเมินเวลาทำการบนแผนที่ (เปิด/ปิด, เวลาเปิดถัดไป) เป็นการแสดงผลที่ client ทำได้ · การตัดสินตอน confirm และตอนปิดระหว่าง run เป็นของ engine (Phase 3 ย้ายไป server)
@@ -105,7 +105,7 @@ Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร
 
 ### 3.7 การนำทาง (A-3 ACCEPTED · D-089 เงื่อนไข 1–4)
 
-- F04-R34 ระยะที่แสดง = ระยะเส้นตรงจากตำแหน่งผู้เล่นถึงขอบ polygon (pillars 7.1) **ปัดขึ้น** เป็นขั้นตาม `config: unlocks.home.distanceDisplaySteps_m` (เสนอ) ห้ามปัดลงจนดูใกล้กว่าจริง · มีคำกำกับว่าเป็นระยะเส้นตรงทุกครั้งที่แสดงระยะ
+- F04-R34 ระยะที่แสดง = ระยะเส้นตรงจากตำแหน่งผู้เล่นถึงขอบ polygon (pillars 7.1) **ปัดขึ้น** เป็นขั้นตาม `config: unlocks.home.distanceDisplaySteps_m` ห้ามปัดลงจนดูใกล้กว่าจริง · มีคำกำกับว่าเป็นระยะเส้นตรงทุกครั้งที่แสดงระยะ
 - F04-R35 เกณฑ์ "ไกล" ใช้ `config: unlocks.home.farDungeonThreshold_m` ที่ปรับด้วย route factor แล้ว (D-072, D-079) · เทียบกับระยะก่อนปัด
 - F04-R36 ทิศแสดงเป็นลูกศรหรือข้อความทิศจากจุดของผู้เล่นเท่านั้น · **ไม่วาดเส้น** ใดๆ จากผู้เล่นถึง dungeon (เส้นตรงดูเหมือนเดินข้ามแม่น้ำ ทางด่วน ทางรถไฟได้) · ไม่มี turn-by-turn ในแอป
 - F04-R37 ปุ่มนำทางเปิดแอปแผนที่ของเครื่องด้วยลิงก์ที่มี **เฉพาะปลายทาง** = จุดสาธารณะของ dungeon (ทางเข้าที่ปักไว้ ไม่มีก็ใช้จุดป้ายตาม D-075 ไม่ใช่ centroid) ในโหมดเดินเท้า · **ห้ามมีตำแหน่งผู้เล่นใน URL** · ไม่ใช้ API key หรือบริการคิดเงิน · รูปแบบลิงก์ต่อระบบและ fallback (แสดงชื่อสถานที่ให้คัดลอก) เป็นของ tech-lead ใน P2-F04-T14 (เงื่อนไข 5)
@@ -144,7 +144,7 @@ Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร
 | E7 | จอล็อก / หน้าเว็บ hidden / แอปถูกปิด แล้วเปิดใหม่ | run ไม่ถูกลบ · เวลาที่หายเป็นเวลานอกย้อนจาก sample ที่ใช้ได้ตัวสุดท้าย (R14) · กลับมาภายใน `suspendedMax_s` และอยู่ในเขต = Active ต่อที่ sample แรกโดยไม่ผ่าน hysteresis (R15 ข้อ 7) · เกิน = สรุป run `timeout` (R18) · ระยะที่คร่อมช่องว่างไม่นับ (F05-R06) |
 | E8 | เน็ตหลุด | Phase 2 ไม่มีผลใดต่อ run (ไม่มี server) · banner offline บนแผนที่ตาม flow เท่านั้น |
 | E9 | เปลี่ยน dungeon กลางทาง | ต้องออกเองก่อน (R04) · เดินเข้า polygon ที่ซ้อนกันระหว่าง run ไม่มีผล (R03) · ออกจาก polygon ที่เลือกแต่ยังอยู่ในอีกแห่ง = นอก |
-| E10 | นาฬิกาเครื่องเพี้ยน / ถูกตั้งย้อน | engine ใช้เวลาที่ host ส่งเข้า (now_ms, D-087) · sample ที่ timestamp ย้อนหลังหรือเกินอนาคตเกิน `config: dungeons.runState.clockSkewTolerance_s` (เสนอ) ถูกทิ้ง · ถ้าเวลาปัจจุบันย้อนกลับก่อนเหตุการณ์ล่าสุดของ run จบ run ด้วย `clock_invalid` ณ เวลาเหตุการณ์ล่าสุด เก็บของครบ ไม่มี tick เพิ่ม · Phase 3 เวลาของ server เป็นตัวจริง |
+| E10 | นาฬิกาเครื่องเพี้ยน / ถูกตั้งย้อน | engine ใช้เวลาที่ host ส่งเข้า (now_ms, D-087) · sample ที่ timestamp ย้อนหลังหรือเกินอนาคตเกิน `config: dungeons.runState.clockSkewTolerance_s` ถูกทิ้ง · ถ้าเวลาปัจจุบันย้อนกลับก่อนเหตุการณ์ล่าสุดของ run จบ run ด้วย `clock_invalid` ณ เวลาเหตุการณ์ล่าสุด เก็บของครบ ไม่มี tick เพิ่ม · Phase 3 เวลาของ server เป็นตัวจริง |
 | E11 | ปิดทำการระหว่างอยู่ใน Suspended | จบ `dungeon_closed` ทันที ไม่รอ timeout · D-059 คิดจากเวลา Active ในหน้าต่างที่ค้าง |
 | E12 | เข้า 1 นาทีก่อนปิด | เข้าได้ พร้อมคำเตือน R28 · ถึงเวลาปิด tick ค้างต่ำกว่าเกณฑ์ขั้นต่ำของ D-059 ไม่ได้อะไร ของอื่นไม่มีให้เสีย |
 | E13 | นั่งรถผ่าน polygon (ถนนใน/ติดสวน) | lock ก่อน popup เปิด · ไม่มี check-in ระหว่าง lock (R21) |
@@ -185,11 +185,11 @@ party ออก/เข้า, dungeon ถูกรายงานจนพัก
 
 ## 8. Config key
 
-มีแล้ว: `dungeons.entry.*`, `dungeons.runState.graceMax_s`, `suspendedMax_s`, `rewardTickDuringGrace`, `rewardTickDuringSuspended`, `suspendedTimeCounts`, `dungeons.levelRange.blockEntryOutsideRange`, `dungeons.area.minArea_m2`, `dungeons.exit.manualExitAnytime`, `anticheat.checkIn.minContinuousApproach_s`, `maxAccuracy_m`, `teleportIntoPolygonAllowed`, `anticheat.speedLock.speedLock_kmh`, `action`, `unlocks.home.farDungeonThreshold_m`, `unlocks.antiCheatHelp`
+มีแล้ว: `dungeons.entry.*`, `dungeons.runState.graceMax_s`, `suspendedMax_s`, `rewardTickDuringGrace`, `rewardTickDuringSuspended`, `suspendedTimeCounts`, `dungeons.levelRange.blockEntryOutsideRange`, `dungeons.area.minArea_m2`, `dungeons.exit.manualExitAnytime`, `anticheat.checkIn.minContinuousApproach_s`, `maxAccuracy_m`, `teleportIntoPolygonAllowed`, `anticheat.speedLock.speedLock_kmh`, `action`, `unlocks.home.farDungeonThreshold_m`, `unlocks.antiCheatHelp` · ตั้งใน P2-F05-T20: `dungeons.movementGate.sampleCadence_s`, `outlierSpeed_kmh`, `outlierReanchorSamples` และทุก key ในตารางด้านล่าง
 
-ข้อเสนอให้ systems-designer (P2-F05-T20 · ชื่อสุดท้ายเป็นของ systems):
+กรอบจาก design ที่ใช้ตรวจค่าเมื่อมีการปรับ (เดิมเป็นตารางข้อเสนอให้ systems-designer ใน P2-F05-T20 · ชื่อตรงกับ config แล้ว):
 
-| key ที่เสนอ | ใช้ใน | กรอบจาก design |
+| key | ใช้ใน | กรอบจาก design |
 | --- | --- | --- |
 | `dungeons.movementGate.maxSamplePairGap_s` | R07, R13, F05 | ร่วมกับ F05 · สั้นกว่า `graceMax_s` มาก |
 | `dungeons.movementGate.maxSampleAccuracy_m` | 3.3, F05 | ไม่เข้มกว่า `anticheat.checkIn.maxAccuracy_m` |
@@ -212,7 +212,7 @@ party ออก/เข้า, dungeon ถูกรายงานจนพัก
 
 ## 10. สมมติฐานและคำถามค้าง
 
-- [ASSUMPTION A-P2-F04-T01-1: ADR 0003 นิยามตัวกรอง outlier, การ resample และวิธีวัดความเร็วที่ R07, R16, R20 อ้าง · ถ้า ADR ใช้คำหรือ key ต่างจากนี้ ให้ยึด ADR แล้วแก้ spec เป็น fix · owner: tech-lead]
+- [ASSUMPTION A-P2-F04-T01-1: ADR 0003 นิยามตัวกรอง outlier, การ resample และวิธีวัดความเร็วที่ R07, R16, R20 อ้าง · ถ้า ADR ใช้คำหรือ key ต่างจากนี้ ให้ยึด ADR แล้วแก้ spec เป็น fix · owner: tech-lead · ปิดแล้ว: ชื่อ key sync ตาม ADR 0003 และ config ใน P2-H35]
 - [ASSUMPTION A-P2-F04-T01-2: R14 ย้อนเวลา transition ต้องให้ engine ถือ sample ที่รอยืนยันไว้ไม่เกินจำนวนของ hysteresis ซึ่งอยู่ในเพดาน D-088 · owner: tech-lead, backend-programmer]
 - คำถาม (playtest P2-F06-T27): สัดส่วนคนที่เจอ `no_approach_from_outside` ครั้งแรก และเวลาที่เสียไป · ถ้าสูงมาก game-director พิจารณาจุดเริ่ม trace ใหม่ แต่ไม่ลดเงื่อนไข "มาจากข้างนอก"
 - คำถาม: จักรยานในสวนถูก lock ตาม GDD เป็นความตั้งใจ · product-manager เฝ้าจำนวน lock ภายใน polygon ใน playtest
@@ -225,3 +225,4 @@ party ออก/เข้า, dungeon ถูกรายงานจนพัก
 | 2026-09-27 | P2-X15 | 3.3 F04-R15 ข้อ 6, E19 | Grace ค้างในแถบฝั่งในเป็นพฤติกรรมที่รู้แล้วของ Phase 2 · `pendingSetMax_s` เป็นแผน Phase 3 (P-4) ไม่ใส่ config Phase 2 | J-P2-T30-2, D-116, D-118 |
 | 2026-09-27 | P2-X15 | 3.3 F04-R15 ข้อ 7, E7, หัวข้อ 7 ข้อ 13 | กลับจาก `no_evidence` ด้วย sample ฝั่งในตัวแรกโดยไม่ผ่าน hysteresis พร้อมขอบเขต 3 ข้อ | J-P2-T30-4, D-118 |
 | 2026-09-27 | P2-X15 | 3.3 F04-R17, E20 · 3.6 F04-R33, หัวข้อ 7 ข้อ 9 | ความสอดคล้องกับ F06: ถอน consent ระหว่าง run = `manual_exit` · onboarding แนะนำเฉพาะแห่งที่เปิดอยู่และครอบเลเวล | J-P2-T30-1, K-11, D-116 |
+| 2026-09-28 | P2-H35 | หัวบรรทัดสถานะ, บรรทัด 6, 3.2 F04-R07 ข้อ 1, 3.3 นิยาม sample, F04-R15 ข้อ 4, R20, R22, R25, R28, R34, E10, หัวข้อ 8, หัวข้อ 10 | สถานะเป็น "ผ่าน design gate P2-F05-T18" · "cadence" → `sampleCadence_s` · ระบุชื่อ key ของตัวกรอง outlier (`outlierSpeed_kmh`, `outlierReanchorSamples`) · ถอดคำ "เสนอ" ออกจาก key ที่มีใน config แล้ว · ไม่เปลี่ยนกฎหรือตัวเลข | O-4 (`design/reviews/F04-F05-design-gate.md`), ADR 0003 5.3, A-P2-F04-T01-1 |

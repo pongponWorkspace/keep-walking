@@ -54,6 +54,9 @@ describe('config schemas (packages/shared/schemas/config)', () => {
     ['config/balance/enhance.json', 'failureOutcomeByTargetLevel.15', 'destroyed'],
     ['config/balance/drops.json', 'baseChancePerRewardTick_pct.rare', 101],
     ['config/balance/anticheat.json', 'checkIn.teleportIntoPolygonAllowed', true],
+    ['config/balance/anticheat.json', 'speedLock.action', 'warn'],
+    ['config/balance/anticheat.json', 'speedLock.action', 'warnOnly'],
+    ['config/balance/anticheat.json', 'speedLock.action', ''],
     ['config/app/privacy.json', 'onDeviceSamples.deleteOnRunEnd', false],
     ['config/app/privacy.json', 'onDeviceSamples.persistPreRunApproach', true],
     ['config/app/telemetry.json', 'export.includesCoordinates', true],
@@ -61,6 +64,12 @@ describe('config schemas (packages/shared/schemas/config)', () => {
   ] as const)('%s rejects %s = %j', (path, dotted, value) => {
     const errors = schemaErrorsFor(mutate(path, dotted, value as Json), path);
     expect(errors.length).toBeGreaterThan(0);
+  });
+
+  it('accepts the current anticheat.json (speedLock.action is the single allowed value lockPlay)', () => {
+    const A = 'config/balance/anticheat.json';
+    expect(schemaErrorsFor(real, A)).toEqual([]);
+    expect(schemaErrorsFor(mutate(A, 'speedLock.action', 'lockPlay'), A)).toEqual([]);
   });
 
   it('requires _meta in every file', () => {

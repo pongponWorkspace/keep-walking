@@ -141,6 +141,17 @@ export interface OnboardingConfig {
   readonly tutorialLineHoldDurationMs: number;
 }
 
+/** `client.json#pocketScreen` (P2-F06-T14, components.md 12.1 rule 2): the swipe-up-hold exit
+ * gesture's two thresholds — `apps/client/src/ui/pocket-screen.ts#shouldTriggerPocketExit`'s only
+ * config-driven numbers. */
+export interface PocketScreenConfig {
+  readonly swipeUpHoldMinDuration_ms: number;
+  /** Fraction (0-1) of `window.innerHeight` the pointer must move upward — a viewport-relative
+   * ratio, not a fixed px count, so the gesture threshold scales across real device screen sizes
+   * (resolved to real px by `ui/pocket-screen.ts` at mount time). */
+  readonly swipeUpMinDistanceRatio: number;
+}
+
 export interface ClientRuntimeConfig {
   readonly locationWeb: LocationWebConfig;
   readonly providerQuery: ProviderQueryConfig;
@@ -155,6 +166,7 @@ export interface ClientRuntimeConfig {
   readonly vibration: VibrationConfig;
   readonly toast: ToastConfig;
   readonly onboarding: OnboardingConfig;
+  readonly pocketScreen: PocketScreenConfig;
 }
 
 export interface RawTraceExportConfig {
@@ -378,6 +390,20 @@ function parseOnboarding(root: Json, path: string): OnboardingConfig {
   };
 }
 
+function parsePocketScreen(root: Json, path: string): PocketScreenConfig {
+  const node = obj(root['pocketScreen'], path);
+  return {
+    swipeUpHoldMinDuration_ms: num(
+      node['swipeUpHoldMinDuration_ms'],
+      `${path}/swipeUpHoldMinDuration_ms`,
+    ),
+    swipeUpMinDistanceRatio: num(
+      node['swipeUpMinDistance_ratio'],
+      `${path}/swipeUpMinDistance_ratio`,
+    ),
+  };
+}
+
 function parseBundle(root: Json, path: string): BundleConfig {
   const node = obj(root['bundle'], path);
   return {
@@ -406,6 +432,7 @@ export function parseClientConfig(input: unknown): ClientRuntimeConfig {
     vibration: parseVibration(root, '/vibration'),
     toast: parseToast(root, '/toast'),
     onboarding: parseOnboarding(root, '/onboarding'),
+    pocketScreen: parsePocketScreen(root, '/pocketScreen'),
   };
 }
 

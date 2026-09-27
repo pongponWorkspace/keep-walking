@@ -33,7 +33,10 @@
           "exclusiveMinimum": 0,
           "description": "GDD speed lock"
         },
-        "action": { "type": "string", "minLength": 1 },
+        "action": {
+          "const": "lockPlay",
+          "description": "Documentation only: the engine (packages/shared/src/run/speed-lock.ts, session/reducer.ts) never reads this key and always locks play above speedLock_kmh. GDD safety rule: speed lock locks play, not just a warning. Locked to one value so config cannot suggest a warn-only mode (P2-H33, F04-F05 design gate O-1)"
+        },
         "lockSustained_s": { "$ref": "../common.schema.json#/$defs/seconds" },
         "unlockSustained_s": { "$ref": "../common.schema.json#/$defs/seconds" }
       },

@@ -1,9 +1,9 @@
 # F05 — Movement Gate, Reward Tick และ Drop
 
-Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร่าง (รอ design gate รวม F04 + F05 ใน P2-F05-T18) · วันที่: 2026-09-26
+Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ผ่าน design gate P2-F05-T18 (2026-09-28 · `design/reviews/F04-F05-design-gate.md`) · วันที่: 2026-09-26 · แก้ล่าสุด: 2026-09-28 (P2-H35 ดูหัวข้อ 11)
 แหล่งอ้างอิง: GDD "หลักการที่ใช้ตัดสินทุกข้อขัดแย้ง", "Core loop ใน Dungeon" (Reward tick, Movement gate, ไม่มีเพดานเวลาและไม่มี diminishing return), "10 นาทีแรกของคนใหม่", "HP การตาย และการฟื้นฟู" (ระบบกันตาย, เมื่อตาย, ผลข้างเคียงที่ตั้งใจ), "Progression > ตัวเลขตั้งต้น" (Exp curve, Drop table), "Anti-cheat" ชั้น 3, "สัญญาณขาดและแอปถูกปิด", "หลักการที่ห้ามละเมิด" · `design/pillars.md` (P1, NN-1, NN-2, NN-8, หัวข้อ 6.2 "run ที่นับ") · `design/reviews/F03-design-gate-b.md` 4.2 (D-059) และ 4.6 (R-B1 = D-078) · plan review GD B-04, B-06, B-07, N-03 · TL N-14 · D-059, D-078, D-087, D-088, D-089
 คู่กับ: `design/features/F04-dungeon-presence.md` (run state, check-in, speed lock, เวลาทำการ) · HP, damage, ยา, onboarding อยู่ใน spec F06 (P2-F06-T02)
-ตัวเลขทุกตัวเป็น `config: <key>` · key "เสนอ:" เป็นข้อเสนอให้ systems-designer ใน P2-F05-T20 · นิยามเทคนิคของหน้าต่างและตัวกรองเป็นของ ADR 0003 (P2-F04-T05) เอกสารนี้กำหนดกฎเกม
+ตัวเลขทุกตัวเป็น `config: <key>` · key ที่เคยเสนอให้ systems-designer ตั้งไว้แล้วใน P2-F05-T20 ด้วยชื่อตาม config และ ADR 0003 · นิยามเทคนิคของหน้าต่างและตัวกรองเป็นของ ADR 0003 (P2-F04-T05) เอกสารนี้กำหนดกฎเกม
 
 ## 1. ผู้เล่นทำอะไร เห็นอะไร รู้สึกอะไร
 
@@ -32,11 +32,11 @@ Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร
 
 ### 3.2 ระยะที่นับเข้า gate
 
-- F05-R05 คู่ sample ที่ติดกันในชุดที่ผ่านตัวกรอง (ADR 0003: ทิ้งเฉพาะ outlier ไม่ smoothing jitter เล็ก แล้ว resample เป็นจังหวะคงที่ `config: dungeons.movementGate.resampleCadence_s` เสนอ) นับระยะเส้นทรงกลมระหว่างกัน ก็ต่อเมื่อครบทุกข้อ
+- F05-R05 คู่ sample ที่ติดกันในชุดที่ผ่านตัวกรอง (ADR 0003: ทิ้งเฉพาะ outlier ตาม `config: dungeons.movementGate.outlierSpeed_kmh` และ `outlierReanchorSamples` ไม่ smoothing jitter เล็ก แล้ว resample เป็นจังหวะคงที่ `config: dungeons.movementGate.sampleCadence_s`) นับระยะเส้นทรงกลมระหว่างกัน ก็ต่อเมื่อครบทุกข้อ
   1. ทั้งสอง sample อยู่ใน polygon ของ run
   2. ทั้งสองเวลาอยู่ในช่วงที่นาฬิกา rewardWindow เดิน (Active และไม่ lock หลังการย้อนเวลา transition ของ F04 R14)
-  3. เวลาห่างกันไม่เกิน `config: dungeons.movementGate.maxSamplePairGap_s` (เสนอ · GD B-04)
-  4. accuracy ของทั้งคู่ไม่แย่กว่า `config: dungeons.movementGate.maxSampleAccuracy_m` (เสนอ · accuracy เท่าเกณฑ์นับได้ แย่กว่าไม่นับ)
+  3. เวลาห่างกันไม่เกิน `config: dungeons.movementGate.maxSamplePairGap_s` (GD B-04)
+  4. accuracy ของทั้งคู่ไม่แย่กว่า `config: dungeons.movementGate.maxSampleAccuracy_m` (accuracy เท่าเกณฑ์นับได้ แย่กว่าไม่นับ)
 - F05-R06 การ resample ห้ามสร้างจุดข้ามคู่ที่ข้อ R05 ไม่นับ (ข้ามช่องว่าง ข้ามขอบ polygon ข้ามช่วงนาฬิกาหยุด) · ระยะที่คร่อมช่องว่างจึงเป็นศูนย์เสมอ ไม่ประมาณ ไม่ย้อนเติม (GDD "ไม่มีหลักฐานว่าเดินจริง = ไม่มี reward เพิ่ม")
 - F05-R07 คู่ที่คร่อมขอบระหว่างสองหน้าต่างใช้กฎเดียวที่ ADR 0003 เลือก และทุกที่ (dungeon, D-059, raid ในอนาคต) ใช้กฎเดียวกัน
 - F05-R08 tick ผ่าน gate เมื่อระยะสะสมของหน้าต่าง **มากกว่า** `config: dungeons.movementGate.minDistancePerWindow_m` (`comparison` = `greaterThan` · เท่าเกณฑ์พอดีไม่ผ่าน)
@@ -136,15 +136,15 @@ Task: P2-F04-T01 · เจ้าของ: game-director · สถานะ: ร
 
 ## 8. Config key
 
-มีแล้ว: `dungeons.movementGate.minDistancePerWindow_m`, `window_s`, `comparison`, `appliesTo`, `exceptions` · `dungeons.rewardTick.rewardTickInterval_s` · `dungeons.runState.*` · `dungeons.emergencyClose.partialTickMinElapsed_s`, `partialTickGateScaling`, `proRatedRewardPassesMovementGate` · `dungeons.hpSafety.*` · `dungeons.death.loseAllRunLoot` · `progression.expCurve`, `expMultipliers` · `combat.zoneLevelFrom` · `drops.*`
+มีแล้ว: `dungeons.movementGate.minDistancePerWindow_m`, `window_s`, `comparison`, `appliesTo`, `exceptions` · `dungeons.rewardTick.rewardTickInterval_s` · `dungeons.runState.*` · `dungeons.emergencyClose.partialTickMinElapsed_s`, `partialTickGateScaling`, `proRatedRewardPassesMovementGate` · `dungeons.hpSafety.*` · `dungeons.death.loseAllRunLoot` · `progression.expCurve`, `expMultipliers` · `combat.zoneLevelFrom` · `drops.*` · `dungeons.movementGate.sampleCadence_s`, `maxSamplePairGap_s`, `maxSampleAccuracy_m`, `outlierSpeed_kmh`, `outlierReanchorSamples` (ตั้งใน P2-F05-T20)
 
-ข้อเสนอให้ systems-designer (P2-F05-T20):
+กรอบจาก design ที่ใช้ตรวจค่าเมื่อมีการปรับ (เดิมเป็นตารางข้อเสนอให้ systems-designer ใน P2-F05-T20):
 
-| key ที่เสนอ | กรอบจาก design |
+| key | กรอบจาก design |
 | --- | --- |
 | `dungeons.movementGate.maxSamplePairGap_s` | ยาวพอไม่ตัดคู่ปกติของเครื่องที่ส่ง sample ห่าง · สั้นพอที่ระยะคร่อมจอล็อก/ปิดแอปไม่ถูกนับ · สั้นกว่า `graceMax_s` มาก |
 | `dungeons.movementGate.maxSampleAccuracy_m` | ไม่เข้มกว่า `anticheat.checkIn.maxAccuracy_m` เพื่อไม่ให้คนเดินกลางแจ้งเสีย tick · ใช้ทั้ง gate และ run state |
-| `dungeons.movementGate.resampleCadence_s` และค่าตัวกรอง outlier | ตาม ADR 0003 · vector ยืนยันว่าผลไม่ขึ้นกับความถี่ sample |
+| `dungeons.movementGate.sampleCadence_s` และค่าตัวกรอง outlier (`outlierSpeed_kmh`, `outlierReanchorSamples`) | ตาม ADR 0003 · vector ยืนยันว่าผลไม่ขึ้นกับความถี่ sample |
 | lint: `rewardTick.rewardTickInterval_s` = `movementGate.window_s` | R04 |
 
 vector ที่ต้องมี (P2-F05-T01 / T20): G1, G2, G3, G4, G9, G10, G11, G12 และ R-B1 สามกรณี
@@ -160,7 +160,13 @@ vector ที่ต้องมี (P2-F05-T01 / T20): G1, G2, G3, G4, G9, G10, 
 
 ## 10. สมมติฐานและคำถามค้าง
 
-- [ASSUMPTION A-P2-F04-T01-1: ADR 0003 เป็นเจ้าของนิยามตัวกรอง outlier, cadence ของ resample และกฎคู่ที่คร่อมขอบหน้าต่าง (R05–R07) · ถ้าใช้ชื่อต่างจากนี้ให้ยึด ADR · owner: tech-lead]
+- [ASSUMPTION A-P2-F04-T01-1: ADR 0003 เป็นเจ้าของนิยามตัวกรอง outlier, cadence ของ resample และกฎคู่ที่คร่อมขอบหน้าต่าง (R05–R07) · ถ้าใช้ชื่อต่างจากนี้ให้ยึด ADR · owner: tech-lead · ปิดแล้ว: ชื่อ key sync ตาม ADR 0003 และ config ใน P2-H35]
 - [ASSUMPTION A-P2-F04-T01-3: Phase 2 ไม่มีเพดานช่องเก็บของ · ถ้า F10/F11 ตั้งเพดานใน Phase 4 ต้องไม่ทิ้งของจาก tick เงียบๆ · owner: systems-designer]
 - [ASSUMPTION A-P2-F04-T01-4: การย่อผลของ tick บางส่วน (R22) ตีความ "จ่าย elapsed/window ของ tick" ใน D-059 ว่าย่อ exp, โอกาส rarity และจำนวน Common ด้วย f เดียวกัน · owner: systems-designer ยืนยันด้วย vector]
 - คำถาม (playtest): ผู้เล่นเข้าใจไหมว่าตัวนับ tick หยุดตอนออกนอกเขต · ส่งเป็นคำถามให้ product-manager ใน P2-F06-T19
+
+## 11. บันทึกการแก้
+
+| วันที่ | task | ส่วนที่แก้ | สาระ | อ้างอิง |
+| --- | --- | --- | --- | --- |
+| 2026-09-28 | P2-H35 | หัวบรรทัดสถานะ, บรรทัด 6, F05-R05, หัวข้อ 8, หัวข้อ 10 | สถานะเป็น "ผ่าน design gate P2-F05-T18" · `resampleCadence_s` → `sampleCadence_s` · ระบุชื่อ key ของตัวกรอง outlier (`outlierSpeed_kmh`, `outlierReanchorSamples`) · ถอดคำ "เสนอ" ออกจาก key ที่มีใน config แล้ว · ไม่เปลี่ยนกฎหรือตัวเลข | O-4 (`design/reviews/F04-F05-design-gate.md`), ADR 0003 5.3, A-P2-F04-T01-1 |

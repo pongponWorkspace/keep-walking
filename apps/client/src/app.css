@@ -493,3 +493,59 @@ body {
 .inventory-use-revive-potion-button {
   min-height: 48px;
 }
+
+/* Pocket screen (components.md section 12.1, design gate A 4.4, P2-F06-T14): full-screen, near-
+   black, `overlay` tier (50, same as `.overlay-speedlock`/`.screen` — a dungeon confirm/settings
+   screen must never sit visually above it while a run is active, tokens.json#zIndex). `touch-
+   action: none` is load-bearing: without it a real touchscreen's own scroll/pull-to-refresh gesture
+   can steal or cancel the pointer sequence `ui/pocket-screen.ts`'s swipe-up-hold reads raw
+   (`pointerdown`/`pointermove`/`pointerup`), the same reason `.overlay-speedlock` never needed this
+   (it has no gesture of its own). No `animation`/`transition` anywhere in this rule on purpose (P4,
+   OLED battery — components.md 12.1's own "ไม่มี animation ต่อเนื่อง"). */
+.pocket-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #1a1a22;
+  color: #fff8ee;
+  text-align: center;
+  touch-action: none;
+}
+
+.pocket-screen-hp {
+  font-size: 64px;
+  font-weight: 700;
+}
+
+.pocket-screen-tick {
+  font-size: 24px;
+}
+
+.pocket-screen-counting,
+.pocket-screen-wake-hint {
+  font-size: 13px;
+  opacity: 0.7;
+  white-space: pre-line;
+}
+
+.pocket-screen-wake-hint {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* `[run.pocketEnterButton]` (12.1's "กลับเข้าจอพกกระเป๋า"): lives on the normal run screen, not on
+   the overlay itself (rule 2 — no button ever appears on `.pocket-screen`). */
+.pocket-enter-button {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  z-index: 10;
+}

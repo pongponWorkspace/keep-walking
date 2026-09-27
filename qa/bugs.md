@@ -16,6 +16,8 @@
 
 **สถานะรวม (P2-F05-T16, 2026-09-27, QA gate F04+F05):** BUG-P2-005 ปิดแล้ว (**CLOSED**, ดูหลักฐานในรายการด้านล่าง — `qa/tests/F02/privacy-copy.test.ts` เขียว 233/233) · BUG-P2-002 ยังเป็น "FIXED, regression flip pending" เหมือนเดิม รอ P2-H30 (human) พลิก `it.fails` ที่ `qa/tests/F04/session-checkin-lifecycle.test.ts:44` — ไม่ใช่เหตุ NEEDS_CHANGES ตาม brief ของงานนี้ · BUG-P2-003 ยังปิดอยู่ · ไม่มี bug severity high ขึ้นไปที่ OPEN เหลืออยู่ในไฟล์นี้ · พบและแก้เองในไฟล์ทดสอบที่ QA เป็นเจ้าของ (ไม่ใช่ product bug จึงไม่เปิดรายการใหม่): `qa/tests/e2e/f04-checkin-confirm-flow.spec.ts`'s third case ("confirm -> Enter -> run bar Active ...") ขาด test hook `e2eClassId=tanker` ทำให้ `confirm` ถูก `no_class` ปฏิเสธเสมอตาม `packages/shared/src/session/reducer.ts`'s fail-closed guard (F06-T10's class-picker ยังไม่มี) และมี selector `button.btn-danger-confirm` ที่ไม่ unique อีกจุดหนึ่ง (ชนกับ `ui/settings-walking-safety.ts`) — แก้ทั้งสองจุดให้ตรงกับ convention ของ spec พี่น้องไฟล์อื่นแล้ว ยืนยันเขียว 3/3 ทั้ง android-chrome/ios-safari · ดูรายละเอียดใน `qa/reports/F04-F05-qa-gate.md`
 
+**สถานะรวม (P2-F06-T17, 2026-09-28):** **BUG-P2-002 ปิดแล้ว (CLOSED)** — `it.fails` ที่ `qa/tests/F04/session-checkin-lifecycle.test.ts` ถูกพลิกกลับเป็น `it` ปกติแล้ว (ผู้ใช้ทำเองตามที่ context ของงานนี้ระบุ, 2026-09-28) ตรวจซ้ำอิสระด้วย `pnpm exec vitest run qa/tests/F04/session-checkin-lifecycle.test.ts --reporter=verbose`: **5/5 test ผ่านทั้งไฟล์**, รวมเคส `synthetic-teleport-spoof-01: no_approach_from_outside once the trace ends (BUG-P2-002)` เขียวเป็นปกติ (ไม่ใช่ `it.fails` ที่ผ่านเพราะพัง) ไม่มี bug severity high ขึ้นไปที่ OPEN เหลืออยู่ในไฟล์นี้อีกแล้ว — ไม่มีอะไรเหลือบล็อก QA gate จากประเด็นนี้ · เพิ่ม case ใหม่ของงานนี้ใน `qa/tests/F06/` (survival/auto-retreat/death/revive/onboarding/home-state/S-09/clear-local-data/telemetry contract) ไม่พบ bug severity high ใหม่ — findings ที่พบระดับ scope/PENDING บันทึกไว้ในหมายเหตุท้ายรายงานงานนี้แทน (ไม่ใช่บั๊กสินค้า)
+
 ---
 
 ## BUG-P1-H06
@@ -187,6 +189,18 @@
 - not blocking: **this bug blocks a QA-gate PASS** (severity high, protocol section "QA gate": "A
   bug of severity high or above blocks PASS") until backend-programmer fixes it and the regression
   test above is converted back to a normal, green `it`
+- **status: CLOSED (P2-F06-T17, 2026-09-28).** `it.fails(` at the `(BUG-P2-002)` case has been
+  flipped to a plain `it(` in the working tree (per this task's context: the user made the edit on
+  2026-09-28). Independently re-verified from a clean read of the file (not just trusting the
+  context note): `git diff` on `qa/tests/F04/session-checkin-lifecycle.test.ts` shows exactly that
+  one-line flip and nothing else, and `pnpm exec vitest run
+  qa/tests/F04/session-checkin-lifecycle.test.ts --reporter=verbose` passes **5/5**, including this
+  case (`synthetic-teleport-spoof-01: no_approach_from_outside once the trace ends (BUG-P2-002)`)
+  going green as an ordinary `it`, not as a still-red `it.fails`. Severity-high is clear; nothing
+  from this bug blocks a QA-gate PASS anymore. The now-stale `it.fails` prose in the comment
+  immediately above that case (still describing the bug as currently-failing-on-purpose) was left
+  untouched, exactly as this task's brief asked ("note it" — `qa/tests/F04/` is not in this task's
+  `writes`), and is a wording-only cleanup, not a functional issue.
 - **update (P2-F05-T11, 2026-09-27):** P2-X34 landed the fix in
   `packages/shared/src/session/reducer.ts` (the approach chain now runs through `gateFilterStep`,
   the same outlier filter as the reward gate) plus a new developer test

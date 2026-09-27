@@ -75,6 +75,55 @@ export function minutesSinceRunStartBucket(sinceStart_ms: number): MinutesSinceR
 const PARTY_SIZE_BUCKET_SOLO = '1';
 const FULL_ROLE_SOLO = false;
 
+export type PageHiddenBucket = '0' | '0-30' | '30-120' | '120-600' | '600+';
+
+/** `dungeon_exited.page_hidden_total_s_bucket` (product/telemetry-events.md section 3, P2-F06-T14):
+ * literal enum edges the doc names, not a tunable — `0` is exact (never hidden at all), the rest
+ * are `(lo, hi]` half-open the same way `durationBucket`'s edges are read. */
+const MS_PER_S = 1000;
+const HIDDEN_EDGE_30_S = 30;
+const HIDDEN_EDGE_120_S = 120;
+const HIDDEN_EDGE_600_S = 600;
+export function pageHiddenBucket(hiddenMs: number): PageHiddenBucket {
+  if (hiddenMs <= 0) return '0';
+  const hiddenS = hiddenMs / MS_PER_S;
+  if (hiddenS <= HIDDEN_EDGE_30_S) return '0-30';
+  if (hiddenS <= HIDDEN_EDGE_120_S) return '30-120';
+  if (hiddenS <= HIDDEN_EDGE_600_S) return '120-600';
+  return '600+';
+}
+
+export type WakeLockEngagedShareBucket = '0' | '0-25' | '25-75' | '75-100';
+
+/** `dungeon_exited.wake_lock_engaged_share_bucket` (product/telemetry-events.md section 3, Q-T17-3
+ * of tech note F06 section 10.2): `null` when the device never had `navigator.wakeLock` at all —
+ * `heldMs` is meaningless (always 0) in that case, not "0% engaged" (a device that *could* engage
+ * but didn't). `duration_ms <= 0` (a same-instant start/end, defensive only) also reads as `null`
+ * rather than dividing by zero. */
+const SHARE_PCT_MULTIPLIER = 100;
+const SHARE_EDGE_25_PCT = 25;
+const SHARE_EDGE_75_PCT = 75;
+export function wakeLockEngagedShareBucket(
+  heldMs: number,
+  duration_ms: number,
+  supported: boolean,
+): WakeLockEngagedShareBucket | null {
+  if (!supported || duration_ms <= 0) return null;
+  const sharePct = (heldMs / duration_ms) * SHARE_PCT_MULTIPLIER;
+  if (sharePct <= 0) return '0';
+  if (sharePct <= SHARE_EDGE_25_PCT) return '0-25';
+  if (sharePct <= SHARE_EDGE_75_PCT) return '25-75';
+  return '75-100';
+}
+
+/** `getRunClientStats()`'s own return shape (`session/engine.ts` -> `apps/client/src/f04-app.ts`'s
+ * `WakeLockController.snapshot()`), read only for the `dungeon_exited` mapping below. */
+export interface RunClientStats {
+  readonly pageHiddenMs: number;
+  readonly wakeLockHeldMs: number;
+  readonly wakeLockSupported: boolean;
+}
+
 export interface MappedTelemetryEvent {
   readonly name: string;
   readonly properties: TelemetryProperties;
@@ -156,6 +205,14 @@ export function mapSessionEvent(
    * `dungeonId` of its own (SessionEvent shape, tech note F04 section 2.5); the caller (the only
    * place that has both the event and the surrounding `SessionState`) supplies it. */
   currentRunDungeonId?: string,
+  /** Only read for `dungeon_exited` (P2-F06-T14, tech note F06 10.2 Q-T17-3): the caller
+   * (`session/engine.ts#persistAndMap`) fetches this fresh, synchronously, in the same turn as the
+   * dispatch that produced the event — a live `WakeLockController.snapshot()`/page-hidden read at
+   * exactly the run's end, not a value carried on the `SessionEvent` itself (the engine has no idea
+   * Wake Lock exists, ADR 0003 C1-1). `undefined` for every other event type and every existing
+   * call site that has not wired a stats source yet — never a required parameter, so no other
+   * caller has to change. */
+  runClientStats?: RunClientStats,
 ): MappedTelemetryEvent | undefined {
   switch (event.type) {
     case 'checkin_rejected':
@@ -209,6 +266,16 @@ export function mapSessionEvent(
         ticks_granted_count: event.summary.ticksGranted,
         partial_tick_applied: partialTickApplied,
         class: playerClass,
+        // P2-F06-T14 (product/telemetry-events.md section 3): `undefined` `runClientStats` (no
+        // Wake Lock wiring reached this call site yet, or a unit test with no stats source) reads
+        // the same as "unsupported" — `null` for the share, `'0'` for hidden time (nothing to
+        // report, not a lie: zero hidden time really is what an unwired caller observed).
+        page_hidden_total_s_bucket: pageHiddenBucket(runClientStats?.pageHiddenMs ?? 0),
+        wake_lock_engaged_share_bucket: wakeLockEngagedShareBucket(
+          runClientStats?.wakeLockHeldMs ?? 0,
+          duration_ms,
+          runClientStats?.wakeLockSupported ?? false,
+        ),
       };
       return { name: 'dungeon_exited', properties };
     }

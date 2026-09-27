@@ -45,6 +45,7 @@ const CONFIG: ClientRuntimeConfig = {
   vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
   toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3, hpLowHoldDurationMs: 4000 },
   onboarding: { tutorialLineHoldDurationMs: 3000 },
+  pocketScreen: { swipeUpHoldMinDuration_ms: 600, swipeUpMinDistanceRatio: 0.03 },
 };
 
 describe('defaultsForMode', () => {

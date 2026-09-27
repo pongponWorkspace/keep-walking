@@ -299,6 +299,36 @@ async function initLocation(
         // `permission` step reads this, never `navigator.permissions` directly (`onboarding-flow.
         // ts`'s own doc comment).
         getLocationPermission: () => provider.getPermission(),
+        // P2-F06-T14: `setIconGlyph`'s (`assets/icon-glyph.ts`) two browser-API hooks — the real
+        // same-origin `fetch` and `DOMParser`, never touched directly inside `f04-app.ts` itself
+        // (ADR 0001 3.6).
+        fetchText: (input) => fetch(input),
+        parseSvgDocument: (svgText) => new DOMParser().parseFromString(svgText, 'image/svg+xml'),
+        // P2-F06-T14 context: "wire createCueFeedback (nav=window.navigator, ...)" and
+        // `WakeLockController`'s own `NavigatorWithWakeLock` — the real navigator/document, the one
+        // place this workspace's ADR 0001 3.6 rule allows them (a Web-implementation composition
+        // root), never read as a bare global from inside `f04-app.ts`/`feedback/*.ts` themselves.
+        // A small adapter, not `navigator` itself: the real DOM `Navigator.vibrate` takes a mutable
+        // `number[]`, one notch stricter than `NavigatorWithVibrate`'s own `readonly number[]`
+        // (cue-feedback.ts widens it on purpose so a `readonly` pattern array — every reward-tick
+        // cue in `audio/manifest.json` — needs no `[...pattern]` copy at every call site); the cast
+        // here is that one, single narrowing spot instead of at each cue's `submit()` call.
+        nav: {
+          ...(typeof navigator.vibrate === 'function'
+            ? {
+                vibrate: (pattern: number | readonly number[]) =>
+                  navigator.vibrate(pattern as number | number[]),
+              }
+            : {}),
+          // `isWakeLockSupported`'s whole contract is `'wakeLock' in nav` (its own doc comment) --
+          // the key itself must be *absent* on a device with no Wake Lock API (WebKit today, D-003),
+          // not merely `undefined`-valued (an always-present `wakeLock: navigator.wakeLock` key
+          // would make `'wakeLock' in nav` true even when `navigator.wakeLock` itself does not
+          // exist, silently defeating the feature detection this whole task's Path A/B split is
+          // built on -- caught by `apps/client/e2e/pocket-screen.spec.ts`'s own WebKit case).
+          ...('wakeLock' in navigator ? { wakeLock: navigator.wakeLock } : {}),
+        },
+        documentVisibility: document,
       });
       window.setInterval(
         () => f04App?.onTick(gameClock.now()),

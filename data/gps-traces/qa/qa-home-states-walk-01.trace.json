@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../packages/shared/schemas/gps-trace.schema.json",
+  "format": "keep-walking.gps-trace",
+  "formatVersion": 1,
+  "meta": {
+    "id": "qa-home-states-walk-01",
+    "kind": "qa",
+    "timeBase": "relative-ms",
+    "description": "P2-F06-T17: 4 legs for home-state.ts replay (far/out_of_area/outside_launch_district/near-a-dungeon) fed sample-by-sample into homeState(). Synthetic play-area/launch-area/dungeon triple inside the real Bangkok+5-province bbox (TC-PRIVACY-02) but not tied to any real place. Display-only, no sessionStep. Leg1 outside play-area. Leg2 inside play-area+launch-area, far from the dungeon. Leg3 inside play-area, outside launch-area, far. Leg4 on the dungeon; test toggles its open flag.",
+    "environment": "other",
+    "platform": "synthetic",
+    "generator": {
+      "tool": "qa/tests/F06 (P2-F06-T17, ad hoc, hand-built synthetic play-area/launch-area pair)",
+      "version": "1.0.0",
+      "scenario": "home-states-four-legs"
+    }
+  },
+  "samples": [
+    { "t": 0, "lat": 13.40000, "lng": 99.95000, "accuracy": 8.0 },
+    { "t": 30000, "lat": 13.40001, "lng": 99.94999, "accuracy": 7.4 },
+    { "t": 60000, "lat": 13.39999, "lng": 99.95001, "accuracy": 8.2 },
+    { "t": 180000, "lat": 13.90100, "lng": 100.40100, "accuracy": 6.5 },
+    { "t": 210000, "lat": 13.90101, "lng": 100.40099, "accuracy": 7.1 },
+    { "t": 240000, "lat": 13.90099, "lng": 100.40101, "accuracy": 6.8 },
+    { "t": 360000, "lat": 13.94500, "lng": 100.44500, "accuracy": 7.9 },
+    { "t": 390000, "lat": 13.94501, "lng": 100.44499, "accuracy": 8.1 },
+    { "t": 420000, "lat": 13.94499, "lng": 100.44501, "accuracy": 7.3 },
+    { "t": 540000, "lat": 13.91500, "lng": 100.41500, "accuracy": 6.0 },
+    { "t": 570000, "lat": 13.91500, "lng": 100.41501, "accuracy": 6.2 },
+    { "t": 600000, "lat": 13.91501, "lng": 100.41500, "accuracy": 5.9 }
+  ]
+}

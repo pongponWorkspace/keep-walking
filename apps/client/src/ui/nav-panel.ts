@@ -11,6 +11,8 @@ import type { CompassPoint } from '../dungeons/direction';
 import { DIRECTION_COPY_KEY } from '../dungeons/direction';
 import { navUrlFor, primaryNavTarget } from '../nav/links';
 import type { NavTarget } from '../nav/links';
+import { closedChipIconTone, NIGHT_BACKING_PLATE_COLOR_CSS } from './icon-tone';
+import type { IconGlyphRenderer } from '../assets/icon-glyph';
 
 export interface NavPanelDeps {
   readonly externalOpenTimeout_ms: number;
@@ -22,6 +24,9 @@ export interface NavPanelDeps {
   readonly userAgent: string;
   readonly maxTouchPoints: number;
   readonly copyToClipboard: (text: string) => Promise<boolean>;
+  /** `setIconGlyph` (P2-F06-T14, components.md 13.1/13.9): renders `icon.ui.closed` next to the
+   * closed-dungeon line (`setClosed`). */
+  readonly iconGlyph: IconGlyphRenderer;
 }
 
 export interface NavPanelDestination {
@@ -67,8 +72,13 @@ export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPa
   directionLabel.className = 'direction-label';
 
   const closedLine = document.createElement('div');
-  closedLine.className = 'nav-panel-closed';
+  closedLine.className = 'chip-status closed nav-panel-closed';
   closedLine.hidden = true;
+  const closedIcon = document.createElement('span');
+  closedIcon.className = 'chip-status-icon';
+  const closedText = document.createElement('span');
+  closedText.className = 'chip-status-text';
+  closedLine.append(closedIcon, closedText);
 
   const navLink = document.createElement('a');
   navLink.className = 'btn btn-primary nav-navigate-button';
@@ -227,10 +237,18 @@ export function mountNavPanel(container: HTMLElement, deps: NavPanelDeps): NavPa
       setClosed(closed, openTime) {
         closedLine.hidden = !closed;
         if (!closed) return;
-        closedLine.textContent =
+        closedText.textContent =
           openTime === undefined
             ? getCopyText('dungeon.closedEmergencyBody')
             : formatCopyText('dungeon.closedBody', { openTime });
+        // [ASSUMPTION A-P2-F06-T14-1 (icon-tone.ts): no night theme exists yet, always day colour.]
+        const tone = closedChipIconTone(false);
+        void deps.iconGlyph.setIconGlyph(closedIcon, tone.id, {
+          altText: getCopyText('dungeon.closedTitle'),
+          colorCss: tone.colorCss,
+          onNightBackground: false,
+          nightPlateColorCss: NIGHT_BACKING_PLATE_COLOR_CSS,
+        });
       },
       setDestination(next) {
         destination = next;
