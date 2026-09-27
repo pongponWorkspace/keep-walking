@@ -49,7 +49,7 @@ describe('createSessionEngine', () => {
     );
     engine.dispatch({ type: 'sample', sample: { t_ms: now_ms, lat, lng, accuracy_m: 5 } }, now_ms);
     const before = JSON.stringify(engine.getState());
-    engine.previewCheckIn(dungeon.id, 1, now_ms);
+    engine.previewCheckIn(dungeon.id, now_ms);
     expect(JSON.stringify(engine.getState())).toBe(before);
   });
 

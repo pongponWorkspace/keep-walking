@@ -1,0 +1,26 @@
+{
+  "tileset_id": "pm4-20260923-z15-s2-sukhumvit",
+  "layout": "screen-fixture",
+  "screen": "S2",
+  "center": [100.56, 13.737],
+  "zoom": 17,
+  "bbox": [100.5587, 13.7342, 100.5613, 13.7398],
+  "minzoom": 15,
+  "maxzoom": 15,
+  "schema": {
+    "name": "protomaps-basemap",
+    "major": 4,
+    "metadataVersion": "4.15.2"
+  },
+  "build_key": "20260923",
+  "source_url": "https://build.protomaps.com/20260923.pmtiles",
+  "files": {
+    "tiles": 1
+  },
+  "bytes": {
+    "tiles": 124920,
+    "pmtiles_archive": 67639
+  },
+  "glyphs_and_sprites_from": "fixtures/lumpini",
+  "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap</a> <a href=\"https://protomaps.com\">Protomaps</a>"
+}

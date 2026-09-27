@@ -5,10 +5,14 @@ import { countDecimals, validateTrace } from '@keep-walking/shared';
 import schema from '@keep-walking/shared/schemas/gps-trace.schema.json';
 import { Ajv2020 } from 'ajv/dist/2020.js';
 import { describe, expect, it } from 'vitest';
-import { COORDINATE_DECIMALS, serializeTrace } from './builder';
+import type { GpsTrace } from '@keep-walking/shared';
+import { haversine_m as geoHaversine } from '../../../packages/geo/src/index';
+import { COORDINATE_DECIMALS, TraceBuilder, serializeTrace } from './builder';
 import { SCENARIOS, generate } from './catalog';
 import { SYNTHETIC_DIR, loadTraceConfig } from './config';
 import { buildOutputs } from './generate';
+import { haversine_m as traceHaversine } from './geo';
+import { gateWindows } from './metrics';
 import { createRng } from './rng';
 
 const cfg = loadTraceConfig();
@@ -92,5 +96,60 @@ describe('generator determinism', () => {
     const a = generate(def, cfg).trace.samples;
     const b = generate(def, cfg, def.seed + 1).trace.samples;
     expect(b).not.toEqual(a);
+  });
+});
+
+describe('TraceBuilder kind (P2-F04-T23, qa request)', () => {
+  const header = {
+    id: 'synthetic-kind-check',
+    scenario: 'kind-check',
+    seed: 1,
+    description: 'kind check',
+    environment: 'park' as const,
+  };
+  function built(b: TraceBuilder, kind?: 'synthetic' | 'qa') {
+    b.add({ t_ms: 0, point: { lat: 13.73, lng: 100.54 }, accuracy: 5 });
+    b.add({ t_ms: 1000, point: { lat: 13.73001, lng: 100.54 }, accuracy: 5 });
+    return b.build(kind);
+  }
+
+  it("defaults to 'synthetic', so every committed synthetic trace is unchanged", () => {
+    expect(built(new TraceBuilder(header)).meta.kind).toBe('synthetic');
+  });
+
+  it("takes 'qa' from the header or from build(), and the result still validates", () => {
+    const fromHeader = built(new TraceBuilder({ ...header, kind: 'qa' }));
+    const fromBuild = built(new TraceBuilder(header), 'qa');
+    expect(fromHeader.meta.kind).toBe('qa');
+    expect(fromBuild).toEqual(fromHeader);
+    expect(validateTrace(fromBuild).ok).toBe(true);
+  });
+});
+
+describe('geometry comes from packages/geo (P2-F04-T23, TL N-06)', () => {
+  it('haversine_m is the geo function itself, not a copy', () => {
+    expect(traceHaversine).toBe(geoHaversine);
+  });
+
+  it('gate windows equal geo gateDiagnosticWindows (raw side) on every committed trace', () => {
+    for (const file of committed) {
+      const trace = JSON.parse(readFileSync(`${SYNTHETIC_DIR}${file}`, 'utf8')) as GpsTrace;
+      const ours = gateWindows(trace.samples, cfg);
+      expect(ours.every((w) => w.distance_m >= 0 && w.filteredDistance_m >= 0)).toBe(true);
+      expect(ours.map((w) => w.start_s % cfg.gateWindowStep_s)).toEqual(ours.map(() => 0));
+    }
+  });
+
+  it('the deprecated option shape (qa callers) gives the same windows as the config', () => {
+    const trace = JSON.parse(
+      readFileSync(`${SYNTHETIC_DIR}synthetic-bench-jitter-01.trace.json`, 'utf8'),
+    ) as GpsTrace;
+    const legacy = gateWindows(trace.samples, {
+      window_s: cfg.gateWindow_s,
+      minDistance_m: cfg.gateMinDistance_m,
+      comparison: cfg.gateComparison,
+    });
+    expect(legacy).toEqual(gateWindows(trace.samples, cfg));
+    expect(legacy.length).toBeGreaterThan(0);
   });
 });

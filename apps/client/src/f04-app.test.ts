@@ -24,6 +24,7 @@ describe('createF04App', () => {
       isOnline: () => true,
       userAgent: 'Mozilla/5.0 (Linux; Android 14)',
       maxTouchPoints: 5,
+      assets: { getManifest: () => undefined, basePath: '/kw/', scale: 1, isProduction: false },
       copyToClipboard: async () => true,
     });
   }

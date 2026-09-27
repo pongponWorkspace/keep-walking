@@ -52,7 +52,12 @@ interface RawFile {
 }
 
 function toNoteSpec(note: RawNote): NoteSpec {
-  return { freq: note.freq, freqEnd: note.freqEnd, wave: note.wave, gain: note.gain };
+  return {
+    freq: note.freq,
+    wave: note.wave,
+    gain: note.gain,
+    ...(note.freqEnd !== undefined ? { freqEnd: note.freqEnd } : {}),
+  };
 }
 
 function loadCues(): CueDef[] {

@@ -7,7 +7,7 @@
       "vibration_ms": [
         45
       ],
-      "priority": 5,
+      "priority": 6,
       "tier": "normal",
       "telemetry": "run_tick_granted",
       "silentFallback": "toast run.tickGranted",
@@ -24,7 +24,7 @@
         70,
         90
       ],
-      "priority": 5,
+      "priority": 6,
       "tier": "normal",
       "telemetry": "run_tick_granted",
       "silentFallback": "toast run.tickGrantedFirst + run.continueCta (also fires onboarding_first_reward_granted)",
@@ -37,7 +37,7 @@
       "vibration_ms": [
         20
       ],
-      "priority": 6,
+      "priority": 7,
       "tier": "soft",
       "telemetry": "run_tick_denied",
       "silentFallback": "toast run.tickDenied (faded style)",
@@ -103,7 +103,7 @@
         40,
         30
       ],
-      "priority": 5,
+      "priority": 6,
       "tier": "normal",
       "telemetry": "dungeon_entered",
       "silentFallback": "screen transition to S-03-run",
@@ -119,7 +119,7 @@
         70,
         70
       ],
-      "priority": 3,
+      "priority": 4,
       "tier": "warning",
       "telemetry": null,
       "silentFallback": "realtime boss HP bar + checkpoint banner (F17 copy key pending)",
@@ -136,7 +136,7 @@
         90,
         140
       ],
-      "priority": 4,
+      "priority": 5,
       "tier": "warning",
       "telemetry": null,
       "silentFallback": "raid banner: time left + boss HP % (F17 copy key pending)",
@@ -151,7 +151,7 @@
         70,
         45
       ],
-      "priority": 5,
+      "priority": 6,
       "tier": "normal",
       "telemetry": null,
       "silentFallback": "icon rarity channel (color/pip/border/corner) — sound is a bonus 5th channel",
@@ -168,7 +168,7 @@
         70,
         45
       ],
-      "priority": 5,
+      "priority": 6,
       "tier": "normal",
       "telemetry": "loot_rarity_received",
       "silentFallback": "icon rarity channel (double border per icon-grammar)",
@@ -187,7 +187,7 @@
         60,
         90
       ],
-      "priority": 5,
+      "priority": 6,
       "tier": "normal",
       "telemetry": "loot_rarity_received",
       "silentFallback": "icon rarity channel",
@@ -208,7 +208,7 @@
         60,
         180
       ],
-      "priority": 5,
+      "priority": 6,
       "tier": "normal",
       "telemetry": "loot_rarity_received",
       "silentFallback": "icon rarity channel",
@@ -221,7 +221,7 @@
       "vibration_ms": [
         35
       ],
-      "priority": 4,
+      "priority": 5,
       "tier": "normal",
       "telemetry": "run_potion_auto_used",
       "silentFallback": "toast run.autoPotionUsed",
@@ -236,7 +236,7 @@
         60,
         60
       ],
-      "priority": 3,
+      "priority": 4,
       "tier": "warning",
       "telemetry": "run_state_changed",
       "silentFallback": "banner run.stateSuspended",
@@ -249,7 +249,7 @@
       "vibration_ms": [
         30
       ],
-      "priority": 4,
+      "priority": 5,
       "tier": "normal",
       "telemetry": "run_state_changed",
       "silentFallback": "toast run.stateResumed",
@@ -262,7 +262,7 @@
       "vibration_ms": [
         20
       ],
-      "priority": 6,
+      "priority": 7,
       "tier": "soft",
       "telemetry": null,
       "silentFallback": "popup dungeon.closedTitle / dungeon.outOfRangeTitle",
@@ -275,7 +275,7 @@
       "vibration_ms": [
         15
       ],
-      "priority": 6,
+      "priority": 7,
       "tier": "soft",
       "telemetry": null,
       "silentFallback": "qc.* text shown on sender UI",
@@ -288,7 +288,7 @@
       "vibration_ms": [
         15
       ],
-      "priority": 6,
+      "priority": 7,
       "tier": "soft",
       "telemetry": null,
       "silentFallback": "qc.* text shown on recipient UI",

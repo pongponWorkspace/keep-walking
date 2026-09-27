@@ -28,6 +28,13 @@ on:
         description: 'Allow the temporary GitHub Pages PMTiles fallback (tech note F02 7.3 step 3) when the Cloudflare Pages XYZ set is over budget. Off by default: GitHub Pages ToS forbids commercial use, spike-only.'
         type: boolean
         default: false
+      profile:
+        description: 'Client build profile (P2-F05-T14, TL B-10, docs/tech/F04-dungeon-presence.md section 17). "preview": normal iteration build, client falls back to its "dev" profile client-side. "playtest": HUD off by default (query-only override), Mock LocationProvider reachable via query only, on-page badge always shows version + short SHA -- use this for infra/runbooks/preview-setup.md section 10 (P2-F06-T26). Sets no new secret and enables no billable service (D-085): both values are plain build-time strings (VITE_KW_PROFILE, VITE_KW_COMMIT) read by apps/client/src/env.ts, exported only for the "Publish client" step below.'
+        type: choice
+        options:
+          - preview
+          - playtest
+        default: preview
 
 concurrency:
   group: deploy-preview
@@ -73,6 +80,35 @@ jobs:
         run: |
           echo "map_url=$(jq -r .projects.map.url "$PAGES_CONFIG")" >> "$GITHUB_OUTPUT"
           echo "client_url=$(jq -r .projects.client.url "$PAGES_CONFIG")" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve client build profile (P2-F05-T14)
+        # Computed here, once, so the values the "Publish client" step exports as
+        # VITE_KW_PROFILE/VITE_KW_COMMIT are set ONLY by this workflow (never guessed by
+        # infra/scripts/publish-client.sh itself, and never a secret -- both are plain,
+        # non-sensitive build-time strings apps/client/src/env.ts already knows how to read,
+        # see docs/tech/F04-dungeon-presence.md section 17).
+        #
+        # profile: `inputs.profile == 'playtest'` -> "playtest" (apps/client/src/env.ts:
+        # HUD off by default, Mock via query only, badge always shown). Any other input value
+        # (today only "preview") exports an EMPTY string, not the literal "preview" -- env.ts's
+        # `readBuildProfile` treats an empty/whitespace VITE_KW_PROFILE the same as "unset" and
+        # falls back to its own "dev" profile silently (no console warning); passing the literal
+        # "preview" instead would hit the "unknown profile" branch and log a spurious warning on
+        # every normal preview build, since "preview" is not one of env.ts's two known profiles
+        # (`dev` | `playtest`).
+        #
+        # commit: short SHA of the commit this workflow is building, set for BOTH profiles so the
+        # on-page badge (main.ts: shown whenever `commit !== undefined`, even outside playtest)
+        # always identifies which commit a preview deploy came from -- useful for any preview
+        # build, not just a playtest one.
+        id: build_profile
+        run: |
+          if [ "${{ inputs.profile }}" = "playtest" ]; then
+            echo "profile=playtest" >> "$GITHUB_OUTPUT"
+          else
+            echo "profile=" >> "$GITHUB_OUTPUT"
+          fi
+          echo "commit=$(git rev-parse --short=8 HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Build tiles (tools/tiles/bin/build.sh)
         id: tiles
@@ -152,17 +188,24 @@ jobs:
           fi
 
       - name: Publish client (keep-walking-preview)
-        # infra/scripts/publish-client.sh itself runs `pnpm exec tsx tools/art/src/cli.ts prebuild`
-        # (docs/tech/asset-delivery.md section 3/11, P2-F04-T08) before `pnpm --filter
-        # @keep-walking/client build`, since that filtered build bypasses root `pnpm build`'s own
-        # prebuild step. Kept inside the script (not a separate workflow step here) so a human
-        # running the same script locally for infra/runbooks/preview-setup.md section 5 gets the
-        # identical asset pipeline, not a workflow-only shortcut.
+        # infra/scripts/publish-client.sh no longer runs `tools/art prebuild` itself (P2-X22): the
+        # prebuild now lives only in apps/client's own `build` script (docs/tech/asset-delivery.md
+        # section 3), which the `pnpm --filter @keep-walking/client build` call inside that script
+        # already invokes. That is also why running the same script locally
+        # (infra/runbooks/preview-setup.md section 5) still gets the identical asset pipeline, not
+        # a workflow-only shortcut.
         if: steps.tilebase.outcome == 'success'
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run }}
+          # P2-F05-T14: build-time only, no secret (steps.build_profile above, not an input echoed
+          # verbatim -- see that step's comment for why "preview" is never passed through as-is).
+          # publish-client.sh does not read or forward these itself; Vite's `loadEnv` picks up any
+          # VITE_-prefixed process env var on its own (same mechanism already relied on for
+          # VITE_TILES_URL/VITE_GLYPHS_URL/VITE_SPRITE_URL inside that script).
+          VITE_KW_PROFILE: ${{ steps.build_profile.outputs.profile }}
+          VITE_KW_COMMIT: ${{ steps.build_profile.outputs.commit }}
         run: infra/scripts/publish-client.sh "${{ steps.tilebase.outputs.manifest }}" "${{ steps.tilebase.outputs.base_url }}"
 
       - name: Upload tile build logs
@@ -193,10 +236,14 @@ jobs:
           {
             echo "### deploy-preview result"
             echo "- dry_run: ${{ inputs.dry_run }}"
+            echo "- profile input: ${{ inputs.profile }} (client VITE_KW_PROFILE=\"${{ steps.build_profile.outputs.profile }}\", VITE_KW_COMMIT=${{ steps.build_profile.outputs.commit }})"
             echo "- tile result: ${{ steps.tiles.outputs.result }} (exit ${{ steps.tiles.outputs.rc }})"
             echo "- map project:    ${{ steps.pages_cfg.outputs.map_url }}"
             echo "- client project: ${{ steps.pages_cfg.outputs.client_url }}"
             echo "- tiles base URL used by the client build: ${{ steps.tilebase.outputs.base_url }}"
             echo ""
+            if [ "${{ inputs.profile }}" = "playtest" ]; then
+              echo "playtest build: on the deployed client URL, confirm the on-page build badge reads \"playtest ${{ steps.build_profile.outputs.commit }}\" before sharing the link (infra/runbooks/preview-setup.md section 10)."
+            fi
             echo "Run the curl checks in infra/runbooks/preview-setup.md against these URLs next."
           } >> "$GITHUB_STEP_SUMMARY"

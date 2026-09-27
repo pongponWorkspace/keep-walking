@@ -18,10 +18,11 @@ export type {
   Unsubscribe,
   VisibilitySource,
   WebLocationOptions,
+  WebLocationTiming,
 } from './types';
 
 // Real-platform defaults for the injectable dependencies.
-export { alwaysVisible, documentVisibility, systemClock } from './web/platform';
+export { alwaysVisible, documentVisibility, systemClock } from './internal/platform';
 
 // Web: the only place that touches navigator.geolocation.
 export type {

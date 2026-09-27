@@ -80,3 +80,17 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 70 | W6 | P2-F04-T21 | gameplay-programmer | 00:19:14 | 01:33:06 | PARTIAL → DONE ส่วนหลัก — loop F04 ต่อ session จริง · เจอและแก้ปัญหาแผนที่ไม่โหลดเมื่อ refresh ทุก sample · ส่วนที่เหลือ → P2-X21 (gameplay), P2-X22 (tech-lead), readyIn_s → F06-T06 |
 | 71 | W6 | P2-F06-T19 | product-manager | 01:21:44 | 01:33:42 | DONE — แบบสอบถาม + แผนวิเคราะห์ · HP/auto-retreat ไม่ใช่เกณฑ์รอบนี้ (F-20) · game-director ทบทวนก่อน T27 · telemetry enum → P2-X23 |
 | 72 | W6 | P2-C09 | game-director | 01:30:45 | 01:37:30 | DONE — GDD 10 จุดตาม D-084 · orchestrator ยืนยัน diff เฉพาะหัวข้อที่อนุมัติ · Q-P2-10 รอบถ้อยคำถัดไป |
+| 73 | W6 | P2-F05-T05 | vfx-animator | 01:10:33 | 01:46:59 | DONE — lint art/vfx ผ่าน · งบ motion ต่ำกว่า 20 KB ทุกชุด · overlay HP/ตายยกไป F06-T05 |
+| 74 | W6 | P2-X23 | product-manager | 01:37:45 | 01:47:25 | DONE — telemetry enum ครบ |
+| 75 | W6 | P2-X22 | tech-lead | 01:33:06 | 01:47:25 | PARTIAL → DONE ส่วนของตน · typecheck ตกที่ audio/src/cues.ts:55 → รวมใน F06-T13 · artist รัน split-manifest ใน F05-T04 · devops ลบ prebuild ซ้ำใน F05-T14 |
+| 76 | W6 | P2-F05-T14 | devops-engineer | 01:47:33 | 01:55:05 | DONE — dry-run ยืนยัน profile ฝังใน bundle · playtest กับ preview ใช้ project เดียวกัน (อย่า deploy ทับระหว่าง playtest) |
+| 77 | W6 | P2-F06-T13 | sound-designer | 01:47:33 | 09:01:45 | DONE (ส่งรายงานก่อนโดน limit) — typecheck ทั้ง repo ผ่าน · ลำดับเสียงความปลอดภัยชนะเสมอ · buzz.svg ไม่ตรง manifest.build (งาน artist ค้าง) |
+| 78 | W6 | P2-F05-T04, P2-F04-T23, P2-F04-T09, P2-X21, P2-F06-T06 | (5 agent) | — | 09:01:45 | FAILED — usage limit ครั้งที่ 2 (รีเซ็ต 04:50) · กลับเป็น TODO รอ resume |
+| 79 | W6 | P2-F06-T06, P2-X21, P2-F04-T09, P2-F05-T04, P2-F04-T23 | (5 agent) | 09:02:18 | — | RESUME หลังโควตารีเซ็ต (ต่อบริบทเดิม) |
+| 80 | W6 | P2-F04-T09 | qa-tester | 01:31:03 | 09:04:21 | DONE (resume) — ios flake ยืนยันหาย 5/5 · S6 ชายฝั่งตรวจได้แค่ข้อมูล mask (fixture ไม่ครอบ) → location |
+| 81 | W6 | P2-F05-T04 | artist-2d | 01:46:59 | 09:11:40 | DONE (resume) — PNG จริงชุดแรก · stage.test ตก (runtime manifest 37.8 KB > 30 KB) → P2-X24 · composite-f03 รอ art-director เปลี่ยนเป็น approved |
+| 82 | W6 | P2-F06-T18 | qa-tester | 09:04:21 | 09:26:21 | DONE — ชุด playtest ครบ · สถานที่ PN-2 · ช่องเบอร์ผู้ประสานงานให้คนกรอก (เพิ่มในขั้นตอน P2-F06-T27) |
+| 83 | W6 | P2-X24 | tech-lead | 09:11:40 | 09:29:04 | DONE — tools/art เขียว · client ต้องรองรับ parts + แก้ type + copy dist/kw (แจ้ง X21) · qa trace test พังจาก gateWindows ใหม่ของ T23 (แจ้ง location) |
+| 84 | W6 | P2-X21 | gameplay-programmer | 04:50 | 09:31:23 | PARTIAL — adapter สลับของจริง, asset runtime/fonts/icon/audio core, ชื่อไอเทม+กรอบ rarity, countdown, credits, e2e แก้ · client 437/437 · ส่งกลับทำ parts/type/dist-kw ของ X24 · handoff → H02 (privacy latestSample), H03 (e2e flaky), H04 copy, H05 icon render |
+| 85 | W6 | P2-F06-T06 | backend-programmer | 04:50 | 09:31:57 | DONE — HP engine ใน packages/shared/src/hp + session (chooseClass, usePotion, processHits, selectPlayerView, readyIn_s) · แก้บั๊ก lastSummary หายใน handleSample · shared 590 pass |
+| 86 | W6 | P2-F04-T23 | location-engineer | 04:50 | 09:31:57 | DONE — location hygiene ครบ, mask hole ตัดตาม tile bbox (S6 ขอบดำจริง), bbox check ใน CI, gateWindows เข้ากันได้ย้อนหลัง · root 2354 pass · handoff → H06 tech-lead, H07 systems, H08 qa, T16 context |

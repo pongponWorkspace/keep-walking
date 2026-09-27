@@ -1,0 +1,107 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-09-27",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "ref.avatar.composite-f03",
+      "kind": "reference",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 552,
+        "height": 636
+      },
+      "files": [
+        {
+          "path": "art/ref/avatar/composite-f03.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 182709,
+          "width": 552,
+          "height": 636,
+          "sha256": "6401b497b271038e579ebc0882632a1354698646c956daa39b6f1f399543e8d7"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T04",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-24"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "shipped": false,
+      "notes": "V-19 (P2-F05-T04): เพิ่มแถว side และ back ขนาด/พื้นหลังเดียวกับแถว front (3 แถว x 4 แผงต่อแถว = bg.paper และ bg.surface บน bg.night จริงที่ 128x160 และ 96x120) · เนื้อหาทั้ง 3 view ดึงจาก art/src/avatar และ art/assets/avatar โดยตรง (extraction script, ไม่ใช่คัดลอกมือ) จึงได้ V-18 clipPath fix ติดมาด้วยทุก view · panel การ์ดกลางคืนวางแผ่น bg.surface สีขาวทับพื้น bg.night #1A1A22 จริง (เว้น padding ซ้าย/ขวา/ล่าง 10px ให้เห็นขอบมืด) แทนแผ่นขาวเดี่ยวๆ เดิม · id ภายในทุกแผงถูก namespace แยกไม่ซ้ำกัน (363 id, 0 ซ้ำ) · z-order ตาม avatar-spec 5.2: shadow, hair_back, body, face, hair, outfit_feet, outfit_body, weapon (ไม่รวมวงมือจับที่ถูกมือจริงทับ), arm/sleeve x2, accessory_charm/head/face · ด้วย ramp.skin-1 และ ramp.hair-1 (ไม่ใช่ key color) · เรนเดอร์ตรวจแล้วด้วย resvg (ดู PNG ที่แนบใน report P2-F05-T04) · ไม่ใช่ asset ที่ส่งถึงผู้เล่น (shipped:false) ใช้ตรวจ content gate เท่านั้น · มี <text> ป้ายกำกับได้เพราะเป็นไฟล์ reference (เหมือน ref.style-tile.v1) · สถานะยังเป็น draft รอ art-director ตรวจรอบใหม่ก่อนเปลี่ยนเป็น approved (R2-6 ของ F03-visual-gate.md)"
+    },
+    {
+      "id": "ref.style-tile.v1",
+      "kind": "reference",
+      "status": "approved",
+      "placeholder": false,
+      "size": {
+        "width": 1440,
+        "height": 2720
+      },
+      "files": [
+        {
+          "path": "art/ref/style-tile/style-tile.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 40802,
+          "width": 1440,
+          "height": 2720,
+          "sha256": "739cf4c92abf6411d34d6fcab2dba0ad4fb6fe85d3b29bd15cd259378c5cf40c"
+        },
+        {
+          "path": "art/ref/style-tile/contact-sheet-1x.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 5108,
+          "width": 620,
+          "height": 200,
+          "sha256": "ce79389d83ae166febac202601c0b964b1b187c0fd7d4e9774a6d8c3d63df572"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P1-F03-T13",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-23"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "shipped": false,
+      "notes": "Style tile และ contact sheet 1x ของ artist-2d (P1-F03-T13) · ใช้เป็น reference ภายในทีมเท่านั้น ไม่ส่งถึงผู้เล่น · ย้าย path จาก art/assets/ui/style-tile/ มาที่ art/ref/style-tile/ ตาม asset-pipeline §2/§3.2 และคำตัดสิน R-4 ของ art/reviews/F03-visual-gate.md (P1-F03-T22) · เนื้อหาไฟล์ไม่เปลี่ยน (bytes/sha256 เท่าเดิม) · handoff ถึง qa-tester: qa/reports/F03/colorblind/capture-colorblind.spec.ts ยังอ้าง path เดิม ต้องแก้เป็น art/ref/style-tile/.",
+      "review": {
+        "gate": "art/reviews/F03-visual-gate.md",
+        "verdict": "PASS",
+        "date": "2026-09-24"
+      }
+    }
+  ]
+}

@@ -192,7 +192,17 @@ def build_html(grid, rows: list[dict[str, Any]], usable: list[dict[str, Any]],
         data_date=html.escape(str(meta.get("osm_data_date"))),
         totals=html.escape(meta.get("totals_line", "")),
         method=html.escape(meta.get("method_line", "")),
+        **legend_fields(meta["distance_bands_m"], len(rows)),
     )
+
+
+def legend_fields(bands_m: dict[str, Any], district_count: int) -> dict[str, str]:
+    """Legend numbers read from config (P1-X29): green/red band edges and the district count."""
+    return {
+        "green_max_m": f"{float(bands_m['greenMax']):,.0f}",
+        "red_min_km": f"{float(bands_m['yellowMax']) / 1000:g}",
+        "district_count": str(district_count),
+    }
 
 
 def _pct(v: float | None) -> str:

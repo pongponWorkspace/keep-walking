@@ -1,6 +1,7 @@
-// sessionStep (tech note F04 section 2, section 9): the one reducer the client calls, composing
-// run (presence/hysteresis/speed lock/check-in, all P2-F04-T20) -> gate (movement window, P2-
-// F05-T08 `src/reward`) -> tick -> drop, in that order, per sample or per tick.
+// sessionStep (tech note F04 section 2, section 9; hit clock: tech note F06 section 4): the one
+// reducer the client calls, composing run (presence/hysteresis/speed lock/check-in, P2-F04-T20)
+// -> gate (movement window, P2-F05-T08 `src/reward`) -> tick -> drop -> hit clock (P2-F06-T06
+// `src/hp`), in that order, per sample or per tick.
 //
 // Known simplifications of this pass (P2-X10 closed most of the P2-F05-T08 list; see report to
 // orchestrator for what is left):
@@ -9,7 +10,10 @@
 // - The settled horizon `H` (tech note F04 4.3) is approximated by `now_ms` itself: this session
 //   does not yet hold a timer's result open while a pending set could still back-date across it.
 //   In practice this only matters within one hysteresis/lock confirmation window of an edge.
-// - Hit/damage/auto-retreat/death (F06) are out of scope (P2-F06-T06); `run.hp` is a placeholder.
+// - `processHits` (P2-F06-T06) judges the hit clock at every point this file already stops or
+//   starts `run.clock` (speed lock, a confirmed Grace transition, a no-evidence gap, a game-side
+//   close) plus once more at the end of every step (the plain-`tick` catch-all): a hit is never
+//   judged against a clock state that does not hold at that instant yet (FH-01, H-E1, H-E3).
 import { boundaryDistance_m, pointInPolygon, MS_PER_S } from '@keep-walking/geo';
 import {
   APPROACH_INIT,
@@ -45,13 +49,31 @@ import {
 } from '../reward';
 import type { GateParams } from '../reward';
 import {
+  applyAttempt,
+  hpAt,
+  hpParamsFromConfig,
+  maxHpOf,
+  defOf,
+  vitOf,
+  nextAttemptDue,
+  onGrantedTick,
+  recoveredAt_ms,
+  recoveryLine,
+  runHpInit,
+  supportHealThrough,
+  usePotionOutsideRun,
+} from '../hp';
+import type { AttemptContext, HpParams, PlayerHpState } from '../hp';
+import {
   EMPTY_BAG,
   UnsupportedConfigError,
   InvalidSessionInputError,
   bagAdd,
+  bagRemoveOne,
   clockStart,
   clockStop,
   createPlayer,
+  hpConfigInputOf,
   tauOf,
 } from './types';
 import type {
@@ -67,7 +89,34 @@ import type {
   SessionState,
 } from './types';
 
-export function createSession(now_ms: number, player: PlayerState = createPlayer()): SessionState {
+/** Level range + own-class context every hit-clock fn (`soloHitDamage`, heal, shield) needs from
+ * a live run (tech note F06 3.4/3.6): built once per `processHits` iteration from `player` and the
+ * dungeon artifact record, never stored (recomputed so a level-up mid-run applies immediately,
+ * F05-R16). Throws (fail-closed) if `player.classId` is `null` — `confirm`'s own `no_class` guard
+ * (tech note F06 6.3) makes that unreachable once a run exists. */
+function requireClassId(player: PlayerState): NonNullable<PlayerState['classId']> {
+  if (player.classId === null) {
+    throw new InvalidSessionInputError(
+      'a run cannot be active with player.classId === null (F06 6.3)',
+    );
+  }
+  return player.classId;
+}
+
+function hpParamsOf(cfg: SessionConfig): HpParams {
+  return hpParamsFromConfig(hpConfigInputOf(cfg));
+}
+
+/** The four roles the game defines (tech note F06 7.1): `chooseClass`'s own "is this a real
+ * class" check, independent of any config subtree (there is nothing to look up — the set itself
+ * is the rule, same as `PlayerClass`'s four literals). */
+const KNOWN_CLASSES: ReadonlySet<string> = new Set(['tanker', 'ranged', 'support', 'magic']);
+
+export function createSession(
+  now_ms: number,
+  params: SessionParams,
+  player: PlayerState = createPlayer(now_ms, params.config),
+): SessionState {
   return {
     schemaVersion: 1,
     clock: { lastNow_ms: now_ms, lastSample_ms: null, settled_ms: null },
@@ -98,6 +147,9 @@ function assertSupportedConfig(cfg: SessionConfig): void {
   }
   // D-112 / balance-model 18.6: fail closed rather than compute Z with an unimplemented rule.
   assertZoneLevelRule(cfg.combat.monsterAttack.zoneLevelFrom);
+  // FH-07 (tech note F06 3.7): the HP engine's own config gate, so a bad balance value stops the
+  // client from starting the engine at all rather than being read only once a hit happens to fire.
+  hpParamsOf(cfg);
 }
 
 function gateParamsOf(cfg: SessionConfig): GateParams {
@@ -137,14 +189,17 @@ function grantTick(
   player: PlayerState;
   loot: readonly { id: string; qty: number }[];
   expGained: number;
+  levelBefore: number;
+  firstEver: boolean;
 } {
   const cfg = params.config;
   const record = params.dungeons[run.dungeonId];
   if (record === undefined)
     throw new InvalidSessionInputError(`unknown dungeonId ${run.dungeonId}`);
+  const classId = requireClassId(player);
   const expResult = soloTickExp(
     player.level,
-    player.playerClass,
+    classId,
     record.level_range.min,
     record.level_range.max,
     f,
@@ -153,7 +208,7 @@ function grantTick(
   const rawTable = cfg.drops.dropTables[record.drop_table_id];
   const def = parseDropTable(record.drop_table_id, rawTable, itemRarityOf(cfg.drops.items));
   const ctx: DropContext = {
-    rangedBuff_pct: player.playerClass === 'ranged' ? 0 : null,
+    rangedBuff_pct: classId === 'ranged' ? 0 : null,
     smallDungeon: record.area_m2 <= cfg.drops.smallDungeonMaxArea_m2,
     lowTrust: false,
     failedRaidBossHpLeft: null,
@@ -162,11 +217,28 @@ function grantTick(
   const loot = rollTickLoot(run.runSeed, run.grantedCount, table, f);
   const bag = loot.items.reduce((b, it) => bagAdd(b, it.id, it.qty), run.bag);
   const added = addExp(player.level, player.exp, expResult.exp, cfg.exp.exp);
+  // balance-model 17.1 / tech note F06 3.6: loot -> Magic shield (level BEFORE this tick's exp) ->
+  // exp/level. The shield uses `player.level`, not `added.level` (D-110).
+  const hpParams = hpParamsOf(cfg);
+  const hp = onGrantedTick(
+    run.hp,
+    player.level,
+    { classId, maxHp: maxHpOf(player.allocated.hp, hpParams) },
+    hpParams,
+  );
+  const firstEver = player.lifetimeTicksGranted === 0;
   return {
-    run: { ...run, bag, grantedCount: run.grantedCount + 1 },
-    player: { ...player, level: added.level, exp: added.exp },
+    run: { ...run, bag, hp, grantedCount: run.grantedCount + 1 },
+    player: {
+      ...player,
+      level: added.level,
+      exp: added.exp,
+      lifetimeTicksGranted: player.lifetimeTicksGranted + 1,
+    },
     loot: loot.items,
     expGained: expResult.exp,
+    levelBefore: player.level,
+    firstEver,
   };
 }
 
@@ -209,6 +281,9 @@ function applyClosedWindows(
       loot: granted.loot,
       expGained: granted.expGained,
       partial: false,
+      levelBefore: granted.levelBefore,
+      levelAfter: p.level,
+      firstEver: granted.firstEver,
       at_ms,
     });
   }
@@ -242,6 +317,8 @@ function endRun(
   const events: SessionEvent[] = [];
   let r = { ...run, clock: clockStop(run.clock, at_ms) };
   let player = s.player;
+  const classId = requireClassId(player);
+  const hpParams = hpParamsOf(params.config);
   let partialTickResult: { f: number; granted: boolean } | null = null;
   if (GAME_SIDE_CLOSE.has(reason)) {
     const gp = gateParamsOf(params.config);
@@ -272,6 +349,9 @@ function endRun(
           loot: granted.loot,
           expGained: granted.expGained,
           partial: true,
+          levelBefore: granted.levelBefore,
+          levelAfter: player.level,
+          firstEver: granted.firstEver,
           at_ms,
         });
       } else {
@@ -285,11 +365,24 @@ function endRun(
       }
     }
   }
+  // F06 3.6 / section 4 step 10: heal the Support through tau(endAt) before HP leaves `run.hp`
+  // (buff uses the level the partial tick above may just have granted).
+  const maxHp = maxHpOf(player.allocated.hp, hpParams);
+  const endTau_ms = tauOf(r.clock, at_ms);
+  const healedHp = supportHealThrough(
+    r.hp,
+    endTau_ms,
+    { classId, level: player.level, maxHp },
+    hpParams,
+  );
+  r = { ...r, hp: healedHp };
+
   const keepsLoot = KEEPS_LOOT.has(reason);
   const inventory = { ...player.inventory };
   if (keepsLoot) {
     for (const [id, qty] of Object.entries(r.bag.items)) inventory[id] = (inventory[id] ?? 0) + qty;
   }
+  const lootList = Object.entries(r.bag.items).map(([id, qty]) => ({ id, qty }));
   const summary: RunSummary = {
     dungeonId: r.dungeonId,
     exitReason: reason,
@@ -298,10 +391,35 @@ function endRun(
     ticksEvaluated: r.reward.k + (partialTickResult !== null ? 1 : 0),
     ticksGranted: r.grantedCount,
     partialTick: partialTickResult,
-    loot: keepsLoot ? Object.entries(r.bag.items).map(([id, qty]) => ({ id, qty })) : [],
+    loot: keepsLoot ? lootList : [],
     expGained: 0,
     levelsGained: 0,
+    hpAtEnd: r.hp.hp,
+    maxHp,
+    hitsLanded: r.hp.hitsLanded,
+    potionsUsed: r.hp.potionsUsed,
+    lowHpWarnings: r.hp.lowHpWarnings,
+    lost: keepsLoot ? [] : lootList,
+    classId: player.classId,
   };
+  if (reason === 'death') {
+    events.push({
+      type: 'run_death',
+      dungeonId: r.dungeonId,
+      classId: player.classId,
+      lost: summary.lost,
+      at_ms,
+    });
+  } else if (reason === 'auto_retreat') {
+    events.push({
+      type: 'run_auto_retreat',
+      dungeonId: r.dungeonId,
+      classId: player.classId,
+      sinceStart_ms: at_ms - r.startedAt_ms,
+      activeTau_ms: endTau_ms,
+      at_ms,
+    });
+  }
   events.push({
     type: 'dungeon_exited',
     dungeonId: r.dungeonId,
@@ -310,17 +428,130 @@ function endRun(
     summary,
     at_ms,
   });
+  // F06 6.1: HP moves from `run.hp` to `player.hp`, anchored at the end instant; `regenStartsOnExit`
+  // (validated true in `hpParamsFromConfig`) means regen begins right here, every exit reason.
+  const hp: PlayerHpState = { value: r.hp.hp, anchorAt_ms: at_ms, recovering: reason === 'death' };
   return {
-    state: { ...s, player: { ...player, inventory }, run: null, lastSummary: summary },
+    state: { ...s, player: { ...player, inventory, hp }, run: null, lastSummary: summary },
     events,
   };
 }
 
-function reject(dungeonId: string, reason: CheckInRejectReason, at_ms: number): SessionEvent {
-  return { type: 'checkin_rejected', dungeonId, reason, at_ms };
+/**
+ * Tech note F06 section 4 (loop step "a"): judges every hit-clock attempt due strictly before
+ * `H_ms` while the clock is running, healing the Support through each attempt's own tau first
+ * (section 3.6), in order, one at a time. Stops the instant a hit resolves `autoRetreat` or `died`
+ * (R-B1: one attempt decides everything, no further attempt or tick after it) by ending the run
+ * right there through `endRun` — the caller sees `state.run === null` afterward and every
+ * subsequent call into this fn is a no-op (`s.run === null` at the top).
+ *
+ * `H_ms` lets a caller bound the judged horizon to an instant that is about to stop the clock (a
+ * no-evidence gap's `t_last`, a game-side close's `closesAt_ms`) and call this *before* actually
+ * stopping it: once the clock does stop, `nextAttemptDue` returns `null` on its own for any
+ * attempt at or after that instant, so there is never a need to "undo" a judged attempt.
+ */
+function processHits(
+  s: SessionState,
+  H_ms: number,
+  params: SessionParams,
+  events: SessionEvent[],
+): SessionState {
+  let run = s.run;
+  if (run === null) return s;
+  let player = s.player;
+  const hpParams = hpParamsOf(params.config);
+  const record = params.dungeons[run.dungeonId];
+  if (record === undefined)
+    throw new InvalidSessionInputError(`unknown dungeonId ${run.dungeonId}`);
+  const classId = requireClassId(player);
+  const maxHp = maxHpOf(player.allocated.hp, hpParams);
+  const def = defOf(player.allocated.def, hpParams);
+  const vit = vitOf(player.allocated.vit, hpParams);
+  const levelRange = record.level_range;
+  for (;;) {
+    const due = nextAttemptDue(run.hp, run.clock, H_ms);
+    if (due === null) break;
+    const healedHp = supportHealThrough(
+      run.hp,
+      due.tau_ms,
+      { classId, level: player.level, maxHp },
+      hpParams,
+    );
+    const ctx: AttemptContext = {
+      runSeed: run.runSeed,
+      level: player.level,
+      classId,
+      def,
+      vit,
+      maxHp,
+      levelRange,
+      autoRetreatEnabled: player.autoRetreatEnabled,
+      bag: run.bag.items,
+      inventory: player.inventory,
+    };
+    const applied = applyAttempt(healedHp, ctx, hpParams);
+    run = { ...run, hp: applied.hp };
+    const r = applied.result;
+    if (!r.landed || r.hit === null) continue; // a miss: attempts++ only, no HP change (R11)
+    if (r.potion !== null) {
+      if (r.potion.source === 'runBag') {
+        run = { ...run, bag: bagRemoveOne(run.bag, r.potion.itemId) };
+      } else {
+        const itemId = r.potion.itemId;
+        const left = (player.inventory[itemId] ?? 0) - 1;
+        const inventory =
+          left > 0
+            ? { ...player.inventory, [itemId]: left }
+            : Object.fromEntries(Object.entries(player.inventory).filter(([id]) => id !== itemId));
+        player = { ...player, inventory };
+      }
+    }
+    events.push({
+      type: 'run_hit',
+      dungeonId: run.dungeonId,
+      attemptIndex: run.hp.attempts - 1,
+      damage: r.damage,
+      shieldAbsorbed: r.hit.shieldAbsorbed,
+      hpAfterHit: r.hit.hpAfterHit,
+      hpAfter: r.hit.hpAfter,
+      maxHp,
+      outcome: r.hit.outcome,
+      at_ms: due.at_ms,
+    });
+    if (r.potion !== null) {
+      events.push({
+        type: 'run_potion_auto_used',
+        dungeonId: run.dungeonId,
+        itemId: r.potion.itemId,
+        source: r.potion.source,
+        healed: r.hit.potionHealed,
+        at_ms: due.at_ms,
+      });
+    }
+    if (r.hit.lowHpWarning) {
+      events.push({ type: 'run_hp_low', dungeonId: run.dungeonId, classId, at_ms: due.at_ms });
+    }
+    if (r.hit.outcome === 'autoRetreat' || r.hit.outcome === 'died') {
+      const reason = r.hit.outcome === 'died' ? 'death' : 'auto_retreat';
+      const ended = endRun({ ...s, run, player }, run, reason, due.at_ms, params);
+      events.push(...ended.events);
+      return ended.state;
+    }
+  }
+  return { ...s, run, player };
 }
 
-/** `confirm` (tech note F04 7.4): T1-T4, in R08's order. */
+function reject(
+  dungeonId: string,
+  reason: CheckInRejectReason,
+  at_ms: number,
+  readyIn_s: number | null = null,
+): SessionEvent {
+  return { type: 'checkin_rejected', dungeonId, reason, readyIn_s, at_ms };
+}
+
+/** `confirm` (tech note F04 7.4, extended by F06 6.3): T1-T4, in R08's order, with the HP checks
+ * inserted after `run_active` and before `dungeon_closed`. */
 function handleConfirm(
   s: SessionState,
   dungeonId: string,
@@ -331,6 +562,19 @@ function handleConfirm(
   const record = params.dungeons[dungeonId];
   if (record === undefined) throw new InvalidSessionInputError(`unknown dungeonId "${dungeonId}"`);
   if (s.run !== null) return { state: s, events: [reject(dungeonId, 'run_active', now_ms)] };
+  if (s.player.classId === null)
+    return { state: s, events: [reject(dungeonId, 'no_class', now_ms)] };
+  const hpParams = hpParamsOf(params.config);
+  const hpNow = hpAt(
+    s.player.hp,
+    now_ms,
+    {
+      maxHp: maxHpOf(s.player.allocated.hp, hpParams),
+      vit: vitOf(s.player.allocated.vit, hpParams),
+    },
+    hpParams,
+  );
+  if (hpNow.value <= 0) return { state: s, events: [reject(dungeonId, 'no_hp', now_ms)] };
   const utcOffset_min = params.config.openingHours.utcOffset_min;
   if (!isOpenAt(record.opening_hours, utcOffset_min, now_ms)) {
     return { state: s, events: [reject(dungeonId, 'dungeon_closed', now_ms)] };
@@ -360,8 +604,10 @@ function handleConfirm(
     dungeonId,
   };
   const result = strategy.checkIn(ctx, params.config.checkIn);
-  if (!result.ok) return { state: s, events: [reject(dungeonId, result.reason, now_ms)] };
+  if (!result.ok)
+    return { state: s, events: [reject(dungeonId, result.reason, now_ms, result.readyIn_s)] };
   const runId = `${String(now_ms)}-${String(runSeed)}`;
+  // F06 3.2: hpAtEntry = HP at startedAt_ms, no top-up (R02) — `hpNow` above is exactly that.
   const run: RunState = {
     runId,
     dungeonId,
@@ -376,13 +622,18 @@ function handleConfirm(
     scratchClosed: [],
     grantedCount: 0,
     bag: EMPTY_BAG,
-    hp: {},
+    hp: runHpInit(hpNow.value, runSeed, hpParams),
     presence: presenceTrackerInit('inside', now_ms),
     closesAt_ms: openingChangeAfter(record.opening_hours, utcOffset_min, now_ms),
     notices: { closingSoonSent: false },
   };
+  const player: PlayerState = {
+    ...s.player,
+    hp: hpNow,
+    firstRunEnteredAt_ms: s.player.firstRunEnteredAt_ms ?? now_ms,
+  };
   return {
-    state: { ...s, run },
+    state: { ...s, run, player },
     events: [{ type: 'dungeon_entered', dungeonId, runId, at_ms: now_ms }],
   };
 }
@@ -443,7 +694,12 @@ function feedScratch(
   run: RunState,
   since_ms: number | null,
   promotedNow_ms: number | null,
-  sample: { readonly t_ms: number; readonly lat: number; readonly lng: number; readonly accuracy_m: number },
+  sample: {
+    readonly t_ms: number;
+    readonly lat: number;
+    readonly lng: number;
+    readonly accuracy_m: number;
+  },
   insideRun: boolean,
   gp: GateParams,
   player: PlayerState,
@@ -516,13 +772,27 @@ function handleSample(
   const lock = lockStep.state;
   let run = s.run;
   let player = s.player;
+  // `processHits` may end the run (auto-retreat/death) at any of the call sites below; each one
+  // updates this too so the final `return` never discards a `lastSummary` a mid-function
+  // `endRun` already produced (P2-X17 regression: `run`/`player` alone are not enough).
+  let lastSummary = s.lastSummary;
   // R21: the reward clock stops while locked (speed lock is not "outside time", tech note F04 6).
+  // F06 3.3/H-E3: any attempt genuinely due before the lock engages must be judged with the hit
+  // clock still counted as running, before it stops (`processHits`'s own `H_ms` bound does this).
   if (run !== null && run.status === 'active' && lockStep.confirmed !== null) {
     const at_ms = lockStep.confirmed.at_ms;
-    run =
-      lockStep.confirmed.phase === 'enter'
-        ? { ...run, clock: clockStop(run.clock, at_ms) }
-        : { ...run, clock: clockStart(run.clock, at_ms) };
+    if (lockStep.confirmed.phase === 'enter') {
+      const before = processHits({ ...s, run, player }, at_ms, params, events);
+      run = before.run;
+      player = before.player;
+      lastSummary = before.lastSummary;
+    }
+    if (run !== null) {
+      run =
+        lockStep.confirmed.phase === 'enter'
+          ? { ...run, clock: clockStop(run.clock, at_ms) }
+          : { ...run, clock: clockStart(run.clock, at_ms) };
+    }
   }
   // F05 3.5: while locked, a pending unlock's samples replay through a scratch accumulator (the
   // clock itself already resumed above when this sample is the one that confirms the unlock).
@@ -574,6 +844,22 @@ function handleSample(
     });
     run = { ...run, presence: presence.tracker };
     if (presence.confirmed !== null) {
+      // F06 3.3/H-E1: an attempt genuinely due before the polygon exit must be judged while the
+      // hit clock is still running, before `applyPresenceTransition` stops it for `to: 'outside'`.
+      if (presence.confirmed.to === 'outside' && run.status === 'active') {
+        const before = processHits({ ...s, run, player }, presence.confirmed.at_ms, params, events);
+        if (before.run === null) {
+          return {
+            ...before,
+            pre,
+            lock,
+            latestSample: sample,
+            clock: { ...s.clock, lastSample_ms: sample.t_ms },
+          };
+        }
+        run = before.run;
+        player = before.player;
+      }
       run = applyPresenceTransition(run, presence.confirmed, events);
     } else if (run.status !== 'active' && run.exitCause === 'no_evidence') {
       // tech note F06 15.1 (F04-R15 item 7, D-118, P2-X16/S-1): judge exactly the FIRST usable
@@ -602,7 +888,11 @@ function handleSample(
         // (exitStartedAt_ms is unchanged, R14): the tracker resets to confirmed 'outside' anchored
         // at s1 so returning from here on needs a full hysteresis set, same as any other exit.
         // This branch's own `run.exitCause` guard above ensures it only ever fires for s1 itself.
-        run = { ...run, exitCause: 'left_polygon', presence: presenceTrackerInit('outside', sample.t_ms) };
+        run = {
+          ...run,
+          exitCause: 'left_polygon',
+          presence: presenceTrackerInit('outside', sample.t_ms),
+        };
       }
     }
 
@@ -645,6 +935,12 @@ function handleSample(
       player = applied.player;
       events.push(...applied.events);
     }
+    // D-094/R10: any reward tick due at this same sample's time is granted above, before this —
+    // "tick before hit" when both are due at the same instant.
+    const afterHits = processHits({ ...s, run, player }, sample.t_ms, params, events);
+    run = afterHits.run;
+    player = afterHits.player;
+    lastSummary = afterHits.lastSummary;
   }
   return {
     ...s,
@@ -652,6 +948,7 @@ function handleSample(
     lock,
     run,
     player,
+    lastSummary,
     latestSample: sample,
     clock: { ...s.clock, lastSample_ms: accuracyOk ? sample.t_ms : s.clock.lastSample_ms },
   };
@@ -670,6 +967,7 @@ function processTimeline(
 ): SessionState {
   let run = s.run;
   if (run === null) return s;
+  let player = s.player;
   const gapMs = params.config.movementGate.maxSamplePairGap_s * MS_PER_S;
   if (
     run.status === 'active' &&
@@ -677,6 +975,13 @@ function processTimeline(
     now_ms - s.clock.lastSample_ms > gapMs
   ) {
     const at_ms = s.clock.lastSample_ms;
+    // F06 H-E1/FH-01: an attempt genuinely due before the gap started must be judged with the hit
+    // clock still counted as running, before this stops it (`processHits`'s `H_ms` bound is `at_ms`
+    // itself, the last usable sample — never later, never guessing into the silent gap).
+    const before = processHits({ ...s, run, player }, at_ms, params, events);
+    if (before.run === null) return before;
+    run = before.run;
+    player = before.player;
     events.push({
       type: 'run_state_changed',
       from: 'active',
@@ -714,7 +1019,11 @@ function processTimeline(
     // R25-R31/D-059 (tech note F04 8.3, 9.3 item 6): a game-side close outranks Suspended timeout
     // when both would fire at the same instant, so it is judged before the timer chain below.
     if (now_ms >= closesAt_ms) {
-      const ended = endRun({ ...s, run }, run, 'dungeon_closed', closesAt_ms, params);
+      const before = processHits({ ...s, run, player }, closesAt_ms, params, events);
+      if (before.run === null) return before;
+      run = before.run;
+      player = before.player;
+      const ended = endRun({ ...s, run, player }, run, 'dungeon_closed', closesAt_ms, params);
       events.push(...ended.events);
       return ended.state;
     }
@@ -735,13 +1044,85 @@ function processTimeline(
         });
         run = { ...run, status: ev.to as RunStatus };
       } else {
-        const ended = endRun({ ...s, run }, run, 'timeout', ev.at_ms, params);
+        const ended = endRun({ ...s, run, player }, run, 'timeout', ev.at_ms, params);
         events.push(...ended.events);
         return ended.state;
       }
     }
   }
-  return { ...s, run };
+  return { ...s, run, player };
+}
+
+/** `usePotion` outside a run (tech note F06 6.4): item 1 (`run_active`) is checked here, before
+ * `hp.usePotionOutsideRun` is even called (it never sees `SessionState.run`); items 2-6 are that
+ * fn's own job. */
+function handleUsePotion(
+  s: SessionState,
+  itemId: string,
+  now_ms: number,
+  params: SessionParams,
+): { state: SessionState; events: SessionEvent[] } {
+  if (s.run !== null) {
+    return {
+      state: s,
+      events: [{ type: 'potion_use_rejected', itemId, reason: 'run_active', at_ms: now_ms }],
+    };
+  }
+  const hpParams = hpParamsOf(params.config);
+  const result = usePotionOutsideRun(
+    {
+      hp: s.player.hp,
+      maxHp: maxHpOf(s.player.allocated.hp, hpParams),
+      vit: vitOf(s.player.allocated.vit, hpParams),
+      inventory: s.player.inventory,
+    },
+    itemId,
+    now_ms,
+    hpParams,
+  );
+  if (!result.ok) {
+    return {
+      state: s,
+      events: [{ type: 'potion_use_rejected', itemId, reason: result.reason, at_ms: now_ms }],
+    };
+  }
+  return {
+    state: { ...s, player: { ...s.player, hp: result.hp, inventory: result.inventory } },
+    events: [
+      {
+        type: 'potion_used',
+        itemId,
+        healed: result.healed,
+        revived: result.revived,
+        at_ms: now_ms,
+      },
+    ],
+  };
+}
+
+/** Tech note F06 6.2: materializes `player.hp` at the exact instant it crosses the Recovering
+ * line, once that instant is at or before `now_ms` — only relevant outside a run (`R03`, no self
+ * regen during one). Selectors recompute the crossing independently at read time (`hpAt` plus a
+ * line comparison), so a player never *sees* a stale `recovering: true` merely because this has
+ * not run recently; this only keeps the persisted state itself canonical and emits the one-shot
+ * `player_recovered` event. */
+function materializeRecovery(
+  s: SessionState,
+  now_ms: number,
+  params: SessionParams,
+  events: SessionEvent[],
+): SessionState {
+  if (s.run !== null || !s.player.hp.recovering) return s;
+  const hpParams = hpParamsOf(params.config);
+  const ctx = {
+    maxHp: maxHpOf(s.player.allocated.hp, hpParams),
+    vit: vitOf(s.player.allocated.vit, hpParams),
+  };
+  const crossAt = recoveredAt_ms(s.player.hp, ctx, hpParams);
+  if (crossAt === null || crossAt > now_ms) return s;
+  events.push({ type: 'player_recovered', at_ms: crossAt });
+  const value = recoveryLine(ctx.maxHp, hpParams);
+  return { ...s, player: { ...s.player, hp: { value, anchorAt_ms: crossAt, recovering: false } } };
 }
 
 /** The one entry point (tech note F04 section 2.1): run -> gate -> tick -> drop, per input. */
@@ -778,7 +1159,38 @@ export function sessionStep(
 
   if (input.type === 'ackSummary') return { state: { ...s, lastSummary: null }, events };
   if (input.type === 'setAutoRetreat') {
-    return { state: { ...s, player: { ...s.player, autoRetreatEnabled: input.enabled } }, events };
+    if (s.player.autoRetreatEnabled === input.enabled) return { state: s, events };
+    return {
+      state: { ...s, player: { ...s.player, autoRetreatEnabled: input.enabled } },
+      events: [{ type: 'auto_retreat_setting_changed', enabled: input.enabled, at_ms: now_ms }],
+    };
+  }
+  if (input.type === 'chooseClass') {
+    if (s.player.classId !== null) {
+      return {
+        state: s,
+        events: [{ type: 'class_choice_rejected', reason: 'already_chosen', at_ms: now_ms }],
+      };
+    }
+    if (s.run !== null) {
+      return {
+        state: s,
+        events: [{ type: 'class_choice_rejected', reason: 'run_active', at_ms: now_ms }],
+      };
+    }
+    if (!KNOWN_CLASSES.has(input.classId)) {
+      return {
+        state: s,
+        events: [{ type: 'class_choice_rejected', reason: 'unknown_class', at_ms: now_ms }],
+      };
+    }
+    return {
+      state: { ...s, player: { ...s.player, classId: input.classId } },
+      events: [{ type: 'class_chosen', classId: input.classId, at_ms: now_ms }],
+    };
+  }
+  if (input.type === 'usePotion') {
+    return handleUsePotion(s, input.itemId, now_ms, params);
   }
   if (input.type === 'confirm') {
     const r = handleConfirm(s, input.dungeonId, input.runSeed, now_ms, params);
@@ -802,5 +1214,10 @@ export function sessionStep(
     throw new InvalidSessionInputError(`unknown session input type`);
   }
   s = processTimeline(s, now_ms, params, events);
+  // F06 section 4 step 9 (catch-all): anything still due up to `now_ms` that neither a sample's
+  // own processing nor `processTimeline`'s transition-bound calls above already judged (plain
+  // `tick` inputs, most of all — there is no sample to drive `handleSample`'s own calls then).
+  s = processHits(s, now_ms, params, events);
+  s = materializeRecovery(s, now_ms, params, events);
   return { state: s, events };
 }

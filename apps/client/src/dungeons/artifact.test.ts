@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { dungeonStatus, loadDungeonArtifact, toMapDungeonInput } from './artifact';
-
-const BANGKOK_UTC_OFFSET_MIN = 420;
+import { buildSessionParams } from '../session/config';
 
 describe('loadDungeonArtifact', () => {
   it('loads the committed artifact (13 published pilots)', () => {
@@ -26,18 +25,19 @@ describe('loadDungeonArtifact', () => {
 
 describe('dungeonStatus / toMapDungeonInput', () => {
   const artifact = loadDungeonArtifact();
+  const params = buildSessionParams(artifact.dungeons);
   const first = artifact.dungeons[0];
   if (first === undefined) {
     throw new Error('fixture: artifact has no dungeons');
   }
 
-  it('computes open/closed from opening_hours (never a hardcoded status)', () => {
-    const status = dungeonStatus(first, BANGKOK_UTC_OFFSET_MIN, Date.now());
+  it('computes open/closed from opening_hours through selectOpening (never a hardcoded status)', () => {
+    const status = dungeonStatus(first, params, Date.now());
     expect(['open', 'closed']).toContain(status);
   });
 
   it('builds a map input with no sponsored/label_count property set (D-089: no player counts)', () => {
-    const input = toMapDungeonInput(first, BANGKOK_UTC_OFFSET_MIN, Date.now());
+    const input = toMapDungeonInput(first, params, Date.now());
     expect(input.id).toBe(first.id);
     expect(input.sponsored).toBe(false);
     expect(input).not.toHaveProperty('label_count');

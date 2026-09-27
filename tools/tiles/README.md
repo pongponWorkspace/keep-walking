@@ -26,7 +26,7 @@ task: P1-F02-T06 · เจ้าของ: location-engineer · อ้างอ�
 | CLI | go-pmtiles v1.31.2 (commit `a3e4951`, 2026-07-22) | sha256 ต่อ OS/arch ใน `tools.pmtiles.assets` (ค่าจาก GitHub release) |
 | glyph PBF + sprite | `protomaps/basemaps-assets` commit `028c18f713baecad011301ff7a69acc39bcc2ae7` (2025-10-31) · fontstack `Noto Sans Regular/Medium/Italic` (256 ไฟล์ต่อ stack) · sprite `v4/light` (+`@2x`) | `treeSha256` = sha256 ของรายการ sha256 ทุกไฟล์ที่ใช้ (tarball ของ codeload ไม่รับประกันว่า byte คงที่ จึงไม่ตรวจที่ตัว tarball) |
 | font-faces ไทย (D-032) | Noto Sans Thai release `NotoSansThai-v2.002` (notofonts/thai) · zip sha256 `af889cc6…a485` · ใช้ `unhinted/ttf/NotoSansThai-Regular.ttf` และ `-Medium.ttf` | sha256 ของ zip, ของแต่ละ TTF และของ `OFL.txt` |
-| ขอบเขตปกครองที่ใช้ตรวจ bbox | `tools/coverage/out/boundaries.geojson` (OSM, data date 2026-09-01) · รายชื่อจังหวัดจาก `tools/coverage/params.json#pipeline.studyArea.provinces` | `bin/verify-bbox.py` |
+| ขอบเขตปกครองที่ใช้ตรวจ bbox | `data/map/playable-provinces.geojson` (commit แล้ว, OSM data date 2026-09-01, สร้างโดย `tools/coverage/boundaries/playable.py` · P2-F04-T23) + รูของ `data/map/playarea-mask.geojson` · รายชื่อจังหวัดจาก `tools/coverage/params.json#pipeline.studyArea.provinces` | `bin/verify-bbox.py` |
 
 ใช้ font แบบ unhinted เพราะ MapLibre วาด font-faces เป็น SDF ผ่าน canvas (TinySDF) hinting จึงไม่มีผล แต่ทำให้ไฟล์ใหญ่ขึ้นเกือบเท่าตัว (20.9 KB เทียบ 37.8 KB)
 
@@ -44,12 +44,13 @@ task: P1-F02-T06 · เจ้าของ: location-engineer · อ้างอ�
 | --- | --- |
 | `tools/tiles/bin/build.sh` | **คำสั่งหลัก:** เครื่องมือ + asset ที่ pin → ตรวจ bbox กับขอบจังหวัด → `pmtiles extract` → แตกเป็น XYZ + `tiles.json` → glyph, font-faces, sprite → `manifest.json` → ตรวจงบ → size report |
 | `tools/tiles/bin/build-fixture.sh` | สร้าง fixture สวนลุมพินีใน `fixtures/lumpini/` (commit ได้) |
-| `tools/tiles/test/run.sh` | test แบบ offline กับ fixture (39 ข้อ) · root `pnpm test` เรียกผ่าน `test/tiles.test.ts` |
+| `tools/tiles/bin/build-screen-fixtures.sh [--only NAME]` | สร้าง fixture ของจอ S2/S5/S6 ใน `fixtures/screens/` (commit ได้, หัวข้อ 5.1) |
+| `tools/tiles/test/run.sh` | test แบบ offline กับ fixture (71 ข้อ ไม่มีข้อที่ข้าม) · root `pnpm test` เรียกผ่าน `test/tiles.test.ts` |
 | `python3 tools/tiles/bin/serve.py` | static server ในเครื่องที่ตอบ range request ด้วย `206` + CORS ที่ `http://127.0.0.1:8765/` (ราก = `tools/tiles/`) |
 | `tools/tiles/bin/set-public-url.sh <root> <base-url>` | เขียน URL ใน `tiles.json` ใหม่โดยไม่ build ซ้ำ (ใช้ใน publish ของ T08 และ dev server ของ T11) |
 | `tools/tiles/bin/size-report.sh` | พิมพ์ size report จาก `out/size-report.json` อีกครั้ง |
 | `tools/tiles/bin/estimate-area.sh <bbox\|thailand\|area> <maxzoom> [--region FILE]` | ประมาณจำนวน tile และขนาดด้วย `--dry-run` (ใช้เน็ต ไม่ดาวน์โหลด tile) |
-| `python3 tools/tiles/bin/verify-bbox.py [--region-out FILE]` | ตรวจว่า bbox ครอบ 6 จังหวัดและพิมพ์ระยะเผื่อแต่ละด้าน |
+| `python3 tools/tiles/bin/verify-bbox.py [--region-out FILE] [--boundaries FILE]` | ตรวจว่า bbox ครอบ 6 จังหวัดและรูของโซนดำ แล้วพิมพ์ระยะเผื่อแต่ละด้าน · ใช้ไฟล์ที่ commit จึงรันใน CI ได้ ไม่ข้ามอีก (ปิด P1-X39) · `--boundaries tools/coverage/out/boundaries.geojson` ใช้ชั้นเขตเต็มจากการรัน coverage ในเครื่องได้ |
 | `tools/tiles/bin/fetch-tools.sh`, `fetch-assets.sh` | ดาวน์โหลดและตรวจ checksum เท่านั้น (build.sh เรียกให้เอง) |
 | `shellcheck -x tools/tiles/bin/*.sh tools/tiles/test/run.sh` | lint shell (config ใน `.shellcheckrc`) |
 
@@ -119,6 +120,22 @@ tools/tiles/out/size-report.{json,txt}   verify-bbox.txt   region-provinces.geoj
   - `VITE_SPRITE_URL=http://127.0.0.1:8765/fixtures/lumpini/sprites/v4/light`
 - สร้างซ้ำ: `tools/tiles/bin/build-fixture.sh` (ใช้ archive z15 ในเครื่องถ้ามี จึงทำ offline ได้ · ไม่งั้นดึงจาก build ที่ pin ~2 MB) · สคริปต์จัดรูป JSON ด้วย prettier ของ repo ให้ผ่าน `pnpm lint` และล้มถ้าเกินเพดานใน `fixture.*`
 - test ยืนยันว่า `unpack-xyz.sh` สร้าง XYZ ที่ตรงกับไฟล์ที่ commit ทุก byte
+
+### 5.1 Fixture ของจอ S2 / S5 / S6 (P2-F04-T23)
+
+fixture ลุมพินีเล็กเกินจอ S2, S5 และ S6 ของ `art/direction/map-style.md` หัวข้อ 10.1 (P1-H06, รายงาน P2-F04-T09 หัวข้อ 5.3) · เพิ่ม fixture แยกต่อจอและ zoom ใน `fixtures/screens/<name>/` (config `screenFixtures`) โดยไม่แตะ `fixtures/lumpini/` ที่ e2e หลายชุดอ้างอยู่
+
+| name | จอ | center / zoom ของจอ | tile ใน fixture | ขนาดทั้งโฟลเดอร์ |
+| --- | --- | --- | --- | --- |
+| `s2-sukhumvit` | S2 ซอยสุขุมวิท | 100.56, 13.737 / z17 | z15 1 tile | 205,354 B |
+| `s5-chaophraya` | S5 แม่น้ำเจ้าพระยา | 100.495, 13.74 / z14 | z14 6 tile | 1,134,945 B |
+| `s6-coast-z10` | S6 ชายฝั่งสมุทรปราการ | 100.6, 13.5 / z10 | z10 4 tile | 764,074 B |
+| `s6-coast-z13` | S6 ชายฝั่งสมุทรปราการ | 100.6, 13.5 / z13 | z13 6 tile | 176,264 B |
+
+- แต่ละ fixture มีเฉพาะ zoom ที่ MapLibre ขอที่จอนั้น (แหล่ง maxzoom 15, สูงกว่านั้น overzoom) · bbox = viewport 390 × 844 ที่ zoom นั้นบวก 25% และ**อยู่ใน `area.bbox` เสมอ** (script และ test ตรวจ) เพื่อให้ S6 เห็นขอบเหมือน production: ทะเลเป็น `map.water` ถึง 13.4 N แล้วเป็นโซนดำ ซึ่งตอนนี้ตรงกับขอบรูของ mask ที่ตัดด้วย bbox เดียวกัน
+- โครงสร้างเหมือน fixture ลุมพินี (`pmtiles/<id>.pmtiles`, `tiles/<id>/tiles.json` + z/x/y, `manifest.json` ที่บอก screen/center/zoom/bbox) แต่**ไม่มี glyph และ sprite** ให้ใช้ของ `fixtures/lumpini/` · tileset id = `pm4-20260923-z<maxzoom>-<name>` · URL ใน `tiles.json` = `http://127.0.0.1:8765/fixtures/screens/<name>/...`
+- รวม 29 ไฟล์ 2,280,637 B (เพดาน `screenFixtures.maxDirBytes` 3 MiB, ต่อ fixture 1.5 MiB) · สร้างซ้ำได้ byte เดิม (ตรวจแล้ว) · ดึงจาก build ที่ pin ผ่าน range request ราว 1 MB หรือจาก archive z15 ในเครื่องถ้ามี
+- test (`test/run.sh`): bbox อยู่ใน `area.bbox`, center อยู่ใน bbox, bounds ของ `tiles.json` = config, จำนวน tile ตรง manifest, MVT ดิบ, `pmtiles verify`, XYZ = PMTiles ที่แตกออก
 
 ## 6. serve ในเครื่องและตรวจ range request
 

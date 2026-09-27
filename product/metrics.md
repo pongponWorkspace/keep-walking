@@ -1,7 +1,7 @@
 # Metrics Framework — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T19 (แก้ไขต่อใน P2-F04-T17) · เจ้าของ: product-manager · สถานะ: ฉบับเสนอ รอ Design/Tech/QA/Content gate ร่วม F04–F06 (P2-F05-T15..T18) และ Product gate F04–F06 (P2-F06-T25) · วันที่แก้ล่าสุด: 2026-09-26
-แหล่งอ้างอิง: `CLAUDE.md` ("Metrics the GDD asks for"), `design/pillars.md`, `design/ux/flows/F03-core-loop.md`, `design/ux/ia.md`, `product/prd/F01-coverage-survey.md` หัวข้อ 6, `product/prd/F04-dungeon-presence.md`, `product/prd/F05-movement-gate-reward.md` §4 (north star proxy), `product/prd/F06-hp-damage-onboarding.md`, `design/features/F04-dungeon-presence.md`, `design/features/F05-movement-gate-reward.md` (D-078 R-B1), `design/features/F06-hp-damage-onboarding.md`, `design/systems/sim-report.md` (F-16, F-17), `docs/adr/0002-backend-stack.md` หัวข้อ 4–5 (เพดาน free tier — Phase 3+ เท่านั้น ดูหัวข้อ 10.2), `product/reviews/F02-spike-criteria.md` หัวข้อ 4 (S3, ข้อสังเกต battery/screen lock), D-088 (telemetry ในเครื่องล้วน Phase 2), D-073 (ลงทะเบียนความสนใจรายเขต)
+Task: P1-F03-T19 (แก้ไขต่อใน P2-F04-T17, P2-X23) · เจ้าของ: product-manager · สถานะ: ฉบับเสนอ รอ Design/Tech/QA/Content gate ร่วม F04–F06 (P2-F05-T15..T18) และ Product gate F04–F06 (P2-F06-T25) · วันที่แก้ล่าสุด: 2026-09-27
+แหล่งอ้างอิง: `CLAUDE.md` ("Metrics the GDD asks for"), `design/pillars.md`, `design/ux/flows/F03-core-loop.md`, `design/ux/ia.md`, `product/prd/F01-coverage-survey.md` หัวข้อ 6, `product/prd/F04-dungeon-presence.md`, `product/prd/F05-movement-gate-reward.md` §4 (north star proxy), `product/prd/F06-hp-damage-onboarding.md`, `design/features/F04-dungeon-presence.md`, `design/features/F05-movement-gate-reward.md` (D-078 R-B1), `design/features/F06-hp-damage-onboarding.md`, `design/systems/sim-report.md` (F-16, F-17), `docs/adr/0002-backend-stack.md` หัวข้อ 4–5 (เพดาน free tier — Phase 3+ เท่านั้น ดูหัวข้อ 10.2), `product/reviews/F02-spike-criteria.md` หัวข้อ 4 (S3, ข้อสังเกต battery/screen lock), `docs/tech/F06-hp-damage-onboarding.md` §2.5/§6.3/§8.4 (D-114, D-116), `product/playtest/phase-2-plan.md` §11.1, D-088 (telemetry ในเครื่องล้วน Phase 2), D-073 (ลงทะเบียนความสนใจรายเขต)
 คู่กัน: `product/telemetry-events.md` (ชื่อ event จริงที่ programmer emit — ฉบับ Phase 2 เปลี่ยนสถาปัตยกรรมเป็น ring buffer ในเครื่อง อ่านหัวข้อ "การเปลี่ยนสถาปัตยกรรม" ของเอกสารนั้นก่อน)
 
 หลักการอ่านเอกสารนี้: ตัวเลขเป้า/guardrail ทุกตัวเป็นสมมติฐานเริ่มต้นของ product-manager (Phase 1 ยังไม่มีผู้เล่นจริง ไม่มีข้อมูล live ให้ตั้งเป้าจากของจริง) ปรับได้เมื่อมีผล playtest/live ตาม decision authority "feature priority, metrics" ของ product-manager (protocol ข้อ 5) — เปลี่ยน pillar หรือ non-negotiable ต้องผ่าน game-director/HUMAN เสมอ ตัวเลขที่เชื่อมกับ config balance (เช่น ราคายา, อัตราปลด) อ้างเป็น `config: <key>` เพื่อไม่ให้ hardcode ซ้ำ (NN-3)
@@ -76,6 +76,8 @@ Legend สถานะ instrument (ดูตารางเต็มหัวข
 
 **นิยามตัวหารของ "≥70% ถึงรางวัลก้อนแรกใน 10 นาที" (ยืนยัน A-P2-F06-T02-2 ของ PRD F06 — ไม่มีจุดต้องแก้ตามที่ game-director เสนอ):** ตัวหาร = จำนวนเครื่อง/บัญชีที่**เริ่ม onboarding และอยู่ในสถานะ "ใกล้" ภายในย่านเปิดตัว** (ไม่ใช่ `far`/`out_of_area`/`outside_launch_district` — กลุ่มนั้นวัดแยกใน GR-2 ไม่ใช่ตัวหารนี้) tick แรกที่**ไม่ผ่าน gate** (`run_tick_denied`) นับเป็น "ยังไม่ถึง" ไม่ใช่ตัดออกจากตัวหาร (run ยังดำเนินต่อ รอ tick ถัดไปได้)
 
+**(P2-X23) หมายเหตุ `checkin_rejected` reason `no_class`/`no_hp` (D-114, `docs/tech/F06-hp-damage-onboarding.md` §6.3):** สองค่านี้เป็นเงื่อนไข fail-closed ของ engine (ทางปกติไม่เกิดเพราะเลือกพลังบังคับมาก่อนแผนที่แล้ว และ HP ≤ 0 เกิดได้เฉพาะวินาทีที่ตายพอดี) **ไม่ใช่สัญญาณคอขวดของ onboarding** ต่างจาก `no_approach_from_outside`/`poor_accuracy`/`not_enough_trace` — เวลารายงานส่วนต่างของแถว "กด 'เข้า'" ข้างต้น ให้แยกนับ `no_class`/`no_hp` ออกจากกลุ่มที่ใช้วิเคราะห์ friction จริง (ถ้าพบ N > 0 ของสองค่านี้ในทางปฏิบัติ ให้ถือเป็นบั๊ก ส่ง handoff ถึง tech-lead ทันที ไม่ใช่ปัญหาการออกแบบ UX)
+
 **แบ่งกลุ่มผลตาม class (คำขอจาก game-director):** เวลาถึงรางวัลก้อนแรกและเวลาอยู่รอด (แถวถัดไป) ต้องรายงานแยก 4 class เสมอ — solo non-Tanker ถึง auto-retreat ที่ ~27.8 นาที (D-020) เป็นค่าที่ระบบตั้งใจให้เป็นแบบนั้น**ไม่ใช่บั๊ก** ห้ามนำตัวเลขรวมทุก class มาเทียบเป้าเดียวโดยไม่แยกกลุ่มก่อน
 
 Metric รวม **"onboarding completion rate"** = ผลคูณของทุกขั้นข้างต้น (intro → tick แรก) รายงานทุกสัปดาห์แยกตามย่านเปิดตัว
@@ -92,6 +94,16 @@ Metric รวม **"onboarding completion rate"** = ผลคูณของท�
 **เพิ่มจาก D-073 (หลัง F06 spec):** คนที่อยู่ในพื้นที่เล่นจริงแต่ย่านยังไม่เปิดตัว (เช่น อยู่ในกรุงเทพฯ แต่ไม่ใช่พระนคร/ปทุมวัน/บางรัก) เห็นหน้าจอ `reason=outside_launch_district` และลงทะเบียนความสนใจ**ระดับเขต** (`scope=district`) แยกจากคนที่อยู่นอกพื้นที่เล่นทั้งหมด (`reason=out_of_area`, `scope=province`) — สองกลุ่มนี้มีนัยต่างกันสำหรับ F23 (เขตในเมืองที่ยังไม่เปิด vs จังหวัด/พื้นที่ใหม่ทั้งหมด) ต้องรายงานแยกกันเสมอ ไม่รวมเป็นตัวเลขเดียว
 
 Privacy ของทุก event ในหมวดนี้: ไม่มีพิกัด ไม่มี dungeon id เดี่ยวของผู้เล่น ยกเว้น dungeon ปลายทางที่ระบบแนะนำ (ไม่ใช่ตำแหน่งผู้เล่น) — ชื่อ event ตรงตาม PRD F01 §6 ทุกประการ (ห้ามเปลี่ยนชื่อ event เหล่านี้ — property ขยายได้ตามที่ `product/telemetry-events.md` §2 อธิบาย)
+
+### 3.3 ถอน consent ตำแหน่งระหว่าง run (ใหม่ — P2-X23, D-116)
+
+ที่มา: `docs/tech/F06-hp-damage-onboarding.md` §8.4 (R48 ข้อ 1–3, B-06, J-P2-T30-1), event `location_consent_withdrawn` ใน `product/telemetry-events.md` §2
+
+| Metric | คำนวณจาก | เป้า/guardrail | Event |
+| --- | --- | --- | --- |
+| สัดส่วนการถอน consent ตำแหน่งที่เกิดระหว่าง run เทียบทั้งหมด | `location_consent_withdrawn` ที่ `during_run=true` หารด้วย `location_consent_withdrawn` ทั้งหมด | ไม่ตั้งเป้าตัวเลขใน Phase 1–2 (คาดว่า N น้อยมากใน playtest ตาม tech-lead) — ใช้เป็นสัญญาณ PDPA/ความไว้ใจเชิงคุณภาพเท่านั้น ไม่ใช่ guardrail ที่บล็อกอะไร | `location_consent_withdrawn` |
+
+**เหตุผลที่แยกจากอัตรา `manual_exit` ของ `dungeon_exited`:** `exit_reason=manual_exit` ยังปนสองความหมายอยู่เสมอ (กดออกเองเพราะเดินจบ กับกดถอน consent) — ตัวเลขข้อนี้มีไว้แยกให้เห็นเฉพาะกรณีหลัง โดยเฉพาะระหว่าง playtest ที่มีผู้ร่วมอายุ 15–17 ปี (F06 §8.4) **ห้ามใช้ตัวเลขนี้ตีความอัตรา churn หรือ funnel onboarding** เพราะเป็นเหตุการณ์ privacy คนละมิติ ไม่ใช่สัญญาณว่าเกมไม่สนุก
 
 ## 4. หมวด Social
 
@@ -239,8 +251,8 @@ Battery Status API ใช้ได้เฉพาะ Chrome/Android (`A-P1-PLAN-
 
 | หมวด | Phase 1–2 (F04–F06, มี event ให้ emit ได้ทันที) | Phase 3+ (รอระบบที่ยังไม่ build) |
 | --- | --- | --- |
-| Onboarding | ครบทั้งหมด: `onboarding_funnel_step` (ลำดับแก้ตาม F06-R44, ไม่มี login), `onboarding_first_reward_granted`, `onboarding_nearest_dungeon_distance`, `onboarding_empty_screen_shown`/`abandoned` (reason ใหม่รวม `outside_launch_district`), `interest_registered_outside_area` (ขยาย scope), `local_data_cleared` | — |
-| Places (บางส่วน) | `dungeon_entered`, `dungeon_exited`, `run_state_changed`, `checkin_rejected`, `dungeon_closing_soon_notified`, `navigation_link_opened`, `run_tick_granted`, `run_tick_denied`, `run_death`, `run_auto_retreat`, `run_hp_low`, `run_gps_status_changed`, `anticheat_speed_lock_triggered`, `auto_retreat_setting_changed`, `run_potion_auto_used`, `session_state_discarded`, `storage_quota_exceeded` | `dungeon_report_submitted` เต็มรูป (ต้องมี moderation queue ของ F13/F15) |
+| Onboarding | ครบทั้งหมด: `onboarding_funnel_step` (ลำดับแก้ตาม F06-R44, ไม่มี login), `onboarding_first_reward_granted`, `onboarding_nearest_dungeon_distance`, `onboarding_empty_screen_shown`/`abandoned` (reason ใหม่รวม `outside_launch_district`), `interest_registered_outside_area` (ขยาย scope), `local_data_cleared`, `location_consent_withdrawn` (ใหม่ P2-X23, ดูหัวข้อ 3.3) | — |
+| Places (บางส่วน) | `dungeon_entered`, `dungeon_exited`, `run_state_changed`, `checkin_rejected` (reason ขยายเป็น 9 ค่า P2-X23), `dungeon_closing_soon_notified`, `navigation_link_opened`, `run_tick_granted`, `run_tick_denied`, `run_death`, `run_auto_retreat`, `run_hp_low`, `run_gps_status_changed`, `anticheat_speed_lock_triggered`, `auto_retreat_setting_changed`, `run_potion_auto_used`, `session_state_discarded`, `storage_quota_exceeded` | `dungeon_report_submitted` เต็มรูป (ต้องมี moderation queue ของ F13/F15) |
 | Social | — (ต้องรอ Nearby Party จริง) | `party_formed`, `run_tick_granted.full_role/roles_present`, `party_size_bucket` |
 | Economy | — (ยังไม่มีตลาด/ตีบวกจริง) | `economy_gold_earned`, `economy_gold_spent`, `economy_potion_price_observed`, `market_trade_completed` |
 | Progression | `player_level_up` (โครงพร้อมตั้งแต่ F10 เริ่ม Phase 4 แต่ schema event ประกาศไว้ตั้งแต่ตอนนี้) | `loot_rarity_received` (ผูกกับ drop table เต็มรูปของ F10/F11) |
@@ -258,6 +270,8 @@ Battery Status API ใช้ได้เฉพาะ Chrome/Android (`A-P1-PLAN-
 - A-P2-F04-T17-1: north star proxy ของ Phase 2 (หัวข้อ 1.1) รวบรวมด้วยมือจากไฟล์ export ของผู้เล่นแต่ละคน ไม่มี dashboard อัตโนมัติจนกว่า F08 (Phase 3) จะมี server — วิธีรวบรวม/เก็บไฟล์ระหว่าง playtest ภาคสนามเป็นของ P2-F06-T19/T27 (ยืนยัน: qa-tester)
 - A-P2-F04-T17-2: ตัวหารของ "≥70% ถึงรางวัลก้อนแรกใน 10 นาที" (หัวข้อ 3.1) คือผู้เล่นที่เริ่ม onboarding และอยู่ในสถานะ "ใกล้" ภายในย่านเปิดตัวเท่านั้น ตามที่ game-director ยืนยันจาก A-P2-F06-T02-2 ของ PRD F06 — ไม่มีจุดต้องแก้
 - A-P2-F04-T17-3: การแบ่งกลุ่มผลตาม `class` (เวลาถึงรางวัลก้อนแรก, เวลาอยู่รอด/auto-retreat) เป็นข้อบังคับในการรายงาน ไม่ใช่ทางเลือก — solo non-Tanker ~27.8 นาทีเป็นค่าที่ระบบตั้งใจ (D-020, F06 spec §6) ห้ามใช้ตัวเลขรวมทุก class เป็นเกณฑ์เดียว (ยืนยัน: game-director)
+- A-P2-X23-1: `checkin_rejected.reason` เพิ่ม `no_class`/`no_hp` (D-114) ไม่เปลี่ยนตัวหาร/สูตรของแถว "กด 'เข้า'" ในหัวข้อ 3.1 — สองค่านี้เป็นเงื่อนไข fail-closed ที่ไม่ควรเกิดในทางปฏิบัติ แยกออกจากกลุ่ม friction diagnostic เสมอ (ยืนยัน: game-director, tech-lead)
+- A-P2-X23-2: `location_consent_withdrawn` (หัวข้อ 3.3) เป็นสัญญาณ PDPA เชิงคุณภาพ ไม่ใช่ guardrail ที่มีเป้าตัวเลขหรือบล็อกอะไรใน Phase 1–2 ทบทวนอีกครั้งถ้า N สูงผิดคาดหลัง playtest ภาคสนาม (ยืนยัน: tech-lead, game-director — ปิด A-P2-X16-1 ของ `product/telemetry-events.md`)
 
 ### คำถามค้าง (ไม่ขวาง Phase 1–2)
 - Q-T19-1: North star ควรแยกรายงานเป็นสองเส้น (ก่อน/หลัง Wake Lock หรือ native wrap) ในรายงานสาธารณะหรือเก็บเป็น annotation เดียวในรายงานภายใน — เสนอ: annotation ภายในพอสำหรับ Phase 1–2 ทบทวนอีกครั้งก่อนมี dashboard ให้ HUMAN ดูจริงใน Phase 3 (ส่งต่อ liveops-operator)

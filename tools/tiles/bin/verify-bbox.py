@@ -4,7 +4,12 @@
 Python standard library only (no venv needed). Reads:
   - tools/tiles/config.json            area.bbox, area.provincesFrom, area.boundariesGeojson
   - tools/coverage/params.json          province list (iso) -- same list as the coverage survey
-  - tools/coverage/out/boundaries.geojson  district polygons from the coverage pipeline (OSM)
+  - data/map/playable-provinces.geojson  (area.boundariesGeojson) one committed feature per
+    playable province with an exact outward-rounded `bbox` property (P2-F04-T23, P1-X39), so
+    the check runs in CI and on a clean checkout. `--boundaries tools/coverage/out/boundaries.geojson`
+    still accepts the full district layer of a local coverage run (property `province_iso`).
+  - data/map/playarea-mask.geojson       (area.maskGeojson) the mask hole must lie inside the bbox
+    (map-style 6.2 / S6: a hole outside the tiles shows a black edge at sea)
 
 Prints per-province bounds, the union bounds, and the margin (metres) between the
 union and each bbox edge. Exit 1 if any province pokes outside the bbox.
@@ -56,24 +61,29 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=str(TILES_DIR / "config.json"))
     ap.add_argument("--region-out", help="write union MultiPolygon GeoJSON here")
+    ap.add_argument("--boundaries", help="province/district GeoJSON (default: area.boundariesGeojson)")
     args = ap.parse_args()
 
     cfg = load_json(args.config)
     area = cfg["area"]
     minx, miny, maxx, maxy = area["bbox"]
     wanted = [p["iso"] for p in json_pointer(None, area["provincesFrom"])]
-    boundaries = load_json(REPO / area["boundariesGeojson"])
+    boundaries_path = Path(args.boundaries) if args.boundaries else REPO / area["boundariesGeojson"]
+    boundaries = load_json(boundaries_path)
 
     per = {iso: [180.0, 90.0, -180.0, -90.0] for iso in wanted}
     names = {}
     polys = []
     for feat in boundaries["features"]:
-        iso = feat["properties"].get("province_iso")
+        props = feat["properties"]
+        iso = props.get("iso", props.get("province_iso"))
         if iso not in per:
             continue
-        names[iso] = feat["properties"].get("province", iso)
+        names[iso] = props.get("name", props.get("province", iso))
         b = per[iso]
-        for x, y in iter_coords(feat["geometry"]):
+        # Exact bounds when the file carries them (the committed geometry is simplified).
+        pts = [props["bbox"][:2], props["bbox"][2:]] if "bbox" in props else iter_coords(feat["geometry"])
+        for x, y in pts:
             b[0], b[1] = min(b[0], x), min(b[1], y)
             b[2], b[3] = max(b[2], x), max(b[3], y)
         g = feat["geometry"]
@@ -99,17 +109,30 @@ def main():
     print("margin to bbox edge (m, negative = province outside bbox):")
     print(f"  west  {metres_lon(u[0] - minx, mid_lat):8.0f}   east  {metres_lon(maxx - u[2], mid_lat):8.0f}")
     print(f"  south {(u[1] - miny) * 110_574:8.0f}   north {(maxy - u[3]) * 110_574:8.0f}")
-    print(f"data date of boundaries: {boundaries.get('coverage_meta', {}).get('data_date', 'unknown')}")
+    date = boundaries.get("source", {}).get("dataDate") or boundaries.get("coverage_meta", {}).get("data_date")
+    print(f"boundaries         : {boundaries_path} (data date {date or 'unknown'})")
+
+    mask_ref = area.get("maskGeojson")
+    if mask_ref:
+        holes = load_json(REPO / mask_ref)["features"][0]["geometry"]["coordinates"][1:]
+        hx = [x for ring in holes for x, _ in ring]
+        hy = [y for ring in holes for _, y in ring]
+        hole_ok = min(hx) >= minx and min(hy) >= miny and max(hx) <= maxx and max(hy) <= maxy
+        ok &= hole_ok
+        print(f"mask hole bounds   : {min(hx):.5f},{min(hy):.5f},{max(hx):.5f},{max(hy):.5f}  "
+              f"{'inside bbox' if hole_ok else 'OUTSIDE bbox (re-run python -m boundaries)'}")
 
     if args.region_out:
-        out = {"type": "Feature", "properties": {"source": area["boundariesGeojson"]},
+        out = {"type": "Feature", "properties": {"source": str(boundaries_path.relative_to(REPO))
+                                                 if boundaries_path.is_relative_to(REPO) else str(boundaries_path)},
                "geometry": {"type": "MultiPolygon", "coordinates": polys}}
         Path(args.region_out).parent.mkdir(parents=True, exist_ok=True)
         with open(args.region_out, "w", encoding="utf-8") as fh:
             json.dump(out, fh)
         print(f"region written     : {args.region_out} ({len(polys)} polygons)")
 
-    print("RESULT:", "PASS all provinces inside bbox" if ok else "FAIL province outside bbox")
+    print("RESULT:", "PASS all provinces and the mask hole inside bbox" if ok
+          else "FAIL province or mask hole outside bbox")
     return 0 if ok else 1
 
 

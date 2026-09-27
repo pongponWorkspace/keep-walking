@@ -1,8 +1,8 @@
 # Telemetry Events — GPS Dungeon กรุงเทพฯ
 
-Task: P2-F04-T17 (สืบทอดจาก P1-F03-T19) · เจ้าของ: product-manager · สถานะ: ฉบับเสนอ รอ Tech/QA/Content/Design gate ร่วม F04+F05 (P2-F05-T15..T18) และ Product gate F04–F06 (P2-F06-T25) · วันที่: 2026-09-26
-แหล่งอ้างอิง: `product/metrics.md` (คู่กัน), `product/prd/F04-dungeon-presence.md`, `product/prd/F05-movement-gate-reward.md`, `product/prd/F06-hp-damage-onboarding.md` (ที่มาของ metric/event ที่ต้องประกาศ), `design/features/F04-dungeon-presence.md` (F04-R07/R08/R17/R20–R24, สถานะ 3.3–3.4), `design/features/F05-movement-gate-reward.md` (F05-R18/R19 = R-B1/D-078, F05-R21/R22 = D-059), `config/app/telemetry.json`, `config/app/privacy.json`, `config/balance/anticheat.json`, `config/balance/dungeons.json`, `config/balance/unlocks.json` (`antiCheatHelp.unlockOnEvents` ใช้ชื่อ event ภายในตรงกับที่นี่), CLAUDE.md ข้อ 4 และ 7 (PDPA)
-คำตัดสินที่ผูกเอกสารนี้: D-088 (telemetry เป็น ring buffer ในเครื่องล้วน), D-089 (ซ่อนจำนวนคน, ยาจาก drop เท่านั้น, รางวัลแรกเป็น tick ปกติ), D-073 (ลงทะเบียนความสนใจนอกย่านเปิดตัวระดับเขต), D-078 (ลำดับผลของการโดนตี R-B1), D-063 (Wake Lock + pocket screen), D-093 (ช่วงเวลาเดินทดสอบ — ไม่กระทบชื่อ event แต่กระทบการอ่านผล)
+Task: P2-F04-T17 (สืบทอดจาก P1-F03-T19) · แก้ล่าสุด P2-X23 · เจ้าของ: product-manager · สถานะ: ฉบับเสนอ รอ Tech/QA/Content/Design gate ร่วม F04+F05 (P2-F05-T15..T18) และ Product gate F04–F06 (P2-F06-T25) · วันที่: 2026-09-27
+แหล่งอ้างอิง: `product/metrics.md` (คู่กัน), `product/prd/F04-dungeon-presence.md`, `product/prd/F05-movement-gate-reward.md`, `product/prd/F06-hp-damage-onboarding.md` (ที่มาของ metric/event ที่ต้องประกาศ), `design/features/F04-dungeon-presence.md` (F04-R07/R08/R17/R20–R24, สถานะ 3.3–3.4), `design/features/F05-movement-gate-reward.md` (F05-R18/R19 = R-B1/D-078, F05-R21/R22 = D-059), `docs/tech/F06-hp-damage-onboarding.md` §2.5/§6.3 (`checkin_rejected` reason เพิ่ม, D-114), §8.4 (ถอน consent ตำแหน่งระหว่าง run, D-116, A-P2-X16-1), `product/playtest/phase-2-plan.md` §11.1 (handoff ต้นทางของงานนี้), `audio/manifest.json` + `audio/cue-list.md` (cue `qc.sent`/`qc.received`/`dungeon.closedOrOutOfRange`, `telemetry: null`, A-P2-F05-T06-1), `config/app/telemetry.json`, `config/app/privacy.json`, `config/balance/anticheat.json`, `config/balance/dungeons.json`, `config/balance/unlocks.json` (`antiCheatHelp.unlockOnEvents` ใช้ชื่อ event ภายในตรงกับที่นี่), CLAUDE.md ข้อ 4 และ 7 (PDPA)
+คำตัดสินที่ผูกเอกสารนี้: D-088 (telemetry เป็น ring buffer ในเครื่องล้วน), D-089 (ซ่อนจำนวนคน, ยาจาก drop เท่านั้น, รางวัลแรกเป็น tick ปกติ), D-073 (ลงทะเบียนความสนใจนอกย่านเปิดตัวระดับเขต), D-078 (ลำดับผลของการโดนตี R-B1), D-063 (Wake Lock + pocket screen), D-093 (ช่วงเวลาเดินทดสอบ — ไม่กระทบชื่อ event แต่กระทบการอ่านผล), D-114 (enum `checkin_rejected.reason` เพิ่ม `no_class`/`no_hp`), D-116 (ถอน consent ระหว่าง run จบ run แบบ `manual_exit` เดิม ไม่แตกสาขาใหม่ในกติกาเกม)
 
 ## การเปลี่ยนสถาปัตยกรรมจากฉบับ Phase 1 (สำคัญ — อ่านก่อนทุกหัวข้อ)
 
@@ -121,6 +121,13 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 - **privacy:** ไม่มีพิกัด ไม่มี property ใดเลย
 - **หมายเหตุพิเศษ (แก้จากฉบับก่อน):** event นี้**ไม่ได้ถูกล้างไปพร้อมกัน** — มันคือเมล็ดพันธุ์ของ ring buffer ใหม่ จึงเป็นบรรทัดแรกของไฟล์ export ครั้งถัดไปเสมอ (ต่างจากที่ร่างก่อนหน้านี้เข้าใจผิดว่าถูกลบตัวเองด้วย) ใช้ทั้งเป็นสัญญาณ e2e/QA และเป็นจุดอ้างอิงว่า session ไหนเริ่มหลังการลบข้อมูล (แต่ยังนับ "อัตราการลบ" แบบ aggregate ข้ามผู้เล่นไม่ได้ เพราะแต่ละไฟล์ export เห็นเฉพาะเครื่องตัวเอง)
 
+### `location_consent_withdrawn` *(ใหม่ — P2-X23, D-116, ปิด A-P2-X16-1 · `docs/tech/F06-hp-damage-onboarding.md` §8.4)*
+- **ยิงเมื่อ:** ผู้เล่นกดถอน consent ตำแหน่งจากตั้งค่า (R48 ข้อ 1–3) — ยิงในขั้นตอนที่ 4 ของลำดับถอน consent (§8.4) คือ**หลัง** `state` ถูก `purgeLocationData` และ**หลัง**เขียน `kw.p2.consent = { location: 'withdrawn' }` ถ้าอยู่ระหว่าง run ลำดับ ring buffer คือ `dungeon_exited` (จบ run แบบ `manual_exit` ในขั้นตอนที่ 2 ของ §8.4) ตามด้วย `location_consent_withdrawn` ที่ `at_ms`/`t_rel_ms` เดียวกัน — mapper จับคู่สองเหตุการณ์นี้ได้ด้วยเวลาที่เท่ากัน ไม่ต้องมี field เชื่อมโยงเพิ่ม
+- **properties:** `during_run` (bool — จริงเมื่อมี `state.run !== null` ตอนกดถอน กล่าวคือมี `dungeon_exited { exit_reason: manual_exit }` คู่กันในเวลาเดียวกัน · เท็จเมื่อกดถอนตอนไม่มี run ใดทำงานอยู่ ไม่มี `dungeon_exited` คู่กัน)
+- **privacy:** ไม่มีพิกัด ไม่มี timestamp ใดนอกเหนือ envelope กลาง (`t_rel_ms` ของหัวข้อ 1.2) — object นี้ไม่มี field เวลาของตัวเอง (ต่างจาก `client_ts_ms` ที่ envelope จัดการให้อยู่แล้ว), ไม่มีข้อมูลตัวตน
+- **เหตุผลที่ประกาศแยกจาก `dungeon_exited.exit_reason = manual_exit`:** F06-tech §8.4 ยืนยันว่า `exit_reason` ของ `dungeon_exited` **ยังคงเป็น `manual_exit` เดิมสำหรับตัว run เอง** (ไม่แตกค่าใหม่ ไม่แตกสาขาโค้ดใน `reward`/`hp` — เหตุผลของ tech-lead: R48 ข้อ 3 บังคับให้จ่ายเท่ากับ `manual_exit` ทุกประการอยู่แล้ว) แต่การถอน consent เป็นสัญญาณ PDPA/ความปลอดภัยที่ต่างจาก "ผู้เล่นกดออกเพราะเดินจบแล้ว" โดยเฉพาะช่วง playtest ที่มีผู้ร่วมอายุ 15–17 ปี — ไม่แยก event นี้จะทำให้อัตรา `manual_exit` ปนสองเหตุผลที่ต่างกันจนตีความ funnel/churn ผิด (คาดว่าสัดส่วนน้อยมากใน playtest ตามที่ tech-lead ประเมินไว้)
+- **ตัดสินใจแล้ว (ไม่ใช่คำถามค้าง):** ประกาศ event นี้ — ต้นทุนต่ำ (ความถี่ต่ำมาก ไม่กระทบเพดาน ring buffer หัวข้อ 8) เทียบกับประโยชน์ด้าน PDPA ที่ชัดเจน (ยืนยันร่วม: tech-lead ผู้เสนอ mapper, game-director ยืนยันไม่ต้องแยกเชิงกติกาเกม)
+
 ## 3. หมวด Places / core loop (run state)
 
 ที่มา: `design/features/F04-dungeon-presence.md` (F04-R01–R39, สถานะ 3.3–3.4), `design/features/F05-movement-gate-reward.md` (F05-R01–R28), `design/ux/flows/F03-core-loop.md` Flow B–C — event กลุ่มนี้เป็นแกนของ north star proxy Phase 2 (`product/metrics.md` §1.1) และ metric หมวด Places (§7)
@@ -130,12 +137,14 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 - **properties:** `dungeon_id`, `roles_present` (list ของ role ที่มีคนอยู่ — **Phase 2 เป็น `[]` เสมอ** เพราะไม่มี Nearby Party จริง (F09/Phase 3, D-089 ซ่อนจำนวนคนทุกจุด) เก็บ schema ไว้ล่วงหน้า), `overlap` (bool — จริงใน Phase 2, มาจาก F04-R03), `vs_boss_choice_available` (bool — **Phase 2 เป็น `false` เสมอ**, raid card choice เป็น F16–F18/Phase 6)
 - **privacy:** `dungeon_id` คือสถานที่ ไม่ใช่พิกัดผู้เล่น
 
-### `checkin_rejected` *(F04-R07/R08, GD B-03 — reason ยึดตาม `docs/tech/F04-dungeon-presence.md` §2.5)*
+### `checkin_rejected` *(F04-R07/R08, GD B-03 — reason ยึดตาม `docs/tech/F04-dungeon-presence.md` §2.5 และ `docs/tech/F06-hp-damage-onboarding.md` §6.3)*
 - **ยิงเมื่อ:** ผู้เล่นกด "เข้า" แต่ engine ปฏิเสธ check-in ที่ `confirm` (popup ยังเปิดอยู่ ปุ่มยัง disable)
-- **properties:** `dungeon_id`, `reason` (enum `speed_lock`\|`poor_accuracy`\|`not_enough_trace`\|`no_approach_from_outside`\|`dungeon_closed`\|`run_active`\|`unsupported_mode`)
+- **properties:** `dungeon_id`, `reason` (enum `speed_lock`\|`poor_accuracy`\|`not_enough_trace`\|`no_approach_from_outside`\|`dungeon_closed`\|`run_active`\|`unsupported_mode`\|`no_class`\|`no_hp`)
 - **privacy:** ไม่มีพิกัด ไม่เอ่ยคำว่า anti-cheat/โกงใน copy ที่ผู้เล่นเห็น (F04-R10) แต่ telemetry เก็บ reason ตรงๆ ได้เพราะเป็น internal event ไม่ใช่ copy
 - **แก้จากร่างก่อน:** ขยาย `reason` จาก 4 เป็น 7 ค่าให้ตรงกับ engine จริง — เพิ่ม `dungeon_closed` (dungeon ปิดพอดีตอนกด), `run_active` (มี run อื่นอยู่แล้ว, F04-R01), `unsupported_mode` (`verification_mode` อื่นนอก `continuous_gps`, ADR 0003 §7 — ไม่ควรเกิดใน Phase 2 เพราะ dungeon นำร่องทั้งหมดเป็น `continuous_gps` แต่ใส่ไว้กันโค้ดพัง)
+- **(P2-X23, D-114) ขยายอีกครั้งจาก 7 เป็น 9 ค่า** — เพิ่ม `no_class` (กด "เข้า" ก่อนเลือกพลัง, engine ปฏิเสธที่ `player.classId = null`, F06-tech §6.3 ข้อ 1 — ทางปกติไม่เกิดเพราะ sheet บังคับเลือก class มาก่อนถึงแผนที่แล้ว, fail closed) และ `no_hp` (HP ≤ 0 พอดีตอนกด "เข้า", F06-tech §6.3 ข้อ 2 — เกิดได้เฉพาะวินาทีที่ตายพอดี เพราะการฟื้นเริ่มทันทีตามเงื่อนไข "HP > 0" ของ R27) ปิด A-P2-F06-T04-5 (ยืนยันร่วม: game-director กติกาปฏิเสธ, tech-lead mapper) — enum นี้ตอนนี้คือ 9 ค่าเป๊ะตามที่ `docs/tech/F06-hp-damage-onboarding.md` บรรทัด 321–325, 591, 608 ระบุ
 - **ใช้ตอบคำถามค้าง:** PRD F04 §6 ข้อ "สัดส่วนคนที่เจอ `no_approach_from_outside` ครั้งแรกและเวลาที่เสียไป" (คำนวณจากคู่ `checkin_rejected` ก่อนหน้ากับ `dungeon_entered` ที่สำเร็จของ `dungeon_id` เดียวกัน)
+- **(P2-X23) หมายเหตุ cue เสียง `dungeon.closedOrOutOfRange` (`audio/cue-list.md`, A-P2-F05-T06-1):** cue นี้**ไม่ได้ผูกกับ event ใหม่** — เส้นทางที่ผ่าน `confirm` แล้วถูกปฏิเสธเพราะปิดพอดี ถูกนับใน `checkin_rejected` (`reason=dungeon_closed`) อยู่แล้วโดยไม่ต้องประกาศเพิ่ม แต่เส้นทางที่พบบ่อยกว่าของ cue นี้ (แสดง `[dungeon.closedTitle]`/`[dungeon.outOfRangeTitle]` ตอนเดินเข้าเขตหรือแตะหมุดโดยยังไม่มีปุ่ม "เข้า" ให้กดเลย ตาม F04 B4) **ไม่มี event ยิงเลยในเครื่องมือ engine ของ Phase 2** เพราะไม่มีการเรียก `sessionStep(confirm)` ในเส้นทางนั้น — คงค่า `telemetry: null` ของ manifest ไว้ตามที่ sound-designer ตั้งไว้แล้ว ไม่ต้องสร้าง event ใหม่ (ต้นทุน/ประโยชน์ไม่คุ้มกับ event ที่เกิดถี่จากการเลื่อนแผนที่ผ่านหมุดปิด)
 
 ### `dungeon_entered`
 - **ยิงเมื่อ:** engine ยืนยันเข้า run สำเร็จ (Flow B5, F04 T3) — event นี้คือจุดเริ่มของ run ใหม่ (engine มี `run.runId` ภายใน แต่ envelope ของ telemetry ไม่มี field แยก ดูหัวข้อ 1.1)
@@ -247,6 +256,8 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 
 ที่มา: `design/ux/flows/F03-core-loop.md` Flow A นาที 6–8, `design/ux/ia.md` U6 · **Phase 3 (F09)** — ประกาศชื่อไว้ล่วงหน้าตาม `product/metrics.md` §4 · **Phase 2 ไม่มีขั้นตอนนี้เลยในแอปจริง** (F06 หัวข้อ 3.8 ตาราง: ช่วง 6–8 ถูกข้ามทั้งช่วง ไม่มีแผงว่าง)
 
+**(P2-X23) คำสั่งด่วน (`qc.*`, 10 คำสั่ง, CLAUDE.md ข้อ 4) — ไม่มี event ใน Phase 2:** cue เสียง `qc.sent`/`qc.received` ใน `audio/cue-list.md` (A-P2-F05-T06-1) มี `telemetry: null` ถูกต้องแล้ว และ**ไม่ประกาศ event ใหม่ในเอกสารนี้** เพราะคำสั่งด่วนเป็นฟีเจอร์ของ Nearby Party (F09, Phase 3) ล้วนๆ — Phase 2 ไม่มีทางเรียก UI ของคำสั่งด่วนได้เลย (ไม่มีคู่สนทนาให้ส่งหา) จึงไม่มีอะไรให้ instrument จนกว่า F09 จะ build ชื่อ event ที่เสนอไว้ล่วงหน้าสำหรับตอนนั้น (`quick_command_sent`/`quick_command_received` หรือชื่อเทียบเท่า) จะประกาศพร้อมกับ `party_formed` เมื่อ P2-F04-T17 รุ่นของ Phase 3 เริ่มงาน ไม่ใช่ตอนนี้
+
 ### `party_formed`
 - **ยิงเมื่อ:** ผู้เล่นกดเข้าร่วม Nearby Party (`S-03a-nearby-party`) สำเร็จ
 - **properties:** `dungeon_id`, `party_size` (int, นับรวมตัวเอง), `roles_present` (list ของ role ไม่ใช่รายชื่อ)
@@ -327,8 +338,9 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 | `onboarding_empty_screen_abandoned` | Onboarding | 2 (reason ใหม่) | — |
 | `interest_registered_outside_area` | Onboarding | 2 (ขยาย scope/area_name) | — |
 | `local_data_cleared` | Onboarding (ควบคุมข้อมูล) | 2 | ไม่มี property — เป็นบรรทัดแรกของ export ครั้งถัดไป |
+| `location_consent_withdrawn` | Onboarding (ควบคุมข้อมูล/privacy) | 2 | ใหม่ (P2-X23, D-116) — คู่กับ `dungeon_exited { exit_reason: manual_exit }` ที่ `at_ms` เดียวกันเมื่อ `during_run=true` |
 | `dungeon_confirm_shown` | Places | 2 | — |
-| `checkin_rejected` | Places | 2 | reason 7 ค่า ตรง engine |
+| `checkin_rejected` | Places | 2 | reason 9 ค่า ตรง engine (P2-X23 เพิ่ม `no_class`, `no_hp`, D-114) |
 | `dungeon_entered` | Places | 2 | — |
 | `dungeon_exited` | Places | 2 (exit_reason ใหม่ + property เพิ่ม) | — |
 | `run_state_changed` | Places | 2 | ใหม่ — เฉพาะวงจร active/grace/suspended |
@@ -368,6 +380,9 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 - A-P2-F04-T17-7 (**ปิดแล้ว**): `docs/tech/F04-dungeon-presence.md` §2.5/§12.3 (P2-F04-T14) ยืนยัน field ภายในของ engine สำหรับ `anticheat_speed_lock_triggered` = `phase`/`inRun`/`dungeonId` แล้ว — เอกสารนี้ปรับตามในหัวข้อ 3 (เดิมออกแบบ `transition`/`location_context`/`run_state_at_trigger` เอง ตอนที่ยังไม่มี tech note)
 - A-P2-F04-T17-8: `run_state_changed` ครอบเฉพาะวงจร active/grace/suspended (T6–T8 ของ F04) ไม่ครอบ T1–T5/T11–T12 ตามที่ engine ออกแบบไว้จริง — ถ้า QA/game-director ต้องการเห็น T1–T5 (Browsing→ConfirmOpen→CheckInPending) ด้วย ต้องเป็น event เพิ่มคนละตัว ไม่ใช่ขยาย enum นี้ (ยืนยัน: tech-lead, qa-tester)
 - A-P2-F04-T17-9: `run_tick_denied.partial` ไม่อยู่ในตาราง `SessionEvent` ของ tech note (§2.5 ระบุแค่ `dungeonId`, `tickIndex`) แต่ tech-lead ขอเพิ่มโดยตรงในข้อความ handoff — ยึดตามคำขอโดยตรงนั้น (ใหม่กว่าตาราง) ถ้า mapper จริงพบว่า engine ไม่ส่ง `partial` มาด้วยสำหรับ tick ที่ไม่ผ่าน ให้ tech-lead handoff กลับมาแก้ (ยืนยัน: tech-lead, backend-programmer)
+- A-P2-F06-T04-5 (**ปิดแล้ว, P2-X23**): เหตุ `no_class`/`no_hp` ของ `checkin_rejected` (`docs/tech/F06-hp-damage-onboarding.md` §6.3, D-114) เพิ่มเข้า enum ของหัวข้อ 3 แล้ว (owner: game-director กติกาปฏิเสธ, product-manager enum telemetry — ยืนยันร่วมแล้ว)
+- A-P2-X16-1 (**ปิดแล้ว, P2-X23**): ตัดสินใจประกาศ `location_consent_withdrawn { during_run: bool }` ตามข้อเสนอของ tech-lead ใน `docs/tech/F06-hp-damage-onboarding.md` §8.4 — ประกาศไว้ในหัวข้อ 2 แล้ว `dungeon_exited.exit_reason` ของตัว run เองยังเป็น `manual_exit` เดิมไม่แตกค่าใหม่ตามที่ tech-lead ยืนยัน (owner: tech-lead mapper, game-director ยืนยันไม่ต้องแยกเชิงกติกาเกม)
+- A-P2-F05-T06-1 (**ปิดแล้ว, P2-X23**): cue เสียง `qc.sent`/`qc.received`/`dungeon.closedOrOutOfRange` ใน `audio/cue-list.md` คง `telemetry: null` ตามที่ sound-designer ตั้งไว้ถูกต้องแล้ว — `qc.*` ไม่มี event เพราะเป็นฟีเจอร์ Nearby Party (F09/Phase 3) ที่เข้าไม่ถึงใน Phase 2 (หัวข้อ 4) `dungeon.closedOrOutOfRange` ก็ไม่มี event ใหม่เช่นกัน เพราะเส้นทาง UI ที่พบบ่อยของ cue นี้ไม่เรียก `sessionStep(confirm)` เลย (หัวข้อ 3, หมายเหตุท้าย `checkin_rejected`) ส่วนกรณีที่ผ่าน `confirm` แล้วถูกปฏิเสธเพราะปิดพอดี ถูกนับใน `checkin_rejected { reason: dungeon_closed }` อยู่แล้วโดยไม่ต้องประกาศเพิ่ม (owner: product-manager, ยืนยันร่วม: sound-designer)
 
 **ข้อแตกต่างจากชื่อที่ tech-lead เสนอในข้อความ handoff (ตามที่อนุญาตให้ "keep your choice and list the difference"):** ไม่มี — ทุกชื่อ event และ property ที่ tech-lead ระบุ (`checkin_rejected`, `run_state_changed`, `anticheat_speed_lock_triggered`, `dungeon_closing_soon_notified`, `navigation_link_opened`, `session_state_discarded`, `storage_quota_exceeded`, `local_data_cleared`, `partial`) ถูกนำมาใช้ตรงตัวในเอกสารฉบับนี้แล้ว ส่วนที่ต่างจากร่างเดิมของผมเอง (ก่อนเห็น tech note) คือ property ของ `anticheat_speed_lock_triggered` (ดู A-P2-F04-T17-7) และ `roles_present`/`partial` ของ `run_tick_granted` ซึ่งแก้ตามตารางแล้วเช่นกัน
 

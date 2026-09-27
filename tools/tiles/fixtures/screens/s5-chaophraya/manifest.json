@@ -1,0 +1,26 @@
+{
+  "tileset_id": "pm4-20260923-z14-s5-chaophraya",
+  "layout": "screen-fixture",
+  "screen": "S5",
+  "center": [100.495, 13.74],
+  "zoom": 14,
+  "bbox": [100.4845, 13.718, 100.5055, 13.762],
+  "minzoom": 14,
+  "maxzoom": 14,
+  "schema": {
+    "name": "protomaps-basemap",
+    "major": 4,
+    "metadataVersion": "4.15.2"
+  },
+  "build_key": "20260923",
+  "source_url": "https://build.protomaps.com/20260923.pmtiles",
+  "files": {
+    "tiles": 6
+  },
+  "bytes": {
+    "tiles": 694774,
+    "pmtiles_archive": 427376
+  },
+  "glyphs_and_sprites_from": "fixtures/lumpini",
+  "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap</a> <a href=\"https://protomaps.com\">Protomaps</a>"
+}

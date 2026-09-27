@@ -113,17 +113,21 @@ interface SampleFeature {
 /** The published sample is already whitelist-shaped (art/direction/map-style.md 6.1), so a
  * `DungeonInput` is just its `properties` lifted back up next to `geometry` — the same conversion
  * `dungeons-source.test.ts` uses, kept local here since Playwright's test runner and Vitest are
- * separate processes with no shared test-utility module in this repo. */
+ * separate processes with no shared test-utility module in this repo.
+ *
+ * `label_count` (P2-X21, D-089/D-100): the fixture file itself still carries this stale property
+ * (art-director's file, `art/direction/map-style/samples/*.geojson` — out of this task's `writes`,
+ * left as-is) from before Phase 2 removed player counts everywhere. The real client never sets it
+ * (`dungeons/artifact.ts#toMapDungeonInput`, D-089), so this loader drops it too before feeding the
+ * real adapter — the same shape a genuine Phase 2 server payload would have. */
 function loadDungeonInputs(): readonly DungeonInput[] {
   const raw = readFileSync(join(SAMPLES_DIR, 'dungeons.sample.geojson'), 'utf-8');
   const parsed = JSON.parse(raw) as { features: readonly SampleFeature[] };
-  return parsed.features.map(
-    (feature) =>
-      ({
-        ...feature.properties,
-        geometry: feature.geometry,
-      }) as unknown as DungeonInput,
-  );
+  return parsed.features.map((feature) => {
+    const rest: Record<string, unknown> = { ...feature.properties };
+    delete rest['label_count'];
+    return { ...rest, geometry: feature.geometry } as unknown as DungeonInput;
+  });
 }
 
 /** `Map#_loaded` is the flag MapLibre flips right before it fires `load` (map-real-fixture.spec.ts
@@ -172,7 +176,7 @@ async function renderedIdCounts(
 }
 
 test.describe('dungeon labels render exactly once per dungeon (P1-H06 fix)', () => {
-  test('kw-rift-name and kw-rift-count each show exactly one feature per sample dungeon id', async ({
+  test('kw-rift-name shows exactly one feature per sample dungeon id, kw-rift-count never renders (D-089/D-100: no player counts anywhere in Phase 2)', async ({
     page,
   }) => {
     await page.route(`${FIXTURE_ORIGIN}/**`, (route) => fulfillFromFixture(route));
@@ -211,17 +215,21 @@ test.describe('dungeon labels render exactly once per dungeon (P1-H06 fix)', () 
 
     for (const feature of labels.features) {
       const id = feature.properties.id;
+      // D-089/D-100 (P2-X21): `label_count` is never set by the real client, so `kw-rift-count`'s
+      // `has label_count` filter (`kw-light.style.json`) must never match any feature — asserted
+      // unconditionally here, replacing the old "only check when the property happens to be
+      // present" branch (which this fixture's own `label_count`, stale and left as art-director's,
+      // would otherwise have made pass for the wrong reason: `loadDungeonInputs` above strips it).
+      expect(feature.properties).not.toHaveProperty('label_count');
       const center = feature.geometry.coordinates;
       const nameCounts = await renderedIdCounts(page, 'kw-rift-name', center);
       expect(nameCounts[id], `kw-rift-name count for ${id}: ${JSON.stringify(nameCounts)}`).toBe(1);
 
-      if (feature.properties.label_count !== undefined) {
-        const countCounts = await renderedIdCounts(page, 'kw-rift-count', center);
-        expect(
-          countCounts[id],
-          `kw-rift-count count for ${id}: ${JSON.stringify(countCounts)}`,
-        ).toBe(1);
-      }
+      const countCounts = await renderedIdCounts(page, 'kw-rift-count', center);
+      expect(
+        countCounts[id] ?? 0,
+        `kw-rift-count must never render (D-089/D-100): ${JSON.stringify(countCounts)}`,
+      ).toBe(0);
     }
   });
 });

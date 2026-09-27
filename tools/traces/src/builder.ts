@@ -5,6 +5,7 @@ import type {
   TraceEnvironment,
   TraceEvent,
   TraceEventType,
+  TraceKind,
   TraceSample,
 } from '@keep-walking/shared';
 import { TRACE_FORMAT } from '@keep-walking/shared';
@@ -25,8 +26,14 @@ export const GENERATOR_TOOL = 'tools/traces';
 export const GENERATOR_VERSION = '1.0.0';
 export const SCHEMA_REF = '../../../packages/shared/schemas/gps-trace.schema.json';
 
+/** Kinds a generator may stamp. `field` / `recorded` are real walks and never generated. */
+export type GeneratedTraceKind = Extract<TraceKind, 'synthetic' | 'qa'>;
+export const DEFAULT_TRACE_KIND: GeneratedTraceKind = 'synthetic';
+
 export interface TraceHeader {
   readonly id: string;
+  /** meta.kind; default 'synthetic'. qa-tester's scripts pass 'qa' (P2-F04-T23). */
+  readonly kind?: GeneratedTraceKind;
   readonly scenario: string;
   readonly seed: number;
   readonly description: string;
@@ -82,8 +89,10 @@ export class TraceBuilder {
     this.events.push({ t: Math.round(t_ms), type });
   }
 
-  build(): GpsTrace {
+  /** `kind` overrides the header's kind (default 'synthetic'). */
+  build(kind?: GeneratedTraceKind): GpsTrace {
     const { id, scenario, seed, description, environment } = this.header;
+    const metaKind = kind ?? this.header.kind ?? DEFAULT_TRACE_KIND;
     const events = [...this.events].sort((a, b) => a.t - b.t);
     return {
       $schema: SCHEMA_REF,
@@ -91,7 +100,7 @@ export class TraceBuilder {
       formatVersion: TRACE_FORMAT.version,
       meta: {
         id,
-        kind: 'synthetic',
+        kind: metaKind,
         timeBase: TRACE_FORMAT.timeBase,
         description,
         environment,

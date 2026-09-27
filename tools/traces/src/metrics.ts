@@ -1,25 +1,43 @@
 // Reference measurements over a trace, used by the tests and by `stats` to fill the README
-// table. These follow the S12 / I1 definitions in docs/tech/F02-map-location-spike.md section 10
-// (unfiltered haversine sum, 5-minute window sliding by 30 s). They are expectations for QA and
-// for the future gate in packages/geo, not the gate itself.
+// table. The gate windows come from packages/geo `gateDiagnosticWindows` (P2-F04-T23, TL N-06):
+// `distance_m` / `pass` are its raw side (the S12 / I1 definition in
+// docs/tech/F02-map-location-spike.md section 10: unfiltered haversine, 5-minute window sliding by
+// hudMeasurement.gateWindowStep_s from the first fix), `filtered*` the reward pipeline (ADR 0003
+// 5.3). Expectations for QA, not the reward decision itself.
 import type { GpsTrace, TraceSample } from '@keep-walking/shared';
-import type { GateComparison } from './config';
+import type { GateComparison, GeoSample } from '../../../packages/geo/src/index';
+import { MS_PER_S, gateDiagnosticWindows } from '../../../packages/geo/src/index';
+import type { TraceConfig } from './config';
+import { loadTraceConfig } from './config';
 import { haversine_m } from './geo';
 
-export const MS_PER_S = 1000;
+export { MS_PER_S };
 const S_PER_H = 3600;
 const M_PER_KM = 1000;
-/** Window slide step from the tech note (S12 definition). A measurement setting, not balance. */
-export const GATE_SLIDE_S = 30;
 /** A "gap" in the tech note is more than 10 s without a sample (S13). */
 export const GAP_THRESHOLD_S = 10;
 
 export interface GateWindow {
   readonly start_s: number;
+  /** Raw haversine over pairs with both fixes inside the window (S12). */
   readonly distance_m: number;
   readonly pass: boolean;
+  /** Same window through the geo filter + 5 s resample (the reward pipeline). */
+  readonly filteredDistance_m: number;
+  readonly filteredPass: boolean;
 }
 
+/** TraceSample (`t`, `accuracy`) → geo's GeoSample (`t_ms`, `accuracy_m`). */
+export function toGeoSample(s: TraceSample): GeoSample {
+  return { t_ms: s.t, lat: s.lat, lng: s.lng, accuracy_m: s.accuracy };
+}
+
+/**
+ * The first-draft option shape (window, distance, comparison only). Kept so existing callers
+ * (qa/tests/traces/engine-movement-gate.test.ts) compile unchanged; the filter + resample
+ * parameters and the default slide then come from config via loadTraceConfig().
+ * @deprecated Pass the TraceConfig from loadTraceConfig() instead.
+ */
 export interface GateOptions {
   readonly window_s: number;
   readonly minDistance_m: number;
@@ -27,37 +45,40 @@ export interface GateOptions {
   readonly slide_s?: number;
 }
 
-export function passesGate(distance_m: number, minDistance_m: number, cmp: GateComparison) {
-  return cmp === 'greaterThan' ? distance_m > minDistance_m : distance_m >= minDistance_m;
+function isTraceConfig(x: TraceConfig | GateOptions): x is TraceConfig {
+  return 'gateFilter' in x;
 }
 
-/**
- * Windows [start, start + window] (inclusive, ms) from t = 0, sliding by `slide_s`, while the
- * window fits inside the trace. Distance = sum of haversine over consecutive sample pairs whose
- * two samples both lie inside the window.
- */
-export function gateWindows(samples: readonly TraceSample[], opts: GateOptions): GateWindow[] {
-  const windowMs = opts.window_s * MS_PER_S;
-  const slideMs = (opts.slide_s ?? GATE_SLIDE_S) * MS_PER_S;
-  const lastT = samples.at(-1)?.t ?? 0;
-  const out: GateWindow[] = [];
-  for (let start = 0; start + windowMs <= lastT; start += slideMs) {
-    const end = start + windowMs;
-    let distance = 0;
-    for (let i = 1; i < samples.length; i += 1) {
-      const a = samples[i - 1] as TraceSample;
-      const b = samples[i] as TraceSample;
-      if (a.t >= start && b.t <= end) {
-        distance += haversine_m(a, b);
-      }
-    }
-    out.push({
-      start_s: start / MS_PER_S,
-      distance_m: distance,
-      pass: passesGate(distance, opts.minDistance_m, opts.comparison),
-    });
-  }
-  return out;
+function fromOptions(opts: GateOptions): TraceConfig {
+  const base = loadTraceConfig();
+  return {
+    ...base,
+    gateWindow_s: opts.window_s,
+    gateMinDistance_m: opts.minDistance_m,
+    gateComparison: opts.comparison,
+    gateWindowStep_s: opts.slide_s ?? base.gateWindowStep_s,
+  };
+}
+
+/** Sliding gate windows of a trace, every threshold from config (no copy of the geo rules). */
+export function gateWindows(
+  samples: readonly TraceSample[],
+  cfgOrOptions: TraceConfig | GateOptions,
+): GateWindow[] {
+  const cfg = isTraceConfig(cfgOrOptions) ? cfgOrOptions : fromOptions(cfgOrOptions);
+  return gateDiagnosticWindows(samples.map(toGeoSample), {
+    ...cfg.gateFilter,
+    window_s: cfg.gateWindow_s,
+    windowStep_s: cfg.gateWindowStep_s,
+    minDistancePerWindow_m: cfg.gateMinDistance_m,
+    comparison: cfg.gateComparison,
+  }).map((w) => ({
+    start_s: w.start_ms / MS_PER_S,
+    distance_m: w.rawDistance_m,
+    pass: w.rawPass,
+    filteredDistance_m: w.filteredDistance_m,
+    filteredPass: w.filteredPass,
+  }));
 }
 
 export interface TraceStats {

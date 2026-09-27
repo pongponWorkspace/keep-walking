@@ -29,7 +29,7 @@
     <p>
       <label><input type="checkbox" checked onchange="t('pop', this)" /> ความหนาแน่นประชากร</label>
       <label
-        ><input type="checkbox" checked onchange="t('red', this)" /> พื้นที่ว่าง (โซนแดง &gt; 3 กม.
+        ><input type="checkbox" checked onchange="t('red', this)" /> พื้นที่ว่าง (โซนแดง &gt; {red_min_km} กม.
         หรือห่างทางเดิน)</label
       >
       <label
@@ -47,7 +47,7 @@
         class="sw"
         style="background: repeating-linear-gradient(45deg, #d7191c 0 2px, transparent 2px 5px)"
       ></span
-      >พื้นที่ว่าง <span class="sw" style="background: rgba(26, 152, 80, 0.6)"></span>เขียว &le; 800
+      >พื้นที่ว่าง <span class="sw" style="background: rgba(26, 152, 80, 0.6)"></span>เขียว &le; {green_max_m}
       ม. <span class="sw" style="background: rgba(254, 224, 139, 0.8)"></span>เหลือง
       <span class="sw" style="background: rgba(215, 48, 39, 0.8)"></span>แดง
     </p>
@@ -96,7 +96,7 @@
       <g id="dist">{districts}</g>
       <g id="cand">{candidates}</g>
     </svg>
-    <h2>79 เขต/อำเภอ เรียงตาม Launch Score (ตัวเลขเต็มอยู่ใน district-counts.csv)</h2>
+    <h2>{district_count} เขต/อำเภอ เรียงตาม Launch Score (ตัวเลขเต็มอยู่ใน district-counts.csv)</h2>
     <table>
       {table}
     </table>

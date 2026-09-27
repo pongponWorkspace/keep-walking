@@ -21,11 +21,7 @@ export interface GateSummary {
 }
 
 export function gateSummary(trace: GpsTrace, cfg: TraceConfig): GateSummary {
-  const w = gateWindows(trace.samples, {
-    window_s: cfg.gateWindow_s,
-    minDistance_m: cfg.gateMinDistance_m,
-    comparison: cfg.gateComparison,
-  });
+  const w = gateWindows(trace.samples, cfg);
   const d = w.map((x) => x.distance_m);
   return {
     total: w.length,

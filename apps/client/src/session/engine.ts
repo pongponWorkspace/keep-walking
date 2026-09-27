@@ -5,13 +5,14 @@
  * gets back to telemetry (`telemetry/f04-events.ts`) through an injected `record()` — this module
  * never imports `telemetry/sink.ts` itself, so it stays testable with a plain recorder.
  *
- * Boot sequence follows tech note F04 section 10.2 exactly, minus the two pieces P2-X10 has not
- * landed yet (the real `fromPersisted`'s `unknown_dungeon` check and the on-device sample purge —
- * `session/persist.ts` documents the same gap): load -> discard-and-recreate on any read failure
- * -> immediate `tick` so time lost while the app was closed is judged before the first frame renders.
+ * Boot sequence follows tech note F04 section 10.2 exactly (P2-X10's real `fromPersisted` does the
+ * `unknown_dungeon` check and the on-device sample cap): load -> discard-and-recreate on any read
+ * failure -> immediate `tick` so time lost while the app was closed is judged before the first
+ * frame renders.
  */
-import { createSession, sessionStep } from '@keep-walking/shared/session';
+import { createSession, selectCheckInPreview, sessionStep } from '@keep-walking/shared/session';
 import type {
+  CheckInPreview,
   SessionEvent,
   SessionInput,
   SessionParams,
@@ -21,8 +22,6 @@ import type { KeyValueStorage, QuotaFallbackDeps } from '../storage/local-store'
 import { loadSession, saveSession } from './persist';
 import { sessionStateDiscardedEvent } from '../telemetry/f04-events';
 import { mapSessionEvent } from '../telemetry/f04-events';
-import { previewCheckIn } from './checkin-preview';
-import type { CheckInPreview } from './checkin-preview';
 
 const SESSION_STORAGE_KEY = 'kw.p2.session';
 
@@ -39,9 +38,9 @@ export interface SessionEngine {
   /** Steps the engine, persists the result, and maps every returned event to telemetry. Returns
    * the raw `SessionEvent[]` too, for UI code that needs to react (e.g. a toast on `run_state_changed`). */
   dispatch(input: SessionInput, now_ms: number): readonly SessionEvent[];
-  /** Speculative, side-effect-free check-in preview (`session/checkin-preview.ts`) — never call
-   * `dispatch` for a preview: that would actually attempt the check-in. */
-  previewCheckIn(dungeonId: string, runSeed: number, now_ms: number): CheckInPreview;
+  /** Speculative, side-effect-free check-in preview (`selectCheckInPreview`, tech note F04 7.4) —
+   * never call `dispatch` for a preview: that would actually attempt the check-in. */
+  previewCheckIn(dungeonId: string, now_ms: number): CheckInPreview;
 }
 
 /** Boots (or recovers) the session, then does the same catch-up `tick` tech note 10.2 requires
@@ -53,15 +52,15 @@ export function createSessionEngine(
 ): SessionEngine {
   const key = deps.storageKey ?? SESSION_STORAGE_KEY;
   let state: SessionState;
-  const loaded = loadSession(deps.storage, key);
+  const loaded = loadSession(deps.storage, key, params);
   if (loaded === undefined) {
-    state = createSession(now_ms);
+    state = createSession(now_ms, params);
   } else if (loaded.ok) {
     state = loaded.state;
   } else {
     const mapped = sessionStateDiscardedEvent(loaded.reason);
     deps.record(mapped.name, mapped.properties as Record<string, unknown>);
-    state = createSession(now_ms);
+    state = createSession(now_ms, params);
   }
 
   function persistAndMap(
@@ -70,7 +69,7 @@ export function createSessionEngine(
     atRunDungeonId?: string,
   ): void {
     for (const event of events) {
-      const mapped = mapSessionEvent(event, next.player.playerClass, atRunDungeonId);
+      const mapped = mapSessionEvent(event, next.player.classId, atRunDungeonId);
       if (mapped !== undefined) {
         deps.record(mapped.name, mapped.properties as Record<string, unknown>);
       }
@@ -97,8 +96,8 @@ export function createSessionEngine(
       persistAndMap(state, stepped.events, beforeDungeonId ?? state.run?.dungeonId);
       return stepped.events;
     },
-    previewCheckIn(dungeonId, runSeed, at_ms) {
-      return previewCheckIn(state, dungeonId, runSeed, at_ms, params);
+    previewCheckIn(dungeonId, at_ms) {
+      return selectCheckInPreview(state, dungeonId, at_ms, params);
     },
   };
 }

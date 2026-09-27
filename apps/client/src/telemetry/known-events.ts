@@ -18,6 +18,10 @@ export const KNOWN_EVENT_NAMES: ReadonlySet<string> = new Set([
   'onboarding_empty_screen_abandoned',
   'interest_registered_outside_area',
   'local_data_cleared',
+  // P2-X23 (D-116, closes A-P2-X16-1): the withdraw-consent flow (F06 tech note 8.4) is not yet
+  // wired to a call site (that lands with the settings/consent screen build) — declared here now
+  // so `known-events.test.ts`'s doc-vs-set drift check stays green as the doc adds new events.
+  'location_consent_withdrawn',
   'dungeon_confirm_shown',
   'checkin_rejected',
   'dungeon_entered',

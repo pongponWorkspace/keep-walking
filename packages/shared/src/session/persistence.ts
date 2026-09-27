@@ -6,6 +6,9 @@
 // not know is `schema_mismatch` (no migration in Phase 2), and a run whose `dungeonId` is not in
 // the current artifact is `unknown_dungeon` (the run is dropped, the player is kept).
 import { APPROACH_INIT } from '../run';
+import { expToNext } from '../formulas';
+import { hpParamsFromConfig } from '../hp';
+import { hpConfigInputOf } from './types';
 import type {
   FromPersistedRejectReason,
   PersistedSession,
@@ -14,9 +17,56 @@ import type {
 } from './types';
 
 const SCHEMA_VERSION = 1;
+const KNOWN_CLASSES: ReadonlySet<string> = new Set(['tanker', 'ranged', 'support', 'magic']);
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null;
+}
+
+/** Tech note F06 2.5: values a hand-edited `kw.p2.session` could carry that would push the engine
+ * into a state its own spec never describes. Not an anti-cheat measure (Phase 2 grants no real
+ * reward, D-087) — it exists so a corrupted `localStorage` value fails closed (`corrupt`, a fresh
+ * session) instead of the engine guessing. Only `player`; `run` is validated by the `dungeonId`
+ * check already in `fromPersisted` (a run's own numbers came from this same engine, never typed). */
+function isCorruptPlayer(state: SessionState, params: SessionParams): boolean {
+  const player = state.player;
+  if (player.classId !== null && !KNOWN_CLASSES.has(player.classId)) return true;
+  const exp = params.config.exp.exp;
+  if (
+    !Number.isInteger(player.level) ||
+    player.level < exp.startLevel ||
+    player.level > exp.maxLevel
+  ) {
+    return true;
+  }
+  if (player.level < exp.maxLevel) {
+    if (player.exp < 0 || player.exp >= expToNext(player.level, exp)) return true;
+  } else if (player.exp !== 0) {
+    return true;
+  }
+  const alloc = player.allocated;
+  if (alloc.atk !== 0 || alloc.def !== 0 || alloc.hp !== 0 || alloc.vit !== 0) return true;
+  let hpParams;
+  try {
+    hpParams = hpParamsFromConfig(hpConfigInputOf(params.config));
+  } catch {
+    return false; // a bad config is `assertSupportedConfig`'s own job, not this one's
+  }
+  const maxHp = hpParams.player.baseStats.hp + hpParams.player.statPerPoint.hp * alloc.hp;
+  if (player.hp.value < 0 || player.hp.value > maxHp) return true;
+  if (
+    state.run !== null &&
+    (state.run.hp.shield < 0 || state.run.hp.hp < 0 || state.run.hp.hp > maxHp)
+  ) {
+    return true;
+  }
+  for (const [id, qty] of Object.entries(player.inventory)) {
+    if (!Number.isInteger(qty) || qty <= 0 || params.config.drops.items[id] === undefined)
+      return true;
+  }
+  if (!Number.isInteger(player.lifetimeTicksGranted) || player.lifetimeTicksGranted < 0)
+    return true;
+  return false;
 }
 
 /** Strips `pre` and stamps `savedAt_ms`; the on-device sample caps themselves (tech note F04 11)
@@ -47,5 +97,6 @@ export function fromPersisted(raw: unknown, params: SessionParams): FromPersiste
   if (state.run !== null && params.dungeons[state.run.dungeonId] === undefined) {
     return { ok: false, reason: 'unknown_dungeon' };
   }
+  if (isCorruptPlayer(state, params)) return { ok: false, reason: 'corrupt' };
   return { ok: true, state: { ...state, pre: APPROACH_INIT } };
 }

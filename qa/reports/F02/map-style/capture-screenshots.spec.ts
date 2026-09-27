@@ -49,7 +49,10 @@ const CORS_HEADERS = {
   'access-control-expose-headers': 'content-range, content-length, accept-ranges',
 };
 
-/** S1-S5 per art/direction/map-style.md section 10.1's table. */
+/** S1-S6 per art/direction/map-style.md section 10.1's table. S6 was added by D-060 (two
+ * required zooms, 10 and 13) after this script originally only covered S1-S5 (P1-H06) — added by
+ * P2-F04-T09 alongside re-shooting S1/S3 under the fixed style (P1-X32/X33, no more duplicate
+ * dungeon labels). */
 interface Screen {
   readonly id: string;
   readonly label: string;
@@ -78,7 +81,30 @@ const SCREENS: readonly Screen[] = [
     center: [100.495, 13.74],
     zoom: 14,
   },
+  {
+    id: 'S6-z10',
+    label: 'ชายฝั่งสมุทรปราการ (D-060) — no black seam/edge at sea, zoom 10',
+    center: [100.6, 13.5],
+    zoom: 10,
+  },
+  {
+    id: 'S6-z13',
+    label: 'ชายฝั่งสมุทรปราการ (D-060) — no black seam/edge at sea, zoom 13',
+    center: [100.6, 13.5],
+    zoom: 13,
+  },
 ];
+
+/** P2-F04-T09: run only a subset of SCREENS (comma-separated ids), e.g.
+ * `SCREENS_FILTER=S1,S3,S6-z10,S6-z13 pnpm exec tsx qa/reports/F02/map-style/capture-screenshots.ts`
+ * — re-shooting S1/S3 (dungeon-label fix) and S6 (new coastline check) without re-capturing the
+ * unaffected S2/S4/S5. Unset (or empty) keeps the original P1-H06 behavior: capture all screens. */
+function selectedScreens(): readonly Screen[] {
+  const filter = process.env['SCREENS_FILTER'];
+  if (filter === undefined || filter.trim() === '') return SCREENS;
+  const ids = new Set(filter.split(',').map((s) => s.trim()));
+  return SCREENS.filter((s) => ids.has(s.id));
+}
 
 const VIEWPORTS = [
   { w: 390, h: 844, dpr: 3, tag: '390x844' },
@@ -195,15 +221,32 @@ async function jumpToAndIdle(page: Page, screen: Screen): Promise<void> {
   );
 }
 
-/** Injects the art-director's sample GeoJSON into `kw-dungeons` (art/direction/map-style/samples/
- * dungeons.sample.geojson) — the client has no server-backed loader for this source yet (only
- * `kw-self` and `kw-playarea-mask`/`kw-provinces` auto-load; map-style.md 14 A-...-5: dungeon
- * payload shape is Phase 3). Needed for S1 (rift crack) and S3 (sponsored label) pass criteria. */
-async function loadDungeonSamples(page: Page, sampleGeojson: unknown): Promise<void> {
-  await page.evaluate((data) => {
-    const map = (window as unknown as WindowWithSpike).__kwSpike?.map;
-    map?.getSource('kw-dungeons')?.setData(data);
-  }, sampleGeojson);
+/** Injects the art-director's sample GeoJSON into both `kw-dungeons` (polygon, fill/line layers)
+ * and `kw-dungeon-labels` (point, symbol layers) — art/direction/map-style/samples/
+ * dungeons.sample.geojson + dungeon-labels.sample.geojson. The client has no server-backed loader
+ * for either source yet (only `kw-self` and `kw-playarea-mask`/`kw-provinces` auto-load; map-style
+ * .md 14 A-...-5: dungeon payload shape is Phase 3).
+ *
+ * P2-F04-T09 fix: this script originally (P1-H06, before the P1-X32 two-source split) only fed
+ * `kw-dungeons`, which is exactly the bug this script was written to catch (art/direction/
+ * map-style/kw-light.style.json's own `kw:dungeonSources` metadata: "No symbol layer may read
+ * kw-dungeons"). After P1-X32/X33 moved every symbol layer onto `kw-dungeon-labels`, feeding only
+ * the polygon source silently left every rift name/count/sponsored/crack label unrendered instead
+ * of duplicated — still wrong for S1/S3's pass criteria, just a different failure mode. Needed for
+ * S1 (rift crack) and S3 (sponsored label) pass criteria. */
+async function loadDungeonSamples(
+  page: Page,
+  polygonGeojson: unknown,
+  labelGeojson: unknown,
+): Promise<void> {
+  await page.evaluate(
+    ({ polygons, labels }) => {
+      const map = (window as unknown as WindowWithSpike).__kwSpike?.map;
+      map?.getSource('kw-dungeons')?.setData(polygons);
+      map?.getSource('kw-dungeon-labels')?.setData(labels);
+    },
+    { polygons: polygonGeojson, labels: labelGeojson },
+  );
 }
 
 const THAI_SCRIPT = /[฀-๿]/;
@@ -258,9 +301,15 @@ interface ScreenshotResult {
 
 async function run(): Promise<void> {
   mkdirSync(OUT_DIR, { recursive: true });
-  const dungeonSamples: unknown = JSON.parse(
+  const dungeonPolygonSamples: unknown = JSON.parse(
     readFileSync(
       join(REPO_ROOT, 'art/direction/map-style/samples/dungeons.sample.geojson'),
+      'utf-8',
+    ),
+  );
+  const dungeonLabelSamples: unknown = JSON.parse(
+    readFileSync(
+      join(REPO_ROOT, 'art/direction/map-style/samples/dungeon-labels.sample.geojson'),
       'utf-8',
     ),
   );
@@ -302,9 +351,9 @@ async function run(): Promise<void> {
         const panel = document.getElementById('hud-panel');
         if (panel !== null) panel.style.display = 'none';
       });
-      await loadDungeonSamples(page, dungeonSamples);
+      await loadDungeonSamples(page, dungeonPolygonSamples, dungeonLabelSamples);
 
-      for (const screen of SCREENS) {
+      for (const screen of selectedScreens()) {
         for (const viewport of VIEWPORTS) {
           await page.setViewportSize({ width: viewport.w, height: viewport.h });
           await jumpToAndIdle(page, screen);

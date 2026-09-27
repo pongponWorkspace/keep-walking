@@ -20,9 +20,8 @@ import type {
   VisibilitySource,
   WebLocationOptions,
 } from '../types';
-import { ListenerSet } from './listeners';
-import { documentVisibility, systemClock } from './platform';
-import { resolveWebLocationTiming } from './timing';
+import { ListenerSet } from '../internal/listeners';
+import { documentVisibility, systemClock } from '../internal/platform';
 
 /** W3C GeolocationPositionError codes. */
 enum GeolocationErrorCode {
@@ -175,11 +174,10 @@ export class WebLocationProvider implements LocationProvider {
       options.geolocation === undefined ? defaultGeolocation() : options.geolocation;
     this.permissions =
       options.permissions === undefined ? defaultPermissions() : options.permissions;
-    const timing = resolveWebLocationTiming(options);
     this.positionOptions = {
       enableHighAccuracy: options.enableHighAccuracy,
-      timeout: timing.timeout_ms,
-      maximumAge: timing.maximumAge_ms,
+      timeout: options.timeout_ms,
+      maximumAge: options.maximumAge_ms,
     };
   }
 

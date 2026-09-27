@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 export const REPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 export const SYNTHETIC_DIR = `${REPO_ROOT}data/gps-traces/synthetic/`;
 
-export type GateComparison = 'greaterThan' | 'greaterThanOrEqual';
+export type { GateComparison } from '../../../packages/geo/src/index';
+import type { GateComparison } from '../../../packages/geo/src/index';
 
 export interface TraceConfig {
   /** dungeons.json#movementGate.minDistancePerWindow_m */
@@ -17,6 +18,17 @@ export interface TraceConfig {
   readonly gateWindow_s: number;
   /** dungeons.json#movementGate.comparison */
   readonly gateComparison: GateComparison;
+  /** dungeons.json#movementGate.{sampleCadence_s, maxSamplePairGap_s, maxSampleAccuracy_m,
+   *  outlierSpeed_kmh, outlierReanchorSamples}: the geo filter + resample (ADR 0003 5.3). */
+  readonly gateFilter: {
+    readonly sampleCadence_s: number;
+    readonly maxSamplePairGap_s: number;
+    readonly maxSampleAccuracy_m: number;
+    readonly outlierSpeed_kmh: number;
+    readonly outlierReanchorSamples: number;
+  };
+  /** config/app/client.json#hudMeasurement.gateWindowStep_s (tech note 10.5, S12 slide). */
+  readonly gateWindowStep_s: number;
   /** dungeons.json#runState.graceMax_s */
   readonly graceMax_s: number;
   /** anticheat.json#speedLock.speedLock_kmh */
@@ -57,6 +69,8 @@ export function loadTraceConfig(): TraceConfig {
   const anticheatFile = 'config/balance/anticheat.json';
   const dungeons = readJson(dungeonsFile);
   const anticheat = readJson(anticheatFile);
+  const clientFile = 'config/app/client.json';
+  const client = readJson(clientFile);
   const comparison = pick(dungeons, dungeonsFile, 'movementGate.comparison');
   if (comparison !== 'greaterThan' && comparison !== 'greaterThanOrEqual') {
     throw new Error(
@@ -67,6 +81,14 @@ export function loadTraceConfig(): TraceConfig {
     gateMinDistance_m: num(dungeons, dungeonsFile, 'movementGate.minDistancePerWindow_m'),
     gateWindow_s: num(dungeons, dungeonsFile, 'movementGate.window_s'),
     gateComparison: comparison,
+    gateFilter: {
+      sampleCadence_s: num(dungeons, dungeonsFile, 'movementGate.sampleCadence_s'),
+      maxSamplePairGap_s: num(dungeons, dungeonsFile, 'movementGate.maxSamplePairGap_s'),
+      maxSampleAccuracy_m: num(dungeons, dungeonsFile, 'movementGate.maxSampleAccuracy_m'),
+      outlierSpeed_kmh: num(dungeons, dungeonsFile, 'movementGate.outlierSpeed_kmh'),
+      outlierReanchorSamples: num(dungeons, dungeonsFile, 'movementGate.outlierReanchorSamples'),
+    },
+    gateWindowStep_s: num(client, clientFile, 'hudMeasurement.gateWindowStep_s'),
     graceMax_s: num(dungeons, dungeonsFile, 'runState.graceMax_s'),
     speedLock_kmh: num(anticheat, anticheatFile, 'speedLock.speedLock_kmh'),
     checkInMaxAccuracy_m: num(anticheat, anticheatFile, 'checkIn.maxAccuracy_m'),

@@ -14,6 +14,8 @@ export type Pair = [number, number];
 export interface PipelineConfig {
   paths: {
     manifest: string;
+    /** Per-root part of the artist manifest; `{root}` is replaced by a `manifestRoots` value. */
+    manifestPart: string;
     buildManifest: string;
     schema: string;
     assetsDir: string;
@@ -27,6 +29,10 @@ export interface PipelineConfig {
     audioOut: string;
     stageOut: string;
   };
+  /** Roots that get their own manifest part (asset-pipeline 3.1 `root`). */
+  manifestRoots: string[];
+  /** Lazily loaded parts of the runtime manifest: part name → kinds it takes + staged path. */
+  runtimeParts: { parts: Record<string, { kinds: string[]; path: string }> };
   unlistedFilesAllowed: string[];
   pathExceptionRoots: string[];
   spdxAllowed: string[];

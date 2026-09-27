@@ -624,11 +624,14 @@ client ห้าม import ไฟล์ `config/balance/*.json` ทั้งไ�
 | --- | --- |
 | `balance/dungeons.json` | `entry`, `runState`, `rewardTick`, `movementGate`, `hpSafety`, `death`, `exit`, `emergencyClose`, `verification`, `openingHours` (เมื่อ P2-F05-T20 เพิ่ม), `levelRange` |
 | `balance/anticheat.json` | `checkIn`, `speedLock` |
-| `balance/drops.json` | `baseChancePerRewardTick_pct`, `quantityPerDrop`, `rewardTypeByRarity`, `multipliers`, `smallDungeon` |
+| `balance/drops.json` | `baseChancePerRewardTick_pct`, `quantityPerDrop`, `rewardTypeByRarity`, `multipliers`, `smallDungeon`, `dropTables`, `items` (P2-X22) |
 | `balance/progression.json` | `level`, `expCurve`, `expMultipliers`, `baseStats`, `statPerPoint`, `hpRecovery`, `rewardTick`, `statPoints` |
 | `balance/combat.json` | `monsterAttack`, `defense`, `attackCheck`, `levelGapDamage`, `deathProtection` |
 | `balance/classes.json` | `roles`, `buffStacking`, `baseCapRule`, `party` (กรณีคนเดียว · F05 R13) |
-| `balance/economy.json` | `potions`, `autoPotion` (F06) |
+| `balance/economy.json` | `potions`, `autoPotion` (F06), `npcSellPrice_gold` (P2-X22) |
+
+- ตารางนี้ตรงกับ `BALANCE_WHITELIST` ใน `apps/client/src/config/whitelist.ts` ทุกแถว (กลุ่ม B ที่เป็น subtree ของ `config/balance/*.json` อยู่ในรายการเดียวกันในโค้ด) · แก้ที่หนึ่งต้องแก้อีกที่ใน task เดียวกัน · `generated.test.ts` ตรวจว่า output ตรงกับ whitelist และไม่มีชื่อกลุ่ม C (`FORBIDDEN_ANYWHERE`)
+- P2-X22 ยืนยัน A-P2-F04-T21-1 (gameplay, P2-F04-T21): `drops.dropTables` และ `drops.items` จำเป็นเพื่อให้ `parseDropTable` / `rollTickLoot` (`@keep-walking/shared/reward`) ได้ตารางดิบและ rarity ของ item ต่อ dungeon · `economy.npcSellPrice_gold` จำเป็นเพราะ `dropParamsFromConfig` (`@keep-walking/shared/formulas`) อ่าน `npcSellPrice_gold.<item>` · ทางเลือกอื่นคือ fork ตัว parse ใน client ซึ่งผิดหลัก "สูตรมีที่เดียว" (ADR 0003) · ทั้งสาม key ไม่มีชื่อกลุ่ม C ไม่มีค่าลับ และอยู่ภายใต้ข้อยกเว้น C1-1 เหมือนกลุ่ม A ที่เหลือ: หายจาก client เมื่อ Phase 3 ย้าย drop ไป server (tech gate F08) · ส่วนอื่นของ `drops` (`gddReferenceFrequency`, `_meta`) และ `economy` (`npcPricing`, `market`, `marketTax`, `partyReward`, ...) ยังเป็นกลุ่ม C
 
 ### 15.2 กลุ่ม B — การแสดงผลเท่านั้น
 

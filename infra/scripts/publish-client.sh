@@ -37,15 +37,11 @@ esac
 export VITE_GLYPHS_URL="$base_url/glyphs/{fontstack}/{range}.pbf"
 export VITE_SPRITE_URL="$base_url/sprites/v4/light"
 
-log "asset prebuild (tools/art): audio -> validate -> stage tools/art/out/client/"
-# docs/tech/asset-delivery.md section 3 last bullet + section 11 (handoff to devops-engineer,
-# P2-F04-T08): root `pnpm build` runs this first (package.json "build" script), but the
-# `pnpm --filter @keep-walking/client build` call below bypasses that root script entirely.
-# Without this step the deployed client gets an empty tools/art/out/client/ and every
-# icon/font/audio asset silently falls back (asset-delivery.md section 6.4) on the real preview
-# deploy, not just in a test. Deterministic, offline, no credential (tools/art/README.md).
-(cd "$REPO_ROOT" && pnpm exec tsx tools/art/src/cli.ts prebuild)
-
+# No separate `tools/art prebuild` call here (P2-X22): `apps/client`'s own `build` script
+# (apps/client/package.json) already runs `tsx ../../tools/art/src/cli.ts prebuild` before `vite
+# build`, and that is now the ONLY place the prebuild runs (docs/tech/asset-delivery.md section 3,
+# "ลำดับ prebuild: ที่เดียวคือ script ของ apps/client"). This script only sets the VITE_* env vars
+# below, then delegates entirely to the filtered `pnpm --filter @keep-walking/client build` call.
 log "building client: VITE_TILES_URL=$VITE_TILES_URL"
 (cd "$REPO_ROOT" && pnpm --filter @keep-walking/client build)
 

@@ -5,12 +5,16 @@
 //                       art/assets/manifest.build.json (never manifest.json)
 //   audio               run the audio generator (audio/src/generate.ts) and verify cue files
 //   stage [--out <dir>] copy shipped art, fonts and audio + asset-manifest.json for the client
-//   prebuild            audio + validate + stage: the first step of the root `pnpm build`
-import { join } from 'node:path';
+//   prebuild            audio + validate + stage: the first step of `apps/client` dev and build
+//   split-manifest [--write]
+//                       move every artist entry into art/assets/manifest.<root>.json (P2-X22);
+//                       without --write only prints the target file sizes
+import { writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { runAudioHook } from './audio';
 import { buildAll } from './build';
-import { loadConfig, readJson, REPO_ROOT } from './config';
-import type { Manifest } from './manifest';
+import { loadConfig, REPO_ROOT } from './config';
+import { loadManifestSet, splitLayout } from './manifest-set';
 import { stage } from './stage';
 import { formatFinding, loadInput, validate } from './validate';
 
@@ -27,7 +31,7 @@ function runValidate(): boolean {
   for (const f of [...result.errors, ...result.warnings]) console.log(formatFinding(f));
   const s = result.stats;
   console.log(
-    `art-validate: ${s.assets} assets, ${s.files} files, ${s.buildFiles} build files, ${s.fonts} fonts, ` +
+    `art-validate: ${s.assets} assets in ${s.manifestFiles} manifest files, ${s.files} files, ${s.buildFiles} build files, ${s.fonts} fonts, ` +
       `first screen ~${s.firstScreenBytes} B, ${result.errors.length} errors, ${result.warnings.length} warnings`,
   );
   return result.errors.length === 0;
@@ -43,11 +47,25 @@ function runAudio(): boolean {
 function runStage(): boolean {
   const input = loadInput(REPO_ROOT, cfg);
   const out = flag('--out')[0];
-  const runtime = stage(REPO_ROOT, cfg, input.manifest, input.build, input.fonts, out === undefined ? undefined : join(process.cwd(), out));
+  // resolve (not join): an absolute --out must stay absolute.
+  const { manifest: runtime, parts } = stage(REPO_ROOT, cfg, input.manifest, input.build, input.fonts, out === undefined ? undefined : resolve(process.cwd(), out));
+  const lazy = parts.reduce((n, p) => n + Object.keys(p.doc.assets).length, 0);
   console.log(
-    `stage: ${Object.keys(runtime.assets).length} assets, ${runtime.fonts.length} fonts, ` +
+    `stage: ${Object.keys(runtime.assets).length} assets + ${lazy} in ${parts.length} lazy parts, ${runtime.fonts.length} fonts, ` +
       `${Object.keys(runtime.audio).length} audio cues → ${out ?? cfg.paths.stageOut}`,
   );
+  return true;
+}
+
+function runSplit(): boolean {
+  const layout = splitLayout(loadManifestSet(REPO_ROOT, cfg), cfg);
+  const write = args.includes('--write');
+  for (const [file, doc] of layout) {
+    const text = `${JSON.stringify(doc, null, 2)}\n`;
+    console.log(`${file}: ${doc.assets.length} assets, ${Buffer.byteLength(text)} B (budget ${cfg.budgets.manifestBytes} B)`);
+    if (write) writeFileSync(join(REPO_ROOT, file), text);
+  }
+  console.log(write ? 'split-manifest: written, run validate next' : 'split-manifest: dry run, add --write');
   return true;
 }
 
@@ -56,7 +74,7 @@ function run(): boolean {
     case 'validate':
       return runValidate();
     case 'build': {
-      const manifest = readJson<Manifest>(REPO_ROOT, cfg.paths.manifest);
+      const manifest = loadManifestSet(REPO_ROOT, cfg).merged;
       const ids = flag('--id');
       const built = buildAll(REPO_ROOT, manifest, cfg, {
         write: args.includes('--write'),
@@ -70,6 +88,8 @@ function run(): boolean {
       return runAudio();
     case 'stage':
       return runStage();
+    case 'split-manifest':
+      return runSplit();
     case 'prebuild':
       return runAudio() && runValidate() && runStage();
     default:

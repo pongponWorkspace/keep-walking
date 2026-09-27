@@ -48,3 +48,48 @@ describe('kw-light.style.json validates against the MapLibre style spec', () => 
     expect(errors).toHaveLength(0);
   });
 });
+
+// Regression test for the P1-H06 severity-high bug (duplicate dungeon name/count/sponsored/crack
+// labels), fixed in P1-X32 by moving every symbol layer over to the `kw-dungeon-labels` point
+// source (map-style.md 6.1's contract: "No symbol layer may read kw-dungeons: symbols on polygons
+// are placed once per internal geojson-vt tile and duplicate", kw-light.style.json's own
+// `kw:dungeonSources` metadata). Carried over to this task by board note
+// "static check ใน map-style.test.ts (ไม่มี symbol layer บน kw-dungeons)" (P1-X32 -> P2-F04-T09).
+// A static check (not just eyeballing screenshots) so a future edit that reintroduces a symbol
+// layer reading `kw-dungeons` fails CI immediately instead of waiting for the next screenshot pass.
+describe('no symbol layer reads the kw-dungeons polygon source (P1-H06 regression)', () => {
+  it('every layer with source "kw-dungeons" is a fill or line layer, never a symbol layer', () => {
+    const style = readStyle();
+    const dungeonPolygonLayers = style.layers.filter(
+      (layer) => 'source' in layer && layer.source === 'kw-dungeons',
+    );
+    expect(dungeonPolygonLayers.length).toBeGreaterThan(0); // sanity: the source is actually used
+    for (const layer of dungeonPolygonLayers) {
+      expect(
+        layer.type,
+        `layer "${layer.id}" reads kw-dungeons but is type "${layer.type}" (must be fill/line, never symbol)`,
+      ).not.toBe('symbol');
+    }
+  });
+
+  it('every dungeon symbol layer (name/count/sponsored/crack) reads kw-dungeon-labels instead', () => {
+    const style = readStyle();
+    const DUNGEON_SYMBOL_LAYER_IDS = [
+      'kw-rift-crack',
+      'kw-rift-name',
+      'kw-rift-count',
+      'kw-rift-sponsored',
+    ];
+    const symbolLayers = style.layers.filter((layer) =>
+      DUNGEON_SYMBOL_LAYER_IDS.includes(layer.id),
+    );
+    expect(symbolLayers).toHaveLength(DUNGEON_SYMBOL_LAYER_IDS.length); // all 4 present
+    for (const layer of symbolLayers) {
+      expect(layer.type).toBe('symbol');
+      expect(
+        'source' in layer ? layer.source : undefined,
+        `layer "${layer.id}" must read kw-dungeon-labels, not kw-dungeons`,
+      ).toBe('kw-dungeon-labels');
+    }
+  });
+});

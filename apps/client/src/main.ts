@@ -23,6 +23,8 @@ import { createF04App } from './f04-app';
 import { createGameClock } from './clock/game-clock';
 import { resolveReplayStartMs } from './clock/query-params';
 import { balanceOpeningHoursConfig } from './config/balance';
+import { createAssetRuntime } from './assets/runtime';
+import { injectFontFaces } from './assets/fonts';
 
 /** The four functions `loadMapModules` hands back, typed purely from `import type` (never a value
  * import — `@typescript-eslint/consistent-type-imports` forbids `import()` type annotations, and a
@@ -186,6 +188,20 @@ async function initLocation(
   // one delayed a slow device's `load` event past its test timeout (observed on the
   // `android-chrome` Playwright device profile). `onSample` below no-ops until this is ready.
   let f04App: ReturnType<typeof createF04App> | undefined;
+  // Asset manifest (docs/tech/asset-delivery.md 6.1): fetched once per session, before the first
+  // icon/font it gates — `load()` is fire-and-forget (never blocks boot; a slow/failed fetch just
+  // leaves every icon/font on its §6.4 fallback for this session).
+  const assetRuntime = createAssetRuntime(
+    (input, init) => fetch(input, init),
+    window.devicePixelRatio,
+    buildProfile.profile,
+  );
+  void assetRuntime.load().then(() => {
+    const manifest = assetRuntime.getManifest();
+    if (manifest !== undefined) {
+      injectFontFaces(document, manifest);
+    }
+  });
   setTimeout(() => {
     const gameClock = createGameClock(
       provider,
@@ -206,6 +222,7 @@ async function initLocation(
       isOnline: () => navigator.onLine,
       userAgent: navigator.userAgent,
       maxTouchPoints: navigator.maxTouchPoints,
+      assets: assetRuntime,
       copyToClipboard: async (text) => {
         try {
           await navigator.clipboard.writeText(text);

@@ -1,20 +1,18 @@
 /**
  * Pure view model for the check-in status row (F04 flow section 4, GD B-03, components.md 13.3):
- * turns a `CheckInPreview` (`session/checkin-preview.ts`) into the one copy key + icon this frame
- * shows. No DOM here — `ui/dungeon-confirm.ts` renders it; this file is unit-testable on its own.
- *
- * Countdown gap (see this task's REPORT): `product/telemetry-events.md`/`session`'s
- * `checkin_rejected` event carries no `readyIn_s` yet, so the live mm:ss countdown of
- * `dungeon.checkinNotEnoughTrace`'s `{countdown}` cannot be filled in from the public `session`
- * contract today — shown without a countdown until that field is added (handoff: backend-programmer).
+ * turns a `CheckInPreview` (`selectCheckInPreview`, `@keep-walking/shared/session`) into the one
+ * copy key + optional mm:ss countdown this frame shows. No DOM here — `ui/dungeon-confirm.ts`
+ * renders it; this file is unit-testable on its own.
  */
-import type { CheckInRejectReason } from '@keep-walking/shared/session';
-import type { CheckInPreview } from '../session/checkin-preview';
+import type { CheckInPreview, CheckInRejectReason } from '@keep-walking/shared/session';
 
 export interface CheckInStatusView {
   readonly copyKey: string;
-  /** `true` only for `not_enough_trace` — the caller fills `{countdown}` when it has a value. */
-  readonly hasCountdown: boolean;
+  /** mm:ss, `{countdown}` for `dungeon.checkinNotEnoughTrace` (copy.th.json `_variables.countdown`)
+   * — only set for `not_enough_trace` with a known `readyIn_s` (P2-F06-T06 in progress may still
+   * send `null`, same "no countdown" fallback as before this task, honestly labelled by omission
+   * rather than a guessed number). */
+  readonly countdownText: string | undefined;
 }
 
 const REASON_COPY_KEY: Readonly<Record<CheckInRejectReason, string>> = {
@@ -25,7 +23,25 @@ const REASON_COPY_KEY: Readonly<Record<CheckInRejectReason, string>> = {
   dungeon_closed: 'dungeon.closedTitle',
   run_active: 'dungeon.alreadyActive',
   unsupported_mode: 'dungeon.closedEmergencyBody',
+  // F06 6.3 (P2-F06-T06, D-114): fail-closed reasons that should not occur on the normal path (the
+  // class sheet runs before the map, HP recovery starts the instant it hits 0). No copy key exists
+  // for either yet (handoff: narrative-designer) — `getCopyText`'s own "unknown key -> show the key
+  // itself" fallback (TL-N06) keeps this honest rather than inventing Thai text (CLAUDE.md).
+  no_class: 'dungeon.checkinNoClass',
+  no_hp: 'dungeon.checkinNoHp',
 };
+
+const SECONDS_PER_MINUTE = 60;
+
+/** mm:ss, clamped at `00:00` rather than negative (T27 N-03: the engine may still not have granted
+ * check-in even once the countdown reaches zero — never implies the button opens on its own). */
+export function formatCountdown(readyIn_s: number): string {
+  const clamped_s = Math.max(0, Math.round(readyIn_s));
+  const minutes = Math.floor(clamped_s / SECONDS_PER_MINUTE);
+  const seconds = clamped_s % SECONDS_PER_MINUTE;
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  return `${pad(minutes)}:${pad(seconds)}`;
+}
 
 /** F04 flow B5 / B-07: `no_approach_from_outside` shown as "out of range" instead, only when the
  * client's own geo check confirms the latest sample is outside the selected polygon right now
@@ -34,14 +50,15 @@ export function checkInStatusView(
   preview: CheckInPreview,
   isOutOfRangeNow: boolean,
 ): CheckInStatusView {
-  if (preview.ready) {
+  if (preview.ok) {
     throw new Error('checkInStatusView: no status row when check-in preview is ready');
   }
   if (preview.reason === 'no_approach_from_outside' && isOutOfRangeNow) {
-    return { copyKey: 'dungeon.outOfRangeTitle', hasCountdown: false };
+    return { copyKey: 'dungeon.outOfRangeTitle', countdownText: undefined };
   }
-  return {
-    copyKey: REASON_COPY_KEY[preview.reason],
-    hasCountdown: preview.reason === 'not_enough_trace',
-  };
+  const countdownText =
+    preview.reason === 'not_enough_trace' && preview.readyIn_s !== null
+      ? formatCountdown(preview.readyIn_s)
+      : undefined;
+  return { copyKey: REASON_COPY_KEY[preview.reason], countdownText };
 }

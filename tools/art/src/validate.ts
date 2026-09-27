@@ -1,17 +1,19 @@
 // Validator V1–V13 (art/direction/asset-pipeline.md section 8). Runs inside `pnpm test`
-// (tools/art/test/repo.test.ts) and from the CLI. Checks art/assets/manifest.json (artist) and
-// art/assets/manifest.build.json (tools/art output) plus the vendored fonts in art/fonts.
+// (tools/art/test/repo.test.ts) and from the CLI. Checks the artist manifest (art/assets/manifest.json
+// plus its per-root parts art/assets/manifest.<root>.json, manifest-set.ts), art/assets/manifest.build.json
+// (tools/art output) and the vendored fonts in art/fonts.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildEntry, currentPlatform, sha256 } from './build';
 import { loadPalette, readJson, type Palette, type PipelineConfig } from './config';
 import { SchemaValidator } from './json-schema';
 import type { BuildManifest, Manifest, ManifestEntry, ManifestFile } from './manifest';
+import { allPartPaths, loadManifestSet, type ManifestPart } from './manifest-set';
 import { defaultPath, isShipped, masterOf, parseId, repoPath, sheetPath } from './manifest';
 import { decodePng, type DecodedPng } from './png';
 import { allHex, attributes, elements, readRoot, styleBlocks, hexIn } from './svg';
 import { checkFonts, type FontsManifest } from './fonts';
-import { RUNTIME_MANIFEST, runtimeManifest } from './stage';
+import { RUNTIME_MANIFEST, runtimeJson, runtimeManifest } from './stage';
 
 export type Rule = 'V1' | 'V2' | 'V3' | 'V4' | 'V5' | 'V6' | 'V7' | 'V8' | 'V9' | 'V10' | 'V11' | 'V12' | 'V13';
 
@@ -26,7 +28,10 @@ export interface Finding {
 export interface ValidateInput {
   root: string;
   cfg: PipelineConfig;
+  /** Merged view of the index and every part, sorted by id (what every rule reads). */
   manifest: Manifest;
+  /** The files the merged manifest came from (index first). Absent = one file, the index. */
+  parts?: ManifestPart[];
   build: BuildManifest;
   fonts: FontsManifest;
   schema: Record<string, unknown>;
@@ -37,7 +42,7 @@ export interface ValidateInput {
 export interface ValidateResult {
   errors: Finding[];
   warnings: Finding[];
-  stats: { assets: number; files: number; buildFiles: number; fonts: number; firstScreenBytes: number };
+  stats: { assets: number; manifestFiles: number; files: number; buildFiles: number; fonts: number; firstScreenBytes: number };
 }
 
 const RGB = 3;
@@ -52,10 +57,12 @@ const SHEET_KINDS = new Set(['avatar-layer', 'vfx']);
 const NOT_READY = new Set(['prompt-only', 'placeholder']);
 
 export function loadInput(root: string, cfg: PipelineConfig): ValidateInput {
+  const set = loadManifestSet(root, cfg);
   return {
     root,
     cfg,
-    manifest: readJson<Manifest>(root, cfg.paths.manifest),
+    manifest: set.merged,
+    parts: set.parts,
     build: readJson<BuildManifest>(root, cfg.paths.buildManifest),
     fonts: readJson<FontsManifest>(root, cfg.paths.fontsManifest),
     schema: readJson<Record<string, unknown>>(root, cfg.paths.schema),
@@ -78,6 +85,15 @@ function sortedById(ids: string[]): boolean {
   return ids.every((id, i) => i === 0 || (ids[i - 1] ?? '') < id);
 }
 
+function partsOf(input: ValidateInput): ManifestPart[] {
+  return input.parts ?? [{ file: input.cfg.paths.manifest, root: null, manifest: input.manifest }];
+}
+
+/** The manifest file that declares `id` (findings name the file an artist has to edit). */
+function fileOf(input: ValidateInput, id: string): string {
+  return partsOf(input).find((p) => p.manifest.assets.some((a) => a.id === id))?.file ?? input.cfg.paths.manifest;
+}
+
 function duplicates(ids: string[]): string[] {
   return ids.filter((id, i) => ids.indexOf(id) !== i);
 }
@@ -85,15 +101,25 @@ function duplicates(ids: string[]): string[] {
 function checkV1(input: ValidateInput, r: Report): void {
   const { cfg, manifest, build } = input;
   const validator = new SchemaValidator(input.schema as ConstructorParameters<typeof SchemaValidator>[0]);
-  for (const e of validator.validate(manifest)) r.add('V1', cfg.paths.manifest, null, `schema ${e.path}: ${e.message}`);
+  const parts = partsOf(input);
+  for (const part of parts) {
+    for (const e of validator.validate(part.manifest)) r.add('V1', part.file, null, `schema ${e.path}: ${e.message}`);
+    for (const a of part.manifest.assets) {
+      if (part.root !== null && parseId(a.id).root !== part.root) r.add('V1', part.file, a.id, `id root is not ${part.root}`);
+    }
+  }
   for (const e of validator.validateRef(build, '#/$defs/buildManifest')) {
     r.add('V1', cfg.paths.buildManifest, null, `schema ${e.path}: ${e.message}`);
   }
+  const allIds = manifest.assets.map((a) => a.id);
+  for (const dup of new Set(duplicates(allIds))) {
+    const where = parts.filter((p) => p.manifest.assets.some((a) => a.id === dup)).map((p) => p.file);
+    r.add('V1', where.join(' + '), dup, 'duplicate id');
+  }
   for (const [file, ids] of [
-    [cfg.paths.manifest, manifest.assets.map((a) => a.id)],
-    [cfg.paths.buildManifest, build.assets.map((a) => a.id)],
-  ] as const) {
-    for (const dup of new Set(duplicates(ids))) r.add('V1', file, dup, 'duplicate id');
+    ...parts.map((p) => [p.file, p.manifest.assets.map((a) => a.id)] as const),
+    [cfg.paths.buildManifest, build.assets.map((a) => a.id)] as const,
+  ]) {
     if (!sortedById(ids)) r.add('V1', file, null, 'assets must be sorted by id');
   }
   const known = new Set(manifest.assets.map((a) => a.id));
@@ -115,7 +141,7 @@ function checkV2(input: ValidateInput, r: Report): void {
   for (const entry of manifest.assets) {
     const { root } = parseId(entry.id);
     for (const f of entry.files) {
-      const where = `${cfg.paths.manifest} ${f.path}`;
+      const where = `${fileOf(input, entry.id)} ${f.path}`;
       if (cfg.pathExceptionRoots.includes(root)) {
         const dir = exceptionDirs[root] ?? 'art/';
         if (!f.path.startsWith(dir)) r.add('V2', where, entry.id, `${root}.* files must live under ${dir}`);
@@ -412,13 +438,13 @@ function checkV8(input: ValidateInput, files: Files, palette: Palette, r: Report
 function checkV9(input: ValidateInput, r: Report): void {
   for (const e of input.manifest.assets) {
     if (e.placeholder !== NOT_READY.has(e.status)) {
-      r.add('V9', input.cfg.paths.manifest, e.id, `placeholder=${e.placeholder} does not fit status ${e.status}`);
+      r.add('V9', fileOf(input, e.id), e.id, `placeholder=${e.placeholder} does not fit status ${e.status}`);
     }
     if (e.status === 'approved' && e.review?.verdict !== 'PASS') {
-      r.add('V9', input.cfg.paths.manifest, e.id, 'approved needs review.verdict PASS');
+      r.add('V9', fileOf(input, e.id), e.id, 'approved needs review.verdict PASS');
     }
     if (e.status === 'deprecated' && e.replacedBy === undefined) {
-      r.add('V9', input.cfg.paths.manifest, e.id, 'deprecated needs replacedBy');
+      r.add('V9', fileOf(input, e.id), e.id, 'deprecated needs replacedBy');
     }
   }
 }
@@ -426,7 +452,7 @@ function checkV9(input: ValidateInput, r: Report): void {
 function checkV10(input: ValidateInput, r: Report): void {
   const { cfg, root } = input;
   for (const e of input.manifest.assets) {
-    const where = cfg.paths.manifest;
+    const where = fileOf(input, e.id);
     if (!cfg.spdxAllowed.includes(e.license.spdx)) r.add('V10', where, e.id, `license ${e.license.spdx} is not allowed (9.1)`);
     if (e.kind === 'font' && (e.license.file === null || !existsSync(join(root, e.license.file)))) {
       r.add('V10', where, e.id, 'font needs license.file that exists');
@@ -440,6 +466,7 @@ function checkV10(input: ValidateInput, r: Report): void {
 function checkV11(input: ValidateInput, r: Report): void {
   const { cfg, root, manifest } = input;
   const referenced = new Set(allFiles(input).map((l) => l.rel));
+  for (const part of allPartPaths(cfg)) referenced.add(part);
   for (const e of manifest.assets) if (e.source.master !== null) referenced.add(e.source.master);
   for (const rel of walk(root, cfg.paths.assetsDir)) {
     const name = rel.split('/').pop() ?? '';
@@ -514,15 +541,28 @@ function checkV13(input: ValidateInput, r: Report): number {
     for (const f of e.files) if (f.scale === 2) largest.set(layer, Math.max(largest.get(layer) ?? 0, f.bytes));
   }
   const avatar = b.avatarLayersInTotal.reduce((s, l) => s + (largest.get(l) ?? 0), 0);
-  const runtimeBytes = Buffer.byteLength(JSON.stringify(runtimeManifest(root, cfg, manifest, build, fonts).manifest));
+  // Main manifest + every lazy part: all load on the first screen (the avatar part right after
+  // the map, asset-pipeline 7.2), so the first-screen total counts them all; the 30 KB budget
+  // applies per file (P2-X24, asset-delivery 5.1).
+  const staged = runtimeManifest(root, cfg, manifest, build, fonts);
+  const runtimeFiles = [
+    { file: RUNTIME_MANIFEST, bytes: Buffer.byteLength(runtimeJson(staged.manifest)) },
+    ...staged.parts.map((p) => ({ file: p.path, bytes: Buffer.byteLength(p.json) })),
+  ];
+  const runtimeBytes = runtimeFiles.reduce((s, f) => s + f.bytes, 0);
   const total = uiFonts + glyphs + avatar + runtimeBytes;
   const where = 'first screen';
   if (total > b.firstScreenBytes) r.add('V13', where, null, `${total} B over ${b.firstScreenBytes} B (7.2)`, 'warn');
   if (glyphs > b.firstScreenUiGlyphBytes) r.add('V13', where, null, `all UI glyphs ${glyphs} B over ${b.firstScreenUiGlyphBytes} B`, 'warn');
-  if (runtimeBytes > b.runtimeManifestBytes) r.add('V13', RUNTIME_MANIFEST, null, `${runtimeBytes} B over ${b.runtimeManifestBytes} B`, 'warn');
-  const manifestBytes = statSync(join(root, cfg.paths.manifest)).size;
-  if (manifestBytes > b.manifestBytes) {
-    r.add('V13', cfg.paths.manifest, null, `${manifestBytes} B over ${b.manifestBytes} B: split per root (7.2)`, 'warn');
+  for (const f of runtimeFiles) {
+    if (f.bytes > b.runtimeManifestBytes) r.add('V13', f.file, null, `${f.bytes} B over ${b.runtimeManifestBytes} B`, 'warn');
+  }
+  // Per file (P2-X22): the index and every part each stay within the budget (asset-delivery 10.1).
+  for (const part of partsOf(input)) {
+    const manifestBytes = statSync(join(root, part.file)).size;
+    if (manifestBytes <= b.manifestBytes) continue;
+    const hint = part.root === null ? 'move entries to art/assets/manifest.<root>.json (tools/art split-manifest)' : 'split this root by group (tech-lead)';
+    r.add('V13', part.file, null, `${manifestBytes} B over ${b.manifestBytes} B: ${hint}`, 'warn');
   }
   return total;
 }
@@ -551,6 +591,7 @@ export function validate(input: ValidateInput): ValidateResult {
     warnings: r.warnings,
     stats: {
       assets: input.manifest.assets.length,
+      manifestFiles: partsOf(input).length,
       files: located.filter((l) => l.from === 'manifest').length,
       buildFiles: located.filter((l) => l.from === 'build').length,
       fonts: input.fonts.fonts.length,

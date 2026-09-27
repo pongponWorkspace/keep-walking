@@ -31,7 +31,17 @@ def test_template_fields_match_build_html():
     fields = {f for _, f, _, _ in string.Formatter().parse(H.html_template()) if f}
     assert fields == {"vb_w", "vb_h", "img_w", "img_h", "pop_png", "zone_png", "red_png",
                       "districts", "candidates", "table", "ticks", "block_m", "data_date",
-                      "totals", "method"}
+                      "totals", "method", "green_max_m", "red_min_km", "district_count"}
+
+
+def test_legend_numbers_come_from_config():
+    """P1-X29: the legend has no literal 800 m / 3 km / 79; config drives them."""
+    tpl = H.html_template()
+    assert "800" not in tpl and "3 กม." not in tpl and "79 เขต" not in tpl
+    assert H.legend_fields({"greenMax": 800, "yellowMax": 3000}, 79) == {
+        "green_max_m": "800", "red_min_km": "3", "district_count": "79"}
+    assert H.legend_fields({"greenMax": 1200, "yellowMax": 2500}, 12) == {
+        "green_max_m": "1,200", "red_min_km": "2.5", "district_count": "12"}
 
 
 def test_summary_lines_format():

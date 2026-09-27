@@ -1,0 +1,49 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-09-27",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "map.icon.rift-crack",
+      "kind": "map-icon",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 48,
+        "height": 72
+      },
+      "files": [
+        {
+          "path": "art/direction/map-style/icons/rift-crack.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 1304,
+          "width": 48,
+          "height": 72,
+          "sha256": "7561f82df86829b6f8eacb2350ae263156eaeaffe0b1356b8613dbf42a6582c2"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "art-director",
+        "task": "P2-F05-T03",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-26"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "ลงทะเบียนตาม P2-assets.md 3.10: artist-2d ไม่แก้ไฟล์นี้ (art-director เป็นเจ้าของ, แก้ miter แล้ว) · path เป็นข้อยกเว้น asset-pipeline 3.2 (root map ไม่อยู่ใต้ art/assets)"
+    }
+  ]
+}

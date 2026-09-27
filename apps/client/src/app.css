@@ -178,3 +178,36 @@ body {
   margin-top: 4px;
   font-size: 12px;
 }
+
+/* Run-summary loot row icon (P2-X21, components.md 13.7): two stacked <img>s, no visual design
+   here yet either (see file header) — just enough positioning for the rarity frame and the item
+   glyph to sit on top of each other at a readable size. Either image may be `hidden` (asset
+   manifest miss, asset-pipeline 10 "never a broken image"): the row still reads via its text. */
+.item-icon-frame {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin-inline-end: 8px;
+  vertical-align: middle;
+}
+
+.item-icon-frame-bg,
+.item-icon-glyph {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.item-icon-glyph {
+  width: 70%;
+  height: 70%;
+  margin: auto;
+}
+
+.run-summary-reward-row {
+  display: flex;
+  align-items: center;
+}

@@ -24,7 +24,7 @@ class ProvinceArea:
 
 
 def province_name(tags: dict[str, str], bp: dict[str, Any]) -> str | None:
-    """First present name tag, with configured prefixes (e.g. "จังหวัด") removed."""
+    """First present name tag, with the configured prefixes (e.g. the Thai word for "province") removed."""
     name = next((tags[k] for k in bp["nameTags"] if tags.get(k)), None)
     if name is None:
         return None

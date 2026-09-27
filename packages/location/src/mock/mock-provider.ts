@@ -42,8 +42,8 @@ import type {
   Unsubscribe,
   VisibilitySource,
 } from '../types';
-import { ListenerSet } from '../web/listeners';
-import { documentVisibility, systemClock } from '../web/platform';
+import { ListenerSet } from '../internal/listeners';
+import { documentVisibility, systemClock } from '../internal/platform';
 import { InvalidTraceError } from './load-trace';
 
 export interface MockLocationProviderOptions extends MockLocationOptions {

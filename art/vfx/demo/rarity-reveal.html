@@ -8,8 +8,9 @@
   </head>
   <body>
     <h1>Drop reveal — 5 rarity tiers</h1>
+    <p class="demo-note"><a href="./index.html">&larr; all demos</a> · loads <code>art/vfx/dist/</code> (compiled from the .ts source) — Firefox opens this via file:// directly; Chromium/WebKit need a static server (see index.html for the one-line command).</p>
     <p class="demo-note">
-      Source: <code>art/vfx/rarity-reveal/rarity-reveal.js</code> · spec:
+      Source: <code>art/vfx/rarity-reveal/rarity-reveal.ts</code> · spec:
       <code>art/vfx/specs/rarity-reveal.md</code> · motion-direction §4/§9 · V-21 (Rare uses only
       <code>transform: scale()</code> beats, no <code>filter</code>/<code>opacity</code>). Click a
       card to play; each measures its own start→finish time via the Performance API. Toggle
@@ -68,7 +69,7 @@
 
         button.addEventListener('click', () => {
           // Fresh node per play (rarity-reveal's DOM contract: corner/shard nodes are ephemeral
-          // per-mount, matching a real toast/summary-row lifecycle — see rarity-reveal.js header).
+          // per-mount, matching a real toast/summary-row lifecycle — see rarity-reveal.ts header).
           const fresh = frame.cloneNode(false);
           frame.replaceWith(fresh);
           const target = fresh;

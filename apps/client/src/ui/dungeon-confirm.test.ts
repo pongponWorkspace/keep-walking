@@ -17,7 +17,7 @@ describe('mountDungeonConfirm — C-1 (Cancel available in every check-in state)
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ready: false, reason: 'not_enough_trace' }, false, false);
+    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false);
     expect(popup.root.querySelector('.confirm-cancel')).not.toBeNull();
     expect((popup.root.querySelector('.confirm-cancel') as HTMLElement).hidden).toBe(false);
   });
@@ -29,7 +29,7 @@ describe('mountDungeonConfirm — C-1 (Cancel available in every check-in state)
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ready: false, reason: 'no_approach_from_outside' }, true, false);
+    popup.update({ ok: false, reason: 'no_approach_from_outside', readyIn_s: null }, true, false);
     expect(popup.root.querySelector('.confirm-cancel')).not.toBeNull();
   });
 
@@ -68,7 +68,7 @@ describe('mountDungeonConfirm — D-089 (no player counts anywhere, no element, 
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ready: false, reason: 'not_enough_trace' }, false, false);
+    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false);
     expect(popup.root.querySelector('[data-count]')).toBeNull();
     expect(popup.root.querySelector('.count')).toBeNull();
     expect(popup.root.querySelector('.role-count')).toBeNull();
@@ -111,7 +111,7 @@ describe('mountDungeonConfirm — B1 basic flow', () => {
     popup.show([CANDIDATE]);
     const button = popup.root.querySelector('.btn-primary') as HTMLButtonElement;
     expect(button.disabled).toBe(true);
-    popup.update({ ready: true }, false, false);
+    popup.update({ ok: true }, false, false);
     expect(button.disabled).toBe(false);
   });
 
@@ -125,7 +125,7 @@ describe('mountDungeonConfirm — B1 basic flow', () => {
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ready: true }, false, false);
+    popup.update({ ok: true }, false, false);
     (popup.root.querySelector('.btn-primary') as HTMLButtonElement).click();
     expect(entered).toBe(CANDIDATE.dungeonId);
   });

@@ -298,3 +298,67 @@ cost decision").
 | CI job `lint-headers` fails | see the row above (P1-X41) -- same script, just now run automatically on every push instead of only by hand |
 | deployed client's `/kw/*` URLs 404 even though the workflow succeeded | expected until `apps/client`'s own build copies `tools/art/out/client/` into `dist/kw/` (gameplay-programmer, P2-F05-T10/P2-F06-T09) -- the `_headers` cache rules in `infra/pages/keep-walking-preview/_headers` exist and are lint-checked regardless of whether anything is deployed under those paths yet |
 
+## 10. HUMAN P2-F06-T26 -- deploy a `playtest` build and smoke it on Android + iPhone
+
+Owner: devops-engineer (P2-F05-T14) built the `profile` input this section uses; the deploy and
+smoke test itself is HUMAN task P2-F06-T26. Same `deploy-preview` workflow and same two Cloudflare
+Pages Free projects as sections 1-4 above -- `profile: playtest` only changes two build-time
+strings passed to the client build (`VITE_KW_PROFILE`, `VITE_KW_COMMIT`), nothing about hosting, no
+new secret, no billable service (D-085).
+
+### 10.1 Before you start -- gates
+
+Do not run this section until ALL of these are true (board `studio/phases/phase-2/board.md`, "กฎ
+งานที่ขึ้นกับผลเดินทดสอบ"): P2-F05-T16 (QA gate F04+F05) PASS, P2-F06-T21 (QA gate F06) PASS,
+P2-C05 (field-test go/no-go) = **Go**, P2-F06-T12 (Wake Lock/pocket-screen device matrix) done. If
+P2-C05 is **No-go**, stop -- do not deploy a playtest build on a stack that has not gone through the
+field-test gate, and tell the orchestrator instead of running this section.
+
+### 10.2 Deploy
+
+1. `git status` at `/Users/pongpon/Game`, confirm nothing untracked/secret, `git push` if needed --
+   same as section 3 step 1, the workflow always builds the commit that is on GitHub.
+2. Repo -> **Actions** tab -> workflow **"deploy-preview"** -> **Run workflow**.
+   - `profile`: **playtest**.
+   - `dry_run`: **true** first. Open the run's Summary: confirm the tile result line looks the same
+     as any normal preview run, AND confirm the new line `profile input: playtest (client
+     VITE_KW_PROFILE="playtest", VITE_KW_COMMIT=<8 hex chars>)` shows a non-empty commit.
+   - `use_github_pages_fallback`: same value the last successful normal-preview run used (section 3
+     step 3 second bullet), unless the tile set changed since.
+   - Once the dry run looks right, run again with `dry_run` = **false** (same other inputs).
+3. Read the real run's Summary for the client URL (`https://keep-walking-preview.pages.dev` unless
+   `infra/config/pages.json` was changed) -- this is the SAME URL a normal `profile: preview` run
+   deploys to, there is no separate `-playtest` project. That also means: **do not re-run
+   `deploy-preview` with `profile: preview` (or any other change) while playtesters are actively
+   using the link** -- the next successful deploy to the same project replaces it immediately
+   (Cloudflare Pages Free has no separate "playtest" alias to isolate this).
+
+### 10.3 Verify version/SHA on the phone, then smoke test
+
+1. Open the client URL from step 3 above on the Android phone, then the iPhone (real device, real
+   mobile network or Wi-Fi -- not the office network's dev proxy).
+2. Look at the on-page build badge (small text on the map shell, `apps/client/src/main.ts`): it
+   must read exactly `playtest <short-sha>`, where `<short-sha>` matches the `VITE_KW_COMMIT` value
+   the Summary printed in step 10.2.2 (also matches `git log --oneline -1` of the commit you pushed
+   in step 10.2.1). If the badge is missing, shows `dev ...`, or shows a different SHA: **stop, do
+   not hand the link to playtesters** -- the deploy did not pick up the `playtest` profile or an
+   older deployment is still live; re-check the run's Summary and re-deploy.
+3. Confirm the HUD stays OFF by default on both phones (no `?hud=1` in the URL) and only opens when
+   `?hud=1` is added by hand -- this is the client-side behaviour P2-F04-T25 already implements,
+   this step is only confirming it survived the real build, not re-testing the feature logic.
+4. Confirm `?loc=mock` is NOT reachable without deliberately typing it (playtest profile still
+   allows Mock via query for the smoke test itself, per tech note F04 section 17 -- this is
+   expected and is how you drive a scripted trace on the phone if a GPS walk is not being done for
+   this particular smoke check).
+5. Walk a short real loop near a launch-area dungeon on each phone (or replay a trace with
+   `?loc=mock&trace=<id>`), confirm a tick/drop reaches the summary screen, confirm no crash on
+   backgrounding the tab, then report PASS/FAIL plus the exact URL and commit SHA to the
+   orchestrator -- that URL is what P2-F06-T27's real playtesters get.
+
+### 10.4 Rollback
+
+Same mechanism as section 6 (Cloudflare Pages keeps every previous deployment): Dashboard -> Workers
+& Pages -> `keep-walking-preview` -> Deployments -> find the last good deployment -> "..." ->
+**Rollback to this deployment**. Because `playtest` and `preview` share one project, rolling back
+also affects whichever profile was live before -- check the badge again after any rollback (step
+10.3.2) before telling playtesters the link is safe again.

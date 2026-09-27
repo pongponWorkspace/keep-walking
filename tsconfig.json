@@ -24,6 +24,9 @@
     "tools/config-lint/test/**/*.ts",
     "tools/art/src/**/*.ts",
     "tools/art/test/**/*.ts",
+    // audio/src (sound-designer): the generator the tools/art prebuild runs (asset-delivery.md 8).
+    // Node-only, no package.json, no own tsconfig (P2-X22).
+    "audio/src/**/*.ts",
     "qa/tests/**/*.ts"
   ],
   "exclude": ["**/node_modules", "**/dist"]

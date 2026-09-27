@@ -2,9 +2,804 @@
   "buildManifestVersion": 1,
   "source": "art/assets/manifest.json",
   "tool": {
-    "rasterizer": { "name": "@resvg/resvg-js", "version": "2.6.2" },
-    "quantizer": { "name": "tools/art median-cut", "version": "1" }
+    "rasterizer": {
+      "name": "@resvg/resvg-js",
+      "version": "2.6.2"
+    },
+    "quantizer": {
+      "name": "tools/art median-cut",
+      "version": "1"
+    }
   },
-  "platform": null,
-  "assets": []
+  "platform": "darwin-arm64",
+  "assets": [
+    {
+      "id": "avatar.accessory-charm.keychain",
+      "master": "art/assets/avatar/accessory-charm/keychain.svg",
+      "masterSha256": "2d19b901daff23348d3897619b34e04c0da2a7b562611c709796d75693f1fe84",
+      "files": [
+        {
+          "path": "avatar/accessory-charm/keychain@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": null,
+          "bytes": 637,
+          "width": 384,
+          "height": 160,
+          "sha256": "71aca99d3c27358c159e36a665171f0f6866f23012bef193106708dc5aa41cde",
+          "colors": 46
+        },
+        {
+          "path": "avatar/accessory-charm/keychain@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": null,
+          "bytes": 1216,
+          "width": 768,
+          "height": 320,
+          "sha256": "97a8bde3c0246753346da47f4e55bec58efc378fa854a23213b235ac70108a26",
+          "colors": 72
+        }
+      ]
+    },
+    {
+      "id": "avatar.accessory-face.round-glasses",
+      "master": "art/assets/avatar/accessory-face/round-glasses.svg",
+      "masterSha256": "0963d1f44fd10352471bbd2adc7b6014472401bd95b508d226ea045b456b1021",
+      "files": [
+        {
+          "path": "avatar/accessory-face/round-glasses@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": null,
+          "bytes": 579,
+          "width": 384,
+          "height": 160,
+          "sha256": "eadc6cda480c8cccd46eabcb802c0a75f26ab910675f18a947134db40491da55",
+          "colors": 34
+        },
+        {
+          "path": "avatar/accessory-face/round-glasses@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": null,
+          "bytes": 1080,
+          "width": 768,
+          "height": 320,
+          "sha256": "e2f141942b9848b03ad04bd2f9c9bb973a8763a70d5efb48888ab11f5ee8bc1c",
+          "colors": 36
+        }
+      ]
+    },
+    {
+      "id": "avatar.accessory-head.sun-hat",
+      "master": "art/assets/avatar/accessory-head/sun-hat.svg",
+      "masterSha256": "f6b8f203fdd89d1b40b322a893a74404b65bb28155dc198c1a6bdaa3226e6925",
+      "files": [
+        {
+          "path": "avatar/accessory-head/sun-hat@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": null,
+          "bytes": 1510,
+          "width": 384,
+          "height": 160,
+          "sha256": "c1e5275e0a6dc91a6574ed6d5c6518154a55f75efac7784da1cd118eccc3000c",
+          "colors": 128
+        },
+        {
+          "path": "avatar/accessory-head/sun-hat@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": null,
+          "bytes": 2830,
+          "width": 768,
+          "height": 320,
+          "sha256": "55d82e77c071af98f7b387f9c0cd07a6cb5554a2b9ca03d0dd45fb7bb0470f32",
+          "colors": 128
+        }
+      ]
+    },
+    {
+      "id": "avatar.body.base",
+      "master": "art/src/avatar/body/base.svg",
+      "masterSha256": "d3a72e44b6e1f0e5e6fc027db2322ed69d20840169448b6ab0d190c36d0dc870",
+      "files": [
+        {
+          "path": "avatar/body/base-skin-1@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-1",
+          "bytes": 4122,
+          "width": 384,
+          "height": 480,
+          "sha256": "611c882124f488dfa9d64fd3681cdc171baed3b80c11286b04fe75e773e5bc0e",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-1@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-1",
+          "bytes": 8737,
+          "width": 768,
+          "height": 960,
+          "sha256": "26a90ab173074e570847ecc332af9ae1ac8ca811f738375fff3b1cd166160584",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-2@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-2",
+          "bytes": 4126,
+          "width": 384,
+          "height": 480,
+          "sha256": "70e988024c660c35c59353743854fd992cd3794df27d80147b6d2fda06fedab8",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-2@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-2",
+          "bytes": 8792,
+          "width": 768,
+          "height": 960,
+          "sha256": "9d2d949d357232af72ec9fcf0837c6e520c37bf0709d7aa524e12783b2f59a53",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-3@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-3",
+          "bytes": 4112,
+          "width": 384,
+          "height": 480,
+          "sha256": "3013f9c45088c9fbcf3aeadaf243f19e9fba053a64d736e9989902273f184aa9",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-3@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-3",
+          "bytes": 8780,
+          "width": 768,
+          "height": 960,
+          "sha256": "9d3befba56280facf9c010f56977ad7969da42e79695ddfc101a5d564ec22355",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-4@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-4",
+          "bytes": 4129,
+          "width": 384,
+          "height": 480,
+          "sha256": "2ff523b2c6fe01727760967b298c04ae8970f8febc060bd93ecc9d28809750e7",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-4@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-4",
+          "bytes": 8737,
+          "width": 768,
+          "height": 960,
+          "sha256": "24826c2eb0596a7d3e5c468c70ea001824f0b7818988a004351187ad1b5b0940",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-5@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-5",
+          "bytes": 4103,
+          "width": 384,
+          "height": 480,
+          "sha256": "977b91a12bff006e670b1377b1b462f13bb4f8acdc5dbcb03e87c70ec1cadb44",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-5@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-5",
+          "bytes": 8725,
+          "width": 768,
+          "height": 960,
+          "sha256": "70a9f603a4b79b6ee3c00ce9e7ebf05947c1d0db62ec8b8eb97071c60e8c1bc3",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-6@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-6",
+          "bytes": 4118,
+          "width": 384,
+          "height": 480,
+          "sha256": "4bf513d7d099221a8c40dd8d3687042156d4dc526a9adbc8cfd2c5ce570a0c6e",
+          "colors": 128
+        },
+        {
+          "path": "avatar/body/base-skin-6@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-6",
+          "bytes": 8692,
+          "width": 768,
+          "height": 960,
+          "sha256": "b2973777d33857f807f127f0efa48e036c4fa4fdc80af07748f2e7369d968add",
+          "colors": 128
+        }
+      ]
+    },
+    {
+      "id": "avatar.face.base",
+      "master": "art/assets/avatar/face/base.svg",
+      "masterSha256": "ec7e4e9fdab5b235a9770036a1eb07641a02e096aa219f1698c3f24b4e924c42",
+      "files": [
+        {
+          "path": "avatar/face/base@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": null,
+          "bytes": 1270,
+          "width": 384,
+          "height": 800,
+          "sha256": "283a45c0945146dfdf2ad17dd81b7fea675cc44e521150d1759596a93550ffc8",
+          "colors": 45
+        },
+        {
+          "path": "avatar/face/base@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": null,
+          "bytes": 2914,
+          "width": 768,
+          "height": 1600,
+          "sha256": "af84e37dc3247512f076f6a14fd312a64adff6f203ec75ee351d88b0f59d45e2",
+          "colors": 44
+        }
+      ]
+    },
+    {
+      "id": "avatar.hair.buzz",
+      "master": "art/src/avatar/hair/buzz.svg",
+      "masterSha256": "cba752a90fe31e498f72ace109f419457f7f30ca8bec3ca50ccb26d8ce9457cb",
+      "files": [
+        {
+          "path": "avatar/hair/buzz-hair-1@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-1",
+          "bytes": 948,
+          "width": 384,
+          "height": 320,
+          "sha256": "aeb3a8b8a721cc92b47aaf5e678e13afd479b64d0775b7e23453220002f7e82e",
+          "colors": 83
+        },
+        {
+          "path": "avatar/hair/buzz-hair-1@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-1",
+          "bytes": 1882,
+          "width": 768,
+          "height": 640,
+          "sha256": "16a91d77056bcefabdfb1785f1eeed847d9eae991740d4c2ef0ade5d438fa50c",
+          "colors": 101
+        },
+        {
+          "path": "avatar/hair/buzz-hair-2@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-2",
+          "bytes": 945,
+          "width": 384,
+          "height": 320,
+          "sha256": "dc6fc2d41f749bd86ecd529c09586cc16195e57bffe8b488c0e18ba56883b0e0",
+          "colors": 82
+        },
+        {
+          "path": "avatar/hair/buzz-hair-2@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-2",
+          "bytes": 1890,
+          "width": 768,
+          "height": 640,
+          "sha256": "b407611cdc262cdb092c76344cda2e28e203d0571f306064cdb9112afd889806",
+          "colors": 103
+        },
+        {
+          "path": "avatar/hair/buzz-hair-3@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-3",
+          "bytes": 951,
+          "width": 384,
+          "height": 320,
+          "sha256": "12829f37dbe56fa381baeb00fc1ebc32d9d77bf2bb06008f56f504a18ffe9801",
+          "colors": 84
+        },
+        {
+          "path": "avatar/hair/buzz-hair-3@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-3",
+          "bytes": 1890,
+          "width": 768,
+          "height": 640,
+          "sha256": "6bfd926ce75319bae7e2536a36a3ebb2da515d13a42ff1e001f6048c365d081b",
+          "colors": 105
+        },
+        {
+          "path": "avatar/hair/buzz-hair-4@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-4",
+          "bytes": 940,
+          "width": 384,
+          "height": 320,
+          "sha256": "cf83724ffdf361e293c961dd84b563f959079b86f5334e0c9f6c0dae644fbd9f",
+          "colors": 82
+        },
+        {
+          "path": "avatar/hair/buzz-hair-4@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-4",
+          "bytes": 1895,
+          "width": 768,
+          "height": 640,
+          "sha256": "3a1befe53636d77702acd53040a160f4b97e478af54863cb14b3180eb66be3f3",
+          "colors": 104
+        },
+        {
+          "path": "avatar/hair/buzz-hair-5@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-5",
+          "bytes": 951,
+          "width": 384,
+          "height": 320,
+          "sha256": "aa9e9f011018e2fcf9a0dc2491c13c5cd436cd16a1e2f17c66620f297bcf9bb9",
+          "colors": 84
+        },
+        {
+          "path": "avatar/hair/buzz-hair-5@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-5",
+          "bytes": 1902,
+          "width": 768,
+          "height": 640,
+          "sha256": "cdda34571ccc27af754684c3595fcbb9e78099dc274858fd36e24d3061f8db3b",
+          "colors": 106
+        },
+        {
+          "path": "avatar/hair/buzz-hair-6@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-6",
+          "bytes": 949,
+          "width": 384,
+          "height": 320,
+          "sha256": "09f96880ce2f33d9842885ca2e4ecf2c35dd78a7076e00acfbfa361e03ca2fa5",
+          "colors": 83
+        },
+        {
+          "path": "avatar/hair/buzz-hair-6@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-6",
+          "bytes": 1890,
+          "width": 768,
+          "height": 640,
+          "sha256": "26e547b126d34ef71eebded910618b6de22926c154810b2b5da35e860ad93566",
+          "colors": 103
+        }
+      ]
+    },
+    {
+      "id": "avatar.hair.long-straight",
+      "master": "art/src/avatar/hair/long-straight.svg",
+      "masterSha256": "eb32b699ae964808908de564fc850bc982fbb176643ce0387b178bafaeea28b3",
+      "files": [
+        {
+          "path": "avatar/hair/long-straight-hair-1@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-1",
+          "bytes": 2201,
+          "width": 384,
+          "height": 320,
+          "sha256": "f6033094cc9b0c1efa65ea5205d4e19ef9b29daa5c0f5fdc227df0a98583b89e",
+          "colors": 126
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-1@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-1",
+          "bytes": 4641,
+          "width": 768,
+          "height": 640,
+          "sha256": "04a950e5b6f4d036b90123c3b155b57984a45aa3808415770c054ffb9ad0302d",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-2@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-2",
+          "bytes": 2212,
+          "width": 384,
+          "height": 320,
+          "sha256": "617951484bb19fb5a2be5af8490e5b3782d5c6143c7fbcdf709792bd919b1c21",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-2@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-2",
+          "bytes": 4642,
+          "width": 768,
+          "height": 640,
+          "sha256": "26384b372a1286bc1a102031a5dd7b15925e3eb4744cef471da8ed297605d8e0",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-3@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-3",
+          "bytes": 2187,
+          "width": 384,
+          "height": 320,
+          "sha256": "c1bde0c06705569494264788bcef54c6477e4de09e57efc6aa551b81113ed86c",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-3@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-3",
+          "bytes": 4633,
+          "width": 768,
+          "height": 640,
+          "sha256": "11e1d0e92cc1727d12252955c2e2ad659793709466944f628fb1dbd5d2b5f6f3",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-4@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-4",
+          "bytes": 2214,
+          "width": 384,
+          "height": 320,
+          "sha256": "52dae64a67203d31f0ef7f17cb067309c6ca066fabda49488de13b15271a62cd",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-4@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-4",
+          "bytes": 4661,
+          "width": 768,
+          "height": 640,
+          "sha256": "f76477f574d66a9d2d705a14a95a05e297f79336007fe57113d4869d440ff9f5",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-5@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-5",
+          "bytes": 2213,
+          "width": 384,
+          "height": 320,
+          "sha256": "7d627237929d2c06588d20df4571fdddf8133cf6eeb7f9d4fb665bf0ba51a49d",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-5@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-5",
+          "bytes": 4661,
+          "width": 768,
+          "height": 640,
+          "sha256": "71d6584509c5c2508f855e383785608801858e88f0a2aab08e825db3a7dd106d",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-6@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "hair-6",
+          "bytes": 2189,
+          "width": 384,
+          "height": 320,
+          "sha256": "e85dba2d865be1df7cc3eae6ec6504c8ba77ceb10b4e9c3ab830c7adba5ef76f",
+          "colors": 128
+        },
+        {
+          "path": "avatar/hair/long-straight-hair-6@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "hair-6",
+          "bytes": 4636,
+          "width": 768,
+          "height": 640,
+          "sha256": "e4559613f5805dbe8ac04d5cc599f8f2602f6f16111c854bcba2188b2dccf2dd",
+          "colors": 128
+        }
+      ]
+    },
+    {
+      "id": "avatar.outfit-body.raincoat",
+      "master": "art/assets/avatar/outfit-body/raincoat.svg",
+      "masterSha256": "748cc00c03ddf321b0269b6fb10748c2063b3e77188b15997a9d99da6b7dd643",
+      "files": [
+        {
+          "path": "avatar/outfit-body/raincoat@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": null,
+          "bytes": 2885,
+          "width": 384,
+          "height": 480,
+          "sha256": "e157b9b16efa8de725212fa5854e7df83030b24b980e2d96c5448ef2648243f7",
+          "colors": 128
+        },
+        {
+          "path": "avatar/outfit-body/raincoat@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": null,
+          "bytes": 6002,
+          "width": 768,
+          "height": 960,
+          "sha256": "0304491e31833d9ac52b621f494c3ed5dedbdb56c11acd5ec334caad77073d15",
+          "colors": 128
+        }
+      ]
+    },
+    {
+      "id": "avatar.outfit-feet.rain-boots",
+      "master": "art/assets/avatar/outfit-feet/rain-boots.svg",
+      "masterSha256": "1e1e30f11373c023b33d7e493b6d6399537614e7a4c1e076ea99539104c54ee1",
+      "files": [
+        {
+          "path": "avatar/outfit-feet/rain-boots@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": null,
+          "bytes": 778,
+          "width": 384,
+          "height": 160,
+          "sha256": "5cab1cd26c1b8478445654190f1e5cb9c6aec6d1e9f851a19470256f499efaff",
+          "colors": 47
+        },
+        {
+          "path": "avatar/outfit-feet/rain-boots@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": null,
+          "bytes": 1669,
+          "width": 768,
+          "height": 320,
+          "sha256": "e5ff928e3557cb849ebe3951cda43731282ac2190cb14ed9dfca6524b555e01d",
+          "colors": 71
+        }
+      ]
+    },
+    {
+      "id": "avatar.pose-hand.base",
+      "master": "art/src/avatar/pose-hand/base.svg",
+      "masterSha256": "3cc49caa906611a574a72b900498ba61f7758f4a3f98ea248d21de568f592448",
+      "files": [
+        {
+          "path": "avatar/pose-hand/base-skin-1@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-1",
+          "bytes": 2190,
+          "width": 896,
+          "height": 160,
+          "sha256": "1066f58764b01329ae70b0203a3bedba7618279a0c0fe1bfaf827c1869e8a84e",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-1@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-1",
+          "bytes": 4984,
+          "width": 1792,
+          "height": 320,
+          "sha256": "bed55f2d065e0ade8662d839b9dce9fd90e690c0371bd6633981c987f7b10615",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-2@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-2",
+          "bytes": 2189,
+          "width": 896,
+          "height": 160,
+          "sha256": "d69098b11298aaff9e7bc935dea2eb32f0abf8bddebc0308dccfbc2ac77808c1",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-2@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-2",
+          "bytes": 4998,
+          "width": 1792,
+          "height": 320,
+          "sha256": "d15977d5073deb9547a322f832e4bb29c431c66da7fb0fbafb5c87ded52f0b2f",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-3@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-3",
+          "bytes": 2187,
+          "width": 896,
+          "height": 160,
+          "sha256": "e450a77e5c709d51ddc2df3b06bad835f337c61febaa888f4952cde4a7c05766",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-3@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-3",
+          "bytes": 5019,
+          "width": 1792,
+          "height": 320,
+          "sha256": "54fd7d4eb65042215abf037c5bcf0ad078836689a610b88a3cd779cea6f468f9",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-4@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-4",
+          "bytes": 2187,
+          "width": 896,
+          "height": 160,
+          "sha256": "6f7dd5a5f5a939122e72b94edce19a1650b2718fa9e19f3a3471ca45b5f1a799",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-4@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-4",
+          "bytes": 5010,
+          "width": 1792,
+          "height": 320,
+          "sha256": "197d6c181bd31ec5c2136c27fa876c76e9afebb43b656e79d63ca75098cf30fc",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-5@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-5",
+          "bytes": 2192,
+          "width": 896,
+          "height": 160,
+          "sha256": "322b63586edc09d5756a17639caf0aaedb051fa5f5256c43ce951a8389f13e13",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-5@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-5",
+          "bytes": 5008,
+          "width": 1792,
+          "height": 320,
+          "sha256": "bf6583796e8620b93e582c1d8d41ddfc089d9e087fbb7b8edfa0e681d17cc586",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-6@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": "skin-6",
+          "bytes": 2188,
+          "width": 896,
+          "height": 160,
+          "sha256": "31a01305a86a55b907d618f838cda83477670ddf1b3a838bf8086e252ac1cd98",
+          "colors": 128
+        },
+        {
+          "path": "avatar/pose-hand/base-skin-6@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": "skin-6",
+          "bytes": 4992,
+          "width": 1792,
+          "height": 320,
+          "sha256": "779c1c4226e17282c923c80d9128b83abf56dc110af830825f9476b4cfdfe08d",
+          "colors": 128
+        }
+      ]
+    },
+    {
+      "id": "avatar.pose-prop.base",
+      "master": "art/assets/avatar/pose-prop/base.svg",
+      "masterSha256": "e0e789666295412330ef4fa6ad2dee340c59c1f088001d8838ba09648d37f079",
+      "files": [
+        {
+          "path": "avatar/pose-prop/base@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": null,
+          "bytes": 1150,
+          "width": 256,
+          "height": 160,
+          "sha256": "96645a681a37f07627641fb5f3ccdb7b216b216fd527e88accab4834ef03648e",
+          "colors": 112
+        },
+        {
+          "path": "avatar/pose-prop/base@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": null,
+          "bytes": 2079,
+          "width": 512,
+          "height": 320,
+          "sha256": "9fc89d0d5943b4ac61e77ddac86c01b02975acd031fb008ec2407a18c0c17aba",
+          "colors": 128
+        }
+      ]
+    },
+    {
+      "id": "avatar.weapon.folding-umbrella",
+      "master": "art/assets/avatar/weapon/folding-umbrella.svg",
+      "masterSha256": "2450b576ed6dcc6812b2a52bb5b0109b170e8e74062622a90a3dbb3ce8fd4e85",
+      "files": [
+        {
+          "path": "avatar/weapon/folding-umbrella@1x.png",
+          "format": "png",
+          "scale": 1,
+          "variant": null,
+          "bytes": 1207,
+          "width": 384,
+          "height": 160,
+          "sha256": "360895683fab50acf3da1708cb5fc116f4bfe814ccc6ef10c7636b3f19ccb443",
+          "colors": 100
+        },
+        {
+          "path": "avatar/weapon/folding-umbrella@2x.png",
+          "format": "png",
+          "scale": 2,
+          "variant": null,
+          "bytes": 2333,
+          "width": 768,
+          "height": 320,
+          "sha256": "c2d2e5c6b1fc45b0c9a32e076a029905a1f2619e2929747d4107c886b3692813",
+          "colors": 128
+        }
+      ]
+    }
+  ]
 }

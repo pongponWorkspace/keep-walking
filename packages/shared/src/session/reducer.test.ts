@@ -110,10 +110,63 @@ function testConfig(): SessionConfig {
       roles: { magic: { base_pct: 17, cap_pct: 50 } },
       buff: { pPerMemberBase: 1, pLevelDivisor: 50 },
     },
-    hpSafety: { autoRetreatKeepsRunLoot: true },
+    hpSafety: {
+      autoRetreatKeepsRunLoot: true,
+      autoRetreatEnabledByDefault: true,
+      autoRetreatThreshold_pct: 25,
+      lowHpWarningThreshold_pct: 30,
+    },
     death: { loseAllRunLoot: true },
+    exit: { regenStartsOnExit: true },
     openingHours: { utcOffset_min: 420, closingSoonNotice_s: 600 },
-    combat: { monsterAttack: { zoneLevelFrom: 'playerLevelClampedToRange' } },
+    combat: {
+      monsterAttack: {
+        zoneLevelFrom: 'playerLevelClampedToRange',
+        monsterAtkCoef: 3,
+        monsterAtkExponent: 1.3,
+      },
+      defense: { defSoftcap: 300 },
+      attackCheck: {
+        intervalMin_s: 45,
+        intervalMax_s: 75,
+        intervalDistribution: 'uniform',
+        hitChancePerCheck_pct: 54,
+      },
+      levelGapDamage: { damageMultPerLevelBelowRange: 1.25, mode: 'compound', maxMult: null },
+      raidFailPenalty: { monsterAtkMultAfterFailedRaid: 2 },
+    },
+    classes: {
+      buffStacking: { pPerMemberBase: 1, pLevelDivisor: 50 },
+      roles: {
+        tanker: { base_pct: 16, cap_pct: 45, missingDebuffMult: 1.6 },
+        support: { base_pct: 25, cap_pct: 50, inDungeonHealBase_pctMaxHpPerMin: 0.5 },
+        magic: { base_pct: 17, cap_pct: 50, shieldPerRewardTick_pctMaxHpPerBuffPct: 0.1 },
+      },
+    },
+    economy: {
+      potions: {
+        hpSmall: { heal_pctMaxHp: 30 },
+        hpMedium: { heal_pctMaxHp: 60 },
+        hpLarge: { heal_pctMaxHp: 100 },
+        revive: { reviveToHp_pct: 50 },
+      },
+      autoPotion: {
+        enabledByDefault: true,
+        defaultThreshold_pct: 40,
+        defaultPotionOrder: ['hpSmall', 'hpMedium', 'hpLarge'],
+        sourceOrder: ['runBag', 'inventory'],
+      },
+    },
+    progression: {
+      baseStats: { hp: 300, def: 20, vit: 0 },
+      statPerPoint: { hp: 150, def: 3, vitHpRegenSpeed_pct: 1.5, vitPotionEfficiency_pct: 1 },
+      statPoints: { pointsPerLevel: 3, pointsFormula: 'pointsPerLevel x level' },
+      hpRecovery: {
+        deathRecoveryTo_pct: 50,
+        deathRecoveryDuration_s: 1800,
+        outsideDungeonRegen_pctMaxHpPerMin: 1.6667,
+      },
+    },
   };
 }
 
@@ -195,7 +248,8 @@ const WARMUP_MS = 10000; // == checkIn.minContinuousApproach_s x 1000
 /** Feeds a 10 s warm-up chain inside the polygon (R11: approach must be continuous and end at the
  * confirming sample) then confirms. Every subsequent test's samples start after `WARMUP_MS`. */
 function enterRun(params: SessionParams, runSeed: number) {
-  let state = createSession(0);
+  let state = createSession(0, params);
+  state = sessionStep(state, { type: 'chooseClass', classId: 'ranged' }, 0, params).state;
   const warmup = feed(state, params, walkSamples(0, 3)); // t = 0, 5000, 10000
   state = warmup.state;
   const confirmed = sessionStep(
@@ -325,7 +379,8 @@ const CLOSED_ALL_WEEK = {
 describe('sessionStep: opening hours (tech note F04 section 8, P2-X10)', () => {
   it('rejects confirm with dungeon_closed when the dungeon is closed', () => {
     const params = testParamsWithHours(CLOSED_ALL_WEEK);
-    let state = createSession(0);
+    let state = createSession(0, params);
+    state = sessionStep(state, { type: 'chooseClass', classId: 'ranged' }, 0, params).state;
     const warmup = feed(state, params, walkSamples(0, 3));
     state = warmup.state;
     const confirmed = sessionStep(
@@ -335,7 +390,13 @@ describe('sessionStep: opening hours (tech note F04 section 8, P2-X10)', () => {
       params,
     );
     expect(confirmed.events).toEqual([
-      { type: 'checkin_rejected', dungeonId: 'testDungeon', reason: 'dungeon_closed', at_ms: WARMUP_MS },
+      {
+        type: 'checkin_rejected',
+        dungeonId: 'testDungeon',
+        reason: 'dungeon_closed',
+        readyIn_s: null,
+        at_ms: WARMUP_MS,
+      },
     ]);
     expect(confirmed.state.run).toBeNull();
   });
@@ -392,7 +453,11 @@ describe('sessionStep: toPersisted / fromPersisted (tech note F04 2.1, 10.1, 10.
     if (!restored.ok) throw new Error('unreachable');
     expect(restored.state.run?.runId).toBe(withSample.run?.runId);
     expect(restored.state.run?.reward.distance_m).toBe(withSample.run?.reward.distance_m);
-    expect(restored.state.pre).toEqual({ chainStartAt_ms: null, lastAt_ms: null, outsideSeenAt_ms: {} });
+    expect(restored.state.pre).toEqual({
+      chainStartAt_ms: null,
+      lastAt_ms: null,
+      outsideSeenAt_ms: {},
+    });
   });
 
   it('discards a run whose dungeon is not in the current artifact (unknown_dungeon)', () => {
@@ -407,7 +472,7 @@ describe('sessionStep: toPersisted / fromPersisted (tech note F04 2.1, 10.1, 10.
 
   it('discards a schemaVersion this build does not know (schema_mismatch)', () => {
     const params = testParams();
-    const persisted = toPersisted(createSession(0), 0);
+    const persisted = toPersisted(createSession(0, params), 0);
     const wrongVersion = { ...persisted, schemaVersion: 2 };
     expect(fromPersisted(wrongVersion, params)).toEqual({ ok: false, reason: 'schema_mismatch' });
   });
@@ -426,10 +491,18 @@ describe('sessionStep: D-112 fail-closed guard (balance-model 18.6, P2-X10)', ()
       ...params,
       config: {
         ...params.config,
-        combat: { monsterAttack: { zoneLevelFrom: 'levelRangeMidpointRounded' } },
+        combat: {
+          ...params.config.combat,
+          monsterAttack: {
+            ...params.config.combat.monsterAttack,
+            zoneLevelFrom: 'levelRangeMidpointRounded',
+          },
+        },
       },
     };
-    expect(() => sessionStep(createSession(0), { type: 'tick' }, 0, badParams)).toThrow(RangeError);
+    expect(() => sessionStep(createSession(0, params), { type: 'tick' }, 0, badParams)).toThrow(
+      RangeError,
+    );
   });
 });
 
@@ -441,7 +514,9 @@ describe('sessionStep: F04-R15 item 7, the return after no_evidence (tech note F
     for (const order of ['sample-first', 'tick-first'] as const) {
       const params = testParams();
       let state = enterRun(params, order === 'sample-first' ? 10 : 11).state;
-      state = feed(state, params, [{ t_ms: WARMUP_MS + 5000, ...INSIDE_DEEP, accuracy_m: 6 }]).state;
+      state = feed(state, params, [
+        { t_ms: WARMUP_MS + 5000, ...INSIDE_DEEP, accuracy_m: 6 },
+      ]).state;
       const tLast = WARMUP_MS + 5000;
       const s1_ms = tLast + 40000; // > maxSamplePairGap_s (30 s): a real gap.
 

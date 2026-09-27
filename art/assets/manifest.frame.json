@@ -1,0 +1,408 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-09-27",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "frame.rarity.common-52",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 52,
+        "height": 52
+      },
+      "files": [
+        {
+          "path": "frame/rarity/common-52.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 425,
+          "width": 52,
+          "height": 52,
+          "sha256": "c31b7d35f442987ad829b4aa71e734f716396e0c5b1f3037cd2fb51ef4a41876"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.common-72",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 72,
+        "height": 72
+      },
+      "files": [
+        {
+          "path": "frame/rarity/common-72.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 427,
+          "width": 72,
+          "height": 72,
+          "sha256": "0a432d310470c04e8fb6644a2b7610ced9782ea22dd9ea59a621ef9742679a5f"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.epic-52",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 52,
+        "height": 52
+      },
+      "files": [
+        {
+          "path": "frame/rarity/epic-52.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 476,
+          "width": 52,
+          "height": 52,
+          "sha256": "434989afebb68fc4b1a4f5daf760c24b05b6d6485848d22992172c9861c620ce"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.epic-72",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 72,
+        "height": 72
+      },
+      "files": [
+        {
+          "path": "frame/rarity/epic-72.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 732,
+          "width": 72,
+          "height": 72,
+          "sha256": "d3c5107d17b2d528ce0b99535ce04cd282afb12b325fc0c5cb6854c1f7069332"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.legendary-52",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 52,
+        "height": 52
+      },
+      "files": [
+        {
+          "path": "frame/rarity/legendary-52.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 657,
+          "width": 52,
+          "height": 52,
+          "sha256": "53874e50069668f1ea58ebe57133e445007915354488c87950ef89a7dcfb2b14"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.legendary-72",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 72,
+        "height": 72
+      },
+      "files": [
+        {
+          "path": "frame/rarity/legendary-72.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 998,
+          "width": 72,
+          "height": 72,
+          "sha256": "a4ece64843ead74677f8296b1ecd23740d70344e0f4c8703453c0107fd57e600"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.rare-52",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 52,
+        "height": 52
+      },
+      "files": [
+        {
+          "path": "frame/rarity/rare-52.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 459,
+          "width": 52,
+          "height": 52,
+          "sha256": "b2a6ecd6a5bed4b65a7d36f87553acdd2a7989e36e2d4dd08f607cbd7657ffce"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.rare-72",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 72,
+        "height": 72
+      },
+      "files": [
+        {
+          "path": "frame/rarity/rare-72.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 684,
+          "width": 72,
+          "height": 72,
+          "sha256": "caf82bdbdbf9772ee15bdea0836c4353d9800712aa5c13f37aa13955dc85e3f9"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.uncommon-52",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 52,
+        "height": 52
+      },
+      "files": [
+        {
+          "path": "frame/rarity/uncommon-52.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 442,
+          "width": 52,
+          "height": 52,
+          "sha256": "ea634d2011b0e7b16b73090ec9bf2d7070f3689e9a840d419d6694c6f3d14246"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "frame.rarity.uncommon-72",
+      "kind": "frame-rarity",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 72,
+        "height": 72
+      },
+      "files": [
+        {
+          "path": "frame/rarity/uncommon-72.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 551,
+          "width": 72,
+          "height": 72,
+          "sha256": "fa69d1bc5a8c8f22a36f6455bd629c73ce4b1962f4f598e8714b8b134eedc709"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    }
+  ]
+}

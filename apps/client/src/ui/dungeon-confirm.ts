@@ -10,7 +10,7 @@
  */
 import { formatCopyText } from '../copy/format';
 import { getCopyText } from '../copy/load';
-import type { CheckInPreview } from '../session/checkin-preview';
+import type { CheckInPreview } from '@keep-walking/shared/session';
 import { checkInStatusView } from './checkin-status';
 
 export interface ConfirmCandidate {
@@ -139,7 +139,7 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
         return;
       }
       enterButton.classList.remove('btn-spinner');
-      if (preview.ready) {
+      if (preview.ok) {
         statusRow.textContent = '';
         enterButton.disabled = selectedId === undefined;
         enterButton.textContent = getCopyText('dungeon.confirmEnter');
@@ -149,7 +149,10 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
         return;
       }
       const view = checkInStatusView(preview, isOutOfRangeNow);
-      statusRow.textContent = getCopyText(view.copyKey);
+      statusRow.textContent =
+        view.countdownText === undefined
+          ? getCopyText(view.copyKey)
+          : formatCopyText(view.copyKey, { countdown: view.countdownText });
       enterButton.disabled = true;
       enterButton.onclick = null;
     },

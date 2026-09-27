@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import shapely
-from shapely.geometry import LineString, MultiPolygon, Point, Polygon
+from shapely.geometry import LineString, MultiPolygon, Point, Polygon, box
 from shapely.geometry.base import BaseGeometry
 from shapely.geometry.polygon import orient
 from shapely.ops import polylabel, unary_union
@@ -116,12 +116,17 @@ def build_borders(lines: list[BorderLine]) -> dict[str, Any]:
 
 def build_mask(
     lines: list[BorderLine], provinces: list[ProvinceArea], playable: dict[int, str],
-    mp: dict[str, Any],
+    mp: dict[str, Any], clip_bbox: list[float] | None = None,
 ) -> dict[str, Any]:
     """One Polygon feature: the world ring with one hole per face formed by the
     play-area edge lines. No properties (tech note 15.1). Faces are kept only
     when they lie in the play area, so an enclave (a non-playable province
-    surrounded by playable ones) stays an interior ring and stops the build."""
+    surrounded by playable ones) stays an interior ring and stops the build.
+
+    `clip_bbox` ([minx, miny, maxx, maxy], the tile bbox) cuts the hole so no
+    part of it lies where no basemap tile exists (map-style 6.2, screen S6):
+    province relations reach into the Gulf south of the tile bbox, and there
+    the style background would draw a black edge in the middle of the sea."""
     digits = int(mp["coordinatePrecision"])
     edges = [LineString(b.coords) for b in lines if b.edge]
     if not edges:
@@ -132,6 +137,11 @@ def build_mask(
     if not faces:
         raise BuildError("play-area edge lines do not close")
     faces = _polygons(unary_union(faces))
+    if clip_bbox is not None:
+        clip = box(*clip_bbox)
+        faces = [g for f in faces for g in _polygons(f.intersection(clip))]
+        if not faces:
+            raise BuildError(f"play area lies outside the clip bbox {clip_bbox}")
     enclaves = sum(len(f.interiors) for f in faces)
     if enclaves:
         # A hole inside the play area would need a MultiPolygon mask; the

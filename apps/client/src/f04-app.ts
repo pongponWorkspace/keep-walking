@@ -10,7 +10,8 @@
  */
 import { pointInPolygon, boundaryDistance_m } from '@keep-walking/geo';
 import type { PolygonGeometry as GeoPolygonGeometry } from '@keep-walking/geo';
-import type { SessionState } from '@keep-walking/shared/session';
+import { selectOpening } from '@keep-walking/shared/session';
+import type { SessionEvent, SessionState } from '@keep-walking/shared/session';
 import { createTelemetrySink } from './telemetry/sink';
 import type { TelemetrySink } from './telemetry/sink';
 import { KNOWN_EVENT_NAMES } from './telemetry/known-events';
@@ -25,8 +26,9 @@ import type { SessionEngine } from './session/engine';
 import { buildSessionParams } from './session/config';
 import { loadDungeonArtifact, toMapDungeonInput, dungeonStatus } from './dungeons/artifact';
 import type { ArtifactDungeon } from './dungeons/artifact';
-import { nextOpenAt } from './dungeons/opening-hours-display';
 import { displayDistance } from './dungeons/distance';
+import { formatCopyText } from './copy/format';
+import type { AssetRuntime } from './assets/icon-dom';
 import { compassPointTo } from './dungeons/direction';
 import { parseRunSeedParam } from './clock/query-params';
 import { mountDungeonConfirm } from './ui/dungeon-confirm';
@@ -38,6 +40,7 @@ import type { DungeonSourceMap } from './map/dungeons-source';
 import { createDungeonLabelCache, setDungeonsSourceData } from './map/dungeons-source';
 
 const TELEMETRY_STORAGE_KEY = 'kw.p2.telemetry';
+const SECONDS_PER_MINUTE = 60;
 const DISTANCE_STEPS = [
   { upTo_m: 1000, step_m: 50 },
   { upTo_m: 10000, step_m: 100 },
@@ -55,6 +58,7 @@ export interface F04AppDeps {
   readonly isOnline: () => boolean;
   readonly userAgent: string;
   readonly maxTouchPoints: number;
+  readonly assets: AssetRuntime;
   readonly copyToClipboard: (text: string) => Promise<boolean>;
 }
 
@@ -143,9 +147,7 @@ export function createF04App(deps: F04AppDeps): F04App {
   const labelCache = createDungeonLabelCache();
   function refreshMapDungeons(now_ms: number): void {
     if (deps.map === undefined) return;
-    const inputs = artifact.dungeons.map((d) =>
-      toMapDungeonInput(d, params.config.openingHours.utcOffset_min, now_ms),
-    );
+    const inputs = artifact.dungeons.map((d) => toMapDungeonInput(d, params, now_ms));
     setDungeonsSourceData(deps.map, inputs, labelCache);
   }
   refreshMapDungeons(Date.now());
@@ -153,12 +155,16 @@ export function createF04App(deps: F04AppDeps): F04App {
   // --- Screens (F04 flow priority: speed-lock > summary > run > confirm > map/nav) ---
   const confirmPopup = mountDungeonConfirm(deps.hudContainer, {
     onEnter: (dungeonId) => {
-      engine.dispatch({ type: 'confirm', dungeonId, runSeed: resolveRunSeed() }, Date.now());
+      const events = engine.dispatch(
+        { type: 'confirm', dungeonId, runSeed: resolveRunSeed() },
+        Date.now(),
+      );
+      handleSessionEvents(events);
     },
     onCancel: () => confirmPopup.hide(),
   });
   const runBar = mountRunBar(deps.hudContainer, {
-    onExitConfirmed: () => engine.dispatch({ type: 'exit' }, Date.now()),
+    onExitConfirmed: () => handleSessionEvents(engine.dispatch({ type: 'exit' }, Date.now())),
   });
   const speedLockOverlay = mountSpeedLockOverlay(deps.hudContainer, {
     onSettings: () => {
@@ -168,10 +174,14 @@ export function createF04App(deps: F04AppDeps): F04App {
     vibrate: deps.vibrate,
     vibrateOnEnterPattern_ms: clientConfig.vibration.speedLockEnter_ms,
   });
-  const runSummary = mountRunSummary(deps.hudContainer, () => {
-    engine.dispatch({ type: 'ackSummary' }, Date.now());
-    runSummary.hide();
-  });
+  const runSummary = mountRunSummary(
+    deps.hudContainer,
+    () => {
+      engine.dispatch({ type: 'ackSummary' }, Date.now());
+      runSummary.hide();
+    },
+    deps.assets,
+  );
   const navPanel = mountNavPanel(deps.hudContainer, {
     externalOpenTimeout_ms: clientConfig.navigation.externalOpenTimeout_ms,
     onNavigationLinkOpened: () => undefined,
@@ -188,7 +198,7 @@ export function createF04App(deps: F04AppDeps): F04App {
   function openDungeonsContaining(lat: number, lng: number, now_ms: number): ArtifactDungeon[] {
     return artifact.dungeons.filter(
       (d) =>
-        dungeonStatus(d, params.config.openingHours.utcOffset_min, now_ms) === 'open' &&
+        dungeonStatus(d, params, now_ms) === 'open' &&
         pointInPolygon({ lat, lng }, geoPolygon(d.geometry)),
     );
   }
@@ -220,7 +230,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       );
     }
     if (confirmPopupDungeonId !== undefined) {
-      const preview = engine.previewCheckIn(confirmPopupDungeonId, 1, now_ms);
+      const preview = engine.previewCheckIn(confirmPopupDungeonId, now_ms);
       const dungeon = byId.get(confirmPopupDungeonId);
       const outOfRange =
         dungeon !== undefined &&
@@ -262,11 +272,9 @@ export function createF04App(deps: F04AppDeps): F04App {
     navPanel.root.hidden = false;
     navPanel.setDistance(`${displayDistance(nearestDistance_m, DISTANCE_STEPS)} ${'m'}`, false);
     navPanel.setDirection(compassPointTo(lastPlayer, pointOf(nearest)));
-    const status = dungeonStatus(nearest, params.config.openingHours.utcOffset_min, now_ms);
-    const closed = status === 'closed';
-    const openTime = closed
-      ? nextOpenAt(nearest.opening_hours, params.config.openingHours.utcOffset_min, now_ms)
-      : undefined;
+    const opening = selectOpening(nearest.id, now_ms, params);
+    const closed = !opening.open;
+    const openTime = closed ? opening.changesAt_ms : undefined;
     navPanel.setClosed(
       closed,
       openTime === null || openTime === undefined ? undefined : String(openTime),
@@ -276,6 +284,28 @@ export function createF04App(deps: F04AppDeps): F04App {
       lng: pointOf(nearest).lng,
       searchNameKey: nearest.search_name_key,
     });
+  }
+
+  /** `dungeon_closing_soon` (F04-R29, P2-X10): the run bar's closing-soon warning is driven only by
+   * this event, never by a client-side re-derivation of `closesIn_s` (`selectRunView` exists for
+   * display, but the *decision* that a notice is due is the engine's, tech note F04 8.3). Every
+   * `run_state_changed`/`dungeon_entered` also resets the banner so a later run never starts with a
+   * previous run's warning still "seen" (`run-bar.ts`'s own `wasHidden` bookkeeping). */
+  function handleSessionEvents(events: readonly SessionEvent[]): void {
+    for (const event of events) {
+      if (event.type === 'dungeon_entered') {
+        runBar.hideClosingSoonWarning();
+      } else if (event.type === 'dungeon_closing_soon') {
+        const minutes = Math.max(1, Math.ceil(event.closesIn_s / SECONDS_PER_MINUTE));
+        runBar.showClosingSoonWarning(
+          formatCopyText('unit.minutes', { value: minutes }),
+          deps.vibrate,
+          clientConfig.vibration.closingSoonWarning_ms,
+        );
+      } else if (event.type === 'dungeon_exited') {
+        runBar.hideClosingSoonWarning();
+      }
+    }
   }
 
   function render(state: SessionState, now_ms: number): void {
@@ -309,7 +339,11 @@ export function createF04App(deps: F04AppDeps): F04App {
     onSample(lat, lng, accuracy_m, t_ms) {
       lastPlayer = { lat, lng };
       const wasLocked = engine.getState().lock.locked;
-      engine.dispatch({ type: 'sample', sample: { t_ms, lat, lng, accuracy_m } }, t_ms);
+      const events = engine.dispatch(
+        { type: 'sample', sample: { t_ms, lat, lng, accuracy_m } },
+        t_ms,
+      );
+      handleSessionEvents(events);
       const stateAfter = engine.getState();
       // `SessionEvent` has no speed-lock variant of its own (tech note F04 section 2.5 lists the
       // lock/unlock transitions as engine-internal, not a client-facing event) — detected here by
@@ -340,7 +374,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       render(stateAfter, t_ms);
     },
     onTick(now_ms) {
-      engine.dispatch({ type: 'tick' }, now_ms);
+      handleSessionEvents(engine.dispatch({ type: 'tick' }, now_ms));
       refreshMapDungeons(now_ms);
       render(engine.getState(), now_ms);
     },

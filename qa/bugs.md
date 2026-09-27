@@ -4,6 +4,31 @@
 
 **สถานะรวม (P1-CLOSE-QA, 2026-09-24):** BUG-F01-001, BUG-F01-002, BUG-F01-003 ปิดครบทั้ง 3 รายการ (ดูหลักฐานปิดในแต่ละรายการด้านล่าง) — ไม่มี bug OPEN เหลืออยู่ในไฟล์นี้ และไม่เคยมี bug severity high ขึ้นไปที่พบตลอด Phase 1
 
+**สถานะรวม (P2-F04-T09, 2026-09-27):** เพิ่ม 2 รายการย้อนหลัง (P1-H06 severity high, บันทึกตอนพบใน P1-F03-T22 แต่ยังไม่เคยลงในไฟล์นี้ · BUG-P2-001 severity medium จาก P2-F04-T19) — ทั้งสองปิดแล้วพร้อมหลักฐานตรวจซ้ำอิสระด้านล่าง ไม่มี bug OPEN เหลืออยู่ในไฟล์นี้
+
+---
+
+## BUG-P1-H06
+
+- severity: **high**
+- feature: F02/F03 — Map style spike (dungeon rift rendering)
+- found_in: `qa/reports/F02/map-style/P1-H06-screenshot-tests.md` หัวข้อ 5 (P1-F03-T22, ตรวจ 2026-09-24) — บันทึกย้อนหลังในไฟล์นี้ตอนนี้เพราะ `qa/bugs.md` ไม่เคยอยู่ใน `writes` ของงานที่พบบั๊ก จนกระทั่ง P2-F04-T09 (บอร์ด: "qa-tester: บันทึกบั๊ก severity high ของ P1-H06 ... ย้อนหลัง")
+- steps/trace:
+  1. เปิด fixture ลุมพินี (`tools/tiles/fixtures/lumpini`) ด้วย `art/direction/map-style/kw-light.style.json` เวอร์ชันตอนนั้น (0.2.0 ก่อน P1-X32) ผ่าน `qa/reports/F02/map-style/capture-screenshots.spec.ts`
+  2. ถ่ายจอ S1 (สวนลุมพินี, `sample-open-01`) และ S3 (สวนจตุจักร, `sample-sponsored-01`) ที่ zoom ตามตาราง 10.1
+  3. ดูภาพ: S1 เห็นชื่อ dungeon/จำนวนคน/ไอคอนรอยแยกซ้ำกัน **4 ชุด** กระจาย 4 มุมของ polygon เดียว, S3 เห็นซ้ำ **2 ชุด** ซ้อนทับเกือบสนิท
+- expected: dungeon เดียวแสดงชื่อ/จำนวนคน/ป้าย sponsored/ไอคอนรอยแยก **1 ชุดเท่านั้น** ไม่ว่า polygon จะกว้างแค่ไหน
+- actual: `kw-rift-name`/`kw-rift-count`/`kw-rift-sponsored`/`kw-rift-crack` เป็น symbol layer ที่อ่านตำแหน่งจาก source polygon `kw-dungeons` โดยตรง — เมื่อ polygon กว้างพอที่ MapLibre จะตัดข้ามหลาย internal geojson-vt tile ภายใน แต่ละ tile คำนวณ anchor ของตัวเองและวาดซ้ำ ยิ่งเห็นชัดเพราะทุกชั้นตั้ง `*-allow-overlap: true` (ปิด collision detection)
+- risk: กระทบภาพลักษณ์หลักของ "รอยแยก" ซึ่งเป็นองค์ประกอบ UI หลักของเกม และจะเกิดกับ dungeon จริงเกือบทุกแห่งที่ขนาดไม่เล็กมาก ไม่ใช่แค่ sample ทดสอบ
+- owner: art-director (สไตล์ JSON) + gameplay-programmer (client ป้อน source ใหม่)
+- status: **CLOSED** (fixed by P1-X32 + P1-X33, verified independently by P2-F04-T09 on 2026-09-27)
+- closed_evidence:
+  1. P1-X32 (art-director): แยก source จุด centroid `kw-dungeon-labels` — ทุก symbol layer (`kw-rift-crack`, `kw-rift-name`, `kw-rift-count`, `kw-rift-sponsored`) อ่านจาก `kw-dungeon-labels` เท่านั้น ส่วน `kw-dungeons` (polygon) เหลือแค่ fill/line layer (`kw-rift-fill`, `kw-rift-outline-closed`, `kw-rift-outline`, `kw-rift-inner`) — ยืนยันด้วย metadata `kw:dungeonSources` ในตัว `kw-light.style.json` เอง
+  2. P1-X33 (gameplay-programmer): `apps/client/src/map/dungeons-source.ts` สร้าง/ป้อน source จุด centroid ตาม contract ใหม่ + e2e ยืนยันป้ายต่อ dungeon ขึ้นครั้งเดียว (`apps/client/e2e/dungeon-labels.spec.ts`)
+  3. ตรวจซ้ำอิสระ (P2-F04-T09, 2026-09-27): สคริปต์อ่าน `kw-light.style.json` ยืนยันว่าทุก layer ที่ `source: "kw-dungeons"` เป็น `type: "fill"`/`"line"` เท่านั้น (`kw-rift-fill`, `kw-rift-outline-closed`, `kw-rift-outline`, `kw-rift-inner`) และทั้ง 4 symbol layer อ่าน `source: "kw-dungeon-labels"` — ไม่มี symbol layer เหลืออยู่บน `kw-dungeons` เลย
+  4. เพิ่ม regression ถาวรใน `qa/tests/unit/map-style.test.ts` (P1-X32 handoff เดิม → P2-F04-T09): 2 case ใหม่ — "no symbol layer reads the kw-dungeons polygon source" และ "every dungeon symbol layer reads kw-dungeon-labels" — รัน `npx vitest run qa/tests/unit/map-style.test.ts` → `Test Files 1 passed`, `Tests 4 passed`
+- not blocking: closed, มี regression test ถาวรกันการกลับมาเกิดซ้ำแล้ว
+
 ---
 
 ## BUG-F01-001
@@ -67,3 +92,25 @@
   2. Re-ran independently: `npx prettier --check tools/coverage/analysis/heatmap-template.html tools/coverage/analysis/heatmap-strings.th.json` → `All matched files use Prettier code style!`.
   3. Root `pnpm lint` (`eslint . --max-warnings=0 && prettier --check . && pnpm run lint:copy`) → exit 0 in this regression run.
 - not blocking: closed.
+
+---
+
+## BUG-P2-001
+
+- severity: medium
+- feature: F04/F05/F06 — combat formulas (`combat.zoneLevelFrom`), reward tick exp
+- found_in: `qa/plans/F04-test-plan.md` §10 "F04-F1" and `qa/plans/F05-test-plan.md` §8 (P2-F04-T19, 2026-09-27) — both explicitly deferred logging this bug to whichever task holds `qa/bugs.md` in its `writes` (that task did not), which is this task
+- steps/trace:
+  1. `pnpm test` (root) at the time of P2-F04-T19
+  2. Failure surfaced in `packages/shared/src/formulas/vectors.test.ts`: 20 cases red — `damage.json` `fn=zoneLevel` (10 cases), `tick-reward.json` `fn=soloTickExp` (10 cases)
+  3. Root cause (D-112, `studio/decisions/decision-log.md`): `combat.zoneLevelFrom` had not yet been changed to `clamp(playerLevel, levelMin, levelMax)` — e.g. a level-30 player in a 1–35 zone was expected to get `Z=30` but the engine still returned `Z=18` (the old "midpoint of range" rule)
+- expected: `combat.zoneLevelFrom` implements `playerLevelClampedToRange` per D-112, used consistently by both `damage` and `exp` — every vector in `design/systems/test-vectors/damage.json` and `tick-reward.json` passes
+- actual (at time found): `zoneLevelFrom` still implemented the pre-D-112 rule, breaking 20 golden-vector cases and blocking a fully green `pnpm test`
+- owner: systems-designer (vector/formula spec) + backend-programmer (port into `packages/shared`)
+- status: **CLOSED** (fixed by P2-X09 (systems-designer: `combat.zoneLevelFrom = playerLevelClampedToRange` + regenerated vectors) and P2-X10 (backend-programmer: engine implementation + fail-closed guard), verified independently by P2-F04-T09 on 2026-09-27)
+- closed_evidence:
+  1. `config/balance/combat.json`'s `zoneLevelFrom` is now `"playerLevelClampedToRange"` (P2-X09) and `packages/shared/src/formulas/` computes `zoneLevel(playerLevel, min, max)` as a clamp, used by both the damage and exp call sites, with an engine guard that fails closed if `zoneLevelFrom` is ever anything else (P2-X10)
+  2. Re-ran independently: `npx vitest run packages/shared/src/formulas/vectors.test.ts` → `Test Files 1 passed`, `Tests 380 passed` — includes every `damage.json` `fn=zoneLevel` and `tick-reward.json` `fn=soloTickExp` case, all green. Re-confirmed later the same day with a name filter immune to unrelated concurrent edits to this same file (see note below): `-t "zoneLevel"` → `10 passed`, `-t "soloTickExp"` → `13 passed` — both still 100% green
+  3. Full `pnpm test` at the start of this task's run (before an unrelated, concurrent in-progress edit to `packages/shared/src/session/types.ts` / `packages/shared/src/hp/` — outside this task's `writes`, apparently a different in-flight task building F06 HP/damage — began transiently failing `packages/shared/src/session/reducer.test.ts` on a `SessionConfig` fixture shape mismatch unrelated to zoneLevel/soloTickExp): `Test Files 140 passed (140)`, `Tests 2217 passed | 2 skipped (2219)` — zero failures anywhere, including every formula/reward/session file. See this task's QA gate report for the exact timestamp and the note on the later transient unrelated failures.
+- not blocking: closed — the specific D-112 zoneLevel/soloTickExp vectors this bug is about remain green in every run performed during this task, including the most recent one done in isolation.
+- note (unrelated, not part of this bug): later in this same task, `packages/shared/src/formulas/vectors.test.ts` itself started failing on *new* `fn` cases ("vectors.test.ts does not know how to evaluate fn=...") because a different, concurrent in-progress task (outside this task's `writes`) was mid-edit adding HP/damage vector coverage to that file. Confirmed unrelated by filtering to only this bug's own cases (`-t "zoneLevel"` / `-t "soloTickExp"`), both still fully green — see evidence item 2.

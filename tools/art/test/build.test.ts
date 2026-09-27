@@ -3,13 +3,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { buildAll, buildable, toBuildManifest } from '../src/build';
-import { loadPalette, readJson, REPO_ROOT } from '../src/config';
-import type { Manifest } from '../src/manifest';
+import { loadPalette, REPO_ROOT } from '../src/config';
+import { loadManifestSet } from '../src/manifest-set';
 import { decodePng } from '../src/png';
 import { validate } from '../src/validate';
 import { cfg, fixture } from './helpers';
 
-const manifest = readJson<Manifest>(REPO_ROOT, cfg.paths.manifest);
+const manifest = loadManifestSet(REPO_ROOT, cfg).merged;
 const built = buildAll(REPO_ROOT, manifest, cfg);
 const palette = loadPalette(REPO_ROOT, cfg);
 

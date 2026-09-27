@@ -1,0 +1,41 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-09-27",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "illus.state.speed-lock",
+      "kind": "illus",
+      "status": "prompt-only",
+      "placeholder": true,
+      "size": {
+        "width": 240,
+        "height": 160
+      },
+      "files": [],
+      "source": {
+        "method": "prompt-raster",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": {
+          "file": "art/prompts/illus.md",
+          "anchor": "#speed-lock"
+        },
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "P2 (ลำดับ P2, ไม่บังคับ) · overlay speed lock ใช้ icon.ui.speed-lock 48 px แทนได้ครบ loop โดยไม่มีไฟล์นี้ (P2-assets.md 2.6)"
+    }
+  ]
+}

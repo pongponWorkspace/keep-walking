@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from shapely.geometry import Point, Polygon, box
+import pytest
+from shapely.geometry import Point, Polygon, box, shape
 
 from .checks import check_labels_vs_mask, check_mask, check_provinces
 from .fixture_osm import CELL, FOREIGN_ID, X0, Y0, cells, unique_edge_count
@@ -110,3 +111,19 @@ def test_size_limit_stops_before_writing(run_fixture):
     result = run_fixture("size", edit=edit)
     assert result["code"] == 1
     assert result["mask"] is None and result["provinces"] is None
+
+
+def test_clip_bbox_cuts_the_hole(run_fixture, baseline):
+    """P2-F04-T23: with mask.clipBbox the hole is the play area inside the bbox only."""
+    clip = [100.0, 13.05, 100.3, 13.3]
+    result = run_fixture("clipped", edit=lambda bp: bp["mask"].update(clipBbox=clip))
+    assert result["code"] == 0
+    hole = result["mask"]["features"][0]["geometry"]["coordinates"][1]
+    assert min(y for _, y in hole) == 13.05
+    assert shape({"type": "Polygon", "coordinates": [hole]}).area == pytest.approx(0.2 * 0.05)
+    assert result["provinces_bytes"] == baseline["provinces_bytes"]  # borders are not cut
+
+
+def test_clip_bbox_outside_play_area_stops(run_fixture):
+    result = run_fixture("clip-away", edit=lambda bp: bp["mask"].update(clipBbox=[101, 14, 102, 15]))
+    assert result["code"] == 1 and result["mask"] is None

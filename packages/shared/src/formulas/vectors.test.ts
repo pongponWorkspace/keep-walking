@@ -6,7 +6,11 @@
 import { describe, expect, it } from 'vitest';
 import type { MultiPolygon, Polygon } from 'geojson';
 import type { GateFilterParams } from '@keep-walking/geo';
-import { boundaryDistance_m as polygonBoundaryDistance_m, pointInPolygon } from '@keep-walking/geo';
+import {
+  MS_PER_S,
+  boundaryDistance_m as polygonBoundaryDistance_m,
+  pointInPolygon,
+} from '@keep-walking/geo';
 import { isWithinTolerance } from '../golden-vector';
 import { baseCapStatus, classChangeCost, memberP, roleBuffPct, roleP } from './party';
 import { damagePerHit, defReductionRatio, monsterAtk, zoneLevel, type DamageInput } from './damage';
@@ -28,6 +32,7 @@ import {
 import { RARITIES, dropRates, type DropContext, type DropParams, type Rarity } from './drops';
 import type {
   BaseCapRuleParams,
+  BuffParams,
   ExpMultParams,
   ExpParams,
   GearParams,
@@ -86,6 +91,21 @@ import {
   windowIndexOf,
 } from '../reward';
 import { deriveSeed, streamRng, type StreamTag } from './rng';
+// P2-F06-T06 (backend, HP engine): damage.json's `resolveHit` and run-loop.json's `hitAttempt` /
+// `soloDamage` are evaluated at `hp` level (tech note F06 13.1); `runLoop` / `runLoopStats` are
+// evaluated through a local harness (13.2 item (a)) that composes `hp`'s own fns the same way
+// `tools/sim/src/loop.ts` (reference, never imported) composes its local ones — this harness is
+// deliberately not exported from `hp` (13.2: "harness ... only in the test file, not an API").
+import type { AttemptContext, HpParams, PotionSource } from '../hp';
+import {
+  applyAttempt,
+  hitAttempt,
+  onGrantedTick,
+  resolveHit,
+  runHpInit,
+  soloHitDamage,
+  supportHealThrough,
+} from '../hp';
 
 declare global {
   interface ImportMeta {
@@ -123,8 +143,6 @@ const vectorModules = import.meta.glob<VectorModule>(
 const SKIP_FNS: ReadonlySet<string> = new Set([
   // gear.json: needs tools/sim/src/build.ts (full character build), not in this task's port list.
   'characterStats',
-  // damage.json: hit-resolution order belongs to the HP engine (P2-F06-T06), not formulas.
-  'resolveHit',
   // raid.json: raid party formula, not assigned to a Phase 2 task yet (tools/sim/src/raid.ts).
   'raidPartyMult',
   // drops.json: reporting helper built on top of dropRates, not one of the four named ports.
@@ -137,12 +155,6 @@ const SKIP_FNS: ReadonlySet<string> = new Set([
   'ratioStatus',
   'partyEffects',
   'partyPerHeadRatio',
-  // run-loop.json: the whole solo run loop composing hit + damage + tick + drop belongs to the HP
-  // engine (P2-F06-T06), which has not landed yet; `resolveHit` above is the same boundary.
-  'hitAttempt',
-  'soloDamage',
-  'runLoop',
-  'runLoopStats',
   // opening-hours.json: the home-screen distance display belongs to the client plumbing task
   // (P2-F04-T25, apps/client), not the run engine (tech note F04 R34 is a display concern).
   'displayDistance',
@@ -428,6 +440,460 @@ function lootRarityOf(x: Record<string, unknown>): LootRarity {
 
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
+
+// ---- run-loop.json harness (P2-F06-T06, tech note F06 13.2 item (a)): a local reimplementation
+// of tools/sim/src/loop.ts's `runLoop`/`loopStats` (reference, never imported) that composes
+// `../hp`'s own ported fns instead of tools/sim's local ones, so the `runLoop`/`runLoopStats`
+// vectors exercise the real engine's hit-clock building blocks, not a duplicate of them. Not
+// exported: this is the test's own evaluator, matching the vector's exact shape.
+function numRecordOf(o: Record<string, unknown>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(o)) {
+    if (typeof v !== 'number') throw new Error(`expected a number at "${k}"`);
+    out[k] = v;
+  }
+  return out;
+}
+function strArr(input: Record<string, unknown>, key: string): string[] {
+  const v = input[key];
+  if (!Array.isArray(v) || !v.every((x) => typeof x === 'string')) {
+    throw new Error(`vector input "${key}" must be a string array`);
+  }
+  return v as string[];
+}
+function loopRoleOf(x: Record<string, unknown>): { base_pct: number; cap_pct: number } {
+  return { base_pct: n(x, 'base_pct'), cap_pct: n(x, 'cap_pct') };
+}
+
+interface HarnessLoopParams {
+  readonly window_s: number;
+  readonly intervalMin_s: number;
+  readonly intervalMax_s: number;
+  readonly hitChance_pct: number;
+  readonly monster: MonsterParams;
+  readonly buff: BuffParams;
+  readonly roles: {
+    tanker: { base_pct: number; cap_pct: number };
+    support: { base_pct: number; cap_pct: number };
+    magic: { base_pct: number; cap_pct: number };
+  };
+  readonly supportHealBase_pctMaxHpPerMin: number;
+  readonly magicShieldPerTick_pctMaxHpPerBuffPct: number;
+  readonly exp: ExpParams;
+  readonly expMult: ExpMultParams;
+  readonly autoRetreatThreshold_pct: number;
+  readonly lowHpWarningThreshold_pct: number;
+  readonly autoPotionEnabled: boolean;
+  readonly autoPotionThreshold_pct: number;
+  readonly vitPotionEfficiency_pct: number;
+  readonly potionHeal_pct: Record<string, number>;
+  readonly potionOrder: readonly string[];
+  readonly sourceOrder: readonly string[];
+}
+
+function loopParamsOf(p: Record<string, unknown>): HarnessLoopParams {
+  const roles = obj(p, 'roles');
+  const buff = obj(p, 'buff');
+  const expMult = obj(p, 'expMult');
+  return {
+    window_s: n(p, 'window_s'),
+    intervalMin_s: n(p, 'intervalMin_s'),
+    intervalMax_s: n(p, 'intervalMax_s'),
+    hitChance_pct: n(p, 'hitChance_pct'),
+    monster: monsterParamsOf(obj(p, 'monster')),
+    buff: { pPerMemberBase: n(buff, 'pPerMemberBase'), pLevelDivisor: n(buff, 'pLevelDivisor') },
+    roles: {
+      tanker: loopRoleOf(obj(roles, 'tanker')),
+      support: loopRoleOf(obj(roles, 'support')),
+      magic: loopRoleOf(obj(roles, 'magic')),
+    },
+    supportHealBase_pctMaxHpPerMin: n(p, 'supportHealBase_pctMaxHpPerMin'),
+    magicShieldPerTick_pctMaxHpPerBuffPct: n(p, 'magicShieldPerTick_pctMaxHpPerBuffPct'),
+    exp: expParamsOf(obj(p, 'exp')),
+    expMult: {
+      magicBuffMaxMult: n(expMult, 'magicBuffMaxMult'),
+      noMagicMult: n(expMult, 'noMagicMult'),
+      levelGapMultPerLevel: n(expMult, 'levelGapMultPerLevel'),
+      levelGapMultFloor: n(expMult, 'levelGapMultFloor'),
+    },
+    autoRetreatThreshold_pct: n(p, 'autoRetreatThreshold_pct'),
+    lowHpWarningThreshold_pct: n(p, 'lowHpWarningThreshold_pct'),
+    autoPotionEnabled: boolIn(p, 'autoPotionEnabled'),
+    autoPotionThreshold_pct: n(p, 'autoPotionThreshold_pct'),
+    vitPotionEfficiency_pct: n(p, 'vitPotionEfficiency_pct'),
+    potionHeal_pct: numRecordOf(obj(p, 'potionHeal_pct')),
+    potionOrder: strArr(p, 'potionOrder'),
+    sourceOrder: strArr(p, 'sourceOrder'),
+  };
+}
+
+interface HarnessLoopInput {
+  readonly runSeed: number;
+  readonly limit_s: number;
+  readonly failedTicks: readonly number[];
+  readonly ownClass: PlayerClass;
+  readonly level: number;
+  readonly exp: number;
+  readonly maxHp: number;
+  readonly hp: number;
+  readonly def: number;
+  readonly vit: number;
+  readonly rangeMin: number;
+  readonly rangeMax: number;
+  readonly autoRetreatEnabled: boolean;
+  readonly inventory: Record<string, number>;
+  readonly table: LootRarity[];
+  readonly params: HarnessLoopParams;
+  readonly recordEvents: boolean;
+}
+
+function loopInputOf(input: Record<string, unknown>): Omit<HarnessLoopInput, 'runSeed'> {
+  return {
+    limit_s: n(input, 'limit_s'),
+    failedTicks: arr(input, 'failedTicks'),
+    ownClass: String(input['ownClass']) as PlayerClass,
+    level: n(input, 'level'),
+    exp: n(input, 'exp'),
+    maxHp: n(input, 'maxHp'),
+    hp: n(input, 'hp'),
+    def: n(input, 'def'),
+    vit: n(input, 'vit'),
+    rangeMin: n(input, 'rangeMin'),
+    rangeMax: n(input, 'rangeMax'),
+    autoRetreatEnabled: boolIn(input, 'autoRetreatEnabled'),
+    inventory: numRecordOf(obj(input, 'inventory')),
+    table: objArr(input, 'table').map(lootRarityOf),
+    params: loopParamsOf(obj(input, 'params')),
+    recordEvents: boolIn(input, 'recordEvents'),
+  };
+}
+
+type HarnessLoopEvent =
+  | {
+      readonly t_s: number;
+      readonly type: 'tick';
+      readonly k: number;
+      readonly granted: boolean;
+      readonly exp: number;
+      readonly level: number;
+      readonly shield: number;
+      readonly loot: string;
+    }
+  | {
+      readonly t_s: number;
+      readonly type: 'attempt';
+      readonly i: number;
+      readonly landed: boolean;
+      readonly damage: number;
+      readonly hpAfter: number;
+      readonly shieldAfter: number;
+      readonly potion: string | null;
+      readonly warning: boolean;
+      readonly outcome: string;
+    };
+
+interface HarnessLoopResult {
+  readonly exitReason: 'auto_retreat' | 'death' | 'manual_exit';
+  readonly end_s: number;
+  readonly ticksEvaluated: number;
+  readonly ticksGranted: number;
+  readonly attempts: number;
+  readonly hitsLanded: number;
+  readonly potionsFromRunBag: number;
+  readonly potionsFromInventory: number;
+  readonly firstPotionDrop_s: number | null;
+  readonly lowHpWarnings: number;
+  readonly hpEnd: number;
+  readonly levelEnd: number;
+  readonly expEnd: number;
+  readonly expGained: number;
+  readonly runBag: Record<string, number>;
+  readonly kept: Record<string, number>;
+  readonly lost: Record<string, number>;
+  readonly inventoryEnd: Record<string, number>;
+  readonly events: readonly HarnessLoopEvent[] | null;
+}
+
+/** Placeholder `HpParams` for the `soloDamage` vector (only `monster`/`roles.tanker`/`buff`
+ * matter there): every other field is harmless filler, never read by `soloHitDamage`. */
+const DUMMY_HP_PARAMS: HpParams = {
+  attack: { intervalMin_s: 1, intervalMax_s: 1, hitChancePerCheck_pct: 0 },
+  monster: {
+    monsterAtkCoef: 0,
+    monsterAtkExponent: 0,
+    defSoftcap: 1,
+    damageMultPerLevelBelowRange: 1,
+    monsterAtkMultAfterFailedRaid: 1,
+    tankerMissingDebuffMult: 1,
+  },
+  buff: { pPerMemberBase: 1, pLevelDivisor: 50 },
+  roles: {
+    tanker: { base_pct: 0, cap_pct: 1 },
+    support: { base_pct: 0, cap_pct: 1, inDungeonHealBase_pctMaxHpPerMin: 0 },
+    magic: { base_pct: 0, cap_pct: 1, shieldPerRewardTick_pctMaxHpPerBuffPct: 0 },
+  },
+  safety: {
+    autoRetreatEnabledByDefault: true,
+    autoRetreatThreshold_pct: 25,
+    lowHpWarningThreshold_pct: 30,
+    autoPotionEnabled: true,
+    autoPotionThreshold_pct: 40,
+    potionOrder: [],
+    sourceOrder: ['runBag', 'inventory'],
+  },
+  potions: {},
+  player: {
+    baseStats: { hp: 1, def: 0, vit: 0 },
+    statPerPoint: { hp: 0, def: 0, vitHpRegenSpeed_pct: 0, vitPotionEfficiency_pct: 0 },
+    hpRecovery: { deathRecoveryTo_pct: 50, outsideDungeonRegen_pctMaxHpPerMin: 1 },
+  },
+};
+
+function loopHpParamsOf(p: HarnessLoopParams): HpParams {
+  return {
+    attack: {
+      intervalMin_s: p.intervalMin_s,
+      intervalMax_s: p.intervalMax_s,
+      hitChancePerCheck_pct: p.hitChance_pct,
+    },
+    monster: p.monster,
+    buff: p.buff,
+    roles: {
+      tanker: p.roles.tanker,
+      support: {
+        ...p.roles.support,
+        inDungeonHealBase_pctMaxHpPerMin: p.supportHealBase_pctMaxHpPerMin,
+      },
+      magic: {
+        ...p.roles.magic,
+        shieldPerRewardTick_pctMaxHpPerBuffPct: p.magicShieldPerTick_pctMaxHpPerBuffPct,
+      },
+    },
+    safety: {
+      autoRetreatEnabledByDefault: true,
+      autoRetreatThreshold_pct: p.autoRetreatThreshold_pct,
+      lowHpWarningThreshold_pct: p.lowHpWarningThreshold_pct,
+      autoPotionEnabled: p.autoPotionEnabled,
+      autoPotionThreshold_pct: p.autoPotionThreshold_pct,
+      potionOrder: p.potionOrder,
+      sourceOrder: p.sourceOrder as readonly PotionSource[],
+    },
+    potions: Object.fromEntries(
+      Object.entries(p.potionHeal_pct).map(([id, heal]) => [id, { heal_pctMaxHp: heal }]),
+    ),
+    player: {
+      baseStats: { hp: 0, def: 0, vit: 0 },
+      statPerPoint: {
+        hp: 0,
+        def: 0,
+        vitHpRegenSpeed_pct: 0,
+        vitPotionEfficiency_pct: p.vitPotionEfficiency_pct,
+      },
+      hpRecovery: { deathRecoveryTo_pct: 50, outsideDungeonRegen_pctMaxHpPerMin: 1 },
+    },
+  };
+}
+
+const LOOT_ID_SEPARATOR = ':';
+
+/** tools/sim/src/loop.ts's `runLoop`, reimplemented on top of `../hp`'s ported fns (13.2 item a):
+ * same interleaving of reward ticks and hit-clock attempts (earliest real time first), same RNG
+ * streams, same event shape — the only difference is *which* code resolves one hit or one heal. */
+function runLoopViaHp(input: HarnessLoopInput): HarnessLoopResult {
+  const p = input.params;
+  const hpParams = loopHpParamsOf(p);
+  const events: HarnessLoopEvent[] = [];
+  const bag: Record<string, number> = {};
+  const inv: Record<string, number> = { ...input.inventory };
+  const failed = new Set(input.failedTicks);
+  let level = input.level;
+  let exp = input.exp;
+  let expGained = 0;
+  let k = 0;
+  let granted = 0;
+  let fromBag = 0;
+  let fromInv = 0;
+  let firstPotion: number | null = null;
+  let hp = runHpInit(input.hp, input.runSeed, hpParams);
+  let t = 0;
+  const healTo = (atSec: number) => {
+    hp = supportHealThrough(
+      hp,
+      atSec * MS_PER_S,
+      { classId: input.ownClass, level, maxHp: input.maxHp },
+      hpParams,
+    );
+    t = atSec;
+  };
+  let exitReason: HarnessLoopResult['exitReason'] = 'manual_exit';
+  for (;;) {
+    const tickAt = p.window_s * (k + 1);
+    const attemptAt = hp.nextAttemptTau_ms / MS_PER_S;
+    if (Math.min(tickAt, attemptAt) > input.limit_s) {
+      healTo(input.limit_s);
+      break;
+    }
+    if (tickAt <= attemptAt) {
+      healTo(tickAt);
+      const passed = !failed.has(k);
+      let lootText = '';
+      let gain = 0;
+      if (passed) {
+        const loot = rollTickLoot(input.runSeed, granted, input.table, 1);
+        for (const it of loot.items) {
+          bag[it.id] = (bag[it.id] ?? 0) + it.qty;
+          if (firstPotion === null && p.potionOrder.includes(it.id)) firstPotion = tickAt;
+        }
+        lootText = loot.items.map((it) => `${it.id}${LOOT_ID_SEPARATOR}${it.qty}`).join(',');
+        hp = onGrantedTick(hp, level, { classId: input.ownClass, maxHp: input.maxHp }, hpParams);
+        const expResult = soloTickExp(level, input.ownClass, input.rangeMin, input.rangeMax, 1, {
+          exp: p.exp,
+          expMult: p.expMult,
+          roles: { magic: p.roles.magic },
+          buff: p.buff,
+        });
+        gain = expResult.exp;
+        const before = level;
+        const after = addExp(level, exp, gain, p.exp);
+        if (before < p.exp.maxLevel) expGained += gain;
+        level = after.level;
+        exp = after.exp;
+        granted += 1;
+      }
+      events.push({
+        t_s: tickAt,
+        type: 'tick',
+        k,
+        granted: passed,
+        exp: gain,
+        level,
+        shield: hp.shield,
+        loot: lootText,
+      });
+      k += 1;
+      continue;
+    }
+    healTo(attemptAt);
+    const ctx: AttemptContext = {
+      runSeed: input.runSeed,
+      level,
+      classId: input.ownClass,
+      def: input.def,
+      vit: input.vit,
+      maxHp: input.maxHp,
+      levelRange: { min: input.rangeMin, max: input.rangeMax },
+      autoRetreatEnabled: input.autoRetreatEnabled,
+      bag,
+      inventory: inv,
+    };
+    const applied = applyAttempt(hp, ctx, hpParams);
+    hp = applied.hp;
+    const r = applied.result;
+    let potionText: string | null = null;
+    if (r.potion !== null) {
+      potionText = `${r.potion.source}${LOOT_ID_SEPARATOR}${r.potion.itemId}`;
+      if (r.potion.source === 'runBag') {
+        bag[r.potion.itemId] = (bag[r.potion.itemId] ?? 0) - 1;
+        fromBag += 1;
+      } else {
+        inv[r.potion.itemId] = (inv[r.potion.itemId] ?? 0) - 1;
+        fromInv += 1;
+      }
+    }
+    events.push({
+      t_s: attemptAt,
+      type: 'attempt',
+      i: hp.attempts - 1,
+      landed: r.landed,
+      damage: r.damage,
+      hpAfter: hp.hp,
+      shieldAfter: hp.shield,
+      potion: potionText,
+      warning: r.hit?.lowHpWarning ?? false,
+      outcome: r.hit?.outcome ?? 'miss',
+    });
+    if (r.hit !== null && (r.hit.outcome === 'autoRetreat' || r.hit.outcome === 'died')) {
+      exitReason = r.hit.outcome === 'died' ? 'death' : 'auto_retreat';
+      break;
+    }
+  }
+  const clean = (o: Record<string, number>) =>
+    Object.fromEntries(Object.entries(o).filter(([, q]) => q > 0));
+  const runBag = clean(bag);
+  const kept = exitReason === 'death' ? {} : runBag;
+  const inventoryEnd = { ...inv };
+  for (const [id, q] of Object.entries(kept)) inventoryEnd[id] = (inventoryEnd[id] ?? 0) + q;
+  return {
+    exitReason,
+    end_s: t,
+    ticksEvaluated: k,
+    ticksGranted: granted,
+    attempts: hp.attempts,
+    hitsLanded: hp.hitsLanded,
+    potionsFromRunBag: fromBag,
+    potionsFromInventory: fromInv,
+    firstPotionDrop_s: firstPotion,
+    lowHpWarnings: hp.lowHpWarnings,
+    hpEnd: hp.hp,
+    levelEnd: level,
+    expEnd: exp,
+    expGained,
+    runBag,
+    kept,
+    lost: exitReason === 'death' ? runBag : {},
+    inventoryEnd: clean(inventoryEnd),
+    events: input.recordEvents ? events : null,
+  };
+}
+
+function percentileOf(sorted: readonly number[], pct: number): number {
+  if (sorted.length === 0) throw new Error('empty sample');
+  const rank = Math.min(sorted.length - 1, Math.max(0, Math.ceil((pct / 100) * sorted.length) - 1));
+  return sorted[rank] as number;
+}
+function meanOf(values: readonly number[]): number {
+  return values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+/** tools/sim/src/loop-scenarios.ts's `loopStats`: seeded Monte Carlo, runSeed = firstSeed,
+ * firstSeed + 1, ... over `runLoopViaHp` instead of tools/sim's own `runLoop`. */
+function loopStatsViaHp(
+  loop: Omit<HarnessLoopInput, 'runSeed'>,
+  firstSeed: number,
+  runs: number,
+): {
+  runs: number;
+  p10_min: number;
+  median_min: number;
+  p90_min: number;
+  mean_min: number;
+  endedShare: number;
+  potionBeforeEndShare: number;
+  potionsUsedPerRun: number;
+} {
+  const minutes: number[] = [];
+  let ended = 0;
+  let potion = 0;
+  let used = 0;
+  for (let i = 0; i < runs; i += 1) {
+    const r = runLoopViaHp({ ...loop, runSeed: firstSeed + i, recordEvents: false });
+    minutes.push(r.end_s / SECONDS_PER_MINUTE);
+    if (r.exitReason !== 'manual_exit') ended += 1;
+    if (r.firstPotionDrop_s !== null) potion += 1;
+    used += r.potionsFromRunBag + r.potionsFromInventory;
+  }
+  minutes.sort((a, b) => a - b);
+  return {
+    runs,
+    p10_min: percentileOf(minutes, 10),
+    median_min: percentileOf(minutes, 50),
+    p90_min: percentileOf(minutes, 90),
+    mean_min: meanOf(minutes),
+    endedShare: ended / runs,
+    potionBeforeEndShare: potion / runs,
+    potionsUsedPerRun: used / runs,
+  };
+}
 
 /** Evaluates one vector's input.fn with the formulas this task ports. Throws on an unknown fn. */
 function evaluateOwnedVector(input: Record<string, unknown>): unknown {
@@ -774,6 +1240,66 @@ function evaluateOwnedVector(input: Record<string, unknown>): unknown {
         n(input, 'gained'),
         expParamsOf(obj(input, 'params')),
       );
+    // ---- damage.json / run-loop.json (P2-F06-T06, HP engine, tech note F06 13.1) ----
+    case 'resolveHit': {
+      const potions = objArr(input, 'potions').map((x) => ({
+        id: String(x['id']),
+        heal_pctMaxHp: n(x, 'heal_pctMaxHp'),
+        count: n(x, 'count'),
+      }));
+      return resolveHit({
+        hp: n(input, 'hp'),
+        maxHp: n(input, 'maxHp'),
+        shield: n(input, 'shield'),
+        damage: n(input, 'damage'),
+        autoRetreatEnabled: boolIn(input, 'autoRetreatEnabled'),
+        autoRetreatThreshold_pct: n(input, 'autoRetreatThreshold_pct'),
+        lowHpWarningThreshold_pct: n(input, 'lowHpWarningThreshold_pct'),
+        autoPotionEnabled: boolIn(input, 'autoPotionEnabled'),
+        autoPotionThreshold_pct: n(input, 'autoPotionThreshold_pct'),
+        potionEfficiencyBonus_pct: n(input, 'potionEfficiencyBonus_pct'),
+        potions,
+      });
+    }
+    case 'hitAttempt': {
+      const p = obj(input, 'params');
+      return hitAttempt(n(input, 'runSeed'), n(input, 'index'), {
+        attack: {
+          intervalMin_s: n(p, 'intervalMin_s'),
+          intervalMax_s: n(p, 'intervalMax_s'),
+          hitChancePerCheck_pct: n(p, 'hitChance_pct'),
+        },
+      });
+    }
+    case 'soloDamage': {
+      const p = obj(input, 'params');
+      const roles = obj(p, 'roles');
+      const buff = obj(p, 'buff');
+      const hpParams: HpParams = {
+        ...DUMMY_HP_PARAMS,
+        monster: monsterParamsOf(obj(p, 'monster')),
+        buff: {
+          pPerMemberBase: n(buff, 'pPerMemberBase'),
+          pLevelDivisor: n(buff, 'pLevelDivisor'),
+        },
+        roles: { ...DUMMY_HP_PARAMS.roles, tanker: loopRoleOf(obj(roles, 'tanker')) },
+      };
+      return soloHitDamage(
+        {
+          level: n(input, 'level'),
+          classId: String(input['ownClass']) as PlayerClass,
+          def: n(input, 'def'),
+          levelRange: { min: n(input, 'rangeMin'), max: n(input, 'rangeMax') },
+        },
+        hpParams,
+      );
+    }
+    case 'runLoop':
+      return runLoopViaHp({ ...loopInputOf(input), runSeed: n(input, 'runSeed') });
+    case 'runLoopStats': {
+      const loop = obj(input, 'loop');
+      return loopStatsViaHp(loopInputOf(loop), n(input, 'firstSeed'), n(input, 'runs'));
+    }
     default:
       throw new Error(`vectors.test.ts does not know how to evaluate fn "${String(fn)}"`);
   }

@@ -1,7 +1,8 @@
 {
-  "_comment": "Every tunable value of tools/art (P2-F06-T07). Sources: art/direction/asset-pipeline.md (sections noted per key), art/direction/avatar-spec.md 6 and 7.4, art/direction/style-guide.md 3 and 6. Change a value here only after the owning doc changes.",
+  "_comment": "Every tunable value of tools/art (P2-F06-T07). manifestPart + manifestRoots: the per-root split of the artist manifest (P2-X22, asset-pipeline 3.1 root list and 7.2, docs/tech/asset-delivery.md 10.1). Sources: art/direction/asset-pipeline.md (sections noted per key), art/direction/avatar-spec.md 6 and 7.4, art/direction/style-guide.md 3 and 6. Change a value here only after the owning doc changes.",
   "paths": {
     "manifest": "art/assets/manifest.json",
+    "manifestPart": "art/assets/manifest.{root}.json",
     "buildManifest": "art/assets/manifest.build.json",
     "schema": "art/assets/manifest.schema.json",
     "assetsDir": "art/assets",
@@ -14,6 +15,29 @@
     "audioManifest": "audio/manifest.json",
     "audioOut": "audio/out",
     "stageOut": "tools/art/out/client"
+  },
+  "manifestRoots": [
+    "avatar",
+    "badge",
+    "font",
+    "frame",
+    "icon",
+    "illus",
+    "map",
+    "ref",
+    "ui",
+    "vfx"
+  ],
+  "runtimeParts": {
+    "_comment": "P2-X24, docs/tech/asset-delivery.md 5.1: entries of these kinds leave asset-manifest.json for a lazily loaded part (asset-pipeline 7.2: the avatar loads after the map is shown). path is relative to the staged folder; under art/ so the immutable cache rule of 6.2 applies (the URL carries ?v=).",
+    "parts": {
+      "avatar": {
+        "kinds": [
+          "avatar-layer"
+        ],
+        "path": "art/avatar/runtime-manifest.json"
+      }
+    }
   },
   "unlistedFilesAllowed": [
     "manifest.json",

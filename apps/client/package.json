@@ -5,9 +5,9 @@
   "description": "Mobile web client (Vite + MapLibre GL JS + PMTiles). Owner: gameplay-programmer. Scaffold: P1-F02-T09.",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:https": "node scripts/ensure-dev-cert.mjs && vite --mode https",
-    "build": "vite build",
+    "dev": "tsx ../../tools/art/src/cli.ts prebuild && vite",
+    "dev:https": "tsx ../../tools/art/src/cli.ts prebuild && node scripts/ensure-dev-cert.mjs && vite --mode https",
+    "build": "tsx ../../tools/art/src/cli.ts prebuild && vite build",
     "preview": "vite preview --port 4173",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

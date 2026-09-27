@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from pipeline.config import DEFAULT_PARAMS, TOOL_DIR
+from pipeline.config import DEFAULT_PARAMS, REPO_ROOT, TOOL_DIR
 from pipeline.fetch import FetchError, fetch_sources
 from pipeline.geom import Projector
 from pipeline.osm_read import read_header_date
@@ -34,6 +34,24 @@ def dumps(fc: dict[str, Any]) -> str:
     body = ",\n".join(lines)
     top = json.dumps(head, ensure_ascii=False, separators=(",", ":"))[:-1]
     return f'{top},"features":[\n{body}\n]}}\n'
+
+
+def resolve_clip_bbox(value: Any) -> list[float] | None:
+    """mask.clipBbox: null, a literal [minx, miny, maxx, maxy], or a pointer
+    "path/from/repo/root.json#dotted.key" (default: the tile bbox in
+    tools/tiles/config.json#area.bbox, so the two can never drift)."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        file_part, _, dotted = value.partition("#")
+        node: Any = json.loads((REPO_ROOT / file_part).read_text(encoding="utf-8"))
+        for key in dotted.split("."):
+            node = node[key]
+        value = node
+    bbox = [float(v) for v in value]
+    if len(bbox) != 4 or not (bbox[0] < bbox[2] and bbox[1] < bbox[3]):
+        raise BuildError(f"mask.clipBbox must be [minx, miny, maxx, maxy], got {value!r}")
+    return bbox
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -71,8 +89,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[boundaries] {len(provinces)} provinces, {len(playable)} playable")
 
         lines = border_lines(provinces, playable, proj, bp["borders"])
+        clip_bbox = resolve_clip_bbox(bp["mask"]["clipBbox"])
         mask_fc = feature_collection(
-            [build_mask(lines, provinces, playable, bp["mask"])], bp["attribution"], source)
+            [build_mask(lines, provinces, playable, bp["mask"], clip_bbox)],
+            bp["attribution"], source)
         prov_fc = feature_collection(
             [build_borders(lines)]
             + build_labels(provinces, playable, proj, bp["labels"]),

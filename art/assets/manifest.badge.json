@@ -1,0 +1,488 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-09-27",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "badge.class.magic-20",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 20,
+        "height": 20
+      },
+      "files": [
+        {
+          "path": "badge/class/magic-20.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 311,
+          "width": 20,
+          "height": 20,
+          "sha256": "a92809911b94ecb3b3bda3ed3478ef4f03e376636f3d799eff9ee1867d18d5e2"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.magic-32",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 32,
+        "height": 32
+      },
+      "files": [
+        {
+          "path": "badge/class/magic-32.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 365,
+          "width": 32,
+          "height": 32,
+          "sha256": "1e56e265db53580356ed3401daef15f339c07b7f638b6007df7d9190bff73af9"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.magic-48",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "files": [
+        {
+          "path": "badge/class/magic-48.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 333,
+          "width": 48,
+          "height": 48,
+          "sha256": "88f49b5852d8c431fa26267edc2407c51325f8f8a9a4aa2df7de340bfdc3c6db"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.ranged-20",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 20,
+        "height": 20
+      },
+      "files": [
+        {
+          "path": "badge/class/ranged-20.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 409,
+          "width": 20,
+          "height": 20,
+          "sha256": "284064f79ac7c8da4762910bacfece62d40238c176a74429fb8c8501b835e0ff"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.ranged-32",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 32,
+        "height": 32
+      },
+      "files": [
+        {
+          "path": "badge/class/ranged-32.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 607,
+          "width": 32,
+          "height": 32,
+          "sha256": "12dc340576aaacb808151b8a7180345a48d73476120433a7f32a454b8ce120a3"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.ranged-48",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "files": [
+        {
+          "path": "badge/class/ranged-48.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 575,
+          "width": 48,
+          "height": 48,
+          "sha256": "6fd126587a963930aed2b173623977947bfa7c2cc717ea5e9d1aaf29847d1e5d"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.support-20",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 20,
+        "height": 20
+      },
+      "files": [
+        {
+          "path": "badge/class/support-20.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 284,
+          "width": 20,
+          "height": 20,
+          "sha256": "0e109d69032badcb1f0248773da3244ccbf9046b9d56fa3247aea72b4ced5699"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.support-32",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 32,
+        "height": 32
+      },
+      "files": [
+        {
+          "path": "badge/class/support-32.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 390,
+          "width": 32,
+          "height": 32,
+          "sha256": "b36e3ea021669ad420f308d5bce64b00dc771fda271bafc2164b52a688da0598"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.support-48",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "files": [
+        {
+          "path": "badge/class/support-48.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 358,
+          "width": 48,
+          "height": 48,
+          "sha256": "55f5c6a7cf4c777a5ea2b6922cfec6b5de20bfe59ef40ac5d2a080b085f1a132"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.tanker-20",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 20,
+        "height": 20
+      },
+      "files": [
+        {
+          "path": "badge/class/tanker-20.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 253,
+          "width": 20,
+          "height": 20,
+          "sha256": "aa2ee396682049e63d3f61df84aec6a0cf834923b9808093e12d8da296393aa8"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.tanker-32",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 32,
+        "height": 32
+      },
+      "files": [
+        {
+          "path": "badge/class/tanker-32.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 337,
+          "width": 32,
+          "height": 32,
+          "sha256": "ca0396459a1e8308fb26601b4857bec0c70ae3271d07b42369fbd2c5907248dd"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "badge.class.tanker-48",
+      "kind": "badge-class",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "files": [
+        {
+          "path": "badge/class/tanker-48.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 305,
+          "width": 48,
+          "height": 48,
+          "sha256": "2453908e56e2fb77bd7c70b3740677fcfa80ad0b03616264d1e6edea017c004c"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    }
+  ]
+}

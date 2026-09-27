@@ -1,0 +1,26 @@
+{
+  "tileset_id": "pm4-20260923-z13-s6-coast-z13",
+  "layout": "screen-fixture",
+  "screen": "S6-z13",
+  "center": [100.6, 13.5],
+  "zoom": 13,
+  "bbox": [100.579, 13.456, 100.621, 13.544],
+  "minzoom": 13,
+  "maxzoom": 13,
+  "schema": {
+    "name": "protomaps-basemap",
+    "major": 4,
+    "metadataVersion": "4.15.2"
+  },
+  "build_key": "20260923",
+  "source_url": "https://build.protomaps.com/20260923.pmtiles",
+  "files": {
+    "tiles": 6
+  },
+  "bytes": {
+    "tiles": 90161,
+    "pmtiles_archive": 73319
+  },
+  "glyphs_and_sprites_from": "fixtures/lumpini",
+  "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap</a> <a href=\"https://protomaps.com\">Protomaps</a>"
+}

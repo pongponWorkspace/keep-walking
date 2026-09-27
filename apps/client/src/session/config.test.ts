@@ -13,7 +13,7 @@ describe('buildSessionParams', () => {
 
   it('is accepted by the real sessionStep (wired, not stubbed)', () => {
     const now_ms = Date.parse('2026-10-05T09:00:00+07:00');
-    const session = createSession(now_ms);
+    const session = createSession(now_ms, params);
     const { state, events } = sessionStep(session, { type: 'tick' }, now_ms, params);
     expect(state.run).toBeNull();
     expect(events).toEqual([]);
@@ -21,7 +21,7 @@ describe('buildSessionParams', () => {
 
   it('feeds a sample without throwing (a point far outside every dungeon)', () => {
     const now_ms = Date.parse('2026-10-05T09:00:00+07:00');
-    const session = createSession(now_ms);
+    const session = createSession(now_ms, params);
     const { state } = sessionStep(
       session,
       { type: 'sample', sample: { t_ms: now_ms, lat: 0, lng: 0, accuracy_m: 5 } },

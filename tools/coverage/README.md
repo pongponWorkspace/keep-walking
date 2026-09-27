@@ -100,13 +100,16 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # ครั
 ## 6. Test
 
 ```sh
-cd tools/coverage && .venv/bin/python -m pytest pipeline/tests -q      # 176 test (pipeline + analysis) ราว 1 วินาที ไม่ใช้เน็ต
+cd tools/coverage && .venv/bin/python -m pytest pipeline/tests -q      # 291 test (pipeline + analysis) ราว 2 วินาที ไม่ใช้เน็ต
 .venv/bin/python -m pytest pipeline/tests -q -s -k print_case_table    # พิมพ์ตาราง case → expected → actual (pipeline)
 .venv/bin/python -m pytest pipeline/tests -q -s -k print_analysis_case_table   # ตารางของ analysis (หัวข้อ 10.6)
 ```
 
 - fixture: `pipeline/tests/fixture_osm.py` วาด OSM XML สังเคราะห์ด้วยมือ (ไม่ได้ตัดจาก OSM จึงไม่ติด ODbL) ใน UTM 47N แถวกรุงเทพฯ · 1 จังหวัด 2 เขต 38 case polygon + 4 case จุดและนอกพื้นที่ · สร้างไฟล์ `.osm.xml` ขนาดราว 24 KB ใน temp ตอนรัน test แล้วรันผ่าน CLI จริง (`python -m pipeline run`)
 - ครอบคลุม: ขอบพื้นที่ 2,999 / 3,000 / 150,000 / 150,001 (unit บนค่าจาก config และ round-trip WGS84↔UTM) · ทุกแถวของ METHOD 7.4 · multipolygon มีรู · way/relation ซ้ำ · nested · `split_candidate` · access / indoor market / private garden · คร่อมสองเขต · ถนนหลักตัดผ่าน และสะพานไม่นับ · POI ข้างใน / เดี่ยว / ศาสนา · ศาสนาบนตัวเอง · multipart ห่าง/ใกล้ · ชิ้นนอกพื้นที่ · สืบทอดธง review
+- fixture หมวด blocklist (P1-X29, BUG-F01-001): `pipeline/tests/fixture_blocklist.py` วาด polygon สังเคราะห์ของหมวด health / government / military / diplomatic (คู่กับ religious / education / cemetery ใน `fixture_osm.py`) · ตรวจใน `test_blocklist_categories.py` ว่าแต่ละหมวดตัดถูกเหตุผลและปิดหมวดตาม config ได้
+- ข้อความไทยของ heatmap (P1-X29, BUG-F01-002): ไม่มีข้อความไทยในไฟล์ Python ของ `analysis/` · ข้อความอยู่ใน `analysis/heatmap-strings.th.json` (template ของ `str.format`) และหน้าเว็บอยู่ใน `analysis/heatmap-template.html` · ตัวเลขใน legend (เขียว ≤ 800 ม., แดง > 3 กม., 79 เขต) เติมจาก `analysis/launch-score.config.json#distanceBands_m` และจำนวนแถวจริง ไม่ได้เขียนตายใน template (P2-F04-T23) · ตรวจใน `test_heatmap_text.py`
+- ไฟล์ที่ commit (P2-F04-T23): `test_committed_meta.py` ตรวจว่า `data/coverage/run-meta.json` บันทึกเฉพาะคีย์ config ที่ analysis อ่านจริง · `coverage_meta.config.coverageFilter` ใน candidates/excluded มีเฉพาะ 28 คีย์ที่ pipeline อ่าน (`REQUIRED_FILTER_KEYS`) · `excluded.geojson` ≤ `pipeline.excludedTargetBytes` (4,500,000 byte, finding F-07 ของ tech gate F02 · ตอนนี้ 4,111,854 byte)
 - config: area / verification / coverageFilter มาจาก dungeons.json เท่านั้น · คีย์หาย = หยุด · สลับ `minArea_m2` และ `maxBlockedShare.religious` แล้วผลเปลี่ยน · สวิตช์ D-026 D-027 D-028 · ปิดหมวดศาสนาไม่ได้ · จำนวนเขตไม่ตรง = exit 1
 - รันซ้ำได้ byte เดิม (SHA-256 เท่ากัน) · fetch: ดาวน์โหลด/ข้าม/checksum ผิดแล้วลบ/ห้ามดาวน์โหลดใน CI (ใช้ `file://` ไม่ใช้เน็ต)
 - **จาก root:** `pipeline/tests/pytest-bridge.test.ts` เป็น Vitest test ที่เรียก pytest ด้านบน (ข้ามพร้อมคำเตือนถ้าไม่มี `.venv` · บังคับรันเมื่อ `COVERAGE_PYTEST_REQUIRED=1`) · ต้องให้ tech-lead เพิ่ม glob `tools/coverage/pipeline/tests/**/*.test.ts` ใน `vitest.config.ts` จึงจะรันจาก `pnpm test` (ดูรายงาน P1-F01-T05) · CI ต้องสร้าง venv ก่อน: `python3 -m venv tools/coverage/.venv && tools/coverage/.venv/bin/pip install -r tools/coverage/requirements.txt`

@@ -103,12 +103,41 @@ check "serve.py: XYZ tile -> 200 application/x-protobuf" grep -qi '^content-type
 check "serve.py: CORS + Timing-Allow-Origin" bash -c "grep -qi '^access-control-allow-origin: \*' <<<'$hdr' && grep -qi '^timing-allow-origin: \*' <<<'$hdr'"
 check "serve.py: missing tile -> 404" test "$(curl -s -o /dev/null -w '%{http_code}' "$base/tiles/$ID/15/1/1.mvt")" = 404
 
-# ---- bbox vs province boundaries (needs the coverage pipeline output, git-ignored) ----
-if [[ -f "$REPO_ROOT/$(cfg .area.boundariesGeojson)" ]]; then
-  check "bbox covers all 6 provinces (verify-bbox.py)" python3 "$TILES_DIR/bin/verify-bbox.py"
-else
-  skip "bbox vs provinces" "$(cfg .area.boundariesGeojson) not present (run tools/coverage first)"
-fi
+# ---- screen fixtures S2 / S5 / S6 (P2-F04-T23, config screenFixtures) ----
+SROOT="$TILES_DIR/fixtures/$(cfg .screenFixtures.dir)"
+check "screen fixtures tree <= screenFixtures.maxDirBytes" test "$(sum_bytes "$SROOT")" -le "$(cfg .screenFixtures.maxDirBytes)"
+check "screen fixtures cover S2, S5, S6-z10, S6-z13" jq -e '[.screenFixtures.items[].screen] | sort == ["S2","S5","S6-z10","S6-z13"]' "$CONFIG"
+while IFS=$'\t' read -r sname smaxz; do
+  sid="$(tileset_id "$smaxz")-$sname"; sfix="$SROOT/$sname"
+  sel=".screenFixtures.items[] | select(.name == \"$sname\")"
+  check "$sname: bbox inside area.bbox, center inside bbox" jq -e ".area.bbox as \$a | ($sel) as \$i | \$i.bbox as \$b
+    | \$b[0] >= \$a[0] and \$b[1] >= \$a[1] and \$b[2] <= \$a[2] and \$b[3] <= \$a[3]
+    and \$i.center[0] > \$b[0] and \$i.center[0] < \$b[2] and \$i.center[1] > \$b[1] and \$i.center[1] < \$b[3]" "$CONFIG"
+  check "$sname: tree <= screenFixtures.maxTotalBytesEach" test "$(sum_bytes "$sfix")" -le "$(cfg .screenFixtures.maxTotalBytesEach)"
+  check "$sname: tiles.json bounds = config bbox" jq -e --slurpfile c "$CONFIG" --arg n "$sname" \
+    '.bounds == ($c[0].screenFixtures.items[] | select(.name == $n) | .bbox)' "$sfix/tiles/$sid/tiles.json"
+  snt="$(count_files "$sfix/tiles/$sid" -name '*.mvt')"
+  check "$sname: manifest tile count matches files ($snt)" jq -e --argjson n "$snt" '.files.tiles == $n and .files.tiles > 0' "$sfix/manifest.json"
+  bad1a="$(find "$sfix/tiles" -name '*.mvt' -exec sh -c 'head -c 1 "$1" | od -An -tx1 | tr -d " \n"; echo' sh {} \; | grep -vc '^1a' || true)"
+  check "$sname: every tile is raw MVT (0x1a)" test "$bad1a" -eq 0
+  if [[ -x "$PMTILES_BIN" ]]; then
+    check "$sname: pmtiles verify" "$PMTILES_BIN" verify "$sfix/pmtiles/$sid.pmtiles"
+    rm -rf "$TMP/sxyz"
+    "$TILES_DIR/bin/unpack-xyz.sh" "$sfix/pmtiles/$sid.pmtiles" "$TMP/sxyz" "$(bbox_csv "$sel | .bbox")" \
+      "$(cfg "$sel | .minzoom")" "$smaxz" >/dev/null 2>&1
+    if diff -rq -x tiles.json "$TMP/sxyz" "$sfix/tiles/$sid" >/dev/null; then ok "$sname: XYZ = unpacked PMTiles"; else bad "$sname: XYZ = unpacked PMTiles" "diff -r"; fi
+  fi
+done < <(jq -r '.screenFixtures.items[] | [.name, (.maxzoom | tostring)] | @tsv' "$CONFIG")
+
+# ---- bbox vs province boundaries + mask hole (committed inputs, never skipped: P2-F04-T23) ----
+check "bbox covers all 6 provinces and the mask hole (verify-bbox.py, committed polygon)" python3 "$TILES_DIR/bin/verify-bbox.py"
+check "area.boundariesGeojson is the committed data/map polygon, not tools/coverage/out/" \
+  jq -e '.area.boundariesGeojson | startswith("data/map/")' "$CONFIG"
+BAD_CFG="$(mktemp)"
+jq '.area.bbox[1] = 13.5' "$CONFIG" >"$BAD_CFG"
+check "verify-bbox.py fails when area.bbox cuts a province (south edge 13.5)" \
+  bash -c "! python3 '$TILES_DIR/bin/verify-bbox.py' --config '$BAD_CFG'"
+rm -f "$BAD_CFG"
 
 printf '\n%d passed, %d failed, %d skipped\n' "$PASS" "$FAIL" "$SKIP"
 (( FAIL == 0 ))

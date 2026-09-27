@@ -3,13 +3,14 @@
 // -> drop; the HP engine (P2-F06-T06) extends `RunState.hp` and the hit sequence on top of this.
 export type {
   ActiveClock,
+  AllocatedStats,
   CheckInRejectReason,
+  ClassChooseRejectReason,
   FromPersistedRejectReason,
   PersistedSession,
   PlayerState,
   RawSample,
   RunBag,
-  RunHpState,
   RunState,
   RunStatus,
   RunSummary,
@@ -19,25 +20,34 @@ export type {
   SessionInput,
   SessionParams,
   SessionState,
+  UsePotionRejectReason,
 } from './types';
 export {
   EMPTY_BAG,
   InvalidSessionInputError,
   UnsupportedConfigError,
+  ZERO_ALLOCATED,
   bagAdd,
+  bagRemoveOne,
   clockStart,
   clockStop,
   createPlayer,
+  hpConfigInputOf,
   tauOf,
 } from './types';
+// Re-exported so `apps/client` (which may only import `@keep-walking/shared/session`, ADR 0003
+// 3.3) can name the HP shapes embedded in `PlayerState`/`RunState` without reaching into `hp`
+// directly.
+export type { PlayerClass, PlayerHpState, RunHpState } from '../hp';
 export { createSession, purgeLocationData, sessionStep } from './reducer';
 export type { FromPersistedResult } from './persistence';
 export { fromPersisted, toPersisted } from './persistence';
-export type { CheckInPreview, OpeningView, RunView } from './selectors';
+export type { CheckInPreview, OpeningView, PlayerView, RunView } from './selectors';
 export {
   selectCanClearLocalData,
   selectCheckInPreview,
   selectOpening,
+  selectPlayerView,
   selectRunView,
   selectSummary,
 } from './selectors';

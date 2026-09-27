@@ -54,6 +54,7 @@ def run_fixture(fixture_osm, tmp_path_factory) -> Callable[..., dict[str, Any]]:
         bparams = load(DEFAULT_BOUNDARY_PARAMS)
         bparams["provinces"]["expectedCount"] = len(cells())
         bparams["outputs"] = {"mask": "map/mask.geojson", "provinces": "map/provinces.geojson"}
+        bparams["mask"]["clipBbox"] = None  # the fixture grid is south of the real tile bbox
         if edit:
             edit(bparams)
         p_path, b_path = base / "params.json", base / "bparams.json"

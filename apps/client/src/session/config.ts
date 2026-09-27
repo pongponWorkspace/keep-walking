@@ -74,15 +74,85 @@ export function buildSessionConfig(): SessionConfig {
     readonly lockSustained_s: number;
     readonly unlockSustained_s: number;
   };
-  const hpSafety = subset.dungeons.hpSafety as { readonly autoRetreatKeepsRunLoot: boolean };
+  const hpSafety = subset.dungeons.hpSafety as {
+    readonly autoRetreatKeepsRunLoot: boolean;
+    readonly autoRetreatEnabledByDefault: boolean;
+    readonly autoRetreatThreshold_pct: number;
+    readonly lowHpWarningThreshold_pct: number;
+  };
   const death = subset.dungeons.death as { readonly loseAllRunLoot: boolean };
+  const exit = subset.dungeons.exit as { readonly regenStartsOnExit: boolean };
   const expCurve = subset.progression.expCurve as JsonObject;
+  const level = subset.progression.level as {
+    readonly maxLevel: number;
+    readonly startLevel: number;
+  };
   const expMultipliers = subset.progression.expMultipliers as JsonObject;
   const magic = (subset.classes.roles as { readonly magic: { base_pct: number; cap_pct: number } })
     .magic;
   const buffStacking = subset.classes.buffStacking as {
     readonly pPerMemberBase: number;
     readonly pLevelDivisor: number;
+  };
+  const roles = subset.classes.roles as {
+    readonly tanker: {
+      readonly base_pct: number;
+      readonly cap_pct: number;
+      readonly missingDebuffMult: number;
+    };
+    readonly support: {
+      readonly base_pct: number;
+      readonly cap_pct: number;
+      readonly inDungeonHealBase_pctMaxHpPerMin: number;
+    };
+    readonly magic: {
+      readonly base_pct: number;
+      readonly cap_pct: number;
+      readonly shieldPerRewardTick_pctMaxHpPerBuffPct: number;
+    };
+  };
+  const monsterAttack = subset.combat.monsterAttack as {
+    readonly zoneLevelFrom: string;
+    readonly monsterAtkCoef: number;
+    readonly monsterAtkExponent: number;
+  };
+  const defense = subset.combat.defense as { readonly defSoftcap: number };
+  const attackCheck = subset.combat.attackCheck as {
+    readonly intervalMin_s: number;
+    readonly intervalMax_s: number;
+    readonly intervalDistribution: string;
+    readonly hitChancePerCheck_pct: number;
+  };
+  const levelGapDamage = subset.combat.levelGapDamage as {
+    readonly damageMultPerLevelBelowRange: number;
+    readonly mode: string;
+    readonly maxMult: number | null;
+  };
+  const autoPotion = subset.economy.autoPotion as {
+    readonly enabledByDefault: boolean;
+    readonly defaultThreshold_pct: number;
+    readonly defaultPotionOrder: readonly string[];
+    readonly sourceOrder: readonly string[];
+  };
+  const baseStats = subset.progression.baseStats as {
+    readonly hp: number;
+    readonly def: number;
+    readonly vit: number;
+  };
+  const statPerPoint = subset.progression.statPerPoint as {
+    readonly hp: number;
+    readonly def: number;
+    readonly vitHpRegenSpeed_pct: number;
+    readonly vitPotionEfficiency_pct: number;
+  };
+  const statPoints = subset.progression.statPoints as {
+    readonly pointsPerLevel: number;
+    readonly pointsFormula: string;
+  };
+  const hpRecovery = subset.progression.hpRecovery as {
+    readonly deathRecoveryTo_pct: number;
+    readonly deathRecoveryDuration_s: number;
+    readonly outsideDungeonRegen_pctMaxHpPerMin: number;
   };
 
   return {
@@ -135,13 +205,28 @@ export function buildSessionConfig(): SessionConfig {
       },
     },
     exp: {
-      exp: expCurve as unknown as ExpParams,
+      // `ExpParams` (`@keep-walking/shared/formulas`) is `expCurve`'s 4 fields plus `maxLevel`/
+      // `startLevel`, which live in `progression.json#level` instead — fixed (found while
+      // verifying this task's own round-trip test): the old cast skipped both, so a fresh
+      // `createPlayer` silently got `level: undefined` and every persisted-session load rejected
+      // as `corrupt` the instant P2-F06-T06's `isCorruptPlayer` guard started checking `level`.
+      exp: {
+        ...(expCurve as unknown as ExpParams),
+        maxLevel: level.maxLevel,
+        startLevel: level.startLevel,
+      },
       expMult: expMultipliers as unknown as ExpMultParams,
       roles: { magic: { base_pct: magic.base_pct, cap_pct: magic.cap_pct } },
       buff: buffStacking,
     },
-    hpSafety: { autoRetreatKeepsRunLoot: hpSafety.autoRetreatKeepsRunLoot },
+    hpSafety: {
+      autoRetreatKeepsRunLoot: hpSafety.autoRetreatKeepsRunLoot,
+      autoRetreatEnabledByDefault: hpSafety.autoRetreatEnabledByDefault,
+      autoRetreatThreshold_pct: hpSafety.autoRetreatThreshold_pct,
+      lowHpWarningThreshold_pct: hpSafety.lowHpWarningThreshold_pct,
+    },
     death: { loseAllRunLoot: death.loseAllRunLoot },
+    exit: { regenStartsOnExit: exit.regenStartsOnExit },
     openingHours: {
       utcOffset_min: (subset.dungeons.openingHours as { utcOffset_min: number }).utcOffset_min,
       closingSoonNotice_s: (subset.dungeons.openingHours as { closingSoonNotice_s: number })
@@ -149,8 +234,64 @@ export function buildSessionConfig(): SessionConfig {
     },
     combat: {
       monsterAttack: {
-        zoneLevelFrom: (subset.combat.monsterAttack as { zoneLevelFrom: string }).zoneLevelFrom,
+        zoneLevelFrom: monsterAttack.zoneLevelFrom,
+        monsterAtkCoef: monsterAttack.monsterAtkCoef,
+        monsterAtkExponent: monsterAttack.monsterAtkExponent,
       },
+      defense: { defSoftcap: defense.defSoftcap },
+      attackCheck: {
+        intervalMin_s: attackCheck.intervalMin_s,
+        intervalMax_s: attackCheck.intervalMax_s,
+        intervalDistribution: attackCheck.intervalDistribution,
+        hitChancePerCheck_pct: attackCheck.hitChancePerCheck_pct,
+      },
+      levelGapDamage: {
+        damageMultPerLevelBelowRange: levelGapDamage.damageMultPerLevelBelowRange,
+        mode: levelGapDamage.mode,
+        maxMult: levelGapDamage.maxMult,
+      },
+      // `combat.json#raidFailPenalty` is a group-C name (`config/whitelist.ts`'s
+      // `FORBIDDEN_ANYWHERE`, checked by `generated.test.ts`) — never whitelisted, so its real
+      // value never leaves `config/balance/`. Phase 2 has no raid feature in the client at all (no
+      // raid state is ever tracked here), so `1` (neutral: "as if no raid has ever failed") is the
+      // only value this client can honestly compute; raids are server-side, Phase 3+ work.
+      raidFailPenalty: { monsterAtkMultAfterFailedRaid: 1 },
+    },
+    classes: {
+      buffStacking,
+      roles: {
+        tanker: {
+          base_pct: roles.tanker.base_pct,
+          cap_pct: roles.tanker.cap_pct,
+          missingDebuffMult: roles.tanker.missingDebuffMult,
+        },
+        support: {
+          base_pct: roles.support.base_pct,
+          cap_pct: roles.support.cap_pct,
+          inDungeonHealBase_pctMaxHpPerMin: roles.support.inDungeonHealBase_pctMaxHpPerMin,
+        },
+        magic: {
+          base_pct: roles.magic.base_pct,
+          cap_pct: roles.magic.cap_pct,
+          shieldPerRewardTick_pctMaxHpPerBuffPct:
+            roles.magic.shieldPerRewardTick_pctMaxHpPerBuffPct,
+        },
+      },
+    },
+    economy: {
+      potions: subset.economy.potions as SessionConfig['economy']['potions'],
+      autoPotion: {
+        enabledByDefault: autoPotion.enabledByDefault,
+        defaultThreshold_pct: autoPotion.defaultThreshold_pct,
+        defaultPotionOrder: autoPotion.defaultPotionOrder,
+        sourceOrder: autoPotion.sourceOrder,
+      },
+    },
+    progression: {
+      baseStats,
+      statPerPoint,
+      statPoints,
+      hpRecovery,
     },
   } satisfies SessionConfig;
 }
@@ -175,10 +316,7 @@ export function buildDungeonRecord(dungeon: ArtifactDungeon): SessionDungeonReco
     drop_table_id: dungeon.drop_table_id,
     geometry: dungeon.geometry as unknown as SessionDungeonRecord['geometry'],
     area_m2: dungeon.area_m2,
-    // `ArtifactDungeon.opening_hours` (dungeons/opening-hours-display.ts) is structurally the
-    // same shape as session's `OpeningHours` (weekly + exceptions) — cast, not re-imported, so
-    // this file never touches the banned `@keep-walking/shared/run` subpath.
-    opening_hours: dungeon.opening_hours as unknown as SessionDungeonRecord['opening_hours'],
+    opening_hours: dungeon.opening_hours,
   };
 }
 

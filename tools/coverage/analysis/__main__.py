@@ -151,7 +151,7 @@ def run_analysis(args) -> int:
     pop_rgba, ticks = H.density_rgba(dens)
     pop_png, zone_png = H.png_bytes(pop_rgba), H.png_bytes(H.zone_rgba(zone))
     red_png = H.png_bytes(H.red_hatch_rgba(zone))
-    hm = {"osm_data_date": cmeta.get("data_date"),
+    hm = {"osm_data_date": cmeta.get("data_date"), "distance_bands_m": acfg["distanceBands_m"],
           **H.summary_lines(totals, len(res["not_counted"]), cf["walkGraphSnapMaxDistance_m"])}
     page = H.build_html(grid, res["rows"], res["usable"], districts, pop_png, zone_png, red_png, ticks, block, hm)
     hdir = out["heatmapDir"]

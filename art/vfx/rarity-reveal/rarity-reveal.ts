@@ -76,10 +76,21 @@ function runCommon(target: Element): EffectRun {
 }
 
 // --- Uncommon: 2 beats (pop + 1 wiggle), no corners ------------------------------------------
+// Beat *proportions* are copied from audio/cue-list.md `drop.rarity.uncommon` vibration_ms
+// `[45,70,45]` (matches motion-direction §4's "จำนวนจังหวะ visual เท่ากับจำนวนจังหวะใน
+// vibration_ms" beat-count rule) then uniformly scaled so the total lands on this tier's
+// documented visual duration (motion-direction §3/§9: 350 ms) — a reveal read comfortably slower
+// than the haptic buzz it echoes, same relative rhythm, not a literal ms copy.
 const UNCOMMON_ENTER_SCALE = 0.9;
-const UNCOMMON_BEAT_1 = 45;
-const UNCOMMON_GAP_1 = 70;
-const UNCOMMON_BEAT_2 = 45;
+const UNCOMMON_TARGET_DURATION_MS = 350;
+const UNCOMMON_RAW_BEAT_1 = 45;
+const UNCOMMON_RAW_GAP_1 = 70;
+const UNCOMMON_RAW_BEAT_2 = 45;
+const UNCOMMON_RAW_TOTAL_MS = UNCOMMON_RAW_BEAT_1 + UNCOMMON_RAW_GAP_1 + UNCOMMON_RAW_BEAT_2;
+const UNCOMMON_SCALE = UNCOMMON_TARGET_DURATION_MS / UNCOMMON_RAW_TOTAL_MS;
+const UNCOMMON_BEAT_1 = UNCOMMON_RAW_BEAT_1 * UNCOMMON_SCALE;
+const UNCOMMON_GAP_1 = UNCOMMON_RAW_GAP_1 * UNCOMMON_SCALE;
+const UNCOMMON_BEAT_2 = UNCOMMON_RAW_BEAT_2 * UNCOMMON_SCALE;
 const UNCOMMON_PATTERN_MS = [UNCOMMON_BEAT_1, UNCOMMON_GAP_1, UNCOMMON_BEAT_2];
 const UNCOMMON_PEAK_1 = 1.05;
 const UNCOMMON_PEAK_2 = 1.03;
@@ -98,12 +109,23 @@ function runUncommon(target: Element): EffectRun {
 // --- Rare: 3 beats, escalating peak scale + 2 corners ----------------------------------------
 // "ขอบกะพริบ 3 ครั้งไล่สว่างขึ้น" reinterpreted as `transform: scale()` steps per V-21 (art/
 // reviews/F03-visual-gate.md) — no filter/opacity anywhere in this tier.
+// Same scaling approach as Uncommon: proportions from `drop.rarity.rare` vibration_ms
+// `[45,70,45,70,45]`, scaled to this tier's documented total (450 ms).
 const RARE_ENTER_SCALE = 0.9;
-const RARE_BEAT_1 = 45;
-const RARE_GAP_1 = 70;
-const RARE_BEAT_2 = 45;
-const RARE_GAP_2 = 70;
-const RARE_BEAT_3 = 45;
+const RARE_TARGET_DURATION_MS = 450;
+const RARE_RAW_BEAT_1 = 45;
+const RARE_RAW_GAP_1 = 70;
+const RARE_RAW_BEAT_2 = 45;
+const RARE_RAW_GAP_2 = 70;
+const RARE_RAW_BEAT_3 = 45;
+const RARE_RAW_TOTAL_MS =
+  RARE_RAW_BEAT_1 + RARE_RAW_GAP_1 + RARE_RAW_BEAT_2 + RARE_RAW_GAP_2 + RARE_RAW_BEAT_3;
+const RARE_SCALE = RARE_TARGET_DURATION_MS / RARE_RAW_TOTAL_MS;
+const RARE_BEAT_1 = RARE_RAW_BEAT_1 * RARE_SCALE;
+const RARE_GAP_1 = RARE_RAW_GAP_1 * RARE_SCALE;
+const RARE_BEAT_2 = RARE_RAW_BEAT_2 * RARE_SCALE;
+const RARE_GAP_2 = RARE_RAW_GAP_2 * RARE_SCALE;
+const RARE_BEAT_3 = RARE_RAW_BEAT_3 * RARE_SCALE;
 const RARE_PATTERN_MS = [RARE_BEAT_1, RARE_GAP_1, RARE_BEAT_2, RARE_GAP_2, RARE_BEAT_3];
 const RARE_PEAK_1 = 1.03;
 const RARE_PEAK_2 = 1.06;
@@ -127,14 +149,33 @@ function runRare(target: Element): EffectRun {
 }
 
 // --- Epic: 4 beats (last one longer) + 4 corners clockwise ------------------------------------
+// Proportions from `drop.rarity.epic` vibration_ms `[45,60,45,60,45,60,90]`, scaled to this
+// tier's documented total (550 ms).
 const EPIC_ENTER_SCALE = 0.88;
-const EPIC_BEAT_1 = 45;
-const EPIC_GAP_1 = 60;
-const EPIC_BEAT_2 = 45;
-const EPIC_GAP_2 = 60;
-const EPIC_BEAT_3 = 45;
-const EPIC_GAP_3 = 60;
-const EPIC_BEAT_4 = 90;
+const EPIC_TARGET_DURATION_MS = 550;
+const EPIC_RAW_BEAT_1 = 45;
+const EPIC_RAW_GAP_1 = 60;
+const EPIC_RAW_BEAT_2 = 45;
+const EPIC_RAW_GAP_2 = 60;
+const EPIC_RAW_BEAT_3 = 45;
+const EPIC_RAW_GAP_3 = 60;
+const EPIC_RAW_BEAT_4 = 90;
+const EPIC_RAW_TOTAL_MS =
+  EPIC_RAW_BEAT_1 +
+  EPIC_RAW_GAP_1 +
+  EPIC_RAW_BEAT_2 +
+  EPIC_RAW_GAP_2 +
+  EPIC_RAW_BEAT_3 +
+  EPIC_RAW_GAP_3 +
+  EPIC_RAW_BEAT_4;
+const EPIC_SCALE = EPIC_TARGET_DURATION_MS / EPIC_RAW_TOTAL_MS;
+const EPIC_BEAT_1 = EPIC_RAW_BEAT_1 * EPIC_SCALE;
+const EPIC_GAP_1 = EPIC_RAW_GAP_1 * EPIC_SCALE;
+const EPIC_BEAT_2 = EPIC_RAW_BEAT_2 * EPIC_SCALE;
+const EPIC_GAP_2 = EPIC_RAW_GAP_2 * EPIC_SCALE;
+const EPIC_BEAT_3 = EPIC_RAW_BEAT_3 * EPIC_SCALE;
+const EPIC_GAP_3 = EPIC_RAW_GAP_3 * EPIC_SCALE;
+const EPIC_BEAT_4 = EPIC_RAW_BEAT_4 * EPIC_SCALE;
 const EPIC_PATTERN_MS = [
   EPIC_BEAT_1,
   EPIC_GAP_1,
@@ -173,16 +214,42 @@ function runEpic(target: Element): EffectRun {
 // --- Legendary: 5 beats + 4 corners + shard burst + one-shot brightness() ---------------------
 // The one `filter` exception at this tier (motion-direction §2 table) — applied only on the
 // final beat, never mid-sequence, so it never risks reading as a continuous glow/loop.
+// Proportions from `drop.rarity.legendary` vibration_ms `[45,60,45,60,45,60,45,60,180]` (raw sum
+// 600 ms — the audio cue's own length, per audio/cue-list.md "~600 ms"), scaled ×2 to land
+// exactly on 1200 ms: the top of this tier's 900–1,200 ms visual budget, the one reveal
+// motion-direction §4/§9 explicitly allows to run past the normal reveal ceiling ("Legendary เป็น
+// เสียงเดียวที่ดังได้"). The shard burst and final brightness beat both key off this same total.
 const LEGENDARY_ENTER_SCALE = 0.85;
-const LEGENDARY_BEAT_1 = 45;
-const LEGENDARY_GAP_1 = 60;
-const LEGENDARY_BEAT_2 = 45;
-const LEGENDARY_GAP_2 = 60;
-const LEGENDARY_BEAT_3 = 45;
-const LEGENDARY_GAP_3 = 60;
-const LEGENDARY_BEAT_4 = 45;
-const LEGENDARY_GAP_4 = 60;
-const LEGENDARY_BEAT_5 = 180;
+const LEGENDARY_TARGET_DURATION_MS = 1200;
+const LEGENDARY_RAW_BEAT_1 = 45;
+const LEGENDARY_RAW_GAP_1 = 60;
+const LEGENDARY_RAW_BEAT_2 = 45;
+const LEGENDARY_RAW_GAP_2 = 60;
+const LEGENDARY_RAW_BEAT_3 = 45;
+const LEGENDARY_RAW_GAP_3 = 60;
+const LEGENDARY_RAW_BEAT_4 = 45;
+const LEGENDARY_RAW_GAP_4 = 60;
+const LEGENDARY_RAW_BEAT_5 = 180;
+const LEGENDARY_RAW_TOTAL_MS =
+  LEGENDARY_RAW_BEAT_1 +
+  LEGENDARY_RAW_GAP_1 +
+  LEGENDARY_RAW_BEAT_2 +
+  LEGENDARY_RAW_GAP_2 +
+  LEGENDARY_RAW_BEAT_3 +
+  LEGENDARY_RAW_GAP_3 +
+  LEGENDARY_RAW_BEAT_4 +
+  LEGENDARY_RAW_GAP_4 +
+  LEGENDARY_RAW_BEAT_5;
+const LEGENDARY_SCALE = LEGENDARY_TARGET_DURATION_MS / LEGENDARY_RAW_TOTAL_MS;
+const LEGENDARY_BEAT_1 = LEGENDARY_RAW_BEAT_1 * LEGENDARY_SCALE;
+const LEGENDARY_GAP_1 = LEGENDARY_RAW_GAP_1 * LEGENDARY_SCALE;
+const LEGENDARY_BEAT_2 = LEGENDARY_RAW_BEAT_2 * LEGENDARY_SCALE;
+const LEGENDARY_GAP_2 = LEGENDARY_RAW_GAP_2 * LEGENDARY_SCALE;
+const LEGENDARY_BEAT_3 = LEGENDARY_RAW_BEAT_3 * LEGENDARY_SCALE;
+const LEGENDARY_GAP_3 = LEGENDARY_RAW_GAP_3 * LEGENDARY_SCALE;
+const LEGENDARY_BEAT_4 = LEGENDARY_RAW_BEAT_4 * LEGENDARY_SCALE;
+const LEGENDARY_GAP_4 = LEGENDARY_RAW_GAP_4 * LEGENDARY_SCALE;
+const LEGENDARY_BEAT_5 = LEGENDARY_RAW_BEAT_5 * LEGENDARY_SCALE;
 const LEGENDARY_PATTERN_MS = [
   LEGENDARY_BEAT_1,
   LEGENDARY_GAP_1,
@@ -297,25 +364,25 @@ registerEffect({
 });
 registerEffect({
   id: 'drop.rarity.uncommon',
-  durationMs: UNCOMMON_PATTERN_MS.reduce((a, b) => a + b, 0),
+  durationMs: UNCOMMON_TARGET_DURATION_MS,
   run: runUncommon,
   reducedMotion: runReduced,
 });
 registerEffect({
   id: 'drop.rarity.rare',
-  durationMs: RARE_PATTERN_MS.reduce((a, b) => a + b, 0),
+  durationMs: RARE_TARGET_DURATION_MS,
   run: runRare,
   reducedMotion: runReduced,
 });
 registerEffect({
   id: 'drop.rarity.epic',
-  durationMs: EPIC_PATTERN_MS.reduce((a, b) => a + b, 0),
+  durationMs: EPIC_TARGET_DURATION_MS,
   run: runEpic,
   reducedMotion: runReduced,
 });
 registerEffect({
   id: 'drop.rarity.legendary',
-  durationMs: LEGENDARY_PATTERN_MS.reduce((a, b) => a + b, 0),
+  durationMs: LEGENDARY_TARGET_DURATION_MS,
   run: runLegendary,
   reducedMotion: runReduced,
 });

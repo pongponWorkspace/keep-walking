@@ -7,7 +7,7 @@ import json
 import pytest
 from shapely.geometry import Point
 
-from boundaries.__main__ import DEFAULT_BOUNDARY_PARAMS
+from boundaries.__main__ import DEFAULT_BOUNDARY_PARAMS, resolve_clip_bbox
 from pipeline.config import DEFAULT_PARAMS
 
 from .checks import check_labels_vs_mask, check_mask, check_provinces
@@ -59,13 +59,33 @@ def test_labels_inside_thailand_bbox():
             assert 97.0 < x < 106.0 and 5.5 < y < 20.6, f["properties"]
 
 
+def _on_bbox_edge(pt, bbox) -> bool:
+    x, y = pt
+    return x in (bbox[0], bbox[2]) or y in (bbox[1], bbox[3])
+
+
 def test_mask_hole_is_drawn_by_the_border_lines():
-    """One geometry: every hole vertex is a vertex of the border lines."""
+    """One geometry: every hole vertex is a vertex of the border lines, except where
+    the hole is cut by the tile bbox (map-style 6.2, P2-F04-T23)."""
     rings = load(MASK)["features"][0]["geometry"]["coordinates"][1:]
     border = next(f for f in load(PROVINCES)["features"] if f["properties"]["kind"] == "border")
     verts = {tuple(pt) for line in border["geometry"]["coordinates"] for pt in line}
-    missing = [pt for ring in rings for pt in ring if tuple(pt) not in verts]
+    bbox = resolve_clip_bbox(BP["mask"]["clipBbox"])
+    missing = [pt for ring in rings for pt in ring
+               if tuple(pt) not in verts and not _on_bbox_edge(pt, bbox)]
     assert not missing, missing[:5]
+
+
+def test_mask_hole_is_clipped_to_the_tile_bbox():
+    """S6: no part of the hole lies where no basemap tile exists (black edge at sea)."""
+    assert BP["mask"]["clipBbox"] == "tools/tiles/config.json#area.bbox"
+    minx, miny, maxx, maxy = resolve_clip_bbox(BP["mask"]["clipBbox"])
+    rings = load(MASK)["features"][0]["geometry"]["coordinates"][1:]
+    pts = [pt for ring in rings for pt in ring]
+    assert all(minx <= x <= maxx and miny <= y <= maxy for x, y in pts)
+    mask = check_mask(load(MASK), BP["mask"]["outerRing"])
+    assert not mask.contains(Point(100.6, 13.5))  # S6 centre stays visible
+    assert mask.contains(Point(100.6, 13.3))  # Gulf inside TH-11 but outside the tiles
 
 
 def test_bangkok_is_visible_and_chiang_mai_masked():

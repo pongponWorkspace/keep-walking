@@ -27,11 +27,7 @@ function markT(id: string, prefix: string): number {
 }
 
 function gate(trace: GpsTrace) {
-  return gateWindows(trace.samples, {
-    window_s: cfg.gateWindow_s,
-    minDistance_m: cfg.gateMinDistance_m,
-    comparison: cfg.gateComparison,
-  });
+  return gateWindows(trace.samples, cfg);
 }
 
 function row(id: string, expected: string, actual: string) {

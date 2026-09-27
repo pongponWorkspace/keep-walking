@@ -1,6 +1,8 @@
 // Client staging (docs/tech/asset-delivery.md): copies every shipped art file, the vendored
 // fonts and the generated audio into tools/art/out/client/ and writes asset-manifest.json, the
-// only file the client reads to turn an id into a URL. The client build copies this folder as is.
+// file the client reads first to turn an id into a URL. Kinds listed in config `runtimeParts`
+// (the avatar layers) go to a lazily loaded part that asset-manifest.json points to via `parts`
+// (P2-X24, asset-delivery 5.1). The client build copies this folder as is.
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { sha256 } from './build';
@@ -36,10 +38,25 @@ export interface RuntimeAsset {
   files: RuntimeFile[];
 }
 
+/** Pointer from asset-manifest.json to a lazily loaded part (asset-delivery 5.1). */
+export interface RuntimePartRef {
+  url: string;
+  bytes: number;
+}
+
+/** A lazily loaded part: same `assets` shape as the main manifest, for the kinds in config. */
+export interface RuntimeManifestPart {
+  runtimeVersion: 1;
+  avatarRig: 1;
+  assets: Record<string, RuntimeAsset>;
+}
+
 export interface RuntimeManifest {
   runtimeVersion: 1;
   avatarRig: 1;
   assets: Record<string, RuntimeAsset>;
+  /** Part name → versioned URL of that part (added in P2-X24, backward compatible). */
+  parts: Record<string, RuntimePartRef>;
   fonts: { id: string; role: string; family: string; weight: number; url: string; format: string; bytes: number }[];
   audio: Record<string, Record<string, unknown> & { url: string }>;
   credits: { attribution: string; spdx: string; holder: string }[];
@@ -48,6 +65,19 @@ export interface RuntimeManifest {
 interface Copy {
   from: string;
   to: string;
+}
+
+/** A part written by `stage` as content (not copied from the repo). */
+export interface StagedPart {
+  name: string;
+  path: string;
+  json: string;
+  doc: RuntimeManifestPart;
+}
+
+/** Serialisation used for every runtime manifest file (and for its byte budget). */
+export function runtimeJson(doc: unknown): string {
+  return `${JSON.stringify(doc)}\n`;
 }
 
 function versioned(stagePath: string, root: string, from: string): string {
@@ -60,10 +90,11 @@ export function runtimeManifest(
   manifest: Manifest,
   build: BuildManifest,
   fonts: FontsManifest,
-): { manifest: RuntimeManifest; copies: Copy[] } {
+): { manifest: RuntimeManifest; parts: StagedPart[]; copies: Copy[] } {
   const copies: Copy[] = [];
   const assets: Record<string, RuntimeAsset> = {};
   const credits = new Map<string, RuntimeManifest['credits'][number]>();
+  const partAssets: Record<string, Record<string, RuntimeAsset>> = {};
   for (const e of manifest.assets) {
     if (!isShipped(e) || e.status === 'prompt-only') continue;
     const files: RuntimeFile[] = [];
@@ -89,7 +120,9 @@ export function runtimeManifest(
     if (e.sheet !== undefined) asset.sheet = e.sheet;
     if (e.variants !== undefined) asset.variants = e.variants;
     if (e.replacedBy !== undefined) asset.replacedBy = e.replacedBy;
-    assets[e.id] = asset;
+    const partName = Object.entries(cfg.runtimeParts.parts).find(([, p]) => p.kinds.includes(e.kind))?.[0];
+    if (partName === undefined) assets[e.id] = asset;
+    else (partAssets[partName] ??= {})[e.id] = asset;
     if (e.license.attribution !== null) {
       credits.set(e.license.attribution, { attribution: e.license.attribution, spdx: e.license.spdx, holder: e.license.holder });
     }
@@ -116,20 +149,34 @@ export function runtimeManifest(
     delete rest['file'];
     audio[cue.id] = { ...rest, url: versioned(to, root, from) };
   }
+  const parts: StagedPart[] = [];
+  const partRefs: Record<string, RuntimePartRef> = {};
+  for (const [name, p] of Object.entries(cfg.runtimeParts.parts)) {
+    const doc: RuntimeManifestPart = { runtimeVersion: 1, avatarRig: manifest.avatarRig, assets: partAssets[name] ?? {} };
+    const json = runtimeJson(doc);
+    parts.push({ name, path: p.path, json, doc });
+    partRefs[name] = { url: `${p.path}?v=${sha256(Buffer.from(json)).slice(0, VERSION_CHARS)}`, bytes: Buffer.byteLength(json) };
+  }
   const runtime: RuntimeManifest = {
     runtimeVersion: 1,
     avatarRig: manifest.avatarRig,
     assets,
+    parts: partRefs,
     fonts: fontList,
     audio,
     credits: [...credits.values()].sort((a, b) => (a.attribution < b.attribution ? -1 : 1)),
   };
-  return { manifest: runtime, copies };
+  return { manifest: runtime, parts, copies };
 }
 
-export function stage(root: string, cfg: PipelineConfig, manifest: Manifest, build: BuildManifest, fonts: FontsManifest, outDir?: string): RuntimeManifest {
+export interface StageResult {
+  manifest: RuntimeManifest;
+  parts: StagedPart[];
+}
+
+export function stage(root: string, cfg: PipelineConfig, manifest: Manifest, build: BuildManifest, fonts: FontsManifest, outDir?: string): StageResult {
   const out = outDir ?? join(root, cfg.paths.stageOut);
-  const { manifest: runtime, copies } = runtimeManifest(root, cfg, manifest, build, fonts);
+  const { manifest: runtime, parts, copies } = runtimeManifest(root, cfg, manifest, build, fonts);
   rmSync(out, { recursive: true, force: true });
   for (const c of copies) {
     const target = join(out, c.to);
@@ -137,6 +184,11 @@ export function stage(root: string, cfg: PipelineConfig, manifest: Manifest, bui
     copyFileSync(join(root, c.from), target);
   }
   mkdirSync(out, { recursive: true });
-  writeFileSync(join(out, RUNTIME_MANIFEST), `${JSON.stringify(runtime)}\n`);
-  return runtime;
+  writeFileSync(join(out, RUNTIME_MANIFEST), runtimeJson(runtime));
+  for (const p of parts) {
+    const target = join(out, p.path);
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, p.json);
+  }
+  return { manifest: runtime, parts };
 }

@@ -12,13 +12,59 @@
     "name": "bangkok-and-vicinity",
     "bbox": [99.8, 13.4, 101.0, 14.35],
     "provincesFrom": "tools/coverage/params.json#pipeline.studyArea.provinces",
-    "boundariesGeojson": "tools/coverage/out/boundaries.geojson",
+    "boundariesGeojson": "data/map/playable-provinces.geojson",
+    "maskGeojson": "data/map/playarea-mask.geojson",
+    "_boundariesComment": "P2-F04-T23 (P1-X39): committed small polygon per playable province (tools/coverage/boundaries/playable.py), so the bbox-vs-province check runs in CI. The mask hole is clipped to area.bbox by tools/coverage/boundaries (mask.clipBbox points here); after editing area.bbox re-run `python -m boundaries` there.",
     "minzoom": 0,
     "maxzoom": 15,
     "fallbackMaxzoom": 14,
     "overzoomTo": 18,
     "regionMode": "bbox",
     "_regionModeComment": "bbox = rectangle area.bbox (default, matches D-031 numbers). provinces = pmtiles --region from the district polygons of the playable provinces (fewer tiles, blank outside provinces; see size report)."
+  },
+  "screenFixtures": {
+    "_comment": "P2-F04-T23 (P1-H06, P2-F04-T09 S6): small fixtures for the map-style 10.1 screens the Lumphini fixture does not cover. One fixture per screen and zoom so each holds only the zoom MapLibre requests there (source maxzoom 15, overzoom above). bbox = the 390x844 viewport at that zoom plus 25%, clamped to area.bbox so the S6 edge looks exactly as in production (mask hole clipped to area.bbox). Glyphs and sprites are not copied: use the Lumphini fixture's. Built by bin/build-screen-fixtures.sh into fixtures/screens/<name>/.",
+    "dir": "screens",
+    "maxTotalBytesEach": 1572864,
+    "maxDirBytes": 3145728,
+    "items": [
+      {
+        "name": "s2-sukhumvit",
+        "screen": "S2",
+        "center": [100.56, 13.737],
+        "zoom": 17,
+        "bbox": [100.5587, 13.7342, 100.5613, 13.7398],
+        "minzoom": 15,
+        "maxzoom": 15
+      },
+      {
+        "name": "s5-chaophraya",
+        "screen": "S5",
+        "center": [100.495, 13.74],
+        "zoom": 14,
+        "bbox": [100.4845, 13.718, 100.5055, 13.762],
+        "minzoom": 14,
+        "maxzoom": 14
+      },
+      {
+        "name": "s6-coast-z10",
+        "screen": "S6-z10",
+        "center": [100.6, 13.5],
+        "zoom": 10,
+        "bbox": [100.4325, 13.4, 100.7675, 13.852],
+        "minzoom": 10,
+        "maxzoom": 10
+      },
+      {
+        "name": "s6-coast-z13",
+        "screen": "S6-z13",
+        "center": [100.6, 13.5],
+        "zoom": 13,
+        "bbox": [100.579, 13.456, 100.621, 13.544],
+        "minzoom": 13,
+        "maxzoom": 13
+      }
+    ]
   },
   "budget": {
     "_comment": "Cloudflare Pages Free limits checked 2026-09-23 (tech note 7.1, 7.4). Hard caps fail the build; targets fail the build unless --allow-over-target.",

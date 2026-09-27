@@ -4,12 +4,13 @@
  * model (`kw-dungeons`/`kw-dungeon-labels`, tech note F02 15.2 / D-075) via
  * `map/dungeons-source.ts#setDungeonsSourceData`. This file never invents a `name`/`status` field
  * itself: `name` resolves `name_key` through `copy/load.ts` (names.th.json is loaded the same way,
- * P1 convention), `status` resolves through `dungeons/opening-hours-display.ts` — never a literal.
+ * P1 convention), `status` resolves through `selectOpening` (`@keep-walking/shared/session`,
+ * P2-X10) — never a literal.
  */
 import artifactJson from '../../../../data/dungeons/artifact/dungeons.client.v1.json';
 import { getCopyText } from '../copy/load';
-import type { OpeningHours } from './opening-hours-display';
-import { isOpenAt } from './opening-hours-display';
+import { selectOpening } from '@keep-walking/shared/session';
+import type { SessionDungeonRecord, SessionParams } from '@keep-walking/shared/session';
 import type { DungeonGeometry, DungeonInput, DungeonStatus } from '../map/dungeons-source';
 
 export interface NavDestination {
@@ -31,7 +32,7 @@ export interface ArtifactDungeon {
   readonly label_point: readonly [number, number] | undefined;
   readonly nav_destination: NavDestination;
   readonly search_name_key: string;
-  readonly opening_hours: OpeningHours;
+  readonly opening_hours: SessionDungeonRecord['opening_hours'];
 }
 
 export interface DungeonArtifact {
@@ -60,28 +61,30 @@ export function loadDungeonArtifact(raw: unknown = artifactJson): DungeonArtifac
   };
 }
 
-/** `utcOffset_min` comes from `config/balance/dungeons.json#openingHours` (session/config.ts),
- * passed in rather than imported again here (single source of the balance value). */
+/** `params` (built by `session/config.ts#buildSessionParams` from this same artifact) is passed in
+ * rather than a bare UTC offset now: `selectOpening` looks the dungeon back up by id in
+ * `params.dungeons`, the single source `sessionStep` itself uses (never a second, hand-rolled
+ * opening-hours evaluation, CLAUDE.md "never fork the logic"). */
 export function dungeonStatus(
   dungeon: ArtifactDungeon,
-  utcOffsetMin: number,
+  params: SessionParams,
   now_ms: number,
 ): DungeonStatus {
-  return isOpenAt(dungeon.opening_hours, utcOffsetMin, now_ms) ? 'open' : 'closed';
+  return selectOpening(dungeon.id, now_ms, params).open ? 'open' : 'closed';
 }
 
 /** The map source's per-dungeon input (tech note F02 15.2, D-089: `label_count` is never set in
  * Phase 2 — no player counts anywhere). `name`/`status` are resolved, never raw artifact fields. */
 export function toMapDungeonInput(
   dungeon: ArtifactDungeon,
-  utcOffsetMin: number,
+  params: SessionParams,
   now_ms: number,
 ): DungeonInput {
   return {
     id: dungeon.id,
     name: getCopyText(dungeon.name_key),
     geometry: dungeon.geometry,
-    status: dungeonStatus(dungeon, utcOffsetMin, now_ms),
+    status: dungeonStatus(dungeon, params, now_ms),
     sponsored: false,
   };
 }

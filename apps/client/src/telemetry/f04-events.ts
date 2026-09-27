@@ -12,8 +12,11 @@ import type { PlayerState, SessionEvent } from '@keep-walking/shared/session';
 import type { TelemetryProperties, TelemetryPropertyValue } from './guard';
 
 /** Derived structurally from the allowed `session` subpath's `PlayerState`, never imported from
- * the banned `@keep-walking/shared/reward` (ADR 0003 section 3, eslint `no-restricted-imports`). */
-export type PlayerClass = PlayerState['playerClass'];
+ * the banned `@keep-walking/shared/reward` (ADR 0003 section 3, eslint `no-restricted-imports`).
+ * `null` before the player has chosen a class (F06 R29) — every call site below only ever sees a
+ * non-null value in practice (a tick/exit cannot happen before `chooseClass`, `no_class` rejects
+ * check-in first), but the type stays honest about the player-state shape it is derived from. */
+export type PlayerClass = PlayerState['classId'];
 
 export type DurationBucket = '0-5m' | '5-15m' | '15-30m' | '30-60m' | '60m+';
 
@@ -183,7 +186,24 @@ export function mapSessionEvent(
     }
     case 'dungeon_closing_soon':
       return dungeonClosingSoonNotifiedEvent(event.dungeonId);
+    // `sample_rejected`, plus the HP engine's own events (P2-F06-T06, `docs/tech/
+    // F06-hp-damage-onboarding.md` 12.3): their telemetry mapping belongs to the client task that
+    // actually builds the HP UI (P2-F06-T08), the same call site this task's own F04 events are
+    // wired from — not forked here ahead of that build (`run_hp_low`/`run_auto_retreat`/
+    // `run_death`/`run_potion_auto_used` are already in `telemetry/known-events.ts`, waiting for
+    // that mapper). Every case below falls through to the same `return undefined`.
     case 'sample_rejected':
+    case 'run_hit':
+    case 'run_hp_low':
+    case 'run_auto_retreat':
+    case 'run_death':
+    case 'run_potion_auto_used':
+    case 'class_chosen':
+    case 'class_choice_rejected':
+    case 'auto_retreat_setting_changed':
+    case 'potion_used':
+    case 'potion_use_rejected':
+    case 'player_recovered':
       return undefined;
   }
 }

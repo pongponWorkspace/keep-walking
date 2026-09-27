@@ -16,8 +16,8 @@ import type {
   LocationProviderState,
   Unsubscribe,
 } from '../types';
-import { ListenerSet } from '../web/listeners';
-import { systemClock } from '../web/platform';
+import { ListenerSet } from '../internal/listeners';
+import { systemClock } from '../internal/platform';
 
 export const CAPACITOR_NOT_IMPLEMENTED_MESSAGE =
   'Capacitor LocationProvider is not implemented until Phase 8';

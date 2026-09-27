@@ -1,0 +1,2012 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-09-27",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "icon.item.armor-raincoat",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/armor-raincoat.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 543,
+          "width": 64,
+          "height": 64,
+          "sha256": "121180dde66f4c163b99bf951a4abb08c580ff80f0424f782d5c52bb87b0e3c3"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "สีอ้างอิงชั่วคราวจาก ramp.cone (เสื้อกันฝนโทนส้ม) เพราะยังไม่มี ramp เสื้อกันฝนเฉพาะ · [ASSUMPTION P2-F05-T07-1]"
+    },
+    {
+      "id": "icon.item.boots-rain-boots",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/boots-rain-boots.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 559,
+          "width": 64,
+          "height": 64,
+          "sha256": "d3d173585f2832b061f5c15eed328773d777c67944bbd99e4d8bf3d0bc99c5e7"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "สีอ้างอิงชั่วคราวจาก ramp.cone (คู่กับ armor-raincoat) · [ASSUMPTION P2-F05-T07-1]"
+    },
+    {
+      "id": "icon.item.charm-keychain",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/charm-keychain.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 493,
+          "width": 64,
+          "height": 64,
+          "sha256": "4ef7337d57827b03ea66b40301fe3eb13085797c55b0c45f98649bb3bf47dd99"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "สีอ้างอิงชั่วคราวจาก ramp.wood (ตัวพวงกุญแจ) + วงแหวน ink.900 · [ASSUMPTION P2-F05-T07-1]"
+    },
+    {
+      "id": "icon.item.mat-dust",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/mat-dust.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 468,
+          "width": 64,
+          "height": 64,
+          "sha256": "a87ce8f1f5b21636c49ebbbe7755902fff60a289e6b5975bf4e16bb5d9cd9ff0"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.mat-essence",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/mat-essence.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 516,
+          "width": 64,
+          "height": 64,
+          "sha256": "56ce1cbb797c9a1effff8c6909471abee47b1da19b8b7c5c2034ff770ce23d80"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.mat-rift-stone",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/mat-rift-stone.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 561,
+          "width": 64,
+          "height": 64,
+          "sha256": "a427ab7cc8b82c4582f4931ed3008ab71c5f8322358914688472d8ae0042dcdf"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.potion-hp-large",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/potion-hp-large.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 688,
+          "width": 64,
+          "height": 64,
+          "sha256": "a97a094bc6ef2f49f45041e16a354dc8912c43d7bdcb3c2ea29148d64031e11c"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.potion-hp-medium",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/potion-hp-medium.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 681,
+          "width": 64,
+          "height": 64,
+          "sha256": "cae02cb15fa98073393f2b75e81bdd7629379f487773553c620327af6c383c80"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.potion-hp-small",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/potion-hp-small.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 671,
+          "width": 64,
+          "height": 64,
+          "sha256": "8671d73b59796b89593e981c89a392651745463f61bb189be798870b3844b810"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.potion-revive",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/potion-revive.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 849,
+          "width": 64,
+          "height": 64,
+          "sha256": "337ed99ea100f2150d9786075c7aac4cabd89d5bbba80cbe91d12514997345bf"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.weapon-folding-umbrella",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/weapon-folding-umbrella.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 635,
+          "width": 64,
+          "height": 64,
+          "sha256": "9d9427803a41c0e610aaed5e75f98f5da437de926d65f3e71c25ed5ba1dc6b2d"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "สีอ้างอิงชั่วคราวจาก ramp.wood (ด้าม) และ ramp.asphalt (ผ้าร่มพับ) เพราะยังเข้าไม่ถึงสีจริงของ avatar.weapon.folding-umbrella master · [ASSUMPTION P2-F05-T07-1] ถ้าไม่ตรง art-director ปรับสีได้โดยไม่ต้องเปลี่ยน id"
+    },
+    {
+      "id": "icon.ui.bag",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/bag.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 376,
+          "width": 24,
+          "height": 24,
+          "sha256": "c23e84c7ed0ddf3031e0e478ebfa44b9d57c2ed8deb433db8ecad5456035e6a5"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.closed",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/closed.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 412,
+          "width": 24,
+          "height": 24,
+          "sha256": "da011851b91dead568bb28992deb391bf4e12fba29eee26d9337ba4c4bf49eab"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.closing-soon",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/closing-soon.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 264,
+          "width": 24,
+          "height": 24,
+          "sha256": "dc1c9fdf75e717466eb27cdbf74534e33ca1e8482e1cbcf7bc2948a4ebec7143"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.consent",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/consent.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 509,
+          "width": 24,
+          "height": 24,
+          "sha256": "5473822db6546e79d3f4063bc532b02fd0a38eb4935844307ad9153213b489d7"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.copy",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/copy.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 391,
+          "width": 24,
+          "height": 24,
+          "sha256": "65760935384919a6de0941c90bd40b983b0fcf09ec71cc0a55e2e479b1f4a949"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.direction",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/direction.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 216,
+          "width": 24,
+          "height": 24,
+          "sha256": "4c5d88e4b2faf7bb61298069382405f0963e6b76aa805eb410d611e39273e871"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.exit",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/exit.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 432,
+          "width": 24,
+          "height": 24,
+          "sha256": "f2da5ae1080c3cd061a8e931686faee92654569c0f56db8207bf1ab801ceade3"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.gate-miss",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/gate-miss.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 447,
+          "width": 24,
+          "height": 24,
+          "sha256": "7b89db5c0190223143e7f9d02323988e672b6f8e39e51b5c840df46e45b833a8"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.gate-pass",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/gate-pass.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 590,
+          "width": 24,
+          "height": 24,
+          "sha256": "f4742b81aee33a86837a6496d8589c8917b57c06c0bc3cbbf75fd3e98dd49768"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.grace",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/grace.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 221,
+          "width": 24,
+          "height": 24,
+          "sha256": "fcea24b3ee17f94daf168639242e43d25e973af1f47c3fa622fcd4058c84460b"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.help",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/help.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 435,
+          "width": 24,
+          "height": 24,
+          "sha256": "5c01ab0d2584759ceec46aeae6e1053bb7aad5fb49085ad524469389af69a391"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.hours",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/hours.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 341,
+          "width": 24,
+          "height": 24,
+          "sha256": "b18f018a2c7585eaa4f9b7654d5808d4d4c348b28bd9dc795068555ca0441ae1"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.hp",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/hp.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 232,
+          "width": 24,
+          "height": 24,
+          "sha256": "331505ee65486e411ae998b097eb9ae7e63dfb7a27f2fabb7281bbc976657645"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.hp-low",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/hp-low.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 320,
+          "width": 24,
+          "height": 24,
+          "sha256": "2c8fc3ca0137d50043213251d42a70223702b4893aea94f59c4943916c4fe540"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.in-run",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/in-run.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 397,
+          "width": 24,
+          "height": 24,
+          "sha256": "353b71ea3787ce5372c4bc7e9d0d1ee74c1003fdb6fa2815ed6401969574e68b"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.knocked-out",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/knocked-out.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 370,
+          "width": 24,
+          "height": 24,
+          "sha256": "4bd42ca79ffb3ef9db368484cf99a86182abc57e4e253ec5b4da63a6ff2179bd"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.location-off",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/location-off.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 409,
+          "width": 24,
+          "height": 24,
+          "sha256": "4859cdcd5bd9648ed08868a4d728ba9857372c3b4c3368e3c68638796cd94179"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.map",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/map.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 247,
+          "width": 24,
+          "height": 24,
+          "sha256": "13703f552f85870638bed82074ae3c5071451fefac7132aa8208441480d959bc"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.navigate",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/navigate.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 455,
+          "width": 24,
+          "height": 24,
+          "sha256": "d25a88762a7b8b71ec03429a24ba5884c1e6550b3604e5b50512e2624ad1b86a"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.potion-used",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/potion-used.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 499,
+          "width": 24,
+          "height": 24,
+          "sha256": "25e8759895d3ebf2fcf32874b3b701ff1a6466097634bea01916db30816ccf8b"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.recovering",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/recovering.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 485,
+          "width": 24,
+          "height": 24,
+          "sha256": "bcc61ad27563520d07000db95f1eaa95676dd44505fe7dc2f3eb740b7dc864c4"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.retreat",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/retreat.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 475,
+          "width": 24,
+          "height": 24,
+          "sha256": "781f519adaf6a42bba0484818348fd28cb861dcea756be23d37b33ec263b377b"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.rift",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/rift.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 397,
+          "width": 24,
+          "height": 24,
+          "sha256": "75f302402b372cf3eb688e106ad43c60efa86b44df645970c7b9989c4afe4fd5"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.settings",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/settings.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 823,
+          "width": 24,
+          "height": 24,
+          "sha256": "4c72f1d6a8265657e5ab72c81660de5919324ab2ae326e91940eb2ace003673e"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.signal-wait",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/signal-wait.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 611,
+          "width": 24,
+          "height": 24,
+          "sha256": "44504b692647f90d36fb7b6f4a57910499b85406ab218d4945b6bf0d59027150"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.speed-lock",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/speed-lock.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 552,
+          "width": 24,
+          "height": 24,
+          "sha256": "e134b3c2cabcffa1a76cd32a7d2bdb7d86f21b9d9633df4dc28ca8c93ab36f3e"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.suspended",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/suspended.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 197,
+          "width": 24,
+          "height": 24,
+          "sha256": "d357d7ae9fab1b3e687a4d278678a978fc12e9a275b280fbb15fe12d77af59bd"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui.walk-in",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/walk-in.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 529,
+          "width": 24,
+          "height": 24,
+          "sha256": "42e69913dad25ad8a3ae3c1fe395c5262cbf9cbcd317ea340d7f645ee15eaf94"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.closed",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/closed.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 297,
+          "width": 16,
+          "height": 16,
+          "sha256": "c3b3e8a956596aa0892ea7fd200ac2feff8a75f657d8294c9d18de141e33fb0c"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.closing-soon",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/closing-soon.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 212,
+          "width": 16,
+          "height": 16,
+          "sha256": "cd6704aad35a77accfbe773f359c8d63ceb0563c25131bb3fe9caa64d47581a9"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.gate-miss",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/gate-miss.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 184,
+          "width": 16,
+          "height": 16,
+          "sha256": "7e1c80bbcf7af5c791e86aba1a9bd43d0ade0a55abd1aeaf4f3c8d44e9651acd"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.gate-pass",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/gate-pass.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 337,
+          "width": 16,
+          "height": 16,
+          "sha256": "fb05fe165d7042372b549327012d6306a4790ad36b91f40b743b4da178f7c7f4"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.grace",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/grace.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 154,
+          "width": 16,
+          "height": 16,
+          "sha256": "9155b8f9cf6c4f7439187fd9941da63b93c5ea749411b8d7f210d04e0bfdf28a"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.help",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/help.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 355,
+          "width": 16,
+          "height": 16,
+          "sha256": "7e00b763e2d610a75103084bc581f47941570370d3cb7337156d4bf3265ba3e0"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.hp",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/hp.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 224,
+          "width": 16,
+          "height": 16,
+          "sha256": "2cb15ad3e2edaf85a25f7fac37d3a3060fb712f31f8c71ed7976324129ed6158"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.in-run",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/in-run.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 241,
+          "width": 16,
+          "height": 16,
+          "sha256": "8723dafc092b31ad57d9179c52ef2647a5cca8a1a0682c31a351585b7b2552a8"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.location-off",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/location-off.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 379,
+          "width": 16,
+          "height": 16,
+          "sha256": "61ef07ffbfeb80ff97e616745d1101f00e2855158350ba7c7bca729756ac1f9e"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.rift",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/rift.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 241,
+          "width": 16,
+          "height": 16,
+          "sha256": "8da14be8f9a383a3a20e587a6ce69ac37f5c6aa4dc7112edd49d9e5010e09d08"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.suspended",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/suspended.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 151,
+          "width": 16,
+          "height": 16,
+          "sha256": "f475d226d6992d598014c38bc7922f81d54f789ed5be4b8c95628f5c35f2106a"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    }
+  ]
+}

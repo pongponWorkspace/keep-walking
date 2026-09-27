@@ -1,12 +1,12 @@
 {
-  "_comment": "Data table for every cue this task renders. `audio/src/cues.ts` types and loads this file; keep it here (not inline TS literals) so cue tuning is a data edit, not a code edit, and so it reads as plain content instead of tripping the repo-wide no-magic-numbers lint rule meant for gameplay balance values. vibration_ms MUST match audio/cue-list.md exactly (that document is the design spec).",
+  "_comment": "Data table for every cue this task renders. `audio/src/cues.ts` types and loads this file; keep it here (not inline TS literals) so cue tuning is a data edit, not a code edit, and so it reads as plain content instead of tripping the repo-wide no-magic-numbers lint rule meant for gameplay balance values. vibration_ms MUST match audio/cue-list.md exactly (that document is the design spec). priority: see cue-list.md section 4 for the full queue/pre-empt rule; renumbered in P2-F06-T13 so the four safety cues (run.hpLow, run.autoRetreat, run.death, anticheat.speedLock) occupy their own exclusive priorities 0-3, never tied with a non-safety cue.",
   "cues": [
     {
       "id": "run.tickGranted",
       "vibrationMs": [45],
       "notes": [{ "freq": 1200, "freqEnd": 1800, "wave": "bell", "gain": 1.0 }],
       "tier": "normal",
-      "priority": 5,
+      "priority": 6,
       "telemetry": "run_tick_granted",
       "silentFallback": "toast run.tickGranted",
       "loudnessRank": 2
@@ -20,7 +20,7 @@
         { "freq": 1800, "freqEnd": 2200, "wave": "bell", "gain": 1.0 }
       ],
       "tier": "normal",
-      "priority": 5,
+      "priority": 6,
       "telemetry": "run_tick_granted",
       "silentFallback": "toast run.tickGrantedFirst + run.continueCta (also fires onboarding_first_reward_granted)",
       "loudnessRank": 4
@@ -30,7 +30,7 @@
       "vibrationMs": [20],
       "notes": [{ "freq": 600, "wave": "click", "gain": 0.7 }],
       "tier": "soft",
-      "priority": 6,
+      "priority": 7,
       "telemetry": "run_tick_denied",
       "silentFallback": "toast run.tickDenied (faded style)",
       "loudnessRank": 1
@@ -85,7 +85,7 @@
         { "freq": 1300, "freqEnd": 1000, "wave": "bell", "gain": 0.8 }
       ],
       "tier": "normal",
-      "priority": 5,
+      "priority": 6,
       "telemetry": "dungeon_entered",
       "silentFallback": "screen transition to S-03-run",
       "loudnessRank": 3
@@ -98,13 +98,13 @@
         { "freq": 1500, "freqEnd": 1700, "wave": "bell", "gain": 1.0 }
       ],
       "tier": "warning",
-      "priority": 3,
+      "priority": 4,
       "telemetry": null,
       "silentFallback": "realtime boss HP bar + checkpoint banner (F17 copy key pending)",
       "loudnessRank": 6
     },
     {
-      "_comment": "F-13 (board): tone 'invites you to keep walking', priority below run.hpLow. Redesigned in P2-F05-T06 from the Phase 1 draft (was a 4-pulse alarm-clock pattern at priority 1, tied with run.autoRetreat — see cue-list.md 1 for the before/after).",
+      "_comment": "F-13 (board): tone 'invites you to keep walking', priority below run.hpLow. Redesigned in P2-F05-T06 from the Phase 1 draft (was a 4-pulse alarm-clock pattern at priority 1, tied with run.autoRetreat — see cue-list.md 1 for the before/after). Priority renumbered again in P2-F06-T13 (4 -> 5, see cue-list.md 4) to keep it clearly below the priority-4 tier and out of the safety band, no behavior change.",
       "id": "raid.thirtyMinWarning",
       "vibrationMs": [70, 90, 70, 90, 140],
       "notes": [
@@ -113,7 +113,7 @@
         { "freq": 1300, "freqEnd": 1100, "wave": "bell", "gain": 0.8 }
       ],
       "tier": "warning",
-      "priority": 4,
+      "priority": 5,
       "telemetry": null,
       "silentFallback": "raid banner: time left + boss HP % (F17 copy key pending)",
       "loudnessRank": 3
@@ -126,7 +126,7 @@
         { "freq": 1650, "freqEnd": 1800, "wave": "bell", "gain": 0.9 }
       ],
       "tier": "normal",
-      "priority": 5,
+      "priority": 6,
       "telemetry": null,
       "silentFallback": "icon rarity channel (color/pip/border/corner) — sound is a bonus 5th channel",
       "loudnessRank": 2
@@ -140,7 +140,7 @@
         { "freq": 1900, "wave": "bell", "gain": 0.9 }
       ],
       "tier": "normal",
-      "priority": 5,
+      "priority": 6,
       "telemetry": "loot_rarity_received",
       "silentFallback": "icon rarity channel (double border per icon-grammar)",
       "loudnessRank": 3
@@ -155,7 +155,7 @@
         { "freq": 2100, "freqEnd": 2300, "wave": "bell", "gain": 1.0 }
       ],
       "tier": "normal",
-      "priority": 5,
+      "priority": 6,
       "telemetry": "loot_rarity_received",
       "silentFallback": "icon rarity channel",
       "loudnessRank": 4
@@ -171,7 +171,7 @@
         { "freq": 2300, "freqEnd": 2600, "wave": "bell", "gain": 1.0 }
       ],
       "tier": "normal",
-      "priority": 5,
+      "priority": 6,
       "telemetry": "loot_rarity_received",
       "silentFallback": "icon rarity channel",
       "loudnessRank": 5
@@ -181,7 +181,7 @@
       "vibrationMs": [35],
       "notes": [{ "freq": 900, "wave": "click", "gain": 0.6 }],
       "tier": "normal",
-      "priority": 4,
+      "priority": 5,
       "telemetry": "run_potion_auto_used",
       "silentFallback": "toast run.autoPotionUsed",
       "loudnessRank": 2
@@ -194,7 +194,7 @@
         { "freq": 1000, "wave": "bell", "gain": 0.6 }
       ],
       "tier": "warning",
-      "priority": 3,
+      "priority": 4,
       "telemetry": "run_state_changed",
       "silentFallback": "banner run.stateSuspended",
       "loudnessRank": 2
@@ -204,7 +204,7 @@
       "vibrationMs": [30],
       "notes": [{ "freq": 1100, "freqEnd": 1300, "wave": "bell", "gain": 0.7 }],
       "tier": "normal",
-      "priority": 4,
+      "priority": 5,
       "telemetry": "run_state_changed",
       "silentFallback": "toast run.stateResumed",
       "loudnessRank": 2
@@ -214,7 +214,7 @@
       "vibrationMs": [20],
       "notes": [{ "freq": 600, "wave": "click", "gain": 0.7 }],
       "tier": "soft",
-      "priority": 6,
+      "priority": 7,
       "telemetry": null,
       "silentFallback": "popup dungeon.closedTitle / dungeon.outOfRangeTitle",
       "loudnessRank": 1
@@ -224,7 +224,7 @@
       "vibrationMs": [15],
       "notes": [{ "freq": 1000, "wave": "click", "gain": 0.5 }],
       "tier": "soft",
-      "priority": 6,
+      "priority": 7,
       "telemetry": null,
       "silentFallback": "qc.* text shown on sender UI",
       "loudnessRank": 1
@@ -234,13 +234,13 @@
       "vibrationMs": [15],
       "notes": [{ "freq": 1100, "wave": "click", "gain": 0.5 }],
       "tier": "soft",
-      "priority": 6,
+      "priority": 7,
       "telemetry": null,
       "silentFallback": "qc.* text shown on recipient UI",
       "loudnessRank": 1
     },
     {
-      "_comment": "Narrative direction (task context): entering speed lock = a single short vibration, no loop — exactly one pulse, no second beat, even though the 'normal' tier otherwise allows 1-2.",
+      "_comment": "Narrative direction (task context): entering speed lock = a single short vibration, no loop — exactly one pulse, no second beat, even though the 'normal' tier otherwise allows 1-2. Priority moved off the shared tier-3 (was tied with raid.checkpointReached and run.stateSuspended) to its own priority 3 in P2-F06-T13: it is one of the four safety cues (cue-list.md 4) and must pre-empt those two, not just queue behind them on a tie.",
       "id": "anticheat.speedLock",
       "vibrationMs": [70],
       "notes": [{ "freq": 700, "wave": "click", "gain": 0.6 }],

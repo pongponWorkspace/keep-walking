@@ -1,42 +1,34 @@
-// Geometry helpers for synthetic traces. Offline tool code: the game's geometry lives in
-// packages/geo (location-engineer, later phase). The earth radius here is the one the README
-// asks every consumer (HUD S12, gate) to use, so pre-computed distances match exactly.
+// Geometry helpers for synthetic traces. Distance and the earth radius come from packages/geo
+// (P2-F04-T23, TL N-06): one haversine and one radius for client, server, tools and traces, so
+// pre-computed distances match the gate exactly. Only trace-drawing helpers live here.
+//
+// [ASSUMPTION A-P2-F04-T23-1] Imported by path until tech-lead adds `@keep-walking/geo` to
+// tools/traces/package.json (lockfile rule TL-M01, ADR 0001 3.3). This file and metrics.ts are
+// the only importers; the switch is one line each.
+import type { LatLng } from '../../../packages/geo/src/index';
+import { DEG_TO_RAD, EARTH_MEAN_RADIUS_M, haversine_m } from '../../../packages/geo/src/index';
 
-/** IUGG mean earth radius in metres (same value turf.js uses). */
-export const EARTH_RADIUS_M = 6_371_008.8;
+export type { LatLng };
+export { haversine_m };
+
 const HALF_TURN_DEG = 180;
-const DEG_TO_RAD = Math.PI / HALF_TURN_DEG;
 const RAD_TO_DEG = HALF_TURN_DEG / Math.PI;
 const DECIMAL_BASE = 10;
 const FULL_TURN_DEG = 360;
 
-export interface LatLng {
-  readonly lat: number;
-  readonly lng: number;
-}
-
-/** Great-circle distance in metres (haversine). */
-export function haversine_m(a: LatLng, b: LatLng): number {
-  const dLat = (b.lat - a.lat) * DEG_TO_RAD;
-  const dLng = (b.lng - a.lng) * DEG_TO_RAD;
-  const s =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(a.lat * DEG_TO_RAD) * Math.cos(b.lat * DEG_TO_RAD) * Math.sin(dLng / 2) ** 2;
-  return 2 * EARTH_RADIUS_M * Math.asin(Math.min(1, Math.sqrt(s)));
-}
-
 /** Moves a point by north/east metres on a local tangent plane (fine for < a few km). */
 export function offset(p: LatLng, north_m: number, east_m: number): LatLng {
-  const lat = p.lat + (north_m / EARTH_RADIUS_M) * RAD_TO_DEG;
-  const lng = p.lng + (east_m / (EARTH_RADIUS_M * Math.cos(p.lat * DEG_TO_RAD))) * RAD_TO_DEG;
+  const lat = p.lat + (north_m / EARTH_MEAN_RADIUS_M) * RAD_TO_DEG;
+  const lng = p.lng + (east_m / (EARTH_MEAN_RADIUS_M * Math.cos(p.lat * DEG_TO_RAD))) * RAD_TO_DEG;
   return { lat, lng };
 }
 
 /** North/east metres from `origin` to `p` on the local tangent plane. */
 export function toLocal(origin: LatLng, p: LatLng): { north: number; east: number } {
   return {
-    north: (p.lat - origin.lat) * DEG_TO_RAD * EARTH_RADIUS_M,
-    east: (p.lng - origin.lng) * DEG_TO_RAD * EARTH_RADIUS_M * Math.cos(origin.lat * DEG_TO_RAD),
+    north: (p.lat - origin.lat) * DEG_TO_RAD * EARTH_MEAN_RADIUS_M,
+    east:
+      (p.lng - origin.lng) * DEG_TO_RAD * EARTH_MEAN_RADIUS_M * Math.cos(origin.lat * DEG_TO_RAD),
   };
 }
 

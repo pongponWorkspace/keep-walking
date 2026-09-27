@@ -15,6 +15,7 @@
   },
   "mask": {
     "coordinatePrecision": 5,
+    "clipBbox": "tools/tiles/config.json#area.bbox",
     "outerRing": [
       [-180, -85],
       [180, -85],
@@ -51,6 +52,14 @@
     "maxFileBytes": 51200,
     "output": "../../data/map/launch-area.geojson"
   },
+  "playableProvinces": {
+    "_note": "P2-F04-T23 (P1-X39): small committed polygon per playable province so tools/tiles/bin/verify-bbox.py runs in CI without tools/coverage/out/. input is relative to tools/coverage/ (git-ignored pipeline output); output is committed.",
+    "input": "out/boundaries.geojson",
+    "simplify_m": 100,
+    "coordinatePrecision": 5,
+    "maxFileBytes": 51200,
+    "output": "../../data/map/playable-provinces.geojson"
+  },
   "maxFileBytes": 307200,
   "attribution": "© OpenStreetMap contributors (ODbL)",
   "outputs": {
@@ -59,8 +68,10 @@
   },
   "_source": {
     "borders.simplify_m": "map-style 6.3 suggests ~200 m for all 77 provinces. On the 2026-09-01 extract with 20 m lines around the play area: 300 m gives 292 KB, 350 m gives 260 KB (15% headroom under the 300 KB budget, A-P1-H01-2). About 1 px at z8. Applies only to lines not touching a playable province.",
+    "mask.clipBbox": "map-style 6.2 / screen S6 (P2-F04-T23): the province relations of Samut Prakan and Samut Sakhon reach 13.219 N in the Gulf, south of the tile bbox (13.4 N). Without tiles the style background is black, so an unclipped hole showed a black edge across the sea at 13.4 N. The hole is cut with the tile bbox itself (pointer, never a copy); null disables the cut (tests).",
     "borders.playableSimplify_m": "map-style 6.2 (~20 m): lines touching a playable province, including the mask hole",
     "launchArea.simplify_m": "P2-H01: the launch-area test only runs for players already 'far' from every open dungeon (tech note F06 section 9), so 10 m is well below any decision it feeds, and half the play-area edge tolerance. Shared district edges are simplified once (same method as borders), so there is no gap or overlap between districts.",
+    "playableProvinces.simplify_m": "P2-F04-T23: only feeds a bbox sanity check (which reads the exact outward-rounded bbox property, not the geometry) and an optional pmtiles --region; the geometry is buffered by the same 100 m so it always contains the original.",
     "launchArea.maxFileBytes": "P2-H01 brief: well under 100 KB; 50 KB leaves room for more districts in later rounds"
   }
 }

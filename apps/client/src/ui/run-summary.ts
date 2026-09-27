@@ -3,10 +3,18 @@
  * shown, never hidden by the exit reason itself — F05-R21 "ของในrun เก็บครบ" except `death`, which
  * empties the bag before this screen ever sees it, F06 scope), and the single full-width
  * `run.summaryContinue` button back to the map.
+ *
+ * Each loot row shows the resolved item name + rarity frame (P2-X21, `ui/item-line-view.ts`,
+ * components.md 13.7) instead of the raw item id — the frame and the item glyph are two stacked
+ * `<img>`s (`.item-icon-frame`/`.item-icon-glyph`, `app.css`), both optional: a manifest miss hides
+ * the image and leaves the name-only text, never a broken image (asset-pipeline 10).
  */
 import { getCopyText } from '../copy/load';
 import type { RunSummary } from '@keep-walking/shared/session';
 import { runSummaryHeaderKey } from './run-state-view';
+import { itemLineView } from './item-line-view';
+import { setIconImg } from '../assets/icon-dom';
+import type { AssetRuntime } from '../assets/icon-dom';
 
 export interface RunSummaryScreen {
   readonly root: HTMLElement;
@@ -14,7 +22,11 @@ export interface RunSummaryScreen {
   hide(): void;
 }
 
-export function mountRunSummary(container: HTMLElement, onContinue: () => void): RunSummaryScreen {
+export function mountRunSummary(
+  container: HTMLElement,
+  onContinue: () => void,
+  assets: AssetRuntime,
+): RunSummaryScreen {
   const root = document.createElement('div');
   root.className = 'screen run-summary';
   root.hidden = true;
@@ -45,10 +57,20 @@ export function mountRunSummary(container: HTMLElement, onContinue: () => void):
       }
       for (const item of summary.loot) {
         const li = document.createElement('li');
-        // TODO(follow-up, art/narrative): resolve `item.id` to its `names.th.json` item name +
-        // rarity frame/icon (components.md 13.7) once that lookup table is wired here; the raw id
-        // is an honest placeholder, never invented Thai text (CLAUDE.md).
-        li.textContent = `${item.id} x${item.qty}`;
+        li.className = 'run-summary-reward-row';
+        const view = itemLineView(item.id, item.qty);
+        const iconWrap = document.createElement('span');
+        iconWrap.className = 'item-icon-frame';
+        const frameImg = document.createElement('img');
+        frameImg.className = 'item-icon-frame-bg';
+        const glyphImg = document.createElement('img');
+        glyphImg.className = 'item-icon-glyph';
+        setIconImg(frameImg, assets, view.frameIconId, '');
+        setIconImg(glyphImg, assets, view.itemIconId, view.name);
+        iconWrap.append(frameImg, glyphImg);
+        const label = document.createElement('span');
+        label.textContent = `${view.name} x${view.qty}`;
+        li.append(iconWrap, label);
         rewardList.append(li);
       }
     },

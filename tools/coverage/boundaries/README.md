@@ -29,6 +29,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # ครั
 4. รูของโซนดำ = polygonize เส้นที่คั่นพื้นที่เล่นกับที่เหลือ (ชุดเดียวกับข้อ 3) → เส้นจังหวัดตรงกับขอบโซนดำทุกจุด · วงนอก `[-180,-85]..[180,85]` ทวนเข็ม รูตามเข็ม (RFC 7946) · ถ้ามีจังหวัดที่ไม่เปิดล้อมอยู่กลางพื้นที่เล่น (ต้องใช้ MultiPolygon) script หยุดแทนที่จะเปลี่ยนสัญญาเอง
 5. จุดชื่อ = pole of inaccessibility (`polylabel`, 500 ม.) ของส่วนที่ใหญ่ที่สุด · property `kind: label`, `name`, `playable`, `iso`
 6. ตรวจขนาด ≤ `maxFileBytes` (300 KB) ทั้งสองไฟล์ก่อนเขียน
+7. (P2-F04-T23, จอ S6) ตัดรูของโซนดำด้วย bbox ของ tile · `params.json#mask.clipBbox` เป็น pointer `tools/tiles/config.json#area.bbox` (ไม่ใช่สำเนาตัวเลข) · เหตุผล: relation ของสมุทรปราการและสมุทรสาครยื่นลงอ่าวไทยถึง 13.219 N แต่ tile จริงหยุดที่ 13.4 N · ส่วนของรูที่ไม่มี tile ถูก style วาดเป็น background ดำ จึงเกิดขอบดำกลางทะเลที่ 13.4 N · หลังตัด ขอบโซนดำตรงกับขอบ tile พอดี · จุดของรูที่ไม่อยู่บนเส้นจังหวัดมีเฉพาะจุดบนขอบ bbox (test ตรวจ) · เส้นจังหวัดไม่ถูกตัด · `null` = ไม่ตัด (ใช้ใน fixture test) · แก้ `area.bbox` เมื่อไรต้องรัน `python -m boundaries` ใหม่ (`tools/tiles/bin/verify-bbox.py` ล้มถ้ารูเลย bbox)
 
 ## Test
 
@@ -65,3 +66,26 @@ Test (รันผ่าน bridge เดิม `tests/pytest-bridge.test.ts` �
 - `tests/test_launch_outputs.py`: `build --check` กับไฟล์ที่ commit (กันไฟล์ drift) · `extract --check` เมื่อมี D1 ในเครื่อง (ไม่มีก็ skip) · ขนาด, attribution, winding, ทศนิยม, ไม่ทับกัน, อยู่ในรูของ `playarea-mask.geojson`, จุดที่รู้จัก (สนามหลวง, สวนลุมพินี, สยาม, State Tower อยู่ใน · อนุสาวรีย์ชัยฯ, จตุจักร, วงเวียนใหญ่ อยู่นอก)
 
 เมื่อเปิดเขตใหม่: เพิ่มใน `params.json#launchArea.districts` และ `analysis/launch-score.config.json#launchDistricts` แล้วรัน `extract` ตามด้วย `build`
+
+## polygon จังหวัดที่เล่นได้ขนาดเล็ก (P2-F04-T23, ปิด P1-X39) → `data/map/playable-provinces.geojson`
+
+ให้ `tools/tiles/bin/build.sh` และ `tools/tiles/test/run.sh` ตรวจ bbox-vs-province ได้ทุกเครื่องรวม CI โดยไม่ต้องมี `tools/coverage/out/` (ไฟล์ ignore ที่ต้องรัน pipeline กับ D1 ขนาด 327 MB ก่อน)
+
+- ข้อมูลเข้า: เขต/อำเภอ (admin_level 6) ใน `tools/coverage/out/boundaries.geojson` · geometry ชุดเดียวกับที่ `verify-bbox.py` ใช้ตรวจมาตั้งแต่ P1-F02-T06 (ขอบฝั่งบก ไม่ใช่ relation จังหวัดที่ยื่นลงทะเล)
+- ต่อจังหวัด: `bbox` = ขอบเขตจริงก่อน simplify ปัดออกด้านนอกที่ทศนิยม 5 (ตัวที่ใช้ตรวจ) · geometry = simplify `playableProvinces.simplify_m` (100 ม.) แล้ว buffer เท่ากันแบบ mitre จึงครอบเขตจริงทั้งหมด (ต่างกันแค่การปัดทศนิยม) · ใช้เป็น `pmtiles extract --region` ได้
+- ขนาด 26,223 byte (เพดาน 50 KB) · property `iso`, `name`, `bbox` · `attribution`, `license`, `source.dataDate`, `source.derivedFrom` อยู่ในไฟล์
+- ลำดับ feature ตาม `tools/coverage/params.json#pipeline.studyArea.provinces`
+
+```sh
+cd tools/coverage
+.venv/bin/python -m pipeline all --offline --skip-crosscheck   # ครั้งแรก ถ้ายังไม่มี out/boundaries.geojson (ต้องมี D1)
+.venv/bin/python -m boundaries.playable                        # เขียนไฟล์ · < 1 วินาที
+.venv/bin/python -m boundaries.playable --check                # เทียบกับไฟล์ที่ commit · exit 1 ถ้าไม่ตรง (ต้องมี out/)
+```
+
+- test: `tests/test_playable_outputs.py` ตรวจไฟล์ที่ commit โดยไม่ต้องมี D1 (ขนาด, 6 จังหวัดตาม params, bbox ตรงกับ geometry ในระยะ buffer, tile bbox ครอบทุกจังหวัด) · `--check` รันเมื่อมี `out/` เท่านั้น (ข้ามพร้อมเหตุผลใน CI)
+- ผลบนข้อมูล 2026-09-01: เหมือนการตรวจแบบเดิมจาก `out/` ทุกตัวเลข (ขอบห่าง bbox ตะวันตก 1,806 ม. ตะวันออก 3,902 ม. ใต้ 2,788 ม. เหนือ 8,177 ม.)
+
+## License
+
+ทุกไฟล์ใน `data/map/` และ `launch-area.source.geojson`: ODbL 1.0 · © OpenStreetMap contributors · ตารางเต็มใน `data/map/LICENSE-DATA.md`
