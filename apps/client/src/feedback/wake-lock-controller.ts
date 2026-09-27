@@ -86,6 +86,13 @@ export class WakeLockController {
   private readonly supported: boolean;
   private running = false;
   private sentinel: WakeLockSentinelLike | null = null;
+  /** True from the moment `nav.wakeLock.request('screen')` is called until its promise settles
+   * (resolve or reject). Guards F06-TG-09: without it, a `visibilitychange` flicker (hidden then
+   * visible again) before the first request settles would let `maybeReacquire` fire a second,
+   * concurrent `request()` — the first sentinel to resolve would then be silently overwritten
+   * (leaked, never released) by the second, and `heldSince_ms` would be reset, undercounting held
+   * time. With the flag, `requestLock` is a no-op while one request is already in flight. */
+  private requestInFlight = false;
   private heldSince_ms: number | null = null;
   private hiddenSince_ms: number | null = null;
   private heldMs = 0;
@@ -143,10 +150,19 @@ export class WakeLockController {
   }
 
   private requestLock(): void {
-    if (!this.supported || this.deps.nav.wakeLock === undefined || !this.running) return;
+    if (
+      !this.supported ||
+      this.deps.nav.wakeLock === undefined ||
+      !this.running ||
+      this.requestInFlight
+    ) {
+      return;
+    }
+    this.requestInFlight = true;
     this.deps.nav.wakeLock
       .request('screen')
       .then((sentinel) => {
+        this.requestInFlight = false;
         if (!this.running) {
           // The run ended while the request was in flight; release immediately, count nothing.
           void sentinel.release();
@@ -166,6 +182,7 @@ export class WakeLockController {
         });
       })
       .catch(() => {
+        this.requestInFlight = false;
         // Denied/failed request (e.g. low battery mode): stays unheld, no throw (same "handle the
         // real world" rule as debug/wake-lock.ts). A later visibilitychange may retry.
         this.deps.onStateChange?.('request_denied');

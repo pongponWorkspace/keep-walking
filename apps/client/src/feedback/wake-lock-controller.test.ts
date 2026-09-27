@@ -221,6 +221,89 @@ describe('WakeLockController, supported device', () => {
     expect(states).toEqual(['request_denied']);
   });
 
+  it('does not fire a second concurrent request() while the first is still pending (F06-TG-09)', async () => {
+    const clock = fakeClock(0);
+    const doc = fakeDoc(false);
+    let resolveFirst: ((s: WakeLockSentinelLike) => void) | undefined;
+    const firstSentinel = fakeSentinel();
+    const nav: NavigatorWithWakeLock = {
+      wakeLock: {
+        request: vi.fn(
+          () =>
+            new Promise<WakeLockSentinelLike>((resolve) => {
+              resolveFirst = resolve;
+            }),
+        ),
+      },
+    };
+    const controller = new WakeLockController({ nav, doc, now: clock.now });
+
+    controller.start();
+    await Promise.resolve();
+    expect(nav.wakeLock?.request).toHaveBeenCalledTimes(1);
+
+    // A visibility flicker (hidden then visible again) while the first request is still pending
+    // must not fire a second, concurrent request() — this is the exact race that used to leak the
+    // first sentinel (overwritten, never released) and reset heldSince_ms.
+    doc.setHidden(true);
+    doc.setHidden(false);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(nav.wakeLock?.request).toHaveBeenCalledTimes(1);
+
+    clock.set(200);
+    resolveFirst?.(firstSentinel);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // Only the one request ever happened, and its sentinel is the one actually held.
+    expect(nav.wakeLock?.request).toHaveBeenCalledTimes(1);
+    clock.set(250);
+    expect(controller.stop()).toEqual({ supported: true, heldMs: 50, hiddenMs: 0 });
+    expect(firstSentinel.release).toHaveBeenCalledTimes(1);
+  });
+
+  it('releases the late sentinel when stop() runs before the in-flight request settles (F06-TG-09)', async () => {
+    const clock = fakeClock(0);
+    const doc = fakeDoc(false);
+    let resolveRequest: ((s: WakeLockSentinelLike) => void) | undefined;
+    const sentinel = fakeSentinel();
+    const nav: NavigatorWithWakeLock = {
+      wakeLock: {
+        request: vi.fn(
+          () =>
+            new Promise<WakeLockSentinelLike>((resolve) => {
+              resolveRequest = resolve;
+            }),
+        ),
+      },
+    };
+    const controller = new WakeLockController({ nav, doc, now: clock.now });
+
+    controller.start();
+    await Promise.resolve();
+    expect(nav.wakeLock?.request).toHaveBeenCalledTimes(1);
+
+    clock.set(50);
+    const totals = controller.stop();
+    expect(totals).toEqual({ supported: true, heldMs: 0, hiddenMs: 0 });
+
+    // The request settles only after stop() already ran (run over before the promise resolved).
+    resolveRequest?.(sentinel);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(sentinel.release).toHaveBeenCalledTimes(1);
+    // Nothing about the already-returned totals changes because of the late resolution.
+    expect(controller.snapshot()).toEqual({ supported: true, heldMs: 0, hiddenMs: 0 });
+
+    // A fresh start() on the same instance is free to request again (no stale in-flight guard).
+    clock.set(100);
+    controller.start();
+    await Promise.resolve();
+    expect(nav.wakeLock?.request).toHaveBeenCalledTimes(2);
+  });
+
   it('reports unsupported once, immediately, on an unsupported device', () => {
     const clock = fakeClock(0);
     const states: string[] = [];

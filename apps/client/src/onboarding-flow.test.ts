@@ -72,11 +72,21 @@ describe('OnboardingFlow.currentStep', () => {
     expect(flow.currentStep(FRESH_VIEW)).toBe('consent');
   });
 
-  it('accepting consent starts the LocationProvider and proceeds to class (permission resolves synchronously with no query dep)', () => {
+  it('accepting consent alone does not start the LocationProvider yet — it reports permission first (flow F06 A4)', () => {
     const { flow, startLocationProvider } = makeFlow();
     flow.completeIntro();
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.acceptConsent();
+    expect(startLocationProvider).not.toHaveBeenCalled();
+    expect(flow.currentStep(FRESH_VIEW)).toBe('permission');
+  });
+
+  it('confirmBrowserPriming (the S-00-permission-browser continue button) starts the LocationProvider and proceeds to class (permission resolves synchronously with no query dep)', () => {
+    const { flow, startLocationProvider } = makeFlow();
+    flow.completeIntro();
+    flow.confirmAge(PASSING_BIRTH_YEAR);
+    flow.acceptConsent();
+    flow.confirmBrowserPriming();
     expect(startLocationProvider).toHaveBeenCalledTimes(1);
     expect(flow.currentStep(FRESH_VIEW)).toBe('class');
   });
@@ -96,6 +106,7 @@ describe('OnboardingFlow.currentStep', () => {
     flow.completeIntro();
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.acceptConsent();
+    flow.confirmBrowserPriming();
     expect(flow.currentStep({ ...FRESH_VIEW, classId: 'tanker' })).toBe('first_run');
   });
 
@@ -104,6 +115,7 @@ describe('OnboardingFlow.currentStep', () => {
     flow.completeIntro();
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.acceptConsent();
+    flow.confirmBrowserPriming();
     expect(
       flow.currentStep({ classId: 'tanker', firstRunEntered: true, firstRewardDone: false }),
     ).toBe('first_reward');
@@ -123,6 +135,7 @@ describe('OnboardingFlow.currentStep', () => {
     first.completeIntro();
     first.confirmAge(PASSING_BIRTH_YEAR);
     first.acceptConsent();
+    first.confirmBrowserPriming();
     const { flow: second } = makeFlow({ storage, now: () => 1_100_000 });
     expect(second.currentStep(FRESH_VIEW)).toBe('class');
   });
@@ -140,6 +153,9 @@ describe('OnboardingFlow telemetry', () => {
     flow.markConsentShown();
     flow.markConsentShown();
     flow.acceptConsent();
+    flow.markPermissionShown();
+    flow.markPermissionShown();
+    flow.confirmBrowserPriming();
     flow.markClassSelectShown();
     flow.markClassSelectShown();
     flow.recordClassSelected('ranged');
@@ -150,6 +166,7 @@ describe('OnboardingFlow telemetry', () => {
       'age_gate_passed',
       'consent_location_shown',
       'consent_location_accepted',
+      'permission_browser_shown',
       'permission_browser_allowed',
       'map_view_reached',
       'class_select_shown',
@@ -187,6 +204,7 @@ describe('OnboardingFlow permission resolution', () => {
     flow.completeIntro();
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.acceptConsent();
+    flow.confirmBrowserPriming();
     // No queryGeolocationPermission dep supplied: resolved synchronously, no async gap.
     expect(flow.currentStep({ ...FRESH_VIEW })).toBe('class');
   });
@@ -206,6 +224,7 @@ describe('OnboardingFlow permission resolution', () => {
     flow.completeIntro();
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.acceptConsent();
+    flow.confirmBrowserPriming();
     expect(onPermissionResolved).not.toHaveBeenCalled();
     resolveQuery('denied');
     await Promise.resolve();

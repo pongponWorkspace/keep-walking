@@ -90,13 +90,21 @@ export function mountAgeGateScreen(container: HTMLElement, deps: AgeGateScreenDe
   root.append(gateView, underageView);
   container.append(root);
 
+  // F06 copy gate C6-09 (flow F06 A2, closes P2-H40's own ยืนยัน): birth years are shown in พ.ศ.
+  // (Buddhist Era, `year + BUDDHIST_ERA_OFFSET_YR`) — the year a Thai player almost always thinks
+  // in first for "ปีเกิด", on a screen whose result (pass/fail) is significant and not easy to
+  // re-answer once confirmed. `option.value` (what `onConfirm(birthYear)` actually receives) stays
+  // the plain ค.ศ. year `age-gate.ts#ageGateBirthYearOptions` returns, unchanged — only the visible
+  // `textContent` is offset, so `ageGatePassed()`/`minAge_yr` are never touched by this.
+  const BUDDHIST_ERA_OFFSET_YR = 543;
+
   function populateOptions(): void {
     while (select.options.length > 1) select.remove(1);
     const nowYear = new Date(deps.now()).getFullYear();
     for (const year of ageGateBirthYearOptions(nowYear)) {
       const option = document.createElement('option');
       option.value = String(year);
-      option.textContent = String(year);
+      option.textContent = String(year + BUDDHIST_ERA_OFFSET_YR);
       select.append(option);
     }
   }

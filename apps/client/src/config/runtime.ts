@@ -133,6 +133,9 @@ export interface ToastConfig {
   /** `client.json#toast.hpLowHoldDurationMs` (P2-F06-T08, F06 flow Flow C2): `run.hpLow`'s own,
    * longer hold time — its canon sentence is much longer than a tick toast's. */
   readonly hpLowHoldDurationMs: number;
+  /** `client.json#toast.screenLockNoticeHoldDurationMs` (F06 copy gate C6-03, P2-X41; flow F06
+   * Flow E ข้อ E2): `run.screenLockNotice`'s own auto-fade hold, read by `ui/pocket-screen.ts`. */
+  readonly screenLockNoticeHoldDurationMs: number;
 }
 
 /** `client.json#onboarding` (P2-F06-T10, GDD N-3): the one tutorial-line screen-time knob outside
@@ -182,9 +185,20 @@ export interface SummaryExportConfig {
   readonly includesCoordinates: boolean;
 }
 
+/** `config/app/privacy.json#localData` (F06-TG-04, tech note F06 8.1/8.3): the one storage-key
+ * prefix `storage/clear-local-data.ts#clearLocalData` and every `kw.p2.*` constant in this codebase
+ * must agree with — parsed here (rather than left as an unread subtree) so a future change to the
+ * prefix is a config edit, not a multi-file find-and-replace the config file itself cannot enforce. */
+export interface LocalDataConfig {
+  readonly storageKeyPrefix: string;
+  readonly clearScope: string;
+  readonly afterClear: string;
+}
+
 export interface AppPrivacyConfig {
   readonly rawTraceExport: RawTraceExportConfig;
   readonly summaryExport: SummaryExportConfig;
+  readonly localData: LocalDataConfig;
 }
 
 type Json = Record<string, unknown>;
@@ -377,6 +391,10 @@ function parseToast(root: Json, path: string): ToastConfig {
     tickHoldDurationMs: num(node['tickHoldDurationMs'], `${path}/tickHoldDurationMs`),
     tickMaxIconsShown: num(node['tickMaxIconsShown'], `${path}/tickMaxIconsShown`),
     hpLowHoldDurationMs: num(node['hpLowHoldDurationMs'], `${path}/hpLowHoldDurationMs`),
+    screenLockNoticeHoldDurationMs: num(
+      node['screenLockNoticeHoldDurationMs'],
+      `${path}/screenLockNoticeHoldDurationMs`,
+    ),
   };
 }
 
@@ -467,6 +485,16 @@ export function parsePrivacyConfig(input: unknown): AppPrivacyConfig {
         '/summaryExport/includesCoordinates',
       ),
     },
+    localData: parseLocalData(root, '/localData'),
+  };
+}
+
+function parseLocalData(root: Json, path: string): LocalDataConfig {
+  const node = obj(root['localData'], path);
+  return {
+    storageKeyPrefix: str(node['storageKeyPrefix'], `${path}/storageKeyPrefix`),
+    clearScope: str(node['clearScope'], `${path}/clearScope`),
+    afterClear: str(node['afterClear'], `${path}/afterClear`),
   };
 }
 

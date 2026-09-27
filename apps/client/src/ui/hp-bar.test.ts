@@ -57,6 +57,26 @@ describe('mountHpBar', () => {
     expect(bar.fillElement).toBe(container.querySelector('.hp-fill'));
   });
 
+  // P2-H42 (visual gate V-39): the edge marker moves via `transform` (art/vfx/hp-bar/hp-bar.ts),
+  // never `left` — this module only has to prove it calls through without throwing (happy-dom has
+  // no real layout engine, so `getBoundingClientRect().width` is always 0 here; the real px math
+  // itself is `art/vfx/hp-bar/hp-bar.ts`'s own unit-tested job).
+  it('update() and hardCutEdge() both animate the edge marker via transform, never left', () => {
+    const container = document.createElement('div');
+    const bar = mountHpBar(container);
+    bar.update({
+      hp: 80,
+      maxHp: 100,
+      hpRatio: 0.8,
+      belowWarningLine: false,
+      autoRetreatEnabled: true,
+    });
+    const edgeMarker = container.querySelector('.hp-fill-edge-marker') as HTMLElement;
+    expect(edgeMarker).not.toBeNull();
+    expect(edgeMarker.style.left).toBe('');
+    expect(() => bar.hardCutEdge()).not.toThrow();
+  });
+
   it('rounds the percent to the nearest whole number and clamps to 0..100', () => {
     const container = document.createElement('div');
     const bar = mountHpBar(container);

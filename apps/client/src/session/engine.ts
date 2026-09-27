@@ -27,7 +27,7 @@ import type {
 import type { KeyValueStorage, QuotaFallbackDeps } from '../storage/local-store';
 import { loadSession, saveSession } from './persist';
 import { sessionStateDiscardedEvent } from '../telemetry/f04-events';
-import { mapSessionEvent } from '../telemetry/f04-events';
+import { mapSessionEvent, onboardingFirstRewardGrantedEvent } from '../telemetry/f04-events';
 import type { RunClientStats } from '../telemetry/f04-events';
 
 const SESSION_STORAGE_KEY = 'kw.p2.session';
@@ -50,6 +50,13 @@ export interface SessionEngineDeps {
    * ADR 0003 C1-1). `undefined` in every test/fixture that does not care about these two telemetry
    * properties — `mapSessionEvent`'s own default (`f04-events.ts`) covers that case honestly. */
   readonly getRunClientStats?: () => RunClientStats;
+  /** `kw.p2.onboarding.firstOpenAt_ms` (`storage/onboarding.ts#loadOnboardingStorage`, tech note
+   * F06 8.1/10.1, F06-TG-02): read once, synchronously, only when a `run_tick_granted` event this
+   * dispatch produced has `firstEver === true` — the one input
+   * `onboardingFirstRewardGrantedEvent`'s `minutes_since_first_open_bucket` bucket needs that no
+   * `SessionEvent` carries (the engine has no idea an onboarding clock exists, ADR 0003 C1-1).
+   * `undefined` in every test/fixture that never reaches a first-ever tick. */
+  readonly getFirstOpenAt_ms?: () => number;
 }
 
 export interface SessionEngine {
@@ -100,6 +107,21 @@ export function createSessionEngine(
       const mapped = mapSessionEvent(event, next.player.classId, atRunDungeonId, runClientStats);
       if (mapped !== undefined) {
         deps.record(mapped.name, mapped.properties as Record<string, unknown>);
+      }
+      // F06-TG-02 (product/telemetry-events.md, tech note F06 10.1): a second, independent record
+      // at the exact same `at_ms` — never a replacement for the `run_tick_granted` mapping above.
+      if (
+        event.type === 'run_tick_granted' &&
+        event.firstEver &&
+        deps.getFirstOpenAt_ms !== undefined
+      ) {
+        const firstOpenAt_ms = deps.getFirstOpenAt_ms();
+        const firstReward = onboardingFirstRewardGrantedEvent(
+          event.dungeonId,
+          event.at_ms - firstOpenAt_ms,
+          next.player.classId,
+        );
+        deps.record(firstReward.name, firstReward.properties as Record<string, unknown>);
       }
     }
     saveSession(deps.storage, key, next, now_ms, deps.quotaDeps);

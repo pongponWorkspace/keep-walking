@@ -87,7 +87,12 @@ const CLIENT_CONFIG: ClientRuntimeConfig = {
   probe: { vibrateTestPattern_ms: 200 },
   bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
   vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
-  toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3, hpLowHoldDurationMs: 4000 },
+  toast: {
+    tickHoldDurationMs: 2200,
+    tickMaxIconsShown: 3,
+    hpLowHoldDurationMs: 4000,
+    screenLockNoticeHoldDurationMs: 4000,
+  },
   onboarding: { tutorialLineHoldDurationMs: 3000 },
   pocketScreen: { swipeUpHoldMinDuration_ms: 600, swipeUpMinDistanceRatio: 0.03 },
 };
@@ -101,6 +106,11 @@ const PRIVACY_CONFIG: AppPrivacyConfig = {
     autoUploadAllowed: false,
   },
   summaryExport: { isDefaultExport: true, includesCoordinates: false },
+  localData: {
+    storageKeyPrefix: 'kw.p2.',
+    clearScope: 'allKeysWithPrefix',
+    afterClear: 'reloadToOnboarding',
+  },
 };
 
 describe('createLocationProvider + wireProvider (mock)', () => {

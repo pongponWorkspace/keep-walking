@@ -3,6 +3,7 @@ import { getCopyEntry } from './load';
 import {
   GPS_DISPLAY_COPY,
   GPS_DISPLAY_STATES,
+  GPS_DISPLAY_TONE,
   GPS_OFFLINE_COPY_KEY,
   GPS_TOAST_COPY,
 } from './gps-state';
@@ -22,6 +23,21 @@ describe('GPS_DISPLAY_COPY', () => {
         expect(getCopyEntry(entry.body), `missing key: ${entry.body}`).toBeDefined();
       }
     }
+  });
+});
+
+describe('GPS_DISPLAY_TONE (uiux P2-H49)', () => {
+  it('covers every non-none GpsDisplayState exactly once', () => {
+    const shownStates = GPS_DISPLAY_STATES.filter((s) => s !== 'none');
+    expect(Object.keys(GPS_DISPLAY_TONE).sort()).toEqual([...shownStates].sort());
+  });
+
+  it('searching is info; every real problem state is danger', () => {
+    expect(GPS_DISPLAY_TONE.searching).toBe('info');
+    expect(GPS_DISPLAY_TONE.off).toBe('danger');
+    expect(GPS_DISPLAY_TONE.denied).toBe('danger');
+    expect(GPS_DISPLAY_TONE.unsupported).toBe('danger');
+    expect(GPS_DISPLAY_TONE.lowAccuracy).toBe('danger');
   });
 });
 

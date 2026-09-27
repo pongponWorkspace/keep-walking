@@ -4,9 +4,12 @@
  * `<img>` loads an SVG as a separate document — its `currentColor` resolves inside that document,
  * never against the page's own CSS — so a glyph that must change colour per status tone (chip
  * status, run-state pill) has to be inlined instead: fetch the SVG text once per id per session,
- * sanitize it (allowlist: drop `<script>`, drop `on*` attributes, drop `href`/`xlink:href` that is
- * not a local `#fragment`), inject it as `aria-hidden`/non-focusable decoration, and set its colour
- * from the page's own stylesheet.
+ * sanitize it against a real element+attribute allowlist (F06-TG-08: any element or attribute not
+ * on the list is dropped — a disallowed element loses its whole subtree, not just its own tag —
+ * so `<script>`, `<style>`, `<foreignObject>`, `<animate>`/`<set>`, every `on*` attribute, `style`
+ * with `url(...)`, and a `href`/`xlink:href` that is not a local `#fragment` are all rejected the
+ * same way: by never appearing on the allowlist in the first place), inject it as
+ * `aria-hidden`/non-focusable decoration, and set its colour from the page's own stylesheet.
  *
  * Only entries with `assets[id].tintable === true` use this technique at all (the field exists
  * only when `true`, D-121, `manifest.ts#RuntimeAsset.tintable`) — this module checks that itself,
@@ -69,42 +72,139 @@ function tintableFile(
   return resolveIconFile(manifest, id, scale, isProduction);
 }
 
-function isEventHandlerAttr(name: string): boolean {
-  return name.toLowerCase().startsWith('on');
-}
-
 function isHrefAttr(name: string): boolean {
   const lower = name.toLowerCase();
   return lower === 'href' || lower === 'xlink:href';
 }
 
+/** Element allowlist (F06-TG-08, asset-delivery.md 6.1, components.md 13.9.3): the shapes and
+ * containers an icon SVG actually needs to draw itself. Anything else — `<script>`, `<style>`,
+ * `<foreignObject>`, `<animate>`/`<set>` (which can smuggle a `href`/`attributeName` mutation past
+ * a purely attribute-level filter), `<a>`, `<title>`/`<desc>`, or any future/unknown element — is
+ * rejected together with its entire subtree, never inspected attribute-by-attribute. This is a real
+ * allowlist: an element survives only by appearing here, not by failing a list of known-bad names. */
+const ALLOWED_SVG_ELEMENTS: ReadonlySet<string> = new Set([
+  'svg',
+  'g',
+  'path',
+  'circle',
+  'ellipse',
+  'rect',
+  'line',
+  'polyline',
+  'polygon',
+  'defs',
+  'clipPath',
+  'mask',
+  'linearGradient',
+  'radialGradient',
+  'stop',
+  'use',
+  'symbol',
+]);
+
+/** Attribute allowlist: purely presentational/geometry attributes. Notably absent: every `on*`
+ * handler, `style` (which could carry `url(...)`, C2-1 — this module sets colour through the
+ * `style` *attribute* itself, but only after sanitizing, via `setInlineColor`), and anything else
+ * not needed to draw a shape or reference a local gradient/clip/mask. `href`/`xlink:href` are
+ * allowed here but re-checked below: only a local `#fragment` value survives. */
+const ALLOWED_SVG_ATTRIBUTES: ReadonlySet<string> = new Set([
+  'id',
+  'xmlns',
+  'viewBox',
+  'width',
+  'height',
+  'preserveAspectRatio',
+  'fill',
+  'fill-rule',
+  'fill-opacity',
+  'stroke',
+  'stroke-width',
+  'stroke-linecap',
+  'stroke-linejoin',
+  'stroke-dasharray',
+  'stroke-miterlimit',
+  'stroke-opacity',
+  'clip-rule',
+  'clip-path',
+  'mask',
+  'opacity',
+  'd',
+  'cx',
+  'cy',
+  'r',
+  'rx',
+  'ry',
+  'x',
+  'y',
+  'x1',
+  'y1',
+  'x2',
+  'y2',
+  'points',
+  'transform',
+  'gradientUnits',
+  'gradientTransform',
+  'clipPathUnits',
+  'maskUnits',
+  'maskContentUnits',
+  'offset',
+  'stop-color',
+  'stop-opacity',
+  'href',
+  'xlink:href',
+]);
+
+/** Removes every descendant element whose `localName` is not in `ALLOWED_SVG_ELEMENTS`, subtree
+ * and all — a disallowed element is never recursed into (its children are gone with it, allowed or
+ * not). `root` itself (already checked to be `<svg>` by the caller) is never removed. */
+function removeDisallowedElements(root: Element): void {
+  const toRemove: Element[] = [];
+  const visit = (el: Element): void => {
+    for (const child of Array.from(el.children)) {
+      if (ALLOWED_SVG_ELEMENTS.has(child.localName)) {
+        visit(child);
+      } else {
+        toRemove.push(child);
+      }
+    }
+  };
+  visit(root);
+  for (const el of toRemove) el.remove();
+}
+
+/** Removes every attribute not in `ALLOWED_SVG_ATTRIBUTES`, on `root` and every surviving
+ * descendant. A `href`/`xlink:href` that *is* on the allowlist still only survives when its value
+ * is a local `#fragment` reference (never an external URL an attacker could point at). */
+function removeDisallowedAttributes(root: Element): void {
+  const elements: readonly Element[] = [root, ...Array.from(root.querySelectorAll('*'))];
+  for (const el of elements) {
+    for (const attr of Array.from(el.attributes)) {
+      const allowed =
+        ALLOWED_SVG_ATTRIBUTES.has(attr.name) &&
+        (!isHrefAttr(attr.name) || attr.value.startsWith('#'));
+      if (!allowed) el.removeAttribute(attr.name);
+    }
+  }
+}
+
 /**
- * Allowlist sanitizer (asset-delivery.md 6.1, components.md 13.9.3): drops every `<script>`
- * (anywhere in the subtree), every `on*` attribute, and every `href`/`xlink:href` whose value is
- * not a local `#fragment` reference. Mutates `root` in place; returns `false` when `root` is not
- * actually an `<svg>` document (a parse failure, e.g. `DOMParser`'s own `<parsererror>` node, or a
- * non-SVG payload) — the caller falls back to `<img>` in that case, same as a failed fetch.
+ * Allowlist sanitizer (F06-TG-08, asset-delivery.md 6.1, components.md 13.9.3): keeps only the
+ * element names in `ALLOWED_SVG_ELEMENTS` (subtree removed for anything else — `<script>`,
+ * `<style>`, `<foreignObject>`, `<animate>`, `<set>`, `<title>`/`<desc>`, `<a>`, and any unknown
+ * element all fall here, together with anything they contain) and, on what survives, only the
+ * attribute names in `ALLOWED_SVG_ATTRIBUTES` (every `on*` handler and `style` are never on that
+ * list; `href`/`xlink:href` are on it but re-checked to be a local `#fragment`). Mutates `root` in
+ * place; returns `false` when `root` is not actually an `<svg>` document (a parse failure, e.g.
+ * `DOMParser`'s own `<parsererror>` node, or a non-SVG payload) — the caller falls back to `<img>`
+ * in that case, same as a failed fetch.
  */
 function sanitizeSvgRoot(root: Element, ownerDoc: Document): boolean {
   if (root.localName !== 'svg' || ownerDoc.getElementsByTagName('parsererror').length > 0) {
     return false;
   }
-  for (const scriptEl of Array.from(root.querySelectorAll('script'))) {
-    scriptEl.remove();
-  }
-  for (const titleOrDesc of Array.from(root.querySelectorAll('title, desc'))) {
-    titleOrDesc.remove();
-  }
-  const elements: readonly Element[] = [root, ...Array.from(root.querySelectorAll('*'))];
-  for (const el of elements) {
-    for (const attr of Array.from(el.attributes)) {
-      if (isEventHandlerAttr(attr.name)) {
-        el.removeAttribute(attr.name);
-      } else if (isHrefAttr(attr.name) && !attr.value.startsWith('#')) {
-        el.removeAttribute(attr.name);
-      }
-    }
-  }
+  removeDisallowedElements(root);
+  removeDisallowedAttributes(root);
   root.setAttribute('aria-hidden', 'true');
   root.setAttribute('focusable', 'false');
   return true;

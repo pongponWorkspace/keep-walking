@@ -32,7 +32,7 @@ import type { KeyValueStorage } from './storage/local-store';
 import { isTelemetryRecordArray } from './telemetry/sink';
 import { speedLockTriggeredEvent } from './telemetry/f04-events';
 import { appTelemetryConfig } from './config/telemetry';
-import { clientConfig } from './config/runtime';
+import { appPrivacyConfig, clientConfig } from './config/runtime';
 import { createSessionEngine } from './session/engine';
 import type { SessionEngine } from './session/engine';
 import { buildSessionParams } from './session/config';
@@ -85,6 +85,7 @@ import {
   loadPlayAreaMask,
 } from './dungeons/home-geometry';
 import { mountHomePanel } from './ui/home-panel';
+import { mountRecoveringBanner } from './ui/recovering-banner';
 import { mountRoleInfo } from './ui/role-info';
 import { mountInterestRegister } from './ui/interest-register';
 import { groupedSelectableDistricts, studyAreaProvinceOptions } from './copy/districts';
@@ -95,11 +96,16 @@ import { OnboardingFlow } from './onboarding-flow';
 import { shouldSkipF04App } from './env';
 import { mountAgeGateScreen } from './ui/age-gate-screen';
 import { mountConsentLocationScreen } from './ui/consent-location-screen';
+import { mountConsentPermissionScreen } from './ui/consent-permission-screen';
 import { mountSettingsMenu } from './ui/settings-menu';
 import { mountPrivacyScreen } from './ui/privacy-screen';
 import { mountCredits } from './ui/credits';
 import { withdrawConsent } from './privacy/withdraw-consent';
-import { readLocationConsent, writeLocationConsent } from './storage/onboarding';
+import {
+  readLocationConsent,
+  writeLocationConsent,
+  loadOnboardingStorage,
+} from './storage/onboarding';
 import { clearLocalData } from './storage/clear-local-data';
 
 const TELEMETRY_STORAGE_KEY = 'kw.p2.telemetry';
@@ -228,27 +234,19 @@ function edgeDistance_m(playerLat: number, playerLng: number, dungeon: ArtifactD
   return boundaryDistance_m({ lat: playerLat, lng: playerLng }, geoPolygon(dungeon.geometry));
 }
 
-/** `kw.p2.consent.location === 'granted'` — but a *missing* key (nobody has ever answered) also
- * reads as granted, see this function's own call site's doc comment (P2-F06-T09 interim default,
- * no consent screen built yet). Only an explicit, successfully-read `'declined'`/`'withdrawn'`
- * value denies it. */
-function locationConsentGranted(storage: KeyValueStorage): boolean {
-  const result = readEnvelope(
-    storage,
-    'kw.p2.consent',
-    1,
-    (v): v is { readonly location: string } =>
-      typeof v === 'object' &&
-      v !== null &&
-      typeof (v as { location?: unknown }).location === 'string',
-  );
-  return !result.ok || result.envelope.state.location === 'granted';
-}
-
 export function createF04App(deps: F04AppDeps): F04App {
   const artifact = loadDungeonArtifact();
   const params = buildSessionParams(artifact.dungeons);
   const byId = new Map(artifact.dungeons.map((d) => [d.id, d] as const));
+  // D-130, F06-TG-05: the one Mock-only escape hatch from fail-closed consent reads — computed
+  // once, shared by `OnboardingFlow` (below) and `locationConsentGrantedForHomeState` (below,
+  // F06-TG-05) rather than recomputed twice from the same three inputs. Matches `main.ts`'s own
+  // `skipOnboardingMock` predicate exactly (same params, same function).
+  const e2eSkipOnboarding = shouldSkipF04App(
+    deps.locationSearch,
+    clientConfig.providerQuery.paramNames.e2eSkipOnboarding,
+    deps.isMockProvider,
+  );
 
   const telemetry = createTelemetrySink({
     config: appTelemetryConfig.localSink,
@@ -319,6 +317,12 @@ export function createF04App(deps: F04AppDeps): F04App {
           wakeLockSupported: totals.supported,
         };
       },
+      // F06-TG-02 (tech note F06 8.1/10.1): read fresh from `kw.p2.onboarding` only when a
+      // first-ever `run_tick_granted` actually needs it (`session/engine.ts#persistAndMap`'s own
+      // guard) — never cached at boot, so whatever `OnboardingFlow` below has actually persisted by
+      // then (including the very first write, at `completeIntro()`) is what this reads, with no
+      // ordering dependency between the two modules' construction.
+      getFirstOpenAt_ms: () => loadOnboardingStorage(deps.storage, deps.now()).firstOpenAt_ms,
       ...(e2eClassId !== undefined ? { testForceClassId: e2eClassId } : {}),
     },
     deps.now(),
@@ -359,11 +363,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     startLocationProvider: deps.startLocationProvider,
     queryGeolocationPermission: deps.getLocationPermission,
     onPermissionResolved: () => render(engine.getState(), deps.now()),
-    e2eSkipOnboarding: shouldSkipF04App(
-      deps.locationSearch,
-      clientConfig.providerQuery.paramNames.e2eSkipOnboarding,
-      deps.isMockProvider,
-    ),
+    e2eSkipOnboarding,
   });
   const introScreen = mountIntroScreen(deps.hudContainer, () => {
     onboarding.completeIntro();
@@ -390,6 +390,15 @@ export function createF04App(deps: F04AppDeps): F04App {
     onDecline: () => {
       onboarding.declineConsent();
       manualConsentScreenOpen = false;
+      render(engine.getState(), deps.now());
+    },
+  });
+  // S-00-permission-browser (flow F06 A4/18.1, P2-H40, F06-X41): the blocking screen between
+  // accepting consent and the real GPS request — see `onboarding-flow.ts#confirmBrowserPriming`'s
+  // own doc comment for why this is a separate step from `onAccept` above.
+  const consentPermissionScreen = mountConsentPermissionScreen(deps.hudContainer, {
+    onContinue: () => {
+      onboarding.confirmBrowserPriming();
       render(engine.getState(), deps.now());
     },
   });
@@ -465,6 +474,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     setTimer: (run, delay_ms) => window.setTimeout(run, delay_ms),
     clearTimer: (handle) => window.clearTimeout(handle),
     gesture: clientConfig.pocketScreen,
+    screenLockNoticeHoldDurationMs: clientConfig.toast.screenLockNoticeHoldDurationMs,
     onExit: () => {
       pocketScreen.hideOverlay();
       pocketScreen.showEnterButton();
@@ -609,15 +619,15 @@ export function createF04App(deps: F04AppDeps): F04App {
     onClearLocalDataConfirmed: () => {
       clearLocalData({
         storage: deps.storage,
-        // `config/app/privacy.json#localData.storageKeyPrefix` — `AppPrivacyConfig`
-        // (`config/runtime.ts`) does not parse this subtree yet (no other client code reads it at
-        // runtime either; every `kw.p2.<name>` storage key elsewhere in this codebase already
-        // hardcodes the same prefix as its own literal, e.g. `storage/onboarding.ts`'s
-        // `ONBOARDING_STORAGE_KEY`) — matches that same established convention rather than adding a
-        // new config-parsing surface for one call site. owner: tech-lead, a real
-        // `appPrivacyConfig.localData.storageKeyPrefix` accessor replaces this literal with no
-        // other change (handoff in this task's REPORT).
-        storageKeyPrefix: 'kw.p2.',
+        // F06-TG-04: `config/app/privacy.json#localData.storageKeyPrefix`, parsed by
+        // `config/runtime.ts#parsePrivacyConfig` — no longer a literal that could drift from the
+        // config file's own value.
+        storageKeyPrefix: appPrivacyConfig.localData.storageKeyPrefix,
+        // F06-TG-06 (tech note F06 8.3): `clearLocalData` itself refuses when a run is active, the
+        // same selector the settings-menu row already disables on — a second, independent guard so
+        // a future call site cannot delete a run in progress by skipping the UI's own disabled
+        // state.
+        canClear: () => selectCanClearLocalData(engine.getState()),
         telemetryStorageKey: TELEMETRY_STORAGE_KEY,
         telemetrySchemaVersion: 1,
         sink: {
@@ -828,6 +838,9 @@ export function createF04App(deps: F04AppDeps): F04App {
       openManualConsentScreen();
     },
   });
+  // F06 copy gate C6-05 (flow F06 Flow C ข้อ C7): shown on every at-home screen, including the
+  // plain nav panel's own `near` state — a top-level banner, never folded into `homePanel` alone.
+  const recoveringBanner = mountRecoveringBanner(deps.hudContainer);
 
   type EmptyScreenReason = 'far' | 'out_of_area' | 'outside_launch_district';
   // `onboarding_empty_screen_abandoned.seconds_before_close_bucket` (product/telemetry-events.md):
@@ -1189,6 +1202,9 @@ export function createF04App(deps: F04AppDeps): F04App {
         wakeLockController.stop();
         pocketScreen.hideOverlay();
         pocketScreen.hideEnterButton();
+        // F06 copy gate C6-03 (flow F06 Flow E ข้อ E2): `run.screenLockNotice` never carries over
+        // into the next run, whether or not its own auto-fade timer has already fired.
+        pocketScreen.hideFallbackNotice();
       } else if (event.type === 'run_state_changed') {
         // C-12 (copy gate P2-X37): a short toast confirming the run came back from Grace/Suspended
         // to Active — never a client re-derivation of "did presence return", just this event.
@@ -1255,6 +1271,9 @@ export function createF04App(deps: F04AppDeps): F04App {
         }
         exitAnimationInFlight = true;
         audioPlayer.submit('run.death', event.at_ms);
+        // P2-H42 (visual gate V-39): the edge marker's own hard-cut, alongside `run.death`'s own
+        // `.hp-fill` hard-cut+grayscale effect below — same event, same instant, two elements.
+        hpBar.hardCutEdge();
         // `run.death`'s own effect (hp-critical.ts) hard-cuts `.hp-fill` to 0 and grayscales it —
         // the same element `hpBar.fillElement` exposes, never a second/duplicate DOM node.
         void play('run.death', hpBar.fillElement).then(() => {
@@ -1277,6 +1296,10 @@ export function createF04App(deps: F04AppDeps): F04App {
   }
 
   function render(state: SessionState, now_ms: number): void {
+    // F06 copy gate C6-05: hidden by default on every render pass; the one "at home" branch near
+    // the bottom of this function (reached only once every screen/overlay/onboarding takeover
+    // above has already said "not me") is the only place that shows it again.
+    recoveringBanner.hide();
     if (currentRoute !== 'main') {
       // ia.md section 5 item 5: the gear icon (and this task's inventory shortcut) are reachable
       // from every state, unconditionally — the route screen fully owns the display while open.
@@ -1290,6 +1313,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       introScreen.hide();
       ageGateScreen.hide();
       consentLocationScreen.hide();
+      consentPermissionScreen.hide();
       classSelect.hide();
       runTutorialLine.hide();
       // P2-F06-T14: the pocket screen's own dark overlay must never linger behind (or block
@@ -1311,6 +1335,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       introScreen.hide();
       ageGateScreen.hide();
       consentLocationScreen.hide();
+      consentPermissionScreen.hide();
       classSelect.hide();
       runTutorialLine.hide();
       speedLockOverlay.show(state.run !== null);
@@ -1332,6 +1357,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       introScreen.hide();
       ageGateScreen.hide();
       consentLocationScreen.hide();
+      consentPermissionScreen.hide();
       classSelect.hide();
       runTutorialLine.hide();
       pocketScreen.hideOverlay();
@@ -1339,21 +1365,22 @@ export function createF04App(deps: F04AppDeps): F04App {
       runSummary.show(state.lastSummary);
       return;
     }
-    // --- P2-F06-T10/P2-X38: onboarding gate (acceptance order: intro -> age gate -> consent ->
-    // (permission, no screen of its own) -> map + opening text -> the class sheet layered on top of
-    // it, F06-R44) — takes over before the confirm popup/nav/home panel, but never before a route
-    // screen, the speed-lock overlay, or the run summary (checked above already). Steps other than
-    // `intro`/`age`/`underage`/`consent`/`class` (`permission`, `map`, `first_run`, `first_reward`,
-    // `done`) need no distinct screen of their own here: `permission` resolves itself in the
-    // background (`onboarding-flow.ts`, A-P2-X38-2), and `first_run`/`first_reward` are satisfied
-    // entirely by the normal run screen (N-3's tutorial line, `run.tickGrantedFirst`/
-    // `run.continueCta`, GD B-07 — no separate onboarding code path for either).
+    // --- P2-F06-T10/P2-X38/P2-X41: onboarding gate (acceptance order: intro -> age gate -> consent
+    // -> permission (S-00-permission-browser, flow F06 A4/18.1) -> map + opening text -> the class
+    // sheet layered on top of it, F06-R44) — takes over before the confirm popup/nav/home panel,
+    // but never before a route screen, the speed-lock overlay, or the run summary (checked above
+    // already). Steps other than `intro`/`age`/`underage`/`consent`/`permission`/`class` (`map`,
+    // `first_run`, `first_reward`, `done`) need no distinct screen of their own here:
+    // `first_run`/`first_reward` are satisfied entirely by the normal run screen (N-3's tutorial
+    // line, `run.tickGrantedFirst`/`run.continueCta`, GD B-07 — no separate onboarding code path
+    // for either).
     const onboardingStep = onboarding.currentStep(selectPlayerView(state, now_ms, params));
     if (onboardingStep === 'intro') {
       onboarding.markIntroShown();
       classSelect.hide();
       ageGateScreen.hide();
       consentLocationScreen.hide();
+      consentPermissionScreen.hide();
       introScreen.show();
       confirmPopup.hide();
       navPanel.root.hidden = true;
@@ -1365,6 +1392,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       onboarding.markAgeGateShown();
       classSelect.hide();
       consentLocationScreen.hide();
+      consentPermissionScreen.hide();
       if (onboardingStep === 'underage') {
         ageGateScreen.showUnderage();
       } else {
@@ -1383,6 +1411,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     if (onboardingStep === 'consent' || manualConsentScreenOpen) {
       onboarding.markConsentShown();
       classSelect.hide();
+      consentPermissionScreen.hide();
       consentLocationScreen.show();
       confirmPopup.hide();
       navPanel.root.hidden = true;
@@ -1390,6 +1419,16 @@ export function createF04App(deps: F04AppDeps): F04App {
       return;
     }
     consentLocationScreen.hide();
+    if (onboardingStep === 'permission') {
+      onboarding.markPermissionShown();
+      classSelect.hide();
+      consentPermissionScreen.show();
+      confirmPopup.hide();
+      navPanel.root.hidden = true;
+      homePanel.hide();
+      return;
+    }
+    consentPermissionScreen.hide();
     if (onboardingStep === 'class') {
       onboarding.markClassSelectShown();
       classSelect.show();
@@ -1417,13 +1456,14 @@ export function createF04App(deps: F04AppDeps): F04App {
     }
     const homeState = homeTracker?.evaluate({
       now_ms,
-      // Interim default (P2-F06-T09, no age-gate/consent screen built yet — that is P2-F06-T10's
-      // own onboarding flow): a *missing* `kw.p2.consent` key (nobody has ever answered) reads as
-      // granted, so every existing trace/e2e keeps behaving exactly as before this task. An
-      // explicit `declined`/`withdrawn` (only possible once T10's consent screen — or a direct
-      // storage seed, tech note F06 13.4's own e2e hook — writes the key) is the only way to see
-      // `unknown` from this input.
-      locationConsentGranted: locationConsentGranted(deps.storage),
+      // F06-TG-05 (fail-closed, NN-7): a *missing* `kw.p2.consent` key (nobody has ever answered)
+      // now reads as `unknown`, matching `readLocationConsent`'s own honest "nobody has actually
+      // answered yet" default and `main.ts`'s own boot-time predicate — the interim "missing means
+      // granted" default this replaced only ever existed because no real consent screen existed yet
+      // (P2-X38 built one). The one exception is the Mock-only `e2eSkipOnboarding` hook (D-130):
+      // every pre-existing trace/e2e fixture that never answers a real consent screen keeps
+      // behaving exactly as before.
+      locationConsentGranted: readLocationConsent(deps.storage) === 'granted' || e2eSkipOnboarding,
       permissionDenied: false,
       position:
         lastPlayer === undefined ? null : { ...lastPlayer, accuracy_m: lastAccuracy_m ?? 0 },
@@ -1437,6 +1477,15 @@ export function createF04App(deps: F04AppDeps): F04App {
         ? homeState.kind
         : undefined;
     recordEmptyScreenTransition(emptyScreenReason, now_ms);
+    // F06 copy gate C6-05 (flow F06 Flow C ข้อ C7): every at-home screen, including `near` (the
+    // plain nav panel) — reached only here, once every run/confirm/onboarding/route takeover above
+    // has already returned.
+    const playerView = selectPlayerView(state, now_ms, params);
+    recoveringBanner.render({
+      recovering: playerView.recovering,
+      recoveryTo_pct: playerView.recoveryTo_pct,
+      recoveryTimeLeft_ms: playerView.recoveryTimeLeft_ms,
+    });
     if (homeState === undefined || homeState.kind === 'near') {
       homePanel.hide();
       renderNearbyNav(state, now_ms);

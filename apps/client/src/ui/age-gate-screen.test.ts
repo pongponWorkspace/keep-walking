@@ -69,6 +69,28 @@ describe('mountAgeGateScreen', () => {
     expect(options[options.length - 1]).toBe(String(2026 - 99));
   });
 
+  // F06 copy gate C6-09 (flow F06 A2, P2-H40): the visible year is Buddhist Era (year + 543), the
+  // value `onConfirm` receives stays Gregorian — same option, two different numbers.
+  it('shows birth years in Buddhist Era (year + 543) while the confirmed value stays Gregorian', () => {
+    const { screen, onConfirm } = mount();
+    screen.showGate();
+    const select = screen.root.querySelector<HTMLSelectElement>('.age-gate-birth-year-select');
+    const options = [
+      ...screen.root.querySelectorAll<HTMLOptionElement>('.age-gate-birth-year-select option'),
+    ].filter((o) => o.value !== '');
+    const first = options[0];
+    expect(first?.value).toBe('2026');
+    expect(first?.textContent).toBe('2569'); // 2026 + 543
+    expect(select).not.toBeNull();
+    if (select !== null) {
+      select.value = '2000';
+      select.dispatchEvent(new Event('change'));
+      screen.root.querySelector<HTMLButtonElement>('.age-gate-confirm')?.click();
+      // Confirmed with the raw Gregorian value (2000), never the Buddhist-Era display number (2543).
+      expect(onConfirm).toHaveBeenCalledWith(2000);
+    }
+  });
+
   it('showUnderage shows the under-min copy and a single back button, hides the gate view', () => {
     const { screen, onUnderageBack } = mount();
     screen.showGate();

@@ -240,10 +240,16 @@ describe('the real committed config files (via the generated whitelist subset)',
     // P2-X38: S-00-age-gate's own config, from the same generated subset.
     expect(balancePrivacyConfig.minAge_yr).toBe(15);
     expect(balancePrivacyConfig.minAgeComparison).toBe('greaterThanOrEqual');
+    // D-135/F06-TG-03: positionLogTtl_s now reaches the client through the same generated subset.
+    expect(balancePrivacyConfig.positionLogTtl_s).toBe(86400);
   });
 });
 
-const WELL_FORMED_PRIVACY = { minAge_yr: 15, minAgeComparison: 'greaterThanOrEqual' };
+const WELL_FORMED_PRIVACY = {
+  minAge_yr: 15,
+  minAgeComparison: 'greaterThanOrEqual',
+  positionLogTtl_s: 86400,
+};
 
 describe('parseBalancePrivacyConfig', () => {
   it('parses a well-formed config', () => {
@@ -260,5 +266,17 @@ describe('parseBalancePrivacyConfig', () => {
     expect(() =>
       parseBalancePrivacyConfig({ ...WELL_FORMED_PRIVACY, minAgeComparison: 'nope' }),
     ).toThrow(/minAgeComparison/);
+  });
+
+  it('fails loudly on a missing positionLogTtl_s (F06-TG-03: no silent 24h fallback)', () => {
+    expect(() =>
+      parseBalancePrivacyConfig({ ...WELL_FORMED_PRIVACY, positionLogTtl_s: undefined }),
+    ).toThrow(/positionLogTtl_s/);
+  });
+
+  it('fails loudly on a non-integer positionLogTtl_s', () => {
+    expect(() =>
+      parseBalancePrivacyConfig({ ...WELL_FORMED_PRIVACY, positionLogTtl_s: 86400.5 }),
+    ).toThrow(/positionLogTtl_s/);
   });
 });

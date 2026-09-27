@@ -80,6 +80,10 @@ export interface PocketScreenDeps {
   readonly setTimer: (run: () => void, delay_ms: number) => number;
   readonly clearTimer: (handle: number) => void;
   readonly gesture: PocketScreenGestureConfig;
+  /** `config: client.toast.screenLockNoticeHoldDurationMs` (F06 copy gate C6-03, flow F06 Flow E
+   * ข้อ E2): how long `run.screenLockNotice` stays up before fading itself, independent of the
+   * gesture's own `setTimer`/`clearTimer` pair above (a different timer, a different purpose). */
+  readonly screenLockNoticeHoldDurationMs: number;
   /** The swipe-up-hold gesture completed on `overlayRoot` — the caller hides the overlay and shows
    * the re-entry button (never automatic on this module's own timer). */
   readonly onExit: () => void;
@@ -101,8 +105,13 @@ export interface PocketScreen {
    * shape as `RunBar.setTick`. */
   setTick(timeLeft: string | undefined): void;
   /** Path B (12.3): once per device, ever. Safe to call every time a run starts with Wake Lock
-   * unsupported/denied — only the first call in this device's lifetime actually shows anything. */
+   * unsupported/denied — only the first call in this device's lifetime actually shows anything.
+   * Fades itself after `screenLockNoticeHoldDurationMs` (F06 copy gate C6-03). */
   showFallbackNoticeOnce(): void;
+  /** `dungeon_exited` (F06 copy gate C6-03, flow F06 Flow E ข้อ E2): hides `run.screenLockNotice`
+   * immediately, whether or not its own auto-fade timer has fired yet — never carried across into
+   * the next run. A no-op when the notice is not showing. */
+  hideFallbackNotice(): void;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(
@@ -143,20 +152,22 @@ export function mountPocketScreen(container: HTMLElement, deps: PocketScreenDeps
   container.append(fallbackToast);
 
   // --- Swipe-up-hold exit gesture (rule 2) ---
-  // Resolved once, at mount time, against the real viewport (`window.innerHeight` -- the same
-  // global other DOM-glue modules in this file already read directly, e.g. `document.createElement`
-  // above): a ratio survives orientation changes/different phones better than caching a fixed px
-  // value would, but re-resolving on every gesture would be needless work for a number that only
-  // ever changes on a resize/orientation event this gesture does not need to react to mid-swipe.
-  const resolvedGesture: PocketGestureConfig = {
-    swipeUpHoldMinDuration_ms: deps.gesture.swipeUpHoldMinDuration_ms,
-    swipeUpMinDistance_px: Math.round(window.innerHeight * deps.gesture.swipeUpMinDistanceRatio),
-  };
+  // D-134's own condition (P2-F06-T20 6.1, tech note F06 8.5, F06-TG-13 item ก): resolved fresh at
+  // *every* `pointerdown`, against the real viewport (`window.innerHeight` -- the same global other
+  // DOM-glue modules in this file already read directly, e.g. `document.createElement` above), not
+  // once at mount time — mounting while the phone happens to be landscape (or a mobile browser's own
+  // chrome expanding/collapsing between gestures) would otherwise leave a stale, wrong-proportion
+  // threshold cached for the rest of the run. The resolved px value is still fixed for the duration
+  // of one gesture (never recomputed mid-swipe on `pointermove`).
   let pointerId: number | undefined;
   let startY = 0;
   let startedAt_ms = 0;
   let lastY = 0;
   let holdTimer: number | undefined;
+  let gestureConfig: PocketGestureConfig | undefined;
+  // F06 copy gate C6-03: the fallback toast's own auto-fade timer, independent of the gesture's
+  // `holdTimer` above (a different clock, a different purpose).
+  let fallbackToastTimer: number | undefined;
 
   function clearGesture(): void {
     if (holdTimer !== undefined) {
@@ -164,6 +175,7 @@ export function mountPocketScreen(container: HTMLElement, deps: PocketScreenDeps
       holdTimer = undefined;
     }
     pointerId = undefined;
+    gestureConfig = undefined;
   }
 
   overlayRoot.addEventListener('pointerdown', (e) => {
@@ -172,15 +184,19 @@ export function mountPocketScreen(container: HTMLElement, deps: PocketScreenDeps
     startY = e.clientY;
     lastY = e.clientY;
     startedAt_ms = deps.now();
+    gestureConfig = {
+      swipeUpHoldMinDuration_ms: deps.gesture.swipeUpHoldMinDuration_ms,
+      swipeUpMinDistance_px: Math.round(window.innerHeight * deps.gesture.swipeUpMinDistanceRatio),
+    };
     holdTimer = deps.setTimer(() => {
-      if (pointerId === e.pointerId) {
+      if (pointerId === e.pointerId && gestureConfig !== undefined) {
         const heldForMs = deps.now() - startedAt_ms;
-        if (shouldTriggerPocketExit(startY, lastY, heldForMs, resolvedGesture)) {
+        if (shouldTriggerPocketExit(startY, lastY, heldForMs, gestureConfig)) {
           clearGesture();
           deps.onExit();
         }
       }
-    }, resolvedGesture.swipeUpHoldMinDuration_ms);
+    }, gestureConfig.swipeUpHoldMinDuration_ms);
   });
   overlayRoot.addEventListener('pointermove', (e) => {
     if (e.pointerId === pointerId) lastY = e.clientY;
@@ -228,6 +244,18 @@ export function mountPocketScreen(container: HTMLElement, deps: PocketScreenDeps
       if (deps.storage.getItem(SCREEN_LOCK_NOTICE_SHOWN_KEY) === SHOWN_VALUE) return;
       deps.storage.setItem(SCREEN_LOCK_NOTICE_SHOWN_KEY, SHOWN_VALUE);
       fallbackToast.hidden = false;
+      if (fallbackToastTimer !== undefined) deps.clearTimer(fallbackToastTimer);
+      fallbackToastTimer = deps.setTimer(() => {
+        fallbackToastTimer = undefined;
+        fallbackToast.hidden = true;
+      }, deps.screenLockNoticeHoldDurationMs);
+    },
+    hideFallbackNotice() {
+      if (fallbackToastTimer !== undefined) {
+        deps.clearTimer(fallbackToastTimer);
+        fallbackToastTimer = undefined;
+      }
+      fallbackToast.hidden = true;
     },
   };
 }

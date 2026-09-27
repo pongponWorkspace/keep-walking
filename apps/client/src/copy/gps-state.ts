@@ -41,6 +41,20 @@ export const GPS_DISPLAY_COPY: Readonly<Record<GpsDisplayState, GpsStateCopy | n
   lowAccuracy: { label: 'gps.lowAccuracy', body: 'gps.lowAccuracyBody' },
 };
 
+/** `.gps-pill[data-tone]` (design/ux/components.md 2.1/3.4, uiux P2-H49): `searching` is a neutral,
+ * in-progress state (`state.info`); every other shown state (`off`/`denied`/`unsupported`/
+ * `lowAccuracy`) is a real problem (`state.danger`). `none` never renders a pill at all
+ * (`GPS_DISPLAY_COPY.none === null`), so it has no tone of its own here. */
+export const GPS_DISPLAY_TONE: Readonly<
+  Record<Exclude<GpsDisplayState, 'none'>, 'info' | 'danger'>
+> = {
+  searching: 'info',
+  off: 'danger',
+  denied: 'danger',
+  unsupported: 'danger',
+  lowAccuracy: 'danger',
+};
+
 /** Toast copy keys (gpsStateMap: gps.suspended fires specifically on the suspended -> running
  * transition; gps.restored fires when recovering from any other display problem). */
 export const GPS_TOAST_COPY: Readonly<Record<GpsToast, string>> = {

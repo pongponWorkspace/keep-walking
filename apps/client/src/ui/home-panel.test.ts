@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { mountHomePanel } from './home-panel';
 import type { HomePanelDeps } from './home-panel';
 import type { AssetRuntimeController } from '../assets/runtime';
+import { getCopyText } from '../copy/load';
 
 function fakeAssets(loadAvatarPart = vi.fn().mockResolvedValue(undefined)): AssetRuntimeController {
   return {
@@ -84,6 +85,20 @@ describe('mountHomePanel', () => {
     panel.render({ kind: 'temporarilyClosed', dungeonId: 'd1', nextOpenAt_ms: 60_000 }, 0);
     expect(container.querySelector<HTMLElement>('.home-panel-next-open')?.hidden).toBe(false);
     expect(container.querySelector<HTMLElement>('.home-primary-cta')?.hidden).toBe(true);
+  });
+
+  // F06 copy gate C6-04: `nextOpenAt_ms: null` must use `home.farNextOpenUnknown`, never
+  // `home.farNextOpen` with an empty `{openTime}` (a dangling "เปิดอีกที " on screen).
+  it('temporarilyClosed with nextOpenAt_ms null: uses home.farNextOpenUnknown, never an empty {openTime}', () => {
+    const { container, panel } = mount();
+    panel.render({ kind: 'temporarilyClosed', dungeonId: 'd1', nextOpenAt_ms: null }, 0);
+    const line = container.querySelector<HTMLElement>('.home-panel-next-open');
+    expect(line?.hidden).toBe(false);
+    expect(line?.textContent).toBe(getCopyText('home.farNextOpenUnknown'));
+    expect(line?.textContent).not.toContain('{openTime}');
+    // Never the old `home.farNextOpen` template with an empty `{openTime}` substitution (which
+    // would leave a trailing space before the closing quote of that key's own text).
+    expect(line?.textContent?.endsWith(' ')).toBe(false);
   });
 
   it('lazily loads the avatar part exactly once, on the first non-hidden render', () => {

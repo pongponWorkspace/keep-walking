@@ -4,7 +4,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   mapSessionEvent,
+  minutesSinceFirstOpenBucket,
   minutesSinceRunStartBucket,
+  onboardingFirstRewardGrantedEvent,
   pageHiddenBucket,
   wakeLockEngagedShareBucket,
 } from './f04-events';
@@ -21,6 +23,39 @@ describe('minutesSinceRunStartBucket', () => {
     expect(minutesSinceRunStartBucket(45 * MS_PER_MIN)).toBe('45-60');
     expect(minutesSinceRunStartBucket(60 * MS_PER_MIN)).toBe('60+');
     expect(minutesSinceRunStartBucket(120 * MS_PER_MIN)).toBe('60+');
+  });
+});
+
+describe('minutesSinceFirstOpenBucket (product/telemetry-events.md section 3, F06-TG-02)', () => {
+  it('buckets at the documented edges (0-10, 10-30, 30-60, 60+)', () => {
+    const MS_PER_MIN = 60_000;
+    expect(minutesSinceFirstOpenBucket(0)).toBe('0-10');
+    expect(minutesSinceFirstOpenBucket(9 * MS_PER_MIN)).toBe('0-10');
+    expect(minutesSinceFirstOpenBucket(10 * MS_PER_MIN)).toBe('10-30');
+    expect(minutesSinceFirstOpenBucket(29 * MS_PER_MIN)).toBe('10-30');
+    expect(minutesSinceFirstOpenBucket(30 * MS_PER_MIN)).toBe('30-60');
+    expect(minutesSinceFirstOpenBucket(59 * MS_PER_MIN)).toBe('30-60');
+    expect(minutesSinceFirstOpenBucket(60 * MS_PER_MIN)).toBe('60+');
+  });
+
+  it('never goes negative even if firstOpenAt_ms somehow lands after at_ms', () => {
+    expect(minutesSinceFirstOpenBucket(-5000)).toBe('0-10');
+  });
+});
+
+describe('onboardingFirstRewardGrantedEvent (F06-TG-02)', () => {
+  it('carries exactly dungeon_id, minutes_since_first_open_bucket, class — no coordinate', () => {
+    const MS_PER_MIN = 60_000;
+    const mapped = onboardingFirstRewardGrantedEvent('baan-phra-athit', 12 * MS_PER_MIN, 'support');
+    expect(mapped).toEqual({
+      name: 'onboarding_first_reward_granted',
+      properties: {
+        dungeon_id: 'baan-phra-athit',
+        minutes_since_first_open_bucket: '10-30',
+        class: 'support',
+      },
+    });
+    expect(Object.keys(mapped.properties)).toHaveLength(3);
   });
 });
 

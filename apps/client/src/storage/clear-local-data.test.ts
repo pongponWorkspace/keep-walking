@@ -22,6 +22,7 @@ function baseDeps(storage: ReturnType<typeof createMemoryStorage>) {
       now: () => 5000,
     },
     now: () => 5000,
+    canClear: () => true,
   };
 }
 
@@ -69,5 +70,28 @@ describe('clearLocalData', () => {
   it('does nothing extra when reload is omitted', () => {
     const storage = createMemoryStorage();
     expect(() => clearLocalData(baseDeps(storage))).not.toThrow();
+  });
+
+  // F06-TG-06 (tech note F06 8.3): a second, independent guard against deleting an active run.
+  describe('canClear: false (a run is active)', () => {
+    it('deletes nothing', () => {
+      const storage = createMemoryStorage();
+      storage.setItem('kw.p2.session', 'x');
+      clearLocalData({ ...baseDeps(storage), canClear: () => false });
+      expect(storage.getItem('kw.p2.session')).toBe('x');
+    });
+
+    it('writes no telemetry', () => {
+      const storage = createMemoryStorage();
+      clearLocalData({ ...baseDeps(storage), canClear: () => false });
+      expect(storage.getItem('kw.p2.telemetry')).toBeNull();
+    });
+
+    it('never calls reload', () => {
+      const storage = createMemoryStorage();
+      const reload = vi.fn();
+      clearLocalData({ ...baseDeps(storage), canClear: () => false, reload });
+      expect(reload).not.toHaveBeenCalled();
+    });
   });
 });

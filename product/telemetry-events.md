@@ -91,6 +91,7 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 - **ยิงเมื่อ:** เปิดแอปครั้งแรก (หรือครั้งแรกหลังให้ consent location) และคำนวณระยะถึง dungeon ที่ใกล้ที่สุด
 - **properties:** `distance_band` (enum `green`\|`yellow`\|`red` ตามนิยาม PRD F01 §3), `nearest_open_dungeon_id` (nullable — ปลายทางที่ระบบแนะนำ ไม่ใช่พิกัดผู้เล่น)
 - **privacy:** ไม่มีพิกัด ไม่มี dungeon id เดี่ยวของ "ตำแหน่งผู้เล่น" มีแค่ปลายทางที่แนะนำ
+- **สถานะการ emit จริง (P2-H50, ปิดส่วนนี้ของ TG-12):** tech gate F06 รอบ 1 พบว่ายังไม่มีจุดยิงใน `apps/client/src` — **ตัดสินใจ: ไม่บังคับก่อน playtest ภาคสนาม P2-F06-T27** เหตุผล: (1) ไม่ผูกกับคำถามหรือเกณฑ์ PASS/FIX-FIRST ใดใน `product/playtest/phase-2-plan.md` §5/§6 (2) guardrail ที่ event นี้ควรป้อนข้อมูลระยะยาว (GR-1, `product/metrics.md` §3.2/§9.1–9.2) ปิดแล้ว PASS ทั้ง 3 ย่านจากชุดข้อมูล coverage แบบ static ไม่ใช่จาก telemetry รันไทม์ (3) ผู้ร่วม playtest ถูกนัดไปเดินที่ dungeon ที่รู้ระยะอยู่แล้วตาม `qa/playtest/phase-2-kit.md` (PN-2 พระนคร) การกระจาย `distance_band` จาก N≈3 คนที่คัดมาแล้วไม่มีความหมายเชิงสถิติสำหรับ metric ที่ออกแบบมาวัดประชากรทั้งย่านหลังเปิดตัวจริง — **คง Phase 2 ไว้ในเชิงความสามารถของระบบ** (ไม่ต้องรอฟีเจอร์ Phase 3 ใด ไม่มี dependency กับ login/party) **แต่เลื่อนงาน implement เป็น backlog ที่ต้องปิดก่อน regional launch จริง** (product gate ของ F23/live monitoring) **ไม่ใช่ก่อน P2-F06-T27** — ไม่เปิดงาน gameplay-programmer รอบนี้สำหรับ event นี้ (ยืนยัน: product-manager, P2-H50)
 
 ### `onboarding_empty_screen_shown` *(ชื่อคงตาม PRD F01 §6)*
 - **ยิงเมื่อ:** แสดงหน้าจอ fallback เมื่อ dungeon ไกล/นอกพื้นที่/นอกย่านเปิดตัว (P2-F06-T09: จอไกล / นอกพื้นที่ / นอกย่านเปิดตัว)
@@ -252,6 +253,7 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 - **ยิงเมื่อ:** state ของ `LocationProvider` เปลี่ยน ตรงกับ `gps.*` copy key ใน `design/ux/flows/F03-core-loop.md` §9.5
 - **properties:** `status` (enum `searching`\|`off`\|`denied`\|`low_accuracy`\|`offline`\|`restored`), `context` (enum `onboarding`\|`map`\|`run` — ใช้แยกว่าหลุดตอนไหน)
 - **privacy:** ไม่มีพิกัด ไม่มีค่า accuracy เป็นตัวเลข (พอรู้ว่า "แย่กว่าเกณฑ์" ก็พอ)
+- **สถานะการ emit จริง (P2-H50, ปิดส่วนนี้ของ TG-12):** tech gate F06 รอบ 1 พบว่ายังไม่มีจุดยิงใน `apps/client/src` — **ตัดสินใจ: ต้อง emit ก่อน playtest ภาคสนาม P2-F06-T27** เหตุผล: event นี้เป็นหลักฐานเดียวที่ตอบแถว "pocket screen ทำงานตามที่คาดไหม" ของ `product/playtest/phase-2-plan.md` §5 (คู่กับ `page_hidden_total_s_bucket`, `wake_lock_engaged_share_bucket`) — GPS หลุด/แม่นยำต่ำระหว่างเดินจริงโดยเก็บมือถือในกระเป๋า (pillar P4, D-063, Wake Lock F06-T14) เป็นความเสี่ยงที่**สนามภาคสนามเท่านั้นที่ตรวจพบได้จริง** ไม่มีทางจำลองครบด้วย GPS trace สังเคราะห์ ถ้าไม่มี event นี้ การอ่านผล FIX-FIRST ของ `phase-2-plan.md` §6.2 ข้อ 1/6/7 (tick ไม่สม่ำเสมอ, ผู้เล่นตอบว่าเกม "ค้าง"/"ลงโทษ") จะแยกไม่ออกว่าสาเหตุมาจาก movement gate ทำงานตามออกแบบหรือ GPS หลุดจริงจากอุปกรณ์/สภาพแวดล้อม — **handoff ถึง gameplay-programmer ทันที (→ P2-X48)** สเปกที่ต้อง emit ตรงตามตารางด้านบนเป๊ะ ไม่มีการเปลี่ยนแก้: ชื่อ event `run_gps_status_changed`, property สองตัว (`status` string enum 6 ค่า, `context` string enum 3 ค่า) ไม่มี bucket ตัวเลขใดๆ ในสอง property นี้ (เป็น enum ล้วน ไม่ใช่ bucket ช่วง) ยิงทุกครั้งที่ state ของ `LocationProvider` เปลี่ยนค่า (ไม่ debounce, ไม่ sample) ไม่มี `lat`/`lng`/`accuracy` ตัวเลขใดๆ ใน payload (ยืนยัน privacy ตามกติกาข้อ 2 ของเอกสารนี้) — ใช้ envelope กลางหัวข้อ 1.1 เหมือน event อื่นทุกประการ (ยืนยัน: product-manager, P2-H50)
 
 ### `dungeon_report_submitted`
 - **ยิงเมื่อ:** ผู้เล่นกดรายงานจาก `S-17-report-block`
@@ -340,7 +342,7 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 | --- | --- | --- | --- |
 | `onboarding_funnel_step` | Onboarding | 2 (แก้ลำดับ+ตัด login) | — |
 | `onboarding_first_reward_granted` | Onboarding | 2 | วัด metric หลักของ F06 |
-| `onboarding_nearest_dungeon_distance` | Onboarding | 2 | — |
+| `onboarding_nearest_dungeon_distance` | Onboarding | 2 | ยังไม่มี emit จริง (TG-12) — P2-H50: **ไม่บังคับก่อน playtest**, implement ก่อน regional launch แทน |
 | `onboarding_empty_screen_shown` | Onboarding | 2 (reason ใหม่) | — |
 | `onboarding_empty_screen_abandoned` | Onboarding | 2 (reason ใหม่) | — |
 | `interest_registered_outside_area` | Onboarding | 2 (ขยาย scope/area_name) | — |
@@ -362,7 +364,7 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 | `run_potion_auto_used` | Places | 2 | ใหม่ |
 | `inventory_potion_used` | Places | 2 | ใหม่ (P2-H24) — ไม่มี `dungeon_id`, มี `revived` |
 | `anticheat_speed_lock_triggered` | Places | 2 | `phase`/`in_run`/`dungeon_id` ตรง engine |
-| `run_gps_status_changed` | Places | 2 | — |
+| `run_gps_status_changed` | Places | 2 | ยังไม่มี emit จริง (TG-12) — P2-H50: **ต้อง emit ก่อน P2-F06-T27** → handoff P2-X48 |
 | `dungeon_report_submitted` | Places | 2 (queue เต็มรูปรอ F13/F15) | — |
 | `session_state_discarded` | Places (ความน่าเชื่อถือ) | 2 | ใหม่ |
 | `storage_quota_exceeded` | Places (ความน่าเชื่อถือ) | 2 | ใหม่ |
@@ -393,6 +395,8 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 - A-P2-F05-T06-1 (**ปิดแล้ว, P2-X23**): cue เสียง `qc.sent`/`qc.received`/`dungeon.closedOrOutOfRange` ใน `audio/cue-list.md` คง `telemetry: null` ตามที่ sound-designer ตั้งไว้ถูกต้องแล้ว — `qc.*` ไม่มี event เพราะเป็นฟีเจอร์ Nearby Party (F09/Phase 3) ที่เข้าไม่ถึงใน Phase 2 (หัวข้อ 4) `dungeon.closedOrOutOfRange` ก็ไม่มี event ใหม่เช่นกัน เพราะเส้นทาง UI ที่พบบ่อยของ cue นี้ไม่เรียก `sessionStep(confirm)` เลย (หัวข้อ 3, หมายเหตุท้าย `checkin_rejected`) ส่วนกรณีที่ผ่าน `confirm` แล้วถูกปฏิเสธเพราะปิดพอดี ถูกนับใน `checkin_rejected { reason: dungeon_closed }` อยู่แล้วโดยไม่ต้องประกาศเพิ่ม (owner: product-manager, ยืนยันร่วม: sound-designer)
 - A-P2-F06-T04-5 **ตรวจซ้ำแล้ว (P2-H24):** ยืนยันว่า `checkin_rejected.reason` enum (หัวข้อ 3) มี `no_class`/`no_hp` ครบ 9 ค่าจริงตามที่ P2-X23 ปิดไว้แล้ว ไม่มีอะไรต้องแก้เพิ่ม
 - A-P2-H24-1 (**ปิดแล้ว**): ประกาศ `inventory_potion_used { item_id, revived }` (หัวข้อ 3) ตามข้อเสนอของ product-manager เอง (P2-X33) ตอบ gap ที่ sound-designer พบใน P2-H18 (cue เสียงมีแล้ว telemetry ไม่มี) — ไม่มี `dungeon_id`/พิกัด เพราะเกิดนอก run (ยืนยัน: sound-designer เจ้าของ P2-H18)
+- A-P2-H50-1 (**ปิดแล้ว, P2-H50**): tech gate F06 รอบ 1 (TG-12) พบว่า `onboarding_nearest_dungeon_distance` และ `run_gps_status_changed` มีสเปกในเอกสารนี้แล้วแต่ไม่มีจุดยิงจริงใน `apps/client/src` — ตัดสินใจแยกกัน: **`run_gps_status_changed` ต้อง emit ก่อน playtest ภาคสนาม P2-F06-T27** (เป็นหลักฐานเดียวที่ตอบคำถาม pocket screen/GPS ของ `product/playtest/phase-2-plan.md` §5) → handoff P2-X48 ถึง gameplay-programmer พร้อมสเปกเต็ม (ดูหัวข้อ 3 ของเอกสารนี้ ไม่มีการเปลี่ยนชื่อ/property ใดจากที่ประกาศไว้แล้ว) · **`onboarding_nearest_dungeon_distance` ไม่บังคับก่อน playtest** เพราะไม่ผูกกับคำถาม/เกณฑ์ใดใน `phase-2-plan.md` §5/§6 และ guardrail ที่เกี่ยวข้อง (GR-1) ปิดแล้วจากข้อมูล coverage แบบ static — เลื่อนงาน implement เป็น backlog ก่อน regional launch แทน ไม่เปิดงาน gameplay-programmer รอบนี้ (ยืนยัน: product-manager)
+- A-P2-H50-2 (**รับทราบแล้ว, P2-H50**): F06-TG-13 ของ tech gate ยืนยันว่า `kw.p2.runClientStats` (ตัวนับที่ใช้คำนวณ `dungeon_exited.page_hidden_total_s_bucket` และ `wake_lock_engaged_share_bucket`) อยู่ในหน่วยความจำของ `WakeLockController` เท่านั้น ไม่ persist ลง storage — ถ้าเบราว์เซอร์ reload กลาง run ตัวนับเริ่มใหม่จากศูนย์ ทำให้สอง bucket นี้ต่ำกว่าค่าจริงเฉพาะ run ที่มี reload เกิดขึ้น (A-P2-H45-1) — ยอมรับเป็นข้อจำกัดของ Phase 2 ไม่ใช่บั๊กที่ต้องแก้ก่อน playtest (ต้นทุนแก้สูงกว่าประโยชน์สำหรับรอบสนามขนาดเล็กนี้) — ผลต่อแผนวิเคราะห์บันทึกไว้ที่ `product/playtest/phase-2-plan.md` §2 และ §4.1 (อ่านสอง bucket นี้เป็นค่าต่ำสุดที่เป็นไปได้ ไม่ใช่ค่าจริง เมื่อสงสัยว่า run มี reload) (ยืนยัน: product-manager, tech-lead เจ้าของ F06-TG-13)
 
 **ข้อแตกต่างจากชื่อที่ tech-lead เสนอในข้อความ handoff (ตามที่อนุญาตให้ "keep your choice and list the difference"):** ไม่มี — ทุกชื่อ event และ property ที่ tech-lead ระบุ (`checkin_rejected`, `run_state_changed`, `anticheat_speed_lock_triggered`, `dungeon_closing_soon_notified`, `navigation_link_opened`, `session_state_discarded`, `storage_quota_exceeded`, `local_data_cleared`, `partial`) ถูกนำมาใช้ตรงตัวในเอกสารฉบับนี้แล้ว ส่วนที่ต่างจากร่างเดิมของผมเอง (ก่อนเห็น tech note) คือ property ของ `anticheat_speed_lock_triggered` (ดู A-P2-F04-T17-7) และ `roles_present`/`partial` ของ `run_tick_granted` ซึ่งแก้ตามตารางแล้วเช่นกัน · `inventory_potion_used` (P2-H24) ก็ใช้ field name `item_id`/`revived` ตรงกับ property ภายในของ session reducer (`potion_used.revived`) เป๊ะ ไม่มีการแปลชื่อ
 

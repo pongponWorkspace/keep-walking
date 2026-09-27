@@ -1,6 +1,6 @@
 # Risk Register — GPS Dungeon Bangkok
 
-เจ้าของไฟล์: producer · สร้างใน P2-RISK-01 (Phase 2, 2026-09-27) · ทบทวนทุกครั้งที่ปิด phase และทุก plan-sync ที่มีความเสี่ยงเปลี่ยน
+เจ้าของไฟล์: producer · สร้างใน P2-RISK-01 (Phase 2, 2026-09-27) · ทบทวนล่าสุด P2-RISK-02 (2026-09-28, หลัง plan-sync W16) · ทบทวนทุกครั้งที่ปิด phase และทุก plan-sync ที่มีความเสี่ยงเปลี่ยน
 
 ที่มา: GDD หัวข้อ "ความเสี่ยงที่ต้องเฝ้าดู" (สองจุด: หัวข้อ Progression และตารางท้ายเอกสาร) · `studio/phases/phase-1/report.md` หัวข้อ 8 · decision D-083..D-118 · `studio/phases/phase-2/ledger.md` · `design/systems/balance-model.md` (F-16..F-21) · `design/levels/pilot-dungeons.md` · `data/dungeons/README.md`
 
@@ -20,16 +20,25 @@
 
 เจ้าของ = role ที่ต้องเฝ้าสัญญาณและเปิดงานแก้ (agent หรือ HUMAN) · task ที่เกี่ยว = id บน board ของ phase ที่ระบุ
 
-## 1. สรุปความเสี่ยงที่ต้องดูก่อน (ณ 2026-09-27)
+## 1. สรุปความเสี่ยงที่ต้องดูก่อน (ทบทวน 2026-09-28, P2-RISK-02)
 
-| ลำดับ | id | เรื่อง | ระดับ | สถานะ |
-| --- | --- | --- | --- | --- |
-| 1 | R-P2-01 | ยังไม่มีการเดินทดสอบจริง → spike Go/No-go และงานที่ต้องใช้ผลสนามค้างทั้งสาย | สูง | OPEN |
-| 2 | R-P1-02 | Wake Lock / จอล็อกแล้ว GPS บนเว็บหยุด → movement gate หาย | สูง | OPEN |
-| 3 | R-P2-03 | jitter ของเครื่องจริงผ่านหรือไม่ผ่าน gate (F-16, TL N-11) | สูง | OPEN |
-| 4 | R-P1-08 / R-P1-09 | coverage พระนครพอดีขอบ G2, บางรักไม่ผ่าน G2 | สูง | MITIGATING |
-| 5 | R-P2-13 | คอขวด gameplay-programmer และ qa-tester บนเส้นวิกฤต | กลาง | WATCHING |
-| 6 | R-P2-16 | ผู้ร่วม playtest ไม่ครบ 3 คน หรือขั้นยินยอมผู้ปกครองไม่ครบ | กลาง | OPEN |
+| ลำดับ | id | เรื่อง | ระดับ | สถานะ | เทียบรอบก่อน |
+| --- | --- | --- | --- | --- | --- |
+| 1 | R-W16-2 / R-P2-01 | งานสนามของคนยังไม่เริ่ม (P2-C01 ยังไม่เปิดบนเครื่องจริง, P2-C02 "ยังไม่เดิน", Q-P2-12 ไม่มีคำตอบ) → Phase 2 ปิดไม่ได้ | สูง | OPEN | คงที่ 1 · รวมกับแถวใหม่เพราะเป็นอาการปัจจุบันของเรื่องเดียวกัน |
+| 2 | R-W16-1 | gate F06 รอบ 2 (T20, T22, T23) ได้ NEEDS_CHANGES อีก → escalate ถึงคน | สูง | OPEN | ใหม่ · อยู่บนเส้นวิกฤตฝั่ง agent slack 0 |
+| 3 | R-W16-3 | P2-X41 ใหญ่เกิน 3 วันและยังโตขึ้น (รับ handoff D-137 จาก H42 และ H49 เพิ่มใน W16) → PARTIAL | สูง | MITIGATING | ใหม่ · แทน R-P2-13 ซึ่งตอนนี้คือเรื่องเดียวกันในรูปที่วัดได้ |
+| 4 | R-P2-03 + R-W16-8 | jitter ของเครื่องจริงกับ gate · ถ้า C03 พบว่าเครื่องวางนิ่งผ่าน gate ต้องเปิด systems และ QA gate F05 ซ้ำหลัง PASS แล้ว | สูง | OPEN | ลง 3 → 4 เพราะยังไม่มีข้อมูล (ขึ้นกับข้อ 1) ผลกระทบเพิ่มจาก R-W16-8 |
+| 5 | R-P1-02 | Wake Lock / จอล็อกแล้ว GPS บนเว็บหยุด → movement gate หาย | สูง | OPEN | ลง 2 → 5 · ยังไม่มีหลักฐาน (P2-F04-T11 HUMAN) แต่ไม่กั้นงาน agent ที่เหลือ |
+| 6 | R-P2-16 | ผู้ร่วม playtest ไม่ครบ 3 คน หรือฟอร์มผู้ปกครองไม่ครบ | กลาง | OPEN | คงที่ 6 · plan-sync W16 O-18 ขอให้นัดคู่ขนานกับการเดิน |
+
+ออกจาก top 6 รอบนี้
+- R-P1-08 / R-P1-09 (coverage G2): ไม่กั้นเกณฑ์ปิด Phase 2 (G2 ต้องครบก่อนเปิดตัวจริง) · playtest ใช้ PN-2 พระนคร (P2-F06-T18 DONE) · สถานะคง MITIGATING
+- R-P2-13 (คอขวด gameplay/qa): ส่วนที่ยังเหลือจริงคือ X41 → ติดตามที่ R-W16-3 · qa มีงาน gate ต่อคิวแค่ H41 (W17) และ T21 (W18) ไม่เกิน 2 wave · สถานะคง WATCHING
+
+ไม่มีแถวใดเข้าเกณฑ์ CLOSED ในรอบนี้ (หัวข้อ 5: ต้องมีหลักฐาน) · แถวที่ตรวจแล้วแต่ยังปิดไม่ได้
+- R-W16-4: P2-H50 ยัง IN_PROGRESS · ปิดได้เมื่อ H50 DONE และ (ถ้าต้องมี event) X48 DONE ก่อน T21
+- R-W16-5: P2-H42 และ P2-H49 DONE แล้ว ผลที่ต้องแก้ client ถูกส่งเข้า X41 (ก่อน gate รอบ 2 ไม่ใช่หลัง gate) · เหลือ P2-H46 IN_PROGRESS และ X47 ที่อาจเปิด → ลดเป็น WATCHING
+- R-P1-05 (bundle): tech gate F06 รอบ 1 วัด entry 115 KB จากงบ 1 MB (`docs/reviews/F06-tech-gate.md`), X42 0.116/1 MB · ส่วนงบขนาดหมดความเสี่ยงแล้ว แต่ "เวลาโหลดบนมือถือจริง" ยังรอ P2-C01/C02 → คง WATCHING
 
 ## 2. ความเสี่ยงจาก GDD "ความเสี่ยงที่ต้องเฝ้าดู"
 
@@ -68,7 +77,7 @@ GDD หัวข้อ Progression ระบุช่องว่างราว
 
 | id | ความเสี่ยง | ระดับ | สัญญาณเตือน | มาตรการ | เจ้าของ | task ที่เกี่ยว | สถานะ |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| R-P2-01 | ผลเดินทดสอบช้าหรือ No-go: ยังไม่มีการเปิด preview บนมือถือจริงและยังไม่เดิน · Phase 1 ยังไม่ปิด (D-086) | สูง | P2-C01/P2-C02 ยังเป็น HUMAN ค้างเมื่องาน build ของ F04–F06 ใกล้ gate · P2-C05 ตอบ No-go หรือ Go พร้อมเงื่อนไขที่แตะ map/run | งานที่ไม่ใช้ผลสนามเดินต่อได้ทั้งหมด สายสนามกั้นเฉพาะ F05-T12/T13, F06-T12, F06-T26 (TL plan review) · กฎสลับ 1 ให้ดึงงานสนามขึ้นเร็วได้ · ถ้า No-go: producer เปิด plan-sync ทันที ระบุงานที่ต้องแก้ ห้ามปิด gate หรือ exit item โดยไม่มี decision ของ HUMAN | HUMAN (ร่วม producer) | P2-C01, P2-C02, P2-C03, P2-C05, P2-C06, P2-C08 | OPEN |
+| R-P2-01 | ผลเดินทดสอบช้าหรือ No-go: ยังไม่มีการเปิด preview บนมือถือจริงและยังไม่เดิน · Phase 1 ยังไม่ปิด (D-086) | สูง | P2-C01/P2-C02 ยังเป็น HUMAN ค้างเมื่องาน build ของ F04–F06 ใกล้ gate · P2-C05 ตอบ No-go หรือ Go พร้อมเงื่อนไขที่แตะ map/run | งานที่ไม่ใช้ผลสนามเดินต่อได้ทั้งหมด สายสนามกั้นเฉพาะ F05-T12/T13, F06-T12, F06-T26 (TL plan review) · กฎสลับ 1 ให้ดึงงานสนามขึ้นเร็วได้ · ถ้า No-go: producer เปิด plan-sync ทันที ระบุงานที่ต้องแก้ ห้ามปิด gate หรือ exit item โดยไม่มี decision ของ HUMAN | HUMAN (ร่วม producer) | P2-C01, P2-C02, P2-C03, P2-C05, P2-C06, P2-C08 · (2026-09-28) อาการปัจจุบันดู R-W16-2 | OPEN |
 | R-P2-02 | ไม่มีหลักฐานสนามกลางแดดจัด (V-17 ภาพจอกลางแดด, แบตในสภาพโหดสุด) เพราะทุกการเดินเป็นช่วงเช้า/เย็น (D-093) | กลาง | ผู้ร่วม closed beta รายงานอ่านจอไม่ออกกลางวัน · แบตหมดก่อนจบ run 45 นาที | ยอมรับสำหรับ Phase 2 (D-093) · ตรวจจอกลางแดดตาม V-17 และวัดแบตกลางวันก่อน closed beta (ต้องเป็นงาน HUMAN ใน phase ที่วาง closed beta) · ระหว่างนี้ใช้การตรวจขาวดำ/จำลองแดดแบบ render | art-director (ร่วม uiux-designer, HUMAN ถ่ายภาพ) | P2-F05-T07 (ตรวจแบบ render), P2-F06-T23 · phase ที่มี closed beta | ACCEPTED |
 | R-P2-03 | jitter ของเครื่องจริงกับ gate (F-16, TL N-11): trace ม้านั่งผ่านด้วยขอบแค่ 7–13% ที่ cadence 5 วิ (53.4–56.5 ม. ต่อหน้าต่าง) และขนาด jitter เป็นค่าสมมติ | สูง | trace จริงของโต๊ะนิ่งได้ tick (รางวัลโดยไม่เดิน) · หรือนั่งม้านั่งไม่ได้ tick ทั้งที่ GDD บอกว่าได้ | ห้ามแตะเกณฑ์ 50 ม. และ cadence ไม่ต่ำกว่า 5 วิ (D-113) · ถ้าต้องเลือก "โต๊ะนิ่งไม่ผ่าน" ชนะ "ม้านั่งผ่าน" (game-director) · P2-C03 วัดเทียบ gate แล้วส่ง game-director ตามกฎ board ข้อ 4 · `sampleCadence_s` เป็นคันโยกเดียวที่ขยับได้ | tech-lead (ร่วม systems-designer, game-director ตัดสิน) | P2-C02, P2-C03, P2-C04, P2-F05-T20 (DONE) | OPEN |
 | R-P2-04 | drift ช้าราว 15 กม./ชม. (แบบ S3) ยังนับระยะ (NN-8) | กลาง | trace จริงที่วางเครื่องนิ่งมีช่วง drift ช้าที่สะสมระยะเกิน 50 ม. ต่อหน้าต่าง | เฝ้าใน trace จริง (P2-C03, P2-C04) · ถ้าพบ ส่ง systems-designer + game-director พร้อม trace ห้ามแก้ด้วยเกณฑ์ gate หรือ auto-retreat (NN-8) · ตัวกรองความเร็ว (F05-T12/T13) ต้องไม่ทำให้ drift นับเพิ่ม | location-engineer (ร่วม systems-designer) | P2-F04-T12 (DONE), P2-C03, P2-C04, P2-F05-T12, P2-F05-T13 | WATCHING |
@@ -85,7 +94,7 @@ GDD หัวข้อ Progression ระบุช่องว่างราว
 | R-P2-10 | Grace ค้างในแถบ 5 ม. ได้ไม่มีเพดาน เพราะ Phase 2 ยังไม่มี `pendingSetMax_s` (J-P2-T30-2, A-P2-X04-1) | ต่ำ | trace/playtest มี run ค้าง Grace นานผิดปกติ · timeout เก็บของได้แค่ทางช่องว่างของ sample (D-104) | ยอมรับเฉพาะ Phase 2 (D-113, D-118) · Phase 3 ตั้ง `pendingSetMax_s` = 90 วิ (D-116 P-4) ก่อน server เป็นผู้ตัดสิน · D-104 ยัง PROPOSED ต้องให้ tech-lead ปิด | game-director (ร่วม systems-designer, tech-lead) | P2-X10, P2-X13 (DONE) · Phase 3 | ACCEPTED |
 | R-P2-11 | Phase 2 ไม่ตรวจนาฬิกาเครื่องที่ถูกตั้งเดินหน้า (D-098) → dungeon ที่ปิดอาจแสดงว่าเปิด | ต่ำ | ผู้ร่วมรายงานว่าเข้า dungeon ได้นอกเวลาทำการ | ยอมรับเพราะ Phase 2 ไม่มีรางวัลจริง · นาฬิกาถอยหลังเกิน `clockSkewTolerance_s` จบ run เป็น `clock_invalid` · Phase 3 ใช้เวลา server | tech-lead | P2-F04-T14 (DONE) · Phase 3 | ACCEPTED |
 | R-P2-12 | engine บน client ต่างจาก server (C1-1): Phase 2 client รัน reducer ใน `packages/shared` · Phase 3 ย้ายไป server | สูง | โค้ด client เรียก logic นอก `packages/shared` · vector ของ shared กับผลบน client ไม่ตรงกัน · server Phase 3 เขียน logic ใหม่แทนการใช้ reducer เดิม | ผลบน client ไม่ใช่รางวัลจริง (D-087) · pure reducer, ห้าม Date.now/Math.random/DOM ใน shared/geo (ESLint) · test vector ร่วมเป็นสัญญา (D-095) · ข้อยกเว้น C1-1..C1-5 หมดอายุ Phase 3 · state `kw.p2.*` ล้างใน Phase 3 · tech gate ตรวจว่า client ไม่มี logic รางวัลของตัวเอง | tech-lead (ร่วม backend-programmer, gameplay-programmer) | P2-F04-T05 (DONE), P2-F05-T15, P2-F04-T21 · Phase 3 | WATCHING |
-| R-P2-13 | คอขวด gameplay-programmer (client F04–F06 ทั้งหมด) และ qa-tester (trace-replay, gate, regression, bug) บนเส้นวิกฤต | กลาง | งาน client เดียว (P2-F04-T21) ค้าง IN_PROGRESS ข้ามหลาย wave · งาน qa ต่อคิวเกิน 2 wave · fix จาก gate NEEDS_CHANGES ต่อคิว | backend ถือ engine ทั้งหมด (D-090, gameplay 10 → 8 งาน) · กฎสลับของ board และช่องว่าง W12–W16 รับ fix ก่อน · แยกงานที่ PARTIAL สองครั้ง · งานเตรียม qa (test plan, kit) ทำก่อน client เสร็จ | producer | P2-F04-T21, P2-F04-T22, P2-F05-T16, P2-CLOSE-QA | WATCHING |
+| R-P2-13 | คอขวด gameplay-programmer (client F04–F06 ทั้งหมด) และ qa-tester (trace-replay, gate, regression, bug) บนเส้นวิกฤต | กลาง | งาน client เดียว (P2-F04-T21) ค้าง IN_PROGRESS ข้ามหลาย wave · งาน qa ต่อคิวเกิน 2 wave · fix จาก gate NEEDS_CHANGES ต่อคิว | backend ถือ engine ทั้งหมด (D-090, gameplay 10 → 8 งาน) · กฎสลับของ board และช่องว่าง W12–W16 รับ fix ก่อน · แยกงานที่ PARTIAL สองครั้ง · งานเตรียม qa (test plan, kit) ทำก่อน client เสร็จ | producer | P2-F04-T21, P2-F04-T22, P2-F05-T16, P2-CLOSE-QA · (2026-09-28) ส่วนที่เหลือติดตามที่ R-W16-3 (P2-X41) | WATCHING |
 | R-P2-14 | asset manifest เกินงบขนาด (V13 warn) | ต่ำ | V13 ของ `tools/art` เตือนต่อเนื่องหรือกลายเป็น error · เวลาโหลดหน้าแรกเพิ่ม | tech-lead ตัดสินงบหรือแยก manifest (handoff จาก P2-F05-T07) · artist ทำ slot-empty ที่เหลือโดยไม่เพิ่มขนาดเกินงบ | tech-lead (ร่วม artist-2d) | P2-F05-T07 (DONE), P2-F05-T04, P2-F06-T23 | OPEN |
 | R-P2-15 | resvg ให้ pixel ต่างกันระหว่าง macOS กับ Linux (V12) → golden image ไม่ตรงใน CI | ต่ำ | V12 ผ่านบนเครื่อง dev แต่ตกใน CI หรือกลับกัน | ใช้ผลบน Linux (CI) เป็นอ้างอิง · ตั้ง tolerance หรือ render เฉพาะใน CI | tech-lead (ร่วม devops-engineer) | P2-F06-T07 (DONE), P2-F04-T08 (DONE) | OPEN |
 
@@ -97,6 +106,21 @@ GDD หัวข้อ Progression ระบุช่องว่างราว
 | R-P2-17 | repo public: ข้อมูลตำแหน่งดิบหรือข้อมูลส่วนบุคคลหลุดเข้า git · ฟอร์มยินยอมที่เซ็นแล้วถูก commit หรือสแกน | สูง | ไฟล์ใน `qa/playtest/results/raw/` ถูก track · gitleaks หรือ test "ไม่มีพิกัดใน event/export" ตก · มีภาพสแกนฟอร์มหรือชื่อจริงใน `product/playtest/results/` | raw trace เป็น opt-in อยู่ใน `raw/` ที่ ignore · แปลงเป็น recorded trace เฉพาะเมื่อยินยอม (P2-C04 ไม่ยินยอม = CUT) · telemetry ไม่มีพิกัด มี test (D-088) · ฟอร์มผู้ปกครองเก็บนอก git ห้าม commit/สแกน (D-092) · qa ตรวจ E19 ซ้ำก่อน regression ปิด phase | devops-engineer (ร่วม qa-tester) | P2-C02, P2-C04, P2-F06-T27, P2-F06-T28, P2-CLOSE-QA | MITIGATING |
 | R-P2-18 | usage limit ของ session AI หยุด agent กลางงาน (เกิดแล้ว 1 ครั้ง: 6 agent ใน W4 ต้อง resume, ledger แถว 40–41) | กลาง | agent หยุดพร้อมกันหลายตัว · งานต้อง resume มากกว่า 1 ครั้ง · ไฟล์ที่เขียนค้างครึ่งทาง | failure handling ของ protocol: กลับเป็น TODO พร้อม context resume (ครั้งแรก resume สำเร็จทั้ง 6) · chunked writes ≤ 120 บรรทัดลดงานที่หาย · ไม่เปิด wave เต็ม 6 ช่องใกล้เวลารีเซ็ตโควตา · ตรวจ board/ledger/decision log หลัง resume | producer (ร่วม orchestrator) | ทุก wave · ledger แถว 40–41 | WATCHING |
 | R-P2-19 | กฎหมายก่อนเปิดตัวเชิงพาณิชย์ค้างรวมกันที่ F20: ODbL (D-091), ผู้ปกครอง 15–19 (Q-P1-18), ข้อความ legal/PDPA | สูง | ถึงการวาง phase ที่มี closed beta หรือ launch โดยยังไม่มีงาน HUMAN ปรึกษาทนาย | ติดตามร่วมกับ R-G07 และ R-P1-11 · HUMAN ทวนข้อความ legal/PDPA ก่อน closed beta (Phase 1 report หัวข้อ 9) · producer ใส่งาน HUMAN ปรึกษาทนายเป็นงานแรกของ phase ที่มี F20 | HUMAN (ร่วม producer) | F20 · Q-P1-18 · D-091 | OPEN |
+
+### 4.4 จาก plan-sync W16 (`studio/phases/phase-2/plan-sync-w16.md` หัวข้อ 4)
+
+คอลัมน์ระดับเขียนเป็น "ระดับรวม (โอกาส / ผลกระทบ)" · มาตรการรวมทางลดและสิ่งที่ทำถ้าเกิด · op O-xx อ้างถึงตารางหัวข้อ 2 ของ plan-sync W16
+
+| id | ความเสี่ยง | ระดับ | สัญญาณเตือน | มาตรการ | เจ้าของ | task ที่เกี่ยว | สถานะ |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| R-W16-1 | gate F06 รอบ 2 (P2-F06-T20, T22 หรือ T23) ได้ NEEDS_CHANGES ครั้งที่สอง → ต้อง escalate ถึงคนตาม protocol หัวข้อ 6 | สูง (กลาง / สูง) · X41 รวมราว 25 รายการ โอกาสหลุดสักข้อไม่น้อย · T23 r2 ตัดสินจากภาพของ H41 จึงเห็นของใหม่ได้ | X41 กลับมาโดยไม่มีตาราง finding → หลักฐานทีละข้อ · รายงาน gate รอบ 2 มี finding ใหม่ที่ไม่อยู่ในรายการรอบ 1 · ภาพ H41 ไม่ครบ 26 จอ | gate รอบ 2 ตรวจเฉพาะ finding ที่ระบุ · finding ใหม่ที่ไม่เกี่ยวการแก้ = ไม่บล็อก ยกเว้นแตะ non-negotiable (O-04) · X41 ทำส่วนบล็อกก่อน · ถ้าเกิด: orchestrator ไม่เปิด fix เอง เขียนคำถามถึงคนพร้อมตัวเลือก (ก) fix รอบ 3 (ข) known issue ของ playtest (ค) ถอนออกจาก build · งานสนามเดินต่อ · +2–3 wave + เวลารอคำตอบ | producer (ร่วม orchestrator, HUMAN ตัดสินถ้า escalate) | P2-X41, P2-H41, P2-F06-T20, P2-F06-T22, P2-F06-T23 | OPEN |
+| R-W16-2 | งานสนามของคนยังไม่เริ่ม · Q-P2-12 ไม่มีคำตอบตั้งแต่ 2026-09-27 | สูง (สูง / สูง) · กั้น E4 ส่วนเครื่องจริง, E9, E10, E12, P1-E5, P1-E7, P1-E10, P1-E16..E20 | ready list เหลือแต่แถว HUMAN และแถวที่รอผลคน (O-20) · ผล P2-C02 ไม่ถึงก่อน dispatch W18 (เส้นตายปิด W23) · P2-C01 ยังค้างหลังฝั่ง agent เสร็จ | O-18 ขอให้คนเริ่มทันทีตามลำดับ plan-sync W16 หัวข้อ 5 · O-20 หยุด Run 2 เมื่อเสร็จฝั่ง agent แทนการวน wave ว่าง · ถ้าเกิด: Phase 2 ค้างที่ "เสร็จฝั่ง agent" แล้วเริ่ม Run 3 (ราว 6 wave) เมื่อคนส่งผล · การผ่อนเกณฑ์ (เช่นใช้ trace synthetic แทนการเดิน) คือการเปลี่ยน exit item ต้องเป็นคำตัดสินของคน producer ไม่เสนอ | HUMAN (ร่วม producer) | P2-C01, P2-C02, P2-F04-T11, P2-C03..P2-C08, P2-F06-T12, P2-F06-T26, P2-F06-T27 · Q-P2-12 | OPEN |
+| R-W16-3 | P2-X41 ใหญ่เกินเพดาน 3 วัน (ประเมิน 4–5 วัน) แล้วกลับมา PARTIAL · หลัง plan-sync ยังรับเพิ่ม: edge marker ผ่าน transform ตาม D-137 (จาก H42, บล็อก visual gate) และ .gps-pill/.btn-fullwidth-bottom (จาก H49, ไม่บล็อก) | สูง (สูง / กลาง) · โอกาสขึ้นจากกลางเพราะขอบเขตโตหลังเขียน plan-sync · +1 wave บนเส้นวิกฤต | X41 ยัง IN_PROGRESS เมื่อ W16 ปิด · REPORT เป็น PARTIAL · รายการบล็อก (TG-02..06, D-134, C6-01..05, priming screen, พ.ศ., screenLockNotice, V-38, D-137) ข้อใดค้าง | O-10 แยกล่วงหน้า: ส่วนบล็อกที่ค้าง → P2-X46 (W17) ส่วนไม่บล็อก → P2-X47 (W20) · X41 ติด DONE เมื่อส่วนบล็อกครบ · O-16 V-37 ไม่ทำ = เลื่อน Phase 3 · ถ้าเกิดในส่วนบล็อก: สาย gate เลื่อน +1 (เสร็จฝั่ง agent W21) | producer (ร่วม gameplay-programmer) | P2-X41, P2-X46, P2-X47 | MITIGATING |
+| R-W16-4 | ตัดสิน TG-12 ช้า (event `onboarding_nearest_dungeon_distance`, `run_gps_status_changed` ต้องมีก่อน playtest หรือไม่) แล้วเกิดงาน client หลัง gate ทั้งหมด | กลาง (กลาง / กลาง) · +2 wave ก่อน P2-F06-T27 | P2-H50 ไม่ DONE ภายใน W16 · H50 ตอบ "ต้องมี" แต่ช่อง gameplay W17 ถูกใช้โดย X46 | O-12 ย้ายการตัดสินขึ้นเป็น P2-H50 (dispatch W16) · O-02 ถ้าต้องมี เปิด P2-X48 (W17) ก่อน T21 หรือพ่วงเป็น addendum ของ X46 · O-03 T25 ตรวจว่า build ตรงคำตัดสินของ H50 | product-manager | P2-H50, P2-X48, P2-F06-T21, P2-F06-T25 | MITIGATING |
+| R-W16-5 | ผลของ H42/H49/H46 งอกเป็นงาน client หลัง visual gate → build ที่ playtest ต่างจากที่ gate เห็น | ต่ำ (กลาง / ต่ำ) | มี commit ใน `apps/client/` หลัง P2-F06-T23 r2 หรือหลัง smoke T26 · H46 เปลี่ยนพฤติกรรมที่เห็นบนจอ | O-13, O-15 ตัดสินล่วงหน้าว่าอะไรบล็อก · X47 อยู่หลัง T24 · O-21 ให้ T24 ดึงรายการขึ้นก่อน playtest ได้ · O-14 deploy ซ้ำก่อน T27 · ถ้าเกิด: CLOSE-QA ตรวจ regression ครบ · (2026-09-28) H42, H49 DONE และส่งผลเข้า X41 ก่อน gate รอบ 2 แล้ว เหลือ H46 | producer (ร่วม qa-tester) | P2-H42 (DONE), P2-H49 (DONE), P2-H46, P2-X47, P2-F06-T26, P2-CLOSE-QA | WATCHING |
+| R-W16-6 | path ชนกันใน `apps/client/src/feedback/` (TG-11 ของ X41 กับ H46 ใน W16) และ `config/app/client.json` ใน W17 | ต่ำ (ต่ำ / ต่ำ) | X41 รายงานว่าต้องแก้ `feedback/cue-feedback.ts` · มีมากกว่าหนึ่งงานใน wave เดียวกันเขียน `config/app/client.json` | O-09 TG-11 ที่ต้องแตะ `feedback/` → P2-X49 (backend, W17) · `config/app/client.json` เจ้าของเดียวต่อ wave: X46/X48 ก่อน X49 · ถ้าเกิด: เลื่อน X49 ไป W18 | producer (ร่วม orchestrator) | P2-X41, P2-H46, P2-X49 | WATCHING |
+| R-W16-7 | ยังไม่มีการรับรอง PDPA ของถ้อยคำ consent/privacy ก่อน playtest ที่มีผู้ร่วม 15–17 (Q-P2-13, D-092) | ต่ำ (ต่ำ / กลาง) · Phase 2 ไม่มีข้อมูลตำแหน่งออกจากเครื่อง | คนเลือกรับรองใน Phase 2 · ใกล้วัน T27 โดยยังไม่ตอบ Q-P2-13 และมีผู้ร่วม 15–17 | ทีมแนะนำรอ Phase 3 · ฟอร์มผู้ปกครองแบบกระดาษมีแล้ว (P2-F06-T18) · ถ้าคนเลือกรับรองใน Phase 2: เพิ่มงานคนก่อน T27 ไม่เพิ่มงาน agent · ติดตามร่วมกับ R-G07, R-P2-19 | HUMAN (ร่วม product-manager) | Q-P2-13, P2-F06-T27 | OPEN |
+| R-W16-8 | E4 (ม้านั่งมี jitter) ต้องมีผลเครื่องจริงจาก C03 · ถ้า C03 พบว่าเครื่องวางนิ่งผ่าน gate ต้องเปิดงาน systems ใหม่ (กฎสลับข้อ 4) หลัง QA gate F05 (P2-F05-T16) PASS ไปแล้ว | กลาง (ต่ำ / สูง) | `docs/tech/F02-spike-results.md` รายงานว่าเครื่องวางนิ่งสะสมระยะเกิน 50 ม. ต่อหน้าต่าง · trace ของ C04 มีช่วง drift นับระยะ (R-P2-04) | ไม่มีทางลดฝั่ง agent จนกว่าจะมีข้อมูลจริง · กติกาคงเดิมจาก R-P2-03: ห้ามแตะเกณฑ์ 50 ม., "โต๊ะนิ่งไม่ผ่าน" ชนะ "ม้านั่งผ่าน", `sampleCadence_s` เป็นคันโยกเดียว · ถ้าเกิด: plan-sync ใหม่ · อาจต้อง QA gate F05 ซ้ำเฉพาะส่วน gate | tech-lead (ร่วม systems-designer, game-director ตัดสิน) | P2-C03, P2-C04, P2-F05-T16 (DONE), P2-F05-T12 | OPEN |
 
 ## 5. การดูแล register
 
@@ -110,9 +134,12 @@ GDD หัวข้อ Progression ระบุช่องว่างราว
 
 | เมื่อ | แถวที่ต้องทบทวน |
 | --- | --- |
-| หลัง P2-C02 / P2-C03 | R-P1-01, R-P1-02, R-P1-05, R-P1-06, R-P1-10, R-P2-01, R-P2-03, R-P2-04 |
+| หลัง P2-X41 REPORT (ปิด W16) | R-W16-3, R-W16-6 · ถ้า DONE ครบส่วนบล็อก R-W16-3 ปิดได้ |
+| หลัง P2-H50 / P2-H46 | R-W16-4, R-W16-5 |
+| หลัง gate F06 รอบ 2 (T20, T22, T23) | R-W16-1 · PASS ทั้งสาม = CLOSED |
+| หลัง P2-C02 / P2-C03 | R-P1-01, R-P1-02, R-P1-05, R-P1-06, R-P1-10, R-P2-01, R-P2-03, R-P2-04, R-W16-2, R-W16-8 |
 | หลัง P2-C05 (Go/No-go) | R-P2-01 และทุกแถวที่ task ที่เกี่ยวขึ้นกับ map spike |
-| หลัง P2-F06-T27 / T28 | R-P2-06, R-P2-09, R-P2-16, R-P2-17, R-G03 |
+| หลัง P2-F06-T27 / T28 | R-P2-06, R-P2-09, R-P2-16, R-P2-17, R-G03, R-W16-7 |
 | ปิด Phase 2 | ทุกแถว · ย้ายแถว Phase 3 (R-P2-08, R-P2-10, R-P2-11, R-P2-12, R-G02) เข้า plan ของ Phase 3 |
 | วาง Phase 4 | R-G04, R-P2-07 (Q-P2-08) |
 | ก่อน closed beta | R-P2-02, R-G07, R-P1-11, R-P2-19 |
@@ -122,3 +149,4 @@ GDD หัวข้อ Progression ระบุช่องว่างราว
 | วันที่ | task | การเปลี่ยน |
 | --- | --- | --- |
 | 2026-09-27 | P2-RISK-01 | สร้างไฟล์: 7 แถวจาก GDD, 12 แถวจาก Phase 1 report หัวข้อ 8, 19 แถวใหม่ของ Phase 2 |
+| 2026-09-28 | P2-RISK-02 | เพิ่มหัวข้อ 4.4: R-W16-1..8 จาก plan-sync W16 หัวข้อ 4 (R-W16-3 โอกาสปรับกลาง → สูง เพราะ X41 รับ D-137/H49 เพิ่ม · R-W16-5 WATCHING เพราะ H42/H49 DONE) · จัด top 6 ใหม่: R-W16-2/R-P2-01, R-W16-1, R-W16-3, R-P2-03 + R-W16-8, R-P1-02, R-P2-16 · R-P1-08/09 และ R-P2-13 ออกจาก top 6 (สถานะไม่เปลี่ยน) · ไม่มีแถวเข้าเกณฑ์ CLOSED · เพิ่มจุดทบทวน 3 แถว · หมายเหตุโยงใน R-P2-01, R-P2-13 |

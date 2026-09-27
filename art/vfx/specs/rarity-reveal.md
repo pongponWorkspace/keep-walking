@@ -35,6 +35,14 @@ motion-direction §4 สั่งสองเรื่องที่ดูข�
 - สำหรับ Legendary เท่านั้น: สร้าง `<span class="vfx-rarity-shard">` ชั่วคราว 10 ชิ้น แล้ว**ลบออกจาก DOM หลังเล่นจบ** (เป็น flourish ชั่วคราว ไม่ใช่ channel บอก rarity ถาวร)
 - สี (`color`) ของ `frameEl` ควรตั้งเป็น token ของ rarity นั้น (`design/ux/tokens.json` `color.rarity.*`) เพราะ corner/shard ใช้ `currentColor`
 
+## P2-H42 (V-39) — ยืนยันสัญญา DOM เมื่อกรอบเปลี่ยนเป็น 52 px
+
+เดิม V-33 พบว่า client ย่อ `.item-icon-frame` เหลือ 32 px (ต่ำกว่าขั้นต่ำของ icon-grammar §2) ตอนนี้ P2-X42 แก้แล้ว: `apps/client/src/app.css` `.item-icon-frame` = 52×52, `.item-icon-glyph` = 48×48 กึ่งกลาง inset 2 px, `position: relative` ตั้งไว้ใน CSS ตรงตัว (ไม่ต้องพึ่ง `ensurePositioned()` ของโมดูลนี้เลย เพราะ computed style ไม่ใช่ `static` อยู่แล้ว) และ `ui/tick-toast.ts`/`ui/item-icon-dom.ts` เรียก `play('drop.rarity.<tier>', iconEl)` โดย `iconEl` คือ `.item-icon-frame` ตัวเดียวกับที่ frame SVG + glyph เป็น child อยู่แล้ว — ตรงกับ DOM contract ของไฟล์นี้ทุกข้อ (`frameEl` เป็น container ที่โชว์ SVG เป็น child ปกติ, เพิ่งถูก mount ใหม่ต่อการปรากฏหนึ่งครั้งเพราะ toast/แถวสรุปสร้างใหม่ทุกครั้ง)
+
+**ผล: ACCEPT** ไม่ต้องแก้โค้ดของโมดูลนี้ — corner decoration (`vfx-rarity-corner`, 10×10 px คงที่ไม่สัมพันธ์กับขนาด container) และ shard burst ยังวางตำแหน่งถูกต้องที่ 52 px เช่นเดียวกับที่เคยออกแบบไว้สำหรับ 72 px (สัดส่วนกว้างขึ้นเล็กน้อยเมื่อ container เล็กลง แต่ยังอยู่ในกรอบและไม่ล้นออกนอกภาพ — ตรวจด้วยตาใน `demo/rarity-reveal.html` ที่ปรับขนาด container เป็น 52 px แล้ว)
+
+**พบช่องว่างแยกต่างหาก ไม่ใช่ของ V-39 (คงอยู่ตั้งแต่ก่อน X42 ไม่ใช่สิ่งที่ X42 ทำให้แย่ลง) — handoff ถึง gameplay-programmer, blocking: no:** ไม่มีจุดใดใน `ui/item-icon-dom.ts`/`ui/item-line-view.ts`/`ui/tick-toast.ts` ตั้ง `color` ของ `.item-icon-frame` เป็น `color.rarity.<tier>` (`design/ux/tokens.json`: common `#888899`, uncommon `#119933`, rare `#2266EE`, epic `#9933DD`, legendary `#DD6600`) ตามที่ DOM contract หัวข้อก่อนหน้าขอไว้ ("สี (color) ของ frameEl ควรตั้งเป็น token ของ rarity นั้น เพราะ corner/shard ใช้ currentColor") — ผลคือ corner ornament (Rare ขึ้นไป) และ shard burst (Legendary) จะได้สีที่ inherit มาจาก ancestor (ไม่ใช่สี rarity ที่ถูกต้อง) แม้ตัวกรอบ SVG เองยังคงสีถูกต้องอยู่แล้ว (สีอยู่ใน SVG ไฟล์ ไม่ใช่ CSS) ไม่ blocking เพราะ 4 ช่องทางหลักของ rarity (สี/pip/ขอบ/มุม) ยังอ่านออกได้ครบจากกรอบ SVG แม้ไม่แก้จุดนี้ — แก้โดยตั้ง `iconEl.style.setProperty('color', <hex>)` ใน `buildItemIconElement` จาก `view.rarity` เมื่อสะดวก
+
 ## รายการต้องตรวจก่อน content gate (ตาม motion-direction §10)
 
 - [x] ปิด `prefers-reduced-motion` แล้วอ่าน rarity ได้ครบจากภาพนิ่ง (ทดสอบใน `demo/rarity-reveal.html` checkbox "Force reduced-motion fallback")

@@ -43,7 +43,12 @@ function validClient(): Record<string, unknown> {
     probe: { vibrateTestPattern_ms: 200 },
     bundle: { initialJsBudget_bytes: 1000000, mapLazyJsBudget_bytes: 2000000 },
     vibration: { speedLockEnter_ms: 200, closingSoonWarning_ms: 200 },
-    toast: { tickHoldDurationMs: 2200, tickMaxIconsShown: 3, hpLowHoldDurationMs: 4000 },
+    toast: {
+      tickHoldDurationMs: 2200,
+      tickMaxIconsShown: 3,
+      hpLowHoldDurationMs: 4000,
+      screenLockNoticeHoldDurationMs: 4000,
+    },
     onboarding: { tutorialLineHoldDurationMs: 3000 },
     pocketScreen: { swipeUpHoldMinDuration_ms: 600, swipeUpMinDistance_ratio: 0.03 },
   };
@@ -59,6 +64,11 @@ function validPrivacy(): Record<string, unknown> {
       autoUploadAllowed: false,
     },
     summaryExport: { isDefaultExport: true, includesCoordinates: false },
+    localData: {
+      storageKeyPrefix: 'kw.p2.',
+      clearScope: 'allKeysWithPrefix',
+      afterClear: 'reloadToOnboarding',
+    },
   };
 }
 
@@ -164,6 +174,23 @@ describe('parsePrivacyConfig', () => {
     delete broken['summaryExport'];
     expect(() => parsePrivacyConfig(broken)).toThrow(/summaryExport/);
   });
+
+  // F06-TG-04: `localData` is now parsed (it used to be an unread subtree — every `kw.p2.*`
+  // storage-key constant hardcoded the same prefix as its own literal instead).
+  it('parses localData', () => {
+    const parsed = parsePrivacyConfig(validPrivacy());
+    expect(parsed.localData).toEqual({
+      storageKeyPrefix: 'kw.p2.',
+      clearScope: 'allKeysWithPrefix',
+      afterClear: 'reloadToOnboarding',
+    });
+  });
+
+  it('fails loudly when localData.storageKeyPrefix is missing', () => {
+    const broken = validPrivacy();
+    delete (broken['localData'] as Record<string, unknown>)['storageKeyPrefix'];
+    expect(() => parsePrivacyConfig(broken)).toThrow(/storageKeyPrefix/);
+  });
 });
 
 describe('the real committed config files', () => {
@@ -177,5 +204,6 @@ describe('the real committed config files', () => {
     expect(clientConfig.navigation.coordinateDecimals).toBeGreaterThan(0);
     expect(appPrivacyConfig.rawTraceExport.rawTraceTrim_m).toBeGreaterThan(0);
     expect(appPrivacyConfig.summaryExport.includesCoordinates).toBe(false);
+    expect(appPrivacyConfig.localData.storageKeyPrefix).toBe('kw.p2.');
   });
 });

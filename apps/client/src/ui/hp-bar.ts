@@ -15,7 +15,13 @@
  * there is no dedicated `unit.percent` key, so this module composes the digits itself the same way
  * `type.numeric` tabular figures are meant to be read: as a number, not a sentence).
  */
-import { tweenHpFill, setHpFillReduced } from '../../../../art/vfx/hp-bar/hp-bar';
+import {
+  tweenHpFill,
+  setHpFillReduced,
+  tweenHpEdgeMarker,
+  setHpEdgeMarkerReduced,
+  hardCutHpEdgeMarker,
+} from '../../../../art/vfx/hp-bar/hp-bar';
 import { prefersReducedMotion } from '../../../../art/vfx/core/vfx';
 import { getCopyText } from '../copy/load';
 
@@ -43,6 +49,10 @@ export interface HpBar {
    * tween (a fresh run start, or recovering from a freshly-loaded/rehydrated session — F06-R02
    * "ต่อเนื่องข้าม run" still shows the true value immediately rather than animating from 0). */
   update(view: HpBarView, opts?: { readonly instant?: boolean }): void;
+  /** P2-H42 (visual gate V-39): the edge marker's own death hard-cut, mirroring `hardCutHpFill`'s
+   * call on `fillElement` — the caller (`f04-app.ts`'s `run_death` handling) calls this alongside
+   * `play('run.death', hpBar.fillElement)`, never on its own. */
+  hardCutEdge(): void;
 }
 
 export function mountHpBar(container: HTMLElement): HpBar {
@@ -86,22 +96,27 @@ export function mountHpBar(container: HTMLElement): HpBar {
     update(view, opts) {
       const toRatio = Math.max(0, Math.min(1, view.hpRatio));
       const instantOrReduced = opts?.instant === true || prefersReducedMotion();
+      // P2-H42 (visual gate V-39): a single synchronous `getBoundingClientRect().width` read per
+      // update, not a per-frame layout query — `track` is already mounted (this module's own
+      // `mountHpBar` appends it before `update()` can ever be called).
+      const trackWidthPx = track.getBoundingClientRect().width;
       if (instantOrReduced || lastRatio === undefined) {
         setHpFillReduced(fill, toRatio);
+        setHpEdgeMarkerReduced(edgeMarker, { toRatio, trackWidthPx });
       } else {
         tweenHpFill(fill, { fromRatio: lastRatio, toRatio });
+        tweenHpEdgeMarker(edgeMarker, { fromRatio: lastRatio, toRatio, trackWidthPx });
       }
-      const skipMarkerTransition = instantOrReduced || lastRatio === undefined;
       lastRatio = toRatio;
       fill.classList.toggle('low', view.belowWarningLine);
-      // V-30 item 7: `left` is a CSS-transitioned property (`app.css`'s own `.hp-fill-edge-marker`
-      // rule owns the 200ms/ease-out timing, matching `tweenHpFill`'s own constants) — `instant`/
-      // reduced-motion skip it the same way `setHpFillReduced` skips the fill's own tween, by
-      // clearing any transition just for this one write.
-      edgeMarker.style.transition = skipMarkerTransition ? 'none' : '';
-      edgeMarker.style.left = `${toRatio * PERCENT_MULTIPLIER}%`;
       percent.textContent = percentText(view.hpRatio);
       offBadge.hidden = view.autoRetreatEnabled;
+    },
+    hardCutEdge() {
+      hardCutHpEdgeMarker(edgeMarker, {
+        toRatio: 0,
+        trackWidthPx: track.getBoundingClientRect().width,
+      });
     },
   };
 }

@@ -28,6 +28,7 @@
 - **R-P2-06:** เลเวล 1 แทบไม่มีใครเห็น auto-retreat ใน playtest 30–60 นาที (ไม่มียา ~40–70 นาทีถึง auto-retreat, มียาจากดร็อป ~51–116 นาที ตาม balance-model §17.8/§18.3) และเลเวลอัปแรกเกิดที่ tick 4 (~20 นาที) — สัญญาณ HP/auto-retreat ที่แท้จริงมาจาก **การเดินตรวจของทีม (qa F06-C32)** บนเครื่องจริงที่ dungeon ซึ่ง `level_range.min > 1` ไม่ใช่จากผู้ร่วม playtest ทั่วไป
 - **ไม่มี dashboard อัตโนมัติ (D-088, metrics.md §1.1):** ทุกไฟล์ export ต้องรวบรวมด้วยมือ คำนวณ proxy ต่อไฟล์ก่อนค่อยเฉลี่ยรวม
 - **Confound หน้าจอล็อก (metrics.md §10.1):** north star proxy ของ Phase 2 มีแนวโน้ม**ต่ำกว่าจริง**สำหรับผู้เล่นที่เก็บมือถือในกระเป๋าจริงตามที่เกมสื่อสาร (ก่อนมี Wake Lock ทำงานเต็มรูป) — ต้องอ่านคู่กับ `wake_lock_engaged_share_bucket`/`page_hidden_total_s_bucket` ของแต่ละ run เสมอ ห้ามอ่านตัวเลขเดี่ยวๆ
+- **A-P2-H45-1 (รับทราบแล้ว, P2-H50 — นับขาดเมื่อ reload กลาง run):** tech gate F06 รอบ 1 (F06-TG-13) ยืนยันว่า `kw.p2.runClientStats` ที่ใช้คำนวณ `dungeon_exited.page_hidden_total_s_bucket` และ `wake_lock_engaged_share_bucket` อยู่ใน**หน่วยความจำของ `WakeLockController` เท่านั้น** ไม่ persist ลง storage — ถ้าเบราว์เซอร์ reload หน้าเว็บระหว่าง run (kill tab เพราะหน่วยความจำเต็ม, ผู้เล่นกด refresh เอง) ตัวนับเริ่มใหม่จากศูนย์จนถึง `dungeon_exited` ครั้งถัดไป ทำให้**สอง bucket นี้ต่ำกว่าค่าจริงเสมอเฉพาะ run ที่มี reload เกิดขึ้นจริง** (ไม่ใช่ทุก run) ยอมรับเป็นข้อจำกัดของ Phase 2 ไม่ใช่บั๊กที่ต้องแก้ก่อน playtest รอบนี้ — **ผลต่อแผนวิเคราะห์นี้:** อ่านสอง bucket นี้เป็น**ค่าต่ำสุดที่เป็นไปได้ (lower bound) ไม่ใช่ค่าจริง** เมื่อทำหัวข้อ 4.1 ข้อ 7 ถ้าสงสัยว่า run ใดมี reload เกิดขึ้น (สังเกตจาก `session_state_discarded`/`storage_quota_exceeded` ก่อนหน้าใน export เดียวกัน หรือฟอร์มผู้สังเกตบันทึกว่าหน้าจอรีโหลด/ค้าง) ให้ตัดคู่ `page_hidden_total_s_bucket`/`wake_lock_engaged_share_bucket` ของ run นั้นออกจากตารางสรุปเชิงปริมาณและบันทึกเป็นข้อสังเกตแยกแทน — **ไม่กระทบ north star proxy** (หัวข้อ 4) เพราะคำนวณจาก `run_tick_granted` คนละแหล่งข้อมูลกับ `runClientStats`
 
 ## 3. แหล่งข้อมูลและวิธีเชื่อมโยง
 
@@ -53,7 +54,7 @@
 4. `proxy_minutes(run) = จำนวน run_tick_granted ของ run นั้น × (300/60)` = จำนวน tick × 5 นาที
 5. **ข้อประมาณที่ยอมรับได้ (บันทึกไว้เสมอ ไม่ปรับแก้):** ถ้า tick สุดท้ายของ run เป็น partial (`dungeon_exited.partial_tick_applied = true`) วิธีนี้นับหน้าต่างนั้นเป็น 5 นาทีเต็มทั้งที่เวลาที่ผ่านจริงของหน้าต่างนั้นอาจสั้นกว่า — เป็นการประมาณสูงกว่าจริงเล็กน้อยเฉพาะ tick สุดท้ายต่อ run (สอดคล้องกับ PRD F05 §4 assumption A-P2-F05-T02-1 ที่ระบุว่าไม่ปรับ scale ใดๆ ใน Phase 2)
 6. `proxy_minutes(player) = ผลรวม proxy_minutes(run) ของทุก run ที่คนนั้นเล่นระหว่าง session ภาคสนาม`
-7. บันทึกคู่กับ `wake_lock_engaged_share_bucket` และ `page_hidden_total_s_bucket` ของแต่ละ run (จาก `dungeon_exited`) เพื่อกางหมายเหตุ confound หัวข้อ 2 เสมอ
+7. บันทึกคู่กับ `wake_lock_engaged_share_bucket` และ `page_hidden_total_s_bucket` ของแต่ละ run (จาก `dungeon_exited`) เพื่อกางหมายเหตุ confound หัวข้อ 2 เสมอ — **อ่านสอง bucket นี้เป็น lower bound ตาม A-P2-H45-1 (หัวข้อ 2)** ถ้า run นั้นมีสัญญาณว่า reload เกิดขึ้นกลางทาง
 
 ### 4.2 รวมผลข้ามคน (manual aggregation, D-088)
 
@@ -80,8 +81,10 @@
 | F06 §6.2–6.3 เจอ damage/auto-retreat ครั้งแรกรู้สึกอย่างไร (ถ้าเจอ) | 7.0–7.2 | `run_hp_low`, `run_auto_retreat`, `run_death` — **บันทึกคู่กับบันทึกผู้สังเกต F06-C32 เสมอ ไม่ใช้แค่แบบสอบถามเดี่ยวๆ (R-P2-06)** |
 | F06 §6.5 copy สามจังหวะตรงโทนไหม (ถ้าเจอ) | 7.3 | ไม่มี event ตรง — ยืนยันคู่กับ content gate (P2-F06-T22) |
 | F06 §6.4 เจอหน้าจอไกล/นอกพื้นที่อยากลองใหม่ไหม | 8.0–8.2 | `onboarding_empty_screen_shown`/`abandoned` (GR-2), `interest_registered_outside_area` |
-| pocket screen ทำงานตามที่คาดไหม | 6.1–6.3 | `page_hidden_total_s_bucket`, `wake_lock_engaged_share_bucket`, `run_gps_status_changed` |
+| pocket screen ทำงานตามที่คาดไหม | 6.1–6.3 | `page_hidden_total_s_bucket`, `wake_lock_engaged_share_bucket` (อ่านตาม A-P2-H45-1 หัวข้อ 2 ถ้ามี reload), `run_gps_status_changed`* |
 | ภาพรวม north star เชิงความรู้สึก | 9.1–9.3 | north star proxy (หัวข้อ 4) — เทียบทิศทางเดียวกันไหม (รู้สึกอยากกลับมา = ตัวเลขนาทีเดินสูงด้วยไหม) |
+
+\* `run_gps_status_changed` ยังไม่มีจุดยิงจริงตอนเขียนแผนนี้ (tech gate F06 รอบ 1, TG-12) — **P2-H50 ตัดสินว่าต้อง emit ก่อน P2-F06-T27** (handoff P2-X48 ถึง gameplay-programmer, สเปกเต็มใน `product/telemetry-events.md` §3) เพราะเป็นหลักฐานเดียวของแถวนี้ — ถ้า build ที่ playtest ไม่มี event นี้จริง (X48 ไม่ทัน) ให้ตัดแถวนี้จากตารางเทียบเป้าของ P2-F06-T28 และรายงานเป็นข้อจำกัดของข้อมูล ไม่ใช่ผล FIX-FIRST
 
 ## 6. เกณฑ์ตัดสิน "ไปต่อ / แก้ก่อน / ยกระดับให้ HUMAN" (ล็อกก่อนเห็นผล)
 
@@ -159,6 +162,11 @@
 - เพิ่มในหัวข้อ 2 (Onboarding/consent) ของ `product/telemetry-events.md` ไม่ใช่หัวข้อ 3 (Places) เพราะเป็นการกระทำเชิง consent ไม่ใช่ state ของ run
 - ผู้ยืนยันร่วม: tech-lead (mapper), game-director (ยืนยันไม่ต้องแยกเชิงกติกาเกม — ยืนยันแล้วตาม A-P2-X16-1)
 
+**C. ตัดสินใจแล้ว (P2-H50): TG-12 — สถานะ emit ของ `onboarding_nearest_dungeon_distance` และ `run_gps_status_changed`** (สเปกมีอยู่แล้วในเอกสารตั้งแต่ต้น แต่ tech gate F06 รอบ 1 พบว่าไม่มีจุดยิงจริง):
+- `run_gps_status_changed` **ต้อง emit ก่อน P2-F06-T27** — เป็นหลักฐานเดียวของแถว "pocket screen ทำงานตามที่คาดไหม" ในหัวข้อ 5 ด้านล่าง → ดู 11.4
+- `onboarding_nearest_dungeon_distance` **ไม่บังคับก่อน playtest** — ไม่ผูกกับคำถาม/เกณฑ์ใดในหัวข้อ 5/6 และ guardrail ที่เกี่ยวข้อง (GR-1) ปิดแล้วจากข้อมูล coverage แบบ static (`product/metrics.md` §9.1–9.2) เลื่อนเป็นงาน backlog ก่อน regional launch แทน
+- รายละเอียดเต็มบันทึกไว้ที่ `product/telemetry-events.md` ในส่วนของแต่ละ event และหัวข้อ 10 (A-P2-H50-1) — ไม่ทำซ้ำที่นี่
+
 ### 11.2 → game-director (ไม่ blocking, N-08)
 
 - ทบทวนคำถามหมวด 4 (gate/tick) และหมวด 7 (auto-retreat) ของ `product/playtest/phase-2-questionnaire.md` และเกณฑ์หัวข้อ 6 ของเอกสารนี้ก่อนที่ P2-F06-T27 จะเริ่มเดินจริง — ถ้ามีข้อทักท้วง ให้แก้เป็นส่วนเพิ่มเติมในหัวข้อ 12 (change log) ของเอกสารนี้ ไม่ใช่แก้เกณฑ์ที่ล็อกไว้แล้วเงียบๆ
@@ -168,6 +176,13 @@
 
 - ใช้รหัส P1..Pn เดียวกันระหว่างแบบสอบถามนี้กับ `qa/playtest/phase-2-observer-form.md` และไฟล์ export เพื่อให้จับคู่ข้อมูลได้ (หัวข้อ 3)
 - ยืนยัน A-P2-F06-T19-3: ระบุในฟอร์มผู้สังเกตว่าแต่ละคน export สำเร็จหรือไม่ เพื่อให้ N ของ proxy metric ตรงกับความเป็นจริง
+- ระบุในฟอร์มผู้สังเกตด้วยว่าหน้าเว็บของผู้เล่นคนใด reload/ค้างกลางระหว่าง run หรือไม่ (A-P2-H45-1, หัวข้อ 2) เพื่อให้ P2-F06-T28 ตัด `page_hidden_total_s_bucket`/`wake_lock_engaged_share_bucket` ของ run ที่ได้รับผลกระทบออกจากตารางสรุปเชิงปริมาณได้ถูกต้อง
+
+### 11.4 → gameplay-programmer (P2-X48, ใหม่ — P2-H50)
+
+- ยิง event `run_gps_status_changed` ก่อน build ที่ใช้ deploy สำหรับ P2-F06-T27 (playtest ภาคสนาม) — สเปกเต็ม (ชื่อ event, ทุก property, type, กติกา privacy, จังหวะที่ยิง) อยู่ที่ `product/telemetry-events.md` หัวข้อ 3 ใต้หัวข้อย่อย `run_gps_status_changed` ตรงเป๊ะ ไม่มีการเปลี่ยนแก้จากที่ประกาศไว้เดิม — สรุปสั้น: `status` (enum `searching`\|`off`\|`denied`\|`low_accuracy`\|`offline`\|`restored`), `context` (enum `onboarding`\|`map`\|`run`) ไม่มี bucket ตัวเลข ไม่มีพิกัด/accuracy เป็นตัวเลข ยิงทุกครั้งที่ state ของ `LocationProvider` เปลี่ยน
+- ไม่ต้องทำอะไรกับ `onboarding_nearest_dungeon_distance` รอบนี้ (ดู 11.1 ข้อ C)
+- ผู้ตรวจรับ: P2-F06-T21 (QA gate) ตรวจว่า event ปรากฏในไฟล์ export ของ e2e/black-box · P2-F06-T25 (Product gate) ตรวจว่า build ตรงคำตัดสินของ P2-H50 นี้
 
 ## 12. Change log
 
@@ -175,6 +190,7 @@
 | --- | --- | --- |
 | 2026-09-27 | สร้างเอกสารฉบับแรก | P2-F06-T19 |
 | 2026-09-27 | Addendum (P2-H24): รับความเห็น game-director (`design/reviews/P2-H20-decisions.md` §3, Q-1..Q-9) ทั้ง 9 ข้อ — รายละเอียดในหัวข้อ 12.1 ด้านล่าง | N-08, ก่อน P2-F06-T27 เริ่มเดินจริง |
+| 2026-09-28 | Addendum (P2-H50): ตัดสิน TG-12 (สถานะ emit ของ `onboarding_nearest_dungeon_distance`/`run_gps_status_changed`) + รับทราบ A-P2-H45-1 (page_hidden/wake_lock bucket นับขาดเมื่อ reload) — รายละเอียดในหัวข้อ 12.2 ด้านล่าง | plan-sync-w16 O-12, ก่อน P2-F06-T25/T27 |
 
 ### 12.1 Addendum P2-H24 — รายละเอียดความเห็น Q-1..Q-9 และสิ่งที่แก้จริง
 
@@ -193,3 +209,20 @@
 | Q-9 | §6.4 เขียนว่าแก้ gate/auto-retreat "เกิน ±20%" ต้องส่ง game-director ทำให้อ่านว่าน้อยกว่านั้นแก้เองได้ | แก้ถ้อยคำ §6.4 ตรงตาม D-128: การเปลี่ยนค่า movement gate หรือค่าเริ่มต้น auto-retreat **ทุกขนาด** ต้องผ่าน game-director + HUMAN เสมอ ไม่ใช้กฎ ±20% (ค่าอื่นยังใช้ ±20% ตามเดิม) |
 
 ผลกระทบต่อเอกสารอื่น: `product/playtest/phase-2-questionnaire.md` §4/§7 (แก้ตรง), `product/telemetry-events.md` (ไม่ต้องแก้ — `run_tick_denied` ที่ใช้ตอบ 4.1b มีอยู่แล้ว), `studio/decisions/decision-log.md` D-128 (บันทึกแล้วโดย game-director, อ้างถึง §6.4 นี้)
+
+### 12.2 Addendum P2-H50 — ตัดสิน TG-12 และรับทราบ A-P2-H45-1
+
+ที่มา: tech gate F06 รอบ 1 (`docs/reviews/F06-tech-gate.md` TG-12, TG-13), `docs/tech/F06-hp-damage-onboarding.md` §8.1/§10.2, `studio/phases/phase-2/plan-sync-w16.md` (O-12)
+
+**(ก) TG-12 — สถานะ emit ของสอง event ที่เอกสารเดิมระบุว่า "Phase 2 พร้อม emit" แต่ไม่มีจุดยิงจริง:**
+
+| Event | ตัดสิน | เหตุผลสรุป | งานที่เปิด |
+| --- | --- | --- | --- |
+| `run_gps_status_changed` | **ต้อง emit ก่อน playtest (P2-F06-T27)** | หลักฐานเดียวของแถว "pocket screen ทำงานตามที่คาดไหม" (หัวข้อ 5) — GPS หลุด/แม่นยำต่ำขณะเดินจริงเก็บมือถือในกระเป๋าเป็นความเสี่ยงที่สนามเท่านั้นตรวจพบได้ | P2-X48 → gameplay-programmer (ดูหัวข้อ 11.4) |
+| `onboarding_nearest_dungeon_distance` | **ไม่บังคับก่อน playtest** — เลื่อน implement ไปก่อน regional launch | ไม่ผูกกับคำถาม/เกณฑ์ใดในหัวข้อ 5/6 · guardrail ที่เกี่ยวข้อง (GR-1) ปิดแล้วจากข้อมูล coverage แบบ static (`metrics.md` §9.1–9.2) · N≈3 ที่ถูกนัดไปยัง dungeon ที่รู้ระยะแล้วไม่มีความหมายเชิงสถิติสำหรับ metric ระดับประชากร | ไม่มีงานใหม่รอบนี้ |
+
+รายละเอียดเต็ม (สเปกฟิลด์, การยืนยัน no-coordinates) อยู่ที่ `product/telemetry-events.md` ในส่วนของแต่ละ event และ A-P2-H50-1 ในหัวข้อ 10 ของเอกสารนั้น
+
+**(ข) A-P2-H45-1 — รับทราบข้อจำกัดของ `page_hidden_total_s_bucket`/`wake_lock_engaged_share_bucket`:** `runClientStats` อยู่ในหน่วยความจำเท่านั้น (F06-TG-13) reload กลาง run ทำให้สอง bucket นี้นับขาด — เพิ่มเป็นข้อจำกัดใหม่ในหัวข้อ 2 และปรับขั้นตอน 4.1 ข้อ 7 ให้อ่านเป็น lower bound เมื่อสงสัยว่ามี reload พร้อมเพิ่มช่องบันทึกใน handoff ถึง qa-tester (หัวข้อ 11.3) ให้ทำเครื่องหมายไว้ในฟอร์มผู้สังเกต — **ไม่กระทบ north star proxy** (คำนวณจาก `run_tick_granted` คนละแหล่งข้อมูล) และไม่ใช่เกณฑ์ PASS/FIX-FIRST ในหัวข้อ 6 (เกณฑ์เหล่านั้นล็อกไว้แล้ว ไม่แก้)
+
+ผลกระทบต่อเอกสารอื่น: `product/telemetry-events.md` (แก้ตรง — A-P2-H50-1/-2, สถานะ emit ในหัวข้อ 3/9), `studio/phases/phase-2/board.md` (orchestrator ปิด P2-H50 และเปิด P2-X48 ตามคำตัดสินนี้ — นอกขอบเขตของ writes งานนี้)

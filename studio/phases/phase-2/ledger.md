@@ -187,3 +187,10 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 172 | W15 | P2-H48 | uiux-designer | 03:40 | 02:48:43 | DONE — ia.md §3.6 override Phase 2 |
 | 173 | W15 | P2-X45 | backend-programmer | 03:40 | 02:52:37 | DONE — evaluator ครบ root vitest 2934 pass กลับมาเขียว · engine ไม่มีบั๊ก |
 | 174 | W15 | P2-X42 | gameplay-programmer | 02:40 | 03:03:33 | DONE — CSS component ครบ V-30..V-35 · e2e 50/50 · V-37 → X41 · → H49 uiux (gps pill/icon map) · W16 dispatch X41, H42, H46, H49 |
+| 175 | W16 | P2-H42 | vfx-animator | 04:25 | 03:10:14 | DONE — edge marker ต้องใช้ transform (D-137) · rarity 52 px ACCEPT · handoff client ส่งเข้า X41 ที่กำลังทำ |
+| 176 | W16 | P2-H49 | uiux-designer | 04:25 | 03:11:23 | DONE — gps pill ต่อสถานะ, icon map ยืนยัน, ปุ่มล่าง sticky · handoff ส่งเข้า X41 |
+| 177 | W16 | P2-PLAN-SYNC-W16 | producer | 04:25 | 03:12:25 | DONE — 21 op ใน plan-sync-w16.md · orchestrator apply: H50 (dispatch ทันที), RISK-02, O-01/O-04/O-20 เป็นกฎสลับ 11–13, O-03/05/06/07/14/21 · O-02/09/10/11/13/15/16 มีเงื่อนไข รอผล X41/H46 · agent เสร็จเร็วสุด W20 · phase ปิดต้องรองานสนามของคน |
+| 178 | W16 | P2-RISK-02 | producer | 04:52 | 03:14:51 | DONE — risks.md R-W16-1..8 + top 6 · ทบทวนต่อหลัง X41 |
+| 179 | W16 | P2-H46 | backend-programmer | 04:25 | 03:15:14 | DONE — TG-08 allowlist, TG-09 in-flight guard · assets+feedback 124 pass · eslint แดงจาก X41 ระหว่างทำ (f04-app onboardingFirstOpenAt_ms) |
+| 180 | W16 | P2-H50 | product-manager | 04:52 | 03:19:11 | DONE — run_gps_status_changed ต้องมี → X48 gameplay (หลัง X41), nearest distance เลื่อน · A-P2-H45-1 รับทราบ |
+| 181 | W16 | P2-X41 | gameplay-programmer | 04:25 | 04:02:35 | DONE — blocking ของ tech/copy gate + H40/H42/H49 ครบ · root vitest 3023, e2e 50/50 · ไม่บล็อกที่เหลือ → X47 (หลัง T24), V-37 CUT → Phase 3 · → H51 uiux · W17 dispatch T20 r2, T22 r2, H41, X48, H51 |

@@ -71,7 +71,13 @@ async function enterRun(page: Page): Promise<void> {
   const enterButton = page.locator('.popup-overlay:not([hidden]) .btn.btn-primary');
   await expect(enterButton).toBeEnabled({ timeout: 20_000 });
   await enterButton.click();
-  await expect(page.locator('.run-bar')).not.toBeHidden({ timeout: 5_000 });
+  // F06-TG-07: the same 20s timeout `enterButton` above uses, not a separate, much shorter 5s one —
+  // under 8 parallel Playwright workers, WebKit's own render/render can occasionally lag past 5s
+  // for a purely mechanical reason (worker contention), not a product regression (`.pocket-screen`
+  // never hides `.run-bar`, `f04-app.ts`'s own doc comment on that CSS rule). Confirmed as a pure
+  // timing flake, not a real behavior bug, by 20/20 solo runs and 50/50 serial runs at the old 5s
+  // value (tech gate P2-F06-T20 round 1 evidence) — this only widens the window, no logic change.
+  await expect(page.locator('.run-bar')).not.toBeHidden({ timeout: 20_000 });
 }
 
 test.describe('Pocket screen + Wake Lock (Mock provider, speed=60)', () => {

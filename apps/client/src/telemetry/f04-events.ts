@@ -45,6 +45,31 @@ export function durationBucket(duration_ms: number): DurationBucket {
   return '60m+';
 }
 
+/** `onboarding_first_reward_granted.minutes_since_first_open_bucket` (product/telemetry-events.md
+ * section 3, tech note F06 10.1): a *different* bucket table from `DurationBucket` above (edges at
+ * 10/30/60, not 5/15/30/60) — declared as its own type/edges rather than reused, since the two
+ * measure different things (this one, time since the player's first-ever app open, not a run's own
+ * duration) and the doc gives each its own literal edges. */
+export type MinutesSinceFirstOpenBucket = '0-10' | '10-30' | '30-60' | '60+';
+
+const FIRST_OPEN_EDGE_10_MIN = 10;
+const FIRST_OPEN_EDGE_30_MIN = 30;
+const FIRST_OPEN_EDGE_60_MIN = 60;
+const MINUTES_SINCE_FIRST_OPEN_EDGES: readonly (readonly [number, MinutesSinceFirstOpenBucket])[] =
+  [
+    [FIRST_OPEN_EDGE_10_MIN, '0-10'],
+    [FIRST_OPEN_EDGE_30_MIN, '10-30'],
+    [FIRST_OPEN_EDGE_60_MIN, '30-60'],
+  ];
+
+export function minutesSinceFirstOpenBucket(elapsed_ms: number): MinutesSinceFirstOpenBucket {
+  const elapsedMin = Math.max(0, elapsed_ms) / MS_PER_MIN;
+  for (const [edgeMin, label] of MINUTES_SINCE_FIRST_OPEN_EDGES) {
+    if (elapsedMin < edgeMin) return label;
+  }
+  return '60+';
+}
+
 export type MinutesSinceRunStartBucket = '0-15' | '15-30' | '30-45' | '45-60' | '60+';
 
 const RUN_START_EDGE_15_MIN = 15;
@@ -182,6 +207,35 @@ export function storageQuotaExceededEvent(
   evicted: 'telemetry_half' | 'telemetry_all' | 'none',
 ): MappedTelemetryEvent {
   return { name: 'storage_quota_exceeded', properties: { evicted } };
+}
+
+/**
+ * `onboarding_first_reward_granted` (product/telemetry-events.md section 3, tech note F06 10.1
+ * F06-TG-02): fired *alongside* `run_tick_granted` — never instead of it — whenever that event's
+ * own `firstEver` is `true`. `session/engine.ts#persistAndMap` is the one call site: it maps the
+ * `run_tick_granted` `SessionEvent` through `mapSessionEvent` as always, then calls this function
+ * separately (same `at_ms`, so both records land at the identical timestamp in the ring buffer) —
+ * this is a second, independent mapping, not a change to `mapSessionEvent`'s own one-event-in/
+ * one-record-out contract, since one `SessionEvent` legitimately produces *two* telemetry records
+ * only in this one case (the doc's own wording: "ธงที่เป็นครั้งแรกในชีวิต ไม่ใช่ tick แยกต่างหาก").
+ *
+ * `elapsedSinceFirstOpen_ms` is `at_ms - firstOpenAt_ms` (`kw.p2.onboarding.firstOpenAt_ms`,
+ * `onboarding/onboarding-step.ts`'s own `OnboardingStorage`) — never exported as a real timestamp,
+ * only ever reduced to the bucket enum below (C2-4).
+ */
+export function onboardingFirstRewardGrantedEvent(
+  dungeonId: string,
+  elapsedSinceFirstOpen_ms: number,
+  playerClass: PlayerClass,
+): MappedTelemetryEvent {
+  return {
+    name: 'onboarding_first_reward_granted',
+    properties: {
+      dungeon_id: dungeonId,
+      minutes_since_first_open_bucket: minutesSinceFirstOpenBucket(elapsedSinceFirstOpen_ms),
+      class: playerClass,
+    },
+  };
 }
 
 /** `dungeon_closing_soon_notified` (F04-R29). */

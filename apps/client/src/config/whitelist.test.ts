@@ -66,13 +66,11 @@ describe('FORBIDDEN_ANYWHERE', () => {
     // sit inside files this client does read part of (dungeons.json, anticheat.json, classes.json,
     // combat.json, balance/privacy.json).
     expect(FORBIDDEN_ANYWHERE).toEqual(
-      expect.arrayContaining([
-        'coverageFilter',
-        'trustScore',
-        'safety',
-        'raidFailPenalty',
-        'positionLogTtl_s',
-      ]),
+      expect.arrayContaining(['coverageFilter', 'trustScore', 'safety', 'raidFailPenalty']),
     );
+  });
+
+  it('no longer names positionLogTtl_s (D-135, F06-TG-03: moved to group B, whitelisted)', () => {
+    expect(FORBIDDEN_ANYWHERE).not.toContain('positionLogTtl_s');
   });
 });

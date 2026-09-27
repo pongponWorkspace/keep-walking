@@ -160,12 +160,15 @@ export function mountHomePanel(container: HTMLElement, deps: HomePanelDeps): Hom
       title.textContent = getCopyText('home.farTitle');
       body.textContent = '';
       nextOpenLine.hidden = false;
-      nextOpenLine.textContent = formatCopyText('home.farNextOpen', {
-        openTime:
-          state.nextOpenAt_ms === null
-            ? ''
-            : formatOpenTime(state.nextOpenAt_ms, now_ms, deps.utcOffsetMin),
-      });
+      // F06 copy gate C6-04 (flow F06 7.1 ข้อ F1): `nextOpenAt_ms === null` uses the dedicated
+      // no-variable key `home.farNextOpenUnknown` — never `home.farNextOpen` with `{openTime}`
+      // filled in as an empty string (that leaves a dangling "เปิดอีกที " on screen).
+      nextOpenLine.textContent =
+        state.nextOpenAt_ms === null
+          ? getCopyText('home.farNextOpenUnknown')
+          : formatCopyText('home.farNextOpen', {
+              openTime: formatOpenTime(state.nextOpenAt_ms, now_ms, deps.utcOffsetMin),
+            });
       return;
     }
     if (state.kind === 'near') return; // unreachable: the caller's render() never gets here (guard above)

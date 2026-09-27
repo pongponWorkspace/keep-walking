@@ -74,6 +74,7 @@ export function mountSettingsWalkingSafety(
   // --- Row 1: auto-retreat (toggle behind a confirm-on-off popup, NN-6) ---
   const autoRetreatRow = el('div', 'settings-row');
   const autoRetreatLabel = el('div', 'settings-row-label');
+  autoRetreatLabel.id = 'settings-autoretreat-toggle-label';
   autoRetreatLabel.textContent = getCopyText('settings.autoRetreatToggleLabel');
   const autoRetreatHint = el('div', 'settings-row-hint');
   autoRetreatHint.textContent = formatCopyText('settings.autoRetreatToggleHint', {
@@ -81,6 +82,9 @@ export function mountSettingsWalkingSafety(
   });
   const autoRetreatToggle = document.createElement('button');
   autoRetreatToggle.className = 'toggle settings-autoretreat-toggle';
+  // F06 copy gate C6-08: a screen reader announcing this button on its own ("ปุ่ม กดอยู่", no name)
+  // now reads the row's own label instead — no new copy key, just wiring the existing text.
+  autoRetreatToggle.setAttribute('aria-labelledby', autoRetreatLabel.id);
   autoRetreatRow.append(autoRetreatLabel, autoRetreatHint, autoRetreatToggle);
 
   // --- Off-confirm popup (single layer, K-9: NEEDS_CHANGES round accepted one popup for Phase 2) ---
@@ -127,11 +131,14 @@ export function mountSettingsWalkingSafety(
   // --- Row 2: pocket screen (client-only preference, no engine dispatch, no confirm) ---
   const pocketRow = el('div', 'settings-row');
   const pocketLabel = el('div', 'settings-row-label');
+  pocketLabel.id = 'settings-pocket-screen-toggle-label';
   pocketLabel.textContent = getCopyText('settings.pocketScreenLabel');
   const pocketHint = el('div', 'settings-row-hint');
   pocketHint.textContent = getCopyText('settings.pocketScreenHint');
   const pocketToggle = document.createElement('button');
   pocketToggle.className = 'toggle settings-pocket-screen-toggle';
+  // F06 copy gate C6-08 (same fix as the auto-retreat toggle above).
+  pocketToggle.setAttribute('aria-labelledby', pocketLabel.id);
   pocketRow.append(pocketLabel, pocketHint, pocketToggle);
 
   function renderPocketToggle(): void {

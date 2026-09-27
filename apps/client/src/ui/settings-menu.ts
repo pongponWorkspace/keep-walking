@@ -93,6 +93,7 @@ export function mountSettingsMenu(
   const clearConfirmTitle = document.createElement('div');
   clearConfirmTitle.textContent = getCopyText('settings.clearLocalDataConfirmTitle');
   const clearConfirmBody = document.createElement('div');
+  clearConfirmBody.className = 'settings-menu-clear-local-data-confirm-body';
   clearConfirmBody.textContent = getCopyText('settings.clearLocalDataConfirmBody');
   const clearConfirmYes = document.createElement('button');
   clearConfirmYes.className = 'btn btn-danger-confirm';

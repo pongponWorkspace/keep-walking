@@ -18,6 +18,22 @@ function makeScreen(onSetAutoRetreat = vi.fn(), onClose = vi.fn()) {
 }
 
 describe('mountSettingsWalkingSafety', () => {
+  // F06 copy gate C6-08: both toggles announce their own row label to a screen reader.
+  it('both toggles have aria-labelledby pointing at a real, present row label element', () => {
+    const { container } = makeScreen();
+    for (const toggleSelector of [
+      '.settings-autoretreat-toggle',
+      '.settings-pocket-screen-toggle',
+    ]) {
+      const toggle = container.querySelector(toggleSelector) as HTMLButtonElement;
+      const labelId = toggle.getAttribute('aria-labelledby');
+      expect(labelId).not.toBeNull();
+      const label = labelId === null ? null : container.querySelector(`#${labelId}`);
+      expect(label).not.toBeNull();
+      expect(label?.textContent).not.toBe('');
+    }
+  });
+
   it('renders the hint with the config percent, never a hardcoded number', () => {
     const { container } = makeScreen();
     expect(container.querySelector('.settings-row-hint')?.textContent).toBe(

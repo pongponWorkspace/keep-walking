@@ -18,14 +18,12 @@
  * the sheet layered on top of it immediately after (acceptance order 1-2), matching R29 ("sheet
  * บังคับเลือกพลังก่อนถึงแผนที่").
  *
- * [ASSUMPTION A-P2-X38-2: there is no separate, blocking `S-00-permission-browser` screen in this
- * build — `acceptConsent()` calls `deps.startLocationProvider()` (the real, only-after-consent GPS
- * request, CLAUDE.md/R47) immediately, then resolves the passive `navigator.permissions` read in the
- * background exactly the way a returning player's session already needed to (there was never a
- * mechanism to re-run that check on a later boot before this task; it now doubles as this session's
- * one-time check right after the real request goes out). `consent.browserPriming*` copy keys stay
- * unused pending a decision from uiux-designer/game-director on whether a distinct blocking "อีกขั้น
- * เดียว" beat is required on top of this. owner: uiux-designer, handoff in this task's REPORT.]
+ * A-P2-X38-2 (closed by P2-H40, built in P2-X41): `S-00-permission-browser` is a real, blocking
+ * screen (`ui/consent-permission-screen.ts`) shown between `acceptConsent()` and the real GPS
+ * request — `acceptConsent()` itself only writes consent and fires its own funnel step;
+ * `confirmBrowserPriming()` below is the one place `deps.startLocationProvider()` and the passive
+ * `navigator.permissions` read actually run, reached only from that screen's own "ไปต่อ" button
+ * (flow F06 Flow A ข้อ A4, หัวข้อ 18.1).
  */
 import type { PlayerClass, PlayerView } from '@keep-walking/shared/session';
 import type { LocationPermission } from '@keep-walking/location';
@@ -105,6 +103,7 @@ export class OnboardingFlow {
   private introFunnelFired = false;
   private ageGateFunnelFired = false;
   private consentFunnelFired = false;
+  private permissionFunnelShownFired = false;
   private mapViewFunnelFired = false;
   private classSelectShownFunnelFired = false;
 
@@ -228,8 +227,11 @@ export class OnboardingFlow {
   }
 
   /** Consent accepted: writes `kw.p2.consent = granted`, marks `consentAnswered` (idempotent),
-   * fires the funnel step, then — and only then — requests the real GPS start (R47/CLAUDE.md: "GPS
-   * never requested without consent") and kicks off the passive permission-status read. */
+   * fires the funnel step. Flow F06 A4/18.1 (P2-H40, closes A-P2-X38-2): this no longer starts the
+   * real GPS request or the passive permission read itself — `currentStep()` now reports
+   * `'permission'` right after this call (`locationConsent === 'granted' && permissionGranted ===
+   * null`), and the caller's own `S-00-permission-browser` screen is what the player must tap
+   * through first; `confirmBrowserPriming()` below is the one place that actually starts anything. */
   acceptConsent(): void {
     writeLocationConsent(this.deps.storage, 'granted', this.deps.now(), this.deps.quotaDeps);
     if (!this.storageState.consentAnswered) {
@@ -237,6 +239,21 @@ export class OnboardingFlow {
       this.persist();
     }
     this.recordFunnel('consent_location_accepted');
+  }
+
+  /** Call once, the first frame `S-00-permission-browser` is on screen (flow F06 18.1 step 5). */
+  markPermissionShown(): void {
+    if (this.permissionFunnelShownFired) return;
+    this.permissionFunnelShownFired = true;
+    this.recordFunnel('permission_browser_shown');
+  }
+
+  /** `S-00-permission-browser`'s one button ("ไปต่อ", flow F06 18.1 step 3): only now does the real,
+   * GPS-requesting call go out (R47/CLAUDE.md "GPS never requested without consent" — consent
+   * itself was already given, separately, at `S-00-consent-location`/`acceptConsent()` above; this
+   * is the browser/OS-level request that consent unlocks) and the passive `navigator.permissions`
+   * read starts. */
+  confirmBrowserPriming(): void {
     this.deps.startLocationProvider();
     this.resolvePermission();
   }

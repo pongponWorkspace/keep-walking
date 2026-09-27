@@ -144,10 +144,16 @@ body {
   cursor: default;
 }
 
+/* uiux P2-H49: the only button on `S-04-run-summary` must never scroll out of view on a long
+   loot/summary list — sticky, not fixed, so it still respects the summary's own scroll container
+   and padding rather than floating over the whole viewport. */
 .btn-fullwidth-bottom {
   display: block;
   width: 100%;
   margin-top: 16px;
+  position: sticky;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  background: #fff8ee; /* bg.paper */
 }
 
 /* --- Cards and popups (components.md 4) ------------------------------------------------------ */
@@ -349,13 +355,12 @@ body {
   vertical-align: middle;
 }
 
-/* --- GPS pill (components.md 2.2, V-38 uiux decision) ------------------------------------------
+/* --- GPS pill (components.md 2.1/2.2, V-38 + P2-H49 uiux decisions) -----------------------------
    `bg.surface` + a coloured border/text variant (never solid `ink.900`, never colour alone — the
-   text label is always the accessible name, style-guide S4). Every `GpsDisplayState` copy.th.json
-   assigns a label to (`gps-state.ts`) is a non-OK condition today (the OK/idle case hides the pill
-   entirely, `ui/gps-ui.ts#setDisplay`), so `state.danger` is the one variant needed until a future
-   OK-state pill is designed. [ASSUMPTION A-P2-X42-1: single danger-toned variant for every shown
-   state — owner: uiux-designer, split by state if a future state needs a lighter tone.] */
+   text label is always the accessible name, style-guide S4). P2-H49 (closing A-P2-X42-1): tone is
+   per-state via `data-tone` (`ui/gps-ui.ts#setDisplay`, same pattern the run-state pill already
+   uses) — `searching` (in progress, not a problem) is `state.info`; `off`/`denied`/`unsupported`/
+   `lowAccuracy` (all real problems) are `state.danger`. */
 .gps-pill {
   position: absolute;
   top: max(8px, env(safe-area-inset-top));
@@ -366,12 +371,20 @@ body {
   gap: 4px;
   min-height: 28px;
   padding: 4px 12px;
-  border: 2px solid #cc2222; /* state.danger */
   border-radius: 999px; /* radius.chip_px */
   background: #ffffff; /* bg.surface */
-  color: #cc2222; /* state.danger */
   font-size: 16px;
   font-weight: 700;
+}
+
+.gps-pill[data-tone='info'] {
+  border: 2px solid #006699; /* state.info */
+  color: #006699; /* state.info */
+}
+
+.gps-pill[data-tone='danger'] {
+  border: 2px solid #cc2222; /* state.danger */
+  color: #cc2222; /* state.danger */
 }
 
 .gps-pill-body {
@@ -421,6 +434,25 @@ body {
   text-align: center;
 }
 
+/* F06 copy gate C6-05 (flow F06 Flow C ข้อ C7): a second floating banner, below the network one,
+   shown on every at-home screen (including S-01-map at the `near` state, hence a top-level banner
+   rather than something folded into `.home-panel`) while Recovering. */
+.recovering-banner {
+  position: absolute;
+  top: calc(max(48px, calc(env(safe-area-inset-top) + 40px)) + 44px);
+  left: 8px;
+  right: 8px;
+  z-index: 10; /* zIndex.banner */
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+
+.recovering-banner-label {
+  font-weight: 700;
+}
+
 .toast {
   position: absolute;
   left: 50%;
@@ -428,6 +460,11 @@ body {
   transform: translateX(-50%);
   z-index: 30; /* zIndex.toast */
   box-sizing: border-box;
+  /* F06 copy gate C6-02: `width: max-content` (not just `max-width`) so an absolutely-positioned
+     toast with only `left` set actually grows to fit its text — `run.hpLow`'s full canon sentence
+     must wrap at <= 2 lines on a 360-390px viewport, not shrink to an arbitrary intrinsic width
+     first. */
+  width: max-content;
   max-width: calc(100vw - 32px);
   padding: 8px 16px;
   border: 2px solid #1a1a22; /* ink.900 */
@@ -516,15 +553,18 @@ body {
    from the marker's position even where `state.danger` on `ink.100` alone falls just under the
    contrast floor. A sibling of `.hp-fill`, not its `::after` (`.hp-fill`'s own `scaleX` would squash
    a pseudo-element's width) — moved via `left` (`ui/hp-bar.ts#update`), never `transform: scaleX`. */
+/* P2-H42 (visual gate V-39): `left` is banned for a continuously-animated element (§2's property
+   budget) — `art/vfx/hp-bar/hp-bar.ts`'s `tweenHpEdgeMarker`/`setHpEdgeMarkerReduced`/
+   `hardCutHpEdgeMarker` own 100% of this element's `transform` (a `translateX(px)` computed from
+   the track's real pixel width), including the centering offset the old static
+   `transform: translateX(-1px)` used to provide. This rule only sets the marker's static box. */
 .hp-fill-edge-marker {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0%;
+  left: 0;
   width: 2px;
-  transform: translateX(-1px);
   background: #1a1a22; /* ink.900 */
-  transition: left 200ms ease-out; /* matches art/vfx/hp-bar/hp-bar.ts's own tween duration/easing */
   pointer-events: none;
 }
 
@@ -848,10 +888,14 @@ body {
   color: #1a1a22; /* ink.900 */
 }
 
-/* V-30 item 10: consent/age-gate are system-level gates — above every other screen (components.md
-   15.1), never just an ordinary `.screen`. */
+/* V-30 item 10 / F06-TG-10: onboarding's own intro/age/consent gate screens are system-level —
+   above every other screen (components.md 15.1), never just an ordinary `.screen`.
+   `.consent-permission-screen` (P2-X41, S-00-permission-browser) joins the same tier: it is the
+   same onboarding sequence, one step later than consent. */
+.screen.intro-screen,
 .screen.age-gate-screen,
-.screen.consent-location-screen {
+.screen.consent-location-screen,
+.screen.consent-permission-screen {
   z-index: 60; /* zIndex.system */
 }
 
@@ -964,6 +1008,11 @@ body {
   color: #333344; /* ink.700 */
 }
 
+/* F06 copy gate C6-01 */
+.settings-menu-clear-local-data-confirm-body {
+  white-space: pre-line;
+}
+
 .settings-menu-close,
 .settings-close-button {
   margin-top: 16px;
@@ -1038,9 +1087,15 @@ body {
   font-weight: 700;
 }
 
-.privacy-position-log-explain {
+/* F06 copy gate C6-01: `\n` in these legal/consent texts (copy.th.json's own multi-line `text`
+   fields, e.g. `consent.locationBody`/`privacy.positionLogExplain`/`privacy.withdrawConfirmBody`/
+   `settings.clearLocalDataConfirmBody`) must render as real line breaks, not collapse into one long
+   run-on sentence — `formatCopyText`/`getCopyText` never strip or re-join `\n` themselves. */
+.privacy-position-log-explain,
+.privacy-withdraw-confirm-body {
   font-size: 16px;
   margin-bottom: 8px;
+  white-space: pre-line;
 }
 
 .privacy-withdraw-during-run-note {
@@ -1076,6 +1131,11 @@ body {
 .consent-location-body {
   font-size: 16px;
   margin-bottom: 8px;
+}
+
+/* F06 copy gate C6-01 */
+.consent-location-body {
+  white-space: pre-line;
 }
 
 .age-gate-birth-year-select {
@@ -1218,6 +1278,11 @@ body {
 .pocket-screen-wake-hint {
   position: absolute;
   bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* F06 copy gate C6-01: `run.screenLockNotice` (`\n` between its two sentences). */
+.pocket-screen-lock-notice {
+  white-space: pre-line;
 }
 
 /* `run.pocketEnterButton` lives on the normal run screen, not the overlay itself. */

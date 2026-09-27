@@ -101,6 +101,10 @@ export interface RunStateConfig {
 export interface BalancePrivacyConfig {
   readonly minAge_yr: number;
   readonly minAgeComparison: GateComparison;
+  /** `config/balance/privacy.json#positionLogTtl_s` (D-135, F06-TG-03): the retention window shown
+   * to players as `{ttlText}` (`copy/position-log-ttl.ts`) — moved from group C to group B (display
+   * only, never a reward/gate input) so the copy no longer hardcodes a fallback number of its own. */
+  readonly positionLogTtl_s: number;
 }
 
 type Json = Record<string, unknown>;
@@ -225,7 +229,17 @@ export function parseBalancePrivacyConfig(input: unknown): BalancePrivacyConfig 
       `config/balance/privacy.json: /minAgeComparison must be one of ${GATE_COMPARISONS.join(', ')}`,
     );
   }
-  return { minAge_yr, minAgeComparison: comparisonRaw as GateComparison };
+  const positionLogTtl_s = positiveNum(root['positionLogTtl_s'], '/positionLogTtl_s');
+  if (!Number.isInteger(positionLogTtl_s)) {
+    throw new Error(
+      'config/balance/privacy.json: /positionLogTtl_s must be an integer number of seconds',
+    );
+  }
+  return {
+    minAge_yr,
+    minAgeComparison: comparisonRaw as GateComparison,
+    positionLogTtl_s,
+  };
 }
 
 /** Pure so tests can pass a fixture without touching the real JSON import. */

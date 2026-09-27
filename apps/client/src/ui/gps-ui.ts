@@ -9,7 +9,12 @@
  */
 import { getCopyText } from '../copy/load';
 import type { GpsDisplayState, GpsToast } from '../copy/gps-state';
-import { GPS_DISPLAY_COPY, GPS_OFFLINE_COPY_KEY, GPS_TOAST_COPY } from '../copy/gps-state';
+import {
+  GPS_DISPLAY_COPY,
+  GPS_DISPLAY_TONE,
+  GPS_OFFLINE_COPY_KEY,
+  GPS_TOAST_COPY,
+} from '../copy/gps-state';
 
 /**
  * How long the restored/suspended toast stays up before it hides itself. `design/ux/tokens.json`
@@ -79,6 +84,10 @@ export function mountGpsUi(container: HTMLElement): GpsUi {
       }
       pillLabel.hidden = false;
       pillLabel.textContent = getCopyText(copy.label);
+      // uiux P2-H49 (components.md 2.1): per-state tone via `data-tone`, same pattern
+      // `ui/run-bar.ts`'s own run-state pill already uses — `display` is never `'none'` here (the
+      // `copy === null` branch above already returned), so `GPS_DISPLAY_TONE` always has an entry.
+      pillLabel.dataset['tone'] = GPS_DISPLAY_TONE[display as Exclude<GpsDisplayState, 'none'>];
       if (copy.body === undefined) {
         pillBody.hidden = true;
       } else {

@@ -140,7 +140,16 @@ export const BALANCE_WHITELIST: readonly WhitelistEntry[] = [
       'lore',
     ],
   },
-  { file: 'privacy.json', namespace: 'privacy', topLevelKeys: ['minAge_yr', 'minAgeComparison'] },
+  {
+    file: 'privacy.json',
+    namespace: 'privacy',
+    // `positionLogTtl_s` moved from group C to group B (D-135, P2-F06-T20 6.2, F06-TG-03): it is a
+    // display-only value (`{ttlText}` on the consent/privacy screens), never used to compute a
+    // reward or gate, so it belongs alongside `minAge_yr` here rather than staying unreachable at
+    // runtime. The value in `config/balance/privacy.json` itself is unchanged (no HUMAN/PDPA
+    // sign-off needed for a config-plumbing move, decision log D-135).
+    topLevelKeys: ['minAge_yr', 'minAgeComparison', 'positionLogTtl_s'],
+  },
 ];
 
 /** Group C names (ADR 0003 9.3 / F04 15.3) that must never appear anywhere in the generated
@@ -157,7 +166,6 @@ export const FORBIDDEN_ANYWHERE: readonly string[] = [
   'raidFailPenalty',
   'classChange',
   'levelGapContribution',
-  'positionLogTtl_s',
 ];
 
 function isPlainObject(value: unknown): value is Json {

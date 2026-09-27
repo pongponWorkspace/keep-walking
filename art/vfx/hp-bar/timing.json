@@ -22,5 +22,24 @@
     "durationMs": 0,
     "properties": ["transform"],
     "note": "reduced-motion variant for tweenHpFill/hardCutHpFill alike — same end state, no intermediate motion"
+  },
+  "tweenHpEdgeMarker": {
+    "cueId": null,
+    "durationMs": 200,
+    "easing": "ease-out",
+    "properties": ["transform"],
+    "note": "P2-H42/V-39: .hp-fill-edge-marker's counterpart to tweenHpFill, added when the client's first pass (P2-X42) moved the marker with a `left` transition instead — rejected per motion-direction §2's transform/opacity-only budget (same layout-reflow cost as the `width` the fill itself avoids). Always fired on the same event as tweenHpFill, same duration/easing, so both nodes move in lockstep."
+  },
+  "hardCutHpEdgeMarker": {
+    "cueId": null,
+    "durationMs": 0,
+    "properties": ["transform"],
+    "note": "death only, mirrors hardCutHpFill — marker snaps to translateX(0-based) with no drain"
+  },
+  "setHpEdgeMarkerReduced": {
+    "cueId": null,
+    "durationMs": 0,
+    "properties": ["transform"],
+    "note": "reduced-motion variant for tweenHpEdgeMarker/hardCutHpEdgeMarker alike, and the function for a fresh mount / instant update with no previous ratio to tween from"
   }
 }

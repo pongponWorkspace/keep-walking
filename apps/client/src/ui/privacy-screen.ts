@@ -77,6 +77,7 @@ export function mountPrivacyScreen(container: HTMLElement, deps: PrivacyScreenDe
   const confirmTitle = document.createElement('div');
   confirmTitle.textContent = getCopyText('privacy.withdrawConfirmTitle');
   const confirmBody = document.createElement('div');
+  confirmBody.className = 'privacy-withdraw-confirm-body';
   confirmBody.textContent = formatCopyText('privacy.withdrawConfirmBody', {
     ttlText: positionLogTtlText(),
   });

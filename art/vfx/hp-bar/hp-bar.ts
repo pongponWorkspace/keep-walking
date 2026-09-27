@@ -24,10 +24,35 @@
 // interpolates an unknown value, components.md §7). Caller is responsible for the `.hp-fill.low`
 // class swap at/under `lowHpWarningThreshold_pct` (a static CSS/color concern, not motion) and for
 // keeping `transform-origin: left` on `.hp-fill` in CSS.
+//
+// P2-H42 (visual gate V-39, re-checking P2-X42's `.hp-fill-edge-marker`): components.md §13.6
+// asked for a 2px `ink.900` line at the fill's own edge, as a sibling of `.hp-fill` rather than its
+// `::after` (correct — `.hp-fill`'s own `scaleX()` would squash a pseudo-element's width along with
+// it, same reasoning as this file's own header comment). The client's first pass (A-P2-X42-2) moved
+// that sibling with a CSS `left` transition instead of `transform`, to avoid needing the track's
+// real pixel width. That trade is rejected: §2's property budget bans `width/height/top/left/margin`
+// for *any* continuously-animated element, with no carve-out for a 2px node — the same layout-reflow
+// cost the fill itself was moved off `width` to avoid applies here too, at the same event frequency
+// (every HP change). `tweenHpEdgeMarker`/`setHpEdgeMarkerReduced` below give the marker the same
+// `transform`-only treatment as the fill: the caller measures `.hp-track`'s pixel width once per
+// update (a single synchronous `getBoundingClientRect().width` read, not a per-frame layout query)
+// and passes it in; this module converts ratio + track width into a `translateX(px)` pair. See
+// `art/vfx/specs/hp-bar.md` "เส้นแบ่งปลายแถบ (V-39)" for the accepted contract and the handoff this
+// leaves for gameplay-programmer.
 
 const TWEEN_DURATION_MS = 200;
 const HARD_CUT_DURATION_MS = 0;
 const TWEEN_EASING = 'ease-out';
+/** `.hp-fill-edge-marker` is a 2px-wide line (`app.css`); centering it on the fill's exact edge
+ * means shifting it left by half its own width, same as the marker's previous static
+ * `transform: translateX(-1px)` rule — folded into every computed position below instead of left
+ * as a separate CSS rule, since this module now owns 100% of the marker's `transform`. */
+const EDGE_MARKER_WIDTH_PX = 2;
+const EDGE_MARKER_CENTER_OFFSET_PX = EDGE_MARKER_WIDTH_PX / 2;
+
+function edgeMarkerTranslateXPx(ratio: number, trackWidthPx: number): number {
+  return ratio * trackWidthPx - EDGE_MARKER_CENTER_OFFSET_PX;
+}
 
 export interface HpFillOptions {
   fromRatio: number;
@@ -68,4 +93,52 @@ export function setHpFillReduced(target: Element, toRatio: number): Animation {
     duration: HARD_CUT_DURATION_MS,
     fill: 'forwards',
   });
+}
+
+export interface HpEdgeMarkerOptions {
+  fromRatio: number;
+  toRatio: number;
+  /** `.hp-track.getBoundingClientRect().width` at call time — a plain number, not re-measured by
+   * this module (this module has no DOM query of its own beyond `target` itself, matching every
+   * other function in this file). */
+  trackWidthPx: number;
+}
+
+/**
+ * `.hp-fill-edge-marker`'s counterpart to `tweenHpFill`: same 200ms/ease-out timing, same trigger
+ * (every HP change except death), `transform: translateX()` instead of `left` (V-39, see header
+ * comment). Always call this alongside `tweenHpFill` on the same event so both nodes move in lockstep.
+ */
+export function tweenHpEdgeMarker(target: Element, opts: HpEdgeMarkerOptions): Animation {
+  return target.animate(
+    [
+      { transform: `translateX(${edgeMarkerTranslateXPx(opts.fromRatio, opts.trackWidthPx)}px)`, offset: 0 },
+      { transform: `translateX(${edgeMarkerTranslateXPx(opts.toRatio, opts.trackWidthPx)}px)`, offset: 1 },
+    ],
+    { duration: TWEEN_DURATION_MS, easing: TWEEN_EASING, fill: 'forwards' },
+  );
+}
+
+export interface HpEdgeMarkerSnapOptions {
+  toRatio: number;
+  trackWidthPx: number;
+}
+
+/** Death's exception, mirroring `hardCutHpFill`: the marker jumps straight to 0 with the fill,
+ * no drain. */
+export function hardCutHpEdgeMarker(target: Element, opts: HpEdgeMarkerSnapOptions): Animation {
+  return target.animate(
+    [{ transform: `translateX(${edgeMarkerTranslateXPx(opts.toRatio, opts.trackWidthPx)}px)`, offset: 1 }],
+    { duration: HARD_CUT_DURATION_MS, fill: 'forwards' },
+  );
+}
+
+/** Reduced motion: same end state as `tweenHpEdgeMarker`, no intermediate tween — mirrors
+ * `setHpFillReduced`. Also the function to call for a fresh mount / `instant` update (no previous
+ * ratio to tween from yet), same as `setHpFillReduced` is today. */
+export function setHpEdgeMarkerReduced(target: Element, opts: HpEdgeMarkerSnapOptions): Animation {
+  return target.animate(
+    [{ transform: `translateX(${edgeMarkerTranslateXPx(opts.toRatio, opts.trackWidthPx)}px)`, offset: 1 }],
+    { duration: HARD_CUT_DURATION_MS, fill: 'forwards' },
+  );
 }

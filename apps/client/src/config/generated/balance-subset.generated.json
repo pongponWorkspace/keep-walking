@@ -780,7 +780,8 @@
   },
   "privacy": {
     "minAgeComparison": "greaterThanOrEqual",
-    "minAge_yr": 15
+    "minAge_yr": 15,
+    "positionLogTtl_s": 86400
   },
   "progression": {
     "baseStats": {

@@ -105,6 +105,13 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
       .poll(() => page.evaluate(() => window.localStorage.getItem('kw.p2.consent')))
       .toContain('"granted"');
 
+    // S-00-permission-browser (flow F06 A4/18.1, P2-H40, P2-X41): a real, blocking screen between
+    // accepting consent and the native GPS request -- `startLocationProvider()` only fires once
+    // this screen's own "ไปต่อ" button is tapped, never as a side effect of the accept click above.
+    const permissionScreen = page.locator('.consent-permission-screen:not([hidden])');
+    await expect(permissionScreen).toBeVisible({ timeout: 5_000 });
+    await page.locator('.consent-permission-continue').click();
+
     // Minute 0-1: the class-select sheet (R29) -- forced before the map is usable, no separate
     // confirm layered on top, exactly the four `PlayerClass` cards.
     const classSheet = page.locator('.class-select-overlay:not([hidden])');
