@@ -222,3 +222,10 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 207 | W21 | P2-F06-T24 | game-director | — | 15:07:13 | PASS (รอบ 2) — F06 ผ่าน tech/copy/QA/visual/design · W22 dispatch T25 product gate + X47 |
 | 208 | W22 | P2-F06-T25 | product-manager | — | 15:11:04 | PASS — gate ทั้งหมดของ F04–F06 ผ่านครบ |
 | 209 | W22 | P2-X47 | gameplay-programmer | — | 15:50:54 | DONE — DG6-05 เป็น timestamp ถอยหลังของ Mock clock (แก้แล้ว ไม่ต้องกลับ GD) · polish ครบ · สี confirm-hp-note → backlog |
+| 210 | close | P2-CLOSE-QA (interim) | qa-tester | 15:51:11 | — | เริ่ม — เหลือเฉพาะงาน HUMAN และงานที่รอผลสนาม (O-20) · รัน regression ชั่วคราว |
+| 211 | close | P2-CLOSE-QA (interim) | qa-tester | — | 16:05:21 | DONE (interim) — ฝั่ง agent ครบ ทุกคำสั่งเขียว ไม่มีบั๊ก OPEN · เหลือ HUMAN 8 แถว + รอผลสนาม 10 แถว · → H61 location README |
+| 212 | close | P2-H61 | location-engineer | — | 16:07:54 | DONE — README trace qa ครบ · data hygiene เล็กน้อย → CLOSE-QA ตัวจริง |
+| 213 | close | P2-CLOSE-PM (interim) | producer | — | 16:14:11 | DONE (done by orchestrator: เขียนเนื้อหาของ producer ลง report.md เพราะ harness ห้าม subagent เขียนไฟล์ report) · สถานะ COMPLETE — AGENT SIDE, WAITING FOR HUMAN |
+| 214 | close | P2-CLOSE-PRODUCT (interim) | product-manager | — | 21:56:29 | DONE — sign-off ฝั่ง agent YES พร้อมเงื่อนไข (orchestrator แปะ §12 ลง report.md) |
+
+Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WAITING FOR HUMAN · 11 wave (W12–W22) · รอ HUMAN: Q-P2-12, P2-C01, F04-T11, C02, C05, C07, F06-T26, T27, T29
