@@ -230,3 +230,5 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 
 Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WAITING FOR HUMAN · 11 wave (W12–W22) · รอ HUMAN: Q-P2-12, P2-C01, F04-T11, C02, C05, C07, F06-T26, T27, T29
 | 215 | post-close | push | orchestrator | — | 21:59:48 | push 23 commit (0c91e7e..9c93eca) ขึ้น origin/main ตามที่ผู้ใช้อนุมัติ · gh CLI ไม่มีในเครื่อง ดูผล CI ที่หน้า Actions |
+| 216 | post-close | CI 4d29ada | orchestrator | — | 22:45:52 | e2e แดง: f06-toast-two-lines ล้ม ios + flaky android, toast-position flaky ios ×2 · สาเหตุร่วม: runner ช้า (6.3 นาที) test พึ่งช่วงเวลาแคบ · → X55 qa, X56 gameplay |
+| 217 | post-close | P2-X55 + P2-X56 | orchestrator | — | 01:34:49 | DONE — ไม่พึ่งจังหวะเวลาแคบแล้ว · 2 spec ผ่าน 50/50 (repeat 5, workers 8, retries 0) · e2e เต็ม 106/106 · prettier แก้ 1 ไฟล์ · lint+typecheck เขียว · push เพื่อยืนยันบน CI |
