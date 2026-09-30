@@ -2,16 +2,16 @@
   {
     "id": "01-map-far",
     "ok": true,
-    "bytes": 98105,
-    "grayBytes": 150761,
-    "reachedVia": "qa-home-states-walk-01 speed=60, title=\"ช่วยกันปลุกจังหวัดเรา\""
+    "bytes": 121751,
+    "grayBytes": 174813,
+    "reachedVia": "qa-home-states-walk-01 speed=60, title=\"รอยแยกใกล้สุดอยู่ไกล\" (leg 2, far)"
   },
   {
     "id": "02-map-near-nav",
     "ok": true,
-    "bytes": 75580,
-    "grayBytes": 125825,
-    "reachedVia": "e2e-full-run-01 speed=1, chip=\"100 ม.\""
+    "bytes": 79071,
+    "grayBytes": 129445,
+    "reachedVia": "e2e-full-run-01 speed=1, chip|direction|label=\"100 ม.|SE|ทิศตะวันออกเฉียงใต้\", +300ms settle"
   },
   {
     "id": "03-nav-fallback",
@@ -49,35 +49,42 @@
   {
     "id": "08-run-active",
     "ok": true,
-    "bytes": 135447,
-    "grayBytes": 180604,
+    "bytes": 135743,
+    "grayBytes": 180303,
     "reachedVia": "e2e-full-run-01, entered, pill=\"อยู่ในเขต\""
   },
   {
     "id": "09-run-grace",
     "ok": true,
-    "bytes": 105290,
-    "grayBytes": 147447,
+    "bytes": 107491,
+    "grayBytes": 148806,
     "reachedVia": "qa-e2e-leelawadee-checkin-01, pill=\"รอยืนยัน\""
+  },
+  {
+    "id": "09b-run-suspended",
+    "ok": false,
+    "notReachedReason": "no committed trace both (a) enters a real, already-open dungeon through the public confirm/enter flow and (b) then holds a continuous out-of-polygon fix for longer than runState.graceMax_s (180s) to cross Grace -> Suspended: qa-e2e-leelawadee-checkin-01 (used for 09-run-grace) walks out and back inside its own ~430s window without ever holding outside long enough (proves Active -> Grace -> Active only, by design, see its own description); synthetic-edge-walk-01 does hold outside long enough (its second exit, see data/gps-traces/README.md §7) but walks the synthetic engine-level test rectangle (polygons/test-rect-benchasiri.geojson), not a published dungeon, so it never reaches a real confirm popup/run screen (same reasoning as the 06/pre-fix-11 stubs). Requesting a dedicated fixture (an active run in a real, open dungeon with a continuous out-of-polygon segment > graceMax_s) is a trace request to location-engineer, not something this task's writes (art/reviews/screens, qa/tests/e2e/visual) can add."
   },
   {
     "id": "10-toast-tick-loot",
     "ok": true,
-    "bytes": 119732,
-    "grayBytes": 165346,
-    "reachedVia": "e2e-full-run-01, granted-tick toast"
+    "bytes": 124453,
+    "grayBytes": 170849,
+    "reachedVia": "e2e-full-run-01, granted-tick toast, +800ms settle"
   },
   {
     "id": "11-toast-tick-denied",
-    "ok": false,
-    "notReachedReason": "every committed real-dungeon e2e fixture either grants exactly one tick and ends before a second reward window matures (e2e-full-run-01, e2e-onboarding-01: ~340s active, one 300s window) or ends in death/auto-retreat within the first ~200s, before any 300s reward window evaluates at all (e2e-f06-koa-run-01) — checked by running both through the real client and watching for `.toast.faded` (this task, see README). Traces that do sit still/underwalk long enough to fail a reward window (qa-gate-still-01, qa-gate-boundary-01, etc.) all walk a synthetic engine-level test rectangle with no matching committed dungeon polygon, so they never reach a real confirm popup/run screen. Requesting a dedicated fixture (an active run in a real, already-open dungeon that stays put/underwalks through one whole rewardTick.rewardTickInterval_s window) is a trace request to location-engineer, not something this task's own writes (art/reviews/screens, qa/tests/e2e/visual) can add."
+    "ok": true,
+    "bytes": 112029,
+    "grayBytes": 157086,
+    "reachedVia": "synthetic-tick-denied-leelawadee-01 speed=60, denied-tick toast, +800ms settle"
   },
   {
     "id": "12-hp-low",
     "ok": true,
-    "bytes": 133737,
-    "grayBytes": 171914,
-    "reachedVia": "e2e-f06-koa-run-01 seed=5 tanker, hp=\"7%\""
+    "bytes": 150719,
+    "grayBytes": 192083,
+    "reachedVia": "e2e-f06-koa-run-01 seed=5 tanker, hp=\"7%\", +250ms settle (measured margin ~348ms, short of the gate's >=700ms ask -- see report), run still active"
   },
   {
     "id": "13-pocket",
@@ -96,8 +103,8 @@
   {
     "id": "15-summary-normal",
     "ok": true,
-    "bytes": 54969,
-    "grayBytes": 101949,
+    "bytes": 54797,
+    "grayBytes": 101805,
     "reachedVia": "e2e-full-run-01, manual exit, header=\"ออกเอง ของอยู่ครบ\""
   },
   {

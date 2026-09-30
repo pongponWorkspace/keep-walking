@@ -139,6 +139,13 @@ async function pollUntil<T>(
 }
 
 // --- 01: home panel, far state ---------------------------------------------------------------
+// V-45 (art/reviews/F04-F06-visual-gate.md §7.9, P2-H55 re-shoot): the round-2 capture polled for
+// the first non-empty `.home-panel-title` and landed on leg 1's out_of_area title
+// ("ช่วยกันปลุกจังหวัดเรา", same copy as 25-home-out-of-area) instead of leg 2's far title,
+// because at speed=60 the trace walks through leg 1 before this poll's first tick. Poll for the
+// exact `home.farTitle` copy (`config/content/copy.th.json`) instead, same convention as
+// `reach25HomeOutOfArea` below.
+const HOME_FAR_TITLE = 'รอยแยกใกล้สุดอยู่ไกล'; // copy key home.farTitle
 async function reach01MapFar(browser: Browser): Promise<Outcome> {
   const { context, page } = await newCtxPage(browser);
   await page.goto(
@@ -148,18 +155,32 @@ async function reach01MapFar(browser: Browser): Promise<Outcome> {
   );
   const found = await pollUntil(
     page,
-    async () =>
-      page.evaluate(() => {
-        const title = document.querySelector('.home-panel-title')?.textContent ?? '';
-        return title === '' ? undefined : title;
-      }),
+    async () => {
+      const title = await page.evaluate(
+        () => document.querySelector('.home-panel-title')?.textContent ?? '',
+      );
+      return title === HOME_FAR_TITLE ? title : undefined;
+    },
     15_000,
+    100,
   );
-  if (found === undefined) return { reason: 'home-panel never showed a title' };
-  return { context, page, reachedVia: `qa-home-states-walk-01 speed=60, title="${found}"` };
+  if (found === undefined)
+    return {
+      reason: `home-panel never showed the far-state title ("${HOME_FAR_TITLE}"), leg 2 of qa-home-states-walk-01`,
+    };
+  return {
+    context,
+    page,
+    reachedVia: `qa-home-states-walk-01 speed=60, title="${found}" (leg 2, far)`,
+  };
 }
 
 // --- 02: nav panel, approaching an open dungeon (state near, popup not open yet) --------------
+// V-43 (art/reviews/F04-F06-visual-gate.md §7.9, P2-H55 re-shoot): the round-2 capture screenshotted
+// the arrow mid-rotation (`.direction-arrow`'s 150ms CSS transition off `data-direction`,
+// `app.css:360`), so the arrow pointed almost due north while the text next to it already said
+// "ทิศตะวันออกเฉียงใต้". Poll for `data-direction` being set (not just the distance chip), then wait
+// >=300ms (double the transition) before the caller screenshots, so the rotation has always settled.
 async function reach02MapNearNav(browser: Browser): Promise<Outcome> {
   const { context, page } = await newCtxPage(browser);
   await page.goto(url(`${FULL_RUN}&speed=1&start=${encodeURIComponent(START_LEELAWADEE)}`));
@@ -170,21 +191,31 @@ async function reach02MapNearNav(browser: Browser): Promise<Outcome> {
         const nav = document.querySelector('.nav-panel');
         const popup = document.querySelector('.popup-overlay:has(.confirm-title)');
         const chip = document.querySelector('.chip-distance')?.textContent ?? '';
+        const direction =
+          document.querySelector('.direction-arrow')?.getAttribute('data-direction') ?? '';
+        const label = document.querySelector('.direction-label')?.textContent ?? '';
         const ok =
           nav !== null &&
           !(nav as HTMLElement).hidden &&
           chip !== '' &&
+          direction !== '' &&
           (popup === null || (popup as HTMLElement).hidden);
-        return ok ? chip : undefined;
+        return ok ? `${chip}|${direction}|${label}` : undefined;
       }),
     15_000,
     150,
   );
   if (found === undefined)
     return {
-      reason: 'nav-panel with a distance chip never appeared before the confirm popup opened',
+      reason:
+        'nav-panel with a distance chip and a set data-direction never appeared before the confirm popup opened',
     };
-  return { context, page, reachedVia: `e2e-full-run-01 speed=1, chip="${found}"` };
+  await page.waitForTimeout(300); // >= the 300ms floor the gate asks for (2x the 150ms CSS transition)
+  return {
+    context,
+    page,
+    reachedVia: `e2e-full-run-01 speed=1, chip|direction|label="${found}", +300ms settle`,
+  };
 }
 
 // --- 03: nav panel fallback popup (tap "เปิดแอปแผนที่" / fallback link) ------------------------
@@ -384,7 +415,34 @@ async function reach09RunGrace(browser: Browser): Promise<Outcome> {
   return { context, page, reachedVia: `qa-e2e-leelawadee-checkin-01, pill="${found}"` };
 }
 
+// --- 09b: run screen, Suspended (only if a committed trace reaches it) -------------------------
+// UNREACHABLE with the committed data set (P2-H55) — see README "screens not reached". Requested
+// as a nice-to-have by the gate (§7.9: "ถ้าไปถึงได้ด้วย trace ที่มีอยู่"), so it is left in the
+// screen list (tracked in capture-results.json) rather than silently skipped.
+function reach09bRunSuspended(): Outcome {
+  return {
+    reason:
+      'no committed trace both (a) enters a real, already-open dungeon through the public ' +
+      'confirm/enter flow and (b) then holds a continuous out-of-polygon fix for longer than ' +
+      'runState.graceMax_s (180s) to cross Grace -> Suspended: qa-e2e-leelawadee-checkin-01 ' +
+      '(used for 09-run-grace) walks out and back inside its own ~430s window without ever ' +
+      'holding outside long enough (proves Active -> Grace -> Active only, by design, see its own ' +
+      'description); synthetic-edge-walk-01 does hold outside long enough (its second exit, see ' +
+      'data/gps-traces/README.md §7) but walks the synthetic engine-level test rectangle ' +
+      '(polygons/test-rect-benchasiri.geojson), not a published dungeon, so it never reaches a real ' +
+      'confirm popup/run screen (same reasoning as the 06/pre-fix-11 stubs). Requesting a dedicated ' +
+      'fixture (an active run in a real, open dungeon with a continuous out-of-polygon segment ' +
+      "> graceMax_s) is a trace request to location-engineer, not something this task's writes " +
+      '(art/reviews/screens, qa/tests/e2e/visual) can add.',
+  };
+}
+
 // --- 10: granted-tick toast (loot) --------------------------------------------------------------
+// R2-1 (art/reviews/F04-F06-visual-gate.md §7.9, P2-H55 re-shoot): capture only after the enter
+// effect (`run.tickGranted`/`run.tickGrantedFirst`, art/vfx/tick-feedback) has finished playing and
+// `.toast`'s own transform has settled (that effect owns 100% of `.toast`'s transform, R2-1's fix),
+// so the toast is never caught mid-animation. `FIRST_TOTAL_DURATION_MS` et al top out well under
+// 700ms; wait 800ms to clear the gate's own ">= 700ms after the toast appears" floor with margin.
 async function reach10ToastTickLoot(browser: Browser): Promise<Outcome> {
   const { context, page } = await newCtxPage(browser);
   await forceWakeLockUnsupported(page);
@@ -396,29 +454,69 @@ async function reach10ToastTickLoot(browser: Browser): Promise<Outcome> {
     .then(() => true)
     .catch(() => false);
   if (!shown) return { reason: 'granted-tick toast never appeared' };
-  return { context, page, reachedVia: 'e2e-full-run-01, granted-tick toast' };
+  await page.waitForTimeout(800);
+  return { context, page, reachedVia: 'e2e-full-run-01, granted-tick toast, +800ms settle' };
 }
 
 // --- 11: denied-tick toast (movement gate not met on an evaluated window) ----------------------
-// UNREACHABLE with the committed data set — see README "screens not reached".
-function reach11ToastTickDenied(): Outcome {
+// Was UNREACHABLE with the e2e-only fixture set (see the old reason kept in git history / the
+// README's round-2 section) until location-engineer landed `synthetic-tick-denied-leelawadee-01`
+// (P2-H52, `data/gps-traces/README.md` §7): a real run in the real, already-open `leelawadee-lawn`
+// dungeon that sits on a bench through one whole `rewardTick.rewardTickInterval_s` window before
+// walking again. Client loads `data/gps-traces/synthetic/*.trace.json` directly
+// (`apps/client/src/location/traces.ts`), same as any other `trace=` id — no fixture copy needed.
+async function reach11ToastTickDenied(browser: Browser): Promise<Outcome> {
+  const { context, page } = await newCtxPage(browser);
+  await forceWakeLockUnsupported(page);
+  await page.goto(
+    url(
+      `loc=mock&trace=synthetic-tick-denied-leelawadee-01&speed=60&loop=0&e2eClassId=tanker&seed=1&e2eSkipOnboarding=1&start=${encodeURIComponent(START_LEELAWADEE)}`,
+    ),
+  );
+  // README §7: "toast ไม่ผ่านคือ `.toast:has(.toast-line).faded` ที่ราว 5 วินาทีจริงหลังกด 'เข้า' ที่
+  // speed=60" — enter within a few real seconds of the popup opening.
+  if (!(await clickEnter(page, 15_000)))
+    return { reason: 'confirm popup never became enterable (synthetic-tick-denied-leelawadee-01)' };
+  const shown = await page
+    .locator('.toast:has(.toast-line).faded')
+    .waitFor({ state: 'visible', timeout: 15_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!shown) return { reason: 'denied-tick toast (.toast.faded) never appeared' };
+  await page.waitForTimeout(800); // same >=700ms settle floor as the other toast screens
   return {
-    reason:
-      'every committed real-dungeon e2e fixture either grants exactly one tick and ends before a ' +
-      'second reward window matures (e2e-full-run-01, e2e-onboarding-01: ~340s active, one 300s ' +
-      'window) or ends in death/auto-retreat within the first ~200s, before any 300s reward window ' +
-      'evaluates at all (e2e-f06-koa-run-01) — checked by running both through the real client and ' +
-      'watching for `.toast.faded` (this task, see README). Traces that do sit still/underwalk long ' +
-      'enough to fail a reward window (qa-gate-still-01, qa-gate-boundary-01, etc.) all walk a ' +
-      'synthetic engine-level test rectangle with no matching committed dungeon polygon, so they ' +
-      'never reach a real confirm popup/run screen. Requesting a dedicated fixture (an active run in ' +
-      'a real, already-open dungeon that stays put/underwalks through one whole ' +
-      'rewardTick.rewardTickInterval_s window) is a trace request to location-engineer, not ' +
-      "something this task's own writes (art/reviews/screens, qa/tests/e2e/visual) can add.",
+    context,
+    page,
+    reachedVia: 'synthetic-tick-denied-leelawadee-01 speed=60, denied-tick toast, +800ms settle',
   };
 }
 
 // --- 12: HP low (danger zone, right before auto-retreat ends the run) --------------------------
+// §7.4 of the visual gate / P2-H55 re-shoot investigation (see the handoff in this task's own
+// report — kept short here on purpose):
+//  - `e2e-f06-koa-run-01` (khlong-ong-ang, level range 10-20 -- the full damage-gap penalty for a
+//    level-1 player, D-112: damage x1.25^9 ~= 7.45x) was replayed offline through `sessionStep`
+//    directly for every class x seed 1-15: every single combination lands `run_hp_low` and
+//    `run_auto_retreat` on the exact same hit. There is no seed/class where the run is genuinely
+//    still going once HP is in the (0%,30%] band with this dungeon/level-gap combination -- the
+//    one oversized hit does both at once, always.
+//  - The only committed real, open, level-appropriate (gap 0) dungeon trace, `e2e-full-run-01`
+//    (leelawadee-lawn, level 1-5), is only 410s long -- nowhere near enough active time to reach
+//    the warning band on its own. Looping it (`loop=1`) so the fixture replays long enough
+//    (confirmed offline: seed=1/ranged reaches a genuine "still going" warning hit with ~2.6s of
+//    real-time margin at speed=60) instead makes the *real* mock provider end the run immediately
+//    with `run.summary.clockInvalid` ("นาฬิกาเครื่องเพี้ยน") the moment the loop wraps back to the
+//    trace's own outside-the-polygon start -- a real client behaviour this task's `writes` cannot
+//    change (no client changes in this task's brief) and did not introduce.
+// Given both paths are closed with the committed fixture set, this keeps `e2e-f06-koa-run-01`
+// (seed=5/tanker, matching the pre-existing round-2 capture) as the best available evidence.
+// In-page timing (this task, `performance.now()` inside the page, no round-trip latency) measured
+// only ~348ms between the first frame where HP is in-band AND the summary is not yet shown and the
+// frame the summary actually appears -- short of the gate's own ">=700ms settle" ask. The wait
+// below (250ms) stays safely under that measured 348ms margin so the capture is provably still
+// "run going", but it cannot reach the fully-settled ">=700ms" state the gate asks for. See this
+// task's report for the handoff (a longer single, non-looped, level-appropriate real-dungeon trace
+// to location-engineer, and the loop/clockInvalid interaction to gameplay-programmer).
 async function reach12HpLow(browser: Browser): Promise<Outcome> {
   const { context, page } = await newCtxPage(browser);
   await forceWakeLockUnsupported(page);
@@ -440,14 +538,25 @@ async function reach12HpLow(browser: Browser): Promise<Outcome> {
         return !summaryUp && Number.isFinite(pct) && pct > 0 && pct <= 30 ? text : undefined;
       }),
     30_000,
-    15,
+    5,
   );
   if (found === undefined)
     return {
       reason:
         'hp-percent never rendered a value in (0%, 30%] before the run ended (single-hit damage model, seed=5/tanker chosen for this)',
     };
-  return { context, page, reachedVia: `e2e-f06-koa-run-01 seed=5 tanker, hp="${found}"` };
+  await page.waitForTimeout(250); // measured margin ~348ms (see comment above); stays under it
+  const stillRunningAfterWait = await page.evaluate(() => {
+    const summary = document.querySelector('.run-summary');
+    return summary === null || (summary as HTMLElement).hidden;
+  });
+  if (!stillRunningAfterWait)
+    return { reason: 'run ended (summary shown) during the 250ms HP-low settle wait' };
+  return {
+    context,
+    page,
+    reachedVia: `e2e-f06-koa-run-01 seed=5 tanker, hp="${found}", +250ms settle (measured margin ~348ms, short of the gate's >=700ms ask -- see report), run still active`,
+  };
 }
 
 // --- 13: pocket screen overlay -------------------------------------------------------------------
@@ -808,8 +917,9 @@ const SCREENS: readonly ScreenDef[] = [
   { id: '07-confirm-closed', run: reach07ConfirmClosed },
   { id: '08-run-active', run: reach08RunActive },
   { id: '09-run-grace', run: reach09RunGrace },
+  { id: '09b-run-suspended', run: async () => reach09bRunSuspended() },
   { id: '10-toast-tick-loot', run: reach10ToastTickLoot },
-  { id: '11-toast-tick-denied', run: async () => reach11ToastTickDenied() },
+  { id: '11-toast-tick-denied', run: reach11ToastTickDenied },
   { id: '12-hp-low', run: reach12HpLow },
   { id: '13-pocket', run: reach13Pocket },
   { id: '14-speedlock', run: reach14SpeedLock },
@@ -829,18 +939,44 @@ const SCREENS: readonly ScreenDef[] = [
   { id: 'bonus-settings-menu', run: reachSettingsMenu },
 ];
 
+// P2-H55 (re-shoot round 3, art/reviews/F04-F06-visual-gate.md §7.9): pass one or more screen ids
+// on the CLI to capture only those screens (e.g. `tsx capture-f04-f06-screens.ts 01-map-far
+// 02-map-near-nav`). With no ids, every screen in SCREENS runs (unchanged default, same as the
+// P2-H41 round). Results for ids that were not selected this run are kept as-is by merging into
+// whatever `capture-results.json` already has, instead of being dropped, so a narrow re-shoot never
+// erases the bookkeeping for the other screens' last-known result.
+const RESULTS_PATH = join(OUT_DIR, 'capture-results.json');
+const REQUESTED_IDS = new Set(process.argv.slice(2));
+const SCREENS_TO_RUN =
+  REQUESTED_IDS.size > 0 ? SCREENS.filter((s) => REQUESTED_IDS.has(s.id)) : SCREENS;
+
+function loadExistingResults(): ScreenResult[] {
+  try {
+    return JSON.parse(readFileSync(RESULTS_PATH, 'utf8')) as ScreenResult[];
+  } catch {
+    return [];
+  }
+}
+
 async function run(): Promise<void> {
   mkdirSync(OUT_DIR, { recursive: true });
+  if (REQUESTED_IDS.size > 0) {
+    const knownIds = new Set(SCREENS.map((s) => s.id));
+    const unknown = [...REQUESTED_IDS].filter((id) => !knownIds.has(id));
+    if (unknown.length > 0)
+      throw new Error(`unknown screen id(s) requested: ${unknown.join(', ')}`);
+    console.warn(`re-shoot mode: capturing only ${SCREENS_TO_RUN.map((s) => s.id).join(', ')}`);
+  }
   const browser = await chromium.launch();
-  const results: ScreenResult[] = [];
-  for (const screen of SCREENS) {
+  const newResults = new Map<string, ScreenResult>();
+  for (const screen of SCREENS_TO_RUN) {
     process.stdout.write(`capturing ${screen.id}... `);
     const outcome = await screen.run(browser).catch((error: unknown) => ({
       reason: `threw: ${error instanceof Error ? error.message : String(error)}`,
     }));
     if (!isReached(outcome)) {
       console.warn(`NOT REACHED: ${outcome.reason}`);
-      results.push({ id: screen.id, ok: false, notReachedReason: outcome.reason });
+      newResults.set(screen.id, { id: screen.id, ok: false, notReachedReason: outcome.reason });
       continue;
     }
     await hideDebugHud(outcome.page).catch(() => undefined);
@@ -850,7 +986,7 @@ async function run(): Promise<void> {
     writeFileSync(join(OUT_DIR, `${screen.id}-gray.png`), grayBuffer);
     await outcome.context.close();
     console.warn(`ok (${buffer.length} B, gray ${grayBuffer.length} B) via ${outcome.reachedVia}`);
-    results.push({
+    newResults.set(screen.id, {
       id: screen.id,
       ok: true,
       bytes: buffer.length,
@@ -859,9 +995,25 @@ async function run(): Promise<void> {
     });
   }
   await browser.close();
-  writeFileSync(join(OUT_DIR, 'capture-results.json'), JSON.stringify(results, null, 2));
+
+  const merged = new Map<string, ScreenResult>();
+  for (const r of loadExistingResults()) merged.set(r.id, r);
+  for (const r of newResults.values()) merged.set(r.id, r);
+  // Keep merged order stable: SCREENS' declared order first (covers ids known today, including
+  // any new ones like 09b), then any leftover ids from an older results file that SCREENS no
+  // longer declares (defensive; should not happen in practice).
+  const orderedIds = [
+    ...SCREENS.map((s) => s.id),
+    ...[...merged.keys()].filter((id) => !SCREENS.some((s) => s.id === id)),
+  ];
+  const results = orderedIds
+    .map((id) => merged.get(id))
+    .filter((r): r is ScreenResult => r !== undefined);
+  writeFileSync(RESULTS_PATH, JSON.stringify(results, null, 2));
   const okCount = results.filter((r) => r.ok).length;
-  console.warn(`\n${okCount}/${results.length} screens captured.`);
+  console.warn(
+    `\n${okCount}/${results.length} screens captured. (${newResults.size} captured/updated this run)`,
+  );
 }
 
 run().catch((error: unknown) => {

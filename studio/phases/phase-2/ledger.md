@@ -210,3 +210,5 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 195 | W19 | P2-H54 | uiux-designer | — | 13:21:34 | DONE — spec R2-3/R2-5 + follow toggle + V-42 · ชื่อ class ส่งให้ X52 ที่กำลังทำ |
 | 196 | W19 | P2-H56 | level-designer | — | 13:22:20 | DONE — dungeon เดินทีม F06-C32 · ข้อสังเกตแจ้ง 30%/25% hit เดียว → design gate T24 |
 | 197 | W19 | P2-X52 | gameplay-programmer | — | 13:36:01 | DONE — R2-1..R2-5 + V-44/V-46 · e2e 96/96 · W20 dispatch H55 (ถ่ายใหม่ §7.9) |
+| 198 | W20 | P2-H55 | qa-tester | — | 14:03:34 | DONE — ภาพรอบ 3 ครบยกเว้น 09b · 12-hp-low margin สั้น ให้ art-director ตัดสิน · → H57 location, loop bug → X47 · dispatch T23 รอบ 3 + H57 |
+| 199 | W20 | P2-F06-T23 | art-director | — | 14:06:04 | PASS (รอบ 3 ตาม D-140) — gate F06 ผ่าน tech/copy/QA/visual แล้ว · dispatch T24 design gate |
