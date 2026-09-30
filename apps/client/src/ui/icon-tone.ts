@@ -60,3 +60,18 @@ export function closedChipIconTone(onNightBackground: boolean): IconTone {
  * site of `setIconGlyph` must also supply regardless of `onNightBackground` (the option is only
  * read when both `onNightBackground` is true and the tintable fetch fell back to `<img>`). */
 export const NIGHT_BACKING_PLATE_COLOR_CSS = TOKEN_BG_SURFACE;
+
+/** Recovering banner (components.md 6.1 + 13.9.1's new row, P2-X47/H51): always `state.info`, the
+ * same colour as the banner's own text — table 13.9.1 lists no separate night value for this row
+ * (the banner's plate is always `bg.surface`, never painted on `bg.night`). */
+export function recoveringBannerIconTone(): IconTone {
+  return { id: 'icon.ui.recovering', colorCss: TOKEN_STATE_INFO };
+}
+
+/** Speed-lock overlay (components.md 13.4, V-41 art gate F04-F06-visual-gate.md §8): `ink.900`,
+ * the same colour `.speedlock-title`/`.speedlock-body` already use on the overlay's own
+ * `bg.paper` plate — no night variant (the overlay is a single flat day-coloured full screen, no
+ * `bg.night` context anywhere in it). */
+export function speedLockIconTone(): IconTone {
+  return { id: 'icon.ui.speed-lock', colorCss: TOKEN_INK_900 };
+}

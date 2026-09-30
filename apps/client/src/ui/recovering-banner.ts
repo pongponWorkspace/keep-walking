@@ -11,8 +11,17 @@
  */
 import { formatCopyText } from '../copy/format';
 import { getCopyText } from '../copy/load';
+import type { IconGlyphRenderer } from '../assets/icon-glyph';
+import { NIGHT_BACKING_PLATE_COLOR_CSS, recoveringBannerIconTone } from './icon-tone';
 
 const MS_PER_MIN = 60_000;
+
+export interface RecoveringBannerDeps {
+  /** `setIconGlyph` (components.md 6.1/13.9, P2-X47/H51): renders `icon.ui.recovering` before the
+   * two-line label/detail group — decorative (`aria-hidden`, `icon-glyph.ts`'s own convention),
+   * since the label/detail text next to it already carries the meaning (style-guide S4). */
+  readonly iconGlyph: IconGlyphRenderer;
+}
 
 export interface RecoveringView {
   readonly recovering: boolean;
@@ -31,16 +40,24 @@ export interface RecoveringBanner {
   hide(): void;
 }
 
-export function mountRecoveringBanner(container: HTMLElement): RecoveringBanner {
+export function mountRecoveringBanner(
+  container: HTMLElement,
+  deps: RecoveringBannerDeps,
+): RecoveringBanner {
   const root = document.createElement('div');
   root.className = 'banner info recovering-banner';
   root.hidden = true;
 
+  const icon = document.createElement('span');
+  icon.className = 'recovering-banner-icon';
+  const textGroup = document.createElement('div');
+  textGroup.className = 'recovering-banner-text';
   const label = document.createElement('span');
   label.className = 'recovering-banner-label';
   const detail = document.createElement('span');
   detail.className = 'recovering-banner-detail';
-  root.append(label, detail);
+  textGroup.append(label, detail);
+  root.append(icon, textGroup);
   container.append(root);
 
   return {
@@ -56,6 +73,13 @@ export function mountRecoveringBanner(container: HTMLElement): RecoveringBanner 
       detail.textContent = formatCopyText('home.recoveringDetail', {
         recoverPct: view.recoveryTo_pct,
         timeLeft: formatCopyText('unit.minutes', { value: minutes }),
+      });
+      const tone = recoveringBannerIconTone();
+      void deps.iconGlyph.setIconGlyph(icon, tone.id, {
+        altText: getCopyText('home.recoveringLabel'),
+        colorCss: tone.colorCss,
+        onNightBackground: false,
+        nightPlateColorCss: NIGHT_BACKING_PLATE_COLOR_CSS,
       });
     },
     hide() {

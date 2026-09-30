@@ -40,10 +40,10 @@ import { buildSessionParams } from './session/config';
 import { loadDungeonArtifact, toMapDungeonInput, dungeonStatus } from './dungeons/artifact';
 import type { ArtifactDungeon } from './dungeons/artifact';
 import { formatDistanceText } from './dungeons/distance';
-import { formatOpenTime } from './dungeons/open-time';
+import { formatOpenTime, formatPastTime } from './dungeons/open-time';
 import { formatCopyText } from './copy/format';
 import { getCopyText } from './copy/load';
-import { getDungeonShortName, getProvinceName } from './copy/names';
+import { getDungeonShortName, getProvinceName, isResolvedDungeonName } from './copy/names';
 import type { AssetRuntimeController } from './assets/runtime';
 import { compassPointTo } from './dungeons/direction';
 import { parseE2eClassIdParam, parseRunSeedParam } from './clock/query-params';
@@ -58,6 +58,7 @@ import { mountDungeonConfirm } from './ui/dungeon-confirm';
 import { mountRunBar } from './ui/run-bar';
 import { mountSpeedLockOverlay } from './ui/speed-lock-overlay';
 import { mountRunSummary } from './ui/run-summary';
+import { runSummaryHeaderKey } from './ui/run-state-view';
 import { mountNavPanel } from './ui/nav-panel';
 import { mountTickToast } from './ui/tick-toast';
 import { mountHpBar } from './ui/hp-bar';
@@ -109,7 +110,10 @@ import {
 } from './storage/onboarding';
 import { clearLocalData } from './storage/clear-local-data';
 
-const TELEMETRY_STORAGE_KEY = 'kw.p2.telemetry';
+// Exported only for storage/storage-key-prefix.test.ts (R2-N3, tech gate F06 round 2): that test
+// must import the real constant, never a re-typed literal, so a future rename here fails the test
+// instead of leaving it silently green.
+export const TELEMETRY_STORAGE_KEY = 'kw.p2.telemetry';
 const SECONDS_PER_MINUTE = 60;
 
 export interface F04AppDeps {
@@ -539,6 +543,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     onExit: () => handleSessionEvents(engine.dispatch({ type: 'exit' }, deps.now())),
     vibrate: deps.vibrate,
     vibrateOnEnterPattern_ms: clientConfig.vibration.speedLockEnter_ms,
+    iconGlyph,
   });
   const runSummary = mountRunSummary(
     deps.hudContainer,
@@ -560,6 +565,9 @@ export function createF04App(deps: F04AppDeps): F04App {
     // P2-H39 (design/ux/components.md 15.4): the toast/vfx stay hidden under the pocket screen's
     // own dark overlay, but audio/vibration always fires — `tick-toast.ts`'s own doc comment.
     isPocketOverlayShowing: () => !pocketScreen.overlayRoot.hidden,
+    // N2-02 (F06 copy gate, P2-X47): never let a tick toast visually overlap Path B's
+    // `run.screenLockNotice` (a no-op once the notice has already faded or was never shown).
+    hideScreenLockNotice: () => pocketScreen.hideFallbackNotice(),
   });
   // F06 flow section 4.1 (C1): permanent on `S-03-run` in every run status — shown/hidden
   // together with `runBar` (`renderRun` below), never on its own. Mounted into the same
@@ -604,6 +612,10 @@ export function createF04App(deps: F04AppDeps): F04App {
       hasRun: state.run !== null,
     });
   }
+  // V-40 (art gate F04-F06-visual-gate.md §8, P2-X47): `render()` already rebuilds every item icon
+  // from scratch each call, so simply calling it again once the manifest arrives fills in whatever
+  // `setIconImg` had to hide the first time (this mounted before `deps.assets.load()` settled).
+  deps.assets.onManifestReady(() => renderInventoryScreen());
   // `#/settings` subpages close back up to the `S-22-settings` menu itself, one level at a time —
   // never all the way out to the main app in one tap (only the menu's own close button does that,
   // `settingsMenu` below).
@@ -833,13 +845,23 @@ export function createF04App(deps: F04AppDeps): F04App {
       if (summary === null) {
         homePanel.setRecentRunDetail(getCopyText('home.recentRunsEmpty'));
       } else {
-        const dungeonName = getDungeonShortName(byId.get(summary.dungeonId)?.name_key ?? '');
-        const endedAt = formatOpenTime(
+        // C6-07 (F06 copy gate, flow F06 20.3): title = the exact same `runSummaryHeaderKey`
+        // mapping the run-summary screen's own header uses (never a second, possibly-drifting copy
+        // key set) · time = `formatPastTime` (today/yesterday/onWeekday, item 2) · the dungeon name
+        // segment (and its separator) drops out entirely when it does not resolve through
+        // `names.th.json` (`isResolvedDungeonName`, item 3 — never a raw key on screen).
+        const title = getCopyText(runSummaryHeaderKey(summary.exitReason));
+        const time = formatPastTime(
           summary.endedAt_ms,
           deps.now(),
           balanceOpeningHoursConfig.utcOffsetMin,
         );
-        homePanel.setRecentRunDetail(`${dungeonName} — ${endedAt}`);
+        const nameKey = byId.get(summary.dungeonId)?.name_key ?? '';
+        const dungeonName = getDungeonShortName(nameKey);
+        const parts = isResolvedDungeonName(nameKey, dungeonName)
+          ? [title, dungeonName, time]
+          : [title, time];
+        homePanel.setRecentRunDetail(parts.join(' · '));
       }
     },
     onRegisterDistrict: () => {
@@ -867,7 +889,7 @@ export function createF04App(deps: F04AppDeps): F04App {
   });
   // F06 copy gate C6-05 (flow F06 Flow C ข้อ C7): shown on every at-home screen, including the
   // plain nav panel's own `near` state — a top-level banner, never folded into `homePanel` alone.
-  const recoveringBanner = mountRecoveringBanner(deps.hudContainer);
+  const recoveringBanner = mountRecoveringBanner(deps.hudContainer, { iconGlyph });
 
   type EmptyScreenReason = 'far' | 'out_of_area' | 'outside_launch_district';
   // `onboarding_empty_screen_abandoned.seconds_before_close_bucket` (product/telemetry-events.md):
@@ -1547,7 +1569,12 @@ export function createF04App(deps: F04AppDeps): F04App {
       renderNearbyNav(state, now_ms);
     } else {
       navPanel.root.hidden = true;
-      homePanel.render(homeState, now_ms);
+      // C6-06 (components.md 13.8): same "latest GPS accuracy worse than maxAccuracy_m" rule
+      // `renderNearbyNav` uses for `nav-panel.ts#setDistance`'s own `approximate` flag.
+      const approximate =
+        lastAccuracy_m !== undefined &&
+        lastAccuracy_m > balanceLocationConfig.homeState.maxAccuracy_m;
+      homePanel.render(homeState, now_ms, approximate);
     }
   }
 

@@ -138,6 +138,16 @@ export interface ToastConfig {
   readonly screenLockNoticeHoldDurationMs: number;
 }
 
+/** `client.json#feedback` (F06-TG-11, P2-X47): `assets/audio.ts`'s cue-priority-queue config —
+ * how long a non-safety cue may wait past its own event time before it is dropped instead of
+ * played late, and the safety cues (cue-list.md 4.1/4.2) that never get dropped as stale. Moved
+ * out of `audio.ts`'s own in-code literals so cue-list.md and this value cannot drift apart
+ * silently. */
+export interface FeedbackConfig {
+  readonly cueStaleAfter_ms: number;
+  readonly safetyCueIds: readonly string[];
+}
+
 /** `client.json#onboarding` (P2-F06-T10, GDD N-3): the one tutorial-line screen-time knob outside
  * `toast.*` (a different overlay, `ui/run-tutorial-line.ts`, never a game decision). */
 export interface OnboardingConfig {
@@ -168,6 +178,7 @@ export interface ClientRuntimeConfig {
   readonly bundle: BundleConfig;
   readonly vibration: VibrationConfig;
   readonly toast: ToastConfig;
+  readonly feedback: FeedbackConfig;
   readonly onboarding: OnboardingConfig;
   readonly pocketScreen: PocketScreenConfig;
 }
@@ -398,6 +409,17 @@ function parseToast(root: Json, path: string): ToastConfig {
   };
 }
 
+function parseFeedback(root: Json, path: string): FeedbackConfig {
+  const node = obj(root['feedback'], path);
+  const safetyCueIds = arr(node['safetyCueIds'], `${path}/safetyCueIds`).map((value, i) =>
+    str(value, `${path}/safetyCueIds/${i}`),
+  );
+  return {
+    cueStaleAfter_ms: num(node['cueStaleAfter_ms'], `${path}/cueStaleAfter_ms`),
+    safetyCueIds,
+  };
+}
+
 function parseOnboarding(root: Json, path: string): OnboardingConfig {
   const node = obj(root['onboarding'], path);
   return {
@@ -449,6 +471,7 @@ export function parseClientConfig(input: unknown): ClientRuntimeConfig {
     bundle: parseBundle(root, '/bundle'),
     vibration: parseVibration(root, '/vibration'),
     toast: parseToast(root, '/toast'),
+    feedback: parseFeedback(root, '/feedback'),
     onboarding: parseOnboarding(root, '/onboarding'),
     pocketScreen: parsePocketScreen(root, '/pocketScreen'),
   };

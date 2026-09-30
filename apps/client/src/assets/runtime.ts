@@ -25,6 +25,15 @@ export interface AssetRuntimeController extends AssetRuntime {
    * decides *when* that is; there is no avatar renderer yet, so nothing calls this today,
    * P2-X21). Safe to call more than once; a later call simply re-fetches. */
   loadAvatarPart(): Promise<void>;
+  /** V-40 (art gate F04-F06-visual-gate.md §8, P2-X47): `main.ts`'s own `load()` call is
+   * fire-and-forget, so a screen that mounts its icons before the manifest arrives (`setIconImg`'s
+   * §6.4 fallback: hide rather than show a broken image) is stuck showing that fallback for the
+   * rest of the session unless something re-renders it once the manifest actually lands. Registers
+   * `cb` to run exactly once: immediately (synchronously) if the manifest has already settled
+   * (arrived or failed — `load()` never throws, per this interface's own doc comment above), or
+   * once `load()` settles otherwise. Safe to call from more than one screen; each gets its own
+   * one-shot callback. */
+  onManifestReady(cb: () => void): void;
 }
 
 export function createAssetRuntime(
@@ -34,6 +43,8 @@ export function createAssetRuntime(
 ): AssetRuntimeController {
   let manifest: RuntimeManifest | undefined;
   let avatarPart: RuntimeManifestPart | undefined;
+  let manifestSettled = false;
+  const pendingReadyCallbacks: (() => void)[] = [];
   const basePath = ASSET_BASE_PATH;
   return {
     getManifest: () => manifest,
@@ -42,6 +53,9 @@ export function createAssetRuntime(
     isProduction: buildProfile === 'playtest',
     async load() {
       manifest = await fetchAssetManifest(fetchImpl);
+      manifestSettled = true;
+      const callbacks = pendingReadyCallbacks.splice(0, pendingReadyCallbacks.length);
+      for (const cb of callbacks) cb();
     },
     getAvatarPart: () => avatarPart,
     async loadAvatarPart() {
@@ -51,6 +65,13 @@ export function createAssetRuntime(
         manifest?.parts?.[AVATAR_PART_NAME],
         manifest?.avatarRig ?? 1,
       );
+    },
+    onManifestReady(cb) {
+      if (manifestSettled) {
+        cb();
+        return;
+      }
+      pendingReadyCallbacks.push(cb);
     },
   };
 }

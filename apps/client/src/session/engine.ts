@@ -30,7 +30,10 @@ import { sessionStateDiscardedEvent } from '../telemetry/f04-events';
 import { mapSessionEvent, onboardingFirstRewardGrantedEvent } from '../telemetry/f04-events';
 import type { RunClientStats } from '../telemetry/f04-events';
 
-const SESSION_STORAGE_KEY = 'kw.p2.session';
+// Exported only for storage/storage-key-prefix.test.ts (R2-N3, tech gate F06 round 2): that test
+// must import the real constant, never a re-typed literal, so a future rename here fails the test
+// instead of leaving it silently green.
+export const SESSION_STORAGE_KEY = 'kw.p2.session';
 
 export interface SessionEngineDeps {
   readonly storage: KeyValueStorage;

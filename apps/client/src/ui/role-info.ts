@@ -8,7 +8,7 @@
  */
 import { getCopyText } from '../copy/load';
 import { setIconImg } from '../assets/icon-dom';
-import type { AssetRuntime } from '../assets/icon-dom';
+import type { AssetRuntimeController } from '../assets/runtime';
 
 const ROLES = [
   { id: 'tanker', nameKey: 'class.tanker', descKey: 'onboarding.pickRoleTanker' },
@@ -26,7 +26,7 @@ export interface RoleInfoScreen {
 export function mountRoleInfo(
   container: HTMLElement,
   onClose: () => void,
-  assets: AssetRuntime,
+  assets: AssetRuntimeController,
 ): RoleInfoScreen {
   const root = document.createElement('div');
   root.className = 'screen role-info';
@@ -37,12 +37,19 @@ export function mountRoleInfo(
 
   const list = document.createElement('div');
   list.className = 'role-info-list';
+  // V-40 (art gate F04-F06-visual-gate.md §8): keep every badge element so `onManifestReady`
+  // below can set them again once the manifest arrives after this screen already mounted.
+  const badges: { readonly img: HTMLImageElement; readonly id: string; readonly alt: string }[] =
+    [];
   for (const role of ROLES) {
     const row = document.createElement('div');
     row.className = 'role-info-row';
     const badge = document.createElement('img');
     badge.className = 'role-info-badge';
-    setIconImg(badge, assets, `badge.class.${role.id}-48`, getCopyText(role.nameKey));
+    const badgeId = `badge.class.${role.id}-48`;
+    const badgeAlt = getCopyText(role.nameKey);
+    setIconImg(badge, assets, badgeId, badgeAlt);
+    badges.push({ img: badge, id: badgeId, alt: badgeAlt });
     const name = document.createElement('div');
     name.className = 'role-info-name';
     name.textContent = getCopyText(role.nameKey);
@@ -52,6 +59,9 @@ export function mountRoleInfo(
     row.append(badge, name, desc);
     list.append(row);
   }
+  assets.onManifestReady(() => {
+    for (const b of badges) setIconImg(b.img, assets, b.id, b.alt);
+  });
 
   const closeButton = document.createElement('button');
   closeButton.className = 'btn btn-secondary';

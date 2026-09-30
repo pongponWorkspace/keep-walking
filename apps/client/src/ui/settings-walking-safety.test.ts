@@ -80,6 +80,19 @@ describe('mountSettingsWalkingSafety', () => {
     expect(pocketScreenPrefEnabled(storage)).toBe(true);
   });
 
+  // V-42 (art gate F04-F06-visual-gate.md §7.7, components.md 9.1): a real track/thumb shape, not
+  // a bare button that happens to render as a filled circle.
+  it('both toggles carry a .toggle-track child (the visible 56x32 track + thumb shape)', () => {
+    const { container } = makeScreen();
+    for (const toggleSelector of [
+      '.settings-autoretreat-toggle',
+      '.settings-pocket-screen-toggle',
+    ]) {
+      const toggle = container.querySelector(toggleSelector) as HTMLButtonElement;
+      expect(toggle.querySelector('.toggle-track')).not.toBeNull();
+    }
+  });
+
   it('has exactly two settings rows in Phase 2 (no auto-potion threshold/toggle row, F06-R22)', () => {
     const { container } = makeScreen();
     expect(container.querySelectorAll('.settings-row').length).toBe(2);

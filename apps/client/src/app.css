@@ -487,6 +487,24 @@ body {
   left: 8px;
   right: 8px;
   z-index: 10; /* zIndex.banner */
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+/* components.md 6.1's own icon addition (P2-X47/H51): 24px, vertically centred with the two-line
+   text group next to it, before the label (components.md 13.9's "ทุกจุด icon-ui บังคับมีคำกำกับคู่
+   ข้อความ"). */
+.recovering-banner-icon {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+.recovering-banner-text {
+  display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
@@ -827,6 +845,15 @@ body {
   margin-bottom: 8px;
 }
 
+/* C6-06 (components.md 13.8): the straight-line distance chip line, right after `.home-panel-body`
+   (never mid-sentence inside `home.farBody`) — `far`/`outside_launch_district` only. */
+.home-panel-distance-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
 .home-panel-register-card {
   background: #fff8ee; /* bg.paper */
   border: 2px solid #1a1a22; /* ink.900 */
@@ -1098,26 +1125,57 @@ body {
   color: #333344; /* ink.700 */
 }
 
-/* Toggle (components.md 9): the on/off state is a `data-on` attribute, never colour alone (S4) —
-   the label text next to it always says the current state too. */
+/* Toggle switch (components.md 9/9.1, V-42 art gate F04-F06-visual-gate.md §7.7): the on/off state
+   is a `data-on` attribute on the button, never colour alone (S4) — the row's own label text next
+   to it always says which setting this is, and the thumb's left/right position is a second signal
+   readable even in a black-and-white screenshot. The button itself is a transparent 48x48 touch
+   target (components.md 9.1's own "padding โปร่งรอบนอก", same convention as a header icon button);
+   the painted 56x32 track + 24px thumb live on the `.toggle-track` child span so the touch target
+   can stay 48px tall without visually stretching the track. */
 .toggle {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 48px; /* touchTarget.min_px */
   min-width: 48px;
-  padding: 8px 16px;
+  padding: 8px;
   margin-top: 8px;
-  border-radius: 999px; /* radius.chip_px */
-  border: 2px solid #1a1a22; /* ink.900 */
-  background: #ffffff; /* bg.surface */
-  color: #1a1a22; /* ink.900 */
-  font: inherit;
-  font-weight: 700;
+  border: none;
+  background: transparent;
   cursor: pointer;
 }
 
-.toggle[data-on='true'] {
-  background: #117733; /* state.success */
-  color: #fff8ee; /* bg.paper */
-  border-color: #117733;
+.toggle-track {
+  position: relative;
+  box-sizing: border-box;
+  display: block;
+  width: 56px;
+  height: 32px;
+  border-radius: 999px; /* radius.chip_px */
+  border: 2px solid #1a1a22; /* ink.900, every state (never changes colour, V-42) */
+  background: #ddddee; /* ink.100, off */
+}
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff; /* bg.surface */
+  border: 2px solid #1a1a22; /* ink.900 */
+}
+
+.toggle[data-on='true'] .toggle-track {
+  background: #117733; /* state.success, on */
+}
+
+.toggle[data-on='true'] .toggle-track::after {
+  transform: translateX(24px); /* thumb slides to the right edge, same gap as the left at rest */
 }
 
 /* --- Inventory (components.md 13.7) --------------------------------------------------------------- */
@@ -1279,6 +1337,13 @@ body {
   text-align: center;
   background: #fff8ee; /* bg.paper (day) */
   color: #1a1a22; /* ink.900 */
+}
+
+/* V-41 (art gate F04-F06-visual-gate.md §8, components.md 13.4): 48px, centred above the title. */
+.speedlock-icon {
+  display: block;
+  width: 48px;
+  height: 48px;
 }
 
 .speedlock-title {

@@ -93,6 +93,10 @@ const CLIENT_CONFIG: ClientRuntimeConfig = {
     hpLowHoldDurationMs: 4000,
     screenLockNoticeHoldDurationMs: 4000,
   },
+  feedback: {
+    cueStaleAfter_ms: 2000,
+    safetyCueIds: ['run.death', 'run.autoRetreat', 'run.hpLow', 'anticheat.speedLock'],
+  },
   onboarding: { tutorialLineHoldDurationMs: 3000 },
   pocketScreen: { swipeUpHoldMinDuration_ms: 600, swipeUpMinDistanceRatio: 0.03 },
 };

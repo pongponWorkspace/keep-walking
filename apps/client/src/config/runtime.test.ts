@@ -49,6 +49,10 @@ function validClient(): Record<string, unknown> {
       hpLowHoldDurationMs: 4000,
       screenLockNoticeHoldDurationMs: 4000,
     },
+    feedback: {
+      cueStaleAfter_ms: 2000,
+      safetyCueIds: ['run.death', 'run.autoRetreat', 'run.hpLow', 'anticheat.speedLock'],
+    },
     onboarding: { tutorialLineHoldDurationMs: 3000 },
     pocketScreen: { swipeUpHoldMinDuration_ms: 600, swipeUpMinDistance_ratio: 0.03 },
   };
@@ -95,6 +99,22 @@ describe('parseClientConfig', () => {
       initialJsBudget_bytes: 1000000,
       mapLazyJsBudget_bytes: 2000000,
     });
+    expect(parsed.feedback).toEqual({
+      cueStaleAfter_ms: 2000,
+      safetyCueIds: ['run.death', 'run.autoRetreat', 'run.hpLow', 'anticheat.speedLock'],
+    });
+  });
+
+  it('fails loudly when feedback.cueStaleAfter_ms is missing (F06-TG-11)', () => {
+    const broken = validClient();
+    delete (broken['feedback'] as Record<string, unknown>)['cueStaleAfter_ms'];
+    expect(() => parseClientConfig(broken)).toThrow(/cueStaleAfter_ms/);
+  });
+
+  it('fails loudly when feedback.safetyCueIds is empty (F06-TG-11)', () => {
+    const broken = validClient();
+    (broken['feedback'] as Record<string, unknown>)['safetyCueIds'] = [];
+    expect(() => parseClientConfig(broken)).toThrow(/safetyCueIds/);
   });
 
   it('fails loudly when bundle.initialJsBudget_bytes is missing', () => {

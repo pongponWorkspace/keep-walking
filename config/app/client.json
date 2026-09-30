@@ -1,9 +1,9 @@
 {
   "_meta": {
     "file": "client.json",
-    "version": 3,
+    "version": 4,
     "owner": "tech-lead",
-    "task": "P1-H05; P2-F04-T25 added engine, storage, navigation, providerQuery.paramNames.start/seed; P2-F06-T08 added requestOrigins (C2-1)",
+    "task": "P1-H05; P2-F04-T25 added engine, storage, navigation, providerQuery.paramNames.start/seed; P2-F06-T08 added requestOrigins (C2-1); P2-X47 added feedback (F06-TG-11)",
     "doc": "docs/tech/F02-map-location-spike.md sections 3, 4, 8, 10.5, 11; docs/tech/F04-dungeon-presence.md sections 9, 10, 14, 17; ADR 0003 sections 3.2, 6, 8.4",
     "_note": "Runtime values of apps/client for the F02 spike (read by apps/client/src/config/runtime.ts). Build-time URLs stay in VITE_* env vars (tech note section 8), not here. Nothing in this file affects a reward; HUD numbers are spike measurements only. Keys starting with '_' are metadata: code skips them. null = not set yet: code must fail loudly. seeFile keys point at the single source of a value owned elsewhere."
   },
@@ -128,6 +128,13 @@
     "screenLockNoticeHoldDurationMs": 4000,
     "_note": "apps/client/src/ui/tick-toast.ts: tickHoldDurationMs is how long a granted/denied tick toast stays fully visible (after its own vfx enter animation, before the shared exitToast animation starts) — long enough to read a short Thai sentence at a glance per the flow's own 'อ่านจบได้ในแวบเดียว' rule without outlasting the next tick window. tickMaxIconsShown is flow F05 A1's literal cap ('ไม่เกิน 3 ชิ้นที่เห็นพร้อมกัน ที่เหลือดูในสรุป run'). hpLowHoldDurationMs is the same 'stays fully visible before exit' hold, just for `run.hpLow`'s own, much longer canon sentence ('HP ต่ำ กลับบ้าน ซื้อยา หาเพื่อนที่มี Support หรือไม่ก็เลิกดื้อ', a full clause list vs a tick toast's few words) — its own key rather than reusing tickHoldDurationMs so the two can be tuned independently. screenLockNoticeHoldDurationMs (F06 copy gate C6-03, flow F06 Flow E ข้อ E2) is `run.screenLockNotice`'s own auto-fade hold, read by apps/client/src/ui/pocket-screen.ts — it also hides immediately on `dungeon_exited` regardless of this timer.",
     "_assumption": "A-P2-F05-T10-1: 2200 ms is not tuned against a real device/field-walk pass yet (same caveat as A-P2-F04-T21-1); tickMaxIconsShown 3 matches the flow doc's own number exactly, not an assumption. Owner: gameplay-programmer, revisit tickHoldDurationMs with P2-C03/P2-F06-T12 field evidence. A-P2-F06-T08-2: hpLowHoldDurationMs 4000 ms is a proportional scale-up of tickHoldDurationMs (about 1.8x, roughly matching the ratio of sentence lengths) — not tuned against a real device/field-walk pass yet either. Owner: gameplay-programmer, revisit with P2-F06-T12/field evidence. A-P2-X41-1: screenLockNoticeHoldDurationMs set equal to hpLowHoldDurationMs (4000 ms) per flow F06 Flow E ข้อ E2's own proposal ('เสนอ 4000 ms เท่ากับ hpLowHoldDurationMs เพราะความสำคัญ/ความยาวใกล้เคียงกัน') — not tuned against a real device/field-walk pass yet. Owner: gameplay-programmer, revisit with P2-F06-T12/field evidence."
+  },
+  "feedback": {
+    "_source": "F06-TG-11 (docs/reviews/F06-tech-gate.md): apps/client/src/assets/audio.ts hardcoded DEFAULT_STALE_AFTER_MS and SAFETY_CUE_IDS as in-code literals copied from audio/cue-list.md sections 4.1/4.2 -- a UX/feedback value, not balance, but one that drifts silently from cue-list.md if sound-designer ever changes the safety-cue set or timing without also touching that source file. Moved here (P2-X47) so the two now have exactly one source.",
+    "cueStaleAfter_ms": 2000,
+    "safetyCueIds": ["run.death", "run.autoRetreat", "run.hpLow", "anticheat.speedLock"],
+    "_note": "apps/client/src/assets/audio.ts's cue-priority queue (audio/cue-list.md section 4): cueStaleAfter_ms is how long a non-safety cue may wait past its own event time before submitCue()/advanceQueue() drop it instead of playing it late. safetyCueIds (cue-list.md 4.1/4.2) never get dropped as stale regardless of how long they wait. Nothing calls audio.ts's submitCue() from production code yet (P2-F05-T10 lands the real caller) -- this is plumbing ahead of that build, same as audio.ts's own doc comment already says.",
+    "_assumption": "Unchanged by this move: cueStaleAfter_ms 2000 ms and the 4-id safetyCueIds set are audio.ts's original, already-reviewed values (F06-TG-11 raised only the drift risk of keeping them as in-code literals, not their actual numbers) -- not re-tuned by this task. Owner: gameplay-programmer, sound-designer."
   },
   "onboarding": {
     "_source": "P2-F06-T10 (GDD N-3 'บทเรียนเดียวของทั้งเกม', flow F06-hp-damage-onboarding.md A9/E1): `dungeon.confirmTutorialLine` overlays S-03-run briefly every run while `!firstRewardDone` — no flow doc gives an exact on-screen hold duration (same gap `toast.tickHoldDurationMs` above already documents for its own cues), so this reuses that value's own reasoning.",

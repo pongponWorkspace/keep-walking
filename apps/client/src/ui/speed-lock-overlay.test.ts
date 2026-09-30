@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mountSpeedLockOverlay } from './speed-lock-overlay';
 
 function deps(overrides: Partial<Parameters<typeof mountSpeedLockOverlay>[1]> = {}) {
@@ -8,6 +8,7 @@ function deps(overrides: Partial<Parameters<typeof mountSpeedLockOverlay>[1]> = 
     onExit: () => undefined,
     vibrate: () => undefined,
     vibrateOnEnterPattern_ms: 100,
+    iconGlyph: { setIconGlyph: vi.fn().mockResolvedValue(undefined) },
     ...overrides,
   };
 }
@@ -41,5 +42,20 @@ describe('mountSpeedLockOverlay — 13.4 / R21/R23 (never a primary/close button
     overlay.show(true);
     overlay.show(true);
     expect(count).toBe(1);
+  });
+
+  // V-41 (art gate F04-F06-visual-gate.md §8, components.md 13.4): a 48px icon.ui.speed-lock above
+  // the title, decorative (paired with the title/body text already on screen, S4).
+  it('renders icon.ui.speed-lock as ink.900, decorative alt text', () => {
+    const container = document.createElement('div');
+    const setIconGlyph = vi.fn().mockResolvedValue(undefined);
+    const overlay = mountSpeedLockOverlay(container, deps({ iconGlyph: { setIconGlyph } }));
+    overlay.show(true);
+    expect(overlay.root.querySelector('.speedlock-icon')).not.toBeNull();
+    expect(setIconGlyph).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      'icon.ui.speed-lock',
+      expect.objectContaining({ colorCss: '#1A1A22' }),
+    );
   });
 });

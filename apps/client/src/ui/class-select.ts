@@ -10,7 +10,7 @@
  */
 import { getCopyText } from '../copy/load';
 import { setIconImg } from '../assets/icon-dom';
-import type { AssetRuntime } from '../assets/icon-dom';
+import type { AssetRuntimeController } from '../assets/runtime';
 import type { PlayerClass } from '@keep-walking/shared/session';
 
 const CLASSES: readonly {
@@ -33,7 +33,7 @@ export interface ClassSelectSheet {
 export function mountClassSelect(
   container: HTMLElement,
   onChoose: (classId: PlayerClass) => void,
-  assets: AssetRuntime,
+  assets: AssetRuntimeController,
 ): ClassSelectSheet {
   const overlay = document.createElement('div');
   overlay.className = 'popup-overlay class-select-overlay';
@@ -52,13 +52,21 @@ export function mountClassSelect(
 
   const cards = document.createElement('div');
   cards.className = 'class-select-cards';
+  // V-40 (art gate F04-F06-visual-gate.md §8): `setIconImg` hides the badge when the manifest has
+  // not arrived yet at mount time — keep every badge element so `onManifestReady` below can set
+  // them again once it does, instead of leaving them hidden for the rest of the session.
+  const badges: { readonly img: HTMLImageElement; readonly id: string; readonly alt: string }[] =
+    [];
   for (const cls of CLASSES) {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'card class-select-card';
     const badge = document.createElement('img');
     badge.className = 'class-select-badge';
-    setIconImg(badge, assets, `badge.class.${cls.id}-48`, getCopyText(cls.nameKey));
+    const badgeId = `badge.class.${cls.id}-48`;
+    const badgeAlt = getCopyText(cls.nameKey);
+    setIconImg(badge, assets, badgeId, badgeAlt);
+    badges.push({ img: badge, id: badgeId, alt: badgeAlt });
     const name = document.createElement('div');
     name.className = 'class-select-name';
     name.textContent = getCopyText(cls.nameKey);
@@ -69,6 +77,9 @@ export function mountClassSelect(
     card.addEventListener('click', () => onChoose(cls.id));
     cards.append(card);
   }
+  assets.onManifestReady(() => {
+    for (const b of badges) setIconImg(b.img, assets, b.id, b.alt);
+  });
   popup.append(cards);
   container.append(overlay);
 

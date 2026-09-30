@@ -32,12 +32,47 @@ export function createWebGameClock(): GameClock {
  * `replayStart_ms` is normally "now" (a fresh mock run starts at the real current time) but can be
  * pinned by the `start` query test hook (`clock/query-params.ts`'s `resolveReplayStartMs`) to hit a
  * specific wall-clock scenario (closing time, midnight crossover) at any replay speed.
+ *
+ * DG6-05 (design gate F06 round 1, P2-X47): with `loop=1`, `provider.position()` is documented
+ * (`packages/location/src/mock/mock-provider.ts`'s own doc comment) to restart each lap at the
+ * trace's own `t=0`, clamped to a floor of 0 while its internal anchor is briefly negative during
+ * the inter-lap gap — a real, intentional reset of *trace position*, not a bug in that package (a
+ * trace's samples legitimately repeat every lap). But this function was adding that reset straight
+ * onto `replayStart_ms` every call, so `now()` itself jumped backward by about one lap's length at
+ * every loop boundary — and the session reducer's own `clockCheck` (`@keep-walking/shared/session`,
+ * `run/time.ts`) treats *any* backward jump of the `now_ms` it is fed as a real host-clock rollback,
+ * ending the run with `clock_invalid` purely as a replay artifact of looping, never because the
+ * *player's position* actually jumped (confirmed: `LocationSample.timestamp` from the provider's
+ * own `Clock`, produced independently in `packages/location`, keeps strictly increasing across a
+ * loop already — see that module's own doc comment "a loop lap ... shifts the base so timestamps
+ * stay strictly increasing" — so this was never a GPS position-jump bug, only this function
+ * mis-reading a per-lap position as if it were a monotonic elapsed-time counter).
+ *
+ * Fix (Mock only — `createWebGameClock` above is untouched): track every backward step
+ * `position()` takes and fold it into a running offset, so `now()` keeps counting forward through
+ * every loop boundary instead of resetting with it. `position()` itself, and the samples/timestamps
+ * `packages/location` emits, are unchanged — only this function's own derived `now()` no longer
+ * goes backward.
  */
 export function createMockGameClock(
   provider: MockLocationProvider,
   replayStart_ms: number,
 ): GameClock {
-  return { now: () => replayStart_ms + provider.position() };
+  // Carries forward the elapsed position of every completed lap once `position()` wraps back
+  // toward 0, so the sum below never decreases. `lastPosition_ms` starts at 0 (`position()`'s own
+  // documented floor), matching the provider's own state before its first `now()` call.
+  let lapOffset_ms = 0;
+  let lastPosition_ms = 0;
+  return {
+    now: () => {
+      const position_ms = provider.position();
+      if (position_ms < lastPosition_ms) {
+        lapOffset_ms += lastPosition_ms;
+      }
+      lastPosition_ms = position_ms;
+      return replayStart_ms + lapOffset_ms + position_ms;
+    },
+  };
 }
 
 /** Picks the right clock for whichever provider kind `createLocationProvider` returned

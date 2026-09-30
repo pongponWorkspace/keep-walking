@@ -343,6 +343,61 @@ describe('mountTickToast', () => {
     });
   });
 
+  describe('hideScreenLockNotice (N2-02, F06 copy gate)', () => {
+    it('calls hideScreenLockNotice once a new toast actually mounts', () => {
+      const container = document.createElement('div');
+      const { audio } = fakeAudio();
+      const hideScreenLockNotice = vi.fn();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+        hideScreenLockNotice,
+      });
+
+      toast.showGranted({ loot: [], firstEver: false, levelBefore: 1, levelAfter: 1, at_ms: 0 });
+
+      expect(hideScreenLockNotice).toHaveBeenCalledTimes(1);
+    });
+
+    it('never calls hideScreenLockNotice while the pocket overlay hides the toast (nothing visually overlaps)', () => {
+      const container = document.createElement('div');
+      const { audio } = fakeAudio();
+      const hideScreenLockNotice = vi.fn();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+        isPocketOverlayShowing: () => true,
+        hideScreenLockNotice,
+      });
+
+      toast.showDenied({ at_ms: 0 });
+
+      expect(hideScreenLockNotice).not.toHaveBeenCalled();
+    });
+
+    it('is optional: every existing caller/test with no pocket screen keeps working unchanged', () => {
+      const container = document.createElement('div');
+      const { audio } = fakeAudio();
+      const toast = mountTickToast(container, {
+        assets: NO_MANIFEST_ASSETS,
+        audio,
+        holdDurationMs: 1000,
+        maxIconsShown: 3,
+        hpLowHoldDurationMs: 3200,
+      });
+
+      expect(() =>
+        toast.showGranted({ loot: [], firstEver: false, levelBefore: 1, levelAfter: 1, at_ms: 0 }),
+      ).not.toThrow();
+    });
+  });
+
   it('an hp-low toast replaces a still-showing tick toast (one shared slot, F06-R16)', () => {
     const container = document.createElement('div');
     const { audio } = fakeAudio();

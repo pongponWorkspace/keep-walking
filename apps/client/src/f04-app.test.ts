@@ -31,6 +31,10 @@ describe('createF04App', () => {
         load: () => Promise.resolve(),
         getAvatarPart: () => undefined,
         loadAvatarPart: () => Promise.resolve(),
+        // V-40 (P2-X47): the manifest never arrives in this fixture either, so every
+        // `onManifestReady` callback simply never fires — same as production behaviour while a
+        // fetch is genuinely still in flight.
+        onManifestReady: () => undefined,
       },
       copyToClipboard: async () => true,
       playAudioUrl: () => undefined,

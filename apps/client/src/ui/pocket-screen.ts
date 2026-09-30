@@ -33,8 +33,11 @@ function hpPercent(hpRatio: number): number {
   return Math.max(0, Math.min(PERCENT_MULTIPLIER, Math.round(hpRatio * PERCENT_MULTIPLIER)));
 }
 
-const POCKET_WAKE_HINT_SHOWN_KEY = 'kw.p2.settings.pocketWakeHintShown';
-const SCREEN_LOCK_NOTICE_SHOWN_KEY = 'kw.p2.settings.screenLockNoticeShown';
+// Exported only for storage/storage-key-prefix.test.ts (R2-N3, tech gate F06 round 2): that test
+// must import the real constants, never re-typed literals, so a future rename here fails the test
+// instead of leaving it silently green.
+export const POCKET_WAKE_HINT_SHOWN_KEY = 'kw.p2.settings.pocketWakeHintShown';
+export const SCREEN_LOCK_NOTICE_SHOWN_KEY = 'kw.p2.settings.screenLockNoticeShown';
 const SHOWN_VALUE = '1';
 
 /** Already resolved to real px (`PocketScreenGestureConfig`, below, is the config-facing,
@@ -68,7 +71,9 @@ export function shouldTriggerPocketExit(
 /** `config: client.pocketScreen` as `config/runtime.ts#PocketScreenConfig` actually stores it: a
  * viewport-relative ratio, not a fixed px count (config-lint's 3.10.3 unit table has no `_px`
  * entry, and a ratio is the more correct choice for a real range of device screen sizes anyway) --
- * resolved to real px against `window.innerHeight` once, at mount time, below. */
+ * resolved to real px against `window.innerHeight` fresh at every `pointerdown` below (R2-N4,
+ * D-134: never cached once at mount time, so a viewport change between gestures — orientation,
+ * mobile browser chrome collapsing — never leaves a stale threshold for the rest of the run). */
 export interface PocketScreenGestureConfig {
   readonly swipeUpHoldMinDuration_ms: number;
   readonly swipeUpMinDistanceRatio: number;

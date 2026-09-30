@@ -65,3 +65,28 @@ export function formatOpenTime(changesAt_ms: number, now_ms: number, utcOffsetMi
   const weekdayName = getCopyText(weekdayKey);
   return formatCopyText('unit.onWeekday', { weekdayName, clockText });
 }
+
+const DAYS_SINCE_YESTERDAY = 1;
+const DAYS_SINCE_TODAY_OR_LATER = 0;
+
+/**
+ * The past-time counterpart of `formatOpenTime` (C6-07, F06 copy gate, flow F06 20.3): `pastMs` is
+ * an instant already in the past (`RunSummary.endedAt_ms`) rather than a future opening-hours
+ * change, so the day-diff direction flips (`now` minus `past`, not `past` minus `now`) and the
+ * middle bucket is `unit.yesterday` instead of `unit.tomorrow`. `dayDiff <= 0` (same local day, or a
+ * clock skew that puts `pastMs` in "the future" of today) still reads as `unit.today` — reuses every
+ * private helper above verbatim, no new export beyond this one function (flow F06 20.3 item 2).
+ */
+export function formatPastTime(pastMs: number, nowMs: number, utcOffsetMin: number): string {
+  const clockText = localClockText(pastMs, utcOffsetMin);
+  const dayDiff = localDayIndex(nowMs, utcOffsetMin) - localDayIndex(pastMs, utcOffsetMin);
+  if (dayDiff <= DAYS_SINCE_TODAY_OR_LATER) {
+    return formatCopyText('unit.today', { clockText });
+  }
+  if (dayDiff === DAYS_SINCE_YESTERDAY) {
+    return formatCopyText('unit.yesterday', { clockText });
+  }
+  const weekdayKey = WEEKDAY_KEYS[localWeekdayIndex(pastMs, utcOffsetMin)] ?? WEEKDAY_KEYS[0];
+  const weekdayName = getCopyText(weekdayKey);
+  return formatCopyText('unit.onWeekday', { weekdayName, clockText });
+}

@@ -36,8 +36,10 @@ export interface HomePanelDeps {
 export interface HomePanel {
   readonly root: HTMLElement;
   /** `undefined` (e.g. `near`, or masks not loaded yet) hides the whole panel — the caller keeps
-   * showing the plain `nav-panel`/map instead. */
-  render(state: HomeState | undefined, now_ms: number): void;
+   * showing the plain `nav-panel`/map instead. `approximate` (C6-06, components.md 13.8): the same
+   * "latest GPS accuracy worse than `homeState.maxAccuracy_m`" flag `renderNearbyNav` already
+   * computes for `nav-panel.ts#setDistance` — only read for `far`/`outside_launch_district`. */
+  render(state: HomeState | undefined, now_ms: number, approximate: boolean): void;
   hide(): void;
   /** `home.recentRunsShortcut`'s own detail text (F06 flow section 7.0's "run ที่ผ่านมา" — a short
    * one-line peek at `RunSummary`, never a second confirm/ack screen): the caller (which already
@@ -83,6 +85,18 @@ export function mountHomePanel(container: HTMLElement, deps: HomePanelDeps): Hom
 
   const title = el('div', 'home-panel-title');
   const body = el('div', 'home-panel-body');
+  // C6-06 (F06 copy gate, P2-H51/P2-X47, components.md 13.8): the straight-line distance chip for
+  // `far`/`outside_launch_district`, on its own new line right after `body` (never fused into the
+  // mid-sentence `{distanceText}` of `home.farBody` itself — `copy/format.ts` cannot splice a DOM
+  // element mid-string) — same two-span shape `nav-panel.ts#setDistance` already renders.
+  const distanceLine = el('div', 'home-panel-distance-line');
+  distanceLine.hidden = true;
+  const distanceChip = document.createElement('span');
+  distanceChip.className = 'chip-distance';
+  const distanceTag = document.createElement('span');
+  distanceTag.className = 'chip-distance-tag';
+  distanceTag.textContent = getCopyText('nav.straightLineTag');
+  distanceLine.append(distanceChip, distanceTag);
   const nextOpenLine = el('div', 'home-panel-next-open');
   nextOpenLine.hidden = true;
   const registerCard = el('div', 'home-panel-register-card');
@@ -95,7 +109,7 @@ export function mountHomePanel(container: HTMLElement, deps: HomePanelDeps): Hom
   const primaryCta = document.createElement('button');
   primaryCta.className = 'btn btn-primary home-primary-cta';
 
-  root.append(shortcuts, title, body, nextOpenLine, registerCard, primaryCta);
+  root.append(shortcuts, title, body, distanceLine, nextOpenLine, registerCard, primaryCta);
   container.append(root);
 
   return {
@@ -106,7 +120,7 @@ export function mountHomePanel(container: HTMLElement, deps: HomePanelDeps): Hom
     setRecentRunDetail(text) {
       recentRunsDetail.textContent = text;
     },
-    render(state, now_ms) {
+    render(state, now_ms, approximate) {
       if (state === undefined || state.kind === 'near') {
         root.hidden = true;
         return;
@@ -116,12 +130,13 @@ export function mountHomePanel(container: HTMLElement, deps: HomePanelDeps): Hom
         void deps.assets.loadAvatarPart().catch(() => undefined);
       }
       root.hidden = false;
-      renderState(state, now_ms);
+      renderState(state, now_ms, approximate);
     },
   };
 
-  function renderState(state: HomeState, now_ms: number): void {
+  function renderState(state: HomeState, now_ms: number, approximate: boolean): void {
     nextOpenLine.hidden = true;
+    distanceLine.hidden = true;
     registerCard.hidden = true;
     primaryCta.hidden = true;
     primaryCta.onclick = null;
@@ -174,9 +189,15 @@ export function mountHomePanel(container: HTMLElement, deps: HomePanelDeps): Hom
     if (state.kind === 'near') return; // unreachable: the caller's render() never gets here (guard above)
     // far / outside_launch_district
     title.textContent = getCopyText('home.farTitle');
-    body.textContent = formatCopyText('home.farBody', {
-      distanceText: formatDistanceText(state.distance_m, deps.distanceDisplaySteps_m),
-    });
+    const distanceText = formatDistanceText(state.distance_m, deps.distanceDisplaySteps_m);
+    body.textContent = formatCopyText('home.farBody', { distanceText });
+    // C6-06 (components.md 13.8): the only two kinds `home.farBody` renders for, so the only two
+    // kinds that get the chip line — `nav.straightLineTag` always shown, the number itself switches
+    // to `nav.distanceApprox` under low accuracy, same rule `nav-panel.ts#setDistance` already uses.
+    distanceLine.hidden = false;
+    distanceChip.textContent = approximate
+      ? formatCopyText('nav.distanceApprox', { distanceText })
+      : distanceText;
     if (state.kind === 'outside_launch_district') {
       registerCard.hidden = false;
       registerTitle.textContent = getCopyText('home.outsideLaunchTitle');

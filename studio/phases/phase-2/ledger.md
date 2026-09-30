@@ -220,3 +220,5 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 205 | W20 | P2-X53 | gameplay-programmer | — | 14:41:37 | DONE — popup ยืนยันแสดง HP + โน้ต/badge · .finally · root vitest 3086 · W21 dispatch H58 |
 | 206 | W21 | P2-H58 | qa-tester | — | 15:05:48 | DONE — หลักฐาน DG6-01 ครบ · ภาพ 09b/12 ครบเกณฑ์ · dispatch T24 รอบ 2 |
 | 207 | W21 | P2-F06-T24 | game-director | — | 15:07:13 | PASS (รอบ 2) — F06 ผ่าน tech/copy/QA/visual/design · W22 dispatch T25 product gate + X47 |
+| 208 | W22 | P2-F06-T25 | product-manager | — | 15:11:04 | PASS — gate ทั้งหมดของ F04–F06 ผ่านครบ |
+| 209 | W22 | P2-X47 | gameplay-programmer | — | 15:50:54 | DONE — DG6-05 เป็น timestamp ถอยหลังของ Mock clock (แก้แล้ว ไม่ต้องกลับ GD) · polish ครบ · สี confirm-hp-note → backlog |

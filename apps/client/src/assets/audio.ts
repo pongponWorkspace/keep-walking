@@ -12,16 +12,17 @@
  * task) would own the real playback; today's client has no reward-tick UI yet to drive it from
  * (P2-F05-T10), so nothing calls `submit` in production code yet — this lands the contract ahead
  * of that build (handoff, this task's REPORT).
+ *
+ * `SAFETY_CUE_IDS`/`DEFAULT_STALE_AFTER_MS` (F06-TG-11, P2-X47) source from
+ * `config/app/client.json#feedback` (`config/runtime.ts#FeedbackConfig`) rather than an in-code
+ * literal copy of `audio/cue-list.md` 4.1/4.2's own numbers, so the two cannot drift apart silently
+ * when sound-designer changes the cue list.
  */
+import { clientConfig } from '../config/runtime';
 
-export const SAFETY_CUE_IDS: ReadonlySet<string> = new Set([
-  'run.death',
-  'run.autoRetreat',
-  'run.hpLow',
-  'anticheat.speedLock',
-]);
+export const SAFETY_CUE_IDS: ReadonlySet<string> = new Set(clientConfig.feedback.safetyCueIds);
 
-export const DEFAULT_STALE_AFTER_MS = 2000;
+export const DEFAULT_STALE_AFTER_MS = clientConfig.feedback.cueStaleAfter_ms;
 
 export interface CueRequest {
   readonly cueId: string;

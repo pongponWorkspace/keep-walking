@@ -40,4 +40,48 @@ describe('createAssetRuntime', () => {
     await runtime.loadAvatarPart();
     expect(runtime.getAvatarPart()).toBeUndefined();
   });
+
+  describe('onManifestReady (V-40)', () => {
+    it('runs the callback once load() settles when registered before it', async () => {
+      const runtime = createAssetRuntime(fakeFetch(MANIFEST, PART), 1, 'dev');
+      let called = 0;
+      runtime.onManifestReady(() => {
+        called += 1;
+      });
+      expect(called).toBe(0);
+      await runtime.load();
+      expect(called).toBe(1);
+    });
+
+    it('runs the callback immediately (synchronously) when the manifest already settled', async () => {
+      const runtime = createAssetRuntime(fakeFetch(MANIFEST, PART), 1, 'dev');
+      await runtime.load();
+      let called = 0;
+      runtime.onManifestReady(() => {
+        called += 1;
+      });
+      expect(called).toBe(1);
+    });
+
+    it('still runs after a failed fetch (load() never throws, manifest stays undefined)', async () => {
+      const failingFetch = (() => Promise.reject(new Error('network'))) as unknown as typeof fetch;
+      const runtime = createAssetRuntime(failingFetch, 1, 'dev');
+      let called = 0;
+      runtime.onManifestReady(() => {
+        called += 1;
+      });
+      await runtime.load();
+      expect(called).toBe(1);
+      expect(runtime.getManifest()).toBeUndefined();
+    });
+
+    it('supports more than one registered callback, each running exactly once', async () => {
+      const runtime = createAssetRuntime(fakeFetch(MANIFEST, PART), 1, 'dev');
+      const calls: string[] = [];
+      runtime.onManifestReady(() => calls.push('a'));
+      runtime.onManifestReady(() => calls.push('b'));
+      await runtime.load();
+      expect(calls).toEqual(['a', 'b']);
+    });
+  });
 });

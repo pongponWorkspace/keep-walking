@@ -25,9 +25,7 @@
  * is the same shape as the other in-place action already on this screen) — the actual `Blob`/anchor
  * download lives in `telemetry/download.ts`, called from `deps.onExport()` so this module stays
  * pure DOM glue with no telemetry-sink import of its own (same separation `onClearLocalDataConfirmed`
- * already uses). Copy key `settings.exportLink` does not exist in `copy.th.json` yet — this task's
- * REPORT hands off the proposed wording to narrative-designer; `getCopyText`'s own documented
- * fallback (the raw key) keeps the row honestly labelled in the meantime (TL-N06).
+ * already uses). Copy key `settings.exportLink` (P2-X51: "ส่งออกบันทึกการเล่น") is in `copy.th.json`.
  */
 import { getCopyText } from '../copy/load';
 

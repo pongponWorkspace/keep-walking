@@ -6,12 +6,18 @@
  */
 import { getCopyText } from '../copy/load';
 import { speedLockButtons } from './run-state-view';
+import { speedLockIconTone, NIGHT_BACKING_PLATE_COLOR_CSS } from './icon-tone';
+import type { IconGlyphRenderer } from '../assets/icon-glyph';
 
 export interface SpeedLockOverlayDeps {
   readonly onSettings: () => void;
   readonly onExit: () => void;
   readonly vibrate: (pattern_ms: number) => void;
   readonly vibrateOnEnterPattern_ms: number;
+  /** `setIconGlyph` (V-41, art gate F04-F06-visual-gate.md §8, components.md 13.4): renders
+   * `icon.ui.speed-lock` 48px above the title — decorative (`aria-hidden`), since the title/body
+   * text already carries the meaning (style-guide S4). */
+  readonly iconGlyph: IconGlyphRenderer;
 }
 
 export interface SpeedLockOverlay {
@@ -27,6 +33,8 @@ export function mountSpeedLockOverlay(
   const overlay = document.createElement('div');
   overlay.className = 'overlay-speedlock';
   overlay.hidden = true;
+  const icon = document.createElement('span');
+  icon.className = 'speedlock-icon';
   const title = document.createElement('div');
   title.className = 'speedlock-title';
   title.textContent = getCopyText('anticheat.speedLockTitle');
@@ -35,7 +43,7 @@ export function mountSpeedLockOverlay(
   body.textContent = getCopyText('anticheat.speedLockBody');
   const buttonRow = document.createElement('div');
   buttonRow.className = 'speedlock-buttons';
-  overlay.append(title, body, buttonRow);
+  overlay.append(icon, title, body, buttonRow);
   container.append(overlay);
 
   let wasHidden = true;
@@ -48,6 +56,13 @@ export function mountSpeedLockOverlay(
       }
       wasHidden = false;
       overlay.hidden = false;
+      const tone = speedLockIconTone();
+      void deps.iconGlyph.setIconGlyph(icon, tone.id, {
+        altText: getCopyText('anticheat.speedLockTitle'),
+        colorCss: tone.colorCss,
+        onNightBackground: false,
+        nightPlateColorCss: NIGHT_BACKING_PLATE_COLOR_CSS,
+      });
       buttonRow.innerHTML = '';
       for (const kind of speedLockButtons(hasRun)) {
         const button = document.createElement('button');

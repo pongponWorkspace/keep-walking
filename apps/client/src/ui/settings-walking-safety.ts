@@ -85,6 +85,12 @@ export function mountSettingsWalkingSafety(
   // F06 copy gate C6-08: a screen reader announcing this button on its own ("ปุ่ม กดอยู่", no name)
   // now reads the row's own label instead — no new copy key, just wiring the existing text.
   autoRetreatToggle.setAttribute('aria-labelledby', autoRetreatLabel.id);
+  // V-42 (art gate F04-F06-visual-gate.md §7.7, components.md 9.1): the visible 56x32 track + 24px
+  // thumb live on this inner span so the button itself can stay a transparent 48x48 touch target
+  // (components.md 9.1's own "padding โปร่งรอบนอก") without stretching the painted shape.
+  const autoRetreatTrack = document.createElement('span');
+  autoRetreatTrack.className = 'toggle-track';
+  autoRetreatToggle.append(autoRetreatTrack);
   autoRetreatRow.append(autoRetreatLabel, autoRetreatHint, autoRetreatToggle);
 
   // --- Off-confirm popup (single layer, K-9: NEEDS_CHANGES round accepted one popup for Phase 2) ---
@@ -139,6 +145,10 @@ export function mountSettingsWalkingSafety(
   pocketToggle.className = 'toggle settings-pocket-screen-toggle';
   // F06 copy gate C6-08 (same fix as the auto-retreat toggle above).
   pocketToggle.setAttribute('aria-labelledby', pocketLabel.id);
+  // V-42 (same track/thumb shape as the auto-retreat toggle above).
+  const pocketTrack = document.createElement('span');
+  pocketTrack.className = 'toggle-track';
+  pocketToggle.append(pocketTrack);
   pocketRow.append(pocketLabel, pocketHint, pocketToggle);
 
   function renderPocketToggle(): void {

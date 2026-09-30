@@ -66,6 +66,14 @@ export interface TickToastDeps {
    * caller/test that has no pocket screen at all keeps behaving exactly as before (defaults to
    * "never showing"). */
   readonly isPocketOverlayShowing?: () => boolean;
+  /** N2-02 (F06 copy gate, P2-X47): `pocket-screen.ts#hideFallbackNotice` — this module's one
+   * `.toast` slot and Path B's `run.screenLockNotice` toast are two separate DOM elements sharing
+   * the same on-screen spot, so a tick toast that fires inside `run.screenLockNotice`'s own
+   * `screenLockNoticeHoldDurationMs` window (only possible in the first run ever, first few
+   * seconds) would visually overlap it otherwise. Called once per new toast, right before it
+   * mounts — a no-op when the notice is not showing, and optional so every pre-existing caller/test
+   * with no pocket screen at all keeps behaving exactly as before. */
+  readonly hideScreenLockNotice?: () => void;
 }
 
 export interface TickToast {
@@ -123,6 +131,9 @@ export function mountTickToast(container: HTMLElement, deps: TickToastDeps): Tic
 
   function mount(faded: boolean): HTMLElement {
     clearCurrent();
+    // N2-02: this toast is about to occupy the one on-screen toast spot — Path B's
+    // `run.screenLockNotice` (a different element, `pocket-screen.ts`) never shares it.
+    deps.hideScreenLockNotice?.();
     const el = document.createElement('div');
     el.className = faded ? 'toast faded' : 'toast';
     container.append(el);
