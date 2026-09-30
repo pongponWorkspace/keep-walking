@@ -43,6 +43,7 @@ import type { DropContext } from '../formulas';
 import {
   gateAccumulatorCloseThrough,
   gateAccumulatorInit,
+  gateAccumulatorResume,
   gateAccumulatorStep,
   lootTable,
   parseDropTable,
@@ -742,7 +743,13 @@ function feedScratch(
     if (run.rewardScratch === null) return { run, player };
     return { run: { ...run, rewardScratch: null, scratchClosed: [] }, player };
   }
-  const base = run.rewardScratch ?? gateAccumulatorInit();
+  // P2-H57 fix: seed a fresh scratch from `main`'s own paused `k`/`distance_m` (F05 3.5, section 2
+  // R03), not a brand-new window 0 — `main` may already be mid- or past- window 0 by the time this
+  // pending set starts.
+  // P2-H57 fix: seed a fresh scratch from `main`'s own paused `k`/`distance_m` (F05 3.5, section 2
+  // R03), not a brand-new window 0 — `main` may already be mid- or past- window 0 by the time this
+  // pending set starts.
+  const base = run.rewardScratch ?? gateAccumulatorResume(run.reward);
   const tau_ms = run.clock.closedSum_ms + (sample.t_ms - since_ms);
   const step = gateAccumulatorStep(base, { sample, tau_ms, countable: insideRun }, gp);
   const fed: RunState = {

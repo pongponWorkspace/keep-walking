@@ -101,9 +101,10 @@ async function replay(trace: GpsTrace, speed: 1 | 10 | 60): Promise<Replay> {
 describe('Mock trace replay: every synthetic trace (speed x60, fake clock)', () => {
   const ids = syntheticTraceIds();
 
-  // 14 = the 13 P1-F02-T04 traces + synthetic-tick-denied-leelawadee-01 (P2-H52).
-  it('finds all 14 synthetic traces and each passes validateTrace', () => {
-    expect(ids).toHaveLength(14);
+  // 16 = the 13 P1-F02-T04 traces + synthetic-tick-denied-leelawadee-01 (P2-H52)
+  // + synthetic-suspended-leelawadee-01 and synthetic-hp-low-leelawadee-01 (P2-H57).
+  it('finds all 16 synthetic traces and each passes validateTrace', () => {
+    expect(ids).toHaveLength(16);
     for (const id of ids) expect(() => readTrace(id)).not.toThrow();
   });
 

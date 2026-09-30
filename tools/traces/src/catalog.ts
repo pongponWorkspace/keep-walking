@@ -8,6 +8,7 @@ import { permissionDeniedScenario, screenLockScenario, warmupScenario } from './
 import { driftSpikeScenario, parkLoopScenario } from './scenarios/park';
 import { benchJitterScenario, boundaryScenario, tableStillScenario } from './scenarios/still';
 import { drivingScenario, soiOccludedScenario } from './scenarios/street';
+import { hpLowScenario, suspendedScenario } from './scenarios/screenshot-runs';
 import { tickDeniedScenario } from './scenarios/tick-denied';
 import type { Mark, ScenarioDef } from './scenarios/types';
 
@@ -26,6 +27,8 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   permissionDeniedScenario,
   warmupScenario,
   tickDeniedScenario,
+  suspendedScenario,
+  hpLowScenario,
 ];
 
 export interface Generated {

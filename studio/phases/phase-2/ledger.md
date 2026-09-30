@@ -212,3 +212,9 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 197 | W19 | P2-X52 | gameplay-programmer | — | 13:36:01 | DONE — R2-1..R2-5 + V-44/V-46 · e2e 96/96 · W20 dispatch H55 (ถ่ายใหม่ §7.9) |
 | 198 | W20 | P2-H55 | qa-tester | — | 14:03:34 | DONE — ภาพรอบ 3 ครบยกเว้น 09b · 12-hp-low margin สั้น ให้ art-director ตัดสิน · → H57 location, loop bug → X47 · dispatch T23 รอบ 3 + H57 |
 | 199 | W20 | P2-F06-T23 | art-director | — | 14:06:04 | PASS (รอบ 3 ตาม D-140) — gate F06 ผ่าน tech/copy/QA/visual แล้ว · dispatch T24 design gate |
+| 200 | W20 | P2-F06-T24 | game-director | — | 14:13:39 | NEEDS_CHANGES (รอบ 1) — DG6-01 popup ยืนยันขาดข้อมูล HP → X53 gameplay + H58 qa · D-142/D-143 · ไม่บล็อก → H59, H60, X47 |
+| 201 | W20 | P2-H57 | location-engineer | — | 14:14:24 | DONE — trace suspended + hp-low · พบบั๊กที่สงสัยใน engine (tick denied ซ้ำ tickIndex 0) → X54 backend (บล็อก playtest) · ภาพ 09b/12 → H58 |
+| 202 | W20 | P2-H59 | level-designer | — | 14:14:51 | DONE — เอกสารเดินทีมตรง D-143 |
+| 203 | W20 | P2-H60 | product-manager | — | 14:17:21 | DONE — แบบสอบถาม/แผนวิเคราะห์ตาม D-143 · ฟอร์มผู้สังเกต → H58 |
+| 204 | W20 | P2-X54 | backend-programmer | — | 14:23:56 | DONE — บั๊ก engine ยืนยันและแก้แล้ว (scratch accumulator ต่อหน้าต่างของ main) · regression test · vector ไม่เปลี่ยน · privacy-copy แดงจาก X53 ระหว่างทำ (Thai literal ใน dungeon-confirm.test.ts) แจ้ง X53 แล้ว |
+| 205 | W20 | P2-X53 | gameplay-programmer | — | 14:41:37 | DONE — popup ยืนยันแสดง HP + โน้ต/badge · .finally · root vitest 3086 · W21 dispatch H58 |

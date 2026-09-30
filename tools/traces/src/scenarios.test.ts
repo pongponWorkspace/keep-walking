@@ -9,6 +9,10 @@ import { haversine_m } from './geo';
 import { MS_PER_S, gateWindows, toKmh, traceStats } from './metrics';
 import { insideTestRect } from './places';
 import { outsideRuns } from './stats';
+import { readFileSync } from 'node:fs';
+import type { PolygonGeometry } from '@keep-walking/geo';
+import { boundaryDistance_m, pointInPolygon } from '@keep-walking/geo';
+import { REPO_ROOT } from './config';
 
 const cfg = loadTraceConfig();
 const traces = new Map(generateAll(cfg).map((g) => [g.def.id, g] as const));
@@ -254,5 +258,78 @@ describe('weak signal and provider-event traces', () => {
     expect(s.accuracy).toBe(cfg.checkInMaxAccuracy_m);
     expect(prev.accuracy).toBeGreaterThan(cfg.checkInMaxAccuracy_m);
     expect(t.samples.filter((x) => x.t > 60 * MS_PER_S).every((x) => x.accuracy < 10)).toBe(true);
+  });
+});
+
+// P2-H57: both traces use the real `leelawadee-lawn` polygon from the committed client artifact.
+// The run-state outcome itself (Grace -> Suspended -> Active, HP band before auto-retreat) is
+// proven by the sessionStep replay recorded in data/gps-traces/README.md section 7; this block
+// pins the geometry that replay depends on.
+describe('real-dungeon screenshot traces (leelawadee-lawn)', () => {
+  const artifact = JSON.parse(
+    readFileSync(`${REPO_ROOT}data/dungeons/artifact/dungeons.client.v1.json`, 'utf8'),
+  ) as { dungeons: { id: string; geometry: PolygonGeometry }[] };
+  const polygon = artifact.dungeons.find((d) => d.id === 'leelawadee-lawn')?.geometry;
+  if (polygon === undefined) throw new Error('leelawadee-lawn missing from the artifact');
+  const inside = (s: TraceSample) => pointInPolygon(s, polygon);
+  const dist = (s: TraceSample) => boundaryDistance_m(s, polygon);
+
+  /** Runs of consecutive fixes on one side of the real polygon: [side, start_s, length_s]. */
+  function sideRuns(samples: readonly TraceSample[]) {
+    const runs: { inside: boolean; start_s: number; length_s: number; from: number; to: number }[] =
+      [];
+    samples.forEach((s, i) => {
+      const last = runs.at(-1);
+      if (last !== undefined && last.inside === inside(s)) {
+        last.length_s = (s.t - (samples[last.from] as TraceSample).t) / MS_PER_S;
+        last.to = i;
+      } else runs.push({ inside: inside(s), start_s: s.t / MS_PER_S, length_s: 0, from: i, to: i });
+    });
+    return runs;
+  }
+
+  it('suspended: one clean exit longer than graceMax_s and shorter than suspendedMax_s, then back in', () => {
+    const t = get('synthetic-suspended-leelawadee-01');
+    const runs = sideRuns(t.samples);
+    const sides = runs.map((r) => (r.inside ? 'in' : 'out')).join(' ');
+    const exit = runs[2];
+    if (exit === undefined) throw new Error(`unexpected side runs: ${sides}`);
+    const id = 'synthetic-suspended-leelawadee-01';
+    const between = (a: number, b: number) => t.samples.filter((x) => x.t >= a && x.t < b);
+    const waitOut = between(markT(id, 'รอนอกขอบ'), markT(id, 'เดินกลับเข้า'));
+    const loops = [
+      ...between(markT(id, 'ถึงกลาง'), markT(id, 'เดินออก')),
+      ...between(markT(id, 'กลับถึงข้างใน'), Number.POSITIVE_INFINITY),
+    ];
+    const minOut = Math.min(...waitOut.map(dist));
+    const minIn = Math.min(...loops.map(dist));
+    row(
+      'synthetic-suspended-leelawadee-01',
+      `ลำดับ out in out in, ออกนอกต่อเนื่อง > ${cfg.graceMax_s} และ < ${cfg.suspendedMax_s} วิ`,
+      `${sides}, นอก ${exit.length_s} วิ (เริ่ม ${exit.start_s}), ช่วงรอนอกห่างขอบ >= ${minOut.toFixed(1)} ม., ช่วงเดินวนข้างในห่างขอบ >= ${minIn.toFixed(1)} ม.`,
+    );
+    expect(sides).toBe('out in out in');
+    expect(exit.length_s).toBeGreaterThan(cfg.graceMax_s);
+    expect(exit.length_s).toBeLessThan(cfg.suspendedMax_s);
+    expect(waitOut.every((x) => !inside(x))).toBe(true);
+    expect(loops.every(inside)).toBe(true);
+  });
+
+  it('hp-low: walks in once and never leaves; no gap, long enough for the HP band replay', () => {
+    const t = get('synthetic-hp-low-leelawadee-01');
+    const runs = sideRuns(t.samples);
+    const sides = runs.map((r) => (r.inside ? 'in' : 'out')).join(' ');
+    const inRun = runs[1];
+    if (inRun === undefined) throw new Error(`unexpected side runs: ${sides}`);
+    const loop = t.samples.filter((x) => x.t >= markT('synthetic-hp-low-leelawadee-01', 'ถึงกลาง'));
+    const minIn = Math.min(...loop.map(dist));
+    const stats = traceStats(t);
+    row(
+      'synthetic-hp-low-leelawadee-01',
+      'เดินเข้าครั้งเดียว ไม่ออกอีก ไม่มี gap',
+      `${sides}, ข้างใน ${inRun.length_s} วิ (เริ่ม ${inRun.start_s}), ช่วงเดินวนห่างขอบ >= ${minIn.toFixed(1)} ม., ${t.samples.length} fix`,
+    );
+    expect(sides).toBe('out in');
+    expect(stats.maxGap_s).toBeLessThanOrEqual(cfg.gateFilter.maxSamplePairGap_s);
   });
 });

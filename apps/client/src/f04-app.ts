@@ -1008,6 +1008,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     }
     if (confirmPopupDungeonId !== undefined) {
       const livePreview = engine.previewCheckIn(confirmPopupDungeonId, now_ms);
+      const playerView = selectPlayerView(state, now_ms, params);
       // D-120 table 1.3: override the status row with the real `confirm` rejection
       // (`selectCheckInPreview` never returns `no_class`/`no_hp` itself) for exactly as long as
       // the underlying condition still holds — checked fresh here every render, not a timeout.
@@ -1015,8 +1016,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         confirmRejectOverride !== undefined &&
         confirmRejectOverride.dungeonId === confirmPopupDungeonId &&
         (confirmRejectOverride.reason === 'no_class'
-          ? selectPlayerView(state, now_ms, params).classId === null
-          : selectPlayerView(state, now_ms, params).hp <= 0);
+          ? playerView.classId === null
+          : playerView.hp <= 0);
       if (confirmRejectOverride !== undefined && !overrideStillActive) {
         confirmRejectOverride = undefined;
       }
@@ -1044,7 +1045,22 @@ export function createF04App(deps: F04AppDeps): F04App {
               ),
             })
           : undefined;
-      confirmPopup.update(preview, outOfRange, false, closingSoonTimeLeftText);
+      // DG6-01 (F06-R05, flow C9/C10): the popup's own HP row/note/badge — `lowHp` mirrors
+      // `selectRunView`'s own `belowWarningLine` shape (a plain threshold comparison against the
+      // selector's already-computed `hp`/`maxHp`, never a client-decided reward/gate outcome).
+      const autoRetreatThresholdPct = params.config.hpSafety.autoRetreatThreshold_pct;
+      const lowHp = playerView.hp <= (playerView.maxHp * autoRetreatThresholdPct) / 100;
+      confirmPopup.update(
+        preview,
+        outOfRange,
+        false,
+        {
+          hpRatio: playerView.hpRatio,
+          lowHp,
+          autoRetreatEnabled: playerView.autoRetreatEnabled,
+        },
+        closingSoonTimeLeftText,
+      );
     }
     return true;
   }
@@ -1282,7 +1298,11 @@ export function createF04App(deps: F04AppDeps): F04App {
         }
         exitAnimationInFlight = true;
         audioPlayer.submit('run.autoRetreat', event.at_ms);
-        void play('run.autoRetreat', runBar.root).then(() => {
+        // DG6-03: `.finally`, not `.then` — an unregistered effect id rejects `play()`'s promise
+        // (`art/vfx/core/vfx.ts#play`), and a bare `.then(onFulfilled)` would then never run this
+        // callback at all, leaving the player stuck on the run screen after a run that already
+        // ended. `.finally` runs the summary open regardless of resolve/reject.
+        void play('run.autoRetreat', runBar.root).finally(() => {
           exitAnimationInFlight = false;
           render(engine.getState(), event.at_ms);
         });
@@ -1306,7 +1326,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         hpBar.hardCutEdge();
         // `run.death`'s own effect (hp-critical.ts) hard-cuts `.hp-fill` to 0 and grayscales it —
         // the same element `hpBar.fillElement` exposes, never a second/duplicate DOM node.
-        void play('run.death', hpBar.fillElement).then(() => {
+        // DG6-03: `.finally`, not `.then` — see the `run.autoRetreat` branch above for why.
+        void play('run.death', hpBar.fillElement).finally(() => {
           exitAnimationInFlight = false;
           render(engine.getState(), event.at_ms);
         });

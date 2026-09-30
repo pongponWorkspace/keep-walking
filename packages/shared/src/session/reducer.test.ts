@@ -372,6 +372,64 @@ describe('sessionStep: F05 3.5 scratch accumulator replays a backdated return (P
   });
 });
 
+describe('sessionStep: F05 3.5 scratch resume after a granted tick (P2-H57 regression)', () => {
+  it('does not re-close and deny window 0 on a backdated return once window 0 already granted', () => {
+    const params = testParams();
+    let state = enterRun(params, 5).state;
+
+    // Walk continuously past the first 300 s window (tau 300000 ms) so it closes and grants tick
+    // #0, then keep walking a bit further into window 1 (tau up to 330000 ms) before leaving: by
+    // the time the run leaves, `run.reward.k` is 1, not 0 (P2-H57's actual trigger — the P2-X10
+    // test above never got past window 0, so it could not catch this).
+    const t0 = WARMUP_MS + 5000;
+    let r = feed(state, params, walkSamples(t0, 66)); // tau 5000..330000 ms
+    state = r.state;
+    const grantedBeforeLeaving = r.events.filter((e) => e.type === 'run_tick_granted');
+    const deniedBeforeLeaving = r.events.filter((e) => e.type === 'run_tick_denied');
+    expect(grantedBeforeLeaving).toHaveLength(1);
+    expect(grantedBeforeLeaving[0]).toMatchObject({ tickIndex: 0 });
+    expect(deniedBeforeLeaving).toHaveLength(0);
+    expect(state.run?.reward.k).toBe(1);
+    const grantedCountBeforeLeaving = state.run?.grantedCount;
+
+    // Leave far enough, twice, to confirm Grace at the first outside sample (backdated), same
+    // shape as the P2-X10 test above but starting from window 1 instead of window 0.
+    const lastWalkAt_ms = t0 + 65 * 5000; // 340000
+    const OUTSIDE = { lat: 13.76, lng: 100.5015 };
+    const exitAt_ms = lastWalkAt_ms + 5000; // 345000: tau at exit = 335000 ms (mid window 1)
+    r = feed(state, params, [
+      { t_ms: exitAt_ms, ...OUTSIDE, accuracy_m: 6 },
+      { t_ms: exitAt_ms + 5000, ...OUTSIDE, accuracy_m: 6 },
+    ]);
+    state = r.state;
+    expect(state.run?.status).toBe('grace');
+    expect(state.run?.exitStartedAt_ms).toBe(exitAt_ms);
+
+    // Return: two inside fixes ~55 m apart (under the speed lock), confirming Active backdated to
+    // the first. This is exactly the sequence P2-H57 reported: replaying it through a scratch
+    // accumulator that resets to window 0 spuriously re-closes and denies the already-granted tick.
+    const A = { lat: 13.7515, lng: 100.5015 };
+    const B = { lat: 13.752, lng: 100.5015 };
+    const returnAt_ms = exitAt_ms + 15000; // 360000
+    r = feed(state, params, [
+      { t_ms: returnAt_ms, ...A, accuracy_m: 6 },
+      { t_ms: returnAt_ms + 9000, ...B, accuracy_m: 6 },
+    ]);
+    state = r.state;
+
+    expect(state.run?.status).toBe('active');
+    // The actual bug: a `run_tick_denied` with `tickIndex: 0` fired here even though tick #0 was
+    // already granted above (P2-H57 report: "ตอนกลับเข้า ... reducer ส่ง run_tick_denied ที่มี
+    // tickIndex 0 ซ้ำกับ #0 ที่ได้ไปแล้ว").
+    expect(r.events).not.toContainEqual(expect.objectContaining({ type: 'run_tick_denied' }));
+    expect(r.events.filter((e) => e.type === 'run_tick_granted')).toHaveLength(0);
+    // grantedCount must not move backwards or replay tick #0's reward a second time.
+    expect(state.run?.grantedCount).toBe(grantedCountBeforeLeaving);
+    // The still-open window (now window 1, resumed) must keep its own `k`, not restart at 0.
+    expect(state.run?.reward.k).toBe(1);
+  });
+});
+
 const CLOSED_ALL_WEEK = {
   weekly: { '1': [], '2': [], '3': [], '4': [], '5': [], '6': [], '7': [] },
 };

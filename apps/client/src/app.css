@@ -237,6 +237,25 @@ body {
   color: #333344; /* ink.700 */
 }
 
+/* DG6-01 (F06-R05, flow C9/C10): the HP row is always visible, plain label text like
+   `.confirm-level` above — not a warning state on its own. */
+.confirm-hp {
+  font-size: 16px;
+  color: #333344; /* ink.700 */
+}
+
+/* `dungeon.confirmLowHpNote` — a plain nudge ("แซะ ไม่ขู่"), not a banner (that shape is reserved
+   for `.confirm-auto-retreat-off-badge` below, which reuses `.banner.warn` directly). */
+.confirm-hp-note {
+  font-size: 16px;
+  color: #1a1a22; /* ink.900 */
+}
+
+/* `.confirm-auto-retreat-off-badge` reuses `.banner.warn` (components.md section 6) with no extra
+   rule of its own: `.popup` is already `display: flex; flex-direction: column` (above), whose
+   default `align-items: stretch` already gives this row the full width — unlike `.hp-bar`'s row
+   layout, which needs `flex: 0 0 auto` on its own copy of this badge to stop it stretching. */
+
 .confirm-cards {
   display: flex;
   gap: 8px;

@@ -17,6 +17,7 @@ export {
   passesGate,
   validateGateParams,
   gateAccumulatorInit,
+  gateAccumulatorResume,
   gateAccumulatorStep,
   gateAccumulatorCloseThrough,
   partialTick,

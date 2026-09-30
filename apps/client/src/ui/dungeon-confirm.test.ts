@@ -12,6 +12,10 @@ const CANDIDATE = {
   levelMax: 5,
 };
 
+// DG6-01 default: full HP, auto-retreat on — the common case every pre-existing test below (which
+// predates the HP row) is not about, so they all pass this one value in unchanged.
+const FULL_HP = { hpRatio: 1, lowHp: false, autoRetreatEnabled: true };
+
 describe('mountDungeonConfirm — C-1 (Cancel available in every check-in state)', () => {
   it('shows a Cancel button before check-in is ready', () => {
     const container = document.createElement('div');
@@ -20,7 +24,7 @@ describe('mountDungeonConfirm — C-1 (Cancel available in every check-in state)
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false);
+    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false, FULL_HP);
     expect(popup.root.querySelector('.confirm-cancel')).not.toBeNull();
     expect((popup.root.querySelector('.confirm-cancel') as HTMLElement).hidden).toBe(false);
   });
@@ -32,7 +36,12 @@ describe('mountDungeonConfirm — C-1 (Cancel available in every check-in state)
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ok: false, reason: 'no_approach_from_outside', readyIn_s: null }, true, false);
+    popup.update(
+      { ok: false, reason: 'no_approach_from_outside', readyIn_s: null },
+      true,
+      false,
+      FULL_HP,
+    );
     expect(popup.root.querySelector('.confirm-cancel')).not.toBeNull();
   });
 
@@ -71,7 +80,7 @@ describe('mountDungeonConfirm — D-089 (no player counts anywhere, no element, 
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false);
+    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false, FULL_HP);
     expect(popup.root.querySelector('[data-count]')).toBeNull();
     expect(popup.root.querySelector('.count')).toBeNull();
     expect(popup.root.querySelector('.role-count')).toBeNull();
@@ -138,7 +147,7 @@ describe('mountDungeonConfirm — C-06 (not_enough_trace with no countdown yet)'
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false);
+    popup.update({ ok: false, reason: 'not_enough_trace', readyIn_s: null }, false, false, FULL_HP);
     const statusRow = container.querySelector('.checkin-status-row') as HTMLElement;
     expect(statusRow.textContent).toBe(getCopyText('dungeon.checkinNotEnoughTraceWaiting'));
     expect(statusRow.textContent).not.toContain('{countdown}');
@@ -154,7 +163,7 @@ describe('mountDungeonConfirm — C-11 (closing-soon tag)', () => {
     });
     popup.show([CANDIDATE]);
     const timeLeftText = formatCopyText('unit.minutes', { value: 5 });
-    popup.update({ ok: true }, false, false, timeLeftText);
+    popup.update({ ok: true }, false, false, FULL_HP, timeLeftText);
     const tag = container.querySelector('.closing-soon') as HTMLElement;
     expect(tag.hidden).toBe(false);
     expect(tag.textContent).not.toContain('{timeLeft}');
@@ -168,7 +177,7 @@ describe('mountDungeonConfirm — C-11 (closing-soon tag)', () => {
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ok: true }, false, false);
+    popup.update({ ok: true }, false, false, FULL_HP);
     const tag = container.querySelector('.closing-soon') as HTMLElement;
     expect(tag.hidden).toBe(true);
   });
@@ -184,7 +193,7 @@ describe('mountDungeonConfirm — B1 basic flow', () => {
     popup.show([CANDIDATE]);
     const button = popup.root.querySelector('.btn-primary') as HTMLButtonElement;
     expect(button.disabled).toBe(true);
-    popup.update({ ok: true }, false, false);
+    popup.update({ ok: true }, false, false, FULL_HP);
     expect(button.disabled).toBe(false);
   });
 
@@ -198,8 +207,79 @@ describe('mountDungeonConfirm — B1 basic flow', () => {
       onCancel: () => undefined,
     });
     popup.show([CANDIDATE]);
-    popup.update({ ok: true }, false, false);
+    popup.update({ ok: true }, false, false, FULL_HP);
     (popup.root.querySelector('.btn-primary') as HTMLButtonElement).click();
     expect(entered).toBe(CANDIDATE.dungeonId);
+  });
+});
+
+describe('mountDungeonConfirm — DG6-01 (F06-R05, flow C9/C10): HP row, low-HP note, auto-retreat-off badge', () => {
+  function popupWith(hp: { hpRatio: number; lowHp: boolean; autoRetreatEnabled: boolean }) {
+    const container = document.createElement('div');
+    const popup = mountDungeonConfirm(container, {
+      onEnter: () => undefined,
+      onCancel: () => undefined,
+    });
+    popup.show([CANDIDATE]);
+    popup.update({ ok: true }, false, false, hp);
+    return popup;
+  }
+
+  it('full HP, auto-retreat on: shows dungeon.confirmHp, hides the low-HP note and the badge', () => {
+    const popup = popupWith(FULL_HP);
+    const hpRow = popup.root.querySelector('.confirm-hp') as HTMLElement;
+    expect(hpRow.textContent).toBe(formatCopyText('dungeon.confirmHp', { hpPct: 100 }));
+    expect((popup.root.querySelector('.confirm-hp-note') as HTMLElement).hidden).toBe(true);
+    expect(
+      (popup.root.querySelector('.confirm-auto-retreat-off-badge') as HTMLElement).hidden,
+    ).toBe(true);
+  });
+
+  it('HP at/under the auto-retreat threshold, auto-retreat on: shows dungeon.confirmLowHpNote, not the badge', () => {
+    const popup = popupWith({ hpRatio: 0.2, lowHp: true, autoRetreatEnabled: true });
+    const hpRow = popup.root.querySelector('.confirm-hp') as HTMLElement;
+    expect(hpRow.textContent).toBe(formatCopyText('dungeon.confirmHp', { hpPct: 20 }));
+    const note = popup.root.querySelector('.confirm-hp-note') as HTMLElement;
+    expect(note.hidden).toBe(false);
+    expect(note.textContent).toBe(getCopyText('dungeon.confirmLowHpNote'));
+    expect(
+      (popup.root.querySelector('.confirm-auto-retreat-off-badge') as HTMLElement).hidden,
+    ).toBe(true);
+  });
+
+  it('auto-retreat off: shows run.autoRetreatOffBadge instead of the low-HP note, even at low HP', () => {
+    const popup = popupWith({ hpRatio: 0.2, lowHp: true, autoRetreatEnabled: false });
+    expect((popup.root.querySelector('.confirm-hp-note') as HTMLElement).hidden).toBe(true);
+    const badge = popup.root.querySelector('.confirm-auto-retreat-off-badge') as HTMLElement;
+    expect(badge.hidden).toBe(false);
+    expect(badge.textContent).toBe(getCopyText('run.autoRetreatOffBadge'));
+    expect(badge.classList.contains('banner')).toBe(true);
+    expect(badge.classList.contains('warn')).toBe(true);
+  });
+
+  it('never disables the Enter button for low HP (spec decision 6: enter at any HP > 0)', () => {
+    const popup = popupWith({ hpRatio: 0.01, lowHp: true, autoRetreatEnabled: true });
+    const button = popup.root.querySelector('.btn-primary') as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
+  });
+
+  it('B4 closed screen shows neither the HP row content nor the note/badge', () => {
+    const container = document.createElement('div');
+    const popup = mountDungeonConfirm(container, {
+      onEnter: () => undefined,
+      onCancel: () => undefined,
+    });
+    popup.show([CANDIDATE]);
+    popup.update({ ok: true }, false, false, {
+      hpRatio: 0.1,
+      lowHp: true,
+      autoRetreatEnabled: false,
+    });
+    popup.showClosed(undefined, false);
+    expect((popup.root.querySelector('.confirm-hp') as HTMLElement).textContent).toBe('');
+    expect((popup.root.querySelector('.confirm-hp-note') as HTMLElement).hidden).toBe(true);
+    expect(
+      (popup.root.querySelector('.confirm-auto-retreat-off-badge') as HTMLElement).hidden,
+    ).toBe(true);
   });
 });

@@ -7,6 +7,13 @@
  * DOM-only glue (not unit-tested at the Vitest level beyond the C-1/D-089 checks below — same
  * convention as `ui/gps-ui.ts`; the rest is covered by e2e, handoff to qa-tester P2-F04-T22).
  * Every visible string comes from `copy/format.ts`'s `formatCopyText` — never a literal.
+ *
+ * Design gate F06 DG6-01 (F06-R05, flow F06 C9/C10, spec decision 6): the popup always shows the
+ * player's current HP, and either the low-HP note or the auto-retreat-off badge underneath it —
+ * never a reason to disable "เข้า" (entering at any HP > 0 is the intended behaviour, never gated
+ * here). `hpRatio`/`autoRetreatEnabled` and the `lowHp` flag are computed by the caller straight
+ * from `selectPlayerView` and the `hpSafety.autoRetreatThreshold_pct` config value (`f04-app.ts`)
+ * — this module only rounds/formats what it is given, same convention as `hp-bar.ts`.
  */
 import { formatCopyText } from '../copy/format';
 import { getCopyText } from '../copy/load';
@@ -20,6 +27,16 @@ export interface ConfirmCandidate {
   readonly nameKey: string;
   readonly levelMin: number;
   readonly levelMax: number;
+}
+
+/** DG6-01: display-only HP state for the popup, straight from `selectPlayerView` (F06-R11 — no
+ * value here is computed by this module beyond rounding `hpRatio` into a percent for the copy
+ * template). `lowHp` is the caller's `hp <= hpSafety.autoRetreatThreshold_pct` comparison (the
+ * same shape `selectRunView`'s own `belowWarningLine` already uses), not re-derived here. */
+export interface ConfirmHpView {
+  readonly hpRatio: number;
+  readonly lowHp: boolean;
+  readonly autoRetreatEnabled: boolean;
 }
 
 export interface ConfirmPopupDeps {
@@ -43,11 +60,16 @@ export interface ConfirmPopup {
    * synchronous in Phase 2, so it is visible for at most one frame). */
   /** `closingSoonTimeLeftText` (C-11, copy gate P2-X37): a pre-formatted `{timeLeft}` string
    * (`unit.minutes`), or `undefined` to keep the closing-soon line hidden — this popup never
-   * derives the closing decision itself (R28, `selectOpening` is the caller's job). */
+   * derives the closing decision itself (R28, `selectOpening` is the caller's job).
+   * `hp` (DG6-01) renders every time: the `dungeon.confirmHp` row always, plus exactly one of
+   * `dungeon.confirmLowHpNote` (auto-retreat on, HP at/under the threshold) or the
+   * `run.autoRetreatOffBadge` badge (auto-retreat off) underneath it — never both, never a reason
+   * to disable "เข้า". */
   update(
     preview: CheckInPreview,
     isOutOfRangeNow: boolean,
     awaitingConfirmResult: boolean,
+    hp: ConfirmHpView,
     closingSoonTimeLeftText?: string,
   ): void;
   /** B4: dungeon closed (or `unsupported_mode`) — replaces the normal popup entirely, no "เข้า"
@@ -56,6 +78,15 @@ export interface ConfirmPopup {
   /** B6 race guard message (R01/R04). */
   showAlreadyActive(): void;
   hide(): void;
+}
+
+const PERCENT_MULTIPLIER = 100;
+
+/** Same clamp+round `hp-bar.ts#percentText`/`pocket-screen.ts#hpPercent` use — a plain number for
+ * `dungeon.confirmHp`'s own `{hpPct}` template (F06-R11: display rounding only, never a
+ * client-decided HP value). */
+function hpPercent(hpRatio: number): number {
+  return Math.max(0, Math.min(PERCENT_MULTIPLIER, Math.round(hpRatio * PERCENT_MULTIPLIER)));
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(
@@ -82,6 +113,21 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
   const cardsRow = el('div', 'confirm-cards');
   const title = el('div', 'confirm-title');
   const level = el('div', 'confirm-level');
+  // DG6-01: always-on HP row (F06-R05) — plain label text, same shape as `level` above, never
+  // hidden while the normal popup is open.
+  const hpRow = el('div', 'confirm-hp');
+  // Exactly one of these two shows at a time, driven by `update()`'s `hp` argument — never both
+  // (flow F06 C9/C10).
+  const lowHpNote = el('div', 'confirm-hp-note');
+  lowHpNote.hidden = true;
+  // Reuses `.banner.warn` verbatim (components.md section 6, same shape `hp-bar.ts`'s own sticky
+  // badge on `S-03-run` already uses) — a distinct class name (not `auto-retreat-off-badge`) so
+  // this popup's copy of the badge never collides with the run screen's own element under the
+  // same `data-testid`-free `querySelector`/Playwright locator (both can exist in the DOM, only
+  // one visible, at the moment a run starts and the popup is mid-hide).
+  const autoRetreatOffBadge = el('div', 'banner warn confirm-auto-retreat-off-badge');
+  autoRetreatOffBadge.textContent = getCopyText('run.autoRetreatOffBadge');
+  autoRetreatOffBadge.hidden = true;
   const closingSoon = el('div', 'chip-status closing-soon');
   closingSoon.hidden = true;
   const statusRow = el('div', 'checkin-status-row');
@@ -95,7 +141,18 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
   cancelButton.textContent = getCopyText('dungeon.confirmCancel');
   cancelButton.addEventListener('click', () => deps.onCancel());
 
-  popup.append(cardsRow, title, level, closingSoon, statusRow, enterButton, cancelButton);
+  popup.append(
+    cardsRow,
+    title,
+    level,
+    hpRow,
+    lowHpNote,
+    autoRetreatOffBadge,
+    closingSoon,
+    statusRow,
+    enterButton,
+    cancelButton,
+  );
   container.append(overlay);
   deps.onReasonElement?.(statusRow);
 
@@ -168,6 +225,12 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
       cardsRow.hidden = true;
       title.textContent = '';
       level.textContent = '';
+      // DG6-01: cleared here, populated by the `update()` call `renderConfirmIfNeeded` always
+      // makes in the same render pass right after `show()` — never left showing a stale value
+      // from a previous candidate/HP reading.
+      hpRow.textContent = '';
+      lowHpNote.hidden = true;
+      autoRetreatOffBadge.hidden = true;
       setStatusText('', undefined);
       enterButton.disabled = true;
       enterButton.textContent = getCopyText('dungeon.confirmEnter');
@@ -177,7 +240,14 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
         renderOverlapCards();
       }
     },
-    update(preview, isOutOfRangeNow, awaitingConfirmResult, closingSoonTimeLeftText) {
+    update(preview, isOutOfRangeNow, awaitingConfirmResult, hp, closingSoonTimeLeftText) {
+      // DG6-01 (F06-R05, flow C9/C10): independent of check-in status/button state, same as the
+      // closing-soon line below — HP is about the player, not about whether this particular
+      // dungeon is enterable right now, so it renders even while the check-in row still says "รอ".
+      hpRow.textContent = formatCopyText('dungeon.confirmHp', { hpPct: hpPercent(hp.hpRatio) });
+      autoRetreatOffBadge.hidden = hp.autoRetreatEnabled;
+      lowHpNote.textContent = getCopyText('dungeon.confirmLowHpNote');
+      lowHpNote.hidden = !hp.autoRetreatEnabled || !hp.lowHp;
       // C-11: independent of check-in status — the closing-soon line is about opening hours, not
       // about whether the player can enter yet.
       closingSoon.hidden = closingSoonTimeLeftText === undefined;
@@ -221,6 +291,11 @@ export function mountDungeonConfirm(container: HTMLElement, deps: ConfirmPopupDe
           ? formatCopyText('dungeon.closedBody', { openTime })
           : getCopyText(emergency ? 'dungeon.closedEmergencyBody' : 'dungeon.closedBody');
       setStatusText('', undefined);
+      // DG6-01: B4 replaces the normal popup entirely (no "เข้า" button at all) — the HP row and
+      // its note/badge belong to the enterable popup, not this screen.
+      hpRow.textContent = '';
+      lowHpNote.hidden = true;
+      autoRetreatOffBadge.hidden = true;
       closingSoon.hidden = true;
       enterButton.hidden = true;
       enterButton.disabled = true;

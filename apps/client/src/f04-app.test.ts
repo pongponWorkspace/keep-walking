@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createF04App, resolveE2eClassId, resolveRunSeed } from './f04-app';
 import { createMemoryStorage } from './storage/local-store';
 import { loadDungeonArtifact } from './dungeons/artifact';
+import { play } from '../../../art/vfx/core/vfx';
 
 describe('createF04App', () => {
   const artifact = loadDungeonArtifact();
@@ -160,6 +161,31 @@ describe('createF04App', () => {
       app.onSample(13.7, 100.4, 5, monday_ms + 1000);
       const overlay = findConfirmOverlay(container);
       expect(overlay?.hidden).toBe(true);
+    });
+  });
+
+  // DG6-01 finding DG6-03 (design gate F06, `f04-app.ts`'s `run_auto_retreat`/`run_death`
+  // handling, ~1285/~1309): those two branches open the run summary in `play(...).finally(...)`,
+  // not `.then(...)` — `art/vfx/core/vfx.ts#play` rejects for an unregistered effect id, and a
+  // bare `.then(onFulfilled)` (no `onRejected`) would then silently never call the summary-open
+  // callback, leaving the player stuck on a run screen for a run that has already ended. This
+  // exercises the exact same `play()` this module imports and the exact failure condition
+  // (an id never registered with `art/vfx/core/vfx.ts`'s registry) rather than re-deriving the
+  // engine states that reach those two branches (covered by the real device/e2e traces instead).
+  describe('DG6-03 — .finally runs the summary-open callback even when play() rejects', () => {
+    it('an unregistered effect id still runs the callback (would not with a bare .then)', async () => {
+      let ran = false;
+      const handle = play('dg6-03-unregistered-effect-id', document.createElement('div'));
+      await handle
+        .finally(() => {
+          ran = true;
+        })
+        .catch(() => {
+          // Expected: `.finally` re-throws the original rejection after running its callback —
+          // this test only cares that the callback itself ran, the same as `f04-app.ts`'s own
+          // `exitAnimationInFlight = false; render(...)` body would.
+        });
+      expect(ran).toBe(true);
     });
   });
 });

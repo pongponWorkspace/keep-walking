@@ -114,6 +114,21 @@ export function gateAccumulatorInit(): GateAccumulatorState {
   return { filter: gateFilterInit(), grid: gridInit(), k: 0, distance_m: 0 };
 }
 
+/**
+ * Starts a fresh accumulator (new filter/grid state — a new chain, anchored at whatever sample is
+ * fed to it next) that continues an *already-open* window instead of window 0 (F05 3.5: "τ เริ่มที่
+ * ค่าที่ค้าง" / section 2 R03 "ระยะในหน้าต่างยังอยู่"). Used to seed `rewardScratch` from `main`'s
+ * paused state at the first sample of a pending return-from-Grace/Suspended or pending-unlock set:
+ * `main` itself keeps `k`/`distance_m` frozen while paused, so the still-open window's index and
+ * partial distance must carry over, not reset to `gateAccumulatorInit()`'s `k: 0, distance_m: 0` —
+ * otherwise a resume after at least one window has already closed and granted spuriously re-closes
+ * window 0 (or whichever window is already behind `main`) as a fresh, distance-less window and
+ * emits a spurious `run_tick_denied` for a tick already granted (P2-H57).
+ */
+export function gateAccumulatorResume(main: GateAccumulatorState): GateAccumulatorState {
+  return { filter: gateFilterInit(), grid: gridInit(), k: main.k, distance_m: main.distance_m };
+}
+
 export interface GateStepInput {
   readonly sample: GeoSample;
   readonly tau_ms: number;
