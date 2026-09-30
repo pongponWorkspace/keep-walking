@@ -58,6 +58,14 @@ export interface HpBar {
 export function mountHpBar(container: HTMLElement): HpBar {
   const root = document.createElement('div');
   root.className = 'hp-bar';
+  // V-46 (art/reviews/F04-F06-visual-gate.md §7.7, rolled into R2-2): a plain `<div>` defaults to
+  // *not* hidden — every render path that owns this element while a run is active explicitly sets
+  // `root.hidden = false` (`f04-app.ts#renderRun`), but the onboarding steps before a class is even
+  // picked (`intro`/`age`/`consent`/`permission`/`class`) never touch it at all, since they return
+  // before ever reaching `renderRun`. Defaulting to hidden here (mirroring every other screen this
+  // module's siblings mount with, e.g. `ui/gps-ui.ts#el`) means "no run yet" is the honest starting
+  // state instead of relying on one specific render branch to have run first.
+  root.hidden = true;
 
   const track = document.createElement('div');
   track.className = 'hp-track';

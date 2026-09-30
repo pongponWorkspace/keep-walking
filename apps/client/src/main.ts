@@ -364,6 +364,10 @@ async function initLocation(
       // line runs, so a GPS problem or an offline device from before this callback fires is never
       // silently missed just because the sink came into existence one macrotask late.
       const app = f04App;
+      // R2-4 (art/reviews/F04-F06-visual-gate.md §7.3): `#follow-toggle` (owned by `gpsUi`, mounted
+      // outside `f04App` entirely) hides for the whole run, pushed from `f04App`'s own render loop
+      // rather than polled from `onSample`/`onTick` cadence.
+      app.onRunActiveChange((active) => gpsUi.setRunActive(active));
       wireGpsStatusTelemetry({
         gps: tracker,
         network,

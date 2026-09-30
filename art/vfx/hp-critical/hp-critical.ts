@@ -41,6 +41,19 @@ const NEUTRAL_SCALE = 1;
 // it settles — the toast pulses 3 times matching the cue's 3 on-beats, then holds perfectly
 // still ("จบ 3 จังหวะแล้วหยุดนิ่งสนิท") until the caller's own dismiss timer removes it (this
 // module does not manage that timer, same division of labor as tick-feedback.ts's `exitToast`).
+//
+// `.toast` transform ownership (P2-H53, root cause of visual-gate round-2 finding R2-1 — art/
+// reviews/F04-F06-visual-gate.md §7.3/§7.4, same rule as D-137 for `.hp-fill-edge-marker`):
+// `runHpLow` below targets `.toast.danger` and is, together with every effect in `../tick-
+// feedback/tick-feedback.ts` that also targets `.toast`, the ONLY code allowed to set `transform`
+// on that element — see the full contract comment at the top of `tick-feedback.ts`. CSS must
+// never declare `transform` on `.toast`; centering is done with `left/right/margin-inline: auto`,
+// never `translateX(-50%)`. Both animations below (`enter`, `pulse`) start and end their transform
+// at the identity position: `enter` settles at `translateY(0)` (fill forwards) and `pulse`'s last
+// keyframe is `scale(NEUTRAL_SCALE)` (`scale(1)`, i.e. no-op) also held via fill forwards — per
+// WAAPI's default `composite: 'replace'`, `pulse` (added after `enter`) is higher in the effect
+// stack, so once it settles the toast's resting transform is exactly `scale(1)`, which renders
+// identically to `translateY(0)`: no positional offset either way.
 const HP_LOW_ENTER_DURATION_MS = 150;
 const HP_LOW_ENTER_TRANSLATE_PX = 8;
 const HP_LOW_PULSE_PEAK = 1.06;

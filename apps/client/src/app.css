@@ -146,14 +146,25 @@ body {
 
 /* uiux P2-H49: the only button on `S-04-run-summary` must never scroll out of view on a long
    loot/summary list — sticky, not fixed, so it still respects the summary's own scroll container
-   and padding rather than floating over the whole viewport. */
+   and padding rather than floating over the whole viewport. R2-3 (art/reviews/
+   F04-F06-visual-gate.md §7.3): the sticky *backdrop* moved to `.screen-bottom-bar` below — putting
+   `background` on the button itself, at equal specificity to `.btn-primary`, silently overrode the
+   primary yellow fill on the run-summary screen's one button (style guide 5, Do/Don't 3: this is
+   the single screen in the loop where the primary button must read as the most prominent thing on
+   it). This rule is now layout-only. */
 .btn-fullwidth-bottom {
   display: block;
   width: 100%;
-  margin-top: 16px;
+}
+
+/* R2-3: owns the sticky positioning + opaque backdrop that used to live on `.btn-fullwidth-bottom`
+   itself, so the button can stay plain `.btn-primary` yellow while scrolled content still can't
+   show through under it. */
+.screen-bottom-bar {
   position: sticky;
-  bottom: max(16px, env(safe-area-inset-bottom));
+  bottom: 0;
   background: #fff8ee; /* bg.paper */
+  padding: 8px 0 max(16px, env(safe-area-inset-bottom));
 }
 
 /* --- Cards and popups (components.md 4) ------------------------------------------------------ */
@@ -353,6 +364,11 @@ body {
 .direction-label {
   font-size: 16px;
   vertical-align: middle;
+  /* V-44 (art/reviews/F04-F06-visual-gate.md §7.7): Thai line-breaking can otherwise split this
+     compound direction word mid-syllable ("ทิศตะวันออกเฉียง" / "ใต้") when the line runs out of
+     room — `nowrap` keeps the whole word as one atomic unit so it wraps entirely onto the next
+     line instead, never mid-word. */
+  white-space: nowrap;
 }
 
 /* --- GPS pill (components.md 2.1/2.2, V-38 + P2-H49 uiux decisions) -----------------------------
@@ -395,6 +411,15 @@ body {
   padding: 4px 12px;
   font-size: 16px;
   color: #333344; /* ink.700 */
+}
+
+/* R2-4 (art/reviews/F04-F06-visual-gate.md §7.3): top-right, mirroring `.gps-pill`'s top-left, so
+   the two never overlap. `ui/gps-ui.ts#setRunActive` hides this for the whole run (Active/Grace/
+   Suspended) — it must never appear poking out from under the run HUD plates. */
+#follow-toggle {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  right: 8px;
 }
 
 /* --- Toasts and banners (components.md 6, V-32/V-38) ------------------------------------------- */
@@ -455,15 +480,22 @@ body {
 
 .toast {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
+  margin-inline: auto; /* centres an abspos box that has an explicit width */
   bottom: 24px;
-  transform: translateX(-50%);
+  /* R2-1 (art/reviews/F04-F06-visual-gate.md §7.3): no `transform` here — art/vfx owns 100% of
+     this element's transform (same rule as P2-H42's HP-bar edge marker). Every effect that plays
+     on `.toast` uses `element.animate({ transform: … }, { fill: 'forwards' })`, and the Web
+     Animations API replaces the whole CSS `transform` value (plus `fill: 'forwards'` holds that
+     replacement after the effect ends), so a CSS `transform: translateX(-50%)` here would be
+     clobbered permanently, not just during playback. Centring must come from box layout instead. */
   z-index: 30; /* zIndex.toast */
   box-sizing: border-box;
   /* F06 copy gate C6-02: `width: max-content` (not just `max-width`) so an absolutely-positioned
-     toast with only `left` set actually grows to fit its text — `run.hpLow`'s full canon sentence
-     must wrap at <= 2 lines on a 360-390px viewport, not shrink to an arbitrary intrinsic width
-     first. */
+     toast with only `left`/`right` set actually grows to fit its text — `run.hpLow`'s full canon
+     sentence must wrap at <= 2 lines on a 360-390px viewport, not shrink to an arbitrary intrinsic
+     width first. */
   width: max-content;
   max-width: calc(100vw - 32px);
   padding: 8px 16px;
@@ -513,10 +545,6 @@ body {
 /* --- HP bar row (components.md 7, 13.6) — a solid plate, S6 ------------------------------------ */
 
 .hp-bar {
-  position: absolute;
-  top: calc(max(8px, env(safe-area-inset-top)) + 92px);
-  left: 8px;
-  right: 8px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -582,13 +610,25 @@ body {
   flex: 0 0 auto;
 }
 
-/* --- Run bar (components.md 13.2) — one plate: pill, tick timer, exit button; banners wrap below */
-
-.run-bar {
+/* R2-2 (art/reviews/F04-F06-visual-gate.md §7.3): `.run-bar` and `.hp-bar` (and
+   `.auto-retreat-off-badge`, already a child of `.hp-bar`) share one absolutely-positioned stack so
+   the HP row can never cover the Grace/Suspended/closing-soon banner that makes `.run-bar` grow
+   taller — a fixed pixel offset on `.hp-bar` (the old `top: … + 92px`) breaks the moment the banner
+   wraps to a second line, since the wrap height depends on copy length, not a constant. Do not
+   re-add per-element `top` math; let flex-column stacking own the vertical order instead. */
+.run-top-stack {
   position: absolute;
   top: max(8px, env(safe-area-inset-top));
   left: 8px;
   right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* --- Run bar (components.md 13.2) — one plate: pill, tick timer, exit button; banners wrap below */
+
+.run-bar {
   box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
@@ -608,7 +648,14 @@ body {
   box-sizing: border-box;
   padding: 4px 12px;
   border-radius: 999px; /* radius.chip_px */
-  font-size: 14px;
+  /* R2-5 (art/reviews/F04-F06-visual-gate.md §7.3): 16px on every status, not just Active — Grace
+     (`state.info` text on white) and Suspended (white text on `state.info`) are both 6.25:1, which
+     clears S8's 7:1 floor at 16px but not at 14px. One size for all three states so the pill never
+     changes size on a status change; let `.run-bar`'s own `flex-wrap` push the tick timer to a new
+     line if the row gets tight. */
+  min-height: 32px; /* components.md 13.2: matches the 13.1 status-chip floor, enough for 16px text
+                        plus vertical padding without crowding the glyph */
+  font-size: 16px;
   font-weight: 700;
   /* Active (default): `bg.paper` + `ink.900` bottom border (13.2). */
   background: #fff8ee; /* bg.paper */

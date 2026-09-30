@@ -82,8 +82,13 @@ export function mountRunSummary(
   continueButton.className = 'btn btn-primary btn-fullwidth-bottom';
   continueButton.textContent = getCopyText('run.summaryContinue');
   continueButton.addEventListener('click', () => onContinue());
+  // R2-3 (art/reviews/F04-F06-visual-gate.md §7.3): the sticky opaque backdrop lives on this
+  // wrapper now, not on the button, so `.btn-fullwidth-bottom` stays a plain `.btn-primary` (yellow).
+  const bottomBar = document.createElement('div');
+  bottomBar.className = 'screen-bottom-bar';
+  bottomBar.append(continueButton);
 
-  root.append(header, canonLine, bodyLine, expRow, tickRow, rewardList, continueButton);
+  root.append(header, canonLine, bodyLine, expRow, tickRow, rewardList, bottomBar);
   container.append(root);
 
   return {

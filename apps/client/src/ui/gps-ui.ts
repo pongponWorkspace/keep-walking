@@ -37,6 +37,10 @@ export interface GpsUi {
   hideStartButton(): void;
   setFollowMode(enabled: boolean): void;
   onFollowToggle(listener: (enabled: boolean) => void): () => void;
+  /** R2-4: hides `#follow-toggle` for the duration of a run (Active/Grace/Suspended alike) — the
+   * button must never sit half-covered by the run HUD plates on top of the map. `main.ts` is the
+   * only caller, driven by `F04App#onRunActiveChange` (`f04-app.ts`). */
+  setRunActive(active: boolean): void;
 }
 
 function el(tag: string, className: string, id: string): HTMLElement {
@@ -54,7 +58,11 @@ export function mountGpsUi(container: HTMLElement): GpsUi {
   const banner = el('div', 'banner info', 'network-banner');
   const toast = el('div', 'toast neutral', 'gps-toast');
   const startButton = el('button', 'button', 'start-location') as HTMLButtonElement;
-  const followButton = el('button', 'button', 'follow-toggle') as HTMLButtonElement;
+  // R2-4 (art/reviews/F04-F06-visual-gate.md §7.3): `.btn .btn-secondary` (48px min height, 2px ink
+  // border, 12px radius) instead of the unstyled `button` class, which rendered as the browser's
+  // bare default button — positioned top-right by `#follow-toggle` in app.css so it never collides
+  // with `.gps-pill` at top-left.
+  const followButton = el('button', 'btn btn-secondary', 'follow-toggle') as HTMLButtonElement;
   followButton.hidden = false;
   followButton.setAttribute('aria-pressed', 'true');
   followButton.textContent = getCopyText(FOLLOW_ON_KEY);
@@ -125,6 +133,9 @@ export function mountGpsUi(container: HTMLElement): GpsUi {
     onFollowToggle(listener: (enabled: boolean) => void): () => void {
       followListeners.add(listener);
       return () => followListeners.delete(listener);
+    },
+    setRunActive(active: boolean): void {
+      followButton.hidden = active;
     },
   };
 }

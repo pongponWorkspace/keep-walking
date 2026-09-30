@@ -18,6 +18,8 @@ Demo: `art/vfx/demo/hp-critical.html`
 | reduced-motion | opacity fade 0→1, 100 ms |
 | ห้าม | สีแดงกะพริบแบบ loop, ไอคอน error/กากบาท (§6.1) |
 
+**`.toast` transform ownership (P2-H53):** `runHpLow` targets `.toast.danger` และเป็นเจ้าของ `transform` ของ `.toast` ร่วมกับทุก effect ใน `art/vfx/tick-feedback/tick-feedback.ts` — สัญญาเต็ม (เหตุผล, กติกา, test) อยู่ที่ `art/vfx/specs/tick-feedback.md` หัวข้อ "`.toast` transform contract" อย่าซ้ำเนื้อหาที่นี่ ไฟล์นี้แค่ยืนยันว่า `runHpLow` ปฏิบัติตามกติกาเดียวกัน (เริ่ม/จบ transform ที่ identity, ไม่ bake ค่า absolute ใด ๆ — ดูคอมเมนต์หัว `hp-critical.ts`)
+
 ## `run.autoRetreat`
 
 | | |

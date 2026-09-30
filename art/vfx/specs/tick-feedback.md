@@ -62,3 +62,17 @@ Demo: `art/vfx/demo/tick-feedback.html`
 ## กฎ visibility/reduced-motion ที่ใช้ร่วมทุก effect ข้างบน
 
 ทุก effect เรียกผ่าน `play()` ของ `art/vfx/core/vfx.ts` จึงได้ guarantee เดียวกันฟรี: cancel ทันทีที่ `visibilitychange` เป็น hidden, reduced-motion ตรวจจุดเดียวใน `play()` ไม่ต้องเช็คซ้ำในไฟล์นี้ (ดู `specs/core-api.md`)
+
+## `.toast` transform contract (P2-H53 — root cause ของ visual gate รอบ 2 R2-1)
+
+ที่มา: `art/reviews/F04-F06-visual-gate.md` §7.3 (R2-1)/§7.4 · หลักการเดียวกับ D-137 (`.hp-fill-edge-marker`, ดู `art/vfx/specs/hp-bar.md`) · decision เสนอ: D-142 (REPORT ของงานนี้)
+
+**ต้นเหตุที่ยืนยันแล้ว:** `.toast` เดิมจัดกึ่งกลางด้วย CSS `left: 50%; transform: translateX(-50%)` ขณะที่ `runTickGranted`/`runTickDenied`/`runTickGrantedFirst`/`exitToast` (ไฟล์นี้) และ `runHpLow` (`../hp-critical/hp-critical.ts`) เรียก `target.animate({ transform: 'translateY(...)' }, { fill: 'forwards' })` — WAAPI แทนที่ค่า `transform` ทั้งก้อนของ CSS (ไม่ใช่ผสาน) และ `fill: 'forwards'` ทำให้ค่านั้นค้างถาวรหลังเล่นจบ `translateX(-50%)` จึงหายไปทุกครั้งที่ effect ใดก็ตามเล่นบน `.toast` ไม่ใช่แค่ระหว่างเล่นเท่านั้น
+
+**กติกา (บังคับ ไม่มีข้อยกเว้น):**
+1. `art/vfx/tick-feedback/tick-feedback.ts` และ `art/vfx/hp-critical/hp-critical.ts` (เฉพาะ `runHpLow`) เป็นเจ้าของ `transform` ของ `.toast` ทั้งหมด 100% — ไม่มีไฟล์ CSS ใดตั้ง `transform`/`transition: transform` ให้ `.toast` อีกต่อไป
+2. การจัดกึ่งกลางแนวนอนของ `.toast` ทำด้วย `left: 0; right: 0; margin-inline: auto; width: max-content` (ตามที่ visual gate เสนอไว้ใน §7.3) ไม่ใช้ `transform`/`translateX(-50%)` เด็ดขาด — วิธีนี้ให้ผลกึ่งกลางเหมือนเดิมทุกประการโดยไม่ชนกับ `transform` ที่ฝั่ง vfx เป็นเจ้าของ
+3. ทุก keyframe list ของทั้งสองไฟล์เริ่มและจบที่ตำแหน่ง identity (`translateY(0)` หรือเทียบเท่า) ยืนยันแล้วว่าไม่มีการ bake `-50%` หรือค่า absolute อื่นใดไว้ในโค้ด — ดูคอมเมนต์หัวไฟล์ทั้งสองสำหรับรายละเอียดต่อ effect (รวมข้อยกเว้นเดียวที่ตั้งใจ: `exitToast` จบที่ `translateY(8px)` ค้างไว้ตอนกำลังจะถูกลบออกจาก DOM ไม่ใช่ตำแหน่งค้างที่ผู้เล่นเห็นระยะยาว)
+4. ถ้ามี effect ใหม่ในอนาคตที่ target `.toast` (นอกเหนือ 2 ไฟล์นี้) ต้องเดินตามกฎเดียวกัน หรือเพิ่มชื่อไฟล์นั้นเข้าในหัวข้อนี้
+
+**Test ที่ยืนยันสัญญานี้ (ของ gameplay-programmer, P2-X52):** e2e ตรวจ `boundingBox()` ของ `.toast` อยู่ในช่วง 0–390 px และจุดกึ่งกลางต่างจาก 195 px ไม่เกิน 1 px **หลัง** effect เล่นจบ ทั้งกรณี `run.tickGranted`, `run.tickGrantedFirst`, `run.hpLow` และ reduced-motion (ตาม §7.9 ของ visual gate)

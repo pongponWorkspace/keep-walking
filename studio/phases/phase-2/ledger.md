@@ -206,3 +206,7 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 191 | W18 | P2-F06-T23 | art-director | 06:40 | 05:02:45 | NEEDS_CHANGES (รอบ 2 · ครั้งที่สอง) — safety stop ตาม Rule 4 / protocol 6 · Q-P2-14 ถามคน · D-138, D-139 ACCEPTED (อำนาจ art-director) |
 | 192 | W18 | user | user | — | 2026-09-30 13:16:04 | ตอบ Q-P2-14 = fix รอบแคบ (D-140) |
 | 193 | W18 | P2-F06-T21 | qa-tester | 06:40 | 2026-09-30 13:16:04 | PASS — QA gate F06 ครบ · แก้ flake f02 · → H56 level-designer · W19 dispatch X52, H53, H54, H56 |
+| 194 | W19 | P2-H53 | vfx-animator | — | 13:19:12 | DONE — D-141 toast transform ของ vfx (agent เสนอเลข D-142 ใช้ D-141 แทนเพราะเป็นเลขถัดไป) |
+| 195 | W19 | P2-H54 | uiux-designer | — | 13:21:34 | DONE — spec R2-3/R2-5 + follow toggle + V-42 · ชื่อ class ส่งให้ X52 ที่กำลังทำ |
+| 196 | W19 | P2-H56 | level-designer | — | 13:22:20 | DONE — dungeon เดินทีม F06-C32 · ข้อสังเกตแจ้ง 30%/25% hit เดียว → design gate T24 |
+| 197 | W19 | P2-X52 | gameplay-programmer | — | 13:36:01 | DONE — R2-1..R2-5 + V-44/V-46 · e2e 96/96 · W20 dispatch H55 (ถ่ายใหม่ §7.9) |

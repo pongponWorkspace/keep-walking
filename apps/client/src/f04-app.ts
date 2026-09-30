@@ -188,6 +188,11 @@ export interface F04App {
   onTick(now_ms: number): void;
   readonly telemetry: TelemetrySink;
   readonly engine: SessionEngine;
+  /** R2-4 (art/reviews/F04-F06-visual-gate.md §7.3): fires with `state.run !== null` every time
+   * `renderRun` runs — `main.ts` is the only subscriber, wiring it straight to
+   * `ui/gps-ui.ts#setRunActive` so `#follow-toggle` (owned by `gps-ui.ts`, mounted outside this
+   * module entirely) hides for the whole run instead of only on the next GPS sample. */
+  onRunActiveChange(listener: (active: boolean) => void): () => void;
 }
 
 /** `ArtifactDungeon.geometry` (`map/dungeons-source.ts`'s readonly `DungeonGeometry`) and
@@ -512,7 +517,15 @@ export function createF04App(deps: F04AppDeps): F04App {
     // shared renderer every other tintable-or-fixed `icon.ui.*` glyph on this screen already uses.
     iconGlyph,
   });
-  const runBar = mountRunBar(deps.hudContainer, {
+  // R2-2 (art/reviews/F04-F06-visual-gate.md §7.3): `.run-bar` and `.hp-bar` (mounted separately
+  // below) share this one absolutely-positioned stack so the HP row can never cover the Grace/
+  // Suspended/closing-soon banner that makes `.run-bar` grow taller — see `.run-top-stack`'s own
+  // doc comment in `app.css`. Both `mountRunBar`/`mountHpBar` just `container.append(root)`, so
+  // passing this wrapper instead of `deps.hudContainer` directly is the whole wiring change.
+  const runTopStack = document.createElement('div');
+  runTopStack.className = 'run-top-stack';
+  deps.hudContainer.append(runTopStack);
+  const runBar = mountRunBar(runTopStack, {
     onExitConfirmed: () => handleSessionEvents(engine.dispatch({ type: 'exit' }, deps.now())),
     iconGlyph,
   });
@@ -549,8 +562,9 @@ export function createF04App(deps: F04AppDeps): F04App {
     isPocketOverlayShowing: () => !pocketScreen.overlayRoot.hidden,
   });
   // F06 flow section 4.1 (C1): permanent on `S-03-run` in every run status — shown/hidden
-  // together with `runBar` (`renderRun` below), never on its own.
-  const hpBar = mountHpBar(deps.hudContainer);
+  // together with `runBar` (`renderRun` below), never on its own. Mounted into the same
+  // `runTopStack` as `runBar` (R2-2 above), not `deps.hudContainer` directly.
+  const hpBar = mountHpBar(runTopStack);
 
   // F06 override item 8 / C8: the HP potion ids come straight from config (never a literal
   // `'hpSmall'`/`'revive'` in this module) — `economy.autoPotion.defaultPotionOrder` for the
@@ -913,6 +927,9 @@ export function createF04App(deps: F04AppDeps): F04App {
   /** C-09 (copy gate P2-X37): the latest sample's own accuracy, so `renderNearbyNav` can pass a
    * real `approximate` flag to `nav.distanceApprox` instead of always `false`. */
   let lastAccuracy_m: number | undefined;
+  /** R2-4: `F04App#onRunActiveChange`'s own subscriber set — see `render()`'s own doc comment for
+   * why this is notified from there rather than from `renderRun`. */
+  const runActiveListeners = new Set<(active: boolean) => void>();
 
   /** Every open dungeon whose polygon contains the player right now (F04-R03 B2 overlap). */
   function openDungeonsContaining(lat: number, lng: number, now_ms: number): ArtifactDungeon[] {
@@ -1309,6 +1326,11 @@ export function createF04App(deps: F04AppDeps): F04App {
   }
 
   function render(state: SessionState, now_ms: number): void {
+    // R2-4: computed from `state.run` directly (not `renderRun`'s own early returns below, which
+    // this function's own `currentRoute !== 'main'`/`exitAnimationInFlight` guards can skip) so
+    // `#follow-toggle` hides for the player's *whole* run, including while a route screen or the
+    // exit animation happens to be covering the HUD too.
+    for (const listener of runActiveListeners) listener(state.run !== null);
     // F06 copy gate C6-05: hidden by default on every render pass; the one "at home" branch near
     // the bottom of this function (reached only once every screen/overlay/onboarding takeover
     // above has already said "not me") is the only place that shows it again.
@@ -1566,6 +1588,14 @@ export function createF04App(deps: F04AppDeps): F04App {
       handleSessionEvents(engine.dispatch({ type: 'tick' }, now_ms));
       refreshMapDungeons(now_ms);
       render(engine.getState(), now_ms);
+    },
+    onRunActiveChange(listener) {
+      runActiveListeners.add(listener);
+      // Catch-up call (same pattern as `tracker.onDisplayChange` in `main.ts`): a subscriber that
+      // attaches after boot (this module's own `setTimeout(0)` construction in `main.ts`) must not
+      // wait for the next `render()` to learn whether a run is already in progress.
+      listener(engine.getState().run !== null);
+      return () => runActiveListeners.delete(listener);
     },
   };
 }

@@ -12,6 +12,26 @@
 // DOM contract: `target` is the toast root element (`.toast` per design/ux/components.md §6);
 // this module never creates the toast, only animates the element the caller already mounted
 // (and, for `run.levelUp`, an inline child label already appended inside it — flow F05 A4).
+//
+// `.toast` transform ownership (P2-H53, root cause of visual-gate round-2 finding R2-1 — art/
+// reviews/F04-F06-visual-gate.md §7.3/§7.4, same rule as D-137 for `.hp-fill-edge-marker`):
+// `runTickGranted`/`runTickDenied`/`runTickGrantedFirst`/`exitToast` in this file — together with
+// `runHpLow` in `../hp-critical/hp-critical.ts` — are the ONLY code allowed to set `transform` on
+// `.toast`. CSS must never declare `transform` (or `transition: transform`) on `.toast`; centering
+// is done in CSS with `left: 0; right: 0; margin-inline: auto; width: max-content` (no transform
+// needed to center an abspos box that has an explicit width). Every WAAPI call here uses
+// `element.animate({ transform: 'translateY(...)' }, { fill: 'forwards' })`, and per WAAPI's
+// default `composite: 'replace'`, a `fill: 'forwards'` transform animation replaces whatever
+// `transform` the CSS cascade would otherwise apply for as long as it stays in effect — if CSS
+// also set `transform: translateX(-50%)` for centering, that value would be wiped out and held
+// wiped out permanently (exactly what happened in R2-1: the toast's horizontal centering
+// disappeared the instant any of these effects played, not just during the animation). Every
+// keyframe list below starts and ends its transform at the identity position (`translateY(0)`,
+// i.e. no offset) so there is no leftover positional offset once an effect settles — the one
+// deliberate exception is `exitToast`'s final frame (`translateY(8px)`, held via `fill:
+// 'forwards'`), which is the toast's intentional exit motion and is never visible for long: the
+// caller removes the `.toast` element from the DOM right after this animation finishes, so no
+// user-visible state is ever "toast onscreen with a residual offset".
 
 import { registerEffect, type EffectRun } from '../core/vfx.js';
 import { buildPopAndBeats } from '../core/beats.js';
