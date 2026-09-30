@@ -23,7 +23,18 @@ import { selectCheckInPreview } from '@keep-walking/shared/session';
 import { TEST_RECT } from '../../../../tools/traces/src/places';
 
 const STEP_MS = 15000;
-const LEG_STEPS = 20; // 20 x 15s = 300s = one full movement-gate window per leg
+// 300s = one full movement-gate window per leg -- the walking *speed* this produces (TEST_RECT's
+// diagonal covered once every this many ms) must stay independent of `stepMs`
+// (`walkUntilRetreatOrDeath`'s `stepMs` option, P2-F06-T21): shrinking the step size without also
+// shrinking the step *count* per leg would cover the same distance in less wall-clock time and trip
+// `anticheat.json#speedLock.speedLock_kmh` (freezing both the reward-gate clock and the hit clock,
+// F06-R06 -- exactly the "never lands a hit" failure this constant search once produced). At the
+// default 15s step this is still exactly 20 steps, byte-for-byte the same walk every existing
+// caller already relies on.
+const LEG_DURATION_MS = 300_000;
+function legStepsFor(stepMs: number): number {
+  return Math.max(1, Math.round(LEG_DURATION_MS / stepMs));
+}
 
 function pointOnLeg(legFrac: number): { lat: number; lng: number } {
   return {
@@ -35,12 +46,20 @@ function pointOnLeg(legFrac: number): { lat: number; lng: number } {
 // anticheat.json#checkIn.minContinuousApproach_s (60): the approach must start on a usable sample
 // OUTSIDE the polygon and end inside it, continuous for at least that long — a bare "already
 // standing on the centre from t=0" trace never passes `selectCheckInPreview` (`no_approach_from_outside`).
-const APPROACH_STEPS = 7; // 7 x 15s = 105s of margin over the 60s minimum
+// 105s of margin over the 60s minimum, independent of `stepMs` (`walkUntilRetreatOrDeath`'s
+// `stepMs` option, P2-F06-T21): at the default 15s step this is still exactly 7 steps (105s),
+// byte-for-byte the same walk every existing caller already relies on; a caller asking for a
+// smaller step (to bound clock-skew risk near a death instant) gets proportionally more steps
+// instead of a too-short approach that would never pass `minContinuousApproach_s` at all.
+const APPROACH_DURATION_MS = 105_000;
+function approachStepsFor(stepMs: number): number {
+  return Math.max(2, Math.ceil(APPROACH_DURATION_MS / stepMs));
+}
 const OUTSIDE_POINT = { lat: TEST_RECT.south - 0.003, lng: TEST_RECT.west - 0.003 }; // ~470 m away
 
-function approachPoint(i: number): { lat: number; lng: number } {
-  if (i >= APPROACH_STEPS) return pointOnLeg(0.5);
-  const frac = i / APPROACH_STEPS;
+function approachPoint(i: number, approachSteps: number): { lat: number; lng: number } {
+  if (i >= approachSteps) return pointOnLeg(0.5);
+  const frac = i / approachSteps;
   const centre = pointOnLeg(0.5);
   return {
     lat: OUTSIDE_POINT.lat + (centre.lat - OUTSIDE_POINT.lat) * frac,
@@ -67,6 +86,17 @@ export interface WalkUntilOptions {
    * with no potions in it). Defaults to `true` (the back-and-forth walk). */
   readonly moveAfterConfirm?: boolean;
   readonly maxSamples?: number;
+  /** Sample spacing in ms (default `STEP_MS` = 15000, the back-and-forth walk's own gate-window
+   * unit). A hit's own `at_ms` (F06-R07's random interval draw) can land anywhere inside the gap
+   * between the previous and the enclosing sample, so the gap between a `run_death`/
+   * `run_auto_retreat` event's `at_ms` and the state's own `clock.lastNow_ms` right after it is
+   * bounded by this step size — a caller that needs to re-dispatch a real `sessionStep` input at
+   * (or immediately after) that exact instant, without tripping `clockCheck`'s
+   * `dungeons.hpSafety`/`runState.clockSkewTolerance_s` guard (`config/balance/dungeons.json`, 5 s
+   * by default) or letting outside-dungeon regen (F06-R03) already move HP off the floor before the
+   * re-dispatch, needs this smaller than that tolerance (P2-F06-T21 F06-C34). Leaves every existing
+   * caller's timing untouched (default unchanged). */
+  readonly stepMs?: number;
 }
 
 export function walkUntilRetreatOrDeath(
@@ -80,6 +110,9 @@ export function walkUntilRetreatOrDeath(
 ): WalkUntilResult {
   const maxSamples = options.maxSamples ?? 4000;
   const moveAfterConfirm = options.moveAfterConfirm ?? true;
+  const stepMs = options.stepMs ?? STEP_MS;
+  const approachSteps = approachStepsFor(stepMs);
+  const legSteps = legStepsFor(stepMs);
   let state = createSession(startEpochMs, params, createPlayer(startEpochMs, params.config));
   const events: SessionEvent[] = [];
   const chosen = sessionStep(state, { type: 'chooseClass', classId }, startEpochMs, params);
@@ -91,18 +124,18 @@ export function walkUntilRetreatOrDeath(
   let outcome: WalkUntilResult['outcome'] = null;
   let i = 0;
   for (; i < maxSamples && outcome === null; i += 1) {
-    const now_ms = startEpochMs + 1000 + i * STEP_MS;
+    const now_ms = startEpochMs + 1000 + i * stepMs;
     // Approach from outside first (checkIn.minContinuousApproach_s), then walk the back-and-forth
     // leg once confirmed (leg timing restarts at confirm so the first post-confirm leg is whole).
     const stepsSinceConfirm = i - confirmedAtStep;
-    const legIndex = Math.floor(stepsSinceConfirm / LEG_STEPS);
-    const withinLeg = (stepsSinceConfirm % LEG_STEPS) / LEG_STEPS;
+    const legIndex = Math.floor(stepsSinceConfirm / legSteps);
+    const withinLeg = (stepsSinceConfirm % legSteps) / legSteps;
     const legFrac = legIndex % 2 === 0 ? withinLeg : 1 - withinLeg;
     const pt = confirmed
       ? moveAfterConfirm
         ? pointOnLeg(legFrac)
         : pointOnLeg(0.5)
-      : approachPoint(i);
+      : approachPoint(i, approachSteps);
     const sampled = sessionStep(
       state,
       { type: 'sample', sample: { t_ms: now_ms, lat: pt.lat, lng: pt.lng, accuracy_m: 8 } },

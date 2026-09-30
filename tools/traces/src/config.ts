@@ -31,6 +31,8 @@ export interface TraceConfig {
   readonly gateWindowStep_s: number;
   /** dungeons.json#runState.graceMax_s */
   readonly graceMax_s: number;
+  /** dungeons.json#rewardTick.rewardTickInterval_s (P2-H52 tick-denied e2e trace) */
+  readonly rewardTickInterval_s: number;
   /** anticheat.json#speedLock.speedLock_kmh */
   readonly speedLock_kmh: number;
   /** anticheat.json#checkIn.maxAccuracy_m */
@@ -90,6 +92,7 @@ export function loadTraceConfig(): TraceConfig {
     },
     gateWindowStep_s: num(client, clientFile, 'hudMeasurement.gateWindowStep_s'),
     graceMax_s: num(dungeons, dungeonsFile, 'runState.graceMax_s'),
+    rewardTickInterval_s: num(dungeons, dungeonsFile, 'rewardTick.rewardTickInterval_s'),
     speedLock_kmh: num(anticheat, anticheatFile, 'speedLock.speedLock_kmh'),
     checkInMaxAccuracy_m: num(anticheat, anticheatFile, 'checkIn.maxAccuracy_m'),
     checkInMinApproach_s: num(anticheat, anticheatFile, 'checkIn.minContinuousApproach_s'),

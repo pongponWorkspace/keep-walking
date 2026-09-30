@@ -54,9 +54,7 @@ const MAX_PNG_BYTES = 300_000;
 /** Takes a PNG screenshot, retrying once at `deviceScaleFactor: 1` if the first attempt is over
  * the 300 KB budget (V-36's own instruction: "ถ้าเกิน ลด device scale เป็น 1"). Returns the bytes
  * actually used to report in the index/README. */
-export async function screenshotWithBudget(
-  page: Page,
-): Promise<{
+export async function screenshotWithBudget(page: Page): Promise<{
   readonly buffer: Buffer;
   readonly deviceScaleFactorUsed: number;
   readonly bytes: number;

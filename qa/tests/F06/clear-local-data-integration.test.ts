@@ -100,6 +100,11 @@ describe('clearLocalData (P2-F04-T25) clears every real kw.p2.* shape this featu
         now: () => START_EPOCH_MS,
       },
       now: () => START_EPOCH_MS,
+      // R2-N2 (tech gate F06 round 2): `canClear` is optional with an "always allowed" default
+      // only so a caller with no run-state concept does not have to invent a trivial function --
+      // this QA call site is not that caller (it is exactly the check `selectCanClearLocalData`
+      // exists for, `qa-tester`'s own second describe block below), so it always sends a real one.
+      canClear: () => true,
     });
 
     // Every real read path comes back as "nothing here" / a fresh default, not a leftover value.
@@ -146,9 +151,38 @@ describe('clearLocalData (P2-F04-T25) clears every real kw.p2.* shape this featu
       },
       now: () => START_EPOCH_MS,
       reload,
+      canClear: () => true,
     });
     expect(reload).toHaveBeenCalledTimes(1);
     expect(storage.getItem('kw.p2.session')).toBeNull();
+  });
+
+  it('canClear: () => false is a true no-op -- no key removed, no telemetry write, no reload (F06-TG-06, H-E23)', () => {
+    const storage = createMemoryStorage();
+    storage.setItem('kw.p2.session', 'x');
+    const reload = vi.fn();
+    clearLocalData({
+      storage,
+      storageKeyPrefix: realStorageKeyPrefix(),
+      telemetryStorageKey: TELEMETRY_KEY,
+      telemetrySchemaVersion: 1,
+      sink: {
+        config: { ringBufferMaxEvents: 3000, ringBufferMaxChars: 600000 },
+        forbiddenPropertyNames: ['lat', 'lng'],
+        coordinateGuard: { minDecimals: 4, latRange_deg: [5, 21], lngRange_deg: [97, 106] },
+        knownEventNames: new Set(['local_data_cleared']),
+        sessionId: 'abcd1234',
+        platform: 'android-chrome',
+        appVersion: 'deadbee',
+        now: () => START_EPOCH_MS,
+      },
+      now: () => START_EPOCH_MS,
+      reload,
+      canClear: () => false,
+    });
+    expect(reload).not.toHaveBeenCalled();
+    expect(storage.getItem('kw.p2.session')).toBe('x');
+    expect(storage.getItem(TELEMETRY_KEY)).toBeNull();
   });
 });
 

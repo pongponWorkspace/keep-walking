@@ -81,6 +81,15 @@ function spikeUrl(query: string): string {
   params.set('e2eTilesUrl', PMTILES_URL);
   params.set('e2eGlyphsUrl', GLYPHS_URL);
   params.set('e2eSpriteUrl', SPRITE_URL);
+  // P2-F06-T21 root-cause fix: since P2-X38 (age gate/consent, 3b7e78c) `main.ts` only calls
+  // `provider.start()` when location consent was already granted in a previous session or this
+  // Mock-only skip-onboarding hook is set (D-130) — this spec boots a fresh page with no
+  // `kw.p2.consent` key and never drives the consent screen itself, so without this hook
+  // `window.__kwSpike.state` stays 'idle' forever (a deterministic failure under the new gate, not
+  // real flake) and `expect.poll(...).toBe('running')` always times out. This spec is about map +
+  // location wiring against a fixture tile, not onboarding/consent, matching every
+  // apps/client/e2e/* spec that already sets this hook for the same reason (e.g. location-mock.spec.ts).
+  params.set('e2eSkipOnboarding', '1');
   return `/?${params.toString()}`;
 }
 

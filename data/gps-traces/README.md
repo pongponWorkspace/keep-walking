@@ -3,17 +3,17 @@
 | หัวข้อ | ค่า |
 | --- | --- |
 | เจ้าของ | location-engineer |
-| task | P1-F02-T04 (synthetic) · QA trace อยู่ที่ `qa/` (P1-F02-T13) · recorded อยู่ที่ `recorded/` (P1-F02-T24) |
+| task | P1-F02-T04 (synthetic) · P2-H52 (`synthetic-tick-denied-leelawadee-01`) · QA trace อยู่ที่ `qa/` (P1-F02-T13) · recorded อยู่ที่ `recorded/` (P1-F02-T24) |
 | รูปแบบไฟล์ | `docs/tech/gps-trace-format.md` · ตรวจด้วย `validateTrace()` จาก `@keep-walking/shared` เท่านั้น |
 | generator | `tools/traces/` (TypeScript, workspace `@keep-walking/tools-traces`) · `GENERATOR_VERSION = 1.0.0` |
-| config ที่อ้าง | `config/balance/dungeons.json#movementGate` (`minDistancePerWindow_m` 50, `window_s` 300, `comparison` greaterThan), `#runState.graceMax_s` 180 · `config/balance/anticheat.json#speedLock.speedLock_kmh` 25, `#checkIn.maxAccuracy_m` 30, `#checkIn.minContinuousApproach_s` 60 (ค่า ณ วันที่ 2026-09-23) |
+| config ที่อ้าง | `config/balance/dungeons.json#movementGate` (`minDistancePerWindow_m` 50, `window_s` 300, `comparison` greaterThan), `#runState.graceMax_s` 180, `#rewardTick.rewardTickInterval_s` 300 · `config/balance/anticheat.json#speedLock.speedLock_kmh` 25, `#checkIn.maxAccuracy_m` 30, `#checkIn.minContinuousApproach_s` 60 (ค่า ณ วันที่ 2026-09-23) |
 
 ## 1. โครงโฟลเดอร์
 
 ```
 data/gps-traces/
   README.md                 ไฟล์นี้
-  synthetic/                trace สังเคราะห์ 13 ไฟล์ (commit ได้ สร้างซ้ำได้ด้วย seed)
+  synthetic/                trace สังเคราะห์ 14 ไฟล์ (commit ได้ สร้างซ้ำได้ด้วย seed)
     *.trace.json
     polygons/test-rect-benchasiri.geojson   polygon ทดสอบที่ edge-walk / walk-in / teleport อ้างถึง
   qa/                       trace กรณีขอบของ qa-tester (P1-F02-T13) ใช้กฎตั้งชื่อและปัดพิกัดเดียวกับ synthetic
@@ -95,8 +95,9 @@ client โหลด `synthetic/`, `qa/`, `recorded/` ผ่าน `import.meta.g
 | `synthetic-screen-lock-01` (501) | park | 12:00 | 721 | 1,096 ม. | 4 / 6.6 / 9 | มี | เดินวนสวน มี event ล็อกจอและ GPS error ชั่วคราว |
 | `synthetic-permission-denied-01` (502) | park | 1:30 | 91 | 140 ม. | 4.1 / 6.5 / 9 | มี | ผู้ใช้ถอนสิทธิ์ตำแหน่งกลางทาง |
 | `synthetic-warmup-accuracy-01` (503) | park | 5:00 | 301 | 4,745 ม. | 4 / 7.1 / 150 | ไม่มี | เปิด GPS ใหม่ accuracy ค่อย ๆ ดีขึ้นจาก 150 ม. |
+| `synthetic-tick-denied-leelawadee-01` (601) | park | 20:40 | 249 (ทุก 5 วินาที) | 905 ม. | 3 / 6.0 / 8.9 | มี (ช่วงเดิน) | run ใน dungeon จริง `leelawadee-lawn`: เดินเข้า → เดินเล่นสั้น → วางมือถือบนม้านั่ง (tick แรกไม่ผ่าน) → เดินวน (tick ถัดไปผ่าน) · P2-H52 |
 
-ขนาดรวมของ `synthetic/` ราว 740 KB (ไฟล์ใหญ่สุด `park-loop` 167 KB)
+ขนาดรวมของ `synthetic/` ราว 760 KB (ไฟล์ใหญ่สุด `park-loop` 167 KB)
 
 การจับคู่กับ acceptance ของบอร์ด: เดินวนในสวน = `park-loop` · นั่งม้านั่งมี jitter = `bench-jitter` · มือถือวางนิ่งบนโต๊ะ = `table-still` · เดินเลียบขอบ polygon = `edge-walk` · drift spike = `drift-spike` · เดินในซอยตึกบัง = `soi-occluded` · QA test plan หัวข้อ 6 = `table-still`, `bench-jitter`, `boundary-50m` · ที่เหลือเป็นชุดเพิ่มที่ location-engineer ต้องมีตามหน้าที่ (ขับรถ, teleport, walk-in) และ event ของ provider สำหรับ TC-LOC-04/05/06 และ TC-HUD-08/09
 
@@ -142,6 +143,13 @@ client โหลด `synthetic/`, `qa/`, `recorded/` ผ่าน `import.meta.g
 
 **`synthetic-warmup-accuracy-01`** · accuracy ลดลงแบบเคร่งจาก 150 ม. ที่ 0 · 44 วินาที = 30.1 · **45 วินาที = 30.0 พอดี** (= `checkIn.maxAccuracy_m`) · 46 = 27.0 ลดเป็นเส้นตรงถึง 6.0 ที่ 60 · หลัง 60 อยู่ที่ 4-9 ม. · ตำแหน่งคลาดตามขนาด accuracy (ครึ่งหนึ่งของ accuracy ต่อแกน) · คาด (TC-HUD-08/09): TTFF ถึง 30 ม. = 45 วินาที (นิยาม `<=`) และค่า median/p90 หลังตัด 60 วินาทีแรกอยู่ที่ 4-9 ม. · ระยะดิบ 4,745 ม. เกือบทั้งหมดมาจาก 60 วินาทีแรก ถ้าไม่ตัด warm-up ระยะ gate จะพองมาก
 
+**`synthetic-tick-denied-leelawadee-01`** (P2-H52) · ใช้ polygon **จริง** ของ `leelawadee-lawn` จาก `data/dungeons/artifact/dungeons.client.v1.json` (เปิดทุกวัน 05:00-21:00) ไม่ใช่สี่เหลี่ยมทดสอบ · generator `tools/traces/src/scenarios/tick-denied.ts` · sample ทุก 5 วินาที (= `movementGate.sampleCadence_s`) · จุดกลาง 13.7309591, 100.5396929 ห่างขอบ 20.6 ม. (`packages/geo` `boundaryDistance_m`, จุดเดียวกับ `qa-e2e-leelawadee-*`) · ทุกพิกัดอยู่ในสวนลุมพินี
+- 0 เริ่มทางใต้ของ dungeon ห่างขอบ 156 ม. (= 1.3 m/s x 2 x `minContinuousApproach_s`) เดินตรงขึ้นเหนือ · fix แรกในพื้นที่ราว 120 · 140 (2:20) ถึงจุดกลาง เดินเล่นช้า 8 ม. ไปม้านั่ง · 160 วางมือถือบนม้านั่ง (jitter sigma 0.35 ม. platform ค้าง fix แบบ `table-still`) ถึง 620 (10:20) = ถึงจุดกลาง + `rewardTickInterval_s` + 180 วินาทีเผื่อกดยืนยันช้า · 620 เดินวนรัศมี 6 ม. รอบจุดกลาง (ห่างขอบอย่างน้อย 14.7 ม.) 2 x `rewardTickInterval_s` จนจบที่ 1240 (20:40)
+- ระยะดิบต่อหน้าต่าง 300 วินาที (หัวข้อ 5): เริ่ม 120 = 32.1 ม. · เริ่ม 150-300 = 1.1-7.0 ม. · เริ่ม 330 = 12.8 ม. · เริ่ม 360 = 45.4 ม. · เริ่ม 390 ขึ้นไป >= 76 ม. · หลัง 630 ราว 340 ม. ต่อหน้าต่าง
+- คาด (replay ผ่าน `sessionStep` จริง, หัวข้อ 8): preview check-in ผ่านที่ 120 · ยืนยันที่ 120 → `run_tick_denied` #0 ที่ 420 → `run_tick_granted` #1 ที่ 720 และ #2 ที่ 1020 · run อยู่ Active ตลอด ไม่มี Grace ไม่มี auto-retreat (ทุก class HP เหลือ 257-289 เมื่อจบ)
+- **เงื่อนไขของ e2e:** หน้าต่าง reward นับจากเวลายืนยัน ไม่ใช่เวลาเข้า ถ้ายืนยันช้ากว่าปุ่ม "เข้า" เปิดไม่เกินราว 200 วินาทีของ trace (ประมาณ 3 วินาทีจริงที่ `speed=60`, 20 วินาทีจริงที่ `speed=10`) tick แรกยังไม่ผ่านแน่นอน · ยืนยันช้ากว่านั้น tick แรกอาจผ่านเพราะรวมช่วงเดินแล้ว
+- **โหลดใน Mock:** client โหลด `data/gps-traces/synthetic/*.trace.json` ได้ตรง ๆ (`apps/client/src/location/traces.ts`) ไม่ต้องคัดลอกไป `apps/client/e2e/fixtures/` · URL: `/?loc=mock&trace=synthetic-tick-denied-leelawadee-01&speed=60&loop=0&hud=0&e2eClassId=tanker&seed=1&e2eSkipOnboarding=1&start=2026-10-02T12%3A00` · `start=` ต้องอยู่ในเวลาเปิด 05:00-21:00 · toast ไม่ผ่านคือ `.toast:has(.toast-line).faded` ที่ราว 5 วินาทีจริงหลังกด "เข้า" ที่ `speed=60`
+
 ## 8. ตาราง trace → expected → actual (จาก test)
 
 ผลของ `tools/traces/src/scenarios.test.ts` (พิมพ์ด้วย `pnpm exec vitest run tools/traces --reporter=verbose`) · ทุกแถวคำนวณจากค่า config ตอนรัน
@@ -161,6 +169,7 @@ client โหลด `synthetic/`, `qa/`, `recorded/` ผ่าน `import.meta.g
 | synthetic-screen-lock-01 | มี sample ในช่วงซ่อนจอ, event 4 รายการ | ซ่อน 240-360 วิ มี 120 sample, ส่งได้ 601/721 |
 | synthetic-permission-denied-01 | permission-denied แล้วยังมี sample ต่อ | event ที่ 60 วิ, sample หลัง event 30 |
 | synthetic-warmup-accuracy-01 | fix แรกที่ accuracy <= 30 ม. ที่ 45 วิ | ที่ 45 วิ accuracy 30 (ก่อนหน้า 30.1), เริ่มที่ 150 ม. |
+| synthetic-tick-denied-leelawadee-01 (replay `sessionStep` + config จริงของ client, ไม่ใช่ `scenarios.test.ts`) | tick แรกไม่ผ่าน, tick ถัดไปผ่าน, ทนการยืนยันช้า | ยืนยันที่ 120/150/180/240/270 วิ: denied #0 ทุกกรณี, granted #1 และ #2 ทุกกรณี, ทั้ง 4 class ไม่ออกจาก Active |
 
 ## 9. ข้อจำกัดและข้อสังเกตสำหรับทีม
 
@@ -168,4 +177,4 @@ client โหลด `synthetic/`, `qa/`, `recorded/` ผ่าน `import.meta.g
 - **ระยะดิบไม่กรองแยก bench กับเดินได้ไม่ชัด:** bench ได้ 112-132 ม. ต่อหน้าต่าง เดินจริงได้ 440+ ม. เกณฑ์ 50 ม. แยก "โต๊ะ" ออกได้ชัด แต่ไม่ได้แยก "ม้านั่ง" ซึ่ง GDD ตั้งใจให้ผ่านอยู่แล้ว
 - **ความเร็วแฝงจาก jitter ใกล้ speed lock:** edge-walk 23.2 กม./ชม., soi 24.3 กม./ชม. จากการเดินล้วน และ spike ให้ถึง 1,085 กม./ชม. ถ้า speed lock ใช้ความเร็วแฝงระหว่าง fix ดิบ คนเดินในซอยจะโดนล็อกผิด ต้องใช้ความเร็วแบบต่อเนื่องหรือกรองแล้ว (ส่งต่อ systems-designer / backend-programmer ใน Phase 3)
 - **ยังไม่มี:** trace สองเครื่องที่ noise สัมพันธ์กัน (anti-cheat ชั้น 4, Phase 7) และ trace network loss ที่ส่ง offline evidence ย้อนหลัง (ต้องมี server, Phase 3) · gap สั้นมีใน `soi-occluded` แล้ว gap 2 นาทีเป็นของ QA (`qa-gps-gap-2min`)
-- **polygon ทดสอบเป็นสี่เหลี่ยม:** ผลของ edge-walk / walk-in / teleport ใช้กับ `polygons/test-rect-benchasiri.geojson` เท่านั้น ถ้าใช้กับ polygon จริงของสวน ตัวเลขจะเปลี่ยน
+- **polygon ทดสอบเป็นสี่เหลี่ยม:** ผลของ edge-walk / walk-in / teleport ใช้กับ `polygons/test-rect-benchasiri.geojson` เท่านั้น ถ้าใช้กับ polygon จริงของสวน ตัวเลขจะเปลี่ยน · ยกเว้น `tick-denied-leelawadee` ที่ผูกกับ polygon จริงของ `leelawadee-lawn` ถ้า level-designer แก้ polygon นี้ ต้องตรวจระยะห่างขอบและรัน replay ใหม่

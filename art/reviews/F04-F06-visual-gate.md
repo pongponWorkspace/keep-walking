@@ -2,7 +2,7 @@
 
 Task: P2-F06-T23 · ผู้ตรวจ: art-director · วันที่: 2026-09-28 · protocol ข้อ 6 (content gate, visuals) · รอบ 1
 
-**verdict: NEEDS_CHANGES**
+**verdict: NEEDS_CHANGES** (รอบ 1) · **รอบ 2 (2026-09-28): verdict: NEEDS_CHANGES → ส่ง HUMAN ตาม protocol ข้อ 6** ดูหัวข้อ 7
 
 ## 0. สรุป
 
@@ -149,3 +149,119 @@ finding ที่ต้องแก้ก่อน re-run มี 6 ข้อ (�
 - ภาพกลางแดดจริง (S10) ไม่มีใน Phase 2 ตาม D-093 · ความเสี่ยงอยู่ที่ P2-RISK-01
 - `.chip-sponsored` (V-15) ไม่อยู่ใน Phase 2 ตาม O-20 · ตรวจเมื่อ phase ที่มี dungeon ผู้สนับสนุนถึง content gate
 - อวตารบนจอจริงยังไม่มีใน Phase 2 · ไฟล์ต้นทางผ่าน (4.2)
+
+---
+
+## 7. รอบ 2 (P2-F06-T23 round 2, 2026-09-28)
+
+**verdict: NEEDS_CHANGES** · เป็น NEEDS_CHANGES ครั้งที่สองของ gate นี้ จึงส่ง HUMAN ตาม protocol ข้อ 6 และ board swap rule 12
+
+### 7.0 สรุปรอบ 2
+
+ชั้นคอมโพเนนต์ที่ X42/X41 ทำมาดีขึ้นมาก ปุ่มทุกปุ่มใน UI ของเกมมีขอบหมึก 2 px แล้ว popup ทั้งหมดเป็น bottom sheet แผงบนแผนที่มีแผ่นรองทึบ (nav, home, run-bar, แถว HP) ฟอนต์ IBM Plex Sans Thai Looped ขึ้นจริงทุกจอ ป้ายรอยแยกเป็นชื่อไทยแล้ว (ไม่มี key ดิบ) และกรอบ rarity แสดงที่ 52 px · **V-31, V-32, V-33, V-34 ปิด** · **V-36 ปิดแบบมีข้อยกเว้น** (ถ่ายได้ 24/26 จอ ส่วนอีก 2 จอไม่ block ดู 7.2)
+
+**V-30 ยังไม่ปิด** เพราะภาพรอบนี้เจอ defect ของชั้นคอมโพเนนต์เอง 5 จุด (7.3) ซึ่งผิดเกณฑ์ re-run ข้อ 1, 2 และ 4 ที่ตั้งไว้ในหัวข้อ 5.1 จุดที่หนักสุดคือ **toast ทุกตัวที่มีการเคลื่อนไหวถูกดันไปชิดขวาจนข้อความขาด** (ทั้ง toast tick ผ่านและข้อความ canon `run.hpLow`) ต้นเหตุคือ effect เขียนทับ `transform` ของ `.toast` ซึ่งยืนยันได้จากโค้ด ข้อนี้ไม่ใช่เฟรมค้างระหว่างเปลี่ยนจอ (7.4) · อีก 4 จุด: banner Grace ถูกแถว HP ทับ, ปุ่มหลักหน้าสรุป run ไม่เป็นสีเหลือง, ปุ่ม "แผนที่ตามตัว" เป็นปุ่ม default ของ browser บนแผนที่ และข้อความ pill Grace/Suspended 14 px ที่ contrast ไม่ถึง 7:1 · ทุกจุดแก้ได้ใน CSS หรือแก้ DOM นิดเดียว ไม่ต้องทำงานภาพใหม่
+
+ไม่มีจอไหนแสดงตำแหน่งผู้เล่นคนอื่น ไม่มีเส้นทางวาดบนแผนที่ และไม่มีข้อใดผิด non-negotiable (ตรวจภาพทั้ง 24 จอ + bonus: บนแผนที่มีจุดตัวเองสีเหลืองจุดเดียว ไม่มีตัวเลขจำนวนคน แผงนำทางมีแค่ระยะเส้นตรง + ทิศ + ปุ่มไปแอปภายนอก)
+
+### 7.1 Findings blocking ของรอบ 1: ปิดหรือยัง
+
+ชื่อไฟล์ทั้งหมดอยู่ใน `art/reviews/screens/F04-F06/` (`-gray.png` คือคู่ขาวดำของภาพเดียวกัน)
+
+| id | ผล | หลักฐาน (ภาพ) | หมายเหตุ |
+| --- | --- | --- | --- |
+| V-30 | **ยังไม่ปิด** | `09-run-grace.png`, `10-toast-tick-loot.png`, `12-hp-low.png`, `15/16/17-summary-*.png`, `01/02/08-*.png` (ปุ่มมุมซ้ายบน) | ที่ผ่านแล้ว: ปุ่ม (`04`, `05`, `03`, `14`, `20`, `22`–`24`, `bonus-settings-menu`) ขอบหมึก 2 px ทุกปุ่ม ปุ่มเหลืองไม่เกินหนึ่งปุ่มต่อจอ ปุ่ม disabled เป็น `ink.100`/`ink.500` (`04`, `19`) · popup เป็น bottom sheet หัว 24 px ตัวหนา (`04`, `05`, `07`) · แผ่นรองทึบ (`01`, `02`, `08`, `25`, `26`) · แผงนำทางมีตัวเลขระยะ 24 px, chip "เส้นตรง", ลูกศร 48 px และปุ่มเหลือง (`02`) · pill Active/Grace ต่างกันด้วยพื้น แถบล่าง และ glyph (`08` เทียบ `09`) · เส้นแบ่งปลายแถบ HP เห็นชัด (`09`/`10` ที่ 98%, `12` ที่ 7%) · ภาพขาวดำยังแยกปุ่มหลัก ปุ่มรอง และแถบ HP ออกจากกันได้ (`05-…-gray`, `12-…-gray`) · **ที่ยังไม่ผ่าน: 5 จุดในข้อ 7.3** |
+| V-31 | **ปิด** | ทุกภาพ เช่น `04`, `13`, `15` | ตัวอักษรไทยเป็นแบบมีหัว (Looped) ของ IBM Plex Sans Thai Looped · `app.css:33,52` ใช้ `var(--kw-font-ui, …)` · ตัวเลขใช้ `tabular-nums` (`.hp-percent`, `.run-tick-timer`, `.chip-distance`, จอพกกระเป๋า) |
+| V-32 | **ปิด** | `13-pocket.png` (ข้อความรองเป็นสี `ink.300` ทึบ ไม่มี opacity), `12-hp-low.png` (`.toast.danger` พื้นขาว ข้อความแดง 16 px ตัวหนา), `08` (toast แจ้งจอดับ 16 px) | ใน `app.css` ไม่มี `#d9edf7` และ `#444` แล้ว · `.banner.info/.warn` พื้น `bg.surface` 16 px · ป้ายถอยอัตโนมัติปิดอยู่เปลี่ยนเป็น `.banner.warn` แล้ว (ดูจากโค้ด เพราะไม่มีภาพ) · ข้อ pill 14 px ที่เจอใหม่ นับรวมไว้ใน V-30 (7.3 R2-5) ไม่เปิด V-32 ใหม่ |
+| V-33 | **ปิด** | `15-summary-normal.png` (กรอบ 52 px + ไอคอนของ), `10-toast-tick-loot.png` (กรอบ 52 px ในแถวของตก) | วัดจากภาพได้ประมาณ 51–52 CSS px · ขอบหมึกและแถบสี rarity อ่านออก |
+| V-34 | **ปิด** | `04`, `05`, `08`, `12`, `25`, `26` | ป้ายเป็น "ลานลีลาวดี", "สวนนาวานุเคราะห์", "ตลาดพาหุรัด", "คลองโอ่งอ่าง", "ป้อมมหา…" ไม่มีอักษร key · ป้ายสองรอยแยกไม่ชนกันแล้ว (`04`, `05`) |
+| V-36 | **ปิดแบบมีข้อยกเว้น** | README + 24 คู่ PNG + `bonus-settings-menu` | ขาด `06` และ `11` · ทั้งสองจอไม่ block (7.2) · แต่หลังแก้ 7.3 แล้ว ต้องถ่าย `09`, `10`, `12`, `15` และ `08` ใหม่เป็นหลักฐานปิด V-30 (7.6) |
+
+### 7.2 สองจอที่ถ่ายไม่ได้
+
+| จอ | block verdict ไหม | เหตุผล |
+| --- | --- | --- |
+| `06-confirm-b2-overlap-selected` | **ไม่ block · ไม่จำเป็นสำหรับ Phase 2** | ข้อมูลที่ publish ใน Phase 2 ไม่มี dungeon ที่ polygon ซ้อนกัน (README หัวข้อ 2 ตรวจด้วย grid 201 × 201 จุด) จึงไม่มีผู้เล่นคนไหนเห็นจอนี้ใน Phase 2 · กฎ `.card.selected` (ขอบ 4 px + วง `accent.signal` 3 px, `app.css:175` ต่อจากนั้น) มีอยู่ในโค้ดแล้ว และ `.interest-option[aria-pressed]` ใช้ภาษาภาพเดียวกัน (`app.css:977-980`) · **เงื่อนไข:** จอนี้ต้องมีภาพใน content gate ของ phase แรกที่ publish dungeon ซ้อนกัน (หรือเมื่อ level-designer/location-engineer มี fixture คู่ที่ซ้อนกัน) ไม่ต้องเพิ่ม test hook ใน client เพื่อ gate นี้ |
+| `11-toast-tick-denied` | **ไม่ block** | `.toast.faded` ตรวจผ่านจากโค้ดตั้งแต่รอบ 1 (V-20: ขอบ `ink.500` 2 px ทึบ ไม่มีเงา ไม่มี opacity, `app.css:481-485`) · effect `run.tickDenied` animate แค่ `opacity` ไม่แตะ `transform` (`art/vfx/tick-feedback/tick-feedback.ts:60-67`) จึงไม่โดนบั๊กตำแหน่ง R2-1 · trace ของ P2-H52 มีแล้ว (`synthetic-tick-denied-leelawadee-01`, แจ้งจาก orchestrator) · **ภาพนี้ไม่จำเป็นต่อ verdict รอบนี้** ให้ถ่ายรวมในชุดภาพของรอบแก้ 7.9 (ไม่บังคับ แต่ขอให้มี เพราะต้นทุนแทบศูนย์และได้ยืนยันว่า toast จางอยู่กึ่งกลางหลังแก้ R2-1) |
+
+### 7.3 ที่ทำให้ V-30 ยังไม่ปิด (blocking, ต้องแก้ก่อนปิด gate)
+
+**R2-1 (gameplay-programmer + vfx-animator): toast ถูกดันไปชิดขวาจนข้อความขาด** · ภาพ `10-toast-tick-loot.png` (เฟรมนิ่ง ทึบ 100%) และ `12-hp-low.png`: ขอบซ้ายของ toast อยู่ที่กึ่งกลางจอพอดี (x ≈ 195 CSS px) และครึ่งขวาหลุดออกนอกจอ ข้อความ "ได้ของก้อนแรกแล้ว เดินม…" และข้อความ canon `run.hpLow` อ่านไม่ครบ · **ต้นเหตุ:** `.toast` จัดกึ่งกลางด้วย `left: 50%; transform: translateX(-50%)` (`app.css:458-460`) แต่ effect ทุกตัวที่เล่นกับ toast ใช้ `element.animate({ transform: 'translateY(…)' }, { fill: 'forwards' })` (`tick-feedback.ts:47-56, 76-91, 121-128`, `hp-critical.ts:66-91`) ค่า transform ของ Web Animations แทนที่ค่าใน CSS ทั้งก้อน และ `fill: 'forwards'` ทำให้ค่านั้นค้างตลอด `translateX(-50%)` จึงหายไปถาวร ไม่ได้หายแค่ช่วงเล่น effect · เป็นปัญหาแบบเดียวกับ edge marker ของแถบ HP ที่ P2-H42 แก้ไปแล้ว (effect เป็นเจ้าของ `transform` ทั้งหมด CSS ห้ามใช้ transform กับ element นั้น) · **แก้ (CSS อย่างเดียว ไม่ต้องแก้ effect):**
+```css
+.toast {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-inline: auto;   /* centres an abspos box that has an explicit width */
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  bottom: 24px;
+  /* no `transform` here: art/vfx owns 100% of this element's transform (same rule as P2-H42) */
+}
+```
+ใส่คอมเมนต์ที่ `.toast` ว่า "art/vfx owns transform" และ vfx-animator ใส่คอมเมนต์คู่กันที่หัว `tick-feedback.ts`/`hp-critical.ts` · test: e2e ตรวจว่า `boundingBox()` ของ toast อยู่ในช่วง 0–390 px และ center ต่างจาก 195 ไม่เกิน 1 px **หลัง** effect เล่นจบ (ทั้ง tick ผ่าน, tick แรก, HP ต่ำ, reduced-motion)
+
+**R2-2 (gameplay-programmer): banner Grace ใน run-bar ถูกแถว HP ทับ** · ภาพ `09-run-grace.png`: บรรทัด "กำลังยืนยันตำแหน่ง" (`.run-bar > .banner`) ถูกแผ่น `.hp-bar` ทับจนเหลือแต่ครึ่งบนของตัวอักษร · ต้นเหตุ: `.run-bar` สูงขึ้นเมื่อ banner ขึ้นบรรทัดใหม่ (`app.css:658-661`) แต่ `.hp-bar` ตั้งตำแหน่งตายตัวที่ `top: … + 92px` (`app.css:517`) ผิดกฎ V-30 ข้อ 3 ที่ว่าแผงที่แสดงพร้อมกันได้ต้องเรียงอยู่ใน stack เดียวกัน · Suspended, closing-soon และป้ายถอยอัตโนมัติปิดอยู่จะเจอปัญหาเดียวกัน · **แก้:** ครอบ `.run-bar` + `.hp-bar` (+ `.auto-retreat-off-badge` ถ้าอยู่ในกลุ่มนี้) ด้วย container เดียว `.run-top-stack { position: absolute; top: max(8px, env(safe-area-inset-top)); left: 8px; right: 8px; display: flex; flex-direction: column; gap: 8px; }` แล้วเอา `position/top/left/right` ออกจาก `.run-bar` และ `.hp-bar` · ห้ามแก้ด้วยการเพิ่มตัวเลข `top` เพราะความสูงของ banner เปลี่ยนตามความยาวคำ · ตำแหน่งของ `#network-banner`/`.recovering-banner` ไม่เกี่ยว (ไม่แสดงบนจอ run)
+
+**R2-3 (gameplay-programmer + uiux-designer): ปุ่มหลักหน้าสรุป run ไม่เป็นสีเหลือง** · ภาพ `15-summary-normal.png`, `16-summary-death.png`, `17-summary-autoretreat.png`: ปุ่ม "เดินต่อเพื่อรับเพิ่ม" เป็นพื้น `bg.paper` มีเงา แต่ไม่ใช่ `accent.signal` · ต้นเหตุ: `.btn-fullwidth-bottom { background: #fff8ee }` (`app.css:156`) ประกาศทีหลัง `.btn-primary` และ specificity เท่ากัน จึงชนะ · ที่มาคือ spec ของ components.md 3.x (บรรทัด 145/149, P2-H49) สั่งให้ใส่ `background: #FFF8EE` ที่ตัวปุ่มเอง ทั้งที่เจตนาคือพื้นทึบกันเนื้อหาที่เลื่อนผ่านใต้ปุ่ม · **แก้:** ลบ `background` ออกจาก `.btn-fullwidth-bottom` · ถ้าต้องมีพื้นกันทะลุ ให้ห่อปุ่มด้วย `.screen-bottom-bar { position: sticky; bottom: 0; background: #FFF8EE; padding: 8px 0 max(16px, env(safe-area-inset-bottom)); }` แล้วให้ปุ่มอยู่ใน flow ปกติในแถบนั้น · uiux-designer แก้ components.md บรรทัด 145/149 ให้พื้น `bg.paper` อยู่ที่แถบ ไม่ใช่ที่ปุ่ม · จอสรุป run เป็นจอเดียวของ loop ที่ปุ่มหลักต้องเด่นที่สุด (style guide 5, Do/Don't 3)
+
+**R2-4 (gameplay-programmer): ปุ่ม "แผนที่ตามตัว" (`#follow-toggle`) เป็นปุ่ม default ของ browser บนแผนที่** · ภาพ `01`, `02`, `04`, `05`, `07`, `21`, `25`, `26` (มุมซ้ายบน: พื้นเทา ขอบบาง ตัวหนังสือปกติ) และ `08`–`12` (ปุ่มโผล่จากใต้ขอบบนของ run-bar ตัวอักษรถูกตัดครึ่ง) · ผิดเกณฑ์ re-run ข้อ 2 (ปุ่มทุกปุ่มต้องมีขอบหมึก) · สร้างใน `ui/gps-ui.ts:57` ด้วย class `button` ที่ไม่มีกฎ CSS · **แก้:** ให้ใช้ `btn btn-secondary` (สูง ≥ 48 px, ขอบ 2 px `#1A1A22`, มุม 12 px, 16 px ตัวหนา) ตั้ง `position: absolute` ที่มุมขวาบน `top: max(8px, env(safe-area-inset-top)); right: 8px;` เพื่อไม่ชน `.gps-pill` ที่อยู่ซ้ายบน · **ซ่อนระหว่าง run** (หรือวางใต้ `.run-top-stack` ของ R2-2) ห้ามมีปุ่มโผล่จากใต้แผ่นรอง · ปุ่ม "แผนที่ไม่ตามตัว" ในภาพ S5 คือปุ่มเดียวกัน แก้ครั้งเดียวได้ทั้งสองสถานะ
+
+**R2-5 (gameplay-programmer): ข้อความ pill Grace/Suspended 14 px แต่ contrast 6.25:1** · ภาพ `09-run-grace.png` ("รอยืนยัน" สี `state.info`) · `.run-state-pill { font-size: 14px }` (`app.css:611`) ใช้ได้กับ Active (`ink.900` บน `bg.paper`) แต่ Grace (`#006699` บนแผ่นขาว 6.25:1) และ Suspended (`#FFFFFF` บน `#006699` 6.25:1) ต่ำกว่า S8 (14 px ต้อง ≥ 7:1) ผิดเกณฑ์ re-run ข้อ 4 และขัด "ตัวอย่าง S8" ใน style-guide หัวข้อ 2 · **แก้:** `.run-state-pill { font-size: 16px; }` ทุกสถานะ (ค่าเดียวกันทุกสถานะเพื่อไม่ให้ pill เปลี่ยนขนาดตอนเปลี่ยนสถานะ) ถ้าแถวบนแน่นเกิน ให้ tick timer ขึ้นบรรทัดใหม่ได้ (`flex-wrap` มีอยู่แล้ว)
+
+### 7.4 ข้อสังเกตจาก H41: toast ของ `12-hp-low` ชิดขวาและถูกตัด เป็น defect จริงไหม
+
+**เป็น defect จริง ไม่ใช่เฟรมที่ค้างตอนเปลี่ยนจอ** (R2-1) มีหลักฐาน 3 ข้อ: (1) `10-toast-tick-loot.png` เป็นเฟรมนิ่งระหว่าง run ปกติ (ทึบ 100%, timer 04:40) และขอบซ้ายของ toast อยู่ที่ x ≈ 195 CSS px เท่ากับใน `12` (2) effect `run.hpLow` ใช้ `transform` + `fill: 'forwards'` (`hp-critical.ts:67-72, 78-88`) ซึ่งแทนที่ `translateX(-50%)` ของ CSS ตลอดอายุของ toast (3) ตำแหน่งที่ผิดตรงกับ `left: 50%` แบบไม่มี transform เลย · ส่วนที่ **เป็นอาการของเฟรมกลางการเปลี่ยนจอจริง** ใน `12` คือ toast ดูโปร่ง (ถ่ายตอน opacity ของช่วงเข้ายังไม่ถึง 1) และทั้งจอมีสีเหลืองอมน้ำตาลจางๆ ซึ่งมาจาก pulse ของ V-35 (`#hud > .cue-visual-pulse`: `accent.signal` 25% → โปร่ง ใน 180 ms one-shot, `app.css:1309-1330`) ที่เล่นพร้อม cue HP ต่ำ ถ่ายติดตอนกลาง pulse พอดี สองอย่างนี้เป็นไปตามที่ออกแบบไว้ ไม่นับเป็น finding · หลังแก้ R2-1 ให้ถ่าย `12` ใหม่ตอน HP ต่ำและ run ยังไม่จบ รอ effect จบ ≥ 700 ms แล้วค่อยถ่าย เพื่อยืนยันตำแหน่ง ขนาด 16 px และไอคอน `icon.ui.hp-low` ในเฟรมเดียวกัน
+
+### 7.5 S5 ถ่ายซ้ำ (F-AD-5) — **ปิด**
+
+ดูภาพเอง 2 ภาพ ได้แก่ `S5-android-chrome--pmtiles--390x844--z14.jpg` และ `S5-ios-safari--tilejson--360x800--z14.jpg`: ป้าย "แม่น้ำเจ้าพระยา" วางตามแนวน้ำกลางจอ 1 ป้ายชัดๆ และมีอีกป้ายที่ขอบบน ตัวไทยมี halo ไม่ลอย ไม่ซ้อน ขอบน้ำและคลองเป็นเส้นน้ำเงินเข้ม ชื่อถนนอ่านได้ · อีก 6 ภาพยืนยันจาก `capture-s5-results.json` (`queryRenderedFeatures` เจอป้ายแม่น้ำที่ z14 ครบ 8/8 ไม่ต้องถอยไป z13) · ตรงเกณฑ์ใหม่ของ map-style 10.1 แถว S5 · F-AD-6 ก็ปิดแล้วเช่นกัน (style-guide หัวข้อ 2 "ตัวอย่าง S8", P2-H43) · งานเก็บของ art-director เอง (ไม่ block): หมายเหตุ S5 ใน `map-style.md` บรรทัด ~300 ยังเขียนว่า fixture "ไม่ครอบตำแหน่งใหม่" ซึ่งไม่จริงแล้ว ให้แก้เป็น "build แล้ว (P2-H41)" ในงานถัดไปที่มี `map-style.md` อยู่ใน writes
+
+### 7.6 สถานะ findings ไม่บังคับของรอบ 1
+
+| id | สถานะ | หลักฐาน |
+| --- | --- | --- |
+| V-35 | **ทำแล้ว** | `#hud > .cue-visual-pulse` มีกฎ CSS แล้ว (`app.css:1309-1330`) อยู่ที่ `zIndex.toast` 30 ใต้จอพกกระเป๋าตาม 15.4 เป็นของตกแต่ง `aria-hidden` ไม่รับการแตะ เล่นครั้งเดียว 180 ms ด้วยพื้นแบน `accent.signal` 25% ไม่ใช้ opacity กับขอบหมึก · เห็นในภาพ `12` เป็นสีเหลืองจางทั้งจอ ตรงตามที่ออกแบบ |
+| V-37 | **ตัดไป Phase 3** | plan-sync O-16 · หัว popup confirm ยังไม่มีไอคอนรอยแยก (`04`, `05`) ยอมรับได้สำหรับ Phase 2 |
+| V-38 | **ทำแล้ว** | components.md 6 (16 px ทุก toast/banner, P2-H40), 2.1 (GPS pill พื้น surface + ขอบสี state 16 px, P2-H40/H49), 3.3 (จำนวนปุ่ม primary ใน inventory) · `24-inventory.png` ปุ่ม "ใช้ยาฟื้น" เป็นปุ่มรอง ไม่มีปุ่มเหลือง ตรงกับคำตัดสินนั้น |
+| V-39 | **ทำแล้ว** | P2-H42/D-137 + X41: `.hp-fill-edge-marker` เป็น element แยก และ `art/vfx/hp-bar` เป็นเจ้าของ `transform` ทั้งหมด (`app.css:552-569`) · ในภาพ เส้นแบ่งอยู่ตรงปลายส่วนที่เติมพอดี (`09`/`10` 98%, `12` 7%) · กรอบ 52 px ใช้ DOM เดียวกันทั้งหน้าสรุปและ toast (`app.css:811-836`) |
+
+### 7.7 ที่เจอใหม่ในรอบ 2 (ไม่ block: ไม่แสดงตำแหน่งผู้เล่นอื่น ไม่มีเส้นทางวาด ไม่ผิด non-negotiable)
+
+| id | ถึง | ภาพ | ที่พบ | แก้ | เมื่อไร |
+| --- | --- | --- | --- | --- | --- |
+| V-40 | gameplay-programmer | `21-class-select.png`, `24-inventory.png` | badge class 48 px บนการ์ดเลือกพลังไม่แสดง (รอบ 1 ผ่านจากโค้ด) และไอคอนยาในกระเป๋าเป็นช่องว่าง · `setIconImg` ซ่อน `<img>` ถ้า manifest ยังโหลดไม่เสร็จตอน mount (`assets/icon-dom.ts:28-37`) และจอเหล่านี้ render ครั้งเดียว จึงไม่ได้เรียกซ้ำตอน manifest มาถึง · ชื่อ class ยังเป็นข้อความ (S4 ยังผ่าน) | render ไอคอนใหม่เมื่อ manifest พร้อม (subscribe/เรียกซ้ำ) หรือรอ manifest ก่อน mount จอ onboarding/inventory · test: การ์ดทั้ง 4 ใบมี `img:not([hidden])` | ก่อน closed beta |
+| V-41 | gameplay-programmer | `12`, `09`, `14` | ไอคอนคู่ข้อความที่ components.md 6 และ 13.4 บังคับยังไม่มี: `icon.ui.hp-low` ใน `.toast.danger`, ไอคอน 24 px ใน `.banner.info/.warn` (Grace, Suspended, ถอยอัตโนมัติปิดอยู่, network), `icon.ui.recovering` (6.1) และ `icon.ui.speed-lock` 48 px กึ่งกลางจอ speed-lock (`ui/speed-lock-overlay.ts` ไม่มี element ไอคอนเลย) · ข้อนี้อยู่ใน V-30 ข้อ 8/9 ของรอบ 1 แต่ลดเป็นไม่ block เพราะทุกจุดมีข้อความกำกับเสมอ และไม่อยู่ในเกณฑ์ re-run 5 ข้อ | ใช้ `iconGlyph.setIconGlyph` แบบเดียวกับ pill (`run-bar.ts:113`) สีตามข้อความ `aria-hidden` · speed-lock ใช้ 48 px เหนือหัวข้อ | ก่อน content gate ของ Phase 3 |
+| V-42 | gameplay-programmer + uiux-designer | `22-settings-walking-safety.png` | toggle เป็นวงกลมเขียวทึบ ไม่มีราง ไม่มีปุ่มเลื่อน ไม่มีข้อความบอกสถานะ และตอนเปิดขอบเปลี่ยนเป็นเขียวทำให้เสียขอบหมึก (`app.css:1051-1055`) · ภาพขาวดำยังแยกเปิด/ปิดออกด้วยความสว่าง แต่ดูไม่ออกว่าเป็นสวิตช์ | คงขอบ `#1A1A22` 2 px ทุกสถานะ · ทำเป็นราง 56 × 32 px มีปุ่มเลื่อน 24 px ชิดซ้าย/ขวาตามสถานะ (ปุ่มเลื่อนสีขาวขอบหมึก รางเปิด `state.success` รางปิด `ink.100`) โดยพื้นที่แตะยังเป็น 48 px · ถ้า uiux ต้องการคำ "เปิด/ปิด" ให้ขอ copy จาก narrative-designer | ก่อน closed beta |
+| V-43 | qa-tester + gameplay-programmer | `02-map-near-nav.png` | ลูกศรชี้เกือบขึ้นเหนือ (เอียงไปทาง NNE) แต่ข้อความบอก "ทิศตะวันออกเฉียงใต้" · น่าจะถ่ายตอน transition 150 ms ยังไม่จบ (`app.css:347-351`) เพราะ `rotate(135deg)` ของ SE ถูกต้องแล้ว (glyph ต้นทางชี้เหนือ, `art/assets/icon/ui/direction.svg`) | qa ถ่าย `02` ใหม่หลัง `data-direction` ถูกตั้งแล้ว ≥ 300 ms · ถ้าลูกศรยังไม่ตรงกับข้อความ ให้เลื่อนเป็น blocking ทันที (ลูกศรกับข้อความขัดกันคือการนำทางผิด) | รอบแก้ 7.9 |
+| V-44 | gameplay-programmer | `02-map-near-nav.png` | คำบอกทิศถูกตัดกลางคำ "ทิศตะวันออกเฉียง / ใต้" | ให้ `.direction-label { white-space: nowrap; }` แล้วให้ทั้งคำขึ้นบรรทัดใหม่ทั้งก้อน (แถวระยะเป็น `flex-wrap`) หรือวางคำบอกทิศเป็นบรรทัดของตัวเองใต้ตัวเลขระยะ | รวมกับ R2 |
+| V-45 | qa-tester | `01-map-far.png` | เนื้อหาเหมือน `25-home-out-of-area` ("ช่วยกันปลุกจังหวัดเรา") ไม่ใช่สถานะไกล ("รอยแยกใกล้สุดอยู่ไกล") ตามที่ README ระบุ | ถ่าย `01` ใหม่ตอน title ตรงกับสถานะไกลจริง | รอบแก้ 7.9 |
+| V-46 | gameplay-programmer | `21-class-select.png` | แผ่นแถว HP (ไม่มีตัวเลข %) แสดงอยู่หลัง scrim ของจอเลือกพลัง ทั้งที่ยังไม่มี run | ซ่อน `.hp-bar` นอกจอ run | รวมกับ R2-2 |
+| V-47 | art-director (ตัวเอง) | `09-run-grace.png` | จุดตัวเองวาดทับป้ายชื่อรอยแยก "ลานลีลาวดี" | ตรวจลำดับ layer/`text-offset` ของ `kw-dungeon-labels` เทียบกับ `kw-self` ใน `map-style.md` แล้วเสนอค่าในงาน map-style ถัดไป | Phase 3 |
+
+### 7.8 ส่ง HUMAN (NEEDS_CHANGES ครั้งที่สอง, protocol ข้อ 6)
+
+สิ่งที่ขอให้คนตัดสิน (เลือกหนึ่งข้อ):
+1. **(แนะนำ)** อนุมัติรอบแก้ที่แคบลง: gameplay-programmer แก้ R2-1 ถึง R2-5 (CSS เป็นหลัก มีแก้ DOM ใน R2-2 และ R2-4) → qa-tester ถ่ายใหม่เฉพาะจอในข้อ 7.9 → art-director ตรวจ**เฉพาะ** R2-1 ถึง R2-5 และ V-43 จากภาพชุดใหม่ ถ้าผ่านทุกข้อจะปิด gate เป็น PASS ได้เลย ไม่ต้องเปิดรอบเต็ม
+2. ยอมรับ R2-3 ถึง R2-5 เป็นหนี้ไว้แก้ใน Phase 3 แล้วบังคับแก้แค่ R2-1 และ R2-2 (สองข้อที่ข้อความของผู้เล่นอ่านไม่ได้จริง) · art-director ไม่แนะนำ เพราะ R2-3 ถึง R2-5 แก้ได้ไม่กี่บรรทัด และ R2-5 ผิด S8 ที่เพิ่งเขียนเพิ่มในรอบนี้โดยตรง
+3. Override เป็น PASS ทั้งที่มีข้อค้าง · art-director **ไม่แนะนำ**: R2-1 ทำให้ toast tick ทุกตัวและข้อความเตือน HP ต่ำ (ข้อความด้านความปลอดภัยที่เป็น canon) ถูกตัดทุกครั้งที่เล่นจริง
+
+### 7.9 เกณฑ์ปิด gate (ใช้กับข้อ 7.8 ข้อ 1)
+
+ภาพใหม่ Android Chrome 390 × 844 ใช้ harness เดิม (`qa/tests/e2e/visual/capture-f04-f06-screens.ts`) ทุกภาพถ่ายหลัง effect เล่นจบแล้ว (รอ ≥ 700 ms หลัง toast ขึ้น) พร้อมคู่ `-gray.png`:
+- `10-toast-tick-loot` และ `12-hp-low` (HP ต่ำ run ยังไม่จบ): toast อยู่ในจอทั้งก้อน กึ่งกลาง ข้อความครบ ≤ 2 บรรทัด → R2-1
+- `09-run-grace` และภาพใหม่ `09b-run-suspended` (ถ้าไปถึงได้ด้วย trace ที่มีอยู่): ข้อความ banner ไม่มีอะไรทับ แถว HP อยู่ใต้ run-bar → R2-2 · pill 16 px → R2-5
+- `15-summary-normal`: ปุ่ม "เดินต่อเพื่อรับเพิ่ม" พื้น `#FFCC00` มีเงาทึบ → R2-3
+- `01-map-far` (สถานะไกลจริง, V-45), `02-map-near-nav` (ลูกศรตรงกับทิศที่เขียน, V-43), `08-run-active`: ปุ่มตามตัวเป็น `.btn-secondary` ไม่ชนแผ่นรองใดๆ และไม่มีบนจอ run → R2-4
+- `11-toast-tick-denied` จาก trace `synthetic-tick-denied-leelawadee-01` (P2-H52): toast จางกึ่งกลาง ขอบ `ink.500` ทึบ (ขอให้มี แต่ไม่ใช่เงื่อนไขปิด)
+
+ผ่านเมื่อทุกข้อข้างบนเห็นในภาพจริง และจอที่เหลือไม่มีอะไรถอยหลังจากรอบนี้ (ไม่มีข้อความบนแผนที่ที่ไม่มีแผ่นรอง, ปุ่มเหลือง ≤ 1 ปุ่มต่อจอ, ปุ่มทุกปุ่มมีขอบหมึก, ไม่มีสีนอก token, ไม่มีข้อความ < 16 px ที่ contrast < 7:1, ไม่มี key ดิบ)
+
+### 7.10 Handoff ของรอบ 2
+
+- to: gameplay-programmer | need: แก้ R2-1 (`.toast` จัดกึ่งกลางโดยไม่ใช้ transform), R2-2 (`.run-top-stack`), R2-3 (ปุ่มหลักหน้าสรุปกลับเป็นสีเหลือง), R2-4 (`#follow-toggle` เป็น `.btn-secondary` มุมขวาบน ซ่อนระหว่าง run), R2-5 (pill 16 px) ใน `apps/client/src/app.css`, `ui/gps-ui.ts`, `ui/run-bar.ts`/`ui/hp-bar.ts` และ V-44/V-46 ไปพร้อมกัน | why: V-30 ยังไม่ปิด (7.3) | blocking: yes
+- to: vfx-animator | need: ยืนยันสัญญาว่า art/vfx เป็นเจ้าของ `transform` ของ `.toast` ทั้งหมด ใส่คอมเมนต์ที่หัว `tick-feedback.ts` และ `hp-critical.ts` (ไม่ต้องแก้ effect ถ้า R2-1 แก้ฝั่ง CSS) | why: R2-1 | blocking: yes (คู่กับ R2-1)
+- to: uiux-designer | need: แก้ components.md บรรทัด 145/149 (P2-H49) ให้พื้น `bg.paper` อยู่ที่แถบ sticky ไม่ใช่ที่ตัวปุ่ม · ระบุขนาดตัวอักษร 16 px ของ run-state pill ใน 13.2 · ตัดสินรูปทรง toggle ของ V-42 | why: R2-3, R2-5, V-42 | blocking: yes สำหรับ R2-3 และ R2-5 · no สำหรับ V-42
+- to: qa-tester | need: ถ่ายภาพตามข้อ 7.9 หลัง X ของ R2 merge แล้ว · V-43, V-45 | why: หลักฐานปิด gate | blocking: yes
+- to: HUMAN (ผ่าน producer) | need: เลือกหนึ่งข้อจาก 7.8 | why: NEEDS_CHANGES ครั้งที่สอง, protocol ข้อ 6 | blocking: yes
+- to: art-director (ตัวเอง) | need: แก้หมายเหตุ S5 ใน `map-style.md` (7.5) และ V-47 | why: เก็บงาน | blocking: no

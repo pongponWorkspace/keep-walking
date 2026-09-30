@@ -202,3 +202,7 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 187 | W17 | P2-X50 | gameplay-programmer | 04:29:12 | 04:29:12 | DONE — ปุ่ม export telemetry + e2e download · key ดิบ → X51 narrative · X50 kill vite preview เก่า (อาจกระทบ H41) |
 | 188 | W17 | P2-X51 | narrative-designer | — | 04:29:48 | DONE — settings.exportLink ส่งออกบันทึกการเล่น |
 | 189 | W17 | P2-H41 | qa-tester | 05:38 | 04:53:39 | DONE — ภาพ 24/26 + S5 8/8 มีป้ายแม่น้ำ · 2 จอถ่ายไม่ได้ → H52 location (tick-denied trace) / art-director ตัดสิน · W18 dispatch T21 QA gate, T23 visual r2, H52 |
+| 190 | W18 | P2-H52 | location-engineer | 06:40 | 05:01:36 | DONE — trace tick-denied พร้อม Mock URL · writes นอก brief (tools/traces, packages/location test) เป็นพื้นที่ owner เดียวกัน orchestrator ยอมรับ |
+| 191 | W18 | P2-F06-T23 | art-director | 06:40 | 05:02:45 | NEEDS_CHANGES (รอบ 2 · ครั้งที่สอง) — safety stop ตาม Rule 4 / protocol 6 · Q-P2-14 ถามคน · D-138, D-139 ACCEPTED (อำนาจ art-director) |
+| 192 | W18 | user | user | — | 2026-09-30 13:16:04 | ตอบ Q-P2-14 = fix รอบแคบ (D-140) |
+| 193 | W18 | P2-F06-T21 | qa-tester | 06:40 | 2026-09-30 13:16:04 | PASS — QA gate F06 ครบ · แก้ flake f02 · → H56 level-designer · W19 dispatch X52, H53, H54, H56 |
