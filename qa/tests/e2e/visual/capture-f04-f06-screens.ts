@@ -756,7 +756,7 @@ async function reach18Intro(browser: Browser): Promise<Outcome> {
 async function reach19AgeGate(browser: Browser): Promise<Outcome> {
   const { context, page } = await gotoOnboarding(browser);
   await page.locator('.intro-screen:not([hidden])').waitFor({ state: 'visible', timeout: 10_000 });
-  await page.click('.intro-screen');
+  await page.click('.intro-screen .intro-start');
   const shown = await page
     .locator('.age-gate-screen:not([hidden])')
     .waitFor({ state: 'visible', timeout: 5_000 })
@@ -769,7 +769,7 @@ async function reach19AgeGate(browser: Browser): Promise<Outcome> {
 async function reach20Consent(browser: Browser): Promise<Outcome> {
   const { context, page } = await gotoOnboarding(browser);
   await page.locator('.intro-screen:not([hidden])').waitFor({ state: 'visible', timeout: 10_000 });
-  await page.click('.intro-screen');
+  await page.click('.intro-screen .intro-start');
   await page.locator('.age-gate-birth-year-select').selectOption('1990');
   await page.click('.age-gate-confirm');
   const shown = await page
@@ -812,7 +812,7 @@ async function reach21ClassSelect(browser: Browser): Promise<Outcome> {
 async function reach26HomeUnknown(browser: Browser): Promise<Outcome> {
   const { context, page } = await gotoOnboarding(browser);
   await page.locator('.intro-screen:not([hidden])').waitFor({ state: 'visible', timeout: 10_000 });
-  await page.click('.intro-screen');
+  await page.click('.intro-screen .intro-start');
   await page.locator('.age-gate-birth-year-select').selectOption('1990');
   await page.click('.age-gate-confirm');
   const consentShown = await page

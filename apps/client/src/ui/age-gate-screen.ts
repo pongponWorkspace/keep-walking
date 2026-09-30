@@ -112,6 +112,10 @@ export function mountAgeGateScreen(container: HTMLElement, deps: AgeGateScreenDe
   return {
     root,
     showGate() {
+      // `render()` calls this on every state change (clock tick, GPS sample), not just once on
+      // entry. Resetting on each call wiped the player's pick and rebuilt the options under an
+      // open iOS picker wheel, so only reset when the gate view is actually being (re)opened.
+      if (!root.hidden && !gateView.hidden) return;
       populateOptions();
       select.value = '';
       confirmButton.disabled = true;

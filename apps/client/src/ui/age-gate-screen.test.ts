@@ -111,6 +111,24 @@ describe('mountAgeGateScreen', () => {
     expect(screen.root.hidden).toBe(true);
   });
 
+  it('repeated showGate() while already open keeps the pick (render() calls it every state change)', () => {
+    const { screen } = mount();
+    screen.showGate();
+    const select = screen.root.querySelector<HTMLSelectElement>('.age-gate-birth-year-select');
+    const confirmButton = screen.root.querySelector<HTMLButtonElement>('.age-gate-confirm');
+    expect(select).not.toBeNull();
+    if (select === null || confirmButton === null) return;
+    const firstOption = select.options[1];
+    select.value = '2000';
+    select.dispatchEvent(new Event('change'));
+    screen.showGate();
+    screen.showGate();
+    expect(select.value).toBe('2000');
+    expect(confirmButton.disabled).toBe(false);
+    // The option nodes themselves are not rebuilt, so an open native picker is not disturbed.
+    expect(select.options[1]).toBe(firstOption);
+  });
+
   it('re-showing the gate resets the previous selection (no stale confirm state)', () => {
     const { screen } = mount();
     screen.showGate();

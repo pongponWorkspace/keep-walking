@@ -76,11 +76,11 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
 
     await page.goto(FIXTURE_URL);
 
-    // Minute 0: the single opening line (R36, no skip button) on top of the already-visible map.
+    // Minute 0: a single start button (D-144) on top of the already-visible map.
     const intro = page.locator('.intro-screen:not([hidden])');
     await expect(intro).toBeVisible({ timeout: 10_000 });
-    await expect(page.locator('.intro-message')).toHaveText(getCopyText('onboarding.intro'));
-    await intro.click();
+    await expect(page.locator('.intro-start')).toHaveText(getCopyText('onboarding.introStart'));
+    await page.locator('.intro-start').click();
 
     // F06-R44/R45 (P2-X38): age gate before anything else -- pick a real, passing birth year from
     // the <select> (never typed), confirm button disabled until a year is picked.
@@ -167,7 +167,7 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
     test.setTimeout(30_000);
     await page.goto(FIXTURE_URL);
 
-    await page.locator('.intro-screen:not([hidden])').click();
+    await page.locator('.intro-screen:not([hidden]) .intro-start').click();
     const ageGate = page.locator('.age-gate-screen:not([hidden])');
     await expect(ageGate).toBeVisible({ timeout: 5_000 });
     // `start=2026-10-02` -> nowYear 2026; 2020 is 6 years old, well under minAge_yr (15).
@@ -203,7 +203,7 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
     test.setTimeout(30_000);
     await page.goto(FIXTURE_URL);
 
-    await page.locator('.intro-screen:not([hidden])').click();
+    await page.locator('.intro-screen:not([hidden]) .intro-start').click();
     await page.locator('.age-gate-birth-year-select').selectOption('1990');
     await page.locator('.age-gate-confirm').click();
     await expect(page.locator('.consent-location-screen:not([hidden])')).toBeVisible({

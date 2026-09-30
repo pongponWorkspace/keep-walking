@@ -112,6 +112,7 @@
   },
   "onboarding.intro": { "text": "กรุงเทพฯ กำลังมีปัญหา", "voice": "system", "kind": "message", "context": "S-00-intro จอแรกสุด ข้อความเดียวตาม GDD · แตะที่ใดก็ได้เพื่อไปต่อ", "cells": 17 },
   "onboarding.introTap": { "text": "แตะที่ไหนก็ได้", "voice": "system", "kind": "label", "context": "S-00-intro ป้ายเล็กท้ายจอ บอกว่าแตะทั้งจอได้ (ไม่มีปุ่มข้าม)", "cells": 10 },
+  "onboarding.introStart": { "text": "เริ่มเกม", "voice": "system", "kind": "button", "context": "S-00-intro ปุ่มเดียวบนจอแรกสุด (คนตัดสิน 2026-10-01: จอแรกเหลือแค่ปุ่มเริ่มเกม แทนข้อความเปิด + แตะที่ไหนก็ได้) · กดแล้วไปจอยืนยันอายุ", "cells": 6 },
   "onboarding.headerLabel": { "text": "เริ่มต้น", "voice": "system", "kind": "label", "context": "S-00-intro context label ใน header (components.md 2.1) · ถ้า uiux ตัด label ออกจากจอนี้ key นี้ไม่ถูกใช้ (F03 copy gate F-02)", "cells": 5 },
   "onboarding.pickRoleTitle": { "text": "เลือกพลัง", "voice": "system", "kind": "label", "context": "S-00-class-select หัวจอ · ใช้คำว่า พลัง ตาม GDD (U5)", "cells": 7 },
   "onboarding.pickRoleHint": { "text": "เลือกเสร็จเข้าเกมเลย", "voice": "system", "kind": "label", "context": "S-00-class-select ใต้หัวจอ · ไม่มีหน้ายืนยันซ้อน ห้ามพูดถึงการเปลี่ยนภายหลัง (U5)", "cells": 17 },
