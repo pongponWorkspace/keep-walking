@@ -22,7 +22,7 @@ task: P1-F02-T06 · เจ้าของ: location-engineer · อ้างอ�
 
 | รายการ | ค่า | การตรวจ |
 | --- | --- | --- |
-| tile schema | Protomaps Basemap v4 · build `20260923` (`https://build.protomaps.com/20260923.pmtiles`) · metadata `version = 4.15.2` · OSM replication `2026-09-23T04:00:00Z` | build ล้มถ้า metadata version ไม่ตรง `schema.expectedMetadataVersion` |
+| tile schema | Protomaps Basemap v4 · build `20260930` (`https://build.protomaps.com/20260930.pmtiles`) · metadata `version = 4.15.2` · OSM replication `2026-09-30T04:00:00Z` | build ล้มถ้า metadata version ไม่ตรง `schema.expectedMetadataVersion` · Protomaps ลบ daily build เก่าราว 7 วัน ถ้า source ตอบ 404 ให้เลื่อน `schema.buildKey` + `sourceUrl` ไป build ล่าสุดที่ version เดียวกัน (fixture ยังเป็นชุด `20260923` ตาม manifest ของมัน) |
 | CLI | go-pmtiles v1.31.2 (commit `a3e4951`, 2026-07-22) | sha256 ต่อ OS/arch ใน `tools.pmtiles.assets` (ค่าจาก GitHub release) |
 | glyph PBF + sprite | `protomaps/basemaps-assets` commit `028c18f713baecad011301ff7a69acc39bcc2ae7` (2025-10-31) · fontstack `Noto Sans Regular/Medium/Italic` (256 ไฟล์ต่อ stack) · sprite `v4/light` (+`@2x`) | `treeSha256` = sha256 ของรายการ sha256 ทุกไฟล์ที่ใช้ (tarball ของ codeload ไม่รับประกันว่า byte คงที่ จึงไม่ตรวจที่ตัว tarball) |
 | font-faces ไทย (D-032) | Noto Sans Thai release `NotoSansThai-v2.002` (notofonts/thai) · zip sha256 `af889cc6…a485` · ใช้ `unhinted/ttf/NotoSansThai-Regular.ttf` และ `-Medium.ttf` | sha256 ของ zip, ของแต่ละ TTF และของ `OFL.txt` |

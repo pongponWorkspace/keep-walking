@@ -3,9 +3,9 @@
   "schema": {
     "name": "protomaps-basemap",
     "majorVersion": 4,
-    "buildKey": "20260923",
+    "buildKey": "20260930",
     "expectedMetadataVersion": "4.15.2",
-    "sourceUrl": "https://build.protomaps.com/20260923.pmtiles",
+    "sourceUrl": "https://build.protomaps.com/20260930.pmtiles",
     "tilesetIdTemplate": "pm4-{build}-z{maxzoom}"
   },
   "area": {

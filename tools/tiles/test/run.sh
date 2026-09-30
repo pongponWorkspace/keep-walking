@@ -20,7 +20,10 @@ trap cleanup EXIT
 [[ -x "$PMTILES_BIN" ]] || "$TILES_DIR/bin/fetch-tools.sh" >/dev/null 2>&1 || true
 
 FIX="$TILES_DIR/fixtures/$(cfg .fixture.name)"
-ID="$(tileset_id "$(cfg .fixture.maxzoom)")-$(cfg .fixture.name)"
+# Fixture ids come from each fixture's committed manifest.json, not from schema.buildKey: the
+# fixtures stay pinned to the build they were cut from while schema.buildKey follows the live
+# Protomaps daily build (old dailies are deleted upstream, so the build pin has to move).
+ID="$(jq -r .tileset_id "$FIX/manifest.json")"
 ARCH="$FIX/pmtiles/$ID.pmtiles"
 TJ="$FIX/tiles/$ID/tiles.json"
 
@@ -108,7 +111,7 @@ SROOT="$TILES_DIR/fixtures/$(cfg .screenFixtures.dir)"
 check "screen fixtures tree <= screenFixtures.maxDirBytes" test "$(sum_bytes "$SROOT")" -le "$(cfg .screenFixtures.maxDirBytes)"
 check "screen fixtures cover S2, S5, S6-z10, S6-z13" jq -e '[.screenFixtures.items[].screen] | sort == ["S2","S5","S6-z10","S6-z13"]' "$CONFIG"
 while IFS=$'\t' read -r sname smaxz; do
-  sid="$(tileset_id "$smaxz")-$sname"; sfix="$SROOT/$sname"
+  sfix="$SROOT/$sname"; sid="$(jq -r .tileset_id "$sfix/manifest.json")"
   sel=".screenFixtures.items[] | select(.name == \"$sname\")"
   check "$sname: bbox inside area.bbox, center inside bbox" jq -e ".area.bbox as \$a | ($sel) as \$i | \$i.bbox as \$b
     | \$b[0] >= \$a[0] and \$b[1] >= \$a[1] and \$b[2] <= \$a[2] and \$b[3] <= \$a[3]
