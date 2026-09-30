@@ -29,14 +29,16 @@ pnpm exec tsx qa/tests/e2e/visual/capture-s5-reshoot.ts
 | `02-map-near-nav` | Nav panel, กำลังเข้าใกล้ (state near, popup ยังไม่เปิด) | `trace=e2e-full-run-01&speed=1`, จับตอน `.nav-panel` มี chip ระยะก่อน confirm popup เปิด |
 | `03-nav-fallback` | popup fallback ของปุ่มนำทาง | ต่อจาก 02 แล้วแตะ `.nav-fallback-open-link` |
 | `04-confirm-b1-wait` | confirm popup, B1 รอ (GPS ไม่แม่นพอ) | `trace=qa-e2e-leelawadee-poor-accuracy-01&speed=5` |
-| `05-confirm-b1-ready` | confirm popup, B1 พร้อม (ปุ่ม "เข้า" เปิด) | `trace=e2e-full-run-01&speed=60` ก่อนแตะเข้า |
+| `05-confirm-b1-ready` | confirm popup, B1 พร้อม (ปุ่ม "เข้า" เปิด) — **ถ่ายซ้ำรอบ 4 (P2-H58, DG6-01)** เห็นแถว `dungeon.confirmHp` "HP ตอนนี้ 100%" แล้ว | `trace=e2e-full-run-01&speed=60` ก่อนแตะเข้า |
+| `05b-confirm-low-hp` | confirm popup, HP ≤ 25% + เปิดถอยอัตโนมัติ (HP row + `dungeon.confirmLowHpNote`) — **ใหม่รอบ 4 (P2-H58, DG6-01)** | `trace=e2e-full-run-01&speed=60`, session pre-seed `qa/tests/e2e/fixtures/f06-confirm-low-hp-autoretreat-on.session.json` ก่อนแตะเข้า — ดูหัวข้อ 9 |
 | `06-confirm-b2-overlap-selected` | **ไม่สามารถถ่ายได้** | ดูหัวข้อ 2 |
 | `07-confirm-closed` | confirm popup, ปิดทำการ | `trace=qa-e2e-khlong-ong-ang-closed-01`, `start=2026-09-28T12:00` (วันจันทร์ ปิด จ.-พฤ.) |
 | `08-run-active` | Run HUD, Active | `trace=e2e-full-run-01&speed=60` แตะเข้าแล้ว |
 | `09-run-grace` | Run HUD, Grace | `trace=qa-e2e-leelawadee-checkin-01&speed=10` แตะเข้าแล้วเดินออกนอกรอยแยก |
+| `09b-run-suspended` | Run HUD, Suspended — **ถ่ายได้ครั้งแรกรอบ 4 (P2-H58)** | `trace=synthetic-suspended-leelawadee-01&e2eClassId=tanker&seed=1&speed=60` แตะเข้าแล้วรอ pill "หยุดชั่วคราว" — ดูหัวข้อ 9 |
 | `10-toast-tick-loot` | Toast tick ผ่าน (ของตก) | `trace=e2e-full-run-01&speed=60`, รอ toast ที่ไม่มี `.faded` |
-| `11-toast-tick-denied` | **ไม่สามารถถ่ายได้** | ดูหัวข้อ 2 |
-| `12-hp-low` | HP ต่ำ (แถบแดง + toast เตือน) ก่อน auto-retreat | `trace=e2e-f06-koa-run-01&e2eClassId=tanker&seed=5&speed=60`, จับ hp-percent ระหว่าง 1-30% |
+| `11-toast-tick-denied` | ดูหัวข้อ 7.4 (ถ่ายได้ตั้งแต่รอบ 3) | `trace=synthetic-tick-denied-leelawadee-01&speed=60` |
+| `12-hp-low` | HP ต่ำ (แถบแดง + toast เตือน) ก่อน auto-retreat — **ถ่ายซ้ำรอบ 4 (P2-H58)** ด้วย trace ใหม่ที่ให้หน้าต่าง "run ยังไม่จบ" ยาวพอรอเต็ม ≥700 ms | `trace=synthetic-hp-low-leelawadee-01&e2eClassId=tanker&seed=15&speed=60`, จับ hp-percent ระหว่าง 1-30% แล้วรอ 700 ms — ดูหัวข้อ 9 |
 | `13-pocket` | จอพกกระเป๋า | `trace=e2e-full-run-01`, บังคับ `navigator.wakeLock` ให้มีจริง (path A) |
 | `14-speedlock` | Speed-lock overlay | `trace=synthetic-driving-40kmh-01&speed=10` (global anti-cheat ไม่ต้องมี dungeon) |
 | `15-summary-normal` | Run summary, ออกเอง | `trace=e2e-full-run-01`, แตะออก + ยืนยัน |
@@ -81,8 +83,9 @@ active อยู่ใน dungeon จริงที่เปิดอยู่ 
 
 ## 3. ข้อสังเกต (ไม่ใช่ finding ของ gate นี้ แต่ควรตรวจต่อ)
 
-- **`12-hp-low`:** toast เตือน HP ต่ำ (`run.hpLow`, `.toast.danger`) ในภาพที่ถ่ายได้ปรากฏชิดขอบขวา
-  ของจอและถูกตัดข้อความ ทั้งที่ CSS ของ `.toast` (`app.css` บรรทัด ~456-465) กำหนด
+- **`12-hp-low` (ข้อสังเกตของรอบ 1 — ดูหัวข้อ 9 สำหรับสถานะปัจจุบัน หลัง R2-1 แก้และรอบ 4 ถ่ายซ้ำด้วย
+  trace ใหม่ ข้อสังเกตนี้ไม่เกิดซ้ำแล้ว):** toast เตือน HP ต่ำ (`run.hpLow`, `.toast.danger`) ในภาพที่
+  ถ่ายได้ปรากฏชิดขอบขวา ของจอและถูกตัดข้อความ ทั้งที่ CSS ของ `.toast` (`app.css` บรรทัด ~456-465) กำหนด
   `left: 50%; transform: translateX(-50%); max-width: calc(100vw - 32px)` ซึ่งควรกึ่งกลางและไม่ล้น
   จอ · เป็นไปได้ว่าภาพที่จับได้คือเฟรมที่ถูกแช่ระหว่างเปลี่ยนหน้าจอ (`f04-app.ts`'s
   `exitAnimationInFlight` แช่ HUD ไว้ระหว่าง HP hard-cut/grayscale ก่อน summary ขึ้น) ไม่ใช่ชั้น
@@ -280,3 +283,56 @@ lawn` ที่เดินเข้า เดินเล่นสั้น แ
    ให้ตัวเลือกที่ 2 (leelawadee-lawn + loop) ใช้ได้จริงในงานถัดไป
 3. Override เป็นผ่านเต็มเงื่อนไขทั้งที่มีแค่ 250 ms — **ไม่แนะนำ** เพราะเป็นการยอมรับหลักฐานที่ต่ำกว่า
    เกณฑ์ที่ art-director เขียนไว้เองใน 7.9 โดยไม่มีเหตุผลใหม่มากกว่าที่อธิบายในข้อ 1
+
+## 9. round 4 (P2-H58, 2026-09-30) — DG6-01 round 2 evidence + `09b`/`12` unblocked
+
+Task: P2-H58 · ผู้ถ่าย: qa-tester · วันที่: 2026-09-30 · ตาม
+`design/reviews/F06-design-gate.md` §10 (เกณฑ์ปิด gate รอบซ้ำของ DG6-01: โค้ด `dungeon-confirm.ts`
+แสดงสามสถานะ, e2e ของ qa เขียวทั้งสองโปรเจกต์, ภาพ popup ใหม่อย่างน้อยกรณี HP ≤ 25%, ไม่เปลี่ยนกฎ/config/
+copy key อื่น) — หลัง `gameplay-programmer` แก้ `dungeon-confirm.ts` ตาม DG6-01 (commit `9fbaf02`)
+
+**Build:** `git status` สะอาดที่ HEAD `9fbaf02` ก่อน build ใหม่ (`pnpm --filter @keep-walking/client
+build` แล้ว `preview --port 4173`) — ภาพทุกใบในหัวข้อนี้จึงมาจาก build เดียวกัน สดจาก HEAD นี้ ไม่มี
+client change ใดจากงานนี้เอง (out of `writes`)
+
+**คำสั่งที่ใช้:**
+```
+pnpm exec tsx qa/tests/e2e/visual/capture-f04-f06-screens.ts \
+  05-confirm-b1-ready 05b-confirm-low-hp 09b-run-suspended 12-hp-low
+```
+
+### 9.1 ผล — 4/4 ถ่ายได้ครบ (ดีขึ้นจากรอบ 3 ที่ `09b` ไปไม่ถึงและ `12` รอได้แค่ 250 ms)
+
+| ไฟล์ | เกณฑ์ | ผล |
+| --- | --- | --- |
+| `05-confirm-b1-ready` (ถ่ายซ้ำ) | DG6-01: HP เต็มเห็นแถว `dungeon.confirmHp` อย่างเดียว ไม่มี note/badge | **ยืนยันแล้ว** "HP ตอนนี้ 100%" ไม่มี low-HP note ไม่มี off badge ปุ่ม "เข้า" เปิด |
+| `05b-confirm-low-hp` (ใหม่) | DG6-01: HP ≤ 25% + เปิดถอยอัตโนมัติ เห็นแถว HP + `dungeon.confirmLowHpNote` | **ยืนยันแล้ว** "HP ตอนนี้ 22%" + "HP แค่นี้ โดนตีทีเดียวระบบพากลับเลย" ปุ่ม "เข้า" ยังเปิด (ไม่บล็อก, F06-R14) |
+| `09b-run-suspended` (ถ่ายได้ครั้งแรก) | Suspended จริงบนจอ run | **ถ่ายได้ครั้งแรก** pill "หยุดชั่วคราว" + banner "run หยุดชั่วคราว กลับเข้าเขตภายใน 11:50" — ไม่มี tick denied toast ค้าง (ตรวจแล้วตาม context ของ P2-X54, ดูหัวข้อ 9.2) |
+| `12-hp-low` (ถ่ายซ้ำ) | รอ ≥ 700 ms เต็ม, run ยังไม่จบ | **ยืนยันแล้วเต็มเงื่อนไขครั้งแรก** hp-percent 30%, toast `run.hpLow` กึ่งกลาง 2 บรรทัด, `.run-summary` ยังไม่ขึ้นหลังรอ 700 ms |
+
+ไฟล์ทุกไฟล์ (สี + ขาวดำ) อยู่ใต้ 300 KB งบของ V-36 (ใหญ่สุดรอบนี้คือ `12-hp-low-gray.png` 167,248 B)
+· `capture-results.json` ถูก merge เข้ากับผลของรอบก่อนหน้าตาม id (29 รายการรวม `05b` ใหม่) ไม่ได้เขียนทับ
+ผลของจอที่ไม่ได้ถ่ายซ้ำรอบนี้
+
+### 9.2 ตรวจ P2-X54 (engine fix: ไม่มี denied tick ปลอมตอนกลับจาก Suspended)
+
+Context ของ task brief เตือนว่าถ้า `09b` มี denied toast โผล่ตอนกลับเข้า (`Suspended -> Active`) ให้
+รายงาน — ภาพนิ่ง `09b-run-suspended.png` จับตอนที่ pill ยังเป็น "หยุดชั่วคราว" (ก่อนกลับเข้า) จึงตรวจ
+ช่วงกลับเข้าแยกต่างหากด้วยสคริปต์ทดสอบครั้งเดียว (ใช้ trace/พารามิเตอร์เดียวกับ `09b`, เดิน replay ต่อ
+จนพ้นจังหวะ `Suspended -> Active` จริง แล้วอ่าน `.toast` ทุกใบบน DOM ทุก 100ms ตลอดช่วงนั้น) —
+**ผล: ไม่มี toast denied tick ปลอม** พบ `.toast.faded` เพียงใบเดียวระหว่างช่วงนี้และเป็น
+`run.stateResumed` ("กลับเข้าเขตแล้ว", ป้ายปกติเมื่อกลับจาก Grace/Suspended เป็น Active) ไม่ใช่ toast
+tick denied (`.toast:has(.toast-line).faded`) — engine fix P2-X54 ทำงานถูกต้องกับ trace นี้ ไม่มี
+finding ใหม่ต่อ P2-X54 จากงานนี้
+
+### 9.3 fixtures ใหม่ของงานนี้ (`qa/tests/e2e/fixtures/`, ไม่ใช่ `apps/client/e2e/fixtures/`)
+
+`f06-confirm-full-hp.session.json`, `f06-confirm-low-hp-autoretreat-on.session.json`,
+`f06-confirm-autoretreat-off.session.json` — สาม `kw.p2.session` fixture มือเขียนตาม schema เดียวกับ
+`apps/client/e2e/fixtures/e2e-f06-revive-precondition.session.json` (`run: null`, `player.hp.value`/
+`autoRetreatEnabled` ต่างกันตามชื่อไฟล์ ทุกไฟล์ `savedAt_ms`/`player.hp.anchorAt_ms` ปักที่ epoch ของ
+`start=2026-10-02T12:00` เดียวกับ trace ที่ใช้ เพื่อให้ HP regen นอก dungeon มีเวลาสะสมใกล้ 0 ก่อน popup
+เปิด) — ใช้ทั้งใน `qa/tests/e2e/f06-confirm-hp-notice.spec.ts` (e2e หลักของ DG6-01) และสคริปต์ถ่ายภาพนี้
+(`05b` เท่านั้น) — `f06-confirm-full-hp.session.json` เตรียมไว้เผื่อกู้คืนภาพ `05-confirm-b1-ready`
+ด้วยวิธีเดียวกันในอนาคต แต่รอบนี้ยังใช้ `e2eClassId=tanker` แบบเดิม (ไม่ต้อง pre-seed) เพราะ session
+ใหม่ยังให้ HP เต็ม 100% อยู่แล้วโดยไม่ต้องพึ่ง fixture

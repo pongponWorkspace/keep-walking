@@ -30,9 +30,16 @@
   {
     "id": "05-confirm-b1-ready",
     "ok": true,
-    "bytes": 91276,
-    "grayBytes": 132829,
+    "bytes": 98871,
+    "grayBytes": 140981,
     "reachedVia": "e2e-full-run-01 speed=60, title=\"ลานลีลาวดี — ดอกร่วงใส่หัว\""
+  },
+  {
+    "id": "05b-confirm-low-hp",
+    "ok": true,
+    "bytes": 108024,
+    "grayBytes": 149505,
+    "reachedVia": "e2e-full-run-01 speed=60, pre-seeded low-HP fixture, title=\"ลานลีลาวดี — ดอกร่วงใส่หัว\""
   },
   {
     "id": "06-confirm-b2-overlap-selected",
@@ -62,8 +69,10 @@
   },
   {
     "id": "09b-run-suspended",
-    "ok": false,
-    "notReachedReason": "no committed trace both (a) enters a real, already-open dungeon through the public confirm/enter flow and (b) then holds a continuous out-of-polygon fix for longer than runState.graceMax_s (180s) to cross Grace -> Suspended: qa-e2e-leelawadee-checkin-01 (used for 09-run-grace) walks out and back inside its own ~430s window without ever holding outside long enough (proves Active -> Grace -> Active only, by design, see its own description); synthetic-edge-walk-01 does hold outside long enough (its second exit, see data/gps-traces/README.md §7) but walks the synthetic engine-level test rectangle (polygons/test-rect-benchasiri.geojson), not a published dungeon, so it never reaches a real confirm popup/run screen (same reasoning as the 06/pre-fix-11 stubs). Requesting a dedicated fixture (an active run in a real, open dungeon with a continuous out-of-polygon segment > graceMax_s) is a trace request to location-engineer, not something this task's writes (art/reviews/screens, qa/tests/e2e/visual) can add."
+    "ok": true,
+    "bytes": 115797,
+    "grayBytes": 157667,
+    "reachedVia": "synthetic-suspended-leelawadee-01 speed=60, pill=\"หยุดชั่วคราว\""
   },
   {
     "id": "10-toast-tick-loot",
@@ -82,9 +91,9 @@
   {
     "id": "12-hp-low",
     "ok": true,
-    "bytes": 150719,
-    "grayBytes": 192083,
-    "reachedVia": "e2e-f06-koa-run-01 seed=5 tanker, hp=\"7%\", +250ms settle (measured margin ~348ms, short of the gate's >=700ms ask -- see report), run still active"
+    "bytes": 120973,
+    "grayBytes": 167248,
+    "reachedVia": "synthetic-hp-low-leelawadee-01 seed=15 tanker, hp=\"30%\", +700ms settle, run still active"
   },
   {
     "id": "13-pocket",

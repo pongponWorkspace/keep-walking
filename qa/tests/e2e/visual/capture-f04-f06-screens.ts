@@ -43,6 +43,12 @@ const DEVICE = devices['Pixel 7'];
 const VIEWPORT = { width: 390, height: 844 };
 
 const FIXTURES_DIR = join(REPO_ROOT, 'apps/client/e2e/fixtures');
+// P2-H58 (design gate F06 DG6-01 round 2, §10 re-run criteria): this task's own hand-built
+// `kw.p2.session` fixtures (`qa/tests/e2e/fixtures/`, same shape/reasoning as
+// `apps/client/e2e/fixtures/e2e-f06-revive-precondition.session.json` — see that file's own doc
+// comment and this task's `qa/tests/e2e/f06-confirm-hp-notice.spec.ts` header for the full
+// rationale), used to pin the popup's HP state deterministically for `05b-confirm-low-hp`.
+const QA_FIXTURES_DIR = join(REPO_ROOT, 'qa/tests/e2e/fixtures');
 
 function url(params: string): string {
   return `${BASE_URL}/?${params}&${TILE_PARAMS}`;
@@ -311,6 +317,48 @@ async function reach05ConfirmB1Ready(browser: Browser): Promise<Outcome> {
   return { context, page, reachedVia: `e2e-full-run-01 speed=60, title="${found}"` };
 }
 
+// --- 05b: confirm popup, HP <= 25% with auto-retreat on (DG6-01, P2-H58) -----------------------
+// Design gate F06 DG6-01 round 2 (`design/reviews/F06-design-gate.md` §10): the popup's low-HP
+// note (`dungeon.confirmLowHpNote`) underneath the always-on HP row. Session pre-seeded with this
+// task's own `f06-confirm-low-hp-autoretreat-on.session.json` (player HP well under the
+// `dungeons.hpSafety.autoRetreatThreshold_pct` line, auto-retreat on) — same fixture/reasoning
+// `qa/tests/e2e/f06-confirm-hp-notice.spec.ts` uses for its own black-box assertions, this script
+// only reuses it for the screenshot.
+async function reach05bConfirmLowHp(browser: Browser): Promise<Outcome> {
+  const { context, page } = await newCtxPage(browser);
+  const sessionJson = readFileSync(
+    join(QA_FIXTURES_DIR, 'f06-confirm-low-hp-autoretreat-on.session.json'),
+    'utf8',
+  );
+  await page.addInitScript((value: string) => {
+    window.localStorage.setItem('kw.p2.session', value);
+  }, sessionJson);
+  await page.goto(url(`${FULL_RUN}&speed=60&start=${encodeURIComponent(START_LEELAWADEE)}`));
+  const found = await pollUntil(
+    page,
+    async () => {
+      const st = await readConfirm(page);
+      const noteShown = await page.evaluate(() => {
+        const note = document.querySelector('.confirm-hp-note');
+        return note !== null && !(note as HTMLElement).hidden;
+      });
+      return !st.hidden && st.enterDisabled === false && noteShown ? st.title : undefined;
+    },
+    20_000,
+    200,
+  );
+  if (found === undefined)
+    return {
+      reason:
+        'confirm popup with an enabled "เข้า" button and a visible .confirm-hp-note never appeared',
+    };
+  return {
+    context,
+    page,
+    reachedVia: `e2e-full-run-01 speed=60, pre-seeded low-HP fixture, title="${found}"`,
+  };
+}
+
 // --- 06: confirm popup, B2 overlap, a card selected --------------------------------------------
 // UNREACHABLE with the committed data set — see README "screens not reached".
 function reach06ConfirmB2Overlap(): Outcome {
@@ -415,25 +463,46 @@ async function reach09RunGrace(browser: Browser): Promise<Outcome> {
   return { context, page, reachedVia: `qa-e2e-leelawadee-checkin-01, pill="${found}"` };
 }
 
-// --- 09b: run screen, Suspended (only if a committed trace reaches it) -------------------------
-// UNREACHABLE with the committed data set (P2-H55) — see README "screens not reached". Requested
-// as a nice-to-have by the gate (§7.9: "ถ้าไปถึงได้ด้วย trace ที่มีอยู่"), so it is left in the
-// screen list (tracked in capture-results.json) rather than silently skipped.
-function reach09bRunSuspended(): Outcome {
+// --- 09b: run screen, Suspended -------------------------------------------------------------
+// P2-H58: location-engineer's `synthetic-suspended-leelawadee-01` (P2-H57,
+// `data/gps-traces/README.md` §7) lands `09b-run-suspended` for the first time — a real run in the
+// real, already-open `leelawadee-lawn` dungeon that walks out, loops one reward window, then holds
+// outside continuously past `runState.graceMax_s` (Grace -> Suspended) before walking back in
+// (Suspended -> Active, "returned"). Mock URL and timing straight from the README's own §7 replay
+// table: Suspended real-world at ~8.8s after Enter at speed=60, a ~6.2s real window before it
+// advances again — this function only polls for the pill's own Suspended label, so it self-adjusts
+// if the exact timing ever drifts with config.
+async function reach09bRunSuspended(browser: Browser): Promise<Outcome> {
+  const { context, page } = await newCtxPage(browser);
+  await forceWakeLockUnsupported(page);
+  await page.goto(
+    url(
+      `loc=mock&trace=synthetic-suspended-leelawadee-01&speed=60&loop=0&e2eClassId=tanker&seed=1&e2eSkipOnboarding=1&start=${encodeURIComponent(START_LEELAWADEE)}`,
+    ),
+  );
+  if (!(await clickEnter(page, 15_000)))
+    return { reason: 'confirm popup never became enterable (synthetic-suspended-leelawadee-01)' };
+  const found = await pollUntil(
+    page,
+    async () =>
+      page.evaluate(() => {
+        const runBar = document.querySelector('.run-bar');
+        if (runBar === null || (runBar as HTMLElement).hidden) return undefined;
+        const label = document.querySelector('.run-state-pill-label')?.textContent ?? '';
+        return label === 'หยุดชั่วคราว' ? label : undefined;
+      }),
+    20_000,
+    100,
+  );
+  if (found === undefined)
+    return {
+      reason:
+        'run-state pill never reached the Suspended label ("หยุดชั่วคราว") within the trace window',
+    };
   return {
-    reason:
-      'no committed trace both (a) enters a real, already-open dungeon through the public ' +
-      'confirm/enter flow and (b) then holds a continuous out-of-polygon fix for longer than ' +
-      'runState.graceMax_s (180s) to cross Grace -> Suspended: qa-e2e-leelawadee-checkin-01 ' +
-      '(used for 09-run-grace) walks out and back inside its own ~430s window without ever ' +
-      'holding outside long enough (proves Active -> Grace -> Active only, by design, see its own ' +
-      'description); synthetic-edge-walk-01 does hold outside long enough (its second exit, see ' +
-      'data/gps-traces/README.md §7) but walks the synthetic engine-level test rectangle ' +
-      '(polygons/test-rect-benchasiri.geojson), not a published dungeon, so it never reaches a real ' +
-      'confirm popup/run screen (same reasoning as the 06/pre-fix-11 stubs). Requesting a dedicated ' +
-      'fixture (an active run in a real, open dungeon with a continuous out-of-polygon segment ' +
-      "> graceMax_s) is a trace request to location-engineer, not something this task's writes " +
-      '(art/reviews/screens, qa/tests/e2e/visual) can add.',
+    context,
+    page,
+    reachedVia: `synthetic-suspended-leelawadee-01 speed=60, pill="${found}"`,
   };
 }
 
@@ -492,41 +561,24 @@ async function reach11ToastTickDenied(browser: Browser): Promise<Outcome> {
 }
 
 // --- 12: HP low (danger zone, right before auto-retreat ends the run) --------------------------
-// §7.4 of the visual gate / P2-H55 re-shoot investigation (see the handoff in this task's own
-// report — kept short here on purpose):
-//  - `e2e-f06-koa-run-01` (khlong-ong-ang, level range 10-20 -- the full damage-gap penalty for a
-//    level-1 player, D-112: damage x1.25^9 ~= 7.45x) was replayed offline through `sessionStep`
-//    directly for every class x seed 1-15: every single combination lands `run_hp_low` and
-//    `run_auto_retreat` on the exact same hit. There is no seed/class where the run is genuinely
-//    still going once HP is in the (0%,30%] band with this dungeon/level-gap combination -- the
-//    one oversized hit does both at once, always.
-//  - The only committed real, open, level-appropriate (gap 0) dungeon trace, `e2e-full-run-01`
-//    (leelawadee-lawn, level 1-5), is only 410s long -- nowhere near enough active time to reach
-//    the warning band on its own. Looping it (`loop=1`) so the fixture replays long enough
-//    (confirmed offline: seed=1/ranged reaches a genuine "still going" warning hit with ~2.6s of
-//    real-time margin at speed=60) instead makes the *real* mock provider end the run immediately
-//    with `run.summary.clockInvalid` ("นาฬิกาเครื่องเพี้ยน") the moment the loop wraps back to the
-//    trace's own outside-the-polygon start -- a real client behaviour this task's `writes` cannot
-//    change (no client changes in this task's brief) and did not introduce.
-// Given both paths are closed with the committed fixture set, this keeps `e2e-f06-koa-run-01`
-// (seed=5/tanker, matching the pre-existing round-2 capture) as the best available evidence.
-// In-page timing (this task, `performance.now()` inside the page, no round-trip latency) measured
-// only ~348ms between the first frame where HP is in-band AND the summary is not yet shown and the
-// frame the summary actually appears -- short of the gate's own ">=700ms settle" ask. The wait
-// below (250ms) stays safely under that measured 348ms margin so the capture is provably still
-// "run going", but it cannot reach the fully-settled ">=700ms" state the gate asks for. See this
-// task's report for the handoff (a longer single, non-looped, level-appropriate real-dungeon trace
-// to location-engineer, and the loop/clockInvalid interaction to gameplay-programmer).
+// P2-H58: location-engineer's `synthetic-hp-low-leelawadee-01` (P2-H57, `data/gps-traces/README.md`
+// §7) replaces the old `e2e-f06-koa-run-01` (level-gap) fixture, which always landed `run_hp_low`
+// and `run_auto_retreat` on the exact same hit (see git history of this file for that
+// investigation) — never leaving a real "still going" window to satisfy the gate's own ">=700ms
+// settle" ask. This trace's own README-documented `tanker&seed=15` pairing keeps HP genuinely in
+// the (0%,30%] warning band, run still Active, for 370 trace-seconds = **6.17s real at speed=60**,
+// starting about 63s real after Enter — long enough to wait the full >=700ms this function asks
+// for and still capture before auto-retreat ends the run.
 async function reach12HpLow(browser: Browser): Promise<Outcome> {
   const { context, page } = await newCtxPage(browser);
   await forceWakeLockUnsupported(page);
   await page.goto(
     url(
-      `loc=mock&trace=e2e-f06-koa-run-01&speed=60&loop=0&e2eClassId=tanker&seed=5&e2eSkipOnboarding=1&start=${encodeURIComponent(START_KOA_OPEN)}`,
+      `loc=mock&trace=synthetic-hp-low-leelawadee-01&speed=60&loop=0&e2eClassId=tanker&seed=15&e2eSkipOnboarding=1&start=${encodeURIComponent(START_LEELAWADEE)}`,
     ),
   );
   if (!(await clickEnter(page, 30_000)))
-    return { reason: 'confirm popup never became enterable (koa-run)' };
+    return { reason: 'confirm popup never became enterable (synthetic-hp-low-leelawadee-01)' };
   const found = await pollUntil(
     page,
     async () =>
@@ -537,25 +589,25 @@ async function reach12HpLow(browser: Browser): Promise<Outcome> {
         const pct = Number(text.replace('%', ''));
         return !summaryUp && Number.isFinite(pct) && pct > 0 && pct <= 30 ? text : undefined;
       }),
-    30_000,
+    90_000, // ~63s real to reach the warning band at speed=60, plus margin
     5,
   );
   if (found === undefined)
     return {
       reason:
-        'hp-percent never rendered a value in (0%, 30%] before the run ended (single-hit damage model, seed=5/tanker chosen for this)',
+        'hp-percent never rendered a value in (0%, 30%] before the run ended (tanker/seed=15 chosen for this, README §7)',
     };
-  await page.waitForTimeout(250); // measured margin ~348ms (see comment above); stays under it
+  await page.waitForTimeout(700); // gate's own ">=700ms settle" ask, well inside the ~6.17s window
   const stillRunningAfterWait = await page.evaluate(() => {
     const summary = document.querySelector('.run-summary');
     return summary === null || (summary as HTMLElement).hidden;
   });
   if (!stillRunningAfterWait)
-    return { reason: 'run ended (summary shown) during the 250ms HP-low settle wait' };
+    return { reason: 'run ended (summary shown) during the 700ms HP-low settle wait' };
   return {
     context,
     page,
-    reachedVia: `e2e-f06-koa-run-01 seed=5 tanker, hp="${found}", +250ms settle (measured margin ~348ms, short of the gate's >=700ms ask -- see report), run still active`,
+    reachedVia: `synthetic-hp-low-leelawadee-01 seed=15 tanker, hp="${found}", +700ms settle, run still active`,
   };
 }
 
@@ -913,11 +965,12 @@ const SCREENS: readonly ScreenDef[] = [
   { id: '03-nav-fallback', run: reach03NavFallback },
   { id: '04-confirm-b1-wait', run: reach04ConfirmB1Wait },
   { id: '05-confirm-b1-ready', run: reach05ConfirmB1Ready },
+  { id: '05b-confirm-low-hp', run: reach05bConfirmLowHp },
   { id: '06-confirm-b2-overlap-selected', run: async () => reach06ConfirmB2Overlap() },
   { id: '07-confirm-closed', run: reach07ConfirmClosed },
   { id: '08-run-active', run: reach08RunActive },
   { id: '09-run-grace', run: reach09RunGrace },
-  { id: '09b-run-suspended', run: async () => reach09bRunSuspended() },
+  { id: '09b-run-suspended', run: reach09bRunSuspended },
   { id: '10-toast-tick-loot', run: reach10ToastTickLoot },
   { id: '11-toast-tick-denied', run: reach11ToastTickDenied },
   { id: '12-hp-low', run: reach12HpLow },

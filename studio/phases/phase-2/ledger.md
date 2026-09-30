@@ -218,3 +218,5 @@ planning started 2026-09-26 10:42 (Phase 1 ยังไม่ปิด: HUMAN �
 | 203 | W20 | P2-H60 | product-manager | — | 14:17:21 | DONE — แบบสอบถาม/แผนวิเคราะห์ตาม D-143 · ฟอร์มผู้สังเกต → H58 |
 | 204 | W20 | P2-X54 | backend-programmer | — | 14:23:56 | DONE — บั๊ก engine ยืนยันและแก้แล้ว (scratch accumulator ต่อหน้าต่างของ main) · regression test · vector ไม่เปลี่ยน · privacy-copy แดงจาก X53 ระหว่างทำ (Thai literal ใน dungeon-confirm.test.ts) แจ้ง X53 แล้ว |
 | 205 | W20 | P2-X53 | gameplay-programmer | — | 14:41:37 | DONE — popup ยืนยันแสดง HP + โน้ต/badge · .finally · root vitest 3086 · W21 dispatch H58 |
+| 206 | W21 | P2-H58 | qa-tester | — | 15:05:48 | DONE — หลักฐาน DG6-01 ครบ · ภาพ 09b/12 ครบเกณฑ์ · dispatch T24 รอบ 2 |
+| 207 | W21 | P2-F06-T24 | game-director | — | 15:07:13 | PASS (รอบ 2) — F06 ผ่าน tech/copy/QA/visual/design · W22 dispatch T25 product gate + X47 |

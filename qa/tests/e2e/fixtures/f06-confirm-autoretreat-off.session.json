@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "savedAt_ms": 1790917200000,
+  "state": {
+    "schemaVersion": 2,
+    "clock": {
+      "lastNow_ms": 1790917200000,
+      "lastSample_ms": null,
+      "settled_ms": null
+    },
+    "pre": {
+      "chainStartAt_ms": null,
+      "lastAt_ms": null,
+      "outsideSeenAt_ms": {}
+    },
+    "lock": {
+      "locked": false,
+      "runStart_ms": null,
+      "lastAccurate": null
+    },
+    "checkInFilter": {
+      "anchor": null,
+      "pending": []
+    },
+    "run": null,
+    "player": {
+      "classId": "tanker",
+      "level": 1,
+      "exp": 0,
+      "allocated": {
+        "atk": 0,
+        "def": 0,
+        "hp": 0,
+        "vit": 0
+      },
+      "hp": {
+        "value": 300,
+        "anchorAt_ms": 1790917200000,
+        "recovering": false
+      },
+      "autoRetreatEnabled": false,
+      "inventory": {},
+      "firstRunEnteredAt_ms": null,
+      "lifetimeTicksGranted": 0
+    },
+    "lastSummary": null,
+    "latestSample": null
+  }
+}
