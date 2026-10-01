@@ -506,12 +506,14 @@ tag เล็กติดกับตัวเลขระยะเสมอท�
 | `banner` | 10 | ป้ายเหตุการณ์สดใต้ header (หัวข้อ 2.3), `.banner.info`/`.banner.warn` (หัวข้อ 6) |
 | `drawer` | 20 | bottom sheet ไม่บล็อกจอ (หัวข้อ 5) — Nearby Party, Quick command |
 | `toast` | 30 | `.toast.*` ทุกแบบ (หัวข้อ 6) รวม `run.hpLow` |
+| `navScreen` | 35 | **(D-160, ใหม่ ปิด finding F-04)** จอเต็มจอของ F10 shell ที่ยังต้องโชว์ nav ทับอยู่ — `.screen.inventory-screen`, `.screen.coming-soon-screen` (หัวข้อ 16.3) — ดูเหตุผลที่ 15.5 |
+| `nav` | 38 | **(D-160, ใหม่ ปิด finding F-04)** bottom nav ถาวร + ปุ่ม Setting ลอยของ F10 shell — `.bottombar-f10` (หัวข้อ 16.1), `.setting-button-float` (หัวข้อ 16.2) — ดูเหตุผลที่ 15.5 |
 | `popupModal` | 40 | popup/modal ที่บล็อกจอด้วยปุ่มยืนยัน (หัวข้อ 4) — `.popup-overlay`/`.popup` ทุกที่ที่ใช้ |
 | `overlay` | 50 | จอเต็มที่ทับทุกอย่างชั่วคราวระหว่างเปลี่ยนสถานะ — speed-lock (หัวข้อ 13.4), เอฟเฟกต์เปลี่ยนจอตอน auto-retreat, `S-04-run-summary` (จอเดียวที่แทนที่ทุกอย่างตอนจบ run) |
 | `system` | 60 | จอบังคับระดับระบบก่อนเล่นได้ — consent ตำแหน่ง, age gate (`S-00-consent-location`, `S-00-age-gate`) |
 | `nativePrompt` | 9999 | prompt ของเบราว์เซอร์/OS เอง (geolocation permission) — นอกสเกลนี้ ควบคุมไม่ได้ |
 
-ลำดับเดียวคงที่: `map < hud < banner < drawer < toast < popupModal < overlay < system < nativePrompt`
+ลำดับเดียวคงที่: `map < hud < banner < drawer < toast < navScreen < nav < popupModal < overlay < system < nativePrompt` (D-160 เพิ่ม `navScreen`/`nav` คั่นระหว่าง `toast` กับ `popupModal`, ดูเหตุผลที่ 15.5)
 
 ### 15.2 ข้อบังคับคู่กัน (D-129)
 
@@ -531,6 +533,8 @@ tag เล็กติดกับตัวเลขระยะเสมอท�
 | F06 — ตาย/`auto_retreat` | `overlay` (50) | Phase 2 ไม่มีสถานะล้มในดัน (F06 override ข้อ 2) ตายและ auto-retreat จบ run ทันทีแล้วสลับเข้า `.screen.run-summary` ตรงๆ จึงใช้ระดับเดียวกับแถวบน ไม่มีจอ/overlay แยกของตัวเอง |
 | `S-00-consent-location`, `S-00-age-gate` | `system` (60) | สูงสุดในสเกลนี้ (ไม่รวม `nativePrompt`) เพราะเป็นจอบังคับก่อนเล่นได้ ไม่ควรมีจอใดบังจอเหล่านี้ในทางทฤษฎี แม้ในทางปฏิบัติจะไม่เกิดพร้อมกับ `overlay`/`popupModal` เพราะเกิดก่อน onboarding เท่านั้น |
 | `.pocket-screen` (จอพกกระเป๋า, ทับเนื้อหาของ `S-03-run` เมื่อเปิดใช้งาน ตามหัวข้อ 12) | `overlay` (50) | เต็มจอทึบเหมือน speed-lock/run-summary จึงอยู่ระดับเดียวกัน — **ตารางนี้เดิมไม่มีแถวนี้เลย ช่องว่างนั้นคือที่มาของปัญหา P2-H39:** `.toast` (30, HP ต่ำ/tick) เรนเดอร์อยู่ *หลัง* พื้นทึบของจอนี้เสมอ (30 < 50) ตัวเลขจริงจากโค้ด (`apps/client/src/app.css`) ตรงกับ `tokens.json` อยู่แล้วทั้งคู่ — นี่ไม่ใช่บั๊กที่ต้องแก้ค่า แต่เป็นกฎที่ต้องเขียนให้ชัด ดูคำตัดสินเต็มที่ 15.4 |
+| `.screen.inventory-screen`, `.screen.coming-soon-screen` (F10 shell, หัวข้อ 16.3) | `navScreen` (35, **D-160 ใหม่**) | จอเต็มจอปกติทุกใบของแอปอยู่ที่ `overlay` (50) แต่สองจอนี้ต้องต่ำกว่า `nav` (38, แถวถัดไป) เพื่อให้ bottom nav/ปุ่ม Setting วาดทับอยู่บนจอได้ตลอด (ผู้เล่นสลับแท็บ/เปิด Setting จากจอเหล่านี้ได้โดยไม่ต้องออกจอก่อน) — ไม่กระทบจอ `overlay` (50) อื่น เพราะ nav ถูกซ่อนบนจอเหล่านั้นอยู่แล้ว (หัวข้อ 8 ของ flow F10) |
+| `.bottombar-f10`, `.setting-button-float` (F10 shell, หัวข้อ 16.1/16.2) | `nav` (38, **D-160 ใหม่**) | ต้องทับ `navScreen` (35) เสมอ แต่ยังต้องถูก `popupModal` (40) บังด้วย scrim เมื่อมี popup เปิดค้างอยู่ (เช่น `S-02-dungeon-confirm` ที่เปิดทับจาก `S-01-map`) กันผู้เล่นกดปุ่ม nav ทะลุ popup โดยไม่ตั้งใจ — เหตุผลเต็มที่ 15.5 |
 
 ### 15.4 ข้อยกเว้นของจอพกกระเป๋า: ทำไมไม่เพิ่มระดับใหม่เหนือ `overlay` ให้ toast (P2-H39)
 
@@ -546,6 +550,21 @@ tag เล็กติดกับตัวเลขระยะเสมอท�
 **ผลต่อ flow:** `design/ux/flows/F06-hp-damage-onboarding.md` หัวข้อ 4.1 (C2) แก้ตามคำตัดสินนี้แล้ว (ระบุช่องทางที่ใช้จริงชัดเจน ไม่ใช่แค่ "ไม่ต้องออกจากจอพกกระเป๋า" แบบเปิดกว้าง)
 
 **Handoff:** gameplay-programmer นำสเกลนี้ไปใส่ CSS จริงใน `apps/client/src/app.css` — ตอนนี้มีแค่ `.banner`(10)/`.toast`(30) ตรงกับสเกลอยู่แล้ว ยังไม่มี z-index บน `#map`/`#hud` เอง (0/1), `.popup-overlay` จริง (ควรเป็น 40 ให้ตรง wireframe), `.drawer` (20, ยังไม่มี component จริง), `.overlay-speedlock`/`.screen.run-summary` (50) และจอ consent/age gate (60) ที่ยังไม่ได้ build · **เพิ่ม (P2-H39, ไม่ blocking):** `ui/tick-toast.ts` (`showHpLow`/`showGranted`/`showDenied`/`showAutoPotionUsed`/`showStateResumed`) mount `.toast` DOM + เล่น vfx `play()` เหมือนกันทุกครั้งไม่ว่าจอพกกระเป๋าจะเปิดอยู่หรือไม่ ตามคำตัดสิน 15.4 ควรข้าม DOM mount และ `play()` (ภาพ) เมื่อ `pocket-screen.ts`'s `overlayRoot` กำลังแสดงอยู่ แต่ยังต้องเรียก `deps.audio.submit(...)` เหมือนเดิมเสมอ (ส่วนเสียง/สั่นยังต้องทำงาน) — ไม่ใช่การแก้บั๊กที่ผู้เล่นเห็น (toast มองไม่เห็นอยู่แล้ว) จึงไม่ blocking แค่ลดงาน CPU/แบตที่เสียเปล่าให้ตรงกับกฎข้อ 1 ของ 12.1
+
+### 15.5 สองระดับใหม่ของ F10 nav shell: `navScreen` (35) และ `nav` (38) (D-160, ปิด finding F-04 ของ `docs/reviews/F10-tech-gate.md`)
+
+**ปัญหาที่พบ (tech gate F10, F-04):** `apps/client/src/app.css:1503–1514` ใช้ตัวเลขดิบ `z-index: 35` บน `.screen.inventory-screen`/`.screen.coming-soon-screen` และ `z-index: 38` บน `.bottombar-f10`/ปุ่ม Setting ลอย (`.setting-button-float`) พร้อมคอมเมนต์ ASSUMPTION ที่ tech-lead ยืนยันลำดับถูกต้องแล้ว แต่ตัวเลขทั้งสองไม่มีอยู่ใน `tokens.json#zIndex` (มีแค่ 0,1,10,20,30,40,50,60,9999) ขัดกับเงื่อนไข D-129 ที่ต้องมี z-index scale เป็น token เสมอ
+
+**คำตัดสิน (uiux-designer, ในฐานะ authority ของสเกลนี้ตาม D-129):** เพิ่ม token สองตัวเข้า `tokens.json#zIndex` คั่นระหว่าง `toast` (30) กับ `popupModal` (40) — **`navScreen` = 35** และ **`nav` = 38** ลำดับเต็มใหม่: `toast (30) < navScreen (35) < nav (38) < popupModal (40)` ไม่เปลี่ยนตัวเลขเดิมที่ tech-lead อนุมัติไว้แล้วใน F-04 (แค่ตั้งชื่อ ไม่ใช่เถียงค่า)
+
+**เหตุผลที่ต้องมีสองระดับ ไม่ใช่ระดับเดียว:**
+
+1. **`navScreen` (35) — จอเต็มจอที่ยังต้องเห็น nav ทับอยู่:** `.screen.inventory-screen`/`.screen.coming-soon-screen` (หัวข้อ 16.3) เป็น `.screen` เหมือนจออื่น (ปกติทุกจอได้ `overlay` 50) แต่สองจอนี้เป็นจอเดียวในแอปที่ bottom nav/ปุ่ม Setting ต้องวาดทับค้างอยู่ตลอด (flow F10-account-shell.md หัวข้อ 8) เพื่อให้สลับแท็บ/เปิด Setting ได้โดยไม่ต้องออกจอก่อน ถ้าใช้ `overlay` (50) เท่าจอทั่วไป จอจะทับ nav ไปด้วย (50 > 38) ขัดกับ flow โดยตรง จึงต้องลดระดับลงมาต่ำกว่า `nav`
+2. **`nav` (38) — ต้องทับ `navScreen` เสมอ แต่ยังให้ popup บังได้:** `.bottombar-f10`/`.setting-button-float` ต้องอยู่เหนือสองจอข้างต้นเสมอ (35 < 38) แต่ต้องยังต่ำกว่า `popupModal` (40) เพื่อให้ scrim ของ popup ยืนยัน (เช่น `S-02-dungeon-confirm` ที่เปิดทับจาก `S-01-map`) บังปุ่ม nav ไว้ด้วยเสมอ — กันผู้เล่นกดปุ่มนำทางทะลุ popup ที่กำลังรอการยืนยันอยู่ (เช่น กดเข้า Inventory ขณะ popup "ยืนยันเข้าดันเจี้ยน" เปิดค้าง) ถ้าใช้ระดับเดียวกับ `navScreen` หรือไม่มี tier คั่นระหว่าง `navScreen` กับ `popupModal` เลย จะไม่มีทางให้ nav ทับจอ 35 ได้โดยไม่ขัดกับข้อบังคับข้อ 1
+3. **ทำไมไม่ใช้ตัวเลขกลางอื่น (เช่น 36/37):** เลือก 35/38 เพราะ tech-lead อนุมัติค่าดิบนี้ไว้แล้วในโค้ดจริง (F-04) การเปลี่ยนค่าตัวเลขจะเป็นการเถียงงานที่ปิดไปแล้ว ส่วนนี้จึงเป็นแค่การห่อค่าที่อนุมัติแล้วให้เป็น token ที่มีชื่อ ไม่ใช่การออกแบบสเกลใหม่
+4. **ไม่กระทบจอ `overlay` (50) อื่น:** ไม่มีจอไหนอื่นในแอปเปลี่ยนค่า — เพราะ `.bottombar-f10`/`.setting-button-float` ถูกซ่อนไม่ mount เลยบนจอ `overlay` ทั้งหมด (onboarding, run, จอพกกระเป๋า, settings, profile, run-summary) ตามหัวข้อ 8 ของ flow F10 ลำดับ 50 vs 38/35 จึงไม่เคยถูกเทียบกันจริงในแอป
+
+**ชื่อ token ที่ gameplay-programmer ต้องใช้ (handoff):** แทน `z-index: 35` ด้วย comment อ้างอิง `zIndex.navScreen` และ `z-index: 38` ด้วย comment อ้างอิง `zIndex.nav` ใน `apps/client/src/app.css` (ลบคอมเมนต์ ASSUMPTION เดิมที่บรรทัด 1492–1502 ทิ้ง แทนด้วยอ้างอิง `tokens.json#zIndex` + `components.md` หัวข้อ 15.5 นี้) — ตัวเลขดิบ 35/38 ไม่เปลี่ยน มีแค่ชื่อ/ที่มาที่เพิ่มเข้ามา
 
 ## 16. คอมโพเนนต์ F10 — account shell, สร้างตัวละคร, เรื่องเล่า, bottom nav 5 ช่อง
 
@@ -582,7 +601,7 @@ DOM: `<nav class="bottombar-f10"><a class="nav-tab" data-tab="inventory">...</a>
 | รูปทรง | สี่เหลี่ยม 48×48 px มุม 12px (ไม่ใช่วงกลม — วงกลมสงวนให้ avatar/class badge) |
 | พื้น | `bg.surface` ทึบ ขอบ `ink.900` 2px เงาทึบเลื่อน 0/4px `ink.900` (กดได้, ตาม `.btn-secondary`/`elevation.pressable`) |
 | glyph | `icon.ui.settings` (ใช้ซ้ำ ไม่แก้) 24px `ink.900` อยู่กลางปุ่ม |
-| ตำแหน่ง | มุมบนขวา ห่างขอบ 12px + `safeArea.topInset`/`safeArea.rightInset` เป็น plate ของตัวเอง ไม่ใช่ส่วนหนึ่งของ `.headerbar` (ลอยเหนือเนื้อหา, z-index เดียวกับ `#hud`) |
+| ตำแหน่ง | มุมบนขวา ห่างขอบ 12px + `safeArea.topInset`/`safeArea.rightInset` เป็น plate ของตัวเอง ไม่ใช่ส่วนหนึ่งของ `.headerbar` (ลอยเหนือเนื้อหา, z-index = `zIndex.nav` (38, **แก้ D-160** — เดิมเขียนผิดว่า "เดียวกับ `#hud`" ดูเหตุผลเต็มที่หัวข้อ 15.5) ) |
 | กดแล้ว | เงาหายเลื่อนลง 4px (เหมือน `.btn-primary` ที่กด) → เปิด `S-22-settings` |
 | ข้อห้าม | ไม่มี badge จุดแดง, ไม่ทับ HUD ของ run/จอพกกระเป๋า (ไม่ปรากฏบนจอเหล่านั้นอยู่แล้วตามหัวข้อ 8 ของ flow) |
 

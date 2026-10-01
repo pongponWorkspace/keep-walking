@@ -7,25 +7,32 @@
  * the new step machine without editing a single one of them — and so a spec that seeds its own
  * values first (`e2e/fixtures/f10-seed.ts#seedLegacyPlayer`) always wins over this default.
  *
- * The fallback character name reads `config/content/character-names.th.json#randomName.fallback.
- * names[0]` directly (the literal list `config/balance/character.json#random.fallbackKey` points
- * at today) — this is a content file read for test-infrastructure purposes only, not a gameplay
- * path, so it never needs the full `@keep-walking/shared/character` filter/lexicon machinery T15
- * wires up for the real create-character screen; the name is never shown anywhere, only present so
- * the step machine's `character`/`story` steps read as already passed.
+ * The fallback character name resolves `config/balance/character.json#random.fallbackKey`
+ * (`randomName.fallback.names` today) through the same `resolveStringList` lexicon reader T15
+ * wires up for the real create-character screen, then takes its first entry — this is a
+ * test-infrastructure seed, not a gameplay path, so it never needs the rest of the
+ * `@keep-walking/shared/character` filter/RNG machinery; the name is never shown anywhere, only
+ * present so the step machine's `character`/`story` steps read as already passed. An empty list is
+ * a config error (config-lint's job to catch), so this throws rather than seeding a name that
+ * never came from the content file (CLAUDE.md non-negotiable 3: no hardcoded names).
  */
+import { resolveStringList } from '@keep-walking/shared/character';
 import characterNamesThJson from '../../../../config/content/character-names.th.json';
+import { balanceCharacterNameParamsConfig } from '../config/balance';
 import { loadAccount, saveAccount } from '../storage/account';
 import { loadCharacter, saveCharacter } from '../storage/character';
 import type { KeyValueStorage, QuotaFallbackDeps } from '../storage/local-store';
 
 function firstFallbackCharacterName(): string {
-  const names = (
-    characterNamesThJson as {
-      readonly randomName?: { readonly fallback?: { readonly names?: unknown } };
-    }
-  ).randomName?.fallback?.names;
-  return Array.isArray(names) && typeof names[0] === 'string' ? names[0] : 'player';
+  const names = resolveStringList(
+    characterNamesThJson,
+    balanceCharacterNameParamsConfig.random.fallbackKey,
+  );
+  const first = names[0];
+  if (first === undefined) {
+    throw new Error('e2e-skip-seed: fallback character name list is empty (config error)');
+  }
+  return first;
 }
 
 export function seedE2eSkipOnboardingAccount(

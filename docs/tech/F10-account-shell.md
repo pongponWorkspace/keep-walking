@@ -19,7 +19,7 @@
 
 - Phase 2 ไม่มี auth จริง ทุกปุ่มยืนยันของ login เป็น bypass (R10) · ไม่มี request ใหม่ ไม่ load SDK ใด (R12, C2-1) · `provider` เป็นแค่ป้ายของปุ่มที่กด ไม่ใช่ตัวตน
 - ไม่มีค่าใดของ F10 มีผลต่อรางวัล/gate/HP · ชื่อตัวละครไม่เข้า engine เลย จึงไม่มีทางกระทบ NN-1, NN-2
-- `Intl.Segmenter` จำเป็น (A-T04-4): นับ grapheme ใน `validateCharacterName` · baseline เบราว์เซอร์ของ Phase 2 (Chrome Android 87+, Safari iOS 14.5+) มีครบ · ไม่มี polyfill (งบ bundle) · ถ้าไม่มี (`typeof Intl.Segmenter !== 'function'`) `validateCharacterName` คืน `charset` เสมอ (fail-closed ไม่มีชื่อหลุดตัวกรอง) และ `randomCharacterName` คืนค่าจากรายการที่ `random.fallbackKey` ชี้ ซึ่งก็ไม่ผ่าน validate ในเครื่องนั้นเช่นกัน · ผลคือเบราว์เซอร์นอก baseline สร้างตัวละครไม่ได้ ซึ่งยอมรับ เพราะเกม (MapLibre, WebGL) ใช้บนเบราว์เซอร์นั้นไม่ได้อยู่แล้ว · test ครอบกรณีนี้ใน T12 (stub `Intl.Segmenter = undefined`)
+- `Intl.Segmenter` จำเป็น (A-T04-4): นับ grapheme ใน `validateCharacterName` · baseline เบราว์เซอร์ของ Phase 2 (Chrome Android 87+, Safari iOS 14.5+) มีครบ · ไม่มี polyfill (งบ bundle) · ถ้าไม่มี (`typeof Intl.Segmenter !== 'function'`) `validateCharacterName` คืน `charset` เสมอ (fail-closed ไม่มีชื่อหลุดตัวกรอง) และ `randomCharacterName` **throw** (`no fallback name passes validate`) เพราะทุกชื่อในรายการที่ `random.fallbackKey` ชี้ก็ไม่ผ่าน validate ในเครื่องนั้น (A-P2-F10-T12-3, P2-H69) · จอสร้างตัวละครจับ error นี้ใน handler ปุ่มสุ่ม (`apps/client/src/ui/create-character-screen.ts` `showUnsupportedBrowser`) แล้วแสดง copy `character.unsupportedBrowser` ปิดปุ่มสุ่มและปุ่มสร้าง ไม่ crash · ผลคือเบราว์เซอร์นอก baseline สร้างตัวละครไม่ได้ ซึ่งยอมรับ เพราะเกม (MapLibre, WebGL) ใช้บนเบราว์เซอร์นั้นไม่ได้อยู่แล้ว · test ครอบกรณีนี้ใน T12 (stub `Intl.Segmenter = undefined`)
 
 ## 2. Storage schema
 
@@ -205,7 +205,7 @@ type OnboardingStep = 'intro' | 'login' | 'age' | 'underage' | 'consent' | 'perm
 1. **mount ครั้งเดียวต่อการเข้าจอ:** แต่ละจอเป็น controller `{ mount(root), update(view), unmount() }` · `mount` สร้าง DOM ครั้งเดียวเมื่อ route/ขั้นเปลี่ยนเข้าจอนี้ · `render()` ที่ขั้นเดิมเรียกแค่ `update(view)` · ห้าม `innerHTML =` หรือสร้าง element ใหม่ใน `update`
 2. **ค่าที่ผู้เล่นพิมพ์/เลือกเป็นของ DOM หรือ controller ไม่ใช่ของ state ที่ render ส่งมา:** `update` ห้ามเขียน `input.value`, selection, focus หรือ class ที่เลือกคืนจาก state · ค่าหายเมื่อ `unmount` เท่านั้น (R11: ออกจากจอแล้วทิ้ง)
 3. **ผลตัวกรองชื่อ** คำนวณใน handler `input` ของช่อง แล้วอัปเดตเฉพาะ node ข้อความเหตุผลและ `disabled` ของปุ่ม · ไม่ผ่าน `render()` ของแอป
-4. **ช่อง email/password (R11):** password เป็น `type="password" autocomplete="new-password"`, อีเมล `autocomplete="off"`, `<form autocomplete="off">` ที่ไม่มี `action` และไม่มี submit จริง (ปุ่มเป็น `type="button"`) · เหตุผล: Chrome/Safari เสนอบันทึกรหัสเมื่อเห็น form submission หรือ navigation หลัง submit ซึ่งที่นี่ไม่มี · handler ปุ่มไม่อ่าน `.value` เลย · test T14: หลังกดยืนยัน `localStorage` ทุก key, ring buffer และ URL ไม่มีสตริงที่พิมพ์
+4. **ช่อง email/password (R11):** password เป็น `type="password" autocomplete="new-password"`, อีเมล `autocomplete="off"`, **ไม่มี `<form>`** (ช่องและปุ่มยืนยันอยู่ใน container ธรรมดา ปุ่มทุกตัวเป็น `type="button"`, `apps/client/src/ui/login-screen.ts`) · เหตุผล: Chrome/Safari เสนอบันทึกรหัสเมื่อเห็น form submission หรือ navigation หลัง submit ซึ่งที่นี่ไม่มีทั้งสองอย่าง · handler ปุ่มไม่อ่าน `.value` เลย · test T14: หลังกดยืนยัน `localStorage` ทุก key, ring buffer และ URL ไม่มีสตริงที่พิมพ์
 5. **idempotent:** เรียก `update` ซ้ำด้วย view เดิมไม่เปลี่ยน DOM (unit test ต่อจอ นับ mutation ด้วย MutationObserver = 0)
 6. class CSS ของจอใหม่ใช้แบบแผนเดิม `.xxx-screen`: `.login-screen`, `.login-email-screen`, `.register-screen`, `.forgot-screen`, `.create-character-screen`, `.story-screen`, `.coming-soon-screen`, `.bottom-nav`
 
@@ -261,13 +261,14 @@ allowlist อยู่ที่ `config/app/telemetry.json#f10Events` ชื่�
 
 ### 9.1 `e2eSkipOnboarding=1` (D-130, Mock-only ตามเดิม)
 
-พฤติกรรมเดิมคงไว้ (`currentStep()` คืน `done` · consent ตำแหน่งถือว่า granted ในหน่วยความจำ) และเพิ่มสองข้อเพื่อให้ e2e เดิม 16 ไฟล์ + `qa/tests/e2e/visual/capture-f04-f06-screens.ts` ทำงานโดยไม่ต้องแก้
+พฤติกรรมเดิมคงไว้ (`currentStep()` คืน `done` · consent ตำแหน่งถือว่า granted ในหน่วยความจำ) และเพิ่มสามข้อเพื่อให้ e2e เดิม 16 ไฟล์ + `qa/tests/e2e/visual/capture-f04-f06-screens.ts` ทำงานโดยไม่ต้องแก้
 
 1. ตอน boot ก่อน render แรก ถ้า key ยังไม่มี เขียน (ผ่าน writer ปกติของ `storage/account.ts` / `storage/character.ts`)
    - `kw.p2.account` = `{"schemaVersion":1,"savedAt_ms":<now>,"state":{"provider":"google","signedIn":true}}`
    - `kw.p2.character` = `{"schemaVersion":1,"savedAt_ms":<now>,"state":{"name":<ชื่อแรกของรายการที่ character.json#random.fallbackKey ชี้>,"storyDone":true}}`
    - ถ้ามี key อยู่แล้วไม่เขียนทับ (spec ที่ seed เองชนะ)
 2. short-circuit `done` มีข้อยกเว้นเดียว: `kw.p2.account.signedIn = false` → `login` (ให้ e2e ของ logout/relogin ใช้ hook ได้) · login แล้วกลับเป็น `done`
+3. ภายใต้ hook นี้ `chooseLoginMethod` เขียน `kw.p2.account` ทันทีเสมอ (`signedIn: true`, provider ตามปุ่ม) ไม่ผ่าน `pendingProvider` แม้ `ageGatePassed` ยังไม่เคยถูกตั้ง (`apps/client/src/onboarding-flow.ts` `chooseLoginMethod`) · เหตุผล: short-circuit ข้อ 2 ไม่อ่าน `pendingProvider` ถ้าถือค่าไว้ใน memory spec relogin จะค้างที่ `login` ตลอด · ปลอดภัยเพราะ hook เป็น Mock-only: `shouldSkipF04App` ใน `apps/client/src/env.ts` คืน `false` เมื่อ provider ไม่ใช่ Mock (`main.ts` ส่ง `isMockProvider`) จึงไม่มีทางข้าม age gate บน Web/Capacitor provider
 - **class ไม่ถูก stamp:** class เป็น state ของ engine ที่เปลี่ยนได้ทาง `chooseClass` เท่านั้น · spec ที่ต้องมี class ใช้ `?e2eClassId=<id>` ตามเดิม · `qa/tests/e2e/f04-web-hooks-no-effect.spec.ts` ที่ยืนยันว่า `classId` ยัง `null` จึงยังผ่าน · ไม่มี hook ใดเขียนชื่อหรือ class ลงนอก Mock provider (unit test ของ `resolveE2e*` ขยายให้ครอบ)
 - ผล: shell พร้อม → nav ล่างแสดงบนแผนที่ใน spec ที่ใช้ hook · spec ที่วัดตำแหน่งจากขอบล่างหรือภาพหน้าจออาจเลื่อน → รายการอยู่ใน T08/T16
 

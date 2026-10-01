@@ -275,3 +275,8 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 252 | F6 | P2-F10-T16 | qa-tester | 11:24:14 | 11:38:45 | DONE — root typecheck + test เขียว (3457) · qa e2e 46/46 · capture 27/29 (26 รอ T15, 06 เดิม) |
 | 253 | F7 | P2-F10-T15 | gameplay-programmer | 11:24:14 | 12:02:20 | DONE — จอสร้างตัวละคร + เรื่อง 5 slide · unit 3483, e2e 68/68 · orchestrator: prettier --write capture script (format เท่านั้น) ให้ root lint ผ่าน |
 | 254 | F8 | P2-F10-T17 | gameplay-programmer | 12:02:20 | 12:47:06 | DONE — nav + Setting + coming soon + logout + route guard · test 3517, e2e 68/68×2 · → H72 artist tintable · T18, T19 เริ่ม |
+| 255 | F8 | P2-H72 | artist-2d | 12:47:07 | 12:52:10 | DONE — icon ทั้ง 8 tintable อยู่แล้ว (pipeline คำนวณ) · notes ใน manifest · ให้ T21 ตรวจจากภาพใหม่ |
+| 256 | F9 | P2-F10-T18 | tech-lead | 12:47:07 | 12:54:36 | NEEDS_CHANGES รอบ 1 — โค้ดผ่าน (test 3517) · F-01..F-03 → X60 tech-lead, F-04 → X61 uiux, F-05 → X62 gameplay · T18 รอบ 2 deps X60-X62 · D-160/D-161 PROPOSED |
+| 257 | F9 | P2-X61 | uiux-designer | 12:54:36 | 13:01:11 | DONE — zIndex.navScreen/nav · D-160 ACCEPTED · X62 เริ่ม |
+| 258 | F9 | P2-X60 | tech-lead | 12:54:36 | 13:01:41 | DONE — F-01..F-03 ปิด · root lint ตกจากไฟล์ใหม่ของ T19 (eslint 2, prettier 4) → แจ้ง T19 |
+| 259 | F9 | P2-X62 | gameplay-programmer | 13:01:11 | 13:22:54 | DONE — แก้ครบก่อนหลุดตอนรัน test · orchestrator ตรวจ unit 1089 + typecheck + lint ผ่าน · e2e รอ T19 (port 4173 ถูกใช้) |

@@ -14,14 +14,14 @@ Task: P2-F06-T07 · เจ้าของ: tech-lead · สถานะ: ฉบ�
 7. ฟอนต์ (D-057)
 8. เสียง: สัญญากับ generator ของ `audio/src/`
 9. Avatar sheet: build แล้วใครเป็นคน commit
-10. Validator V1–V13 (10.1 ทะเบียนแยกตาม root)
+10. Validator V1–V13 (10.1 ทะเบียนแยกตาม key)
 11. สมมติฐาน ความเสี่ยง และการส่งต่อ
 
 ## 1. สรุป
 
 - code ของ client อ้าง asset **ด้วย id เท่านั้น** (asset-pipeline 1.1) · id → URL มาจากไฟล์เดียวคือ `asset-manifest.json` ที่ `tools/art` สร้างตอน build · client ไม่อ่าน `art/assets/manifest.json` ตรง และไม่ประกอบ path เอง
 - script `dev`, `dev:https` และ `build` ของ `apps/client` รัน `tools/art prebuild` ก่อน vite ทุกครั้ง (ที่เดียว · หัวข้อ 3 · P2-X22): (1) generator เสียง → (2) validator V1–V13 → (3) stage art + ฟอนต์ + เสียงลง `tools/art/out/client/` (gitignored) · ขั้นใดตก build ตก
-- ทะเบียนของ artist แยกตาม root: `art/assets/manifest.json` (index) + `art/assets/manifest.<root>.json` (หัวข้อ 10.1 · P2-X22) · `tools/art` ไม่แก้ไฟล์ทะเบียนของ artist (ยกเว้นคำสั่ง `split-manifest --write` ที่ artist สั่งเอง) · ผลของการ build อวตารเขียนลง `art/assets/manifest.build.json` เท่านั้น (TL N-07)
+- ทะเบียนของ artist แยกตาม key: `art/assets/manifest.json` (index) + `art/assets/manifest.<key>.json` (key = root หรือ root.group, หัวข้อ 10.1 · P2-X22, P2-H67) · `tools/art` ไม่แก้ไฟล์ทะเบียนของ artist (ยกเว้นคำสั่ง `split-manifest --write` ที่ artist สั่งเอง) · ผลของการ build อวตารเขียนลง `art/assets/manifest.build.json` เท่านั้น (TL N-07)
 - validator V1–V13 รันใน `pnpm test` (`tools/art/test/repo.test.ts`) ตรวจ `manifest.json`, `manifest.build.json` และ `art/fonts/`
 - ไม่มีส่วนใดคำนวณรางวัลหรือค่าที่กระทบรางวัล · asset เป็นข้อมูลแสดงผลอย่างเดียว
 
@@ -30,7 +30,7 @@ Task: P2-F06-T07 · เจ้าของ: tech-lead · สถานะ: ฉบ�
 | path | เนื้อหา | ผู้เขียน |
 | --- | --- | --- |
 | `art/assets/manifest.json` | index: header (`manifestVersion`, `avatarRig`, `updated`, `baseDir`) + entry ที่ยังไม่ย้าย (หลังย้ายครบ `assets: []`) | artist-2d, vfx-animator · art-director เปลี่ยน status |
-| `art/assets/manifest.<root>.json` | ทะเบียน asset ของ root นั้น (id, kind, status, files, license) · schema เดียวกับ index · root ตาม `manifestRoots` ใน `pipeline.config.json` (asset-pipeline 3.1) | artist-2d (icon, badge, frame, avatar, illus, map, ref, ui) · vfx-animator (vfx) · art-director เปลี่ยน status |
+| `art/assets/manifest.<key>.json` | ทะเบียน asset ของ key นั้น (id, kind, status, files, license) · schema เดียวกับ index · key ตาม `manifestRoots` ใน `pipeline.config.json` (root ของ asset-pipeline 3.1 หรือ root.group, หัวข้อ 10.1) | artist-2d (icon, badge, frame, avatar, illus, map, ref, ui) · vfx-animator (vfx) · art-director เปลี่ยน status |
 | `art/assets/manifest.schema.json` | JSON Schema 6.6 ตรงตัว + `$defs.buildManifest` | tech-lead (แก้ root ต้องแก้ที่ asset-pipeline 6.6 ก่อน · test เทียบให้) |
 | `art/assets/manifest.build.json` | ผล build อวตาร: master + sha256 ของ master, ไฟล์ PNG ต่อ variant/scale, bytes, ขนาด, sha256, จำนวนสี | `tools/art build --write` เท่านั้น |
 | `art/fonts/` | ฟอนต์ vendor + `OFL.txt` ต่อโฟลเดอร์ + `fonts.json` + `SHA256SUMS` | tech-lead (vendor ใหม่ตาม 7) |
@@ -72,8 +72,8 @@ pnpm --filter @keep-walking/client build     (หรือ dev / dev:https)
 | `audio` | ขั้น 1 ของ prebuild อย่างเดียว | `audio/out/` (โดย generator) |
 | `stage [--out <dir>]` | ขั้น 3 อย่างเดียว | `tools/art/out/client/` |
 | `prebuild` | audio → validate → stage (ใช้ใน script `dev`/`build` ของ `apps/client` · หัวข้อ 3) | ตามข้างบน |
-| `split-manifest` | แสดงไฟล์ปลายทางและขนาดเมื่อย้ายทุก entry ไป `manifest.<root>.json` (หัวข้อ 10.1) | ไม่เขียน |
-| `split-manifest --write` | ย้ายจริง: เขียน part ต่อ root ที่มี entry และเหลือ index เป็น header + `assets: []` · ผล merge เท่าเดิมทุก entry | index + `manifest.<root>.json` |
+| `split-manifest` | แสดงไฟล์ปลายทางและขนาดเมื่อย้ายทุก entry ไป `manifest.<key>.json` (หัวข้อ 10.1) | ไม่เขียน |
+| `split-manifest --write` | ย้ายจริง: เขียน part ต่อ key ที่มี entry และเหลือ index เป็น header + `assets: []` · ผล merge เท่าเดิมทุก entry | index + `manifest.<key>.json` |
 
 ขั้นตอน build อวตาร (asset-pipeline 4.2) ต่อ entry:
 1. master = `source.master` ถ้ามี ไม่งั้นใช้ไฟล์ SVG ใน `files[]` (placeholder)
@@ -232,7 +232,7 @@ environment อ่านจาก `env.ts` ที่มีอยู่ของ 
 อยู่ใน `tools/art/src/validate.ts` · รันใน `pnpm test` ผ่าน `tools/art/test/repo.test.ts` และใน build ของ client ผ่าน `prebuild` · fixture ต่อกฎอยู่ใน `tools/art/test/rules.test.ts`, `build.test.ts` และ `manifest-set.test.ts` (การแยกไฟล์) · ทุกกฎอ่านทะเบียนที่ merge แล้ว · finding ของ entry บอกไฟล์ที่ประกาศ entry นั้น (index หรือ part)
 | # | ตรวจ (ตาม asset-pipeline 8) | ระดับ |
 | --- | --- | --- |
-| V1 | index และทุก part ผ่าน schema root (แยกไฟล์) · `manifest.build.json` ผ่าน `$defs/buildManifest` · id ไม่ซ้ำข้ามทุกไฟล์ · เรียงตาม id ภายในแต่ละไฟล์ · entry ใน `manifest.<root>.json` ต้องมี root ตรงชื่อไฟล์ · id ใน build ต้องมีในทะเบียนที่ merge แล้ว | error |
+| V1 | index และทุก part ผ่าน schema root (แยกไฟล์) · `manifest.build.json` ผ่าน `$defs/buildManifest` · id ไม่ซ้ำข้ามทุกไฟล์ · เรียงตาม id ภายในแต่ละไฟล์ · entry ใน `manifest.<key>.json` ต้องมี key ที่เจาะจงที่สุด (`partKeyOf`) ตรงชื่อไฟล์ · id ใน build ต้องมีในทะเบียนที่ merge แล้ว | error |
 | V2 | path ตาม 3.2 (`<root>/<group>/<name>.<ext>`, sheet `<name>[-<variant>]@<scale>x.png`) · `map.*` อยู่ใต้ `art/direction/map-style/` · `ref.*` ใต้ `art/ref/` · `art/src/` เฉพาะ placeholder | error |
 | V3 | ไฟล์มีจริง · bytes, width, height (SVG = width/height ของ root, PNG = IHDR) ตรง · sha256 ตรงเมื่อมีค่า และบังคับตั้งแต่ `draft` · ฟอนต์: bytes + sha256 ตรง `fonts.json` และ `SHA256SUMS` | error |
 | V4 | งบต่อไฟล์ 7.1 ตาม kind (`icon.ui16.*` ใช้งบ 1.5 KB) · งบ PNG ต่อ layer · ผลรวมอวตาร 7.2 จาก variant ที่ใหญ่สุดต่อ layer · ฟอนต์ ≤ 60 KB ต่อน้ำหนัก | error |
@@ -242,7 +242,7 @@ environment อ่านจาก `env.ts` ที่มีอยู่ของ 
 | V8 | key color 6 ค่าไม่อยู่ใน SVG ใดใน `art/assets/` และ `art/src/` นอก 3 โฟลเดอร์ master · ไม่มีใน pixel ของ PNG ใดๆ | error |
 | V9 | `placeholder` ตรง `status` · `approved` มี review PASS · `deprecated` มี `replacedBy` | error |
 | V10 | `license.spdx` อยู่ในรายการ 9.1 · ฟอนต์มี license file จริง · Reserved Font Name → `modified: false` · `OFL.txt` ตรง sha256 ของ release และอยู่โฟลเดอร์เดียวกับฟอนต์ | error |
-| V11 | ทุกไฟล์ใน `art/assets/` ถูกอ้างจากทะเบียนหรือ `manifest.build.json` (ยกเว้น `manifest.json`, `manifest.schema.json`, `manifest.build.json`, `manifest.<root>.json` ของทุก root ใน `manifestRoots`, `OFL.txt`) · ทุกไฟล์ใน `art/fonts/` อยู่ใน `fonts.json` | error |
+| V11 | ทุกไฟล์ใน `art/assets/` ถูกอ้างจากทะเบียนหรือ `manifest.build.json` (ยกเว้น `manifest.json`, `manifest.schema.json`, `manifest.build.json`, `manifest.<key>.json` ของทุก key ใน `manifestRoots`, `OFL.txt`) · ทุกไฟล์ใน `art/fonts/` อยู่ใน `fonts.json` | error |
 | V12 | ทุก entry ใน `manifest.build.json`: master ตรงกับ `manifest.json` และ sha256 ของ master ไม่เปลี่ยน · build ใหม่ในหน่วยความจำได้ sha256 เท่าเดิม · ถ้าเครื่องที่ตรวจต่าง platform จาก `platform` ที่บันทึก และต่างกันไม่เกิน `raster.crossPlatform*` → warning | error (Phase 2) |
 | V13 | ขนาดหน้าแรกโดยประมาณ (ฟอนต์ UI + UI glyph ทั้งหมด + อวตาร @2x + runtime manifest หลัก + ทุก part) ≤ 400 KB · glyph ≤ 30 KB · runtime manifest ≤ 30 KB ต่อไฟล์ (หลักและแต่ละ part, 5.1) · **ต่อไฟล์** ทะเบียนแต่ละไฟล์ (index และแต่ละ part) ≤ 60 KB (`budgets.manifestBytes`) | warning |
 
@@ -250,20 +250,24 @@ environment อ่านจาก `env.ts` ที่มีอยู่ของ 
 
 สถานะ 2026-09-27 (P2-X24): 88 entry ใน 8 ไฟล์ทะเบียน, 88 ไฟล์, 64 ไฟล์ build, 4 ฟอนต์ · 0 error 0 warning · หน้าแรกโดยประมาณ 168,306 B · `asset-manifest.json` 24,325 B (73 asset) + `art/avatar/runtime-manifest.json` 13,588 B (12 asset)
 
-### 10.1 ทะเบียนแยกตาม root (P2-X22 · ตอบข้อเสนอใน asset-pipeline 7.2)
+### 10.1 ทะเบียนแยกตาม key (P2-X22, P2-H67 · ตอบข้อเสนอใน asset-pipeline 7.2)
 
-การตัดสิน: **แยกไฟล์ตาม root ไม่ขึ้นงบ** · เหตุผล
+การตัดสิน: **แยกไฟล์ตาม key ไม่ขึ้นงบ** · key = root หรือ root.group · เหตุผล
 - งบ 60 KB ไม่ใช่งบดาวน์โหลด (client ไม่อ่านทะเบียนนี้ อ่าน `asset-manifest.json` ที่มีงบ 30 KB ของตัวเอง) แต่เป็นงบให้ไฟล์ review ได้และแก้ด้วย chunked write (CLAUDE.md ≤ 120 บรรทัดต่อครั้ง) · ไฟล์เดียว 101 KB (3,770 บรรทัด) ขัดทั้งสองข้อ และจะโตอีกทุก phase · ขึ้นงบแก้แค่ตัวเลข ไม่แก้ต้นเหตุ
-- artist-2d และ vfx-animator เขียนทะเบียนใน wave เดียวกัน · ไฟล์ต่อ root ทำให้ `writes` ของสอง task ไม่ชนกัน
+- artist-2d และ vfx-animator เขียนทะเบียนใน wave เดียวกัน · ไฟล์ต่อ key ทำให้ `writes` ของสอง task ไม่ชนกัน
 - schema ไม่เปลี่ยน (ทุกไฟล์เป็นเอกสาร asset-pipeline 6.6 ครบ) · `manifest.build.json` `source` ยังเป็น `art/assets/manifest.json` · consumer ทุกตัวได้ `Manifest` ที่ merge แล้วจาก `loadManifestSet` จึงไม่มีโค้ดอื่นต้องแก้
 
 รูปแบบ (ค่าอยู่ใน `tools/art/pipeline.config.json`)
-- `paths.manifestPart` = `art/assets/manifest.{root}.json` · `manifestRoots` = root ทั้ง 10 ของ asset-pipeline 3.1 · ไฟล์แบนใน `art/assets/` (ไม่อยู่ในโฟลเดอร์ root เพราะ `map.*` และ `ref.*` เก็บไฟล์นอก `art/assets/`)
-- `art/assets/manifest.json` เป็น index: header ครบตาม schema · `assets` รับ entry root ใดก็ได้ในช่วงเปลี่ยนผ่าน · เป้าหมายคือ `assets: []`
-- part ที่ไม่มีไฟล์ = ไม่มี entry ของ root นั้น · `updated` ของทะเบียนรวม = ค่าล่าสุดของทุกไฟล์
-- แก้ entry ที่ไฟล์ของ root นั้นเท่านั้น · entry ใหม่ใส่ใน part ไม่ใส่ใน index
-- ประมาณขนาดหลังแยก: icon 50,681 B (83% ของงบ), avatar 22,356 B, badge 12,129 B, frame 10,161 B, ที่เหลือ < 5 KB · เมื่อ part ใดเกินงบ V13 เตือน และ tech-lead ตัดสินการแยกขั้นถัดไป (ตาม group เช่น `icon.ui` / `icon.item` / `icon.qc`) ใน tech note นี้ก่อน implement
+- `paths.manifestPart` = `art/assets/manifest.{root}.json` (placeholder `{root}` ถูกแทนด้วย key ใดก็ได้ใน `manifestRoots`) · ไฟล์แบนใน `art/assets/` (ไม่อยู่ในโฟลเดอร์ root เพราะ `map.*` และ `ref.*` เก็บไฟล์นอก `art/assets/`)
+- `manifestRoots` = รายการ key: root ทั้ง 10 ของ asset-pipeline 3.1 และ key ย่อยแบบ `root.group` · วันนี้มี key ย่อย 3 ตัว `icon.ui`, `icon.item`, `icon.ui16` (P2-H67 เพราะ `manifest.icon.json` เกิน `budgets.manifestBytes`)
+- entry ไปที่ key ที่เจาะจงที่สุด (`partKeyOf` ใน `tools/art/src/manifest-set.ts`): ถ้า `<root>.<group>` อยู่ในรายการใช้ key นั้น ไม่งั้นใช้ `<root>` · ไม่มีทั้งสอง = ค้างใน index และ V1 รายงาน
+- key root เปล่า (เช่น `icon`) เป็น catch-all ของ group ที่ไม่มี key ย่อย (เช่น `icon.qc`) · วันนี้ `manifest.icon.json` ไม่มี entry จึงไม่มีไฟล์
+- `art/assets/manifest.json` เป็น index: header ครบตาม schema · เป้าหมายและสถานะวันนี้คือ `assets: []` · entry ใหม่ใส่ใน part ไม่ใส่ใน index
+- part ที่ไม่มีไฟล์ = ไม่มี entry ของ key นั้น · `updated` ของทะเบียนรวม = ค่าล่าสุดของทุกไฟล์
+- แก้ entry ที่ไฟล์ของ key นั้นเท่านั้น · V1 ตก (`id belongs to part <key>`) ถ้า entry อยู่ผิดไฟล์
+- แยกขั้นถัดไป: เมื่อ part ใดเกินงบ V13 เตือนพร้อม hint ให้เพิ่ม key `<root>.<group>` · tech-lead เพิ่ม key ใน `manifestRoots` แล้วเจ้าของทะเบียนรัน `split-manifest --write` · ไม่ต้องแก้โค้ดของ `tools/art`
 
+สถานะ 2026-10-01 (P2-X60, หลัง P2-H67): 100 entry ใน 10 ไฟล์ทะเบียน (index ว่าง + 9 part) · `icon.ui` 42,338 B (35 entry, 71% ของงบ) ใหญ่สุด · `avatar` 24,957 B · `icon.ui16` 12,351 B · `icon.item` 12,208 B · `badge` 12,129 B · `frame` 10,161 B · ที่เหลือ < 9 KB · `validate` 0 error 0 warning
 
 ## 11. สมมติฐาน ความเสี่ยง และการส่งต่อ
 
@@ -279,8 +283,8 @@ environment อ่านจาก `env.ts` ที่มีอยู่ของ 
 | --- | --- | --- |
 | resvg ให้ pixel ต่างกันเล็กน้อยระหว่าง macOS arm64 กับ Linux x64 ของ CI | V12 ตกใน CI หลัง artist commit PNG จาก Mac | `platform` ถูกบันทึกใน `manifest.build.json` · ต่าง platform แต่อยู่ในเกณฑ์ `raster.crossPlatform*` เป็น warning · ถ้าเกินเกณฑ์ให้ build ใน CI แล้ว commit ผล (devops-engineer) |
 | path build อื่นข้าม root build (หัวข้อ 3) | client ได้ชุด asset ว่าง ใช้ fallback ทั้งหมด | ปิดโดย P2-X22: prebuild อยู่ใน script ของ `apps/client` ที่ทุกทางใช้ |
-| `art/assets/manifest.json` โตเกิน 60 KB (101,448 B ที่ 88 entry) | V13 เตือน | ปิดโดย P2-X22: tools/art อ่านทะเบียนแยกตาม root (10.1) · เหลือ artist-2d ย้าย entry (ส่งต่อด้านล่าง) |
-| `manifest.icon.json` โตเกินงบใน Phase 3 (วันนี้ 83%) | V13 เตือน | แยกต่อตาม group (10.1 ข้อท้าย) |
+| `art/assets/manifest.json` โตเกิน 60 KB (101,448 B ที่ 88 entry) | V13 เตือน | ปิดโดย P2-X22: tools/art อ่านทะเบียนแยกตาม key (10.1) · artist-2d ย้าย entry แล้ว (index `assets: []`) |
+| `manifest.icon.json` โตเกินงบ | V13 เตือน | ปิดโดย P2-H67: icon แยกเป็น `icon.ui` / `icon.item` / `icon.ui16` (10.1) · part ใดเกินงบอีก ให้เพิ่ม key root.group ตามกฎเดียวกัน |
 | `closeBundle` copy ไป `dist/kw/` พัง แต่ e2e ยังผ่าน เพราะ preview เสิร์ฟจาก `tools/art/out/client/` (P2-H12) | deploy ได้ `/kw/*` 404 ทั้งชุด client ไป fallback ทั้งหมด โดยไม่มี test ใดจับ | ส่งต่อ gameplay-programmer ด้านล่าง (ไม่ block) · ระหว่างนี้ตรวจด้วย `curl` ตาม `infra/runbooks/preview-setup.md` หลัง deploy |
 | header cache ของ `/kw/*` มีสองที่ (P2-H12) | ค่าเลื่อนจากกัน | ปิดโดย 6.2.1: `_headers` ของ Pages เป็นแหล่งเดียว middleware ห้ามจำลอง |
 
@@ -292,7 +296,7 @@ environment อ่านจาก `env.ts` ที่มีอยู่ของ 
 | sound-designer (P2-F05-T06, P2-F06-T13) | สัญญาหัวข้อ 8 |
 | artist-2d (P2-F05-T04, P2-F05-T07) | รัน `build --write` แล้ว commit PNG + `manifest.build.json` · ลงทะเบียน `map.icon.rift-crack` ตาม brief 3.10 (validator ตรวจ miter ให้แล้ว) |
 | qa-tester | test hook: `pnpm exec tsx tools/art/src/cli.ts validate`, `tools/art/test/*.test.ts`, `asset-manifest.json` สำหรับตรวจ fallback |
-| artist-2d (P2-X22) | รัน `pnpm exec tsx tools/art/src/cli.ts split-manifest --write` แล้ว `validate` (ต้อง 0 error 0 warning) · commit index + `manifest.<root>.json` ทั้งหมดใน task เดียว · จากนั้นแก้ entry ที่ part ของ root เท่านั้น |
+| artist-2d (P2-X22) | รัน `pnpm exec tsx tools/art/src/cli.ts split-manifest --write` แล้ว `validate` (ต้อง 0 error 0 warning) · commit index + `manifest.<key>.json` ทั้งหมดใน task เดียว · จากนั้นแก้ entry ที่ part ของ key เท่านั้น · ปิดแล้ว (P2-X22, แยก icon ตาม group ใน P2-H67) |
 | vfx-animator (P2-X22) | entry `vfx.*` ใหม่ลงใน `art/assets/manifest.vfx.json` ไม่ใส่ใน index |
 | art-director (P2-X22) | บันทึกรูปแบบ 10.1 ใน asset-pipeline 2 (โครงโฟลเดอร์), 6 (ระบุว่าทะเบียนมีหลายไฟล์ schema เดียว) และ 7.2 (ข้อเสนอแยกไฟล์ปิดแล้ว) |
 | devops-engineer (P2-X22) | ลบบรรทัด `pnpm exec tsx tools/art/src/cli.ts prebuild` (และ log นำหน้า) ใน `infra/scripts/publish-client.sh` เพราะ `pnpm --filter @keep-walking/client build` รันให้แล้ว (หัวข้อ 3) |

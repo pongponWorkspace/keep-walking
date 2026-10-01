@@ -1489,17 +1489,13 @@ body {
 
 /* --- F10 bottom nav + floating Setting button (components.md 16.1/16.2, flow F10 section 8) ---- */
 
-/* ASSUMPTION (P2-F10-T17): `35`/`38` below are a new tier squeezed between `zIndex.popupModal`(40)
-   and the plain map/nav-panel/home-panel content (auto) — not yet in design/ux/tokens.json#zIndex.
-   Needed because this nav/Setting button must paint *above* `S-11-inventory`/the three "coming
-   soon" screens (so they stay visible+usable there, flow section 8's table) while still painting
-   *below* `.popup-overlay` (40, the dungeon-confirm popup's own scrim must still dim them, same
-   table's "popup confirm" row) — and `.screen`'s own existing `zIndex.overlay` (50) sits *above*
-   `popupModal`(40) already, so those two screens cannot simply keep the plain `.screen` value and
-   still satisfy both constraints at once. Every other `.screen` (settings/login/story/run-summary/
-   etc.) keeps the ordinary `zIndex.overlay`(50) unchanged — this nav is explicitly hidden on all of
-   them (`render()`'s own calls), so their stacking order never actually matters against it. Owner:
-   uiux-designer/tech-lead to confirm and fold into the real scale. */
+/* zIndex.navScreen (35, design/ux/tokens.json#zIndex, D-160, components.md 15.5): the two full-
+   screen F10 shell screens that must still show the bottom nav/floating Setting button painted on
+   top of them (`.screen` otherwise sits at `zIndex.overlay`(50), above `zIndex.nav`(38), which
+   would bury the nav) while staying below `zIndex.popupModal`(40) so a popup's own scrim still dims
+   them (components.md 15.5 point 1). Every other `.screen` keeps the ordinary `zIndex.overlay`(50)
+   unchanged — this nav is explicitly hidden on all of them (`render()`'s own calls), so their
+   stacking order never actually matters against it. */
 .screen.inventory-screen,
 .screen.coming-soon-screen {
   z-index: 35;
@@ -1511,7 +1507,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 38; /* see the ASSUMPTION note above */
+  z-index: 38; /* zIndex.nav (design/ux/tokens.json#zIndex, D-160, components.md 15.5) */
   display: flex;
   background: #ffffff; /* bg.surface */
   border-top: 2px solid #1a1a22; /* ink.900 */
@@ -1570,7 +1566,7 @@ body {
   position: absolute;
   top: max(12px, env(safe-area-inset-top));
   right: max(12px, env(safe-area-inset-right));
-  z-index: 38; /* see the ASSUMPTION note above `.bottombar-f10` */
+  z-index: 38; /* zIndex.nav (design/ux/tokens.json#zIndex, D-160, components.md 15.5) */
   width: 48px;
   height: 48px;
   box-sizing: border-box;
