@@ -193,15 +193,33 @@ test.describe('TC-MAP-05: network loss mid-pan does not crash the app', () => {
       const map = window.__kwSpike?.map as unknown as SpikeMapExtra | undefined;
       map?.panBy([200, 150], { duration: 300 });
     });
-    // Give the in-flight pan time to hit the (now offline) network and fail its tile requests.
-    await page.waitForTimeout(1_000);
+    // P2-X67: was `await page.waitForTimeout(1_000)` -- a fixed wall-clock sleep "to give the
+    // in-flight pan time to hit the (now offline) network and fail its tile requests" before
+    // reading `positionWhileOffline` below. That flaked on ios-safari specifically inside a full
+    // gameplay regression run (many workers, two browser engines contending for the same machine's
+    // CPU at once -- the exact same contention `qa/reports/F10/e2e-coverage.md` already documents
+    // forcing `f10-render-persistence.spec.ts` up to a 90s per-case timeout): under load, 1 real
+    // second of wall-clock time is not guaranteed to be 1 second of this page's own `speed=60` mock
+    // location replay making progress, so `positionWhileOffline` could still equal
+    // `positionBeforeOffline` by the time the fixed sleep ended, independent of anything actually
+    // being broken. Polling for the exact status the assertions below need (no fixed duration,
+    // bounded only by a generous timeout) removes that race without weakening what gets checked --
+    // the pan's offline tile request has strictly more time to fail by the time this resolves than
+    // the old fixed 1s ever guaranteed, and `pageErrors`/the canvas are read in full afterwards
+    // exactly as before.
+    await expect
+      .poll(() => page.evaluate(() => window.__kwSpike?.position?.timestamp ?? 0), {
+        timeout: 15_000,
+      })
+      .toBeGreaterThan(positionBeforeOffline?.timestamp ?? 0);
 
     // The app must not crash: the canvas is still there, no uncaught page error.
     await expect(page.locator('canvas.maplibregl-canvas')).toBeVisible();
     expect(pageErrors).toEqual([]);
 
     // Location must be unaffected by the map's network state: Mock keeps advancing regardless of
-    // `context.setOffline` (the trace player is not itself an HTTP source).
+    // `context.setOffline` (the trace player is not itself an HTTP source) -- re-read fresh (not
+    // reused from the poll above) so this assertion still stands on its own.
     const positionWhileOffline = await page.evaluate(() => window.__kwSpike?.position ?? null);
     expect(positionWhileOffline).not.toBeNull();
     expect(positionWhileOffline?.timestamp).toBeGreaterThan(positionBeforeOffline?.timestamp ?? 0);

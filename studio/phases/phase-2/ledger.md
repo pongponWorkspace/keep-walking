@@ -291,3 +291,4 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 268 | F10 | P2-F10-T24 | product-manager | 13:57:01 | 14:01:59 | PASS — คำสั่งคน 7/7, event ครบไม่มี PII · PM-01/02 รวมเข้า X67 |
 | 269 | F10 | P2-X65 | gameplay-programmer | 13:52:17 | 14:06:12 | DONE — F-02, V-01, V-02, V-04, V-09 · unit 1095 · ภาพยืนยัน · slide 1 ภาพว่างเพราะ capture ไม่รอ img.complete (X67) · X68 เริ่ม |
 | 270 | F10 | P2-X68 | gameplay-programmer | 14:06:12 | 14:29:43 | DONE — V-03/06/07/08/10 · regression debug panel แก้แล้ว · e2e 169/170 (TC-MAP-05 ios) → X67 · X67 เริ่ม |
+| 271 | F10 | P2-X67 | qa-tester | 14:29:43 | 15:02:31 | DONE — e2e 218/218 · lint 0 · ภาพใหม่ 40 · telemetry restore format สงสัย → backlog · T20, T21 รอบ 2 เริ่ม |

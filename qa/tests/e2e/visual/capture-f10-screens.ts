@@ -13,8 +13,10 @@
 // Run: pnpm exec tsx qa/tests/e2e/visual/capture-f10-screens.ts
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
 import type { Browser, BrowserContext, Page } from '@playwright/test';
+import prettier from 'prettier';
 import { screenshotWithBudget } from './image-utils';
 import { seedLegacyPlayer } from '../../../../apps/client/e2e/fixtures/f10-seed';
 
@@ -40,7 +42,12 @@ const ONBOARDING = `loc=mock&trace=e2e-onboarding-01&loop=0&seed=1&speed=60&star
 const HOME = `loc=mock&trace=e2e-onboarding-01&loop=0&seed=1&speed=60&e2eClassId=tanker&e2eSkipOnboarding=1&start=${encodeURIComponent(START)}`;
 const RUN = `loc=mock&trace=e2e-full-run-01&loop=0&seed=1&speed=60&e2eClassId=tanker&e2eSkipOnboarding=1&start=${encodeURIComponent(START)}`;
 
-async function newCtxPage(
+/** P2-X67: every `reach*` function below is `export`ed so `f10-no-raw-copy-key.spec.ts` (same
+ * "every F10 screen" walk, different assertion) can drive the exact same real taps instead of
+ * re-typing a second copy of this navigation — a second hand-written copy would silently drift the
+ * moment a selector here changes, same reasoning `qa/tests/e2e/f04-f05-no-raw-copy-key.spec.ts`'s
+ * own doc comment gives for reading `copy.th.json` back rather than retyping Thai text. */
+export async function newCtxPage(
   browser: Browser,
   width: (typeof WIDTHS)[number],
 ): Promise<{ context: BrowserContext; page: Page }> {
@@ -69,16 +76,48 @@ async function hideDebugHud(page: Page): Promise<void> {
   });
 }
 
-interface Reached {
+const IMAGE_LOAD_TIMEOUT_MS = 10_000;
+
+/** P2-X67 (art gate V-F10-04 condition 3: "ถ่ายรอ img.complete && naturalWidth > 0"). Every screen
+ * is checked, not only the story slides/start screen V-F10-04 named — a screen with no `<img>` at
+ * all (e.g. the login screen, whose icons are inline `<svg>` via `setIconGlyph`'s tintable path)
+ * trivially satisfies this with zero images to wait for, so one call site before every screenshot
+ * is simpler and no weaker than special-casing which screens "have a picture". Only *visible*
+ * `<img>` elements are waited on (a non-zero `getBoundingClientRect`) — an `<img>` sitting in a
+ * `hidden`/`display:none` sibling screen (several F10 screens share one mounted DOM, only one
+ * visible at a time, same convention `story-screen.ts`'s own doc comment describes) can legitimately
+ * never load in this run and must not hang the capture. */
+async function waitForImagesLoaded(page: Page): Promise<void> {
+  await page
+    .waitForFunction(
+      () => {
+        const images = Array.from(document.querySelectorAll('img'));
+        return images.every((img) => {
+          const box = img.getBoundingClientRect();
+          const visible = box.width > 0 && box.height > 0;
+          if (!visible) return true;
+          return img.complete && img.naturalWidth > 0;
+        });
+      },
+      undefined,
+      { timeout: IMAGE_LOAD_TIMEOUT_MS },
+    )
+    .catch(() => undefined); // same "never hang the whole run over one screen" convention as
+  // every `reach*` function's own `.catch(() => false)` — a screen whose image never loads inside
+  // the budget is still captured (the still-broken image is itself real evidence for the gate that
+  // asked for this wait), just not blocked on forever.
+}
+
+export interface Reached {
   readonly context: BrowserContext;
   readonly page: Page;
   readonly reachedVia: string;
 }
-interface NotReached {
+export interface NotReached {
   readonly reason: string;
 }
-type Outcome = Reached | NotReached;
-function isReached(o: Outcome): o is Reached {
+export type Outcome = Reached | NotReached;
+export function isReached(o: Outcome): o is Reached {
   return 'page' in o;
 }
 
@@ -93,7 +132,10 @@ interface ScreenResult {
 
 // --- login family + start -----------------------------------------------------------------------
 
-async function reachStart(browser: Browser, width: (typeof WIDTHS)[number]): Promise<Outcome> {
+export async function reachStart(
+  browser: Browser,
+  width: (typeof WIDTHS)[number],
+): Promise<Outcome> {
   const { context, page } = await newCtxPage(browser, width);
   await page.goto(url(ONBOARDING));
   const shown = await page
@@ -105,7 +147,10 @@ async function reachStart(browser: Browser, width: (typeof WIDTHS)[number]): Pro
   return { context, page, reachedVia: 'e2e-onboarding-01, fresh load' };
 }
 
-async function reachLogin(browser: Browser, width: (typeof WIDTHS)[number]): Promise<Outcome> {
+export async function reachLogin(
+  browser: Browser,
+  width: (typeof WIDTHS)[number],
+): Promise<Outcome> {
   const start = await reachStart(browser, width);
   if (!isReached(start)) return { reason: `start screen not reached: ${start.reason}` };
   const { page } = start;
@@ -119,7 +164,10 @@ async function reachLogin(browser: Browser, width: (typeof WIDTHS)[number]): Pro
   return { context: start.context, page, reachedVia: 'tapped เริ่มเกม' };
 }
 
-async function reachLoginEmail(browser: Browser, width: (typeof WIDTHS)[number]): Promise<Outcome> {
+export async function reachLoginEmail(
+  browser: Browser,
+  width: (typeof WIDTHS)[number],
+): Promise<Outcome> {
   const login = await reachLogin(browser, width);
   if (!isReached(login)) return { reason: `login screen not reached: ${login.reason}` };
   const { page } = login;
@@ -133,7 +181,10 @@ async function reachLoginEmail(browser: Browser, width: (typeof WIDTHS)[number])
   return { context: login.context, page, reachedVia: 'login -> email link' };
 }
 
-async function reachRegister(browser: Browser, width: (typeof WIDTHS)[number]): Promise<Outcome> {
+export async function reachRegister(
+  browser: Browser,
+  width: (typeof WIDTHS)[number],
+): Promise<Outcome> {
   const email = await reachLoginEmail(browser, width);
   if (!isReached(email)) return { reason: `login-email screen not reached: ${email.reason}` };
   const { page } = email;
@@ -147,7 +198,10 @@ async function reachRegister(browser: Browser, width: (typeof WIDTHS)[number]): 
   return { context: email.context, page, reachedVia: 'login -> email -> register' };
 }
 
-async function reachForgot(browser: Browser, width: (typeof WIDTHS)[number]): Promise<Outcome> {
+export async function reachForgot(
+  browser: Browser,
+  width: (typeof WIDTHS)[number],
+): Promise<Outcome> {
   const email = await reachLoginEmail(browser, width);
   if (!isReached(email)) return { reason: `login-email screen not reached: ${email.reason}` };
   const { page } = email;
@@ -163,7 +217,7 @@ async function reachForgot(browser: Browser, width: (typeof WIDTHS)[number]): Pr
 
 // --- create-character (fresh / name-invalid / migration-locked) ---------------------------------
 
-async function reachCreateCharacterFresh(
+export async function reachCreateCharacterFresh(
   browser: Browser,
   width: (typeof WIDTHS)[number],
 ): Promise<Outcome> {
@@ -189,7 +243,7 @@ async function reachCreateCharacterFresh(
   return { context: login.context, page, reachedVia: 'google -> age 1990 -> consent decline' };
 }
 
-async function reachCreateCharacterNameInvalid(
+export async function reachCreateCharacterNameInvalid(
   browser: Browser,
   width: (typeof WIDTHS)[number],
 ): Promise<Outcome> {
@@ -207,7 +261,7 @@ async function reachCreateCharacterNameInvalid(
   return { context: fresh.context, page, reachedVia: 'typed "a" (tooShort)' };
 }
 
-async function reachCreateCharacterMigrationLocked(
+export async function reachCreateCharacterMigrationLocked(
   browser: Browser,
   width: (typeof WIDTHS)[number],
 ): Promise<Outcome> {
@@ -228,12 +282,12 @@ async function reachCreateCharacterMigrationLocked(
   return { context, page, reachedVia: 'seedLegacyPlayer(withClass:true), google login' };
 }
 
-// --- story (slides 1, 4, 5) -----------------------------------------------------------------------
+// --- story (slides 1-5) -------------------------------------------------------------------------
 
-async function reachStorySlide(
+export async function reachStorySlide(
   browser: Browser,
   width: (typeof WIDTHS)[number],
-  slide: 1 | 4 | 5,
+  slide: 1 | 2 | 3 | 4 | 5,
 ): Promise<Outcome> {
   const fresh = await reachCreateCharacterFresh(browser, width);
   if (!isReached(fresh)) return { reason: `create-character (fresh) not reached: ${fresh.reason}` };
@@ -267,7 +321,10 @@ async function reachStorySlide(
 
 // --- shell: map+nav, coming-soon x3, settings, logout (outside/in run) ---------------------------
 
-async function reachMapNav(browser: Browser, width: (typeof WIDTHS)[number]): Promise<Outcome> {
+export async function reachMapNav(
+  browser: Browser,
+  width: (typeof WIDTHS)[number],
+): Promise<Outcome> {
   const { context, page } = await newCtxPage(browser, width);
   await page.goto(url(HOME));
   const shown = await page
@@ -279,7 +336,7 @@ async function reachMapNav(browser: Browser, width: (typeof WIDTHS)[number]): Pr
   return { context, page, reachedVia: 'e2eSkipOnboarding=1, map home' };
 }
 
-async function reachComingSoon(
+export async function reachComingSoon(
   browser: Browser,
   width: (typeof WIDTHS)[number],
   tab: 'upgrade' | 'shop' | 'party',
@@ -297,7 +354,7 @@ async function reachComingSoon(
   return { context: home.context, page, reachedVia: `tapped the ${tab} nav tab` };
 }
 
-async function reachSettingsMenu(
+export async function reachSettingsMenu(
   browser: Browser,
   width: (typeof WIDTHS)[number],
 ): Promise<Outcome> {
@@ -314,7 +371,7 @@ async function reachSettingsMenu(
   return { context: home.context, page, reachedVia: 'tapped the floating Setting button' };
 }
 
-async function reachLogoutConfirmOutsideRun(
+export async function reachLogoutConfirmOutsideRun(
   browser: Browser,
   width: (typeof WIDTHS)[number],
 ): Promise<Outcome> {
@@ -331,7 +388,7 @@ async function reachLogoutConfirmOutsideRun(
   return { context: settings.context, page, reachedVia: 'settings -> logout (no run in progress)' };
 }
 
-async function reachLogoutConfirmInRun(
+export async function reachLogoutConfirmInRun(
   browser: Browser,
   width: (typeof WIDTHS)[number],
 ): Promise<Outcome> {
@@ -374,6 +431,13 @@ const SCREENS: readonly ScreenDef[] = [
   { id: '07-create-character-name-invalid', run: reachCreateCharacterNameInvalid },
   { id: '08-create-character-migration-locked', run: reachCreateCharacterMigrationLocked },
   { id: '09-story-slide-1', run: (b, w) => reachStorySlide(b, w, 1) },
+  // P2-X67 (art gate V-F10-04 re-run condition, copy gate N-04): slides 2 and 3 had no screenshot
+  // at all before this task (art-director read slide 2's SVG source instead, and did not re-check
+  // slide 3). `09b`/`09c` (not `10`/`11`) so every pre-existing id/number already cited by
+  // `design/reviews/F10-copy-gate.md` and `art/reviews/F10-visual-gate.md` (e.g. "ภาพ 10",
+  // "10-story-slide-4-360.png") keeps pointing at the same file it always did.
+  { id: '09b-story-slide-2', run: (b, w) => reachStorySlide(b, w, 2) },
+  { id: '09c-story-slide-3', run: (b, w) => reachStorySlide(b, w, 3) },
   { id: '10-story-slide-4', run: (b, w) => reachStorySlide(b, w, 4) },
   { id: '11-story-slide-5', run: (b, w) => reachStorySlide(b, w, 5) },
   { id: '12-map-nav', run: reachMapNav },
@@ -413,6 +477,7 @@ async function run(): Promise<void> {
         continue;
       }
       await hideDebugHud(outcome.page).catch(() => undefined);
+      await waitForImagesLoaded(outcome.page);
       const { buffer } = await screenshotWithBudget(outcome.page);
       writeFileSync(join(OUT_DIR, `${screen.id}-${width}.png`), buffer);
       await outcome.context.close();
@@ -427,12 +492,32 @@ async function run(): Promise<void> {
     }
   }
   await browser.close();
-  writeFileSync(RESULTS_PATH, JSON.stringify(results, null, 2));
+  // P2-X67: the repo's own `pnpm lint` runs `prettier --check .` over everything, this generated
+  // file included — formatting it here (rather than leaving a plain `JSON.stringify(..., null, 2)`
+  // and hoping it happens to match prettier's own JSON style) means a bare re-run of this script
+  // never needs a follow-up `prettier --write` step, and `pnpm lint` never fails on a file nobody
+  // hand-edits. `resolveConfig` picks up the repo's own `.prettierrc.json` (same config every other
+  // file in this repo is checked against) instead of prettier's built-in defaults.
+  const prettierConfig = await prettier.resolveConfig(RESULTS_PATH);
+  const formatted = await prettier.format(JSON.stringify(results), {
+    ...prettierConfig,
+    filepath: RESULTS_PATH,
+  });
+  writeFileSync(RESULTS_PATH, formatted);
   const okCount = results.filter((r) => r.ok).length;
   console.warn(`\n${okCount}/${results.length} screen x width captures ok.`);
 }
 
-run().catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// P2-X67: this file is now also imported (not just run as a script) by
+// `qa/tests/e2e/f10-no-raw-copy-key.spec.ts`, which only wants its exported `reach*` helpers, never
+// a second full screenshot-and-write-results pass racing its own browser/test run. `run()` must
+// only fire when this file itself is the process entry point (`pnpm exec tsx
+// qa/tests/e2e/visual/capture-f10-screens.ts`), not on every `import`.
+const isMainModule =
+  process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMainModule) {
+  run().catch((error: unknown) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}
