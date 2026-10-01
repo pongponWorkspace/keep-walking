@@ -806,6 +806,10 @@ async function reach20Consent(browser: Browser): Promise<Outcome> {
   };
 }
 
+// P2-F10-T15 replaced the pre-F10 `.class-select-overlay` popup sheet with the real, full-screen
+// `S-00-create-character` (`ui/create-character-screen.ts`, class cards + name field + shuffle +
+// create button) as the onboarding `character` step — this screen id now captures that screen
+// itself, in its fresh (nothing picked yet) state, the same step this function always captured.
 async function reach21ClassSelect(browser: Browser): Promise<Outcome> {
   const consent = await reach20Consent(browser);
   if (!isReached(consent))
@@ -821,11 +825,11 @@ async function reach21ClassSelect(browser: Browser): Promise<Outcome> {
     return { reason: '.consent-permission-screen never appeared after accepting consent' };
   await page.click('.consent-permission-continue');
   const shown = await page
-    .locator('.class-select-overlay:not([hidden])')
+    .locator('.create-character-screen:not([hidden])')
     .waitFor({ state: 'visible', timeout: 5_000 })
     .then(() => true)
     .catch(() => false);
-  if (!shown) return { reason: '.class-select-overlay never appeared' };
+  if (!shown) return { reason: '.create-character-screen never appeared' };
   return {
     context,
     page,
@@ -851,14 +855,27 @@ async function reach26HomeUnknown(browser: Browser): Promise<Outcome> {
     .catch(() => false);
   if (!consentShown) return { reason: '.consent-location-screen never appeared' };
   await page.click('.consent-location-decline');
-  const classShown = await page
-    .locator('.class-select-overlay:not([hidden])')
+  const createScreen = page.locator('.create-character-screen:not([hidden])');
+  const classShown = await createScreen
     .waitFor({ state: 'visible', timeout: 5_000 })
     .then(() => true)
     .catch(() => false);
   if (!classShown)
-    return { reason: '.class-select-overlay never appeared after declining consent' };
-  await page.click('.class-select-card');
+    return { reason: '.create-character-screen never appeared after declining consent' };
+  // T15 (full-screen create-character + 5-slide story) now sits between consent and the map, where
+  // the old `.class-select-overlay` card tap used to be the very last step — a class tap alone no
+  // longer reaches home: a name must also pass the filter, the create button clicked, and the
+  // 5-slide story finished (or skipped) first.
+  await page.click('.class-select-card[data-class-id="tanker"]');
+  await page.fill('.name-field-input', 'testplayer');
+  await page.click('.create-character-button');
+  const storyShown = await page
+    .locator('.story-screen:not([hidden])')
+    .waitFor({ state: 'visible', timeout: 5_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!storyShown) return { reason: '.story-screen never appeared after creating a character' };
+  await page.locator('.story-skip-link').click();
   const found = await pollUntil(
     page,
     async () =>

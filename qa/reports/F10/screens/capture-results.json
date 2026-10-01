@@ -1,0 +1,44 @@
+[
+  {
+    "id": "09-story-slide-1",
+    "width": 360,
+    "ok": true,
+    "bytes": 19778,
+    "reachedVia": "created a character, advanced to slide 1"
+  },
+  {
+    "id": "09-story-slide-1",
+    "width": 390,
+    "ok": true,
+    "bytes": 19734,
+    "reachedVia": "created a character, advanced to slide 1"
+  },
+  {
+    "id": "10-story-slide-4",
+    "width": 360,
+    "ok": true,
+    "bytes": 29328,
+    "reachedVia": "created a character, advanced to slide 4"
+  },
+  {
+    "id": "10-story-slide-4",
+    "width": 390,
+    "ok": true,
+    "bytes": 29725,
+    "reachedVia": "created a character, advanced to slide 4"
+  },
+  {
+    "id": "11-story-slide-5",
+    "width": 360,
+    "ok": true,
+    "bytes": 34043,
+    "reachedVia": "created a character, advanced to slide 5"
+  },
+  {
+    "id": "11-story-slide-5",
+    "width": 390,
+    "ok": true,
+    "bytes": 34797,
+    "reachedVia": "created a character, advanced to slide 5"
+  }
+]
