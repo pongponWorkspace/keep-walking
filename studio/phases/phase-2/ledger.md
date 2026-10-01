@@ -280,3 +280,4 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 257 | F9 | P2-X61 | uiux-designer | 12:54:36 | 13:01:11 | DONE — zIndex.navScreen/nav · D-160 ACCEPTED · X62 เริ่ม |
 | 258 | F9 | P2-X60 | tech-lead | 12:54:36 | 13:01:41 | DONE — F-01..F-03 ปิด · root lint ตกจากไฟล์ใหม่ของ T19 (eslint 2, prettier 4) → แจ้ง T19 |
 | 259 | F9 | P2-X62 | gameplay-programmer | 13:01:11 | 13:22:54 | DONE — แก้ครบก่อนหลุดตอนรัน test · orchestrator ตรวจ unit 1089 + typecheck + lint ผ่าน · e2e รอ T19 (port 4173 ถูกใช้) |
+| 260 | F10 | P2-F10-T18 รอบ 2 | tech-lead | 13:22:59 | 13:26:34 | PASS — F-01..F-05 ปิด · N-05 ไม่บล็อก (assert validate ใน e2e-skip-seed.test) |

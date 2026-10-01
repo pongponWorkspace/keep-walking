@@ -2,7 +2,8 @@
 
 - Task: P2-F10-T18 · ผู้ตรวจ: tech-lead · วันที่: 2026-10-01 · attempt 1
 - ขอบเขต: commit `eae3c85..cd7d2ba` (T12, T14, T15, T16, T17) เทียบกับ `docs/tech/F10-account-shell.md` (T07)
-- **Summary: verdict NEEDS_CHANGES** · โค้ด F10 ผ่านทุกข้อด้าน server-authority, storage/PII, render rule, test (3517 ผ่าน) · ค้าง 5 finding: config-not-hardcode 1 จุดใน e2e seed (gameplay), z-index tier ไม่อยู่ใน token (uiux), และเอกสาร/allowlist ของ tech-lead เอง 3 ข้อ
+- **Summary รอบ 2 (attempt 2): verdict PASS** · ปิด F-01..F-05 ครบ ดูหัวข้อ 6
+- Summary รอบ 1: verdict NEEDS_CHANGES · โค้ด F10 ผ่านทุกข้อด้าน server-authority, storage/PII, render rule, test (3517 ผ่าน) · ค้าง 5 finding: config-not-hardcode 1 จุดใน e2e seed (gameplay), z-index tier ไม่อยู่ใน token (uiux), และเอกสาร/allowlist ของ tech-lead เอง 3 ข้อ
 
 ## 1. ผลรันเอง (ข้อ 10)
 
@@ -71,3 +72,32 @@
 - N-02 (qa-tester): `pnpm test` พิมพ์ `DOMException [AbortError]` จาก happy-dom ตอน teardown 18 ครั้ง (fetch ที่ค้างตอนปิด window) · test ผ่านทั้งหมด แต่ log รกจนบังข้อผิดพลาดจริง · ตรวจใน P2-F10-CI ว่าเป็นของเดิมหรือ F10 แล้ว stub/await fetch ใน test ที่ต้นเหตุ
 - N-03 (narrative-designer, ไม่ต้องแก้ตอนนี้): `STORY_SLIDE_COUNT = 5` (`apps/client/src/ui/story-screen.ts:18`) เป็นโครงสร้างตาม spec/route `#/story/1..5` ไม่ใช่ค่า balance · ถ้าจำนวน slide จะเปลี่ยนในอนาคต ให้ย้ายไปนับจาก copy key `story.slide*`
 - N-04: `PROVIDER_DISPLAY_NAME` (`login-screen.ts:28`) ให้ถอดเมื่อมี SDK จริงใน Phase 3 (ข้อ 2)
+
+## 6. รอบ 2 (attempt 2, protocol ข้อ 6)
+
+- ผู้ตรวจ: tech-lead · วันที่: 2026-10-01 · ขอบเขต: เฉพาะ F-01..F-05 ใน commit `a28d094` (P2-X60..X62) · ไม่เปิด finding ใหม่
+- **Summary รอบ 2: verdict PASS** · ปิดครบ 5 finding · `lint:config` 0 allowed 0 stale · typecheck ผ่าน · `pnpm test` 3519 ผ่าน
+
+### 6.1 ผลรันเอง
+
+| คำสั่ง | ผล |
+| --- | --- |
+| `pnpm lint:config` | `config-lint: 22 files, 0 errors, 2 warnings, 0 allowed, 0 stale` (exit 0) · warning 2 ตัวเป็น `null-undeclared` ของ `enhance.json`/`raid.json` ของเดิม ไม่เกี่ยว F10 |
+| `pnpm typecheck` | ทุก package `Done` (packages/shared, tools/copy-lint, apps/client ...) exit 0 |
+| `pnpm test` (root) | `Test Files 229 passed (229)` · `Tests 3519 passed / 2 skipped (3521)` exit 0 |
+| `pnpm lint` (root, บันทึกเท่านั้น) | exit 0 ณ เวลาตรวจ (มีแค่ WARN S7 ของ copy-lint ของเดิม) · ไฟล์ e2e ใหม่ของ qa (T19) ไม่ทำให้ตก ณ ตอนนี้ · ไม่นับเป็น finding ของ gate นี้ |
+
+### 6.2 สถานะราย finding
+
+| # | สถานะ | หลักฐาน |
+| --- | --- | --- |
+| F-01 | ปิด | `tools/config-lint/src/allowlist.ts:25` `export const ALLOWLIST: readonly AllowEntry[] = [];` · ไม่เหลือ entry และ const `H64_SOURCE`/`T03_SOURCE` (ไฟล์เหลือ 25 บรรทัด) · comment :23–24 บันทึกว่า X60 ลบ 13 entry · `lint:config` ได้ `0 allowed, 0 stale` และ `pnpm test` เขียว |
+| F-02 | ปิด | `docs/tech/asset-delivery.md:24, 33, 75, 76, 235, 245, 299` ใช้ `manifest.<key>.json` ทั้งหมด · 10.1 (:254–268) เขียนใหม่: "key = root หรือ root.group" · :262 ระบุ `manifestRoots` มี key ย่อย `icon.ui`, `icon.item`, `icon.ui16` (P2-H67) · :264 key root เปล่าเป็น catch-all · :287 ปิดแถว `manifest.icon.json` โตเกินงบ · grep "1 ไฟล์ต่อ root" ไม่เจอ · :261 `{root}` เป็นชื่อ placeholder ตรงกับค่าจริงใน `tools/art/pipeline.config.json:5` และอธิบายว่าแทนด้วย key ใดก็ได้ ยอมรับ |
+| F-03 | ปิด | `docs/tech/F10-account-shell.md:22` `randomCharacterName` **throw** เมื่อไม่มี `Intl.Segmenter` และจอจับเป็น `character.unsupportedBrowser` (อ้าง A-P2-F10-T12-3, P2-H69) · :208 ข้อ 4 "**ไม่มี `<form>`**" ปุ่มทุกตัว `type="button"` · 9.1 (:262) หัวเรื่องเปลี่ยนเป็น "เพิ่มสามข้อ" และข้อ 3 (:270) ระบุ `chooseLoginMethod` เขียน `kw.p2.account` ทันทีเสมอ ไม่ผ่าน `pendingProvider` พร้อมเหตุผล Mock-only (`env.ts` `shouldSkipF04App`) · 9.1 ข้อ 1 (:267) ชื่อ seed = ชื่อแรกของรายการที่ `random.fallbackKey` ชี้ ตรงโค้ด F-05 |
+| F-04 | ปิด | `design/ux/tokens.json:86–87` `navScreen: 35`, `nav: 38` อยู่ระหว่าง `toast` 30 กับ `popupModal` 40 · `rule` (:92) อธิบายสองระดับและอ้าง D-160 · `design/ux/components.md:509–510` ตาราง scale, :516 ลำดับเดียว, :554 หัวข้อ 15.5 · `apps/client/src/app.css:1492–1501` comment อ้าง `zIndex.navScreen` (ASSUMPTION เดิมถูกแทน), :1510 และ :1569 `z-index: 38; /* zIndex.nav ... */` · ตัวเลขดิบไม่เปลี่ยน ตรงกับลำดับที่ tech-lead รับรองในรอบ 1 |
+| F-05 | ปิด | `apps/client/src/onboarding/e2e-skip-seed.ts:26–36` `firstFallbackCharacterName()` ใช้ `resolveStringList(characterNamesThJson, balanceCharacterNameParamsConfig.random.fallbackKey)` · รายการว่าง throw `fallback character name list is empty (config error)` · ไม่มี literal `'player'` หรือ path ตายตัว · test `e2e-skip-seed.test.ts:23` ชื่อ seed = `fallbackNames[0]` และ :33 รายการว่าง throw (mock `resolveStringList` คืน `[]`) |
+
+### 6.3 ข้อสังเกตรอบ 2 (ไม่ blocking)
+
+- N-05 (gameplay-programmer, ไม่ต้องแก้ใน gate นี้): ข้อเสนอแก้ F-05 ขอ assertion `validateCharacterName` ใน `e2e-skip-seed.test.ts` ด้วย แต่ไม่มี · ความเสี่ยงต่ำ เพราะทุกชื่อในรายการ `random.fallbackKey` ถูกตรวจแล้วสองชั้น: `tools/config-lint/src/character.ts:160–191` (ความยาว grapheme, NFC, charset) และ `packages/shared/src/character/character.test.ts:172` (validate เต็มของรายการ fallback ใน T12) · ถ้าแตะไฟล์นี้อีกให้เติม 1 บรรทัด `expect(validateCharacterName(name, ...).ok).toBe(true)`
+- N-01..N-04 ของรอบ 1 คงสถานะเดิม
