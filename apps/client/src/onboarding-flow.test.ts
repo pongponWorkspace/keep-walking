@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createMemoryStorage } from './storage/local-store';
 import { readLocationConsent } from './storage/onboarding';
+import { loadAccount } from './storage/account';
 import type { KeyValueStorage } from './storage/local-store';
 import { OnboardingFlow } from './onboarding-flow';
 import type { OnboardingFlowDeps } from './onboarding-flow';
@@ -36,92 +37,143 @@ const NOW_YEAR = new Date(1_000_000).getFullYear();
 const PASSING_BIRTH_YEAR = NOW_YEAR - MIN_AGE_YR - 5;
 const UNDERAGE_BIRTH_YEAR = NOW_YEAR - 5;
 
+/** Drives a flow all the way to the `character` step (login -> age -> consent -> permission),
+ * the common setup every test past `login` needs — picking `google` each time. */
+function advanceToCharacter(flow: OnboardingFlow): void {
+  flow.completeIntro();
+  flow.chooseLoginMethod('google');
+  flow.confirmAge(PASSING_BIRTH_YEAR);
+  flow.acceptConsent();
+  flow.confirmBrowserPriming();
+}
+
 describe('OnboardingFlow.currentStep', () => {
   it('starts at intro for a brand-new player', () => {
     const { flow } = makeFlow();
     expect(flow.currentStep(FRESH_VIEW)).toBe('intro');
   });
 
-  it('goes to age once intro completes', () => {
+  it('goes to login once intro completes', () => {
     const { flow } = makeFlow();
     flow.completeIntro();
+    expect(flow.currentStep(FRESH_VIEW)).toBe('login');
+  });
+
+  it('choosing a login method holds the provider in memory only, writes nothing yet', () => {
+    const { flow, storage } = makeFlow();
+    flow.completeIntro();
+    flow.chooseLoginMethod('google');
+    expect(loadAccount(storage)).toBeNull();
+  });
+
+  it('goes to age once a login method is chosen', () => {
+    const { flow } = makeFlow();
+    flow.completeIntro();
+    flow.chooseLoginMethod('apple');
     expect(flow.currentStep(FRESH_VIEW)).toBe('age');
   });
 
-  it('goes to underage on a failing birth year, without ever persisting ageGatePassed', () => {
+  it('writes kw.p2.account with the chosen provider only once the age gate passes', () => {
     const { flow, storage } = makeFlow();
     flow.completeIntro();
+    flow.chooseLoginMethod('apple');
+    expect(loadAccount(storage)).toBeNull();
+    flow.confirmAge(PASSING_BIRTH_YEAR);
+    expect(loadAccount(storage)).toEqual({ provider: 'apple', signedIn: true });
+  });
+
+  it('email sub-screens all map to the email provider', () => {
+    for (const method of ['email_login', 'email_register', 'email_forgot'] as const) {
+      const { flow, storage } = makeFlow();
+      flow.completeIntro();
+      flow.chooseLoginMethod(method);
+      flow.confirmAge(PASSING_BIRTH_YEAR);
+      expect(loadAccount(storage)).toEqual({ provider: 'email', signedIn: true });
+    }
+  });
+
+  it('goes to underage on a failing birth year, without ever persisting ageGatePassed or an account', () => {
+    const { flow, storage } = makeFlow();
+    flow.completeIntro();
+    flow.chooseLoginMethod('google');
     expect(flow.confirmAge(UNDERAGE_BIRTH_YEAR)).toBe(false);
     expect(flow.currentStep(FRESH_VIEW)).toBe('underage');
     const saved = JSON.parse(storage.getItem('kw.p2.onboarding') ?? '{}');
     expect(saved.state.ageGatePassed).toBe(false);
+    expect(loadAccount(storage)).toBeNull();
   });
 
-  it('returnFromUnderage goes back to age, not underage, on the next check', () => {
+  it('returnFromUnderage goes back to intro (a fresh provider pick is required, flow B2)', () => {
     const { flow } = makeFlow();
     flow.completeIntro();
+    flow.chooseLoginMethod('google');
     flow.confirmAge(UNDERAGE_BIRTH_YEAR);
     flow.returnFromUnderage();
-    expect(flow.currentStep(FRESH_VIEW)).toBe('age');
+    expect(flow.currentStep(FRESH_VIEW)).toBe('intro');
+  });
+
+  it('completeIntro clears atStartThisSession, resuming the login step normally', () => {
+    const { flow } = makeFlow();
+    flow.completeIntro();
+    flow.chooseLoginMethod('google');
+    flow.confirmAge(UNDERAGE_BIRTH_YEAR);
+    flow.returnFromUnderage();
+    flow.completeIntro();
+    expect(flow.currentStep(FRESH_VIEW)).toBe('login');
   });
 
   it('goes to consent on a passing birth year', () => {
     const { flow } = makeFlow();
     flow.completeIntro();
+    flow.chooseLoginMethod('google');
     expect(flow.confirmAge(PASSING_BIRTH_YEAR)).toBe(true);
     expect(flow.currentStep(FRESH_VIEW)).toBe('consent');
+  });
+
+  it('a returning player whose age gate already passed writes the account immediately on chooseLoginMethod', () => {
+    const { flow, storage } = makeFlow();
+    // Simulate "ageGatePassed already true" (migration/relogin) by going through the gate once,
+    // then picking a login method again on a fresh instance sharing the same storage.
+    flow.completeIntro();
+    flow.chooseLoginMethod('google');
+    flow.confirmAge(PASSING_BIRTH_YEAR);
+    const { flow: second } = makeFlow({ storage, now: () => 1_050_000 });
+    second.chooseLoginMethod('apple');
+    expect(loadAccount(storage)).toEqual({ provider: 'apple', signedIn: true });
   });
 
   it('accepting consent alone does not start the LocationProvider yet — it reports permission first (flow F06 A4)', () => {
     const { flow, startLocationProvider } = makeFlow();
     flow.completeIntro();
+    flow.chooseLoginMethod('google');
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.acceptConsent();
     expect(startLocationProvider).not.toHaveBeenCalled();
     expect(flow.currentStep(FRESH_VIEW)).toBe('permission');
   });
 
-  it('confirmBrowserPriming (the S-00-permission-browser continue button) starts the LocationProvider and proceeds to class (permission resolves synchronously with no query dep)', () => {
+  it('confirmBrowserPriming (the S-00-permission-browser continue button) starts the LocationProvider and proceeds to character (permission resolves synchronously with no query dep)', () => {
     const { flow, startLocationProvider } = makeFlow();
-    flow.completeIntro();
-    flow.confirmAge(PASSING_BIRTH_YEAR);
-    flow.acceptConsent();
-    flow.confirmBrowserPriming();
+    advanceToCharacter(flow);
     expect(startLocationProvider).toHaveBeenCalledTimes(1);
-    expect(flow.currentStep(FRESH_VIEW)).toBe('class');
+    expect(flow.currentStep(FRESH_VIEW)).toBe('character');
   });
 
-  it('declining consent never starts the LocationProvider, still proceeds to class (R48)', () => {
+  it('declining consent never starts the LocationProvider, still proceeds to character (R48)', () => {
     const { flow, startLocationProvider, storage } = makeFlow();
     flow.completeIntro();
+    flow.chooseLoginMethod('google');
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.declineConsent();
     expect(startLocationProvider).not.toHaveBeenCalled();
-    expect(flow.currentStep(FRESH_VIEW)).toBe('class');
+    expect(flow.currentStep(FRESH_VIEW)).toBe('character');
     expect(readLocationConsent(storage)).toBe('declined');
   });
 
-  it('reports first_run once a class is chosen but no run has started', () => {
+  it('reports character still, once a class is chosen but no kw.p2.character exists yet (P2-F10-T15 builds that write)', () => {
     const { flow } = makeFlow();
-    flow.completeIntro();
-    flow.confirmAge(PASSING_BIRTH_YEAR);
-    flow.acceptConsent();
-    flow.confirmBrowserPriming();
-    expect(flow.currentStep({ ...FRESH_VIEW, classId: 'tanker' })).toBe('first_run');
-  });
-
-  it('reports first_reward, then done, following firstRunEntered/firstRewardDone', () => {
-    const { flow } = makeFlow();
-    flow.completeIntro();
-    flow.confirmAge(PASSING_BIRTH_YEAR);
-    flow.acceptConsent();
-    flow.confirmBrowserPriming();
-    expect(
-      flow.currentStep({ classId: 'tanker', firstRunEntered: true, firstRewardDone: false }),
-    ).toBe('first_reward');
-    expect(
-      flow.currentStep({ classId: 'tanker', firstRunEntered: true, firstRewardDone: true }),
-    ).toBe('done');
+    advanceToCharacter(flow);
+    expect(flow.currentStep({ ...FRESH_VIEW, classId: 'tanker' })).toBe('character');
   });
 
   it('always reports done under the e2e skip hook, even for a brand-new player', () => {
@@ -129,15 +181,28 @@ describe('OnboardingFlow.currentStep', () => {
     expect(flow.currentStep(FRESH_VIEW)).toBe('done');
   });
 
-  it('resumes at class on a fresh instance once intro/age/consent were already persisted', () => {
+  it('reports login under the e2e skip hook when the seeded account has been signed out', () => {
+    const storage = createMemoryStorage();
+    const { flow: first } = makeFlow({ storage, e2eSkipOnboarding: true });
+    void first;
+    storage.setItem(
+      'kw.p2.account',
+      JSON.stringify({
+        schemaVersion: 1,
+        savedAt_ms: 1,
+        state: { provider: 'google', signedIn: false },
+      }),
+    );
+    const { flow: second } = makeFlow({ storage, e2eSkipOnboarding: true });
+    expect(second.currentStep(FRESH_VIEW)).toBe('login');
+  });
+
+  it('resumes at character on a fresh instance once login/age/consent/permission were already persisted', () => {
     const storage = createMemoryStorage();
     const { flow: first } = makeFlow({ storage });
-    first.completeIntro();
-    first.confirmAge(PASSING_BIRTH_YEAR);
-    first.acceptConsent();
-    first.confirmBrowserPriming();
+    advanceToCharacter(first);
     const { flow: second } = makeFlow({ storage, now: () => 1_100_000 });
-    expect(second.currentStep(FRESH_VIEW)).toBe('class');
+    expect(second.currentStep(FRESH_VIEW)).toBe('character');
   });
 });
 
@@ -147,6 +212,9 @@ describe('OnboardingFlow telemetry', () => {
     flow.markIntroShown();
     flow.markIntroShown();
     flow.completeIntro();
+    flow.markLoginShown();
+    flow.markLoginShown();
+    flow.chooseLoginMethod('google');
     flow.markAgeGateShown();
     flow.markAgeGateShown();
     flow.confirmAge(PASSING_BIRTH_YEAR);
@@ -159,9 +227,11 @@ describe('OnboardingFlow telemetry', () => {
     flow.markClassSelectShown();
     flow.markClassSelectShown();
     flow.recordClassSelected('ranged');
-    const steps = records.map((r) => r.properties['step']);
+    const steps = records.map((r) => r.properties['step']).filter((s) => s !== undefined);
     expect(steps).toEqual([
       'intro',
+      'login_shown',
+      'login_method_chosen',
       'age_gate_shown',
       'age_gate_passed',
       'consent_location_shown',
@@ -175,23 +245,66 @@ describe('OnboardingFlow telemetry', () => {
     const classSelectedRecord = records.find((r) => r.properties['step'] === 'class_selected');
     expect(classSelectedRecord?.properties['class_selected']).toBe('ranged');
     expect(classSelectedRecord?.properties['funnel_bucket']).toBe('0-1');
-    const introRecord = records[0];
-    expect(introRecord?.properties['class_selected']).toBeNull();
+  });
+
+  it('fires account_login_shown with context first_time for a brand-new player', () => {
+    const { flow, records } = makeFlow();
+    flow.completeIntro();
+    flow.markLoginShown();
+    const event = records.find((r) => r.name === 'account_login_shown');
+    expect(event?.properties).toEqual({ context: 'first_time' });
+  });
+
+  it('fires account_login_shown with context relogin for a signed-out account', () => {
+    const storage = createMemoryStorage();
+    const { flow: first } = makeFlow({ storage });
+    advanceToCharacter(first);
+    storage.setItem(
+      'kw.p2.account',
+      JSON.stringify({
+        schemaVersion: 1,
+        savedAt_ms: 1,
+        state: { provider: 'google', signedIn: false },
+      }),
+    );
+    const { flow: second, records } = makeFlow({ storage, now: () => 1_200_000 });
+    second.markLoginShown();
+    const event = records.find((r) => r.name === 'account_login_shown');
+    expect(event?.properties).toEqual({ context: 'relogin' });
+  });
+
+  it('fires account_login_method_chosen with the exact method, before writing the account', () => {
+    const { flow, records, storage } = makeFlow();
+    flow.completeIntro();
+    flow.chooseLoginMethod('email_register');
+    const event = records.find((r) => r.name === 'account_login_method_chosen');
+    expect(event?.properties).toEqual({ method: 'email_register' });
+    // Not written yet (age gate has not passed): proves the event really fired before the write.
+    expect(loadAccount(storage)).toBeNull();
   });
 
   it('fires age_gate_under_min (not age_gate_passed) on a failing birth year', () => {
     const { flow, records } = makeFlow();
     flow.completeIntro();
+    flow.chooseLoginMethod('google');
     flow.confirmAge(UNDERAGE_BIRTH_YEAR);
-    expect(records.map((r) => r.properties['step'])).toEqual(['age_gate_under_min']);
+    const funnelSteps = records
+      .filter((r) => r.name === 'onboarding_funnel_step')
+      .map((r) => r.properties['step']);
+    expect(funnelSteps).toEqual(['login_method_chosen', 'age_gate_under_min']);
   });
 
   it('fires consent_location_declined on decline', () => {
     const { flow, records } = makeFlow();
     flow.completeIntro();
+    flow.chooseLoginMethod('google');
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.declineConsent();
-    expect(records.map((r) => r.properties['step'])).toEqual([
+    const funnelSteps = records
+      .filter((r) => r.name === 'onboarding_funnel_step')
+      .map((r) => r.properties['step']);
+    expect(funnelSteps).toEqual([
+      'login_method_chosen',
       'age_gate_passed',
       'consent_location_declined',
     ]);
@@ -201,12 +314,9 @@ describe('OnboardingFlow telemetry', () => {
 describe('OnboardingFlow permission resolution', () => {
   it('defaults permissionGranted to true (fail-open) when the Permissions API is unavailable', () => {
     const { flow } = makeFlow();
-    flow.completeIntro();
-    flow.confirmAge(PASSING_BIRTH_YEAR);
-    flow.acceptConsent();
-    flow.confirmBrowserPriming();
+    advanceToCharacter(flow);
     // No queryGeolocationPermission dep supplied: resolved synchronously, no async gap.
-    expect(flow.currentStep({ ...FRESH_VIEW })).toBe('class');
+    expect(flow.currentStep({ ...FRESH_VIEW })).toBe('character');
   });
 
   it('calls onPermissionResolved once the injected query settles, and reads its result', async () => {
@@ -222,6 +332,7 @@ describe('OnboardingFlow permission resolution', () => {
       onPermissionResolved,
     });
     flow.completeIntro();
+    flow.chooseLoginMethod('google');
     flow.confirmAge(PASSING_BIRTH_YEAR);
     flow.acceptConsent();
     flow.confirmBrowserPriming();
@@ -235,6 +346,6 @@ describe('OnboardingFlow permission resolution', () => {
     // permissionGranted resolved (non-null) is enough to move past 'permission' regardless of
     // the actual granted/denied value (onboarding-step.ts's own semantics, this module's doc
     // comment) — the home-state screen (F06-T09) is what shows the real consequence of a denial.
-    expect(flow.currentStep(FRESH_VIEW)).toBe('class');
+    expect(flow.currentStep(FRESH_VIEW)).toBe('character');
   });
 });

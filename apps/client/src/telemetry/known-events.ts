@@ -55,4 +55,18 @@ export const KNOWN_EVENT_NAMES: ReadonlySet<string> = new Set([
   'loot_rarity_received',
   'battery_sample',
   'wake_lock_state_changed',
+  // P2-F10-T14 (tech note F10 section 8, config/app/telemetry.json#f10Events): account shell,
+  // create-character/story and main-nav events. The mapper/call sites for the ones this task does
+  // not itself wire (character_created, story_completed, story_skipped, nav_tab_opened,
+  // coming_soon_viewed, account_logout) land in T15/T17 — declared here now for the same reason
+  // `location_consent_withdrawn` above was: the doc-vs-set drift test must stay green as the doc
+  // adds events ahead of the screen that fires them.
+  'account_login_shown',
+  'account_login_method_chosen',
+  'character_created',
+  'story_completed',
+  'story_skipped',
+  'nav_tab_opened',
+  'coming_soon_viewed',
+  'account_logout',
 ]);

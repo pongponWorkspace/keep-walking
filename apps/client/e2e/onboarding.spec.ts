@@ -1,30 +1,29 @@
-// P2-F06-T10 black-box e2e for the whole "10 นาทีแรก" onboarding sequence (GDD "10 นาทีแรกของคน
-// ใหม่", spec F06 3.8, `apps/client/src/onboarding-flow.ts`), driven end-to-end through the real
-// Mock provider at speed=60 -- no game math computed by this spec, every asserted value is read
-// off the rendered DOM only (CLAUDE.md: no reward logic on the client, and that includes the test
-// for it):
+// Black-box e2e for the F10 account-shell sequence (design/ux/flows/F10-account-shell.md Flow A/B,
+// docs/tech/F10-account-shell.md, D-149) through `S-00-permission-browser` -- no game math computed
+// by this spec, every asserted value is read off the rendered DOM/localStorage only (CLAUDE.md: no
+// reward logic on the client, and that includes the test for it):
 //
-//   map + opening line (S-00-intro) -> age gate (S-00-age-gate, F06-R44/R45) -> consent location
-//   (S-00-consent-location, F06-R47/R48, P2-X38) -> class-select sheet (S-00-class-select, R29) ->
-//   nearest OPEN, level-covering rift with straight-line distance + navigate link (F06-R37, the nav
-//   panel P2-F04-T06 already built) -> confirm popup with the real level range + the single N-3
-//   tutorial line -> first reward (a normal `sessionStep` tick, GD B-07 -- `run.tickGrantedFirst`/
-//   `run.continueCta` are display-only emphasis, never a second reward code path).
+//   start (S-00-start) -> login (S-00-login, Google/Apple + email sub-screens) -> age gate
+//   (S-00-age-gate, F06-R44/R45) -> consent location (S-00-consent-location, F06-R47/R48) ->
+//   permission (S-00-permission-browser) -> the `character` step.
 //
-// Fixture: `e2e/fixtures/e2e-onboarding-01.trace.json` (this task's own writes, not
-// `data/gps-traces/` -- same convention as `full-run.spec.ts`'s own fixture). It extends that
-// spec's own `e2e-full-run-01` leelawadee-lawn approach/loop path with a longer outside-approach
-// leg (24 extra samples, +2 real-world minutes of trace time = +2 s at speed=60) so this spec has
-// a real-time window to observe the nav panel's recommended-rift state before the confirm popup
-// opens, then keeps the exact same validated loop/hold-still tail.
+// P2-F10-T15 has not built the real `S-00-create-character`/story screens yet (tech note F10
+// section 3.1 table rows 6-7) -- `f04-app.ts` shows the pre-F10 class-select sheet for the
+// `character` step as a documented interim placeholder in the meantime (that module's own doc
+// comment on the `character` branch), and nothing writes `kw.p2.character` on its own yet, so this
+// spec does not drive a run/first-reward the way the pre-F10 version of this file did -- that
+// regression-test depth returns once P2-F10-T15 lands (qa-tester's own T16/T19 pick this back up).
+//
+// Fixture: `e2e/fixtures/e2e-onboarding-01.trace.json` (pre-existing, unchanged by this task).
 //
 // `e2eClassId`/`e2eSkipOnboarding` (D-130) are deliberately never passed here -- this is the one
-// spec whose whole point is to drive the real intro/class-select screens themselves, the same taps
-// a first-time player makes.
+// spec whose whole point is to drive the real login/age/consent/permission screens themselves, the
+// same taps a first-time player makes.
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { copyEntries } from '@keep-walking/shared';
 
 // Same approach as `map-shell.spec.ts`: Playwright's Node/ESM runner cannot import the JSON
@@ -46,44 +45,65 @@ function getCopyText(key: string): string {
   return copyIndex.get(key)?.text ?? key;
 }
 
+/** `src/copy/format.ts#formatText`'s own `{variable}` substitution, reimplemented here for the
+ * same reason `getCopyText` above is: this spec reads the content file directly, never imports the
+ * client's own module graph. */
+function formatCopyText(key: string, vars: Readonly<Record<string, string>>): string {
+  return getCopyText(key).replace(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g, (match, name: string) =>
+    name in vars ? (vars[name] as string) : match,
+  );
+}
+
 // `start=2026-10-02T12:00` (Friday noon, `clock/query-params.ts`'s `YYYY-MM-DDTHH:mm` test hook):
 // pins the game clock inside every candidate park-preset dungeon's own daily 05:00-21:00 opening
 // window (`data/dungeons/dungeons.json`), the same way `f06-hp.spec.ts`'s own `START` constant
-// pins a real weekly-hours dungeon open -- without it, this spec would only pass while the
-// machine running it happens to be inside that window in its own real local time (D-089's
-// `temporarilyClosed` home state is the honest, correct behaviour outside it, not a bug this test
-// should ever hit).
+// pins a real weekly-hours dungeon open.
 const START = '2026-10-02T12:00';
 const FIXTURE_URL =
   `/?loc=mock&trace=e2e-onboarding-01&speed=60&loop=0&hud=0&seed=1` +
   `&start=${encodeURIComponent(START)}`;
 
-test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
-  test('intro -> age gate -> consent -> class select -> nearby open rift -> confirm + N-3 line -> first reward -> continue prompt', async ({
+/** Every `localStorage` value, scanned for a literal substring (R11/R13: no email, password, or
+ * provider PII of any kind ever lands in storage) -- the same "scan every key" shape tech note F10
+ * section 9/acceptance ("ตรวจ localStorage ทั้งหมดหลัง submit") asks for. */
+async function localStorageContains(page: Page, needle: string): Promise<boolean> {
+  return page.evaluate((n) => {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i);
+      if (key === null) continue;
+      const value = window.localStorage.getItem(key);
+      if (value !== null && value.includes(n)) return true;
+    }
+    return false;
+  }, needle);
+}
+
+test.describe('Login shell 0-10 minutes (Mock provider, speed=60)', () => {
+  test('start -> login (Google bypass) -> age gate -> consent -> permission -> character step placeholder', async ({
     page,
   }) => {
-    test.setTimeout(60_000);
-
-    // P2-F06-T14/P2-H39 (design/ux/components.md 15.4): this spec asserts on the granted-tick toast
-    // right after `dungeon_entered`, an element the pocket screen's own dark overlay deliberately
-    // covers (and, since P2-H39, suppresses entirely) while it is showing — forcing Wake Lock
-    // unsupported keeps this spec on the normal run screen the whole time, same as `full-run.spec.
-    // ts`'s own identical fix; `pocket-screen.spec.ts` is the one that exercises both paths.
-    await page.addInitScript(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- browser-context patch, no DOM lib type for a prototype delete
-      delete (Navigator.prototype as any).wakeLock;
-    });
-
+    test.setTimeout(30_000);
     await page.goto(FIXTURE_URL);
 
     // Minute 0: a single start button (D-144) on top of the already-visible map.
     const intro = page.locator('.intro-screen:not([hidden])');
     await expect(intro).toBeVisible({ timeout: 10_000 });
-    await expect(page.locator('.intro-start')).toHaveText(getCopyText('onboarding.introStart'));
     await page.locator('.intro-start').click();
 
-    // F06-R44/R45 (P2-X38): age gate before anything else -- pick a real, passing birth year from
-    // the <select> (never typed), confirm button disabled until a year is picked.
+    // S-00-login (D-149, flow F10 A2): Google/Apple same-weight buttons + an email link, no error
+    // state, no SDK request -- the one existing `kw.p2.account` key is still unset at this point.
+    const login = page.locator('.login-screen:not([hidden])');
+    await expect(login).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('.login-google-button')).toHaveText(
+      formatCopyText('account.loginGoogleButton', { providerName: 'Google' }),
+    );
+    await expect(page.locator('.login-apple-button')).toHaveText(
+      formatCopyText('account.loginAppleButton', { providerName: 'Apple' }),
+    );
+    expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.account'))).toBeNull();
+    await page.locator('.login-google-button').click();
+
+    // Bypass (R10): straight to the age gate, same screen/behaviour F06 always had.
     const ageGate = page.locator('.age-gate-screen:not([hidden])');
     await expect(ageGate).toBeVisible({ timeout: 5_000 });
     const ageConfirmButton = page.locator('.age-gate-confirm');
@@ -92,12 +112,16 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
     await expect(ageConfirmButton).toBeEnabled();
     await ageConfirmButton.click();
 
-    // F06-R47/R48 (P2-X38): consent, separate from and before the first GPS request -- no sample
-    // has been dispatched to the engine yet at this point (`kw.p2.consent` is still unset).
-    const consentScreenBeforeAccept = await page.evaluate(() =>
-      window.localStorage.getItem('kw.p2.consent'),
+    // Passing the age gate is what actually writes `kw.p2.account` (tech note F10 section 2.1,
+    // table A3) -- never earlier, and never with the provider still just held in memory.
+    await expect
+      .poll(() => page.evaluate(() => window.localStorage.getItem('kw.p2.account')))
+      .toContain('"provider":"google"');
+    expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.account'))).toContain(
+      '"signedIn":true',
     );
-    expect(consentScreenBeforeAccept).toBeNull();
+
+    // F06-R47/R48: consent, separate from and before the first GPS request.
     const consentScreen = page.locator('.consent-location-screen:not([hidden])');
     await expect(consentScreen).toBeVisible({ timeout: 5_000 });
     await page.locator('.consent-location-accept').click();
@@ -105,69 +129,89 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
       .poll(() => page.evaluate(() => window.localStorage.getItem('kw.p2.consent')))
       .toContain('"granted"');
 
-    // S-00-permission-browser (flow F06 A4/18.1, P2-H40, P2-X41): a real, blocking screen between
-    // accepting consent and the native GPS request -- `startLocationProvider()` only fires once
-    // this screen's own "ไปต่อ" button is tapped, never as a side effect of the accept click above.
+    // S-00-permission-browser: a real, blocking screen between accepting consent and the native
+    // GPS request.
     const permissionScreen = page.locator('.consent-permission-screen:not([hidden])');
     await expect(permissionScreen).toBeVisible({ timeout: 5_000 });
     await page.locator('.consent-permission-continue').click();
 
-    // Minute 0-1: the class-select sheet (R29) -- forced before the map is usable, no separate
-    // confirm layered on top, exactly the four `PlayerClass` cards.
+    // `character` step (D-149 table row 6): the pre-F10 class-select sheet, reused as a documented
+    // interim placeholder until P2-F10-T15 builds the real create-character screen (this spec's own
+    // header comment) -- its four cards still render, proving the step machine really did advance
+    // past `permission`.
     const classSheet = page.locator('.class-select-overlay:not([hidden])');
     await expect(classSheet).toBeVisible({ timeout: 5_000 });
-    const classCards = page.locator('.class-select-card');
-    await expect(classCards).toHaveCount(4);
-    await classCards.first().click();
-    await expect(classSheet).toBeHidden();
+    await expect(page.locator('.class-select-card')).toHaveCount(4);
 
-    // F06-R37: the recommended rift is the nearest OPEN dungeon whose level range covers the
-    // player (level 1) -- straight-line distance chip + a real navigate link, no route drawn.
-    const navChip = page.locator('.nav-panel .chip-distance:not([hidden])');
-    await expect(navChip).toBeVisible({ timeout: 10_000 });
-    await expect(navChip).not.toHaveText('');
-    await expect(page.locator('.nav-navigate-button')).toBeVisible();
-
-    // The confirm popup opens once inside the polygon, with the real level range from its first
-    // frame (F04 flow B-01) -- no market/enhance/raid/stat/lore content anywhere on this path.
-    const enterButton = page.locator('.popup-overlay:not([hidden]) .btn.btn-primary');
-    await expect(enterButton).toBeEnabled({ timeout: 20_000 });
-    await expect(page.locator('.confirm-level')).not.toHaveText('');
-    await enterButton.click();
-
-    // dungeon_entered while !firstRewardDone: N-3, the single tutorial line of the whole game.
-    await expect(page.locator('.run-tutorial-line:not([hidden])')).toHaveText(
-      getCopyText('dungeon.confirmTutorialLine'),
-    );
-
-    // First reward: the exact same granted-tick toast every later tick uses (GD B-07 -- no
-    // separate reward path), only with the first-ever emphasis lines instead of the repeat copy.
-    const grantedToast = page.locator('.toast:has(.toast-line):not(.faded)');
-    await expect(grantedToast).toBeVisible({ timeout: 30_000 });
-    await expect(grantedToast).toContainText(getCopyText('run.tickGrantedFirst'));
-    await expect(grantedToast.locator('.toast-continue-cta')).toHaveText(
-      getCopyText('run.continueCta'),
-    );
-
-    // Forbidden-to-teach systems (market, enhance, raid, stat points, class change, detailed
-    // party, anti-cheat, long lore) never appear anywhere on this screen -- no Phase 2 client
-    // screen renders any of them yet (`config/unlocks-teach-lock.ts`'s own doc comment), so the
-    // absence of any such element is the honest assertion here.
-    for (const forbidden of ['.market', '.enhance-screen', '.raid-screen', '.stat-allocation']) {
-      await expect(page.locator(forbidden)).toHaveCount(0);
-    }
+    // R11/R12: nothing this screen ever touched (an email, a password, a provider SDK token) is
+    // anywhere in storage -- only the bypass flags/account envelope this spec itself just asserted.
+    expect(await localStorageContains(page, 'password')).toBe(false);
+    expect(await localStorageContains(page, '@')).toBe(false);
   });
 
-  // F06-R46 (P2-X38): an honestly-answered under-`minAge_yr` birth year blocks -- no consent screen,
-  // no GPS, no `kw.p2.onboarding.ageGatePassed` write -- until the player goes back and picks a real
-  // passing year.
-  test('age gate: an under-min birth year blocks with no consent screen; going back retries', async ({
+  // Flow A3-A5: the email link's own sub-screens -- login/register/forgot all bypass to the age
+  // gate the same way the Google/Apple buttons do, and every one of their back links returns
+  // exactly where flow A3/A4/A5 says (R28/section 9.2).
+  test('email link -> login/register/forgot round trip, each confirm bypasses, nothing typed survives', async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await page.goto(FIXTURE_URL);
+    await page.locator('.intro-screen:not([hidden]) .intro-start').click();
+    await expect(page.locator('.login-screen:not([hidden])')).toBeVisible({ timeout: 5_000 });
+
+    await page.locator('.login-email-link').click();
+    const emailScreen = page.locator('.login-email-screen:not([hidden])');
+    await expect(emailScreen).toBeVisible({ timeout: 5_000 });
+    await expect(emailScreen.locator('.login-email-input')).toHaveValue('');
+    await emailScreen.locator('.login-email-input').fill('player@example.com');
+    await emailScreen.locator('.login-password-input').fill('hunter2');
+
+    // register link -> S-00-register, typed values from the email screen do not follow.
+    await page.locator('.login-register-link').click();
+    const registerScreen = page.locator('.register-screen:not([hidden])');
+    await expect(registerScreen).toBeVisible({ timeout: 5_000 });
+    await expect(registerScreen.locator('.login-email-input')).toHaveValue('');
+    await expect(registerScreen.locator('.login-password-input')).toHaveValue('');
+
+    // register's own back link returns to S-00-login-email (flow A4), not the main login screen.
+    await page.locator('.register-back-to-login-email').click();
+    await expect(emailScreen).toBeVisible({ timeout: 5_000 });
+    await expect(emailScreen.locator('.login-email-input')).toHaveValue('');
+
+    await page.locator('.login-forgot-link').click();
+    const forgotScreen = page.locator('.forgot-screen:not([hidden])');
+    await expect(forgotScreen).toBeVisible({ timeout: 5_000 });
+    await page.locator('.forgot-back-to-login-email').click();
+    await expect(emailScreen).toBeVisible({ timeout: 5_000 });
+
+    // The email screen's own back link returns to the main login screen (flow A3).
+    await page.locator('.login-back-to-login').click();
+    await expect(page.locator('.login-screen .login-main-view:not([hidden])')).toBeVisible({
+      timeout: 5_000,
+    });
+
+    // Confirming on the email sub-screen bypasses to the age gate exactly like Google/Apple.
+    await page.locator('.login-email-link').click();
+    await page.locator('.login-email-confirm').click();
+    await expect(page.locator('.age-gate-screen:not([hidden])')).toBeVisible({ timeout: 5_000 });
+
+    expect(await localStorageContains(page, 'player@example.com')).toBe(false);
+    expect(await localStorageContains(page, 'hunter2')).toBe(false);
+    expect(page.url()).not.toContain('player@example.com');
+  });
+
+  // F06-R46 (unchanged by F10, just one step later): an honestly-answered under-`minAge_yr` birth
+  // year blocks -- no consent screen, no GPS, no `kw.p2.onboarding.ageGatePassed`/`kw.p2.account`
+  // write -- until the player goes back (to `S-00-start`, flow B2, not `S-00-login`) and retries.
+  test('age gate: an under-min birth year blocks with no consent screen or account write; back retries from start', async ({
     page,
   }) => {
     test.setTimeout(30_000);
     await page.goto(FIXTURE_URL);
 
     await page.locator('.intro-screen:not([hidden]) .intro-start').click();
+    await page.locator('.login-google-button').click();
     const ageGate = page.locator('.age-gate-screen:not([hidden])');
     await expect(ageGate).toBeVisible({ timeout: 5_000 });
     // `start=2026-10-02` -> nowYear 2026; 2020 is 6 years old, well under minAge_yr (15).
@@ -184,26 +228,35 @@ test.describe('Onboarding 0-10 minutes (Mock provider, speed=60)', () => {
     expect(onboardingStorage).not.toBeNull();
     expect(onboardingStorage).toContain('"ageGatePassed":false');
     expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.consent'))).toBeNull();
+    expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.account'))).toBeNull();
 
-    // R46 "ปุ่มเดียวกลับหน้าแรก": the one button goes back to a fresh age-gate attempt.
+    // R14/flow B2 "กลับ S-00-start ... ต้องเลือก provider ใหม่": the one button goes all the way
+    // back to the start screen, not straight to a re-armed age gate.
     await page.locator('.age-gate-underage-back').click();
-    await expect(page.locator('.age-gate-view:not([hidden])')).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('.intro-screen:not([hidden])')).toBeVisible({ timeout: 5_000 });
+    await page.locator('.intro-start').click();
+    await expect(page.locator('.login-screen:not([hidden])')).toBeVisible({ timeout: 5_000 });
+    await page.locator('.login-apple-button').click();
     await page.locator('.age-gate-birth-year-select').selectOption('1990');
     await page.locator('.age-gate-confirm').click();
     await expect(page.locator('.consent-location-screen:not([hidden])')).toBeVisible({
       timeout: 5_000,
     });
+    expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.account'))).toContain(
+      '"provider":"apple"',
+    );
   });
 
-  // F06-R48 (P2-X38): declining consent still lets the player pick a class and see the map --
-  // just with no GPS ever requested.
-  test('declining consent never starts GPS but still reaches class select (R48)', async ({
+  // F06-R48 (unchanged by F10): declining consent never requests GPS -- F10-R03 changes the
+  // *destination* only (the `character` step directly, flow B3), not the decline behaviour itself.
+  test('declining consent never starts GPS but still reaches the character step (R48, F10-R03)', async ({
     page,
   }) => {
     test.setTimeout(30_000);
     await page.goto(FIXTURE_URL);
 
     await page.locator('.intro-screen:not([hidden]) .intro-start').click();
+    await page.locator('.login-google-button').click();
     await page.locator('.age-gate-birth-year-select').selectOption('1990');
     await page.locator('.age-gate-confirm').click();
     await expect(page.locator('.consent-location-screen:not([hidden])')).toBeVisible({

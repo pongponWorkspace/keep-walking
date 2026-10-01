@@ -93,6 +93,8 @@ import { mountInterestRegister } from './ui/interest-register';
 import { groupedSelectableDistricts, studyAreaProvinceOptions } from './copy/districts';
 import { mountIntroScreen } from './ui/intro-screen';
 import { mountClassSelect } from './ui/class-select';
+import { mountLoginScreen } from './ui/login-screen';
+import { parseRoute, resolveRoute, ROUTE_HASH } from './nav/routes';
 import { mountRunTutorialLine } from './ui/run-tutorial-line';
 import { OnboardingFlow } from './onboarding-flow';
 import { shouldSkipF04App } from './env';
@@ -353,7 +355,19 @@ export function createF04App(deps: F04AppDeps): F04App {
     render(engine.getState(), deps.now());
   }
 
-  // --- P2-F06-T10/P2-X38: onboarding step machine wiring (tech note F06 section 8, R36/R44-R49) ---
+  // `setIconGlyph` (P2-F06-T14, components.md 13.9): one renderer, shared by every screen that
+  // needs a colour-tinted `icon.ui.*` glyph (run-state pill, closed chip, the login screen's own
+  // `icon.ui.sign-in`, P2-F10-T14) — a single in-memory SVG-text cache per session, not one per
+  // call site. Constructed before the onboarding screens below (moved up from its previous spot,
+  // further down this closure) because `ui/login-screen.ts` needs it synchronously at mount time.
+  const iconGlyph = createIconGlyphRenderer({
+    runtime: deps.assets,
+    fetchText: deps.fetchText,
+    parseSvgDocument: deps.parseSvgDocument,
+  });
+
+  // --- P2-F06-T10/P2-X38/P2-F10-T14: onboarding step machine wiring (tech note F06 section 8,
+  // R36/R44-R49; tech note F10 sections 3, 8) ---
   const onboarding = new OnboardingFlow({
     storage: deps.storage,
     quotaDeps: {
@@ -378,6 +392,48 @@ export function createF04App(deps: F04AppDeps): F04App {
   const introScreen = mountIntroScreen(deps.hudContainer, () => {
     onboarding.completeIntro();
     render(engine.getState(), deps.now());
+  });
+  // S-00-login + its three email sub-screens (D-149, tech note F10 section 3.3 events A2/A10):
+  // every confirm button is a bypass, never reading whatever was typed (R11) — `chooseLoginMethod`
+  // itself decides whether to write `kw.p2.account` immediately (a returning/migrated player whose
+  // age gate already passed) or hold the choice in memory until `confirmAge` passes a fresh one.
+  const loginScreen = mountLoginScreen(deps.hudContainer, {
+    onChooseGoogle: () => {
+      onboarding.chooseLoginMethod('google');
+      render(engine.getState(), deps.now());
+    },
+    onChooseApple: () => {
+      onboarding.chooseLoginMethod('apple');
+      render(engine.getState(), deps.now());
+    },
+    onEmailLink: () => {
+      window.location.hash = ROUTE_HASH.loginEmail;
+    },
+    onConfirmEmailLogin: () => {
+      onboarding.chooseLoginMethod('email_login');
+      render(engine.getState(), deps.now());
+    },
+    onConfirmRegister: () => {
+      onboarding.chooseLoginMethod('email_register');
+      render(engine.getState(), deps.now());
+    },
+    onConfirmForgot: () => {
+      onboarding.chooseLoginMethod('email_forgot');
+      render(engine.getState(), deps.now());
+    },
+    onRegisterLink: () => {
+      window.location.hash = ROUTE_HASH.register;
+    },
+    onForgotLink: () => {
+      window.location.hash = ROUTE_HASH.forgot;
+    },
+    onBackToLogin: () => {
+      window.location.hash = ROUTE_HASH.login;
+    },
+    onBackToLoginEmail: () => {
+      window.location.hash = ROUTE_HASH.loginEmail;
+    },
+    iconGlyph,
   });
   const ageGateScreen = mountAgeGateScreen(deps.hudContainer, {
     minAge_yr: balancePrivacyConfig.minAge_yr,
@@ -444,15 +500,6 @@ export function createF04App(deps: F04AppDeps): F04App {
     setDungeonsSourceData(deps.map, inputs, labelCache);
   }
   refreshMapDungeons(deps.now());
-
-  // `setIconGlyph` (P2-F06-T14, components.md 13.9): one renderer, shared by every screen that
-  // needs a colour-tinted `icon.ui.*` glyph (run-state pill, closed chip) — a single in-memory SVG-
-  // text cache per session, not one per call site.
-  const iconGlyph = createIconGlyphRenderer({
-    runtime: deps.assets,
-    fetchText: deps.fetchText,
-    parseSvgDocument: deps.parseSvgDocument,
-  });
 
   // Fire-together cue coordinator (F05 flow Flow A5, audio/cue-list.md section 4's single
   // priority-queue channel — every cue below, plus F06's safety cues, share this exact same
@@ -1389,6 +1436,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       navPanel.root.hidden = true;
       homePanel.hide();
       introScreen.hide();
+      loginScreen.hide();
       ageGateScreen.hide();
       consentLocationScreen.hide();
       consentPermissionScreen.hide();
@@ -1411,6 +1459,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     runSummary.hide();
     if (state.lock.locked) {
       introScreen.hide();
+      loginScreen.hide();
       ageGateScreen.hide();
       consentLocationScreen.hide();
       consentPermissionScreen.hide();
@@ -1433,6 +1482,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       navPanel.root.hidden = true;
       homePanel.hide();
       introScreen.hide();
+      loginScreen.hide();
       ageGateScreen.hide();
       consentLocationScreen.hide();
       consentPermissionScreen.hide();
@@ -1443,79 +1493,132 @@ export function createF04App(deps: F04AppDeps): F04App {
       runSummary.show(state.lastSummary);
       return;
     }
-    // --- P2-F06-T10/P2-X38/P2-X41: onboarding gate (acceptance order: intro -> age gate -> consent
-    // -> permission (S-00-permission-browser, flow F06 A4/18.1) -> map + opening text -> the class
-    // sheet layered on top of it, F06-R44) — takes over before the confirm popup/nav/home panel,
-    // but never before a route screen, the speed-lock overlay, or the run summary (checked above
-    // already). Steps other than `intro`/`age`/`underage`/`consent`/`permission`/`class` (`map`,
-    // `first_run`, `first_reward`, `done`) need no distinct screen of their own here:
-    // `first_run`/`first_reward` are satisfied entirely by the normal run screen (N-3's tutorial
-    // line, `run.tickGrantedFirst`/`run.continueCta`, GD B-07 — no separate onboarding code path
-    // for either).
-    const onboardingStep = onboarding.currentStep(selectPlayerView(state, now_ms, params));
-    if (onboardingStep === 'intro') {
-      onboarding.markIntroShown();
-      classSelect.hide();
+    // --- P2-F06-T10/P2-X38/P2-X41/P2-F10-T14: onboarding gate (D-149 order: intro -> login -> age
+    // gate -> consent -> permission (S-00-permission-browser, flow F06 A4/18.1) -> character
+    // (interim: the pre-F10 class-select sheet, see below) -> ... -> map + opening text — takes over
+    // before the confirm popup/nav/home panel, but never before a route screen, the speed-lock
+    // overlay, the run summary, or — new in D-149, tech note F10 section 3.2's own "run มาก่อนเสมอ"
+    // — an active run itself (checked first, below): a migrated player can have a run in progress
+    // from before F10 ever existed while their new `login`/`character`/`story` steps are still
+    // unresolved, and that run must keep rendering normally regardless. Steps with no screen of
+    // their own here (`first_run`, `first_reward`, `done`) need none: they are satisfied entirely by
+    // the normal run screen (N-3's tutorial line, `run.tickGrantedFirst`/`run.continueCta`, GD B-07).
+    if (state.run !== null) {
+      introScreen.hide();
+      loginScreen.hide();
       ageGateScreen.hide();
       consentLocationScreen.hide();
       consentPermissionScreen.hide();
-      introScreen.show();
-      confirmPopup.hide();
-      navPanel.root.hidden = true;
-      homePanel.hide();
-      return;
-    }
-    introScreen.hide();
-    if (onboardingStep === 'age' || onboardingStep === 'underage') {
-      onboarding.markAgeGateShown();
       classSelect.hide();
-      consentLocationScreen.hide();
-      consentPermissionScreen.hide();
-      if (onboardingStep === 'underage') {
-        ageGateScreen.showUnderage();
-      } else {
-        ageGateScreen.showGate();
+    } else {
+      const onboardingStep = onboarding.currentStep(selectPlayerView(state, now_ms, params));
+      // Section 4.1 "URL ขณะอยู่ขั้นเหล่านี้ถูกตั้งเป็น `#/`": a login-family hash left over from a
+      // step the player has since moved past (e.g. confirming on `#/login/email` just advanced them
+      // to `age`) is cleared without adding a history entry — `replaceState` never fires
+      // `hashchange`, so this cannot recurse into `syncRouteScreens`.
+      if (onboardingStep !== 'login') {
+        const staleRoute = parseRoute(window.location.hash);
+        if (
+          staleRoute === 'login' ||
+          staleRoute === 'loginEmail' ||
+          staleRoute === 'register' ||
+          staleRoute === 'forgot'
+        ) {
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
       }
-      confirmPopup.hide();
-      navPanel.root.hidden = true;
-      homePanel.hide();
-      return;
-    }
-    ageGateScreen.hide();
-    // R48 "ปุ่มเดียวกลับไปให้ใหม่": `manualConsentScreenOpen` reopens this exact same screen for a
-    // returning player who declined/withdrew earlier — outside the pure step machine entirely (it
-    // has already reported `'done'` for that player), so it is checked here as its own condition,
-    // never folded into `onboardingStep`.
-    if (onboardingStep === 'consent' || manualConsentScreenOpen) {
-      onboarding.markConsentShown();
-      classSelect.hide();
+      if (onboardingStep === 'intro') {
+        onboarding.markIntroShown();
+        loginScreen.hide();
+        classSelect.hide();
+        ageGateScreen.hide();
+        consentLocationScreen.hide();
+        consentPermissionScreen.hide();
+        introScreen.show();
+        confirmPopup.hide();
+        navPanel.root.hidden = true;
+        homePanel.hide();
+        return;
+      }
+      introScreen.hide();
+      if (onboardingStep === 'login') {
+        onboarding.markLoginShown();
+        classSelect.hide();
+        ageGateScreen.hide();
+        consentLocationScreen.hide();
+        consentPermissionScreen.hide();
+        const requestedLoginRoute = parseRoute(window.location.hash);
+        const loginRoute = resolveRoute(requestedLoginRoute, {
+          step: 'login',
+          shellReady: false,
+          runActive: false,
+        });
+        if (loginRoute === 'loginEmail') loginScreen.showEmailLogin();
+        else if (loginRoute === 'register') loginScreen.showRegister();
+        else if (loginRoute === 'forgot') loginScreen.showForgot();
+        else loginScreen.showMain();
+        confirmPopup.hide();
+        navPanel.root.hidden = true;
+        homePanel.hide();
+        return;
+      }
+      loginScreen.hide();
+      if (onboardingStep === 'age' || onboardingStep === 'underage') {
+        onboarding.markAgeGateShown();
+        classSelect.hide();
+        consentLocationScreen.hide();
+        consentPermissionScreen.hide();
+        if (onboardingStep === 'underage') {
+          ageGateScreen.showUnderage();
+        } else {
+          ageGateScreen.showGate();
+        }
+        confirmPopup.hide();
+        navPanel.root.hidden = true;
+        homePanel.hide();
+        return;
+      }
+      ageGateScreen.hide();
+      // R48 "ปุ่มเดียวกลับไปให้ใหม่": `manualConsentScreenOpen` reopens this exact same screen for a
+      // returning player who declined/withdrew earlier — outside the pure step machine entirely (it
+      // has already reported `'done'` for that player), so it is checked here as its own condition,
+      // never folded into `onboardingStep`.
+      if (onboardingStep === 'consent' || manualConsentScreenOpen) {
+        onboarding.markConsentShown();
+        classSelect.hide();
+        consentPermissionScreen.hide();
+        consentLocationScreen.show();
+        confirmPopup.hide();
+        navPanel.root.hidden = true;
+        homePanel.hide();
+        return;
+      }
+      consentLocationScreen.hide();
+      if (onboardingStep === 'permission') {
+        onboarding.markPermissionShown();
+        classSelect.hide();
+        consentPermissionScreen.show();
+        confirmPopup.hide();
+        navPanel.root.hidden = true;
+        homePanel.hide();
+        return;
+      }
       consentPermissionScreen.hide();
-      consentLocationScreen.show();
-      confirmPopup.hide();
-      navPanel.root.hidden = true;
-      homePanel.hide();
-      return;
-    }
-    consentLocationScreen.hide();
-    if (onboardingStep === 'permission') {
-      onboarding.markPermissionShown();
+      // P2-F10-T15 TODO: `character` (name + class, R15-R24) and `story` (5 slides, R25-R30) each
+      // need their own real screen — neither exists yet. Until then this reuses the pre-F10
+      // class-select sheet as an interim placeholder for the `character` step only (never writes
+      // `kw.p2.character`, so a fresh player cannot actually leave this step yet — an acknowledged,
+      // documented gap for this task, not a silent shortcut: see this task's own REPORT).
+      if (onboardingStep === 'character') {
+        onboarding.markClassSelectShown();
+        classSelect.show();
+        confirmPopup.hide();
+        navPanel.root.hidden = true;
+        homePanel.hide();
+        return;
+      }
       classSelect.hide();
-      consentPermissionScreen.show();
-      confirmPopup.hide();
-      navPanel.root.hidden = true;
-      homePanel.hide();
-      return;
     }
-    consentPermissionScreen.hide();
-    if (onboardingStep === 'class') {
-      onboarding.markClassSelectShown();
-      classSelect.show();
-      confirmPopup.hide();
-      navPanel.root.hidden = true;
-      homePanel.hide();
-      return;
-    }
-    classSelect.hide();
 
     const inRun = renderRun(state, now_ms);
     if (inRun) {
