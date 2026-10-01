@@ -17,6 +17,483 @@
       "unlockSustained_s": 60
     }
   },
+  "character": {
+    "banned": {
+      "_note": "Single home of the matching rules (P2-H64): the steps, the passes and the meaning of each mode live here as data; the content file keeps only word lists (blockedTerms.substring.<category>, substringHeavy.terms, token.terms, normalization.allow.light/heavy). Reason: every other rule of the name filter is code-point data in this file, a port needs machine-readable steps (the prose steps in content cannot be executed), and the lists are what the narrative-designer edits. The prose in content blockedTerms.normalization.light/heavy/matchModes describes the same steps and is to be replaced by a pointer here (handoff to narrative-designer); until then this file wins on any difference. Pass form: light(x) = the light steps in order; heavy(x) = light(x) then the heavy steps. Apply the same pass to the name and to every term and allow entry, at load time for terms, so an editor typo cannot bypass it. Input is the normalized name that already passed every earlier check (banned is last in name.checkOrder), so step 5 characters and Thai digits never reach it from a name; the steps still run for terms and for the Phase 3 server. latinRunMap: a run is a maximal sequence of runCodePoints or runChars; map only runs that contain at least one letterCodePoints letter (b4dw0rd maps, 2026 alone does not, Thai next to a digit does not); this runs after spaces are removed, so Ranger 2026 is one run (ranger2o26). allow: for each pass, form the name, then remove allow entries of that pass (each entry in its own pass form) by longestAtPosition: scan left to right, at each position drop the longest allow entry that starts there, else keep one code point; one sweep, the pieces left join with no gap. allow.light is never used in the heavy pass (heavy of กู้ is กู). Modes: contains = some term form is a substring of the name form after allow removal; wholeOrToken = the whole name form after allow removal, or any U+0020-separated token of the normalized name put through the same pass and allow removal, equals a term form. collect categoryArrays = every array under the key whose property name does not start with '_'; array = the key itself is the array. Terms whose pass form is empty are ignored (config-lint should reject them). termCharset: every term and allow entry uses only name.allowed code points (config-lint), so no other Cf or look-alike code point can hide in the list. Changes from version 1: fold used NFKC and collapsed repeats for every term; now only substringHeavy terms get the tone-stripped, de-duplicated compare (F10-story.md section 7), NFC is used (NFKC splits sara am into nikhahit + sara aa, which heavy would then strip), leet is a replacement on Latin runs instead of a second variant, and token and allow are new.",
+      "_source": "D-146 (rude words); plan-sync-f10 P-3 (the list is content, narrative-designer); design/narrative/F10-story.md section 7 (two passes light/heavy, modes substring, substringHeavy, token, allow); config/content/character-names.th.json blockedTerms (P2-F10-T03); P2-H64 (one home for the matching rules)",
+      "allow": {
+        "heavy": {
+          "_source": "F10-story.md section 7 (allow list, heavy pass); content blockedTerms.normalization.allow.heavy (P2-F10-T03); P2-H64 (allow removal longestAtPosition)",
+          "key": "blockedTerms.normalization.allow.heavy",
+          "removal": "longestAtPosition"
+        },
+        "light": {
+          "_source": "F10-story.md section 7 (allow list, light pass); content blockedTerms.normalization.allow.light (P2-F10-T03); P2-H64 (allow removal longestAtPosition, never used in the heavy pass)",
+          "key": "blockedTerms.normalization.allow.light",
+          "removal": "longestAtPosition"
+        }
+      },
+      "lexiconRef": "config/content/character-names.th.json",
+      "modes": {
+        "substring": {
+          "_source": "F10-story.md section 7 (mode substring: light pass, contains, every category list); content blockedTerms.substring.<category> (P2-F10-T03); P2-H64 (rules live here, lists in content)",
+          "collect": "categoryArrays",
+          "match": "contains",
+          "pass": "light",
+          "termsKey": "blockedTerms.substring"
+        },
+        "substringHeavy": {
+          "_source": "F10-story.md section 7 (mode substringHeavy: heavy pass, contains); T12 acceptance (compare after removing tone marks and repeats); content blockedTerms.substringHeavy.terms (P2-F10-T03); P2-H64",
+          "collect": "array",
+          "match": "contains",
+          "pass": "heavy",
+          "termsKey": "blockedTerms.substringHeavy.terms"
+        },
+        "token": {
+          "_source": "F10-story.md section 7 (mode token: light pass, whole name or a space-separated token equals a term); content blockedTerms.token.terms (P2-F10-T03); P2-H64",
+          "collect": "array",
+          "match": "wholeOrToken",
+          "pass": "light",
+          "termsKey": "blockedTerms.token.terms"
+        }
+      },
+      "passes": {
+        "heavy": {
+          "_source": "F10-story.md section 7 table row heavy; content blockedTerms.normalization.heavy steps 7-8",
+          "base": "light",
+          "steps": [
+            {
+              "label": "step 7: maitaikhu, tone marks, thanthakhat, nikhahit, yamakkan",
+              "op": "removeCodePoints",
+              "ranges": [
+                {
+                  "from": "U+0E47",
+                  "label": "maitaikhu to yamakkan",
+                  "to": "U+0E4E"
+                }
+              ]
+            },
+            {
+              "label": "step 8: any run of the same code point to one",
+              "op": "collapseRepeats"
+            }
+          ]
+        },
+        "light": {
+          "_source": "F10-story.md section 7 table row light; content blockedTerms.normalization.light steps 1-6",
+          "steps": [
+            {
+              "label": "step 1 NFC and step 3 invisible code points: the name.normalize pipeline (NFC, strip invisible, other whitespace to U+0020, trim, collapse)",
+              "op": "nameNormalize"
+            },
+            {
+              "label": "step 2: A-Z to a-z",
+              "op": "lowercaseLatin"
+            },
+            {
+              "label": "step 3: remove whitespace (all of it is U+0020 after nameNormalize)",
+              "op": "removeCodePoints",
+              "ranges": [
+                {
+                  "from": "U+0020",
+                  "label": "space",
+                  "to": "U+0020"
+                }
+              ]
+            },
+            {
+              "label": "step 4: look-alike map inside Latin runs only",
+              "letterCodePoints": [
+                {
+                  "from": "U+0061",
+                  "label": "Latin a-z",
+                  "to": "U+007A"
+                }
+              ],
+              "map": [
+                {
+                  "from": "0",
+                  "to": "o"
+                },
+                {
+                  "from": "1",
+                  "to": "i"
+                },
+                {
+                  "from": "3",
+                  "to": "e"
+                },
+                {
+                  "from": "4",
+                  "to": "a"
+                },
+                {
+                  "from": "5",
+                  "to": "s"
+                },
+                {
+                  "from": "7",
+                  "to": "t"
+                },
+                {
+                  "from": "8",
+                  "to": "b"
+                },
+                {
+                  "from": "$",
+                  "to": "s"
+                },
+                {
+                  "from": "@",
+                  "to": "a"
+                }
+              ],
+              "op": "latinRunMap",
+              "runChars": [
+                "$",
+                ".",
+                ",",
+                "-",
+                "_",
+                "*",
+                "#",
+                "@",
+                "!",
+                "?",
+                "~",
+                "+",
+                "^",
+                "'",
+                "\"",
+                "`",
+                "|",
+                "/",
+                "\\",
+                "(",
+                ")",
+                "[",
+                "]",
+                "{",
+                "}",
+                ":",
+                ";"
+              ],
+              "runCodePoints": [
+                {
+                  "from": "U+0061",
+                  "label": "Latin a-z",
+                  "to": "U+007A"
+                },
+                {
+                  "from": "U+0030",
+                  "label": "ASCII digits",
+                  "to": "U+0039"
+                }
+              ]
+            },
+            {
+              "chars": [
+                ".",
+                ",",
+                "-",
+                "_",
+                "*",
+                "#",
+                "@",
+                "!",
+                "?",
+                "~",
+                "+",
+                "^",
+                "'",
+                "\"",
+                "`",
+                "|",
+                "/",
+                "\\",
+                "(",
+                ")",
+                "[",
+                "]",
+                "{",
+                "}",
+                ":",
+                ";"
+              ],
+              "label": "step 5: separator and masking characters",
+              "op": "removeChars"
+            },
+            {
+              "from": "U+0E50",
+              "label": "step 6: Thai digits to ASCII digits",
+              "op": "mapCodePointRange",
+              "to": "U+0E59",
+              "toStart": "U+0030"
+            }
+          ]
+        }
+      },
+      "termCharset": "name.allowed"
+    },
+    "contact": {
+      "_note": "All contact checks read the detection form of the normalized name: NFKC (so fullwidth ＠ ０８１ and similar fold to ASCII) then lowercase. phone: a digit run counts digits while skipping any separators between them (0812345678, 081 234 5678, 081-234-5678, (02) 123 4567 are one run); fail when a run has more than maxDigitRun digits or the whole name has more than maxTotalDigits digits. Thai mobile numbers have 10 digits and Bangkok landlines 9, so with at most 6 digits in total a full number cannot be spread across the name, while a year or lucky number (2026, 99) still fits a run of 4. email: fail when any marker appears. url: fail when a marker appears; or when '.' is followed by a tld and then the end of the string or a character that is not a-z or 0-9 (so '.com' and '.co.th' hit, '.company' does not); or when a spelledMarker appears in the detection form with every space removed. Spelled-out phone numbers in words are not caught (R-F10-3; Phase 3 server re-check)",
+      "detectionForm": {
+        "_source": "D-146 (phone/email/link patterns); NFKC folds fullwidth look-alikes",
+        "form": "NFKC",
+        "lowercase": true
+      },
+      "email": {
+        "_source": "D-146 (email); P2-F10-T04 acceptance (@)",
+        "markers": [
+          "@"
+        ]
+      },
+      "phone": {
+        "_source": "D-146 (phone numbers); P2-F10-T04 acceptance (consecutive and total digit counts; 0812345678 with spaces and hyphens)",
+        "digits": [
+          {
+            "from": "U+0030",
+            "label": "ASCII digits (fullwidth digits reach here through NFKC)",
+            "to": "U+0039"
+          },
+          {
+            "from": "U+0E50",
+            "label": "Thai digits",
+            "to": "U+0E59"
+          }
+        ],
+        "maxDigitRun": 4,
+        "maxTotalDigits": 6,
+        "separators": [
+          " ",
+          "-",
+          ".",
+          "(",
+          ")",
+          "+",
+          "_",
+          "/"
+        ]
+      },
+      "url": {
+        "_source": "D-146 (links); P2-F10-T04 acceptance (://, www., TLD)",
+        "markers": [
+          "://",
+          "www."
+        ],
+        "spelledMarkers": [
+          "dotcom",
+          "dotnet",
+          "ดอทคอม",
+          "ดอตคอม",
+          "จุดคอม"
+        ],
+        "tlds": [
+          "com",
+          "net",
+          "org",
+          "co",
+          "th",
+          "io",
+          "me",
+          "ly",
+          "gg",
+          "app",
+          "xyz",
+          "info",
+          "link",
+          "shop",
+          "site",
+          "online",
+          "ai",
+          "tv",
+          "to",
+          "cc",
+          "bio",
+          "live"
+        ]
+      }
+    },
+    "name": {
+      "_note": "Pipeline: normalize (NFC, strip invisible code points, map other whitespace to U+0020, trim, collapse runs of spaces) -> run checkOrder and return the first failing reason, else ok with the normalized string (the value that is stored). Contact checks run before charset on purpose: '@', '://' and '.' are outside the charset, and the player should see the privacy reason (do not share contact details) rather than a generic charset reason. minGraphemes 2 / maxGraphemes 16 (acceptance calls them name.minLength / name.maxLength; renamed because config-lint 3.10.3 treats Length as a measured quantity that needs a unit suffix, and a count named by its noun needs none): the human's suggested range (2026-10-01); ASSUMPTION A-P2-F10-T04-1: 16 graphemes fit one line of the 360 px create-character and profile header, to be confirmed by uiux-designer in T06. A grapheme is one Intl.Segmenter grapheme cluster, so น้ำ is 1 and สมชาย is 5 (า is its own cluster). Marks: a Thai mark must sit in a cluster whose first code point is a Thai consonant (rejects a leading mark, a mark after a space and a mark on a Latin letter); maxCodePointsPerGrapheme 3 covers the longest real Thai cluster (ปั๊, สิทธิ์ ธิ์) and blocks mark stacking; at most one tone mark and no mark twice in one cluster. requireLetter: a name needs at least one Thai consonant or Latin letter, so digits-only names fail with noLetter. Thai digits U+0E50-U+0E59 are outside the charset but still counted by the phone check",
+      "allowed": [
+        {
+          "from": "U+0E01",
+          "label": "Thai consonants, vowels, phinthu",
+          "to": "U+0E3A"
+        },
+        {
+          "from": "U+0E40",
+          "label": "Thai leading vowels, lakkhangyao, maiyamok, tone marks, thanthakhat",
+          "to": "U+0E4E"
+        },
+        {
+          "from": "U+0041",
+          "label": "Latin A-Z",
+          "to": "U+005A"
+        },
+        {
+          "from": "U+0061",
+          "label": "Latin a-z",
+          "to": "U+007A"
+        },
+        {
+          "from": "U+0030",
+          "label": "ASCII digits",
+          "to": "U+0039"
+        },
+        {
+          "from": "U+0020",
+          "label": "space (single, after collapse)",
+          "to": "U+0020"
+        }
+      ],
+      "checkOrder": [
+        "empty",
+        "email",
+        "url",
+        "phone",
+        "charset",
+        "misplacedMark",
+        "stackedMarks",
+        "noLetter",
+        "tooShort",
+        "tooLong",
+        "banned"
+      ],
+      "lengthUnit": "graphemeCluster",
+      "letters": [
+        {
+          "from": "U+0E01",
+          "label": "Thai consonants",
+          "to": "U+0E2E"
+        },
+        {
+          "from": "U+0041",
+          "label": "Latin A-Z",
+          "to": "U+005A"
+        },
+        {
+          "from": "U+0061",
+          "label": "Latin a-z",
+          "to": "U+007A"
+        }
+      ],
+      "maxCodePointsPerGrapheme": 3,
+      "maxGraphemes": 16,
+      "maxToneMarksPerGrapheme": 1,
+      "minGraphemes": 2,
+      "normalize": {
+        "_source": "board P2-F10-T12 acceptance (NFC, strip zero-width, collapse spaces); P2-F10-T04 acceptance (single space)",
+        "collapseSpaces": true,
+        "form": "NFC",
+        "mapToSpace": [
+          {
+            "from": "U+0009",
+            "label": "tab, line feed, carriage return and friends",
+            "to": "U+000D"
+          },
+          {
+            "from": "U+00A0",
+            "label": "no-break space",
+            "to": "U+00A0"
+          },
+          {
+            "from": "U+2000",
+            "label": "typographic spaces",
+            "to": "U+200A"
+          },
+          {
+            "from": "U+3000",
+            "label": "ideographic space",
+            "to": "U+3000"
+          }
+        ],
+        "stripCodePoints": [
+          {
+            "from": "U+00AD",
+            "label": "soft hyphen",
+            "to": "U+00AD"
+          },
+          {
+            "from": "U+200B",
+            "label": "zero-width space/joiners, LRM, RLM",
+            "to": "U+200F"
+          },
+          {
+            "from": "U+202A",
+            "label": "bidi embedding/override",
+            "to": "U+202E"
+          },
+          {
+            "from": "U+2060",
+            "label": "word joiner, invisible operators",
+            "to": "U+2064"
+          },
+          {
+            "from": "U+FEFF",
+            "label": "BOM / zero-width no-break space",
+            "to": "U+FEFF"
+          }
+        ],
+        "trimSpaces": true
+      },
+      "rejectRepeatedMarkInGrapheme": true,
+      "requireLetter": true,
+      "segmenter": {
+        "_source": "board P2-F10-T04 acceptance (length in grapheme clusters); Intl.Segmenter is the platform grapheme API in browsers and Node",
+        "api": "Intl.Segmenter",
+        "granularity": "grapheme",
+        "locale": "th"
+      },
+      "thaiMarkBases": [
+        {
+          "from": "U+0E01",
+          "label": "Thai consonants incl. ฤ ฦ",
+          "to": "U+0E2E"
+        }
+      ],
+      "thaiMarks": [
+        {
+          "from": "U+0E31",
+          "label": "mai han-akat",
+          "to": "U+0E31"
+        },
+        {
+          "from": "U+0E33",
+          "label": "sara am, upper/lower vowels, phinthu",
+          "to": "U+0E3A"
+        },
+        {
+          "from": "U+0E47",
+          "label": "maitaikhu, tone marks, thanthakhat, nikhahit, yamakkan",
+          "to": "U+0E4E"
+        }
+      ],
+      "toneMarks": [
+        {
+          "from": "U+0E48",
+          "label": "mai ek, tho, tri, chattawa",
+          "to": "U+0E4B"
+        }
+      ]
+    },
+    "random": {
+      "_note": "pattern: the value expected at patternKey in the content file; headTail means template [heads, tails] joined with joiner '' (content randomName._note: concatenated with no separator). If content ever names another pattern, this file adds the matching template; config-lint fails on a mismatch. One attempt draws one uniform u in [0, 1) per template part in order and picks index floor(u x length) of that list; the parts are joined and passed through validate. The first name that passes is returned (normalized form). After maxAttempts failed attempts, one more draw picks a start index in the fallback list the same way; walk it cyclically and return the first entry that passes. Every fallback entry must pass validate on its own (config-lint and T12); none passing is a config error. maxAttempts 20: a pool where 1 in 5 combinations fails reaches fallback with probability 0.2^20 (about 1e-14). The content pool gives 7-12 graphemes per name, inside name.minGraphemes 2 / maxGraphemes 16 (confirms A-P2-F10-T03-1). The rng is injected by the caller; the name is cosmetic, so it needs no server stream in Phase 2",
+      "_source": "D-146 (random-name button); board P2-F10-T04 acceptance (max re-rolls before fallback); T12 acceptance (random name always passes validate); F10-story.md section 6 and content randomName (P2-F10-T03)",
+      "fallbackKey": "randomName.fallback.names",
+      "joiner": "",
+      "lexiconRef": "config/content/character-names.th.json",
+      "maxAttempts": 20,
+      "pattern": "headTail",
+      "patternKey": "randomName.pattern",
+      "pick": "floorUniform",
+      "template": [
+        "randomName.heads",
+        "randomName.tails"
+      ]
+    }
+  },
   "classes": {
     "baseCapRule": {
       "_intentionalExceptions_source": "studio/decisions/decision-log.md D-004 (Support 25/50 = 0.50 is an intentional exception)",

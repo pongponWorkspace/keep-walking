@@ -49,11 +49,16 @@ import { compassPointTo } from './dungeons/direction';
 import { parseE2eClassIdParam, parseRunSeedParam } from './clock/query-params';
 import type { PlayerClass } from '@keep-walking/shared/session';
 import {
+  balanceCharacterNameParamsConfig,
   balanceLocationConfig,
   balanceOpeningHoursConfig,
   balancePrivacyConfig,
   balanceUnlocksHomeConfig,
 } from './config/balance';
+// `config/content/character-names.th.json` (tech note F10 section 7.1, 7.2): group B pass-through,
+// imported directly the same way `onboarding/e2e-skip-seed.ts` already does for the same file —
+// resolved by dotted path inside `@keep-walking/shared/character`, never parsed by this module.
+import characterNamesThJson from '../../../config/content/character-names.th.json';
 import { mountDungeonConfirm } from './ui/dungeon-confirm';
 import { mountRunBar } from './ui/run-bar';
 import { mountSpeedLockOverlay } from './ui/speed-lock-overlay';
@@ -92,9 +97,10 @@ import { mountRoleInfo } from './ui/role-info';
 import { mountInterestRegister } from './ui/interest-register';
 import { groupedSelectableDistricts, studyAreaProvinceOptions } from './copy/districts';
 import { mountIntroScreen } from './ui/intro-screen';
-import { mountClassSelect } from './ui/class-select';
+import { mountCreateCharacterScreen } from './ui/create-character-screen';
+import { mountStoryScreen, STORY_SLIDE_COUNT } from './ui/story-screen';
 import { mountLoginScreen } from './ui/login-screen';
-import { parseRoute, resolveRoute, ROUTE_HASH } from './nav/routes';
+import { parseRoute, parseStorySlideNumber, resolveRoute, ROUTE_HASH } from './nav/routes';
 import { mountRunTutorialLine } from './ui/run-tutorial-line';
 import { OnboardingFlow } from './onboarding-flow';
 import { shouldSkipF04App } from './env';
@@ -388,6 +394,7 @@ export function createF04App(deps: F04AppDeps): F04App {
     queryGeolocationPermission: deps.getLocationPermission,
     onPermissionResolved: () => render(engine.getState(), deps.now()),
     e2eSkipOnboarding,
+    filterRejectCountBuckets: appTelemetryConfig.f10Events.filterRejectCountBuckets,
   });
   const introScreen = mountIntroScreen(deps.hudContainer, () => {
     onboarding.completeIntro();
@@ -468,20 +475,68 @@ export function createF04App(deps: F04AppDeps): F04App {
       render(engine.getState(), deps.now());
     },
   });
-  const classSelect = mountClassSelect(
-    deps.hudContainer,
-    (classId) => {
-      const events = engine.dispatch({ type: 'chooseClass', classId }, deps.now());
-      handleSessionEvents(events);
-      // Only the real `class_chosen` event (never `class_choice_rejected`, e.g. a double-tap after
-      // the sheet already closed) counts as the funnel's `class_selected` step.
-      if (events.some((event) => event.type === 'class_chosen')) {
-        onboarding.recordClassSelected(classId);
+  // S-00-create-character (D-146, F10-R15-R24): replaces the pre-F10 `ui/class-select.ts` sheet —
+  // a full screen before the map is ever shown, not a sheet layered over it. `onCreate` dispatches
+  // `chooseClass` itself (never inside `ui/create-character-screen.ts`, CLAUDE.md "no reward/gate
+  // logic on the client" — class assignment goes through the same engine event every other caller
+  // of `chooseClass` uses) *before* calling `onboarding.createCharacter`, matching tech note F10
+  // section 2.2's own write order ("dispatch(chooseClass) + persist kw.p2.session ก่อน แล้วจึงเขียน
+  // kw.p2.character") — `engine.dispatch` persists `kw.p2.session` synchronously inside itself
+  // (`session/engine.ts#persistAndMap`), so by the time `onboarding.createCharacter` runs the
+  // session is already saved. A migrated player's locked class (`result.classLocked`) skips the
+  // dispatch entirely (tech note: "ผู้เล่นเดิมที่มี class แล้ว: ไม่เรียก chooseClass").
+  const createCharacterScreen = mountCreateCharacterScreen(deps.hudContainer, {
+    nameParams: balanceCharacterNameParamsConfig,
+    lexicon: characterNamesThJson,
+    assets: deps.assets,
+    iconGlyph,
+    onCreate: (result) => {
+      if (!result.classLocked) {
+        const events = engine.dispatch(
+          { type: 'chooseClass', classId: result.classId },
+          deps.now(),
+        );
+        handleSessionEvents(events);
+        // Only the real `class_chosen` event (never `class_choice_rejected`) counts as the
+        // funnel's `class_selected` step.
+        if (events.some((event) => event.type === 'class_chosen')) {
+          onboarding.recordClassSelected(result.classId);
+        }
       }
+      onboarding.createCharacter({
+        classId: result.classId,
+        name: result.name,
+        nameSource: result.nameSource,
+        filterRejectCount: result.filterRejectCount,
+      });
       render(engine.getState(), deps.now());
     },
-    deps.assets,
-  );
+  });
+  // S-00-story-<n> (D-147, F10-R25-R30): five slides, slide number owned by this closure
+  // (`storySlideReached`/`slidesViewedThisSession` below) — reset to their initial values on every
+  // real page load (R30: "reload กลางเรื่องกลับ slide 1 เสมอ"), never persisted.
+  let storySlideReached = 1;
+  const slidesViewedThisSession = new Set<number>();
+  const storyScreen = mountStoryScreen(deps.hudContainer, {
+    assets: deps.assets,
+    onNext: (currentSlide) => {
+      const next = Math.min(currentSlide + 1, STORY_SLIDE_COUNT);
+      storySlideReached = Math.max(storySlideReached, next);
+      // Push (not replace), so the browser back button steps one slide back (R28, flow D5) — the
+      // same convention the email login sub-screens already use for their own forward links.
+      window.location.hash = `#/story/${next}`;
+    },
+    onSkip: (currentSlide) => {
+      onboarding.skipStory(currentSlide);
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      render(engine.getState(), deps.now());
+    },
+    onStart: () => {
+      onboarding.completeStory(slidesViewedThisSession.size);
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      render(engine.getState(), deps.now());
+    },
+  });
   const runTutorialLine = mountRunTutorialLine(
     deps.hudContainer,
     clientConfig.onboarding.tutorialLineHoldDurationMs,
@@ -1292,12 +1347,14 @@ export function createF04App(deps: F04AppDeps): F04App {
         }
       } else if (event.type === 'checkin_rejected') {
         // D-120 table 1.3 (P2-H20): `confirm` (never `selectCheckInPreview`) is the only source of
-        // `no_class`/`no_hp` — `no_class`'s main path is opening the class sheet immediately (it
-        // should already be open per R29, this is the fail-safe); `no_hp` overrides the status row
-        // until HP recovers (checked fresh every render, `renderConfirmIfNeeded`).
+        // `no_class`/`no_hp` — `no_hp` overrides the status row until HP recovers (checked fresh
+        // every render, `renderConfirmIfNeeded`). `no_class` has no screen to reopen any more
+        // (D-149/F10-R15): the shell-ready gate (`onboarding/onboarding-step.ts#isShellReady`)
+        // already guarantees `classId !== null` before the map — and therefore any dungeon confirm
+        // popup — can ever show, so this status-row override is the only still-reachable half of
+        // the old fail-safe.
         if (event.reason === 'no_class' || event.reason === 'no_hp') {
           confirmRejectOverride = { dungeonId: event.dungeonId, reason: event.reason };
-          if (event.reason === 'no_class') classSelect.show();
         }
       } else if (event.type === 'dungeon_closing_soon') {
         const minutes = Math.max(1, Math.ceil(event.closesIn_s / SECONDS_PER_MINUTE));
@@ -1440,7 +1497,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       ageGateScreen.hide();
       consentLocationScreen.hide();
       consentPermissionScreen.hide();
-      classSelect.hide();
+      createCharacterScreen.hide();
+      storyScreen.hide();
       runTutorialLine.hide();
       // P2-F06-T14: the pocket screen's own dark overlay must never linger behind (or block
       // pointer events for) a route screen (`#/settings`/`#/inventory`) that fully takes over the
@@ -1463,7 +1521,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       ageGateScreen.hide();
       consentLocationScreen.hide();
       consentPermissionScreen.hide();
-      classSelect.hide();
+      createCharacterScreen.hide();
+      storyScreen.hide();
       runTutorialLine.hide();
       speedLockOverlay.show(state.run !== null);
       return;
@@ -1486,16 +1545,17 @@ export function createF04App(deps: F04AppDeps): F04App {
       ageGateScreen.hide();
       consentLocationScreen.hide();
       consentPermissionScreen.hide();
-      classSelect.hide();
+      createCharacterScreen.hide();
+      storyScreen.hide();
       runTutorialLine.hide();
       pocketScreen.hideOverlay();
       pocketScreen.hideEnterButton();
       runSummary.show(state.lastSummary);
       return;
     }
-    // --- P2-F06-T10/P2-X38/P2-X41/P2-F10-T14: onboarding gate (D-149 order: intro -> login -> age
-    // gate -> consent -> permission (S-00-permission-browser, flow F06 A4/18.1) -> character
-    // (interim: the pre-F10 class-select sheet, see below) -> ... -> map + opening text — takes over
+    // --- P2-F06-T10/P2-X38/P2-X41/P2-F10-T14/P2-F10-T15: onboarding gate (D-149 order: intro ->
+    // login -> age gate -> consent -> permission (S-00-permission-browser, flow F06 A4/18.1) ->
+    // create-character -> story -> ... -> map + opening text — takes over
     // before the confirm popup/nav/home panel, but never before a route screen, the speed-lock
     // overlay, the run summary, or — new in D-149, tech note F10 section 3.2's own "run มาก่อนเสมอ"
     // — an active run itself (checked first, below): a migrated player can have a run in progress
@@ -1509,13 +1569,17 @@ export function createF04App(deps: F04AppDeps): F04App {
       ageGateScreen.hide();
       consentLocationScreen.hide();
       consentPermissionScreen.hide();
-      classSelect.hide();
+      createCharacterScreen.hide();
+      storyScreen.hide();
     } else {
-      const onboardingStep = onboarding.currentStep(selectPlayerView(state, now_ms, params));
+      const playerView = selectPlayerView(state, now_ms, params);
+      const onboardingStep = onboarding.currentStep(playerView);
       // Section 4.1 "URL ขณะอยู่ขั้นเหล่านี้ถูกตั้งเป็น `#/`": a login-family hash left over from a
       // step the player has since moved past (e.g. confirming on `#/login/email` just advanced them
       // to `age`) is cleared without adding a history entry — `replaceState` never fires
-      // `hashchange`, so this cannot recurse into `syncRouteScreens`.
+      // `hashchange`, so this cannot recurse into `syncRouteScreens`. `createCharacter`/`story` get
+      // the same treatment once *their* step has passed (e.g. a stray `#/story/3` left over after
+      // skipping/finishing the story on a tap that never changed the hash itself).
       if (onboardingStep !== 'login') {
         const staleRoute = parseRoute(window.location.hash);
         if (
@@ -1527,10 +1591,20 @@ export function createF04App(deps: F04AppDeps): F04App {
           history.replaceState(null, '', window.location.pathname + window.location.search);
         }
       }
+      if (
+        onboardingStep !== 'character' &&
+        parseRoute(window.location.hash) === 'createCharacter'
+      ) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      if (onboardingStep !== 'story' && parseRoute(window.location.hash) === 'story') {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
       if (onboardingStep === 'intro') {
         onboarding.markIntroShown();
         loginScreen.hide();
-        classSelect.hide();
+        createCharacterScreen.hide();
+        storyScreen.hide();
         ageGateScreen.hide();
         consentLocationScreen.hide();
         consentPermissionScreen.hide();
@@ -1543,7 +1617,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       introScreen.hide();
       if (onboardingStep === 'login') {
         onboarding.markLoginShown();
-        classSelect.hide();
+        createCharacterScreen.hide();
+        storyScreen.hide();
         ageGateScreen.hide();
         consentLocationScreen.hide();
         consentPermissionScreen.hide();
@@ -1565,7 +1640,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       loginScreen.hide();
       if (onboardingStep === 'age' || onboardingStep === 'underage') {
         onboarding.markAgeGateShown();
-        classSelect.hide();
+        createCharacterScreen.hide();
+        storyScreen.hide();
         consentLocationScreen.hide();
         consentPermissionScreen.hide();
         if (onboardingStep === 'underage') {
@@ -1585,7 +1661,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       // never folded into `onboardingStep`.
       if (onboardingStep === 'consent' || manualConsentScreenOpen) {
         onboarding.markConsentShown();
-        classSelect.hide();
+        createCharacterScreen.hide();
+        storyScreen.hide();
         consentPermissionScreen.hide();
         consentLocationScreen.show();
         confirmPopup.hide();
@@ -1596,7 +1673,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       consentLocationScreen.hide();
       if (onboardingStep === 'permission') {
         onboarding.markPermissionShown();
-        classSelect.hide();
+        createCharacterScreen.hide();
+        storyScreen.hide();
         consentPermissionScreen.show();
         confirmPopup.hide();
         navPanel.root.hidden = true;
@@ -1604,20 +1682,42 @@ export function createF04App(deps: F04AppDeps): F04App {
         return;
       }
       consentPermissionScreen.hide();
-      // P2-F10-T15 TODO: `character` (name + class, R15-R24) and `story` (5 slides, R25-R30) each
-      // need their own real screen — neither exists yet. Until then this reuses the pre-F10
-      // class-select sheet as an interim placeholder for the `character` step only (never writes
-      // `kw.p2.character`, so a fresh player cannot actually leave this step yet — an acknowledged,
-      // documented gap for this task, not a silent shortcut: see this task's own REPORT).
+      // S-00-create-character (D-146, F10-R15-R24): `playerView.classId !== null` is exactly
+      // `onboarding/onboarding-step.ts`'s own `classChosen` input, so "already has a class" and
+      // "show it locked" read the same boolean tech note F10 section 2.2/flow C5 describe for a
+      // migrated player — a brand-new player's `classId` is `null` here by construction (this step
+      // cannot be reached with one chosen and no character yet otherwise, table 3.1 row 6).
       if (onboardingStep === 'character') {
-        onboarding.markClassSelectShown();
-        classSelect.show();
+        onboarding.markCharacterCreateShown();
+        storyScreen.hide();
+        createCharacterScreen.show({
+          classLocked: playerView.classId !== null,
+          lockedClassId: playerView.classId,
+        });
         confirmPopup.hide();
         navPanel.root.hidden = true;
         homePanel.hide();
         return;
       }
-      classSelect.hide();
+      createCharacterScreen.hide();
+      // S-00-story-<n> (D-147, F10-R25-R30): `parseStorySlideNumber` reads whatever `#/story/<n>`
+      // the URL currently says (section 4.1/4.2 item 5); clamped against `storySlideReached` (never
+      // past the furthest slide this *session* has actually pushed to) and defaulting to slide 1 —
+      // which is also what a fresh page load always falls back to, since `storySlideReached` itself
+      // has just reset to `1` (R30, this closure's own `let` above).
+      if (onboardingStep === 'story') {
+        onboarding.markStoryShown();
+        const requested = parseStorySlideNumber(window.location.hash);
+        const slide =
+          requested === undefined ? 1 : Math.min(Math.max(requested, 1), storySlideReached);
+        slidesViewedThisSession.add(slide);
+        storyScreen.show(slide);
+        confirmPopup.hide();
+        navPanel.root.hidden = true;
+        homePanel.hide();
+        return;
+      }
+      storyScreen.hide();
     }
 
     const inRun = renderRun(state, now_ms);

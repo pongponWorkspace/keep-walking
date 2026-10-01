@@ -41,7 +41,8 @@ describe('createF04App', () => {
       now: () => Date.now(),
       // D-130: this file's own tests predate onboarding (P2-F06-T10) and exercise the confirm/run/
       // telemetry loop directly, the same way the pre-existing e2e specs do — `e2eSkipOnboarding`
-      // (Mock-only) keeps every one of them booting straight past the intro/class-select screens,
+      // (Mock-only) keeps every one of them booting straight past the intro/create-character/story
+      // screens,
       // exactly like before this task. `onboarding-flow.test.ts` covers the step machine itself.
       locationSearch: '?e2eSkipOnboarding=1',
       isMockProvider: true,

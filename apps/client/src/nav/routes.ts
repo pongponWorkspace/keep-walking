@@ -98,6 +98,19 @@ const SHELL_ONLY_ROUTES: ReadonlySet<Route> = new Set([
   'settingsCredits',
 ]);
 
+/** `#/story/<n>`'s own slide number (section 4.1/4.2 item 5, T15's own slide-pager wiring) —
+ * `undefined` for `#/story` with no number, a non-digit tail (`#/story/abc`), or any hash that is
+ * not a story route at all (`parseRoute(hash) !== 'story'`); the caller clamps a defined value
+ * against `storySlideReached` itself (A-E18: "เปิดเป็น slide 1 เสมอไม่ว่า n จะเป็นเท่าไร" on a fresh
+ * page load, where `storySlideReached` has just reset to 1 anyway — this function only parses what
+ * the URL literally says, same division of labour `parseRoute` above already documents for itself). */
+export function parseStorySlideNumber(hash: string): number | undefined {
+  if (parseRoute(hash) !== 'story') return undefined;
+  const match = /^#\/story\/(\d+)$/.exec(hash);
+  if (match === null) return undefined;
+  return Number(match[1]);
+}
+
 /** Every onboarding-only route (section 4.2 item 3: "shell พร้อม -> route ของ onboarding ที่ผ่านแล้ว
  * ... -> `#/`"). */
 const ONBOARDING_ROUTES: ReadonlySet<Route> = new Set([

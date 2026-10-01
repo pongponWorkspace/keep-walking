@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseRoute, resolveRoute, ROUTE_HASH } from './routes';
+import { parseRoute, parseStorySlideNumber, resolveRoute, ROUTE_HASH } from './routes';
 import type { Route } from './routes';
 import type { OnboardingStep } from '../onboarding/onboarding-step';
 
@@ -34,6 +34,22 @@ describe('parseRoute', () => {
       if (route === 'main') continue;
       expect(parseRoute(hash)).toBe(route);
     }
+  });
+});
+
+describe('parseStorySlideNumber', () => {
+  it.each([
+    ['#/story/1', 1],
+    ['#/story/5', 5],
+    ['#/story/9', 9],
+    ['#/story/0', 0],
+    ['#/story', undefined],
+    ['#/story/abc', undefined],
+    ['#/story/1/extra', undefined],
+    ['', undefined],
+    ['#/login', undefined],
+  ] as const)('%s -> %s', (hash, slide) => {
+    expect(parseStorySlideNumber(hash)).toBe(slide);
   });
 });
 

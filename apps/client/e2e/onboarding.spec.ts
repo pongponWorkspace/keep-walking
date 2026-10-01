@@ -1,30 +1,29 @@
-// Black-box e2e for the F10 account-shell sequence (design/ux/flows/F10-account-shell.md Flow A/B,
-// docs/tech/F10-account-shell.md, D-149) through `S-00-permission-browser` -- no game math computed
-// by this spec, every asserted value is read off the rendered DOM/localStorage only (CLAUDE.md: no
+// Black-box e2e for the F10 account-shell sequence (design/ux/flows/F10-account-shell.md Flow A-D,
+// docs/tech/F10-account-shell.md, D-149) all the way to shell-ready -- no game math computed by
+// this spec, every asserted value is read off the rendered DOM/localStorage only (CLAUDE.md: no
 // reward logic on the client, and that includes the test for it):
 //
 //   start (S-00-start) -> login (S-00-login, Google/Apple + email sub-screens) -> age gate
 //   (S-00-age-gate, F06-R44/R45) -> consent location (S-00-consent-location, F06-R47/R48) ->
-//   permission (S-00-permission-browser) -> the `character` step.
+//   permission (S-00-permission-browser) -> create-character (S-00-create-character, D-146) ->
+//   story (S-00-story-1..5, D-147) -> map (shell ready).
 //
-// P2-F10-T15 has not built the real `S-00-create-character`/story screens yet (tech note F10
-// section 3.1 table rows 6-7) -- `f04-app.ts` shows the pre-F10 class-select sheet for the
-// `character` step as a documented interim placeholder in the meantime (that module's own doc
-// comment on the `character` branch), and nothing writes `kw.p2.character` on its own yet, so this
-// spec does not drive a run/first-reward the way the pre-F10 version of this file did -- that
-// regression-test depth returns once P2-F10-T15 lands (qa-tester's own T16/T19 pick this back up).
+// P2-F10-T15 builds `S-00-create-character`/the 5-slide story (`ui/create-character-screen.ts`,
+// `ui/story-screen.ts`), replacing the pre-F10 `ui/class-select.ts` placeholder P2-F10-T14's own
+// version of this file stopped at.
 //
 // Fixture: `e2e/fixtures/e2e-onboarding-01.trace.json` (pre-existing, unchanged by this task).
 //
 // `e2eClassId`/`e2eSkipOnboarding` (D-130) are deliberately never passed here -- this is the one
-// spec whose whole point is to drive the real login/age/consent/permission screens themselves, the
-// same taps a first-time player makes.
+// spec whose whole point is to drive the real login/age/consent/permission/character/story screens
+// themselves, the same taps a first-time player makes.
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { copyEntries } from '@keep-walking/shared';
+import { seedLegacyPlayer } from './fixtures/f10-seed';
 
 // Same approach as `map-shell.spec.ts`: Playwright's Node/ESM runner cannot import the JSON
 // directly the way Vite/Vitest do, so this reads the exact file `src/copy/load.ts` reads by path.
@@ -78,8 +77,35 @@ async function localStorageContains(page: Page, needle: string): Promise<boolean
   }, needle);
 }
 
+/** Drives `S-00-create-character` from a fresh (unlocked) state: taps `classId`'s card, types
+ * `name`, and clicks "สร้างตัวละคร" once it enables. Returns once the story screen's first slide is
+ * visible (A7, R21). */
+async function createCharacter(page: Page, classId: string, name: string): Promise<void> {
+  const createScreen = page.locator('.create-character-screen:not([hidden])');
+  await expect(createScreen).toBeVisible({ timeout: 5_000 });
+  const createButton = page.locator('.create-character-button');
+  await expect(createButton).toBeDisabled();
+  await page.locator(`.class-select-card[data-class-id="${classId}"]`).click();
+  await page.locator('.name-field-input').fill(name);
+  await expect(createButton).toBeEnabled();
+  await createButton.click();
+  await expect(page.locator('.story-screen:not([hidden])')).toBeVisible({ timeout: 5_000 });
+}
+
+/** Clicks "ถัดไป" through every slide of the story, then "ออกไปลุย!" on slide 5 (D-147, R25) --
+ * returns once both onboarding screens this task owns are gone. */
+async function finishStory(page: Page): Promise<void> {
+  for (let slide = 1; slide < 5; slide += 1) {
+    await expect(page.locator('.story-title')).toBeVisible({ timeout: 5_000 });
+    await page.locator('.story-next-button').click();
+  }
+  await page.locator('.story-next-button').click(); // slide 5: "ออกไปลุย!"
+  await expect(page.locator('.story-screen')).toBeHidden({ timeout: 5_000 });
+  await expect(page.locator('.create-character-screen')).toBeHidden();
+}
+
 test.describe('Login shell 0-10 minutes (Mock provider, speed=60)', () => {
-  test('start -> login (Google bypass) -> age gate -> consent -> permission -> character step placeholder', async ({
+  test('start -> login (Google bypass) -> age gate -> consent -> permission -> create character -> story -> map', async ({
     page,
   }) => {
     test.setTimeout(30_000);
@@ -135,18 +161,57 @@ test.describe('Login shell 0-10 minutes (Mock provider, speed=60)', () => {
     await expect(permissionScreen).toBeVisible({ timeout: 5_000 });
     await page.locator('.consent-permission-continue').click();
 
-    // `character` step (D-149 table row 6): the pre-F10 class-select sheet, reused as a documented
-    // interim placeholder until P2-F10-T15 builds the real create-character screen (this spec's own
-    // header comment) -- its four cards still render, proving the step machine really did advance
-    // past `permission`.
-    const classSheet = page.locator('.class-select-overlay:not([hidden])');
-    await expect(classSheet).toBeVisible({ timeout: 5_000 });
+    // `character` step (D-149 table row 6, D-146): the real create-character screen -- four class
+    // cards, a name field, and a create button disabled until both are set (R21).
+    await expect(page.locator('.create-character-screen:not([hidden])')).toBeVisible({
+      timeout: 5_000,
+    });
     await expect(page.locator('.class-select-card')).toHaveCount(4);
+    await createCharacter(page, 'ranged', 'testplayer');
+
+    // A7 (tech note F10 section 2.2): class + name are written together, class through the engine's
+    // own `chooseClass` (never a second copy of that logic), name already normalized.
+    expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.session'))).toContain(
+      '"classId":"ranged"',
+    );
+    const characterStorage = await page.evaluate(() =>
+      window.localStorage.getItem('kw.p2.character'),
+    );
+    expect(characterStorage).toContain('"name":"testplayer"');
+    expect(characterStorage).toContain('"storyDone":false');
+
+    await finishStory(page);
+
+    // R27/A8: finishing the story (not skipping) still sets `storyDone` and both onboarding screens
+    // are gone -- shell ready (every `.screen` this spec drove through is hidden).
+    const characterAfterStory = await page.evaluate(() =>
+      window.localStorage.getItem('kw.p2.character'),
+    );
+    expect(characterAfterStory).toContain('"storyDone":true');
+    for (const cls of [
+      '.intro-screen',
+      '.login-screen',
+      '.age-gate-screen',
+      '.consent-location-screen',
+      '.consent-permission-screen',
+      '.create-character-screen',
+      '.story-screen',
+    ]) {
+      await expect(page.locator(cls)).toBeHidden();
+    }
 
     // R11/R12: nothing this screen ever touched (an email, a password, a provider SDK token) is
     // anywhere in storage -- only the bypass flags/account envelope this spec itself just asserted.
+    // R24/R50: the typed character name never leaves `kw.p2.character` into telemetry's own ring
+    // buffer (`kw.p2.telemetry`, scanned here too since `localStorageContains` checks every key).
     expect(await localStorageContains(page, 'password')).toBe(false);
     expect(await localStorageContains(page, '@')).toBe(false);
+    const telemetryStorage = await page.evaluate(() =>
+      window.localStorage.getItem('kw.p2.telemetry'),
+    );
+    expect(telemetryStorage).toContain('character_created');
+    expect(telemetryStorage).toContain('story_completed');
+    expect(telemetryStorage ?? '').not.toContain('testplayer');
   });
 
   // Flow A3-A5: the email link's own sub-screens -- login/register/forgot all bypass to the age
@@ -267,8 +332,135 @@ test.describe('Login shell 0-10 minutes (Mock provider, speed=60)', () => {
     await expect
       .poll(() => page.evaluate(() => window.localStorage.getItem('kw.p2.consent')))
       .toContain('"declined"');
-    await expect(page.locator('.class-select-overlay:not([hidden])')).toBeVisible({
+    await expect(page.locator('.create-character-screen:not([hidden])')).toBeVisible({
       timeout: 5_000,
     });
+  });
+
+  // F10-R18/R19/R20: the filter rejects an invalid name inline (one reason at a time, first in
+  // `checkOrder`), the create button stays disabled until it passes, and the shuffle button always
+  // fills a name that passes (C2/C3 of the flow).
+  test('create-character: the name filter rejects inline, and the shuffle button always fills a passing name', async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await page.goto(FIXTURE_URL);
+    await page.locator('.intro-screen:not([hidden]) .intro-start').click();
+    await page.locator('.login-google-button').click();
+    await page.locator('.age-gate-birth-year-select').selectOption('1990');
+    await page.locator('.age-gate-confirm').click();
+    await page.locator('.consent-location-decline').click();
+    await expect(page.locator('.create-character-screen:not([hidden])')).toBeVisible({
+      timeout: 5_000,
+    });
+
+    const nameInput = page.locator('.name-field-input');
+    const createButton = page.locator('.create-character-button');
+    const nameError = page.locator('.name-field-error');
+    await page.locator('.class-select-card[data-class-id="tanker"]').click();
+
+    // Too short (R18 item 1): the first reason this config's checkOrder reaches for a 1-grapheme
+    // name -- disabled, with an inline reason, no popup.
+    await nameInput.fill('a');
+    await expect(createButton).toBeDisabled();
+    await expect(nameError).not.toHaveText('');
+
+    // Fixing it clears the error immediately (R19).
+    await nameInput.fill('ab');
+    await expect(nameError).toHaveText('');
+    await expect(createButton).toBeEnabled();
+
+    // Shuffle (R20): always lands on a name that passes, button enables without typing anything.
+    await nameInput.fill('');
+    await expect(createButton).toBeDisabled();
+    await page.locator('.shuffle-button').click();
+    await expect(nameError).toHaveText('');
+    await expect(createButton).toBeEnabled();
+    await expect(nameInput).not.toHaveValue('');
+  });
+});
+
+test.describe('Migration (F10-R45-R47): a legacy player who already chose a class', () => {
+  test('sees it locked on create-character, types just a name, session/inventory/HP survive', async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await seedLegacyPlayer(page, { withClass: true });
+    await page.goto(FIXTURE_URL);
+    await expect(page.locator('.login-screen:not([hidden])')).toBeVisible({ timeout: 10_000 });
+    const sessionBefore = await page.evaluate(() => window.localStorage.getItem('kw.p2.session'));
+
+    // ageGatePassed/consentAnswered already true (seedLegacyPlayer): one login tap writes
+    // `kw.p2.account` immediately and skips straight past both the age gate and consent screens
+    // (tech note F10 section 3.3 table A2, section 5 migration table row 1).
+    await page.locator('.login-google-button').click();
+    await expect(page.locator('.age-gate-screen')).toBeHidden();
+    await expect(page.locator('.consent-location-screen')).toBeHidden();
+
+    // Permission may already have resolved by the time this runs (it is asked live every session,
+    // never stored) -- click through it only if it is still the screen showing.
+    const permissionScreen = page.locator('.consent-permission-screen:not([hidden])');
+    const createScreen = page.locator('.create-character-screen:not([hidden])');
+    await expect(permissionScreen.or(createScreen)).toBeVisible({ timeout: 10_000 });
+    if (await permissionScreen.isVisible()) {
+      await page.locator('.consent-permission-continue').click();
+    }
+    await expect(createScreen).toBeVisible({ timeout: 5_000 });
+
+    // F10-R47: the class chosen before migration (`tanker`, `f10-seed.ts#WITH_CLASS_URL`) shows
+    // locked -- a permanent ring, every other card disabled -- only the name field is live.
+    await expect(page.locator('.class-select-card[data-class-id="tanker"]')).toHaveClass(
+      /selected/,
+    );
+    await expect(page.locator('.class-select-card[data-class-id="ranged"]')).toBeDisabled();
+    const createButton = page.locator('.create-character-button');
+    await expect(createButton).toBeDisabled();
+    await page.locator('.name-field-input').fill('legacyname');
+    await expect(createButton).toBeEnabled();
+    await createButton.click();
+    await finishStory(page);
+
+    // R45: `kw.p2.session` (class/inventory/HP) is unchanged by this screen -- it only ever wrote
+    // `kw.p2.character`. The engine's own clock/sample fields keep moving on every GPS sample
+    // regardless (R45's own "ยกเว้นที่ engine เขียนเองตามปกติ"), so this compares the gameplay
+    // fields the migration guarantee is actually about, not a byte-identical envelope.
+    function gameplayFields(session: string | null): unknown {
+      const parsed = JSON.parse(session ?? 'null') as {
+        readonly state?: { readonly player?: unknown; readonly run?: unknown };
+      };
+      return { player: parsed.state?.player, run: parsed.state?.run };
+    }
+    const sessionAfter = await page.evaluate(() => window.localStorage.getItem('kw.p2.session'));
+    expect(gameplayFields(sessionAfter)).toEqual(gameplayFields(sessionBefore));
+    expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.character'))).toContain(
+      '"name":"legacyname"',
+    );
+  });
+});
+
+test.describe('Story reload (F10-R30)', () => {
+  test('reload mid-story returns to slide 1, with the character already created', async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await page.goto(FIXTURE_URL);
+    await page.locator('.intro-screen:not([hidden]) .intro-start').click();
+    await page.locator('.login-google-button').click();
+    await page.locator('.age-gate-birth-year-select').selectOption('1990');
+    await page.locator('.age-gate-confirm').click();
+    await page.locator('.consent-location-decline').click();
+    await createCharacter(page, 'magic', 'reloadplayer');
+
+    // Advance to slide 3, then reload mid-story.
+    await page.locator('.story-next-button').click();
+    await page.locator('.story-next-button').click();
+    await expect(page.locator('.story-title')).toHaveText(getCopyText('story.slide3.title'));
+
+    await page.reload();
+    await expect(page.locator('.story-screen:not([hidden])')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('.story-title')).toHaveText(getCopyText('story.slide1.title'));
+    expect(await page.evaluate(() => window.localStorage.getItem('kw.p2.character'))).toContain(
+      '"name":"reloadplayer"',
+    );
   });
 });

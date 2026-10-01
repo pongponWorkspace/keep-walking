@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createMemoryStorage } from './storage/local-store';
 import { readLocationConsent } from './storage/onboarding';
 import { loadAccount } from './storage/account';
+import { loadCharacter } from './storage/character';
 import type { KeyValueStorage } from './storage/local-store';
 import { OnboardingFlow } from './onboarding-flow';
 import type { OnboardingFlowDeps } from './onboarding-flow';
@@ -26,6 +27,10 @@ function makeFlow(overrides: Partial<OnboardingFlowDeps> = {}): {
     minAgeComparison: 'greaterThanOrEqual',
     startLocationProvider,
     e2eSkipOnboarding: false,
+    filterRejectCountBuckets: {
+      upperBoundsInclusive: [0, 2, 5],
+      labels: ['0', '1-2', '3-5', '6+'],
+    },
     ...overrides,
     storage,
   });
@@ -224,8 +229,8 @@ describe('OnboardingFlow telemetry', () => {
     flow.markPermissionShown();
     flow.markPermissionShown();
     flow.confirmBrowserPriming();
-    flow.markClassSelectShown();
-    flow.markClassSelectShown();
+    flow.markCharacterCreateShown();
+    flow.markCharacterCreateShown();
     flow.recordClassSelected('ranged');
     const steps = records.map((r) => r.properties['step']).filter((s) => s !== undefined);
     expect(steps).toEqual([
@@ -240,6 +245,7 @@ describe('OnboardingFlow telemetry', () => {
       'permission_browser_allowed',
       'map_view_reached',
       'class_select_shown',
+      'character_create_shown',
       'class_selected',
     ]);
     const classSelectedRecord = records.find((r) => r.properties['step'] === 'class_selected');
@@ -347,5 +353,90 @@ describe('OnboardingFlow permission resolution', () => {
     // the actual granted/denied value (onboarding-step.ts's own semantics, this module's doc
     // comment) — the home-state screen (F06-T09) is what shows the real consequence of a denial.
     expect(flow.currentStep(FRESH_VIEW)).toBe('character');
+  });
+});
+
+describe('OnboardingFlow.createCharacter / completeStory / skipStory (P2-F10-T15)', () => {
+  it('writes kw.p2.character, fires character_created + the paired funnel step, and advances to story', () => {
+    const { flow, records, storage } = makeFlow();
+    advanceToCharacter(flow);
+    flow.createCharacter({
+      classId: 'magic',
+      name: 'somchai',
+      nameSource: 'typed',
+      filterRejectCount: 0,
+    });
+    expect(loadCharacter(storage)).toEqual({ name: 'somchai', storyDone: false });
+    expect(flow.currentStep({ ...FRESH_VIEW, classId: 'magic' })).toBe('story');
+    const created = records.find((r) => r.name === 'character_created');
+    expect(created?.properties).toEqual({
+      class_id: 'magic',
+      name_source: 'typed',
+      filter_reject_count: '0',
+    });
+    const funnelSteps = records.map((r) => r.properties['step']);
+    const createdIndex = records.indexOf(created as (typeof records)[number]);
+    expect(funnelSteps[createdIndex + 1]).toBe('character_create_done');
+  });
+
+  it('buckets filter_reject_count against the injected config, never a hardcoded table', () => {
+    const { flow, records } = makeFlow({
+      filterRejectCountBuckets: { upperBoundsInclusive: [0, 1], labels: ['none', 'some', 'lots'] },
+    });
+    advanceToCharacter(flow);
+    flow.createCharacter({
+      classId: 'tanker',
+      name: 'ab',
+      nameSource: 'random',
+      filterRejectCount: 5,
+    });
+    const created = records.find((r) => r.name === 'character_created');
+    expect(created?.properties['filter_reject_count']).toBe('lots');
+  });
+
+  it('completeStory marks storyDone, fires story_completed + paired story_done with slides_viewed_count', () => {
+    const { flow, records, storage } = makeFlow();
+    advanceToCharacter(flow);
+    flow.createCharacter({
+      classId: 'ranged',
+      name: 'ab',
+      nameSource: 'typed',
+      filterRejectCount: 0,
+    });
+    flow.completeStory(3);
+    expect(loadCharacter(storage)).toEqual({ name: 'ab', storyDone: true });
+    expect(flow.currentStep({ ...FRESH_VIEW, classId: 'ranged' })).not.toBe('story');
+    const completed = records.find((r) => r.name === 'story_completed');
+    expect(completed?.properties).toEqual({ slides_viewed_count: 3 });
+    const funnelSteps = records.map((r) => r.properties['step']);
+    const completedIndex = records.indexOf(completed as (typeof records)[number]);
+    expect(funnelSteps[completedIndex + 1]).toBe('story_done');
+  });
+
+  it('skipStory marks storyDone the same way, firing story_skipped + paired story_done instead', () => {
+    const { flow, records, storage } = makeFlow();
+    advanceToCharacter(flow);
+    flow.createCharacter({
+      classId: 'support',
+      name: 'ab',
+      nameSource: 'typed',
+      filterRejectCount: 0,
+    });
+    flow.skipStory(2);
+    expect(loadCharacter(storage)).toEqual({ name: 'ab', storyDone: true });
+    const skipped = records.find((r) => r.name === 'story_skipped');
+    expect(skipped?.properties).toEqual({ slide_index_at_skip: 2 });
+    expect(records.some((r) => r.name === 'story_completed')).toBe(false);
+    const funnelSteps = records.map((r) => r.properties['step']);
+    const skippedIndex = records.indexOf(skipped as (typeof records)[number]);
+    expect(funnelSteps[skippedIndex + 1]).toBe('story_done');
+  });
+
+  it('markStoryShown fires story_shown exactly once', () => {
+    const { flow, records } = makeFlow();
+    advanceToCharacter(flow);
+    flow.markStoryShown();
+    flow.markStoryShown();
+    expect(records.filter((r) => r.properties['step'] === 'story_shown')).toHaveLength(1);
   });
 });

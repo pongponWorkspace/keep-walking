@@ -32,10 +32,25 @@ export interface TelemetrySamplingConfig {
   readonly emptyScreenAbandonTimeout_s: number;
 }
 
+/** `f10Events.filterRejectCountBuckets` (tech note docs/tech/F10-account-shell.md section 8):
+ * `character_created.filter_reject_count`'s bucket edges — `upperBoundsInclusive[i]` is the last
+ * count still labelled `labels[i]`; a count past every bound gets the final label (`"6+"` today).
+ * Read here instead of hardcoded in the create-character screen (CLAUDE.md "every number comes
+ * from config"). */
+export interface FilterRejectCountBucketsConfig {
+  readonly upperBoundsInclusive: readonly number[];
+  readonly labels: readonly string[];
+}
+
+export interface F10EventsConfig {
+  readonly filterRejectCountBuckets: FilterRejectCountBucketsConfig;
+}
+
 export interface AppTelemetryConfig {
   readonly localSink: TelemetryLocalSinkConfig;
   readonly export: TelemetryExportConfig;
   readonly sampling: TelemetrySamplingConfig;
+  readonly f10Events: F10EventsConfig;
 }
 
 type Json = Record<string, unknown>;
@@ -122,6 +137,27 @@ function parseSampling(root: Json, path: string): TelemetrySamplingConfig {
   };
 }
 
+function numArray(value: unknown, path: string): readonly number[] {
+  if (!Array.isArray(value)) {
+    return fail(path, 'must be an array');
+  }
+  return value.map((v, i) => num(v, `${path}/${String(i)}`));
+}
+
+function parseF10Events(root: Json, path: string): F10EventsConfig {
+  const node = obj(root['f10Events'], path);
+  const buckets = obj(node['filterRejectCountBuckets'], `${path}/filterRejectCountBuckets`);
+  return {
+    filterRejectCountBuckets: {
+      upperBoundsInclusive: numArray(
+        buckets['upperBoundsInclusive'],
+        `${path}/filterRejectCountBuckets/upperBoundsInclusive`,
+      ),
+      labels: strArray(buckets['labels'], `${path}/filterRejectCountBuckets/labels`),
+    },
+  };
+}
+
 /** Pure so tests can pass a fixture without touching the real JSON import. */
 export function parseAppTelemetryConfig(input: unknown): AppTelemetryConfig {
   const root = obj(input, '/');
@@ -129,6 +165,7 @@ export function parseAppTelemetryConfig(input: unknown): AppTelemetryConfig {
     localSink: parseLocalSink(root, '/localSink'),
     export: parseExport(root, '/export'),
     sampling: parseSampling(root, '/sampling'),
+    f10Events: parseF10Events(root, '/f10Events'),
   };
 }
 

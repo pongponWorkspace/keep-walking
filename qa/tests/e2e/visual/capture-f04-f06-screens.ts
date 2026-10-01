@@ -788,7 +788,9 @@ async function reach20Consent(browser: Browser): Promise<Outcome> {
   await page.locator('.intro-screen:not([hidden])').waitFor({ state: 'visible', timeout: 10_000 });
   await page.click('.intro-screen .intro-start');
   if (!(await clickThroughLogin(page))) return { reason: '.login-screen never appeared' };
-  await page.locator('.age-gate-screen:not([hidden])').waitFor({ state: 'visible', timeout: 5_000 });
+  await page
+    .locator('.age-gate-screen:not([hidden])')
+    .waitFor({ state: 'visible', timeout: 5_000 });
   await page.locator('.age-gate-birth-year-select').selectOption('1990');
   await page.click('.age-gate-confirm');
   const shown = await page
@@ -837,7 +839,9 @@ async function reach26HomeUnknown(browser: Browser): Promise<Outcome> {
   await page.locator('.intro-screen:not([hidden])').waitFor({ state: 'visible', timeout: 10_000 });
   await page.click('.intro-screen .intro-start');
   if (!(await clickThroughLogin(page))) return { reason: '.login-screen never appeared' };
-  await page.locator('.age-gate-screen:not([hidden])').waitFor({ state: 'visible', timeout: 5_000 });
+  await page
+    .locator('.age-gate-screen:not([hidden])')
+    .waitFor({ state: 'visible', timeout: 5_000 });
   await page.locator('.age-gate-birth-year-select').selectOption('1990');
   await page.click('.age-gate-confirm');
   const consentShown = await page

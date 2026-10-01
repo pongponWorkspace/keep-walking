@@ -9,15 +9,14 @@
  * (`account_login_shown`, `account_login_method_chosen`, tech note docs/tech/F10-account-shell.md
  * section 8).
  *
- * P2-F10-T14 replaces the previous F06-only step sequence (`intro -> age -> underage -> consent ->
+ * P2-F10-T14 replaced the previous F06-only step sequence (`intro -> age -> underage -> consent ->
  * permission -> class -> first_run -> first_reward -> done`) with D-149's: a `login` step (and its
  * in-memory `pendingProvider`/`age` sub-wait) now sits between `intro` and `age`, and the old named
  * `class` step is gone — `onboarding/onboarding-step.ts`'s own doc comment explains why in full.
- * This task wires login/age/consent/permission completely; the `character`/`story` steps that
- * follow `permission` do not yet have their own real screens (P2-F10-T15's build) — `f04-app.ts`
- * still shows the pre-F10 class-select sheet for the `character` step as an interim placeholder
- * (see that module's own doc comment on the `character` branch), and nothing here writes
- * `kw.p2.character` on its own.
+ * P2-F10-T15 finishes the job: `createCharacter`/`completeStory`/`skipStory` below write
+ * `kw.p2.character` (the create-character and story screens themselves live in
+ * `ui/create-character-screen.ts`/`ui/story-screen.ts`, replacing the pre-F10 `ui/class-select.ts`
+ * placeholder, deleted by this task).
  */
 import type { PlayerClass, PlayerView } from '@keep-walking/shared/session';
 import type { LocationPermission } from '@keep-walking/location';
@@ -29,7 +28,7 @@ import {
   writeLocationConsent,
 } from './storage/onboarding';
 import { loadAccount, saveAccount } from './storage/account';
-import { loadCharacter } from './storage/character';
+import { loadCharacter, markStoryDone, saveCharacter } from './storage/character';
 import { seedE2eSkipOnboardingAccount } from './onboarding/e2e-skip-seed';
 import { applyOnboardingEvent, currentOnboardingStep } from './onboarding/onboarding-step';
 import type {
@@ -40,6 +39,7 @@ import type {
 } from './onboarding/onboarding-step';
 import { ageGatePassed } from './age-gate';
 import type { GateComparison } from './config/balance';
+import type { FilterRejectCountBucketsConfig } from './config/telemetry';
 
 const MS_PER_MIN = 60_000;
 type FunnelBucket = '0-1' | '1-3' | '3-6' | '6-8' | '8-10';
@@ -62,6 +62,16 @@ function funnelBucket(elapsedMin: number): FunnelBucket {
     if (elapsedMin <= edge) return label;
   }
   return '8-10';
+}
+
+/** `character_created.filter_reject_count` (tech note F10 section 8): the create-character screen
+ * reports a raw count, bucketed here against `config/app/telemetry.json#f10Events.
+ * filterRejectCountBuckets` (never a hardcoded `0`/`1-2`/`3-5`/`6+` list, CLAUDE.md). */
+function filterRejectCountBucket(count: number, cfg: FilterRejectCountBucketsConfig): string {
+  for (let i = 0; i < cfg.upperBoundsInclusive.length; i += 1) {
+    if (count <= (cfg.upperBoundsInclusive[i] as number)) return cfg.labels[i] as string;
+  }
+  return cfg.labels[cfg.labels.length - 1] as string;
 }
 
 /** The login screen's five confirm buttons (tech note section 8's `account_login_method_chosen.
@@ -105,6 +115,9 @@ export interface OnboardingFlowDeps {
    * this the same way every other `?e2e*` hook does (`env.ts#shouldSkipF04App`'s own gate), never
    * read from `window.location` by this module directly. */
   readonly e2eSkipOnboarding: boolean;
+  /** `config/app/telemetry.json#f10Events.filterRejectCountBuckets` (`appTelemetryConfig.
+   * f10Events`, `config/telemetry.ts`) — `createCharacter()`'s own bucketing table. */
+  readonly filterRejectCountBuckets: FilterRejectCountBucketsConfig;
 }
 
 export class OnboardingFlow {
@@ -132,6 +145,8 @@ export class OnboardingFlow {
   private permissionFunnelShownFired = false;
   private mapViewFunnelFired = false;
   private classSelectShownFunnelFired = false;
+  private characterCreateShownFunnelFired = false;
+  private storyShownFunnelFired = false;
 
   constructor(deps: OnboardingFlowDeps) {
     this.deps = deps;
@@ -382,20 +397,25 @@ export class OnboardingFlow {
       .finally(() => this.deps.onPermissionResolved?.());
   }
 
-  /** Call once, the first frame the `character` step's screen is shown. Until P2-F10-T15 builds the
-   * real create-character screen, `f04-app.ts` shows the pre-F10 class-select sheet here instead
-   * (see that module's own doc comment) — this still fires `map_view_reached` the first time (the
-   * map itself has no distinct reveal beat of its own, same reasoning the pre-F10 version of this
-   * method always used) and `class_select_shown`, both pre-existing `onboarding_funnel_step` values
-   * this task does not change. */
-  markClassSelectShown(): void {
+  /** Call once, the first frame the create-character screen (`S-00-create-character`) is shown
+   * (tech note F10 section 8: fires the new `character_create_shown` funnel step). `class_select_
+   * shown`/`map_view_reached` are the same pre-F10 funnel values this exact moment already fired —
+   * class selection is now part of this same screen, not a separate sheet
+   * (product/telemetry-events.md section 2's own note: "class_select_shown/class_selected ยังอยู่
+   * เป็น sub-step ภายในจอสร้างตัวละครเดียวกัน"), so all three fire together here, unchanged from
+   * before beyond the one addition. */
+  markCharacterCreateShown(): void {
     if (!this.mapViewFunnelFired) {
       this.mapViewFunnelFired = true;
       this.recordFunnel('map_view_reached');
     }
-    if (this.classSelectShownFunnelFired) return;
-    this.classSelectShownFunnelFired = true;
-    this.recordFunnel('class_select_shown');
+    if (!this.classSelectShownFunnelFired) {
+      this.classSelectShownFunnelFired = true;
+      this.recordFunnel('class_select_shown');
+    }
+    if (this.characterCreateShownFunnelFired) return;
+    this.characterCreateShownFunnelFired = true;
+    this.recordFunnel('character_create_shown');
   }
 
   /** `class_chosen` funnel telemetry (tech note F06 10.1's own row for this one engine event) —
@@ -403,5 +423,63 @@ export class OnboardingFlow {
    * (this module never calls `session/engine.ts`). */
   recordClassSelected(classId: PlayerClass): void {
     this.recordFunnel('class_selected', classId);
+  }
+
+  /**
+   * A7 (tech note F10 sections 2.2/3.3, R21/R22): the create-character screen's "สร้างตัวละคร"
+   * button. The caller has already dispatched `chooseClass` (persisting `kw.p2.session`) *before*
+   * calling this, unless `params.classLocked` — migration's own "ไม่เรียก chooseClass" rule (section
+   * 2.2) — so this method only ever writes `kw.p2.character`, in that order, never the session
+   * itself. `params.name` must already be `validateCharacterName`'s own `normalized` output (R22);
+   * this never re-validates it. Fires `character_created` and the paired `character_create_done`
+   * funnel step at the same instant (A-P2-F10-T05-1). */
+  createCharacter(params: {
+    readonly classId: PlayerClass;
+    readonly name: string;
+    readonly nameSource: 'typed' | 'random';
+    readonly filterRejectCount: number;
+  }): void {
+    this.characterState = { name: params.name, storyDone: false };
+    saveCharacter(this.deps.storage, this.characterState, this.deps.now(), this.deps.quotaDeps);
+    this.deps.record('character_created', {
+      class_id: params.classId,
+      name_source: params.nameSource,
+      filter_reject_count: filterRejectCountBucket(
+        params.filterRejectCount,
+        this.deps.filterRejectCountBuckets,
+      ),
+    });
+    this.recordFunnel('character_create_done');
+  }
+
+  /** Call once, the first frame slide 1 of the story screen (`S-00-story-1`) is shown. */
+  markStoryShown(): void {
+    if (this.storyShownFunnelFired) return;
+    this.storyShownFunnelFired = true;
+    this.recordFunnel('story_shown');
+  }
+
+  /** Shared by `completeStory`/`skipStory` below (A8, R27: "จบหรือข้ามนับว่าผ่านขั้น 7 เท่ากัน") —
+   * `markStoryDone` is a no-op once `storyDone` is already `true`, so a double-tap (or a stray
+   * second call) never re-writes the key. */
+  private finishStory(): void {
+    markStoryDone(this.deps.storage, this.deps.now(), this.deps.quotaDeps);
+    this.characterState = loadCharacter(this.deps.storage);
+  }
+
+  /** Slide 5's "ออกไปลุย!" button (R25). `slidesViewedCount` is the caller's own count of distinct
+   * slides shown this visit (tech note F10 section 8: "จำนวน slide ต่างกันที่เห็นในรอบนี้") — this
+   * module tracks no slide-pager state of its own. */
+  completeStory(slidesViewedCount: number): void {
+    this.finishStory();
+    this.deps.record('story_completed', { slides_viewed_count: slidesViewedCount });
+    this.recordFunnel('story_done');
+  }
+
+  /** The "ข้าม" link on slides 1-4 (R27). */
+  skipStory(slideIndexAtSkip: number): void {
+    this.finishStory();
+    this.deps.record('story_skipped', { slide_index_at_skip: slideIndexAtSkip });
+    this.recordFunnel('story_done');
   }
 }

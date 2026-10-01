@@ -141,6 +141,17 @@ export const BALANCE_WHITELIST: readonly WhitelistEntry[] = [
     ],
   },
   {
+    // P2-F10-T15 (tech note docs/tech/F10-account-shell.md section 7.1): the whole file, not a
+    // subtree — `character.json` carries no group-C secret (it is the name filter/random-name
+    // config the create-character screen itself runs client-side, Phase 2 "client-first", and the
+    // same module runs on the server again in Phase 3, NN-1 — there is nothing in here a player
+    // should not already be able to see by reading the screen's own behaviour). None of its four
+    // top-level keys collides with a `FORBIDDEN_ANYWHERE` name below.
+    file: 'character.json',
+    namespace: 'character',
+    topLevelKeys: ['name', 'contact', 'banned', 'random'],
+  },
+  {
     file: 'privacy.json',
     namespace: 'privacy',
     // `positionLogTtl_s` moved from group C to group B (D-135, P2-F06-T20 6.2, F06-TG-03): it is a

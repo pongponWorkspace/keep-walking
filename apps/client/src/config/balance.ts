@@ -16,6 +16,7 @@
  */
 import type { GateComparison } from '@keep-walking/geo';
 import { validateGateFilterParams, validateGridParams } from '@keep-walking/geo';
+import type { CharacterNameParams } from '@keep-walking/shared/character';
 import balanceSubsetJson from './generated/balance-subset.generated.json';
 
 export interface HomeStateConfig {
@@ -341,7 +342,19 @@ const balanceSubset = balanceSubsetJson as {
   readonly anticheat: unknown;
   readonly unlocks: unknown;
   readonly privacy: unknown;
+  readonly character: unknown;
 };
+
+/** `config/balance/character.json` (tech note docs/tech/F10-account-shell.md section 7.1), passed
+ * straight through to `@keep-walking/shared/character#validateCharacterName`/`randomCharacterName`
+ * — cast, not re-validated field by field here (`CharacterNameParams`'s own doc comment: "the
+ * caller passes the parsed JSON file straight through, unmodified"; config-lint
+ * (`tools/config-lint/src/character.ts`) is what checks its cross-field rules, the same division of
+ * labour `session/config.ts`'s own `dropTables`/`roles` casts already use for a nested config
+ * shape). `whitelist.ts` carries the whole file (no group-C subtree to filter), so this is simply
+ * `balanceSubset.character` under its real type. */
+export const balanceCharacterNameParamsConfig: CharacterNameParams =
+  balanceSubset.character as CharacterNameParams;
 
 // Fails loudly at import time, not on first use (config/balance/*.json _meta._note applies the
 // same "fail loudly, never guess" rule as config/app/*.json).

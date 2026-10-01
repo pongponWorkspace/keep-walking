@@ -273,3 +273,4 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 250 | F5 | P2-F10-T12 | backend-programmer | 07:4x | 10:47:05 | DONE (attempt 2) — character module + test, evaluator ลงทะเบียน, step machine D-149 · scoped 999/999 · root typecheck แดงรอ T14/T16 · T14 เริ่ม |
 | 251 | F6 | P2-F10-T14 | gameplay-programmer | 10:47:05 | 11:24:14 | DONE — login shell + step machine + migration · unit 1028, e2e 62/62 + qa 23/23 · T15, T16 เริ่ม |
 | 252 | F6 | P2-F10-T16 | qa-tester | 11:24:14 | 11:38:45 | DONE — root typecheck + test เขียว (3457) · qa e2e 46/46 · capture 27/29 (26 รอ T15, 06 เดิม) |
+| 253 | F7 | P2-F10-T15 | gameplay-programmer | 11:24:14 | 12:02:20 | DONE — จอสร้างตัวละคร + เรื่อง 5 slide · unit 3483, e2e 68/68 · orchestrator: prettier --write capture script (format เท่านั้น) ให้ root lint ผ่าน |
