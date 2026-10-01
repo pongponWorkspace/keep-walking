@@ -301,3 +301,6 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 278 | F13 | P2-F10-T23 | game-director | 15:5x | 15:57:11 | PASS — ไม่มี finding บล็อก · O-1..O-3 ยกไป · CI เริ่ม |
 | 279 | F13 | P2-F10-CI | qa-tester | 15:5x | 16:17:55 | CI-LOCAL RED — 15/16 · e2e --retries=0 flaky (BUG-P2-006 telemetry คู่เวลาต่าง 1 ms) → X70 gameplay · N-02 เป็น noise ไม่ซ่อน error |
 | 280 | F13 | P2-X70 | gameplay-programmer | 16:17:55 | 17:03:02 | DONE — BUG-P2-006 แก้ทุกคู่ event · CI รอบ 2 เริ่ม |
+| 281 | F14 | P2-F10-CI รอบ 2 | qa-tester | 17:03:02 | 17:19:07 | DONE — CI-LOCAL GREEN 16/16 · BUG-P2-006 ปิด |
+
+Run 3 closed — 2026-10-01 17:19 · F10 ผ่าน gate ครบ (flow approval, tech R2, QA, copy R2, visual R3 หลัง D-163, design, product) + CI-LOCAL GREEN · ไม่ได้ push · งาน playtest/HUMAN ภาคสนามคนจัดการเอง

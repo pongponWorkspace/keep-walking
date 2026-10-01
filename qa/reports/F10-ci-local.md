@@ -1,8 +1,14 @@
-CI-LOCAL RED
+CI-LOCAL GREEN
 
 # F10 — CI local run (P2-F10-CI)
 
-**สรุป: CI-LOCAL RED** (1 ขั้นจาก 16 ไม่เขียวแบบ deterministic — ดูหัวข้อ 2.11 และ BUG-P2-006; ทุกขั้นอื่นเขียว)
+**สรุป (รอบ 2, 2026-10-01): CI-LOCAL GREEN** — ทุกขั้นของ `ci.yml` เขียวครบ 16/16 รวมทั้งขั้นที่เคย
+แดงแบบ flaky ในรอบ 1 (`CI=1 playwright test --retries=0`) ตอนนี้ผ่านสะอาดทั้งสองรอบที่สั่งซ้ำ และ
+`f10-telemetry-nav-story.spec.ts --repeat-each=10 --retries=0` ผ่าน 100/100 สองครั้งติด หลังแก้
+BUG-P2-006 ด้วย commit `5870f0b` (P2-X70) — ดูหัวข้อ "รอบ 2" ด้านล่างสำหรับหลักฐานเต็ม
+(ผลรอบ 1 เดิมเก็บไว้ไม่แก้ไขในหัวข้อ 1-4 ด้านล่างเพื่อ audit trail)
+
+**สรุปเดิม (รอบ 1): CI-LOCAL RED** (1 ขั้นจาก 16 ไม่เขียวแบบ deterministic — ดูหัวข้อ 2.11 และ BUG-P2-006; ทุกขั้นอื่นเขียว)
 
 รันทุกขั้นของ `.github/workflows/ci.yml` ในเครื่อง (macOS, Node ตาม `.nvmrc`=24, pnpm 11.24.0)
 แบบ `CI=1` ตามลำดับจริงของไฟล์ ไม่มีขั้นไหนถูกข้ามโดยไม่มีเหตุผลบันทึกไว้ (ดูหัวข้อ 3)
@@ -195,3 +201,90 @@ Python3, `jq`) มีอยู่ในเครื่องนี้ครบ �
   `<img>` ที่ไม่ await ไม่ใช่ error จริงที่ถูกบัง ไม่บล็อก
 - character-name vectors: ยืนยันว่า `gen-vectors.ts --check` ไม่ครอบคลุมไฟล์นั้นจริงตามที่ brief
   เตือน แต่มีเทสต์หน่วย 6 ไฟล์ตรวจแทนอยู่แล้วและผ่านครบ ไม่ใช่ช่องว่าง
+
+---
+
+## รอบ 2 (P2-F10-CI รอบ 2, 2026-10-01) — หลัง P2-X70 แก้ BUG-P2-006
+
+commit ที่ทดสอบ: `5870f0b` (HEAD ตอนเริ่มงานนี้, `git status` สะอาด) — ตามหลัง `cc0ad73` ของรอบ 1
+ด้วย 1 commit คือ P2-X70 (`apps/client/src/f04-app.ts`, `telemetry/sink.ts` + ไฟล์ที่เรียก
+`telemetry.record()` คู่กันอื่น ๆ: `account/logout.ts`, `onboarding-flow.ts`,
+`privacy/withdraw-consent.ts`, `session/engine.ts`)
+
+รันทุกขั้นของ `ci.yml` ซ้ำทั้งหมดตามลำดับเดิมของรอบ 1 แบบ `CI=1` (เครื่องเดิม, Node/pnpm เวอร์ชันเดิม
+ตามหัวข้อ "สรุป" ด้านบน) — ไม่มีขั้นไหนถูกข้าม
+
+### 1. สรุปผลต่อขั้น (รอบ 2)
+
+| # | ขั้น | ผล | หลักฐาน |
+| --- | --- | --- | --- |
+| 1 | `pnpm install --frozen-lockfile` | PASS | exit=0, "Already up to date" |
+| 2 | `pnpm lint` | PASS | exit=0 (eslint+prettier+copy-lint, 12 WARN เดิมเท่านั้น ไม่มี error) |
+| 3 | `pnpm typecheck` | PASS | exit=0, 4 โปรเจกต์ "Done" |
+| 4 | `tsx tools/traces/src/generate.ts --check` | PASS | exit=0, 17 fixture "ok" |
+| 5 | `tsx tools/sim/src/gen-vectors.ts --check` | PASS | exit=0, 19 ไฟล์ "up-to-date" |
+| 6 | `pnpm test` (`COVERAGE_PYTEST_REQUIRED=1`) | PASS | exit=0, 231 ไฟล์ผ่าน, **3553/3555** ผ่าน (2 skip เดิม) — เพิ่ม 11 เทสต์จากรอบ 1 (3542→3553) ตรงกับเทสต์ใหม่ของ P2-X70 |
+| 7 | `pnpm build` | PASS | exit=0, built ทุก workspace |
+| 8 | `measure-bundle.ts` | PASS | exit=0, initial 0.137MB/1.0MB, map lazy 0.350MB/0.700MB เท่ารอบ 1 |
+| 9 | `tsx tools/art/src/cli.ts prebuild` | PASS | exit=0, "0 errors, 0 warnings" |
+| 10 | `CI=1 pnpm test:e2e` (retries ตาม config CI=2) | PASS | exit=0, 218 passed (3.2m), ไม่มีบรรทัด "retry" |
+| 11a | `CI=1 playwright test --retries=0` (ครั้งที่ 1) | **PASS** | exit=0, 218 passed (3.2m) |
+| 11b | `CI=1 playwright test --retries=0` (ครั้งที่ 2 ติดกัน) | **PASS** | exit=0, 218 passed (3.2m) |
+| 11c | `f10-telemetry-nav-story.spec.ts --repeat-each=10 --retries=0` (ครั้งที่ 1) | **PASS** | exit=0, 100 passed (23.5s) |
+| 11d | `f10-telemetry-nav-story.spec.ts --repeat-each=10 --retries=0` (ครั้งที่ 2 ยืนยันซ้ำ) | **PASS** | exit=0, 100 passed (23.2s) |
+| 12 | `test-lint-headers.sh` | PASS | exit=0, "9 case(s), 0 failed" |
+| 13 | `test-billing-guard.sh` | PASS | exit=0, "7 case(s), 0 failed" |
+| 14 | `test-bbox-guard.sh` | PASS | exit=0, "4 case(s), 0 failed" |
+| 15 | gitleaks (secret-scan) | PASS | exit=0, "71 commits scanned ... no leaks found" (69→71 ตรงกับ 2 commit ใหม่ตั้งแต่รอบ 1) |
+| 16 | forbidden-files guard | PASS | exit=0, ทุกกลุ่ม (0-5) "ok" |
+
+**16/16 ขั้นเขียวทุกขั้น ไม่มีขั้นไหนข้าม** รวมทั้ง 2 ขั้นเสริม (11c/11d) ที่ brief รอบนี้สั่งเพิ่มเพื่อ
+ยืนยัน BUG-P2-006 โดยเฉพาะ
+
+### 2. หลักฐานขั้น 10-11 (บรรทัดผลจริง)
+
+```
+$ CI=1 pnpm test:e2e
+218 passed (3.2m) — EXIT=0 (ไม่มีบรรทัด "retry")
+
+$ CI=1 pnpm exec playwright test --retries=0   (ครั้งที่ 1, ติดกันไม่มีรีรัน)
+218 passed (3.2m) — EXIT=0
+
+$ CI=1 pnpm exec playwright test --retries=0   (ครั้งที่ 2, ต่อจากครั้งที่ 1 ทันที)
+218 passed (3.2m) — EXIT=0
+
+$ CI=1 pnpm exec playwright test qa/tests/e2e/f10-telemetry-nav-story.spec.ts \
+    --repeat-each=10 --retries=0   (ครั้งที่ 1)
+100 passed (23.5s) — EXIT=0
+(50 เคสต่อ project [F10-PM-01 x10 + F10-PM-02 x4 สไลด์ x10 = 50] x 2 projects
+android-chrome/ios-safari = 100)
+
+$ CI=1 pnpm exec playwright test qa/tests/e2e/f10-telemetry-nav-story.spec.ts \
+    --repeat-each=10 --retries=0   (ครั้งที่ 2, ยืนยันซ้ำอิสระ แยกคนละ invocation)
+100 passed (23.2s) — EXIT=0 (ตรวจ exit code ตรงด้วย `echo "EXIT=$?"` แยกจาก log ไฟล์)
+```
+
+ทุกเคสของ `f10-telemetry-nav-story.spec.ts:56` (F10-PM-01, เคสที่ BUG-P2-006 เคยจับได้ตอน
+`client_ts_ms` ต่างกัน 1ms) ผ่านครบทุกครั้งใน 4 การรันข้างบน (218+218+100+100 = 636 ครั้งที่เคสนี้
+ถูกเรียก รวม 2 project — ไม่พบ `client_ts_ms` ต่างกันแม้แต่ครั้งเดียว) ตรงกับที่คาดจาก fix: ตอนนี้
+`f04-app.ts`'s nav handler เรียก `deps.now()` ครั้งเดียว (`navAtMs`) แล้วส่งค่าเดียวกันเป็น
+`atMsOverride` ให้ทั้ง `nav_tab_opened` และ `coming_soon_viewed` — `telemetry/sink.ts`'s `record()`
+ใช้ `atMsOverride ?? deps.now()` จึงไม่มีการเรียก clock สองครั้งอิสระต่อกันอีกต่อไปสำหรับคู่นี้
+(ยืนยันจากโค้ดจริงที่ diff ของ `5870f0b`, ไม่ได้เดา)
+
+### 3. ขั้นที่ข้าม
+
+ไม่มีขั้นไหนถูกข้ามในรอบ 2 เช่นเดียวกับรอบ 1 (เครื่องเดิม เครื่องมือครบเหมือนเดิม)
+
+### 4. สรุปรอบ 2
+
+- **16/16 ขั้นเขียวตรงตามที่ `ci.yml` กำหนด** รวม 2 ขั้นเสริมที่ brief สั่งเพิ่ม (e2e `--retries=0`
+  ซ้ำ 2 ครั้งติด + `f10-telemetry-nav-story.spec.ts --repeat-each=10 --retries=0` ซ้ำ 2 ครั้งอิสระ)
+  ไม่มีขั้นไหนข้าม
+- BUG-P2-006 **ยืนยันปิดได้จริง**: การันตีด้วย 636 ครั้งของเคสที่เคยแดงใน 4 การรันที่ไม่มี retry เลย
+  (ตรงข้ามกับรอบ 1 ที่เจอแดง 1 ใน 5 ครั้งตอนรันเคสเดียวซ้ำแบบ manual) — รายละเอียดการปิดอยู่ใน
+  `qa/bugs.md`
+- N-02 (happy-dom AbortError) ยังพบเหมือนเดิมใน `pnpm test` รอบนี้ (ไม่ใช่ปัญหาใหม่ ไม่บล็อก ตามที่
+  บันทึกไว้แล้วในรอบ 1 หัวข้อ 2.6) ไม่ต้องตรวจซ้ำเพราะไม่มีอะไรเปลี่ยนในโค้ดที่เกี่ยวข้อง
+  (`apps/client/src/assets/icon-dom.ts`, `f04-app.test.ts` ไม่ได้ถูกแก้โดย P2-X70 ในส่วนนั้น)
+- **บรรทัดแรกของรายงานนี้เปลี่ยนเป็น CI-LOCAL GREEN** — ไม่มีขั้นไหนเหลือเป็นสีแดงอีก
