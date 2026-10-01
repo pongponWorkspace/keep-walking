@@ -299,3 +299,4 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 276 | F12 | P2-X69 | gameplay-programmer | 15:41:13 | 15:49:35 | DONE — CSS 2 จุด · e2e 218/218 · T21 รอบ 3 เริ่ม |
 | 277 | F12 | P2-F10-T21 รอบ 3 | art-director | 15:49:35 | 15:50:36 | PASS — 10/10 ปิด · T23 design gate เริ่ม |
 | 278 | F13 | P2-F10-T23 | game-director | 15:5x | 15:57:11 | PASS — ไม่มี finding บล็อก · O-1..O-3 ยกไป · CI เริ่ม |
+| 279 | F13 | P2-F10-CI | qa-tester | 15:5x | 16:17:55 | CI-LOCAL RED — 15/16 · e2e --retries=0 flaky (BUG-P2-006 telemetry คู่เวลาต่าง 1 ms) → X70 gameplay · N-02 เป็น noise ไม่ซ่อน error |

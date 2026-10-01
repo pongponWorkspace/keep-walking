@@ -24,6 +24,8 @@
 
 **สถานะรวม (P2-F10-T19, 2026-10-01):** เพิ่ม e2e ใหม่ 4 ไฟล์ปิดช่องว่างของ test plan F10 (`qa/tests/e2e/f10-pdpa-storage.spec.ts`, `f10-render-persistence.spec.ts`, `f10-unsupported-segmenter.spec.ts`, `f10-deep-link-guard.spec.ts`), แก้ selector เก่าใน `qa/tests/e2e/visual/capture-f04-f06-screens.ts` (`21-class-select`/`26-home-unknown` ตามจอจริงหลัง T15), เพิ่ม `qa/tests/e2e/visual/capture-f10-screens.ts` ถ่ายภาพ 18 จอ x 2 ความกว้าง (360/390) ลง `qa/reports/F10/screens/` — รายละเอียด case ต่อ spec และช่องว่างที่เหลือ (ไม่ blocking) อยู่ที่ `qa/reports/F10/e2e-coverage.md` · รัน `CI=1 npx playwright test --retries=0` ทั้งสอง project (`apps/*/e2e/` + `qa/tests/e2e/`): **170 passed, 0 failed, 0 flaky** (log: `qa/reports/F10/e2e-full-run.log`) · ไม่มี bug severity high ขึ้นไปที่พบใหม่ ไม่มี bug OPEN เหลืออยู่ในไฟล์นี้ · findings ที่พบ 2 รายการ ไม่ใช่บั๊ก blocking: (1) `.story-dot`/`.story-dot-active` (`apps/client/src/ui/story-screen.ts`) ไม่มี CSS rule กำหนดขนาดเลย ทำให้จุดบอกตำแหน่ง slide ของเรื่องเล่าไม่มีพื้นที่แสดงผลจริงที่ 360/390px (DOM/class ถูกต้อง เป็นเรื่อง CSS ที่ยังไม่ได้ทำ) — ส่งต่อ **art-director/uiux-designer** blocking: no; (2) `pnpm run lint` เคยล้มชั่วคราวจากไฟล์ `apps/client/src/onboarding/e2e-skip-seed.*` ที่ไม่อยู่ใน `writes` ของงานนี้ (งานขนานอื่นแก้ไขอยู่) — แก้ไขเสร็จเองโดยงานนั้นก่อนจบ T19, ยืนยัน root `pnpm lint` exit 0 ล่าสุดแล้ว ไม่ต้อง handoff เพิ่ม
 
+**สถานะรวม (P2-F10-CI, 2026-10-01):** รัน `ci.yml` ทุกขั้นในเครื่องแบบ `CI=1` ตามลำดับจริง — ทุกขั้นเขียว (`pnpm install --frozen-lockfile`, `lint`, `typecheck`, trace/vector `--check`, `pnpm test` 231/231 ไฟล์ 3542/3544 ผ่าน (2 skip เดิม), `pnpm build`, `measure-bundle.ts` ผ่าน budget, `tools/art prebuild`, `CI=1 pnpm test:e2e` รอบแรก (retries ตาม CI) 218/218 ผ่าน, `test-lint-headers.sh`/`test-billing-guard.sh`/`test-bbox-guard.sh` PASS ทั้ง 3, gitleaks จริง (เวอร์ชัน 8.30.1 ตรงกับ pin) ไม่พบ secret, forbidden-files guard จำลองตาม ci.yml ผ่านทุกกลุ่ม) — **ยกเว้นขั้นเดียว:** รอบที่สองของ e2e (`--retries=0` ตามที่ brief นี้สั่งเพิ่ม) พบ `qa/tests/e2e/f10-telemetry-nav-story.spec.ts` (F10-PM-01) แดง ~1 ใน 5 ครั้ง (ยืนยันซ้ำ 5 รอบ: ผ่าน 4 แดง 1) ด้วย `client_ts_ms` ต่างกัน 1ms ระหว่าง `nav_tab_opened`/`coming_soon_viewed` — เปิด **BUG-P2-006 severity low, สถานะ OPEN** (ไม่กระทบ movement gate/reward/privacy ไม่บล็อก QA gate ของ F10 ที่ PASS ไปแล้ว แต่บล็อก "CI-LOCAL GREEN" ของงานนี้เพราะ repro ได้จริงไม่ใช่สภาพแวดล้อมเครื่องนี้) ส่งต่อ gameplay-programmer แก้ที่ `apps/client/src/f04-app.ts`/`telemetry/sink.ts` (รายละเอียดเต็มใน `qa/reports/F10-ci-local.md`) · ตรวจ N-02 (happy-dom `AbortError` ตอน `pnpm test`): ไล่เจอว่ามาจาก `apps/client/src/f04-app.test.ts` เท่านั้น (18/18 ครั้ง) ทุก test ในไฟล์นั้นยังผ่านครบ (11/11) ไม่ใช่ error จริงที่ถูกบัง เป็น noise จาก `<img>`/fetch ที่ `setIconImg` (`apps/client/src/assets/icon-dom.ts`) ไม่รอผลและไม่ยกเลิกก่อน teardown ของ happy-dom — ไม่บล็อก ไม่ใช่บั๊กใหม่ (รายละเอียดใน `qa/reports/F10-ci-local.md`)
+
 ---
 
 ## BUG-P1-H06
@@ -337,3 +339,49 @@
   root `pnpm test` at this task's own commit: 181/182 files, 2687/2690 tests passed, 2 skipped, the
   one remaining failure being the declared, unrelated `it.fails` for BUG-P2-002 (P2-H30, pending
   human flip)
+
+---
+
+## BUG-P2-006
+
+- severity: **low**
+- feature: F10 — nav/story telemetry (`product/telemetry-events.md` "คู่กันเวลาเดียวกันเสมอ", F10-PM-01)
+- found_in: `qa/tests/e2e/f10-telemetry-nav-story.spec.ts`, run for this task's required second e2e
+  pass (`CI=1 pnpm exec playwright test --retries=0`, P2-F10-CI) — a clean, no-retry rerun is what
+  this task's brief asks for specifically so a flake like this does not hide behind CI's normal
+  `retries: 2`
+- steps/trace:
+  1. `CI=1 pnpm exec playwright test --retries=0 -g "Inventory then upgrade/shop/party tapped
+     back-to-back" --project=ios-safari`, repeated 5 times in a row (no code change between runs)
+  2. 4 of 5 runs: pass. 1 of 5: fails at
+     `expect(navRecord?.client_ts_ms).toBe(comingSoonRecord?.client_ts_ms)` with e.g. `Expected:
+     1790845789563, Received: 1790845789562` (off by exactly 1 ms)
+  3. Root cause read from the real code, not guessed: `apps/client/src/f04-app.ts`'s nav `onSelect`
+     handler (around `telemetry.record('nav_tab_opened', ...)` then
+     `telemetry.record('coming_soon_viewed', ...)`, ~lines 919-923) calls `telemetry.record()` twice,
+     synchronously, with no `await` between — but `telemetry/sink.ts`'s `record()` (line 103) calls
+     `deps.now()` (real `Date.now()` in production/e2e) *independently inside each call*. The
+     handler's own comment ("both calls happen synchronously in this same handler, no `await`
+     between") assumes that guarantees the same millisecond, but two back-to-back `Date.now()` calls
+     can straddle a millisecond-clock tick even with zero `await` between them — rare, but real, and
+     this is exactly what the 1-in-5 failure captured
+- expected: per `product/telemetry-events.md`, a `nav_tab_opened`/`coming_soon_viewed` pair for the
+  same tab tap always carries the identical `client_ts_ms` ("คู่กันเวลาเดียวกันเสมอ")
+- actual: the two records can differ by 1 ms, non-deterministically, roughly 1 run in 5 locally
+  (clock-tick-boundary dependent, so the real rate depends on the machine/load)
+- risk: cosmetic/analytics only — does not touch the movement gate, rewards, server authority, or
+  privacy; a product-metrics query that joins these two events on `client_ts_ms` would occasionally
+  fail to pair them. No gameplay or safety impact. Does not reopen the F10 QA gate's PASS verdict
+  (`qa/reports/F10-qa-gate.md`, which predates this finding and did not exercise a clean
+  `--retries=0` rerun of this specific spec enough times to catch a 1-in-5 flake)
+- owner: gameplay-programmer — fix in `apps/client/src/f04-app.ts` (capture one `const
+  tsMs = deps.now()` before both `telemetry.record()` calls) and `apps/client/src/telemetry/sink.ts`
+  (`record()` needs an optional explicit-timestamp parameter so the handler can pass the same value
+  to both calls instead of letting `record()` call `deps.now()` for each one independently)
+- status: **OPEN**
+- regression test: `qa/tests/e2e/f10-telemetry-nav-story.spec.ts:56` (already exists, QA-owned,
+  left as-is — it correctly encodes the product contract; loosening its assertion would hide the
+  real gap instead of fixing it)
+- not blocking: severity low, does not block F10's existing QA-gate PASS or any non-negotiable (1-7)
+  — but it does keep this task's own "CI-LOCAL GREEN" claim honest: flagged as the one RED item in
+  `qa/reports/F10-ci-local.md` rather than silently averaged away by retries
