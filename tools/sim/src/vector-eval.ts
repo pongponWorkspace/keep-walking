@@ -1,6 +1,17 @@
 // Evaluates a golden vector from its self-contained input (every parameter is in the input,
 // nothing is read from config). input.fn names the function. Used by the vector generator and
 // by tests; packages/shared ports must produce the same outputs.
+//
+// character-name.json (P2-F10-T12) is the one exception to "self-contained": its vectors carry
+// only `name`/`rngDraws`/`paramsOverride` because `params` is the whole of
+// config/balance/character.json (the file's own `_note` — too large to repeat per vector) and
+// `lexicon` is the vector *file*'s own fixture, not part of any one vector's `input`. `evaluate
+// Vector`'s optional second argument carries that file-level lexicon through; every other fn
+// ignores it.
+import { readFileSync } from 'node:fs';
+import { randomCharacterName, validateCharacterName } from '@keep-walking/shared/character';
+import type { CharacterNameParams, Lexicon, NameRng } from '@keep-walking/shared/character';
+import { REPO_ROOT } from './config';
 import { characterStats } from './build';
 import type { Allocation, GearLoadout } from './build';
 import {
@@ -88,6 +99,54 @@ function arr(input: VectorInput, key: string): number[] {
   return v as number[];
 }
 
+// ---- character-name.json (P2-F10-T12) ----
+
+const baseCharacterParams = JSON.parse(
+  readFileSync(`${REPO_ROOT}config/balance/character.json`, 'utf8'),
+) as CharacterNameParams;
+
+/** Deep-clones `base` and applies each `"a.b.c": value` entry of `overrides` (the vector file's
+ * own `paramsOverride` contract) at that dotted path. */
+function applyCharacterParamsOverride(
+  base: CharacterNameParams,
+  overrides: unknown,
+): CharacterNameParams {
+  if (overrides === undefined) return base;
+  if (typeof overrides !== 'object' || overrides === null) {
+    throw new Error('vector input "paramsOverride" must be an object');
+  }
+  const clone = JSON.parse(JSON.stringify(base)) as Record<string, unknown>;
+  for (const [path, value] of Object.entries(overrides as Record<string, unknown>)) {
+    const parts = path.split('.');
+    const last = parts.pop();
+    if (last === undefined) throw new Error('empty paramsOverride path');
+    let node: Record<string, unknown> = clone;
+    for (const part of parts) {
+      const next = node[part];
+      if (typeof next !== 'object' || next === null) {
+        throw new Error(`paramsOverride path "${path}" does not resolve (at "${part}")`);
+      }
+      node = next as Record<string, unknown>;
+    }
+    node[last] = value;
+  }
+  return clone as unknown as CharacterNameParams;
+}
+
+/** Replays `draws` in order; throws if the function under test asks for one more draw than the
+ * vector provides (the same contract `packages/shared/src/character/character.test.ts` and
+ * `packages/shared/src/formulas/vectors.test.ts` use). */
+function characterRngFromDraws(draws: readonly number[]): NameRng {
+  let i = 0;
+  return () => {
+    const v = draws[i];
+    if (v === undefined)
+      throw new Error('character rngDraws: exhausted (vector drew too many times)');
+    i += 1;
+    return v;
+  };
+}
+
 function expParams(i: VectorInput): ExpParams {
   return {
     expToNextCoef: n(i, 'expToNextCoef'),
@@ -132,10 +191,26 @@ function damageOf(i: VectorInput): number {
   );
 }
 
-/** Dispatches on input.fn. Returns null where the function is undefined (e.g. expToNext(60)). */
-export function evaluateVector(input: VectorInput): VectorOutput {
+/** Dispatches on input.fn. Returns null where the function is undefined (e.g. expToNext(60)).
+ * `fileLexicon` is character-name.json's own file-level `lexicon` fixture (ignored by every fn
+ * but `validateCharacterName`/`randomCharacterName`, see the module doc comment). */
+export function evaluateVector(input: VectorInput, fileLexicon?: unknown): VectorOutput {
   const fn = input['fn'];
   switch (fn) {
+    // ---- character-name.json (P2-F10-T12) ----
+    case 'validateCharacterName': {
+      const name = input['name'];
+      if (typeof name !== 'string') throw new Error('vector input "name" must be a string');
+      const params = applyCharacterParamsOverride(baseCharacterParams, input['paramsOverride']);
+      const result = validateCharacterName(name, params, fileLexicon as Lexicon);
+      return { ...result } as unknown as VectorOutput;
+    }
+    case 'randomCharacterName': {
+      const params = applyCharacterParamsOverride(baseCharacterParams, input['paramsOverride']);
+      const rng = characterRngFromDraws(arr(input, 'rngDraws'));
+      const result = randomCharacterName(rng, fileLexicon as Lexicon, params);
+      return { ...result } as unknown as VectorOutput;
+    }
     // ---- buff-stacking.json ----
     case 'memberP':
       return memberP(

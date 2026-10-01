@@ -91,6 +91,51 @@ import {
   windowIndexOf,
 } from '../reward';
 import { deriveSeed, streamRng, type StreamTag } from './rng';
+// P2-F10-T12 (backend, character-name filter + random-name generator): character-name.json's
+// `vectors` carry only `name`/`rngDraws`/`paramsOverride` (not every parameter inline like the
+// formulas above) because `params` is the whole of config/balance/character.json — too large to
+// repeat per vector (the file's own `_note`). `baseCharacterParams` + `applyParamsOverride` below
+// are this task's minimal registration glue; the full suite (contentVectors, the random-name pool
+// check, the 10,000-seed property test) lives in `../character/character.test.ts`, not here.
+import { randomCharacterName, validateCharacterName } from '../character';
+import type { CharacterNameParams, Lexicon, NameRng } from '../character';
+import rawCharacterParams from '../../../../config/balance/character.json';
+
+const baseCharacterParams = rawCharacterParams as unknown as CharacterNameParams;
+
+function applyParamsOverride(base: CharacterNameParams, overrides: unknown): CharacterNameParams {
+  if (overrides === undefined) return base;
+  if (typeof overrides !== 'object' || overrides === null) {
+    throw new Error('vector input "paramsOverride" must be an object');
+  }
+  const clone = JSON.parse(JSON.stringify(base)) as Record<string, unknown>;
+  for (const [path, value] of Object.entries(overrides as Record<string, unknown>)) {
+    const parts = path.split('.');
+    const last = parts.pop();
+    if (last === undefined) throw new Error('empty paramsOverride path');
+    let node: Record<string, unknown> = clone;
+    for (const part of parts) {
+      const next = node[part];
+      if (typeof next !== 'object' || next === null) {
+        throw new Error(`paramsOverride path "${path}" does not resolve (at "${part}")`);
+      }
+      node = next as Record<string, unknown>;
+    }
+    node[last] = value;
+  }
+  return clone as unknown as CharacterNameParams;
+}
+
+function characterRngFromDraws(draws: readonly number[]): NameRng {
+  let i = 0;
+  return () => {
+    const v = draws[i];
+    if (v === undefined)
+      throw new Error('character rngDraws: exhausted (vector drew too many times)');
+    i += 1;
+    return v;
+  };
+}
 // P2-F06-T06 (backend, HP engine): damage.json's `resolveHit` and run-loop.json's `hitAttempt` /
 // `soloDamage` are evaluated at `hp` level (tech note F06 13.1); `runLoop` / `runLoopStats` are
 // evaluated through a local harness (13.2 item (a)) that composes `hp`'s own fns the same way
@@ -127,6 +172,9 @@ interface VectorEntry {
 interface VectorFileJson {
   readonly formula: string;
   readonly vectors: readonly VectorEntry[];
+  // character-name.json only (P2-F10-T12): the fixture lexicon `validateCharacterName`/
+  // `randomCharacterName` resolve their lexicon paths against. Every other vector file omits it.
+  readonly lexicon?: unknown;
 }
 interface VectorModule {
   readonly default: VectorFileJson;
@@ -982,9 +1030,24 @@ function withPauses(
 }
 
 /** Evaluates one vector's input.fn with the formulas this task ports. Throws on an unknown fn. */
-function evaluateOwnedVector(input: Record<string, unknown>): unknown {
+function evaluateOwnedVector(input: Record<string, unknown>, fileLexicon?: unknown): unknown {
   const fn = input['fn'];
   switch (fn) {
+    // ---- character-name.json (P2-F10-T12) ----
+    case 'validateCharacterName': {
+      const name = input['name'];
+      if (typeof name !== 'string') throw new Error('vector input "name" must be a string');
+      const params = applyParamsOverride(baseCharacterParams, input['paramsOverride']);
+      return validateCharacterName(name, params, fileLexicon as Lexicon);
+    }
+    case 'randomCharacterName': {
+      const draws = input['rngDraws'];
+      if (!Array.isArray(draws) || !draws.every((d) => typeof d === 'number')) {
+        throw new Error('vector input "rngDraws" must be a number array');
+      }
+      const params = applyParamsOverride(baseCharacterParams, input['paramsOverride']);
+      return randomCharacterName(characterRngFromDraws(draws), fileLexicon as Lexicon, params);
+    }
     // ---- buff-stacking.json ----
     case 'memberP':
       return memberP(
@@ -1449,7 +1512,7 @@ describe('design/systems/test-vectors (dynamic discovery, TL N-03)', () => {
     expect(skippedVectorCount).toBeLessThan(totalVectorCount);
   });
 
-  for (const { name, formula, vectors } of vectorFiles) {
+  for (const { name, formula, vectors, lexicon } of vectorFiles) {
     describe(`${formula} (${name})`, () => {
       // Every vector's fn is either evaluated below or explicitly named in SKIP_FNS: this keeps
       // the assertion for a file whose vectors are 100% out of scope today (economy.json,
@@ -1461,7 +1524,7 @@ describe('design/systems/test-vectors (dynamic discovery, TL N-03)', () => {
           expect(
             SKIP_FNS.has(fn) ||
               (() => {
-                evaluateOwnedVector(vector.input);
+                evaluateOwnedVector(vector.input, lexicon);
                 return true;
               })(),
           ).toBe(true);
@@ -1472,7 +1535,7 @@ describe('design/systems/test-vectors (dynamic discovery, TL N-03)', () => {
         const fn = String(vector.input['fn']);
         if (SKIP_FNS.has(fn)) return;
         it(`[${index}] ${fn}`, () => {
-          const actual = evaluateOwnedVector(vector.input);
+          const actual = evaluateOwnedVector(vector.input, lexicon);
           expect(
             isWithinTolerance(actual, vector.expected, vector.tolerance),
             `${formula}[${index}] fn=${fn}: expected ${JSON.stringify(vector.expected)}, got ${JSON.stringify(actual)} (tolerance ${vector.tolerance}) · ${vector.source}`,

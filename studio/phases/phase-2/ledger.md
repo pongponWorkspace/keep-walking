@@ -270,3 +270,4 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 247 | F5 | P2-H70 | narrative-designer | 08:18:01 | 09:27:53 | หลุดครั้งที่ 1 หลังแก้ lint FAIL 6 ข้อ (lint:copy exit 0) + area + nav/comingSoon ครบ · ส่งใหม่เฉพาะที่เหลือ: logout key, unsupportedBrowser, character-names pointer + _source |
 | 248 | F5 | P2-H70 | orchestrator | 08:2x | 09:55:49 | DONE (done by orchestrator หลัง narrative หลุด 2 ครั้ง) — logout 6 key + unsupportedBrowser + pointer/_source ใน character-names · lint:copy 0, lint:config 0 error 13 STALE · ให้ T20 ตรวจถ้อยคำ |
 | 249 | F4 | P2-F10-T13 | artist-2d | 07:08:43 | 10:06:14 | DONE — 5 SVG slide (20.7 KB รวม) · validate 0/0 · lint ผ่าน · จุดให้ T21 ตรวจ 2 ข้อ |
+| 250 | F5 | P2-F10-T12 | backend-programmer | 07:4x | 10:47:05 | DONE (attempt 2) — character module + test, evaluator ลงทะเบียน, step machine D-149 · scoped 999/999 · root typecheck แดงรอ T14/T16 · T14 เริ่ม |

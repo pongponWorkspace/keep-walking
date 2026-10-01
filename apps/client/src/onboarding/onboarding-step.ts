@@ -1,34 +1,44 @@
 /**
- * Onboarding step machine (tech note F06-hp-damage-onboarding.md sections 4, 8; design/features/
- * F06-hp-damage-onboarding.md 3.8-3.9, R36, R44-R49; state diagram section 4: `O-intro -> O-age ->
- * (O-underage, terminal) / O-consent -> O-permission -> O-map -> O-class -> ... -> O-first-run ->
- * O-done`). A **pure** selector, no DOM, no config/asset loading, no coordinates, no
+ * Onboarding step machine (tech note docs/tech/F10-account-shell.md sections 3, 5, 9 — D-149,
+ * replacing F06-hp-damage-onboarding.md 8.2 in full, section 3.1's own words: "ใหม่แทน F06 8.2").
+ * A **pure** selector, no DOM, no config/asset loading, no coordinates, no
  * `@keep-walking/shared/session` (or any other engine subpath) dependency — same shape as the
  * sibling `home/home-state.ts` (P2-X27): plain data in, one of a fixed set of steps out.
  *
  * Written by backend-programmer under the D-125 role-swap exception (studio/decisions/
  * decision-log.md, "swap rule 10": a pure module in a new `apps/client` folder, tech-lead review
- * in F06-T20). gameplay-programmer wires this in P2-F06-T09/T10: persists `OnboardingStorage`
- * under `kw.p2.onboarding` (tech note F06 8.1), reads `kw.p2.consent.location` for
- * `locationConsent`, checks `navigator.permissions` (Mock-provider-gated per D-130) for
- * `permissionGranted`, and reads `classId`, `firstRunEntered`, `firstRewardDone` off
- * `selectPlayerView` (`@keep-walking/shared/session`) rather than storing them again here (tech
- * note F06 8.2: "ขั้นที่ engine รู้อยู่แล้วไม่ถูกเก็บซ้ำใน kw.p2.onboarding").
+ * in F06-T20 and F10-T18). gameplay-programmer wires this (P2-F10-T14/T15): persists
+ * `OnboardingStorage` under `kw.p2.onboarding` (unchanged v1 shape, tech note F10 section 2.3),
+ * `AccountStorageV1` under `kw.p2.account` and `CharacterStorageV1` under `kw.p2.character`
+ * (`storage/account.ts`, `storage/character.ts`, tech note sections 2.1/2.2), reads
+ * `kw.p2.consent.location` for `locationConsent`, checks `navigator.permissions` (Mock-provider-
+ * gated per D-130) for `permissionGranted`, and reads `classId`, `firstRunEntered`,
+ * `firstRewardDone` off `selectPlayerView` (`@keep-walking/shared/session`) rather than storing
+ * them again here (same reasoning F06 8.2 already used: "ขั้นที่ engine รู้อยู่แล้วไม่ถูกเก็บซ้ำ").
  *
- * Three inputs are deliberately **not** part of `OnboardingStorage` and never persisted:
- * - `underageThisSession` (R46): an underage answer writes no `kw.p2.*` key at all, so the next
- *   app open asks the age gate again. The caller tracks this in memory for the current session
- *   only.
- * - `permissionGranted` (tech note F06 8.2): the browser/OS permission has no flag of its own;
- *   it is asked live once `locationConsent === 'granted'`.
- * - `mapAcknowledged`: `O-map` and `O-class` share no stored flag either (the class sheet is
- *   shown "ทับแผนที่", layered on the map, R29) — this in-memory marker lets a caller that wants
- *   a brief, non-blocking map reveal before the sheet mounts represent that as its own step; a
- *   caller with no such reveal can pass `true` always and never observe `'map'`.
+ * D-149 replaces F06's `O-map -> O-class` pair with a single `character` step (class is chosen
+ * through the same create-character screen as the name, tech note F10 section 3.1: "`class` รวม
+ * เข้า `character`") and adds three steps F06 never had: `login` (account, R10/R13), `character`'s
+ * own name/story companion `story` (slides, R27-R30), and — between `login` and `age` — an in-
+ * memory-only `age` sub-wait while a `pendingProvider` is held (section 3.1 row `2a`). `map` and
+ * `class` as *named steps* no longer exist; `mapAcknowledged` is gone with them (D-149 made the
+ * map/class reveal moot: the character screen is a full screen before the first map view, not a
+ * sheet layered over it, tech note F10 section 3.1).
  *
- * `class` cannot be skipped (R29) and `no_class` fails a check-in closed (tech note F06 6.3,
- * D-120: the engine's own `no_class` rejection is what forces the class sheet open if a caller
- * ever lets a run start before this step machine says `'class'` is done).
+ * Four inputs are deliberately **not** part of any persisted storage shape:
+ * - `pendingProvider` / `atStartThisSession` (R13/R14): the login screen's in-memory choice while
+ *   the age gate has not resolved it yet, and the underage screen's own "back" button re-arming
+ *   the intro step. Neither survives a reload (tech note F10 section 2.1 "ไม่เขียนเมื่อ ... reload
+ *   ระหว่าง login กับ age").
+ * - `underageThisSession` (R46, unchanged from F06): an underage answer writes no `kw.p2.*` key
+ *   at all, so the next app open asks the age gate again.
+ * - `permissionGranted` (unchanged from F06 8.2): the browser/OS permission has no flag of its
+ *   own; it is asked live once `locationConsent === 'granted'`.
+ *
+ * `character` cannot be skipped (R29, carried over from F06's `class`) and `no_class` fails a
+ * check-in closed (tech note F06 6.3, D-120: the engine's own `no_class` rejection is what forces
+ * the create-character screen open if a caller ever lets a run start before this step machine
+ * says `'character'` is done).
  */
 
 /** `kw.p2.onboarding` (tech note F06 8.1). Every field the client itself has answered; `class`,
@@ -86,17 +96,31 @@ export function applyOnboardingEvent(
   }
 }
 
-/** The ordered steps of R44 / state-diagram section 4, minus `O-nearest` / `O-home` (those are
- * `home/home-state.ts`'s job, tech note F06 8.2: "ไม่มี state ของตัวเอง" — this machine only
- * needs to know whether a class has been chosen, not where the recommended rift is). */
+/** `kw.p2.account` (tech note F10 section 2.1, R13/R41/R43/R49). `provider` is a label on the
+ * button the player pressed, never a real identity (Phase 2 has no backend auth, R10/R12). */
+export interface AccountStorageV1 {
+  readonly provider: 'google' | 'apple' | 'email';
+  readonly signedIn: boolean;
+}
+
+/** `kw.p2.character` (tech note F10 section 2.2, R21/R22/R27/R30/R49). `name` is already
+ * `validateCharacterName`'s `normalized` output; never re-validated or re-normalized by this
+ * module. `storyDone` is `true` once slide 5 is finished or the story is skipped (R27). */
+export interface CharacterStorageV1 {
+  readonly name: string;
+  readonly storyDone: boolean;
+}
+
+/** The ordered steps of D-149 (tech note F10 section 3.1 table), replacing F06 8.2 in full. */
 export type OnboardingStep =
   | 'intro'
+  | 'login'
   | 'age'
   | 'underage'
   | 'consent'
   | 'permission'
-  | 'map'
-  | 'class'
+  | 'character'
+  | 'story'
   | 'first_run'
   | 'first_reward'
   | 'done';
@@ -106,21 +130,30 @@ export interface OnboardingStepInput {
    * `initialOnboardingStorage`'s all-`false` shape, but a caller need not construct it just to
    * ask "what step is this?"). */
   readonly storage: OnboardingStorage | null;
+  /** `kw.p2.account`, `null` before the first write (tech note F10 section 2.1). */
+  readonly account: AccountStorageV1 | null;
+  /** `kw.p2.character`, `null` before the first write (tech note F10 section 2.2). */
+  readonly character: CharacterStorageV1 | null;
+  /** The login screen's chosen button while the age gate has not resolved it yet, in memory only
+   * (R13, tech note F10 section 3.2). `null` once there is nothing pending — either the player has
+   * not pressed a login button yet this session, or `account` was just written and the choice is
+   * spent. */
+  readonly pendingProvider: 'google' | 'apple' | 'email' | null;
+  /** Set by the underage screen's own "back" button only (R14): re-arms `'intro'` for one more
+   * pass at login without actually clearing `kw.p2.onboarding.introSeen`. Memory only. */
+  readonly atStartThisSession: boolean;
   /** This session's age-gate answer, in memory only (see the module doc comment) — `true` only
-   * once the player has answered "underage" *this* session; irrelevant once `ageGatePassed`. */
+   * once the player has answered "underage" *this* session; irrelevant once `storage.ageGatePassed`. */
   readonly underageThisSession: boolean;
-  /** `kw.p2.consent.location`, a key this module does not own. `'declined'` and `'withdrawn'`
-   * both skip `permission` straight to `map` at the unknown-location status (R48: withdrawing is
-   * not re-asked automatically either). `'unanswered'` is treated the same as `'declined'`
-   * (fail-closed: never block on a consent screen this machine has already marked answered). */
+  /** `kw.p2.consent.location`, a key this module does not own. `'declined'`, `'withdrawn'` and
+   * `'unanswered'` all skip `permission` straight to `character` (R48: withdrawing is not
+   * re-asked automatically either; fail-closed on an impossible `'unanswered'` this far in). */
   readonly locationConsent: 'granted' | 'declined' | 'withdrawn' | 'unanswered';
-  /** The live browser/OS permission (never stored, tech note F06 8.2). `null` = not yet resolved
-   * this session; irrelevant once `locationConsent !== 'granted'`. */
+  /** The live browser/OS permission (never stored, unchanged from F06 8.2). `null` = not yet
+   * resolved this session; irrelevant once `locationConsent !== 'granted'`. */
   readonly permissionGranted: boolean | null;
-  /** See the module doc comment; a caller with no map-reveal beat may always pass `true`. */
-  readonly mapAcknowledged: boolean;
   /** `selectPlayerView(state, now_ms, params).classId !== null` (`@keep-walking/shared/session`,
-   * tech note F06 8.2). */
+   * unchanged from F06 8.2). */
   readonly classChosen: boolean;
   /** `selectPlayerView(...).firstRunEntered`. */
   readonly firstRunEntered: boolean;
@@ -129,17 +162,47 @@ export interface OnboardingStepInput {
   readonly firstRewardDone: boolean;
 }
 
-/** First step not yet passed, in the fixed order of R44 (state diagram section 4). Reopening the
- * app mid-onboarding resumes here — it never restarts from `'intro'` (R36). */
+/** First step not yet passed, in the fixed decision order of D-149 (tech note F10 section 3.2
+ * "ลำดับตัดสิน (ข้อแรกที่จริงชนะ)", items 1-8). Reopening the app mid-onboarding resumes here — it
+ * never restarts from `'intro'` (R36), and a legacy player with some `kw.p2.onboarding` flags
+ * already set resumes at the first step *this* table has not passed yet (tech note F10 section 5
+ * migration table — no separate migration code path). */
 export function currentOnboardingStep(input: OnboardingStepInput): OnboardingStep {
-  if (input.storage === null || !input.storage.introSeen) return 'intro';
-  if (!input.storage.ageGatePassed) return input.underageThisSession ? 'underage' : 'age';
+  if (input.storage === null || !input.storage.introSeen || input.atStartThisSession) {
+    return 'intro';
+  }
+  if (input.account === null || !input.account.signedIn) {
+    if (input.storage.ageGatePassed) return 'login';
+    if (input.pendingProvider === null) return 'login';
+    return input.underageThisSession ? 'underage' : 'age';
+  }
+  if (!input.storage.ageGatePassed) return 'age';
   if (!input.storage.consentAnswered) return 'consent';
   if (input.locationConsent === 'granted' && input.permissionGranted === null) return 'permission';
-  if (!input.classChosen) return input.mapAcknowledged ? 'class' : 'map';
+  if (!input.classChosen || input.character === null) return 'character';
+  if (!input.character.storyDone) return 'story';
   if (!input.firstRunEntered) return 'first_run';
   if (!input.firstRewardDone) return 'first_reward';
   return 'done';
+}
+
+/** `true` once the map, bottom nav, Setting and every onboarded route (tech note F10 section 4)
+ * may show: steps 1-7 of the D-149 table are all done. `first_run`/`first_reward` are **not**
+ * shell-blocking (tech note F10 section 3.1: "nav ขึ้นตั้งแต่ถึงแผนที่ครั้งแรก") — only
+ * `isSystemTeachLocked` below still gates individual systems during those two. */
+const SHELL_BLOCKING_STEPS: ReadonlySet<OnboardingStep> = new Set([
+  'intro',
+  'login',
+  'age',
+  'underage',
+  'consent',
+  'permission',
+  'character',
+  'story',
+]);
+
+export function isShellReady(input: OnboardingStepInput): boolean {
+  return !SHELL_BLOCKING_STEPS.has(currentOnboardingStep(input));
 }
 
 /**

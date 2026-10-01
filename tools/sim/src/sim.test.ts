@@ -251,16 +251,19 @@ describe('golden vectors (design/systems/test-vectors)', () => {
   });
   for (const file of files) {
     it(`${file}: every vector has input/expected/tolerance/source and the reference implementation meets it`, () => {
+      // `& { lexicon?: unknown }`: character-name.json only (P2-F10-T12) — its own file-level
+      // fixture `validateCharacterName`/`randomCharacterName` resolve lexicon paths against;
+      // every other file omits it and `evaluateVector` ignores the extra argument.
       const vf = JSON.parse(readFileSync(`${VECTOR_DIR}${file}`, 'utf8')) as GoldenVectorFile<
         VectorInput,
         VectorOutput
-      >;
+      > & { lexicon?: unknown };
       expect(typeof vf.formula).toBe('string');
       expect(vf.vectors.length).toBeGreaterThan(0);
       for (const v of vf.vectors) {
         expect(typeof v.source).toBe('string');
         expect(v.tolerance).toBeGreaterThanOrEqual(0);
-        const actual = evaluateVector(v.input);
+        const actual = evaluateVector(v.input, vf.lexicon);
         expect(isWithinTolerance(actual, v.expected, v.tolerance), `${file}: ${v.source}`).toBe(
           true,
         );
