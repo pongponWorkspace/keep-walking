@@ -27,7 +27,7 @@ import {
   saveOnboardingStorage,
   writeLocationConsent,
 } from './storage/onboarding';
-import { loadAccount, saveAccount } from './storage/account';
+import { loadAccount, saveAccount, signOut } from './storage/account';
 import { loadCharacter, markStoryDone, saveCharacter } from './storage/character';
 import { seedE2eSkipOnboardingAccount } from './onboarding/e2e-skip-seed';
 import { applyOnboardingEvent, currentOnboardingStep } from './onboarding/onboarding-step';
@@ -256,12 +256,19 @@ export class OnboardingFlow {
    * `kw.p2.account` immediately (tech note table A2/A10: "ขณะ ageGatePassed = true อยู่แล้ว" / "login
    * ใหม่หลังออกจากระบบ") — `currentStep()` then reports whatever step their *other* flags already
    * satisfy (straight to the map for a relogin, R43). A brand-new player instead only holds the
-   * choice in memory (`pendingProvider`) until `confirmAge()` actually passes them. */
+   * choice in memory (`pendingProvider`) until `confirmAge()` actually passes them.
+   *
+   * `e2eSkipOnboarding` (D-130) writes immediately too, the same as an already-passed age gate:
+   * under this hook `kw.p2.onboarding.ageGatePassed` was never really set (no real age-gate screen
+   * ever showed), but `currentStep()`'s own e2e short-circuit (section 9.1 item 2, "login แล้วกลับ
+   * เป็น done") expects a relogin tap here to resolve the account the same instant it is pressed —
+   * holding it in `pendingProvider` instead would leave a logout/relogin e2e spec stuck on `login`
+   * forever, since the short-circuit never consults `pendingProvider` at all. */
   chooseLoginMethod(method: LoginMethod): void {
     this.deps.record('account_login_method_chosen', { method });
     this.recordFunnel('login_method_chosen');
     const provider = providerForMethod(method);
-    if (this.storageState.ageGatePassed) {
+    if (this.storageState.ageGatePassed || this.deps.e2eSkipOnboarding) {
       this.accountState = { provider, signedIn: true };
       saveAccount(this.deps.storage, this.accountState, this.deps.now(), this.deps.quotaDeps);
       this.pendingProvider = null;
@@ -481,5 +488,25 @@ export class OnboardingFlow {
     this.finishStory();
     this.deps.record('story_skipped', { slide_index_at_skip: slideIndexAtSkip });
     this.recordFunnel('story_done');
+  }
+
+  /** `S-22-settings`'s "ออกจากระบบ" confirm (tech note docs/tech/F10-account-shell.md section 4.3
+   * item 3, R41, D-158): flips `kw.p2.account.state.signedIn` to `false` only — `storage/
+   * account.ts#signOut` never deletes the key, never touches `kw.p2.character`/session/inventory/
+   * consent/age/story flags. Re-reads the just-written value into `this.accountState` so
+   * `currentStep()` reports `'login'` on the very next call (not the stale cached `signedIn: true`
+   * from construction time) — the same "no second source of truth" rule every other writer in this
+   * class already follows (`chooseLoginMethod`/`confirmAge` above). Clears `loginFunnelFired` so the
+   * login screen's own `account_login_shown` fires again (`context: 'relogin'`, `markLoginShown`'s
+   * own doc comment) the next time it mounts: this is a genuine new visit to the login step, not the
+   * same-visit email/register/forgot sub-screen switch that flag exists to silence repeats within.
+   *
+   * Ending an active run first (tech note section 4.3 items 1-2, the same `manual_exit` sequence
+   * `privacy/withdraw-consent.ts` already uses for its own run-exit step) is the caller's job
+   * (`f04-app.ts`/`account/logout.ts`) — this method only ever touches the account flag. */
+  logout(): void {
+    signOut(this.deps.storage, this.deps.now(), this.deps.quotaDeps);
+    this.accountState = loadAccount(this.deps.storage);
+    this.loginFunnelFired = false;
   }
 }

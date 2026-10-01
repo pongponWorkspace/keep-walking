@@ -202,7 +202,15 @@ const SHELL_BLOCKING_STEPS: ReadonlySet<OnboardingStep> = new Set([
 ]);
 
 export function isShellReady(input: OnboardingStepInput): boolean {
-  return !SHELL_BLOCKING_STEPS.has(currentOnboardingStep(input));
+  return isShellReadyForStep(currentOnboardingStep(input));
+}
+
+/** Same predicate as `isShellReady` above, for a caller that has already computed the step itself
+ * (`OnboardingFlow#currentStep`, P2-F10-T17) and would otherwise have to rebuild a whole
+ * `OnboardingStepInput` a second time just to ask this question — `f04-app.ts`'s own route guard
+ * (`nav/routes.ts#resolveRoute`'s `shellReady` input) is exactly that caller. */
+export function isShellReadyForStep(step: OnboardingStep): boolean {
+  return !SHELL_BLOCKING_STEPS.has(step);
 }
 
 /**

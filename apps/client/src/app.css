@@ -1111,6 +1111,24 @@ body {
   margin-top: 16px;
 }
 
+/* P2-F10-T17 (components.md 16.7): the logout row's icon sits inline before its label, plain
+   `ink.900` like the row text itself — never `state.danger` (F10-R40). */
+.settings-menu-logout-icon {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.settings-menu-logout-confirm-body {
+  white-space: pre-line;
+}
+
+.settings-menu-logout-confirm-run-note {
+  color: #006699; /* state.info, same tone as privacy.withdrawDuringRunNote (F06 G1) */
+}
+
 .settings-row {
   padding: 12px 0;
   border-bottom: 1px solid #ddddee; /* ink.100 */
@@ -1467,4 +1485,169 @@ body {
   color: #1a1a22; /* ink.900 */
   font-size: 16px;
   text-align: center;
+}
+
+/* --- F10 bottom nav + floating Setting button (components.md 16.1/16.2, flow F10 section 8) ---- */
+
+/* ASSUMPTION (P2-F10-T17): `35`/`38` below are a new tier squeezed between `zIndex.popupModal`(40)
+   and the plain map/nav-panel/home-panel content (auto) — not yet in design/ux/tokens.json#zIndex.
+   Needed because this nav/Setting button must paint *above* `S-11-inventory`/the three "coming
+   soon" screens (so they stay visible+usable there, flow section 8's table) while still painting
+   *below* `.popup-overlay` (40, the dungeon-confirm popup's own scrim must still dim them, same
+   table's "popup confirm" row) — and `.screen`'s own existing `zIndex.overlay` (50) sits *above*
+   `popupModal`(40) already, so those two screens cannot simply keep the plain `.screen` value and
+   still satisfy both constraints at once. Every other `.screen` (settings/login/story/run-summary/
+   etc.) keeps the ordinary `zIndex.overlay`(50) unchanged — this nav is explicitly hidden on all of
+   them (`render()`'s own calls), so their stacking order never actually matters against it. Owner:
+   uiux-designer/tech-lead to confirm and fold into the real scale. */
+.screen.inventory-screen,
+.screen.coming-soon-screen {
+  z-index: 35;
+  padding-bottom: calc(64px + env(safe-area-inset-bottom) + 16px);
+}
+
+.bottombar-f10 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 38; /* see the ASSUMPTION note above */
+  display: flex;
+  background: #ffffff; /* bg.surface */
+  border-top: 2px solid #1a1a22; /* ink.900 */
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  min-height: 64px; /* art direction 2.2 */
+  box-sizing: border-box;
+  padding: 4px 2px 5px;
+  color: #1a1a22; /* ink.900 */
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-tab-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 32px;
+  border-radius: 999px;
+}
+
+.nav-tab-pill-active {
+  background: #1a1a22; /* ink.900 */
+}
+
+.nav-tab-icon {
+  display: flex;
+  width: 24px;
+  height: 24px;
+}
+
+.nav-tab-label {
+  font-size: 14px; /* art direction 2.4 */
+  font-weight: 500;
+  line-height: 1.5;
+  max-width: 68px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nav-tab-pill.nav-tab-pill-active ~ .nav-tab-label {
+  font-weight: 700;
+}
+
+.setting-button-float {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  z-index: 38; /* see the ASSUMPTION note above `.bottombar-f10` */
+  width: 48px;
+  height: 48px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px;
+  background: #ffffff; /* bg.surface */
+  box-shadow: 0 4px 0 #1a1a22; /* elevation.pressable */
+  cursor: pointer;
+}
+
+.setting-button-float:active {
+  transform: translateY(4px); /* elevation.pressedOffset_px */
+  box-shadow: none;
+}
+
+.setting-button-float-icon {
+  display: flex;
+  width: 24px;
+  height: 24px;
+}
+
+/* --- "Coming soon" screen (components.md 16.3) -------------------------------------------------- */
+
+.coming-soon-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.cs-plate-main {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px;
+  background: #ffffff; /* bg.surface */
+}
+
+.cs-plate-main-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+}
+
+.cs-plate-badge {
+  position: absolute;
+  right: -12px;
+  bottom: -12px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px;
+  background: #ffffff; /* bg.surface */
+}
+
+.cs-plate-badge-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+}
+
+.cs-title {
+  margin-top: 24px;
+}
+
+.cs-body {
+  margin: 0;
 }

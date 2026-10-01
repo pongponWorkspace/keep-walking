@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { mountSettingsMenu } from './settings-menu';
 import { getCopyText } from '../copy/load';
 
-function mount(canClear = true) {
+function mount(canClear = true, hasActiveRun = false) {
   const container = document.createElement('div');
   const deps = {
     selectCanClearLocalData: () => canClear,
@@ -12,6 +12,8 @@ function mount(canClear = true) {
     onOpenPrivacy: vi.fn(),
     onExport: vi.fn(),
     onClearLocalDataConfirmed: vi.fn(),
+    hasActiveRun: () => hasActiveRun,
+    onLogoutConfirmed: vi.fn(),
     onClose: vi.fn(),
   };
   const screen = mountSettingsMenu(container, deps);
@@ -119,6 +121,8 @@ describe('mountSettingsMenu', () => {
       onOpenPrivacy: vi.fn(),
       onExport: vi.fn(),
       onClearLocalDataConfirmed: vi.fn(),
+      hasActiveRun: () => false,
+      onLogoutConfirmed: vi.fn(),
       onClose: vi.fn(),
     });
     screen.show();
@@ -141,5 +145,72 @@ describe('mountSettingsMenu', () => {
     screen.hide();
     expect(screen.root.hidden).toBe(true);
     expect(screen.root.querySelector<HTMLElement>('.popup-overlay')?.hidden).toBe(true);
+  });
+
+  it('shows the logout row last, as plain text (never state.danger/.btn-danger-confirm, F10-R40)', () => {
+    const { screen } = mount();
+    screen.show();
+    expect(screen.root.textContent).toContain(getCopyText('settings.logoutLink'));
+    const row = screen.root.querySelector<HTMLButtonElement>('.settings-menu-logout');
+    expect(row).not.toBeNull();
+    expect(row?.className.split(' ')).not.toContain('btn-danger-confirm');
+    expect(row?.disabled).toBe(false);
+  });
+
+  it('logout row opens its own confirm popup, no run note when no run is active', () => {
+    const { screen } = mount(true, false);
+    screen.show();
+    screen.root.querySelector<HTMLButtonElement>('.settings-menu-logout')?.click();
+    const overlay = screen.root.querySelector<HTMLElement>(
+      '.settings-menu-logout-confirm-run-note',
+    )?.parentElement;
+    expect(overlay?.hidden).toBe(false);
+    expect(
+      screen.root.querySelector<HTMLElement>('.settings-menu-logout-confirm-run-note')?.hidden,
+    ).toBe(true);
+  });
+
+  it('the logout confirm button is disabled while its own popup is not open (qa/tests/e2e/f04-closed-dungeon.spec.ts own broad "no enabled .popup .btn-primary" safety scan)', () => {
+    const { screen } = mount();
+    screen.show();
+    const confirmButton = screen.root.querySelector<HTMLButtonElement>(
+      '.settings-menu-logout-confirm-button',
+    );
+    expect(confirmButton?.disabled).toBe(true);
+    screen.root.querySelector<HTMLButtonElement>('.settings-menu-logout')?.click();
+    expect(confirmButton?.disabled).toBe(false);
+    screen.root.querySelector<HTMLButtonElement>('.settings-menu-logout-cancel')?.click();
+    expect(confirmButton?.disabled).toBe(true);
+  });
+
+  it('logout confirm shows the run note when a run is active (read fresh at click time)', () => {
+    const { screen } = mount(true, true);
+    screen.show();
+    screen.root.querySelector<HTMLButtonElement>('.settings-menu-logout')?.click();
+    expect(
+      screen.root.querySelector<HTMLElement>('.settings-menu-logout-confirm-run-note')?.hidden,
+    ).toBe(false);
+    expect(screen.root.textContent).toContain(getCopyText('settings.logoutConfirmRunNote'));
+  });
+
+  it('confirming logout calls onLogoutConfirmed exactly once and closes the popup; its button is .btn-primary, never .btn-danger-confirm', () => {
+    const { screen, deps } = mount();
+    screen.show();
+    screen.root.querySelector<HTMLButtonElement>('.settings-menu-logout')?.click();
+    const confirmButton = screen.root.querySelector<HTMLButtonElement>(
+      '.settings-menu-logout-confirm-button',
+    );
+    expect(confirmButton?.className.split(' ')).toEqual(expect.arrayContaining(['btn-primary']));
+    expect(confirmButton?.className.split(' ')).not.toContain('btn-danger-confirm');
+    confirmButton?.click();
+    expect(deps.onLogoutConfirmed).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancelling the logout popup does not call onLogoutConfirmed', () => {
+    const { screen, deps } = mount();
+    screen.show();
+    screen.root.querySelector<HTMLButtonElement>('.settings-menu-logout')?.click();
+    screen.root.querySelector<HTMLButtonElement>('.settings-menu-logout-cancel')?.click();
+    expect(deps.onLogoutConfirmed).not.toHaveBeenCalled();
   });
 });

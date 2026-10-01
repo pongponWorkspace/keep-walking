@@ -202,6 +202,25 @@ describe('OnboardingFlow.currentStep', () => {
     expect(second.currentStep(FRESH_VIEW)).toBe('login');
   });
 
+  it('a relogin tap under the e2e skip hook writes the account immediately and reports done again (section 9.1 item 2, P2-F10-T17)', () => {
+    const storage = createMemoryStorage();
+    const { flow: first } = makeFlow({ storage, e2eSkipOnboarding: true });
+    void first;
+    storage.setItem(
+      'kw.p2.account',
+      JSON.stringify({
+        schemaVersion: 1,
+        savedAt_ms: 1,
+        state: { provider: 'google', signedIn: false },
+      }),
+    );
+    const { flow: second } = makeFlow({ storage, e2eSkipOnboarding: true });
+    expect(second.currentStep(FRESH_VIEW)).toBe('login');
+    second.chooseLoginMethod('apple');
+    expect(loadAccount(storage)).toEqual({ provider: 'apple', signedIn: true });
+    expect(second.currentStep(FRESH_VIEW)).toBe('done');
+  });
+
   it('resumes at character on a fresh instance once login/age/consent/permission were already persisted', () => {
     const storage = createMemoryStorage();
     const { flow: first } = makeFlow({ storage });
@@ -438,5 +457,61 @@ describe('OnboardingFlow.createCharacter / completeStory / skipStory (P2-F10-T15
     flow.markStoryShown();
     flow.markStoryShown();
     expect(records.filter((r) => r.properties['step'] === 'story_shown')).toHaveLength(1);
+  });
+});
+
+describe('OnboardingFlow.logout (P2-F10-T17)', () => {
+  const DONE_VIEW = { classId: 'tanker', firstRunEntered: true, firstRewardDone: true } as const;
+
+  it('flips signedIn to false without deleting the account key, reports login on the next call', () => {
+    const { flow, storage } = makeFlow();
+    flow.completeIntro();
+    flow.chooseLoginMethod('google');
+    flow.confirmAge(PASSING_BIRTH_YEAR);
+    expect(loadAccount(storage)).toEqual({ provider: 'google', signedIn: true });
+
+    flow.logout();
+
+    expect(loadAccount(storage)).toEqual({ provider: 'google', signedIn: false });
+    expect(flow.currentStep(DONE_VIEW)).toBe('login');
+  });
+
+  it('never deletes kw.p2.character or kw.p2.onboarding (R41)', () => {
+    const { flow, storage } = makeFlow();
+    advanceToCharacter(flow);
+    flow.createCharacter({
+      classId: 'tanker',
+      name: 'ab',
+      nameSource: 'typed',
+      filterRejectCount: 0,
+    });
+    flow.completeStory(1);
+
+    flow.logout();
+
+    expect(loadCharacter(storage)).toEqual({ name: 'ab', storyDone: true });
+    expect(readLocationConsent(storage)).toBe('granted');
+  });
+
+  it('resets the login-shown funnel flag so a relogin fires account_login_shown again with context relogin', () => {
+    const { flow, records } = makeFlow();
+    flow.completeIntro();
+    flow.markLoginShown();
+    flow.chooseLoginMethod('google');
+    flow.confirmAge(PASSING_BIRTH_YEAR);
+
+    flow.logout();
+    flow.markLoginShown();
+
+    const shown = records.filter((r) => r.name === 'account_login_shown');
+    expect(shown).toHaveLength(2);
+    expect(shown[1]?.properties).toEqual({ context: 'relogin' });
+  });
+
+  it('is a no-op on an account that was never signed in (nothing to log out of)', () => {
+    const { flow, storage } = makeFlow();
+    expect(loadAccount(storage)).toBeNull();
+    flow.logout();
+    expect(loadAccount(storage)).toBeNull();
   });
 });

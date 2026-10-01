@@ -101,6 +101,7 @@ import { mountCreateCharacterScreen } from './ui/create-character-screen';
 import { mountStoryScreen, STORY_SLIDE_COUNT } from './ui/story-screen';
 import { mountLoginScreen } from './ui/login-screen';
 import { parseRoute, parseStorySlideNumber, resolveRoute, ROUTE_HASH } from './nav/routes';
+import type { Route } from './nav/routes';
 import { mountRunTutorialLine } from './ui/run-tutorial-line';
 import { OnboardingFlow } from './onboarding-flow';
 import { shouldSkipF04App } from './env';
@@ -111,6 +112,12 @@ import { mountSettingsMenu } from './ui/settings-menu';
 import { mountPrivacyScreen } from './ui/privacy-screen';
 import { mountCredits } from './ui/credits';
 import { withdrawConsent } from './privacy/withdraw-consent';
+import { logout } from './account/logout';
+import { mountBottomNav } from './ui/bottom-nav';
+import type { NavTab } from './ui/bottom-nav';
+import { mountSettingButtonFloat } from './ui/setting-button-float';
+import { mountComingSoonScreen } from './ui/coming-soon-screen';
+import { isShellReadyForStep } from './onboarding/onboarding-step';
 import {
   readLocationConsent,
   writeLocationConsent,
@@ -348,8 +355,16 @@ export function createF04App(deps: F04AppDeps): F04App {
 
   // P2-X38 (docs/tech/F06-hp-damage-onboarding.md 8.4 step 1): flipped by `withdrawConsentNow`
   // below, checked first thing in `onSample` — a `LocationProvider` sample callback already queued
-  // when the player withdraws must still be dropped, never reach `sessionStep`/the HUD.
+  // when the player withdraws must still be dropped, never reach `sessionStep`/the HUD. Permanent
+  // for the rest of this page's life (consent withdrawal), unlike `dropNextQueuedSample` below.
   let locationWithdrawn = false;
+  // P2-F10-T17 (tech note docs/tech/F10-account-shell.md section 4.3 item 2): logout's own "ทิ้ง
+  // sample ที่คิวค้างอยู่แล้ว" step — a single one-shot drop, consumed and cleared by the very next
+  // `onSample` call, **never** a permanent block like `locationWithdrawn` above. Logout is not a
+  // consent withdrawal (R41): a relogin must resume receiving real samples (tech note section 4.3
+  // item 5, "LocationProvider เริ่มใหม่ตามสถานะที่บ้านเดิม"), which a shared/permanent flag would
+  // silently break.
+  let dropNextQueuedSample = false;
   // P2-X38: the consent screen reopened for a returning player who declined/withdrew earlier
   // (R48 "ปุ่มเดียวกลับไปให้ใหม่", `home.unknownCta`/`privacy.locationStatusNotGranted`'s own button) —
   // `true` only while that manual re-entry is on screen; the onboarding step machine's own
@@ -785,6 +800,35 @@ export function createF04App(deps: F04AppDeps): F04App {
         reload: () => window.location.reload(),
       });
     },
+    hasActiveRun: () => engine.getState().run !== null,
+    // Tech note docs/tech/F10-account-shell.md section 4.3 items 2-3 (R41/R42, D-152/D-158):
+    // `account/logout.ts#logout` composes the exact same `manual_exit` sequence a normal exit tap
+    // uses when a run is active, then flips `signedIn` to `false` via `onboarding.logout()` (never
+    // this module's own forked copy, CLAUDE.md).
+    onLogoutConfirmed: () => {
+      logout({
+        hasActiveRun: () => engine.getState().run !== null,
+        exitRun: (now_ms) => {
+          handleSessionEvents(engine.dispatch({ type: 'exit' }, now_ms));
+        },
+        stopLocationProvider: deps.stopLocationProvider,
+        dropQueuedSamples: () => {
+          dropNextQueuedSample = true;
+        },
+        signOut: () => onboarding.logout(),
+        record: (name, properties) => {
+          telemetry.record(name, properties as Record<string, string | number | boolean | null>);
+          persistTelemetry();
+        },
+        now: deps.now,
+      });
+      // Same reasoning as `privacyScreen.onWithdrawConfirmed` above: leave the settings route
+      // entirely so `render()`'s own top-level guard (`currentRoute === 'main'`) can show the run
+      // summary this may have just produced, or the login step otherwise, instead of the settings
+      // chrome hiding either one.
+      window.location.hash = '';
+    },
+    iconGlyph,
     onClose: closeRouteScreen,
   });
   const privacyScreen = mountPrivacyScreen(deps.hudContainer, {
@@ -831,6 +875,55 @@ export function createF04App(deps: F04AppDeps): F04App {
     iconGlyph,
   });
 
+  // --- P2-F10-T17: shell route state (`#/settings*`/`#/inventory`/`#/upgrade`/`#/shop`/`#/party`,
+  // tech note docs/tech/F10-account-shell.md section 4) — declared here, ahead of the bottom nav's
+  // own `onSelect` closure just below, so that closure (invoked only on a later real tap, long after
+  // this whole function body has finished running once) closes over the same single `let` the
+  // route-sync function further down (`syncRouteScreens`) also assigns, rather than two independently
+  // ordered bindings.
+  type ShellRoute =
+    | 'main'
+    | 'settingsMenu'
+    | 'settingsWalkingSafety'
+    | 'settingsPrivacy'
+    | 'settingsCredits'
+    | 'inventory'
+    | 'upgrade'
+    | 'shop'
+    | 'party';
+  let currentRoute: ShellRoute = 'main';
+
+  // --- P2-F10-T17: the three "coming soon" screens (`S-27/28/29`, flow F10 Flow E4) and the shell
+  // chrome (bottom nav + floating Setting button, Flow E2/E5, components.md 16.1/16.2) — visibility
+  // for both is driven entirely from `render()` below (flow section 8's own table), never from
+  // `syncRouteScreens` directly (that function only owns the route-screen *content*, same split
+  // `settingsMenu`/`inventoryScreen` already follow).
+  const comingSoonScreen = mountComingSoonScreen(deps.hudContainer, { iconGlyph });
+  const bottomNav = mountBottomNav(deps.hudContainer, {
+    iconGlyph,
+    onSelect: (tab) => {
+      // Flow E3: tapping the tab that is already active (including Map while already at home) has
+      // no effect at all — no navigation, no telemetry (tech note product/telemetry-events.md's own
+      // "ยิงเมื่อ ... สำเร็จ (เปลี่ยนจอจริงหรือเปิดจอเร็วๆ นี้)").
+      const activeTab: NavTab = currentRoute === 'main' ? 'map' : (currentRoute as NavTab);
+      if (tab === activeTab) return;
+      telemetry.record('nav_tab_opened', { tab });
+      // Paired at the same `at_ms` as required (product/telemetry-events.md's own "คู่กัน...เวลา
+      // เดียวกันเสมอ") — both calls happen synchronously in this same handler, no `await` between.
+      if (tab === 'upgrade' || tab === 'shop' || tab === 'party') {
+        telemetry.record('coming_soon_viewed', { tab });
+      }
+      persistTelemetry();
+      window.location.hash = tab === 'map' ? '' : ROUTE_HASH[tab];
+    },
+  });
+  const settingButtonFloat = mountSettingButtonFloat(deps.hudContainer, {
+    iconGlyph,
+    onClick: () => {
+      window.location.hash = '#/settings';
+    },
+  });
+
   // --- P2-F06-T09: home-state wiring (tech note F06 section 9, spec F06 R50-R58) ---
   // Both mask geometries load async (`fetch`, `home-geometry.ts`); `homeTracker` stays `undefined`
   // until they resolve, and `render()` below simply defers to the pre-existing `renderNearbyNav`
@@ -858,37 +951,65 @@ export function createF04App(deps: F04AppDeps): F04App {
     render(engine.getState(), deps.now());
   });
 
-  // --- S-22/S-23/S-26/S-11 route screens (ia.md: the gear icon/inventory shortcut are reachable
-  // from every state, NN-7 — never gated behind a run/consent/unlock check) ---
+  // --- S-22/S-23/S-26/S-11/S-27/S-28/S-29 route screens (ia.md: the gear icon/inventory shortcut
+  // and the F10 bottom nav are reachable from every state, NN-7 — never gated behind a run/consent/
+  // unlock check once the shell itself is ready) ---
   // `#/settings` is `S-22-settings`'s own real home menu (P2-X38, replacing the previous "stand-in
   // front door onto the walking-safety subpage directly" `settingsWalkingSafety`'s own doc comment
   // used to describe) — `#/settings/walking-safety`, `#/settings/privacy`, `#/settings/credits` are
-  // its three subpages, `#/inventory` is `S-11-inventory`. Every route screen fully takes over the
-  // display while open (`render()`'s own top guard below).
-  type RouteScreen =
-    | 'main'
-    | 'settingsMenu'
-    | 'settingsWalkingSafety'
-    | 'settingsPrivacy'
-    | 'settingsCredits'
-    | 'inventory';
-  function routeFromHash(): RouteScreen {
-    const hash = window.location.hash;
-    if (hash.startsWith('#/settings/walking-safety')) return 'settingsWalkingSafety';
-    if (hash.startsWith('#/settings/privacy')) return 'settingsPrivacy';
-    if (hash.startsWith('#/settings/credits')) return 'settingsCredits';
-    if (hash.startsWith('#/settings')) return 'settingsMenu';
-    if (hash.startsWith('#/inventory')) return 'inventory';
-    return 'main';
+  // its three subpages, `#/inventory` is `S-11-inventory`, `#/upgrade`/`#/shop`/`#/party` are the
+  // three "coming soon" screens (P2-F10-T17). Every route screen fully takes over the display while
+  // open (`render()`'s own top guard below) — the bottom nav/Setting button additionally show on
+  // `main`/`inventory`/`upgrade`/`shop`/`party` only (flow F10 section 8's table), wired inside
+  // `render()` itself, not here (same split this function already kept for its route-screen
+  // *content* vs. `render()`'s run/onboarding/summary takeovers).
+  //
+  // `computeShellRoute` (A-P2-F10-T14-5) replaces the pre-T17 `routeFromHash`, which only ever
+  // looked at the literal hash and never guarded `#/upgrade`/`#/shop`/`#/party`/`#/inventory`/
+  // `#/settings*` against an incomplete onboarding at all — every deep link now goes through the one
+  // real guard (`nav/routes.ts#resolveRoute`, tech note section 4.2), the same function
+  // `render()`'s own pre-existing login-family branch below already uses. The login/character/story
+  // family (`ONBOARDING_FAMILY_ROUTES`) is *not* a shell-chrome route: `render()`'s own onboarding
+  // gate further down still decides those screens by reading `window.location.hash` directly
+  // (unchanged by this task, tech note section 3.3/4.2's own per-step hash-clearing) — folded to
+  // `'main'` here so this module has exactly one `currentRoute` variable instead of two independent
+  // route machines running side by side.
+  const ONBOARDING_FAMILY_ROUTES: ReadonlySet<Route> = new Set([
+    'login',
+    'loginEmail',
+    'register',
+    'forgot',
+    'createCharacter',
+    'story',
+  ]);
+  /** Normalises the address bar with `replaceState` whenever the guard disagrees with what the URL
+   * literally says (section 4.1: "URL ... ถูกตั้งเป็น `#/` ด้วย `history.replaceState`" / A-E16's own
+   * "deep link อื่นทั้งหมดถูก replaceState ไปขั้นที่ยังไม่ผ่าน") — `replaceState` never fires
+   * `hashchange` itself, so this cannot recurse into `syncRouteScreens`. */
+  function computeShellRoute(): ShellRoute {
+    const requested = parseRoute(window.location.hash);
+    const playerView = selectPlayerView(engine.getState(), deps.now(), params);
+    const step = onboarding.currentStep(playerView);
+    const resolved = resolveRoute(requested, {
+      step,
+      shellReady: isShellReadyForStep(step),
+      runActive: engine.getState().run !== null,
+    });
+    if (resolved !== requested) {
+      const normalizedUrl =
+        window.location.pathname + window.location.search + ROUTE_HASH[resolved];
+      history.replaceState(null, '', normalizedUrl);
+    }
+    return ONBOARDING_FAMILY_ROUTES.has(resolved) ? 'main' : (resolved as ShellRoute);
   }
-  let currentRoute: RouteScreen = 'main';
   function syncRouteScreens(): void {
-    currentRoute = routeFromHash();
+    currentRoute = computeShellRoute();
     settingsMenu.hide();
     settingsWalkingSafety.hide();
     privacyScreen.hide();
     creditsScreen.hide();
     inventoryScreen.hide();
+    comingSoonScreen.hide();
     if (currentRoute === 'settingsMenu') {
       settingsMenu.show();
     } else if (currentRoute === 'settingsWalkingSafety') {
@@ -902,6 +1023,8 @@ export function createF04App(deps: F04AppDeps): F04App {
     } else if (currentRoute === 'inventory') {
       renderInventoryScreen();
       inventoryScreen.show();
+    } else if (currentRoute === 'upgrade' || currentRoute === 'shop' || currentRoute === 'party') {
+      comingSoonScreen.show(currentRoute);
     }
     render(engine.getState(), deps.now());
   }
@@ -1482,9 +1605,16 @@ export function createF04App(deps: F04AppDeps): F04App {
     // the bottom of this function (reached only once every screen/overlay/onboarding takeover
     // above has already said "not me") is the only place that shows it again.
     recoveringBanner.hide();
-    if (currentRoute !== 'main') {
-      // ia.md section 5 item 5: the gear icon (and this task's inventory shortcut) are reachable
-      // from every state, unconditionally — the route screen fully owns the display while open.
+    if (
+      currentRoute === 'settingsMenu' ||
+      currentRoute === 'settingsWalkingSafety' ||
+      currentRoute === 'settingsPrivacy' ||
+      currentRoute === 'settingsCredits'
+    ) {
+      // ia.md section 5 item 5: the gear icon (and the inventory shortcut) are reachable from every
+      // state, unconditionally — the route screen fully owns the display while open. Flow F10
+      // section 8's table: the bottom nav/Setting button never show on the settings family either
+      // (they are already in this screen, no shortcut back to themselves).
       speedLockOverlay.hide();
       runSummary.hide();
       runBar.hide();
@@ -1501,10 +1631,43 @@ export function createF04App(deps: F04AppDeps): F04App {
       storyScreen.hide();
       runTutorialLine.hide();
       // P2-F06-T14: the pocket screen's own dark overlay must never linger behind (or block
-      // pointer events for) a route screen (`#/settings`/`#/inventory`) that fully takes over the
-      // display the same way this whole guard already does for every other run-screen element.
+      // pointer events for) a route screen (`#/settings`) that fully takes over the display the
+      // same way this whole guard already does for every other run-screen element.
       pocketScreen.hideOverlay();
       pocketScreen.hideEnterButton();
+      bottomNav.hide();
+      settingButtonFloat.hide();
+      return;
+    }
+    if (
+      currentRoute === 'inventory' ||
+      currentRoute === 'upgrade' ||
+      currentRoute === 'shop' ||
+      currentRoute === 'party'
+    ) {
+      // Flow F10 section 8's table: `S-11-inventory` and the three "coming soon" screens are shell
+      // screens, not run/onboarding takeovers — the bottom nav/Setting button stay visible and
+      // active on this tab (components.md 16.1/16.2), unlike the settings family just above.
+      speedLockOverlay.hide();
+      runSummary.hide();
+      runBar.hide();
+      hpBar.root.hidden = true;
+      confirmPopup.hide();
+      navPanel.root.hidden = true;
+      homePanel.hide();
+      introScreen.hide();
+      loginScreen.hide();
+      ageGateScreen.hide();
+      consentLocationScreen.hide();
+      consentPermissionScreen.hide();
+      createCharacterScreen.hide();
+      storyScreen.hide();
+      runTutorialLine.hide();
+      pocketScreen.hideOverlay();
+      pocketScreen.hideEnterButton();
+      bottomNav.show();
+      bottomNav.setActive(currentRoute);
+      settingButtonFloat.show();
       return;
     }
     if (state.lastSummary !== null && exitAnimationInFlight) {
@@ -1524,6 +1687,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       createCharacterScreen.hide();
       storyScreen.hide();
       runTutorialLine.hide();
+      bottomNav.hide();
+      settingButtonFloat.hide();
       speedLockOverlay.show(state.run !== null);
       return;
     }
@@ -1550,6 +1715,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       runTutorialLine.hide();
       pocketScreen.hideOverlay();
       pocketScreen.hideEnterButton();
+      bottomNav.hide();
+      settingButtonFloat.hide();
       runSummary.show(state.lastSummary);
       return;
     }
@@ -1612,6 +1779,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         confirmPopup.hide();
         navPanel.root.hidden = true;
         homePanel.hide();
+        bottomNav.hide();
+        settingButtonFloat.hide();
         return;
       }
       introScreen.hide();
@@ -1635,6 +1804,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         confirmPopup.hide();
         navPanel.root.hidden = true;
         homePanel.hide();
+        bottomNav.hide();
+        settingButtonFloat.hide();
         return;
       }
       loginScreen.hide();
@@ -1652,6 +1823,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         confirmPopup.hide();
         navPanel.root.hidden = true;
         homePanel.hide();
+        bottomNav.hide();
+        settingButtonFloat.hide();
         return;
       }
       ageGateScreen.hide();
@@ -1668,6 +1841,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         confirmPopup.hide();
         navPanel.root.hidden = true;
         homePanel.hide();
+        bottomNav.hide();
+        settingButtonFloat.hide();
         return;
       }
       consentLocationScreen.hide();
@@ -1679,6 +1854,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         confirmPopup.hide();
         navPanel.root.hidden = true;
         homePanel.hide();
+        bottomNav.hide();
+        settingButtonFloat.hide();
         return;
       }
       consentPermissionScreen.hide();
@@ -1697,6 +1874,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         confirmPopup.hide();
         navPanel.root.hidden = true;
         homePanel.hide();
+        bottomNav.hide();
+        settingButtonFloat.hide();
         return;
       }
       createCharacterScreen.hide();
@@ -1715,6 +1894,8 @@ export function createF04App(deps: F04AppDeps): F04App {
         confirmPopup.hide();
         navPanel.root.hidden = true;
         homePanel.hide();
+        bottomNav.hide();
+        settingButtonFloat.hide();
         return;
       }
       storyScreen.hide();
@@ -1725,9 +1906,18 @@ export function createF04App(deps: F04AppDeps): F04App {
       confirmPopup.hide();
       navPanel.root.hidden = true;
       homePanel.hide();
+      bottomNav.hide();
+      settingButtonFloat.hide();
       recordEmptyScreenTransition(undefined, now_ms);
       return;
     }
+    // Flow F10 section 8's table: every "at home" screen from here on (the plain map, any of the
+    // far/out_of_area/unknown home-state panels, and the dungeon-confirm popup — which only visually
+    // scrims over this chrome via its own higher z-index, components.md 16.1/16.2's own "ถูก scrim
+    // ปิดทับ" row, never hides it outright) keeps the bottom nav/Setting button shown with Map active.
+    bottomNav.show();
+    bottomNav.setActive('map');
+    settingButtonFloat.show();
     const showingConfirm = renderConfirmIfNeeded(state, now_ms);
     if (showingConfirm) {
       navPanel.root.hidden = true;
@@ -1793,6 +1983,13 @@ export function createF04App(deps: F04AppDeps): F04App {
       // sample callback already queued when the player withdrew consent must be dropped here,
       // before it touches `lastPlayer`/the engine/the HUD — never stored, never dispatched.
       if (locationWithdrawn) return;
+      // P2-F10-T17: the logout sequence's own one-shot drop (see `dropNextQueuedSample`'s own doc
+      // comment above) — consumed here, exactly once, then cleared so every sample after this one
+      // flows through normally (unlike `locationWithdrawn` above, which never clears).
+      if (dropNextQueuedSample) {
+        dropNextQueuedSample = false;
+        return;
+      }
       lastPlayer = { lat, lng };
       lastAccuracy_m = accuracy_m;
       const wasLocked = engine.getState().lock.locked;
