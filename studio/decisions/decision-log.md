@@ -170,3 +170,4 @@ append-only · สถานะ: PROPOSED → ACCEPTED / REJECTED (โดย auth
 | D-160 | 2026-10-01 | P2-F10-T18 | ลำดับ zIndex: toast 30 < navScreen 35 < nav 38 < popupModal 40 (tier ใหม่เป็น token ชื่อ) | tech-lead | uiux-designer | ACCEPTED | P2-X61 |
 | D-161 | 2026-10-01 | P2-F10-T18 (N-01) | ผูก browser baseline (Chrome 87+, Safari 14.1+ ที่มี Intl.Segmenter) กับ Vite build.target / browserslist ให้ build ล้มถ้า target ต่ำกว่า | tech-lead | tech-lead | PROPOSED | — (ไม่บล็อก F10) |
 | D-162 | 2026-10-01 | P2-F10-T20 | จอ forgot password ในโหมดทดสอบใช้ปุ่ม "เข้าด้วยอีเมลนี้" แทน "ขอตั้งรหัสใหม่" (ไม่สัญญาสิ่งที่ไม่เกิด) · ลบ account.registerDone และ account.forgotResult | narrative-designer | narrative-designer | ACCEPTED | P2-X64 |
+| D-163 | 2026-10-01 | Q-F10-2 (visual gate F10 NEEDS_CHANGES ครั้งที่สอง) | คนเลือก (ก): แก้อีก 1 รอบสำหรับ V-F10-07 และ V-F10-09 แล้ว art-director ตรวจเฉพาะภาพ 07 และ 13–15 | HUMAN | HUMAN | ACCEPTED | P2-X69, P2-F10-T21 |

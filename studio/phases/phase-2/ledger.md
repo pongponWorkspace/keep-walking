@@ -295,3 +295,5 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 272 | F11 | P2-F10-T20 รอบ 2 | narrative-designer | 15:02:31 | 15:06:06 | PASS — F-01..F-06 + F-01b ปิด · N-01 (ป้ายการ์ด class ตัดบรรทัด) ยกไป backlog |
 | 273 | F11 | P2-F10-T21 รอบ 2 | art-director | 15:02:31 | 15:08:22 | NEEDS_CHANGES ครั้งที่ 2 — ปิด 8/10 · V-07, V-09 ค้าง · safety stop: ถามคน Q-F10-2 |
 | 274 | F11 | — | user | 15:08:22 | — | รอคำตอบ Q-F10-2 |
+| 275 | F12 | Q-F10-2 | user | — | 15:41:13 | คนตอบ (ก) fix อีก 1 รอบ (D-163) · X69 เริ่ม |
+| 276 | F12 | P2-X69 | gameplay-programmer | 15:41:13 | 15:49:35 | DONE — CSS 2 จุด · e2e 218/218 · T21 รอบ 3 เริ่ม |

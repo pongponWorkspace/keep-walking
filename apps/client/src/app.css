@@ -1078,11 +1078,22 @@ body {
   color: #1a1a22; /* ink.900 */
   font: inherit;
   font-size: 16px;
+  outline: none; /* V-F10-07 round 2: replaced by the focus-visible ring below, never the
+    browser's own blue ring — same rule `.login-email-input`/`.login-password-input` already follow */
+}
+
+.name-field-input:focus {
+  border-color: #1a1a22; /* ink.900, border colour itself never changes on focus */
+  box-shadow: 0 0 0 3px #ffcc00; /* accent.signal, same flat-ring language as the login inputs */
 }
 
 /* V-F10-07: the filter-rejected state is a border colour change on the field itself, not only the
-   text underneath it (components.md 16.4's own "ขอบช่องเปลี่ยนเป็น state.danger 2px"). */
-.name-field-input-error {
+   text underneath it (components.md 16.4's own "ขอบช่องเปลี่ยนเป็น state.danger 2px"). Repeated with
+   `:focus` at equal specificity to `.name-field-input:focus` and declared after it, so error always
+   wins the border colour even while the field is still focused — only the outer accent.signal ring
+   stays from the focus state (round 2, V-F10-07: "เห็นขอบแดงพร้อมวงแหวนเหลืองรอบนอก ไม่มีสีฟ้า"). */
+.name-field-input-error,
+.name-field-input-error:focus {
   border-color: #cc2222; /* state.danger */
 }
 
@@ -1928,10 +1939,14 @@ body {
   height: 100%;
 }
 
-/* V-F10-09: 24 px from the badge plate's own bottom edge, which sits 12 px below `.cs-plate-main`'s
-   own box (`.cs-plate-badge`'s `bottom: -12px`) — so 24 + 12 = 36 px measured from the main plate's
-   flow-bottom, where this margin actually starts. */
-.cs-title {
+/* V-F10-09 round 2: `#hud h1` (above, ID + element = higher specificity than a bare class) sets the
+   `margin` shorthand, which zeroes margin-top — a plain `.cs-title { margin-top: 36px }` here was
+   always losing to it regardless of source order, so round 1's fix never actually rendered. Selector
+   raised to `#hud h1.cs-title` (ID + class + element) to win outright. 24 px from the badge plate's
+   own bottom edge, which sits 12 px below `.cs-plate-main`'s own box (`.cs-plate-badge`'s
+   `bottom: -12px`) — so 24 + 12 = 36 px measured from the main plate's flow-bottom, where this
+   margin actually starts. */
+#hud h1.cs-title {
   margin-top: 36px;
 }
 

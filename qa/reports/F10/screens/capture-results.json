@@ -75,14 +75,14 @@
     "id": "07-create-character-name-invalid",
     "width": 360,
     "ok": true,
-    "bytes": 51763,
+    "bytes": 51865,
     "reachedVia": "typed \"a\" (tooShort)"
   },
   {
     "id": "07-create-character-name-invalid",
     "width": 390,
     "ok": true,
-    "bytes": 51064,
+    "bytes": 51150,
     "reachedVia": "typed \"a\" (tooShort)"
   },
   {
@@ -187,42 +187,42 @@
     "id": "13-coming-soon-upgrade",
     "width": 360,
     "ok": true,
-    "bytes": 20378,
+    "bytes": 20723,
     "reachedVia": "tapped the upgrade nav tab"
   },
   {
     "id": "13-coming-soon-upgrade",
     "width": 390,
     "ok": true,
-    "bytes": 21022,
+    "bytes": 21373,
     "reachedVia": "tapped the upgrade nav tab"
   },
   {
     "id": "14-coming-soon-shop",
     "width": 360,
     "ok": true,
-    "bytes": 20438,
+    "bytes": 20766,
     "reachedVia": "tapped the shop nav tab"
   },
   {
     "id": "14-coming-soon-shop",
     "width": 390,
     "ok": true,
-    "bytes": 21085,
+    "bytes": 21420,
     "reachedVia": "tapped the shop nav tab"
   },
   {
     "id": "15-coming-soon-party",
     "width": 360,
     "ok": true,
-    "bytes": 21930,
+    "bytes": 22337,
     "reachedVia": "tapped the party nav tab"
   },
   {
     "id": "15-coming-soon-party",
     "width": 390,
     "ok": true,
-    "bytes": 22615,
+    "bytes": 23033,
     "reachedVia": "tapped the party nav tab"
   },
   {
