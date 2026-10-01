@@ -7,12 +7,14 @@
  * (`f04-app.ts`) ever calls per flow section 8's table — there is no other state to update.
  */
 import { getCopyText } from '../copy/load';
-import type { IconGlyphRenderer } from '../assets/icon-glyph';
+import { setIconGlyphWhenReady } from '../assets/icon-glyph';
+import type { IconGlyphRenderer, ManifestReadySignal } from '../assets/icon-glyph';
 
 const TOKEN_INK_900 = '#1A1A22';
 
 export interface SettingButtonFloatDeps {
   readonly iconGlyph: IconGlyphRenderer;
+  readonly assets: ManifestReadySignal;
   readonly onClick: () => void;
 }
 
@@ -36,7 +38,8 @@ export function mountSettingButtonFloat(
   const icon = document.createElement('span');
   icon.className = 'setting-button-float-icon';
   root.append(icon);
-  void deps.iconGlyph.setIconGlyph(icon, 'icon.ui.settings', {
+  // V-F10-01: this mounts before `assets.load()` necessarily settles.
+  setIconGlyphWhenReady(deps.assets, deps.iconGlyph, icon, 'icon.ui.settings', {
     altText: '',
     colorCss: TOKEN_INK_900,
     onNightBackground: false,

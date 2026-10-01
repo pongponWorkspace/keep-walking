@@ -35,6 +35,7 @@ import { getCopyText } from '../copy/load';
 import { formatCopyText } from '../copy/format';
 import { setIconImg } from '../assets/icon-dom';
 import type { AssetRuntimeController } from '../assets/runtime';
+import { setIconGlyphWhenReady } from '../assets/icon-glyph';
 import type { IconGlyphRenderer } from '../assets/icon-glyph';
 
 // icon-tone.ts's own literal-token convention (design/ux/tokens.json): a literal hex value with a
@@ -188,12 +189,15 @@ export function mountCreateCharacterScreen(
   shuffleButton.setAttribute('aria-label', getCopyText('character.shuffleAria'));
   const shuffleIcon = document.createElement('span');
   shuffleButton.append(shuffleIcon);
-  void deps.iconGlyph?.setIconGlyph(shuffleIcon, 'icon.ui.shuffle', {
-    altText: '',
-    colorCss: TOKEN_INK_900,
-    onNightBackground: false,
-    nightPlateColorCss: '',
-  });
+  // V-F10-01: this mounts before `assets.load()` necessarily settles.
+  if (deps.iconGlyph !== undefined) {
+    setIconGlyphWhenReady(deps.assets, deps.iconGlyph, shuffleIcon, 'icon.ui.shuffle', {
+      altText: '',
+      colorCss: TOKEN_INK_900,
+      onNightBackground: false,
+      nightPlateColorCss: '',
+    });
+  }
   nameFieldRow.append(nameInput, shuffleButton);
 
   const nameError = document.createElement('p');
@@ -203,12 +207,14 @@ export function mountCreateCharacterScreen(
   warningBanner.className = 'banner info name-warning-banner';
   const warningIcon = document.createElement('span');
   warningBanner.append(warningIcon);
-  void deps.iconGlyph?.setIconGlyph(warningIcon, 'icon.ui.consent', {
-    altText: '',
-    colorCss: TOKEN_STATE_INFO,
-    onNightBackground: false,
-    nightPlateColorCss: '',
-  });
+  if (deps.iconGlyph !== undefined) {
+    setIconGlyphWhenReady(deps.assets, deps.iconGlyph, warningIcon, 'icon.ui.consent', {
+      altText: '',
+      colorCss: TOKEN_STATE_INFO,
+      onNightBackground: false,
+      nightPlateColorCss: '',
+    });
+  }
   const warningText = document.createElement('span');
   warningText.textContent = getCopyText('character.nameRealNameWarning');
   warningBanner.append(warningText);

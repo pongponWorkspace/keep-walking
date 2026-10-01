@@ -5,9 +5,14 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { URL, fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
-import { createIconGlyphRenderer } from './icon-glyph';
-import type { FetchTextLike, IconGlyphOptions } from './icon-glyph';
+import { describe, expect, it, vi } from 'vitest';
+import { createIconGlyphRenderer, setIconGlyphWhenReady } from './icon-glyph';
+import type {
+  FetchTextLike,
+  IconGlyphOptions,
+  IconGlyphRenderer,
+  ManifestReadySignal,
+} from './icon-glyph';
 import type { AssetRuntime } from './icon-dom';
 import type { RuntimeManifest } from './manifest';
 
@@ -414,6 +419,57 @@ describe('setIconGlyph, real manifest glyphs still render (F06-TG-08)', () => {
     // The allowlist must not remove any of the real, trusted shapes this first-party asset ships.
     expect(countDrawableElements(container)).toBe(
       countDrawableElements(new DOMParser().parseFromString(svgText, 'image/svg+xml')),
+    );
+  });
+});
+
+describe('setIconGlyphWhenReady (V-F10-01)', () => {
+  const OPTIONS_FOR_WHEN_READY: IconGlyphOptions = {
+    altText: '',
+    colorCss: 'currentColor',
+    onNightBackground: false,
+    nightPlateColorCss: '',
+  };
+
+  function fakeIconGlyph(): IconGlyphRenderer {
+    return { setIconGlyph: vi.fn(async () => undefined) };
+  }
+
+  it('renders once immediately when the manifest is already ready', () => {
+    const iconGlyph = fakeIconGlyph();
+    const assets: ManifestReadySignal = { onManifestReady: (cb) => cb() };
+    const container = document.createElement('span');
+
+    setIconGlyphWhenReady(assets, iconGlyph, container, 'icon.ui.map', OPTIONS_FOR_WHEN_READY);
+
+    expect(iconGlyph.setIconGlyph).toHaveBeenCalledTimes(2); // immediate call + the ready callback
+    expect(iconGlyph.setIconGlyph).toHaveBeenCalledWith(
+      container,
+      'icon.ui.map',
+      OPTIONS_FOR_WHEN_READY,
+    );
+  });
+
+  it('mounted before the manifest resolves still renders once the manifest becomes ready', () => {
+    const iconGlyph = fakeIconGlyph();
+    let readyCallback: (() => void) | undefined;
+    const assets: ManifestReadySignal = {
+      onManifestReady: (cb) => {
+        readyCallback = cb;
+      },
+    };
+    const container = document.createElement('span');
+
+    setIconGlyphWhenReady(assets, iconGlyph, container, 'icon.ui.map', OPTIONS_FOR_WHEN_READY);
+    expect(iconGlyph.setIconGlyph).toHaveBeenCalledTimes(1); // the immediate call, manifest not in yet
+
+    readyCallback?.();
+
+    expect(iconGlyph.setIconGlyph).toHaveBeenCalledTimes(2);
+    expect(iconGlyph.setIconGlyph).toHaveBeenLastCalledWith(
+      container,
+      'icon.ui.map',
+      OPTIONS_FOR_WHEN_READY,
     );
   });
 });

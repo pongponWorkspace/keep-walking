@@ -16,7 +16,8 @@
  */
 import { getCopyText } from '../copy/load';
 import { formatCopyText } from '../copy/format';
-import type { IconGlyphRenderer } from '../assets/icon-glyph';
+import { setIconGlyphWhenReady } from '../assets/icon-glyph';
+import type { IconGlyphRenderer, ManifestReadySignal } from '../assets/icon-glyph';
 
 /** Brand display names for the two SDK buttons (components.md 16.6: "ข้อความ ... จาก copy key
  * account.loginGoogleButton/loginAppleButton" with `{providerName}` from the SDK — Phase 2 has no
@@ -50,6 +51,10 @@ export interface LoginScreenDeps {
   /** `S-00-register`/`S-00-forgot` -> `S-00-login-email` (flow A4/A5's own "กลับ" link). */
   readonly onBackToLoginEmail: () => void;
   readonly iconGlyph?: IconGlyphRenderer;
+  /** Only read when `iconGlyph` is also present (V-F10-01): re-renders the provider buttons'
+   * `icon.ui.sign-in` glyph once the manifest is ready, since they mount before `assets.load()`
+   * necessarily settles. */
+  readonly assets?: ManifestReadySignal;
 }
 
 export interface LoginScreen {
@@ -77,6 +82,7 @@ function createProviderButton(
   copyKey: string,
   provider: 'google' | 'apple',
   iconGlyph: IconGlyphRenderer | undefined,
+  assets: ManifestReadySignal | undefined,
   onClick: () => void,
 ): HTMLButtonElement {
   const button = el('button', `btn btn-secondary login-provider-button ${className}`);
@@ -87,12 +93,15 @@ function createProviderButton(
   label.textContent = formatCopyText(copyKey, { providerName: PROVIDER_DISPLAY_NAME[provider] });
   button.append(label);
   button.addEventListener('click', onClick);
-  void iconGlyph?.setIconGlyph(icon, 'icon.ui.sign-in', {
-    altText: '',
-    colorCss: TOKEN_INK_900,
-    onNightBackground: false,
-    nightPlateColorCss: '',
-  });
+  // V-F10-01: this mounts before `assets.load()` necessarily settles.
+  if (iconGlyph !== undefined && assets !== undefined) {
+    setIconGlyphWhenReady(assets, iconGlyph, icon, 'icon.ui.sign-in', {
+      altText: '',
+      colorCss: TOKEN_INK_900,
+      onNightBackground: false,
+      nightPlateColorCss: '',
+    });
+  }
   return button;
 }
 
@@ -153,6 +162,7 @@ export function mountLoginScreen(container: HTMLElement, deps: LoginScreenDeps):
     'account.loginGoogleButton',
     'google',
     deps.iconGlyph,
+    deps.assets,
     deps.onChooseGoogle,
   );
   const appleButton = createProviderButton(
@@ -160,6 +170,7 @@ export function mountLoginScreen(container: HTMLElement, deps: LoginScreenDeps):
     'account.loginAppleButton',
     'apple',
     deps.iconGlyph,
+    deps.assets,
     deps.onChooseApple,
   );
   const emailLink = createLink('login-email-link', 'account.loginEmailLink', deps.onEmailLink);

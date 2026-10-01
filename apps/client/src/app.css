@@ -998,6 +998,20 @@ body {
   white-space: pre-line;
 }
 
+/* --- Create-character screen (F10-02, copy gate F-02) --------------------------------------------- */
+
+/* `character.nameRealNameWarning` and `character.unsupportedBrowser` both carry a real `\n`
+   (copy.th.json) — render it as an actual line break, same rule `.run-summary-body` above already
+   follows for `run.summary.clockInvalidBody`, instead of collapsing it like normal inline text
+   (F-02: collapsing it was cutting mid-word and once reversed the sentence's meaning). */
+.name-warning-banner {
+  white-space: pre-line;
+}
+
+.unsupported-browser-note {
+  white-space: pre-line;
+}
+
 /* --- Class-select sheet (components.md, onboarding) ---------------------------------------------- */
 
 .class-select-cards {
@@ -1537,10 +1551,15 @@ body {
   width: 48px;
   height: 32px;
   border-radius: 999px;
+  /* V-F10-02 (art/reviews/F10-visual-gate.md): the glyph's inline `<svg>` is sent `color:
+     currentColor` (`bottom-nav.ts`), so this is the one place its actual colour is decided — ink.900
+     off this pill, bg.paper once `.nav-tab-pill-active` below overrides it. */
+  color: #1a1a22; /* ink.900 */
 }
 
 .nav-tab-pill-active {
   background: #1a1a22; /* ink.900 */
+  color: #fff8ee; /* bg.paper */
 }
 
 .nav-tab-icon {
@@ -1618,6 +1637,19 @@ body {
   width: 48px;
   height: 48px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* V-F10-09: the source SVGs (`art/assets/icon/ui/*.svg`) all carry a hardcoded `width="24"
+   height="24"` attribute that survives `icon-glyph.ts`'s sanitizer (geometry attributes are on its
+   allowlist) and otherwise wins over this wrapper's own box size — forcing the glyph itself (inline
+   `<svg>` or the `<img>` fallback) to fill its wrapper is what actually makes it render at 48 px
+   here instead of its file's own 24 px. */
+.cs-plate-main-icon svg,
+.cs-plate-main-icon img {
+  width: 100%;
+  height: 100%;
 }
 
 .cs-plate-badge {
@@ -1638,14 +1670,45 @@ body {
   width: 32px;
   height: 32px;
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.cs-plate-badge-icon svg,
+.cs-plate-badge-icon img {
+  width: 100%;
+  height: 100%;
+}
+
+/* V-F10-09: 24 px from the badge plate's own bottom edge, which sits 12 px below `.cs-plate-main`'s
+   own box (`.cs-plate-badge`'s `bottom: -12px`) — so 24 + 12 = 36 px measured from the main plate's
+   flow-bottom, where this margin actually starts. */
 .cs-title {
-  margin-top: 24px;
+  margin-top: 36px;
 }
 
 .cs-body {
   margin: 0;
+}
+
+/* --- Story slide image (F10-shell-direction.md 8.1, V-F10-04) ------------------------------------- */
+
+.story-image {
+  display: block;
+  width: 100%;
+  /* Reserves the 4:3 box before the image loads (and even if it never does) — no separate
+     placeholder/spinner needed; the CSS box alone is what V-F10-04 means by "จองพื้นที่". */
+  aspect-ratio: 4 / 3;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px;
+  background: #fff8ee; /* bg.paper */
+  object-fit: contain;
+}
+
+.story-body {
+  /* `story.slide*.body*` carries a real `\n` (copy.th.json) — same `pre-line` rule
+     `.run-summary-body`/`.name-warning-banner` above already use (F-02). */
+  white-space: pre-line;
 }
 
 /* --- Story slide pager (components.md 16.5, F10-shell-direction.md 8.6, P2-X63) ------------------

@@ -456,6 +456,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       window.location.hash = ROUTE_HASH.loginEmail;
     },
     iconGlyph,
+    assets: deps.assets,
   });
   const ageGateScreen = mountAgeGateScreen(deps.hudContainer, {
     minAge_yr: balancePrivacyConfig.minAge_yr,
@@ -829,6 +830,7 @@ export function createF04App(deps: F04AppDeps): F04App {
       window.location.hash = '';
     },
     iconGlyph,
+    assets: deps.assets,
     onClose: closeRouteScreen,
   });
   const privacyScreen = mountPrivacyScreen(deps.hudContainer, {
@@ -898,9 +900,13 @@ export function createF04App(deps: F04AppDeps): F04App {
   // for both is driven entirely from `render()` below (flow section 8's own table), never from
   // `syncRouteScreens` directly (that function only owns the route-screen *content*, same split
   // `settingsMenu`/`inventoryScreen` already follow).
-  const comingSoonScreen = mountComingSoonScreen(deps.hudContainer, { iconGlyph });
+  const comingSoonScreen = mountComingSoonScreen(deps.hudContainer, {
+    iconGlyph,
+    assets: deps.assets,
+  });
   const bottomNav = mountBottomNav(deps.hudContainer, {
     iconGlyph,
+    assets: deps.assets,
     onSelect: (tab) => {
       // Flow E3: tapping the tab that is already active (including Map while already at home) has
       // no effect at all — no navigation, no telemetry (tech note product/telemetry-events.md's own
@@ -919,6 +925,7 @@ export function createF04App(deps: F04AppDeps): F04App {
   });
   const settingButtonFloat = mountSettingButtonFloat(deps.hudContainer, {
     iconGlyph,
+    assets: deps.assets,
     onClick: () => {
       window.location.hash = '#/settings';
     },

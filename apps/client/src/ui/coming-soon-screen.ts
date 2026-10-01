@@ -11,7 +11,8 @@
  * or system-explaining image ever appears here (icon-grammar 7.4's own "ไม่มีภาพเพิ่มที่อธิบายระบบ").
  */
 import { getCopyText } from '../copy/load';
-import type { IconGlyphRenderer } from '../assets/icon-glyph';
+import { setIconGlyphWhenReady } from '../assets/icon-glyph';
+import type { IconGlyphRenderer, ManifestReadySignal } from '../assets/icon-glyph';
 
 export type ComingSoonTab = 'upgrade' | 'shop' | 'party';
 
@@ -36,6 +37,7 @@ const TOKEN_INK_900 = '#1A1A22';
 
 export interface ComingSoonScreenDeps {
   readonly iconGlyph: IconGlyphRenderer;
+  readonly assets: ManifestReadySignal;
 }
 
 export interface ComingSoonScreen {
@@ -62,7 +64,10 @@ export function mountComingSoonScreen(
   badgeIcon.className = 'cs-plate-badge-icon';
   plateBadge.append(badgeIcon);
   plateMain.append(mainIcon, plateBadge);
-  void deps.iconGlyph.setIconGlyph(badgeIcon, 'icon.ui.coming-soon', {
+  // V-F10-01: this mounts before `assets.load()` necessarily settles (the main plate's own glyph is
+  // set from `show()` instead, which already runs after the manifest is in by the time a tab is
+  // tapped — only this badge, set at mount, needed the retry).
+  setIconGlyphWhenReady(deps.assets, deps.iconGlyph, badgeIcon, 'icon.ui.coming-soon', {
     altText: '',
     colorCss: TOKEN_INK_900,
     onNightBackground: false,

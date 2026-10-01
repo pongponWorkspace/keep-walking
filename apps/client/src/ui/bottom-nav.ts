@@ -13,7 +13,8 @@
  * effect when already on this tab" rule (flow E3) — this module only reports which tab was tapped.
  */
 import { getCopyText } from '../copy/load';
-import type { IconGlyphRenderer } from '../assets/icon-glyph';
+import { setIconGlyphWhenReady } from '../assets/icon-glyph';
+import type { IconGlyphRenderer, ManifestReadySignal } from '../assets/icon-glyph';
 
 export type NavTab = 'inventory' | 'upgrade' | 'map' | 'shop' | 'party';
 
@@ -30,11 +31,9 @@ const TABS: readonly {
   { tab: 'party', iconId: 'icon.ui.party', labelKey: 'nav.party' },
 ];
 
-// icon-tone.ts's own literal token convention (design/ux/tokens.json, comment-named).
-const TOKEN_INK_900 = '#1A1A22';
-
 export interface BottomNavDeps {
   readonly iconGlyph: IconGlyphRenderer;
+  readonly assets: ManifestReadySignal;
   readonly onSelect: (tab: NavTab) => void;
 }
 
@@ -76,9 +75,11 @@ export function mountBottomNav(container: HTMLElement, deps: BottomNavDeps): Bot
     link.append(pill, label);
     root.append(link);
     pills.set(tab, pill);
-    void deps.iconGlyph.setIconGlyph(icon, iconId, {
+    // V-F10-01: nav icons mount before `assets.load()` necessarily settles; V-F10-02: `currentColor`
+    // (not a literal ink.900) so CSS alone can flip the active tab's glyph to `bg.paper` (below).
+    setIconGlyphWhenReady(deps.assets, deps.iconGlyph, icon, iconId, {
       altText: '',
-      colorCss: TOKEN_INK_900,
+      colorCss: 'currentColor',
       onNightBackground: false,
       nightPlateColorCss: '',
     });

@@ -37,7 +37,8 @@
  * `settings.logoutConfirmRunNote` line shows (flow F2's own "ถ้ามี run อยู่ เติมบรรทัดเพิ่ม").
  */
 import { getCopyText } from '../copy/load';
-import type { IconGlyphRenderer } from '../assets/icon-glyph';
+import { setIconGlyphWhenReady } from '../assets/icon-glyph';
+import type { IconGlyphRenderer, ManifestReadySignal } from '../assets/icon-glyph';
 
 export interface SettingsMenuDeps {
   /** `selectCanClearLocalData(state)` (`@keep-walking/shared/session`) — read fresh on every
@@ -62,6 +63,9 @@ export interface SettingsMenuDeps {
   /** Optional the same way every other screen's `iconGlyph` dep already is (`ui/login-screen.ts`,
    * `ui/nav-panel.ts`) — `undefined` only in a test double that does not care about the glyph. */
   readonly iconGlyph?: IconGlyphRenderer;
+  /** Only read when `iconGlyph` is also present (V-F10-01): re-renders the logout row's glyph once
+   * the manifest is ready, since it mounts before `assets.load()` necessarily settles. */
+  readonly assets?: ManifestReadySignal;
 }
 
 export interface SettingsMenuScreen {
@@ -164,12 +168,14 @@ export function mountSettingsMenu(
   const logoutLabel = document.createElement('span');
   logoutLabel.textContent = getCopyText('settings.logoutLink');
   logoutRow.append(logoutIcon, logoutLabel);
-  void deps.iconGlyph?.setIconGlyph(logoutIcon, 'icon.ui.logout', {
-    altText: '',
-    colorCss: '#1A1A22' /* ink.900 — never state.danger, F10-R40 */,
-    onNightBackground: false,
-    nightPlateColorCss: '',
-  });
+  if (deps.iconGlyph !== undefined && deps.assets !== undefined) {
+    setIconGlyphWhenReady(deps.assets, deps.iconGlyph, logoutIcon, 'icon.ui.logout', {
+      altText: '',
+      colorCss: '#1A1A22' /* ink.900 — never state.danger, F10-R40 */,
+      onNightBackground: false,
+      nightPlateColorCss: '',
+    });
+  }
 
   const logoutConfirmOverlay = el('div', 'popup-overlay');
   logoutConfirmOverlay.hidden = true;

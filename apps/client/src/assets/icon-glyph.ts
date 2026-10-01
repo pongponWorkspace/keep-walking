@@ -268,6 +268,39 @@ export interface IconGlyphRenderer {
   ): Promise<void>;
 }
 
+/** The one method this file needs from `AssetRuntimeController` (`assets/runtime.ts`) — named here
+ * rather than imported from there to avoid a dependency this module otherwise has no use for; the
+ * real controller and any test double both satisfy it structurally. */
+export interface ManifestReadySignal {
+  onManifestReady(cb: () => void): void;
+}
+
+/**
+ * `setIconGlyph` once immediately, then once more when `assets`'s manifest finishes loading
+ * (V-F10-01, art/reviews/F10-visual-gate.md): every call site that renders a glyph at *mount*
+ * time — before `main.ts`'s fire-and-forget `assets.load()` has necessarily settled — would
+ * otherwise read `getManifest() === undefined`, fall to `setIconGlyph`'s own `<img>`/no-url
+ * fallback, and never try again for the rest of the session (the same gap
+ * `AssetRuntimeController#onManifestReady`'s own doc comment already names for `setIconImg`,
+ * which `story-screen.ts`'s `onManifestReady` call already closes for its own image). The
+ * immediate call covers the case the manifest is already loaded, so nothing ever flashes empty
+ * only to be replaced a tick later. Safe to call more than once per container/id: `onManifestReady`
+ * itself runs its callback at most once, and `setIconGlyph` fully replaces its container's children
+ * on every call (idempotent-safe to re-render the same id twice).
+ */
+export function setIconGlyphWhenReady(
+  assets: ManifestReadySignal,
+  iconGlyph: IconGlyphRenderer,
+  container: HTMLElement,
+  id: string | undefined,
+  options: IconGlyphOptions,
+): void {
+  void iconGlyph.setIconGlyph(container, id, options);
+  assets.onManifestReady(() => {
+    void iconGlyph.setIconGlyph(container, id, options);
+  });
+}
+
 /**
  * `deps.fetchText` runs at most once per id for the life of this renderer (one instance per
  * session, same lifetime as the `AssetRuntime` it wraps) — concurrent calls for the same id before
