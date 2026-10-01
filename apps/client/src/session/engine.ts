@@ -38,7 +38,11 @@ export const SESSION_STORAGE_KEY = 'kw.p2.session';
 export interface SessionEngineDeps {
   readonly storage: KeyValueStorage;
   readonly quotaDeps: QuotaFallbackDeps;
-  readonly record: (eventName: string, properties?: Record<string, unknown>) => void;
+  /** `atMs` (BUG-P2-006): when a caller passes it through to `telemetry/sink.ts#record`'s own
+   * `atMsOverride`, it wins over a fresh `Date.now()` read — used below so `run_tick_granted` and
+   * its paired `onboarding_first_reward_granted` (F06-TG-02, "a second, independent record at the
+   * exact same `at_ms`") land on the identical `client_ts_ms`, not two clock reads a tick apart. */
+  readonly record: (eventName: string, properties?: Record<string, unknown>, atMs?: number) => void;
   readonly storageKey?: string;
   /** e2e-only test hook (`clock/query-params.ts`'s `parseE2eClassIdParam`, P2-F05-T10): dispatched
    * as a real `chooseClass` input once at boot, only when the loaded player has no class yet —
@@ -109,10 +113,12 @@ export function createSessionEngine(
         event.type === 'dungeon_exited' ? deps.getRunClientStats?.() : undefined;
       const mapped = mapSessionEvent(event, next.player.classId, atRunDungeonId, runClientStats);
       if (mapped !== undefined) {
-        deps.record(mapped.name, mapped.properties as Record<string, unknown>);
+        deps.record(mapped.name, mapped.properties as Record<string, unknown>, event.at_ms);
       }
       // F06-TG-02 (product/telemetry-events.md, tech note F06 10.1): a second, independent record
       // at the exact same `at_ms` — never a replacement for the `run_tick_granted` mapping above.
+      // BUG-P2-006: both calls pass `event.at_ms` as the `atMsOverride`, so they land on the same
+      // `client_ts_ms` rather than each triggering its own `Date.now()` read a moment apart.
       if (
         event.type === 'run_tick_granted' &&
         event.firstEver &&
@@ -124,7 +130,11 @@ export function createSessionEngine(
           event.at_ms - firstOpenAt_ms,
           next.player.classId,
         );
-        deps.record(firstReward.name, firstReward.properties as Record<string, unknown>);
+        deps.record(
+          firstReward.name,
+          firstReward.properties as Record<string, unknown>,
+          event.at_ms,
+        );
       }
     }
     saveSession(deps.storage, key, next, now_ms, deps.quotaDeps);

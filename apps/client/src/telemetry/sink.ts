@@ -45,8 +45,15 @@ export interface TelemetrySinkDeps {
 export interface TelemetrySink {
   /** Records one event. A name outside `knownEventNames` is dropped with a dev console warning,
    * never stored (D-088). Every property still goes through the C2-3 guard even for a known name,
-   * so a bug in the caller cannot leak a coordinate through an otherwise-legitimate event. */
-  record(eventName: string, properties?: TelemetryProperties): void;
+   * so a bug in the caller cannot leak a coordinate through an otherwise-legitimate event.
+   *
+   * `atMsOverride` (BUG-P2-006): when given, this is used as `client_ts_ms` instead of calling
+   * `deps.now()`. Two independent `deps.now()` reads, even with zero `await` between them, can
+   * straddle a millisecond-clock tick (observed ~1 run in 5 locally) -- every caller that must emit
+   * a pair of events at the identical instant (`product/telemetry-events.md`'s "คู่กันเวลาเดียวกัน
+   * เสมอ") captures a single timestamp once and passes it to both `record()` calls instead of
+   * letting each call read the clock on its own. */
+  record(eventName: string, properties?: TelemetryProperties, atMsOverride?: number): void;
   /** Read-only snapshot, oldest first. */
   snapshot(): readonly TelemetryRecord[];
   /** Total properties dropped by the C2-3 guard since creation (for a HUD counter/test, never
@@ -87,7 +94,7 @@ export function createTelemetrySink(deps: TelemetrySinkDeps): TelemetrySink {
   }
 
   return {
-    record(eventName, properties = {}) {
+    record(eventName, properties = {}, atMsOverride) {
       if (!deps.knownEventNames.has(eventName)) {
         console.warn(`telemetry: unknown event name "${eventName}"; dropped`);
         return;
@@ -100,7 +107,7 @@ export function createTelemetrySink(deps: TelemetrySinkDeps): TelemetrySink {
       redactedCount += sanitized.redactedKeys.length;
       records.push({
         event_name: eventName,
-        client_ts_ms: deps.now(),
+        client_ts_ms: atMsOverride ?? deps.now(),
         session_id: deps.sessionId,
         platform: deps.platform,
         app_version: deps.appVersion,

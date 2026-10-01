@@ -93,6 +93,29 @@ describe('createTelemetrySink', () => {
     expect(isTelemetryRecordArray([{ event_name: 'x' }])).toBe(false);
   });
 
+  it(
+    'BUG-P2-006: an atMsOverride wins over now(), so a clock advancing on every call still ' +
+      'stamps two paired record() calls with the identical client_ts_ms',
+    () => {
+      // `makeDeps()`'s own `now` advances by 1 on every call (the exact shape that produced the
+      // flake: two independent `deps.now()` reads straddling a millisecond-clock tick) -- passing the
+      // same captured timestamp to both calls must still land both records on one instant.
+      const sink = createTelemetrySink(makeDeps());
+      const pairedAtMs = 5_000;
+      sink.record('dungeon_entered', { dungeon_id: 'pn-1' }, pairedAtMs);
+      sink.record('dungeon_exited', { dungeon_id: 'pn-1' }, pairedAtMs);
+      const [first, second] = sink.snapshot();
+      expect(first?.client_ts_ms).toBe(pairedAtMs);
+      expect(second?.client_ts_ms).toBe(pairedAtMs);
+    },
+  );
+
+  it('with no atMsOverride, falls back to now() as before (unchanged default behaviour)', () => {
+    const sink = createTelemetrySink(makeDeps());
+    sink.record('dungeon_entered', { dungeon_id: 'pn-1' });
+    expect(sink.snapshot()[0]?.client_ts_ms).toBe(1001);
+  });
+
   it('clear() empties the buffer', () => {
     const sink = createTelemetrySink(makeDeps());
     sink.record('dungeon_entered', {});

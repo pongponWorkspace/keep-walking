@@ -325,8 +325,12 @@ export function createF04App(deps: F04AppDeps): F04App {
         trimTelemetryHalf: () => telemetry.trimHalf(),
         clearTelemetryAll: () => telemetry.clear(),
       },
-      record: (name, properties) => {
-        telemetry.record(name, properties as Record<string, string | number | boolean | null>);
+      record: (name, properties, atMs) => {
+        telemetry.record(
+          name,
+          properties as Record<string, string | number | boolean | null>,
+          atMs,
+        );
         persistTelemetry();
       },
       // P2-F06-T14 (tech note F06 10.2 Q-T17-3): a live peek at this run's Wake Lock/page-hidden
@@ -396,8 +400,8 @@ export function createF04App(deps: F04AppDeps): F04App {
       clearTelemetryAll: () => telemetry.clear(),
     },
     now: deps.now,
-    record: (name, properties) => {
-      telemetry.record(name, properties);
+    record: (name, properties, atMs) => {
+      telemetry.record(name, properties, atMs);
       persistTelemetry();
     },
     minAge_yr: balancePrivacyConfig.minAge_yr,
@@ -820,8 +824,12 @@ export function createF04App(deps: F04AppDeps): F04App {
           dropNextQueuedSample = true;
         },
         signOut: () => onboarding.logout(),
-        record: (name, properties) => {
-          telemetry.record(name, properties as Record<string, string | number | boolean | null>);
+        record: (name, properties, atMs) => {
+          telemetry.record(
+            name,
+            properties as Record<string, string | number | boolean | null>,
+            atMs,
+          );
           persistTelemetry();
         },
         now: deps.now,
@@ -855,8 +863,12 @@ export function createF04App(deps: F04AppDeps): F04App {
         setLocationWithdrawn: () => {
           locationWithdrawn = true;
         },
-        record: (name, properties) => {
-          telemetry.record(name, properties as Record<string, string | number | boolean | null>);
+        record: (name, properties, atMs) => {
+          telemetry.record(
+            name,
+            properties as Record<string, string | number | boolean | null>,
+            atMs,
+          );
           persistTelemetry();
         },
         now: deps.now,
@@ -916,11 +928,14 @@ export function createF04App(deps: F04AppDeps): F04App {
       // "ยิงเมื่อ ... สำเร็จ (เปลี่ยนจอจริงหรือเปิดจอเร็วๆ นี้)").
       const activeTab: NavTab = currentRoute === 'main' ? 'map' : (currentRoute as NavTab);
       if (tab === activeTab) return;
-      telemetry.record('nav_tab_opened', { tab });
-      // Paired at the same `at_ms` as required (product/telemetry-events.md's own "คู่กัน...เวลา
-      // เดียวกันเสมอ") — both calls happen synchronously in this same handler, no `await` between.
+      // BUG-P2-006: captured once and passed as both calls' `atMsOverride` instead of letting each
+      // `telemetry.record()` read `deps.now()` on its own — two independent reads, even with zero
+      // `await` between them, can straddle a millisecond-clock tick (observed ~1 run in 5 locally),
+      // which `product/telemetry-events.md`'s "คู่กัน...เวลาเดียวกันเสมอ" promise does not allow.
+      const navAtMs = deps.now();
+      telemetry.record('nav_tab_opened', { tab }, navAtMs);
       if (tab === 'upgrade' || tab === 'shop' || tab === 'party') {
-        telemetry.record('coming_soon_viewed', { tab });
+        telemetry.record('coming_soon_viewed', { tab }, navAtMs);
       }
       persistTelemetry();
       window.location.hash = tab === 'map' ? '' : ROUTE_HASH[tab];

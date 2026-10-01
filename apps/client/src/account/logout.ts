@@ -40,21 +40,31 @@ export interface LogoutDeps {
   /** `OnboardingFlow#logout()` — writes `kw.p2.account.state.signedIn = false` and refreshes the
    * flow's own in-memory copy (this module never touches `kw.p2.account` directly). */
   readonly signOut: () => void;
-  readonly record: (name: string, properties: Readonly<Record<string, unknown>>) => void;
+  readonly record: (
+    name: string,
+    properties: Readonly<Record<string, unknown>>,
+    atMs?: number,
+  ) => void;
   readonly now: () => number;
 }
 
 /** Runs the full sequence once. Returns whether a run was active (the same value the telemetry
  * event's own `during_run` property carries), for a caller that wants to branch its own post-call
- * UI without re-deriving it (`withdrawConsent`'s own return-value convention). */
+ * UI without re-deriving it (`withdrawConsent`'s own return-value convention).
+ *
+ * BUG-P2-006: `atMs` is read exactly once and reused for both `exitRun` (so the paired
+ * `dungeon_exited{exit_reason: manual_exit}` carries it as its `at_ms`) and `record('account_logout'
+ * , ...)` below — `product/telemetry-events.md`'s "เวลาเดียวกันเสมอ" promise between the two needs a
+ * single captured instant, not two independent clock reads a moment apart. */
 export function logout(deps: LogoutDeps): boolean {
+  const atMs = deps.now();
   const duringRun = deps.hasActiveRun();
   if (duringRun) {
     deps.dropQueuedSamples();
-    deps.exitRun(deps.now());
+    deps.exitRun(atMs);
     deps.stopLocationProvider();
   }
   deps.signOut();
-  deps.record('account_logout', { during_run: duringRun });
+  deps.record('account_logout', { during_run: duringRun }, atMs);
   return duringRun;
 }

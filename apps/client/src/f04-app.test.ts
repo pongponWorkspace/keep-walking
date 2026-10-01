@@ -11,7 +11,7 @@ describe('createF04App', () => {
   if (dungeon === undefined) throw new Error('fixture: artifact has no dungeons');
   const [lng, lat] = dungeon.geometry.coordinates[0]?.[0] as unknown as readonly [number, number];
 
-  function makeAppIn(container: HTMLElement) {
+  function makeAppIn(container: HTMLElement, now: () => number = () => Date.now()) {
     return createF04App({
       map: undefined,
       hudContainer: container,
@@ -38,7 +38,7 @@ describe('createF04App', () => {
       },
       copyToClipboard: async () => true,
       playAudioUrl: () => undefined,
-      now: () => Date.now(),
+      now,
       // D-130: this file's own tests predate onboarding (P2-F06-T10) and exercise the confirm/run/
       // telemetry loop directly, the same way the pre-existing e2e specs do — `e2eSkipOnboarding`
       // (Mock-only) keeps every one of them booting straight past the intro/create-character/story
@@ -121,6 +121,37 @@ describe('createF04App', () => {
     for (const record of app.telemetry.snapshot()) {
       expect(JSON.stringify(record.properties)).not.toMatch(/1[0-9]\.\d{4,}/);
     }
+  });
+
+  // BUG-P2-006 (qa/bugs.md): `nav_tab_opened`/`coming_soon_viewed` must land on the identical
+  // `client_ts_ms` (product/telemetry-events.md "คู่กันเวลาเดียวกันเสมอ") even when the clock
+  // advances on every single read — the exact shape of the original flake (two independent
+  // `deps.now()` calls straddling a millisecond-clock tick), reproduced deterministically here with
+  // a `now` that always returns a new value.
+  describe('BUG-P2-006 — nav_tab_opened/coming_soon_viewed share one client_ts_ms', () => {
+    it('pairs at the same instant even with a clock that advances on every now() call', () => {
+      const container = document.createElement('div');
+      document.body.append(container);
+      let t = 1_000;
+      const app = makeAppIn(container, () => {
+        t += 1;
+        return t;
+      });
+      (container.querySelector('.nav-tab[data-tab="upgrade"]') as HTMLAnchorElement).click();
+      const navRecord = app.telemetry
+        .snapshot()
+        .find((r) => r.event_name === 'nav_tab_opened' && r.properties['tab'] === 'upgrade');
+      const comingSoonRecord = app.telemetry
+        .snapshot()
+        .find((r) => r.event_name === 'coming_soon_viewed' && r.properties['tab'] === 'upgrade');
+      expect(navRecord).toBeDefined();
+      expect(comingSoonRecord).toBeDefined();
+      expect(navRecord?.client_ts_ms).toBe(comingSoonRecord?.client_ts_ms);
+      // `window.location` is shared across every test in this file (happy-dom keeps one `window`
+      // per file) — reset the hash this click just set so the next test's own `makeAppIn` boots
+      // with `currentRoute === 'main'` again, same as every test before this one already assumed.
+      window.location.hash = '';
+    });
   });
 
   // BUG-P2-003 (qa/bugs.md): walking into a closed dungeon's polygon must show the B4 closed

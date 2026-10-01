@@ -90,9 +90,16 @@ export interface OnboardingFlowDeps {
   readonly storage: KeyValueStorage;
   readonly quotaDeps: QuotaFallbackDeps;
   readonly now: () => number;
+  /** `atMs` (BUG-P2-006): forwarded as `telemetry/sink.ts#record`'s own `atMsOverride` — every
+   * method below that fires a direct event paired with an `onboarding_funnel_step` at "the same
+   * instant" (product/telemetry-events.md section 2 note 4: "เวลาเดียวกันเสมอ") captures `deps.now()`
+   * exactly once and passes it to both calls, instead of letting each one read the clock on its own
+   * (two independent reads, even with zero `await` between them, can straddle a millisecond-clock
+   * tick). */
   readonly record: (
     name: string,
     properties: Readonly<Record<string, string | number | boolean | null>>,
+    atMs?: number,
   ) => void;
   /** `config/balance/privacy.json#minAge_yr`/`#minAgeComparison` (`config/balance.ts#
    * balancePrivacyConfig`) — `confirmAge()`'s own gate, never a second hardcoded copy. */
@@ -178,13 +185,25 @@ export class OnboardingFlow {
     );
   }
 
-  private recordFunnel(step: string, classSelected: PlayerClass | null = null): void {
-    const elapsedMin = (this.deps.now() - this.storageState.firstOpenAt_ms) / MS_PER_MIN;
-    this.deps.record('onboarding_funnel_step', {
-      step,
-      funnel_bucket: funnelBucket(elapsedMin),
-      class_selected: classSelected,
-    });
+  /** `atMsOverride` (BUG-P2-006): when a caller already captured `deps.now()` for a paired direct
+   * event (e.g. `character_created`), it passes that same instant here instead of letting this
+   * method read the clock again. */
+  private recordFunnel(
+    step: string,
+    classSelected: PlayerClass | null = null,
+    atMsOverride?: number,
+  ): void {
+    const atMs = atMsOverride ?? this.deps.now();
+    const elapsedMin = (atMs - this.storageState.firstOpenAt_ms) / MS_PER_MIN;
+    this.deps.record(
+      'onboarding_funnel_step',
+      {
+        step,
+        funnel_bucket: funnelBucket(elapsedMin),
+        class_selected: classSelected,
+      },
+      atMs,
+    );
   }
 
   /** `apps/client/src/onboarding/onboarding-step.ts#currentOnboardingStep`, fed with real storage
@@ -242,8 +261,10 @@ export class OnboardingFlow {
     this.loginFunnelFired = true;
     const context: 'first_time' | 'relogin' =
       this.accountState !== null && !this.accountState.signedIn ? 'relogin' : 'first_time';
-    this.deps.record('account_login_shown', { context });
-    this.recordFunnel('login_shown');
+    // BUG-P2-006: captured once, passed to both — see `recordFunnel`'s own doc comment.
+    const atMs = this.deps.now();
+    this.deps.record('account_login_shown', { context }, atMs);
+    this.recordFunnel('login_shown', null, atMs);
   }
 
   /** Every confirm button across `S-00-login`/`-login-email`/`-register`/`-forgot` (tech note
@@ -265,12 +286,14 @@ export class OnboardingFlow {
    * holding it in `pendingProvider` instead would leave a logout/relogin e2e spec stuck on `login`
    * forever, since the short-circuit never consults `pendingProvider` at all. */
   chooseLoginMethod(method: LoginMethod): void {
-    this.deps.record('account_login_method_chosen', { method });
-    this.recordFunnel('login_method_chosen');
+    // BUG-P2-006: captured once, passed to both — see `recordFunnel`'s own doc comment.
+    const atMs = this.deps.now();
+    this.deps.record('account_login_method_chosen', { method }, atMs);
+    this.recordFunnel('login_method_chosen', null, atMs);
     const provider = providerForMethod(method);
     if (this.storageState.ageGatePassed || this.deps.e2eSkipOnboarding) {
       this.accountState = { provider, signedIn: true };
-      saveAccount(this.deps.storage, this.accountState, this.deps.now(), this.deps.quotaDeps);
+      saveAccount(this.deps.storage, this.accountState, atMs, this.deps.quotaDeps);
       this.pendingProvider = null;
     } else {
       this.pendingProvider = provider;
@@ -446,17 +469,24 @@ export class OnboardingFlow {
     readonly nameSource: 'typed' | 'random';
     readonly filterRejectCount: number;
   }): void {
+    // BUG-P2-006: captured once, passed to both `character_created` and the paired funnel step —
+    // see `recordFunnel`'s own doc comment.
+    const atMs = this.deps.now();
     this.characterState = { name: params.name, storyDone: false };
-    saveCharacter(this.deps.storage, this.characterState, this.deps.now(), this.deps.quotaDeps);
-    this.deps.record('character_created', {
-      class_id: params.classId,
-      name_source: params.nameSource,
-      filter_reject_count: filterRejectCountBucket(
-        params.filterRejectCount,
-        this.deps.filterRejectCountBuckets,
-      ),
-    });
-    this.recordFunnel('character_create_done');
+    saveCharacter(this.deps.storage, this.characterState, atMs, this.deps.quotaDeps);
+    this.deps.record(
+      'character_created',
+      {
+        class_id: params.classId,
+        name_source: params.nameSource,
+        filter_reject_count: filterRejectCountBucket(
+          params.filterRejectCount,
+          this.deps.filterRejectCountBuckets,
+        ),
+      },
+      atMs,
+    );
+    this.recordFunnel('character_create_done', null, atMs);
   }
 
   /** Call once, the first frame slide 1 of the story screen (`S-00-story-1`) is shown. */
@@ -469,8 +499,8 @@ export class OnboardingFlow {
   /** Shared by `completeStory`/`skipStory` below (A8, R27: "จบหรือข้ามนับว่าผ่านขั้น 7 เท่ากัน") —
    * `markStoryDone` is a no-op once `storyDone` is already `true`, so a double-tap (or a stray
    * second call) never re-writes the key. */
-  private finishStory(): void {
-    markStoryDone(this.deps.storage, this.deps.now(), this.deps.quotaDeps);
+  private finishStory(atMs: number): void {
+    markStoryDone(this.deps.storage, atMs, this.deps.quotaDeps);
     this.characterState = loadCharacter(this.deps.storage);
   }
 
@@ -478,16 +508,22 @@ export class OnboardingFlow {
    * slides shown this visit (tech note F10 section 8: "จำนวน slide ต่างกันที่เห็นในรอบนี้") — this
    * module tracks no slide-pager state of its own. */
   completeStory(slidesViewedCount: number): void {
-    this.finishStory();
-    this.deps.record('story_completed', { slides_viewed_count: slidesViewedCount });
-    this.recordFunnel('story_done');
+    // BUG-P2-006: captured once, passed to both `story_completed` and the paired funnel step — see
+    // `recordFunnel`'s own doc comment.
+    const atMs = this.deps.now();
+    this.finishStory(atMs);
+    this.deps.record('story_completed', { slides_viewed_count: slidesViewedCount }, atMs);
+    this.recordFunnel('story_done', null, atMs);
   }
 
   /** The "ข้าม" link on slides 1-4 (R27). */
   skipStory(slideIndexAtSkip: number): void {
-    this.finishStory();
-    this.deps.record('story_skipped', { slide_index_at_skip: slideIndexAtSkip });
-    this.recordFunnel('story_done');
+    // BUG-P2-006: captured once, passed to both `story_skipped` and the paired funnel step — see
+    // `recordFunnel`'s own doc comment.
+    const atMs = this.deps.now();
+    this.finishStory(atMs);
+    this.deps.record('story_skipped', { slide_index_at_skip: slideIndexAtSkip }, atMs);
+    this.recordFunnel('story_done', null, atMs);
   }
 
   /** `S-22-settings`'s "ออกจากระบบ" confirm (tech note docs/tech/F10-account-shell.md section 4.3

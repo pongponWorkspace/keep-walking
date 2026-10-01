@@ -12,17 +12,18 @@ const MIN_AGE_YR = 15;
 
 function makeFlow(overrides: Partial<OnboardingFlowDeps> = {}): {
   flow: OnboardingFlow;
-  records: { name: string; properties: Record<string, unknown> }[];
+  records: { name: string; properties: Record<string, unknown>; atMs: number | undefined }[];
   storage: KeyValueStorage;
   startLocationProvider: ReturnType<typeof vi.fn>;
 } {
-  const records: { name: string; properties: Record<string, unknown> }[] = [];
+  const records: { name: string; properties: Record<string, unknown>; atMs: number | undefined }[] =
+    [];
   const storage = overrides.storage ?? createMemoryStorage();
   const startLocationProvider = vi.fn();
   const flow = new OnboardingFlow({
     quotaDeps: NOOP_QUOTA,
     now: () => 1_000_000,
-    record: (name, properties) => records.push({ name, properties }),
+    record: (name, properties, atMs) => records.push({ name, properties, atMs }),
     minAge_yr: MIN_AGE_YR,
     minAgeComparison: 'greaterThanOrEqual',
     startLocationProvider,
@@ -457,6 +458,86 @@ describe('OnboardingFlow.createCharacter / completeStory / skipStory (P2-F10-T15
     flow.markStoryShown();
     flow.markStoryShown();
     expect(records.filter((r) => r.properties['step'] === 'story_shown')).toHaveLength(1);
+  });
+});
+
+describe('BUG-P2-006 — paired direct event + funnel step share one client_ts_ms-equivalent `atMs`', () => {
+  // A clock that advances on every single call (the exact shape of the original flake: two
+  // independent `deps.now()` reads straddling a millisecond-clock tick) -- every pair this module
+  // promises "เวลาเดียวกันเสมอ" for must still land on the identical captured instant.
+  function advancingClock(): () => number {
+    let t = 1_000_000;
+    return () => {
+      t += 1;
+      return t;
+    };
+  }
+
+  it('character_created and its paired character_create_done funnel step share one atMs', () => {
+    const { flow, records } = makeFlow({ now: advancingClock() });
+    advanceToCharacter(flow);
+    flow.createCharacter({
+      classId: 'magic',
+      name: 'somchai',
+      nameSource: 'typed',
+      filterRejectCount: 0,
+    });
+    const created = records.find((r) => r.name === 'character_created');
+    const funnelDone = records.find((r) => r.properties['step'] === 'character_create_done');
+    expect(created?.atMs).toBeDefined();
+    expect(created?.atMs).toBe(funnelDone?.atMs);
+  });
+
+  it('story_completed and its paired story_done funnel step share one atMs', () => {
+    const { flow, records } = makeFlow({ now: advancingClock() });
+    advanceToCharacter(flow);
+    flow.createCharacter({
+      classId: 'ranged',
+      name: 'ab',
+      nameSource: 'typed',
+      filterRejectCount: 0,
+    });
+    flow.completeStory(3);
+    const completed = records.find((r) => r.name === 'story_completed');
+    const funnelDone = records.filter((r) => r.properties['step'] === 'story_done')[0];
+    expect(completed?.atMs).toBeDefined();
+    expect(completed?.atMs).toBe(funnelDone?.atMs);
+  });
+
+  it('story_skipped and its paired story_done funnel step share one atMs', () => {
+    const { flow, records } = makeFlow({ now: advancingClock() });
+    advanceToCharacter(flow);
+    flow.createCharacter({
+      classId: 'support',
+      name: 'ab',
+      nameSource: 'typed',
+      filterRejectCount: 0,
+    });
+    flow.skipStory(2);
+    const skipped = records.find((r) => r.name === 'story_skipped');
+    const funnelDone = records.filter((r) => r.properties['step'] === 'story_done')[0];
+    expect(skipped?.atMs).toBeDefined();
+    expect(skipped?.atMs).toBe(funnelDone?.atMs);
+  });
+
+  it('account_login_shown and its paired login_shown funnel step share one atMs', () => {
+    const { flow, records } = makeFlow({ now: advancingClock() });
+    flow.completeIntro();
+    flow.markLoginShown();
+    const shown = records.find((r) => r.name === 'account_login_shown');
+    const funnelShown = records.find((r) => r.properties['step'] === 'login_shown');
+    expect(shown?.atMs).toBeDefined();
+    expect(shown?.atMs).toBe(funnelShown?.atMs);
+  });
+
+  it('account_login_method_chosen and its paired login_method_chosen funnel step share one atMs', () => {
+    const { flow, records } = makeFlow({ now: advancingClock() });
+    flow.completeIntro();
+    flow.chooseLoginMethod('google');
+    const chosen = records.find((r) => r.name === 'account_login_method_chosen');
+    const funnelChosen = records.find((r) => r.properties['step'] === 'login_method_chosen');
+    expect(chosen?.atMs).toBeDefined();
+    expect(chosen?.atMs).toBe(funnelChosen?.atMs);
   });
 });
 

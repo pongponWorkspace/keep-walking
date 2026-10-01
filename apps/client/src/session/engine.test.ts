@@ -467,6 +467,50 @@ describe('createSessionEngine — F06-TG-02 onboarding_first_reward_granted', ()
     }
   });
 
+  it(
+    'BUG-P2-006: run_tick_granted and the paired onboarding_first_reward_granted both record at ' +
+      "event.at_ms, not an independent clock read (so the pair's client_ts_ms always matches)",
+    () => {
+      const params = testParams();
+      const storage = createMemoryStorage();
+      // A bespoke recorder (not `fakeRecorder()` above, so the atMs it captures never leaks into the
+      // `toEqual({name, properties})` style assertions the other test in this block already makes).
+      const atMsByName = new Map<string, number[]>();
+      const engine = createSessionEngine(
+        params,
+        {
+          storage,
+          quotaDeps: NOOP_QUOTA_DEPS,
+          record: (name, _properties, atMs) => {
+            const list = atMsByName.get(name) ?? [];
+            list.push(atMs as number);
+            atMsByName.set(name, list);
+          },
+          getFirstOpenAt_ms: () => 0,
+        },
+        0,
+      );
+      engine.dispatch({ type: 'chooseClass', classId: 'ranged' }, 0);
+      for (const sample of walkSamples(0, 3)) {
+        engine.dispatch({ type: 'sample', sample }, sample.t_ms);
+      }
+      engine.dispatch({ type: 'confirm', dungeonId: 'testDungeon', runSeed: 1 }, WARMUP_MS);
+      atMsByName.clear();
+
+      let firstEverAt_ms: number | undefined;
+      for (const sample of walkSamples(WARMUP_MS + 5000, 60)) {
+        const events = engine.dispatch({ type: 'sample', sample }, sample.t_ms);
+        const granted = events.find((e) => e.type === 'run_tick_granted');
+        if (granted !== undefined && granted.type === 'run_tick_granted' && granted.firstEver) {
+          firstEverAt_ms = granted.at_ms;
+        }
+      }
+      expect(firstEverAt_ms).not.toBeUndefined();
+      expect(atMsByName.get('onboarding_first_reward_granted')).toEqual([firstEverAt_ms]);
+      expect(atMsByName.get('run_tick_granted')).toContain(firstEverAt_ms);
+    },
+  );
+
   it('never fires a second time once first_reward has already happened', () => {
     const params = testParams();
     const storage = createMemoryStorage();

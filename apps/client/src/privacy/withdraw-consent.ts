@@ -35,22 +35,33 @@ export interface WithdrawConsentDeps {
   readonly purgeLocation: () => void;
   readonly writeConsentWithdrawn: () => void;
   readonly setLocationWithdrawn: () => void;
-  readonly record: (name: string, properties: Readonly<Record<string, unknown>>) => void;
+  readonly record: (
+    name: string,
+    properties: Readonly<Record<string, unknown>>,
+    atMs?: number,
+  ) => void;
   readonly now: () => number;
 }
 
 /** Runs the full sequence once. Returns whether a run was active (the same value the telemetry
  * event's own `during_run` property carries), for a caller that wants to branch its own post-call
- * UI (e.g. `f04-app.ts` re-rendering) without re-deriving it. */
+ * UI (e.g. `f04-app.ts` re-rendering) without re-deriving it.
+ *
+ * BUG-P2-006: `atMs` is read exactly once and reused for both `exitRun` (so the paired
+ * `dungeon_exited{exit_reason: manual_exit}` carries it as its `at_ms`) and
+ * `record('location_consent_withdrawn', ...)` below — `product/telemetry-events.md`'s "เวลาเดียวกัน
+ * เสมอ" promise between the two needs a single captured instant, not two independent clock reads a
+ * moment apart. */
 export function withdrawConsent(deps: WithdrawConsentDeps): boolean {
   deps.setLocationWithdrawn();
+  const atMs = deps.now();
   const duringRun = deps.hasActiveRun();
   if (duringRun) {
-    deps.exitRun(deps.now());
+    deps.exitRun(atMs);
   }
   deps.stopLocationProvider();
   deps.purgeLocation();
   deps.writeConsentWithdrawn();
-  deps.record('location_consent_withdrawn', { during_run: duringRun });
+  deps.record('location_consent_withdrawn', { during_run: duringRun }, atMs);
   return duringRun;
 }
