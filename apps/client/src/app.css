@@ -49,6 +49,11 @@ body {
   inset: 0;
   z-index: 1; /* zIndex.hud */
   pointer-events: none;
+  /* V-F10-08: `.bottombar-f10`'s own rendered height (art direction 2.2's 64px `.nav-tab` min-height
+     + its 2px `border-top`) plus an 8px clearance gap — shared by every map-screen element that must
+     never sink under the bar (`.home-panel`, `.nav-panel`, the nav-visible `.toast` rule below) so
+     the one true number lives in one place. */
+  --kw-bottom-nav-clear: calc(66px + env(safe-area-inset-bottom) + 8px);
   font-family: var(--kw-font-ui, 'IBM Plex Sans Thai Looped', system-ui, sans-serif);
   font-size: 16px; /* type.body.size_px */
   font-weight: 500; /* type.body.weight */
@@ -432,13 +437,18 @@ body {
   color: #333344; /* ink.700 */
 }
 
-/* R2-4 (art/reviews/F04-F06-visual-gate.md §7.3): top-right, mirroring `.gps-pill`'s top-left, so
-   the two never overlap. `ui/gps-ui.ts#setRunActive` hides this for the whole run (Active/Grace/
-   Suspended) — it must never appear poking out from under the run HUD plates. */
+/* R2-4 (art/reviews/F04-F06-visual-gate.md §7.3): mirrors `.gps-pill`'s top-left, so the two never
+   overlap. `ui/gps-ui.ts#setRunActive` hides this for the whole run (Active/Grace/Suspended) — it
+   must never appear poking out from under the run HUD plates.
+   V-F10-08 (art/reviews/F10-visual-gate.md): the F10 shell's own `.setting-button-float` now sits in
+   that same top-right corner (components.md 16.2), so this button no longer lives there itself — it
+   sits directly under the Setting button instead, right-aligned to the same edge, 8px below it
+   (12px top offset + 48px button height + 8px gap = 68px; the visual gate's own suggested fix,
+   "ตำแหน่งยืนยันกับ uiux-designer" — placement not yet confirmed by uiux, see this task's report). */
 #follow-toggle {
   position: absolute;
-  top: max(8px, env(safe-area-inset-top));
-  right: 8px;
+  top: calc(max(12px, env(safe-area-inset-top)) + 56px);
+  right: max(12px, env(safe-area-inset-right));
 }
 
 /* --- Toasts and banners (components.md 6, V-32/V-38) ------------------------------------------- */
@@ -542,6 +552,16 @@ body {
   color: #1a1a22; /* ink.900 */
   font-size: 16px; /* V-32: was 14px */
   text-align: center;
+}
+
+/* V-F10-08: `#gps-toast` (`ui/gps-ui.ts`) can appear over the plain map/home screens, where
+   `.bottombar-f10` sits at the very bottom of the viewport at a higher z-index (38 vs this rule's
+   own 30) — without this, the bar paints over the toast's own fixed 24px offset. Scoped with
+   `:has()` (both are direct children of `#hud`) rather than a second toast class, so every existing
+   `.toast` call site needs no change — a run-screen toast (`ui/tick-toast.ts`) is unaffected, since
+   `.bottombar-f10` is always `hidden` for the run's own full duration (`f04-app.ts#render`). */
+#hud:has(> .bottombar-f10:not([hidden])) .toast {
+  bottom: var(--kw-bottom-nav-clear);
 }
 
 /* "จาง" (faded, `run.tickDenied`): flat, 100% opaque, never `opacity` on text/border (S7) — a
@@ -750,11 +770,19 @@ body {
 
 /* --- Nav panel (components.md 13.5, 13.8) — a solid plate over the map, S6 --------------------- */
 
+/* V-F10-08: always shown together with `.bottombar-f10` (`f04-app.ts#render`'s own call order —
+   `bottomNav.show()` runs before this panel's own render on every "at home" path) — raised to clear
+   the bar itself rather than the old `safe-area-inset-bottom`-only offset, which let the bar paint
+   over this card's own bottom rows (the copy-fallback link in particular). `max-height`/`overflow-y`
+   match `.home-panel`'s own pre-existing overflow handling, so a tall card scrolls instead of
+   pushing its lowest row off whatever space is left above the bar. */
 .nav-panel {
   position: absolute;
-  bottom: max(16px, env(safe-area-inset-bottom));
+  bottom: var(--kw-bottom-nav-clear);
   left: 8px;
   right: 8px;
+  max-height: 70vh;
+  overflow-y: auto;
   box-sizing: border-box;
   background: #ffffff; /* bg.surface */
   border: 2px solid #1a1a22; /* ink.900 */
@@ -802,9 +830,11 @@ body {
 
 /* --- Home panel (components.md, F06 home states) — a solid plate over the map, S6 -------------- */
 
+/* V-F10-08: same nav-clearing offset as `.nav-panel` above, same reason (always shown together with
+   `.bottombar-f10`). */
 .home-panel {
   position: absolute;
-  bottom: max(16px, env(safe-area-inset-bottom));
+  bottom: var(--kw-bottom-nav-clear);
   left: 8px;
   right: 8px;
   max-height: 70vh;
@@ -872,11 +902,20 @@ body {
   margin-top: 4px;
 }
 
-/* Debug HUD panel (hud=1 only, dev tool — never shown in a player build). */
+/* Debug HUD panel (hud=1 only, dev tool — never shown in a player build).
+   V-F10-08 regression fix: raising `.nav-panel`'s own bottom offset (above, to clear the F10 bottom
+   nav) shrank the gap between it and this panel's bottom-most buttons (`#hud-export-summary`/
+   `#hud-export-raw`) enough that `.nav-panel` (mounted later in `#hud`, so it already wins
+   same-level stacking by DOM order) started intercepting clicks meant for this dev-only overlay
+   (`apps/client/e2e/location-mock.spec.ts`'s own "hud panel" suite). A debug tool has no real place
+   in `zIndex` scale (components.md 15) at all — it must always sit above every real game layer,
+   including `system` (60), never fight any of them for stacking — so this is a deliberate z-index
+   above the whole scale, not a fix tied to `.nav-panel`'s specific new offset. */
 #hud-panel {
   position: absolute;
   top: max(8px, env(safe-area-inset-top));
   right: 8px;
+  z-index: 100; /* above every real zIndex token (max is `system`, 60) — see comment above */
   max-width: min(70vw, 360px);
   max-height: 60vh;
   overflow-y: auto;
@@ -1008,8 +1047,64 @@ body {
   white-space: pre-line;
 }
 
+/* components.md 16.4: `icon.ui.consent` 24px to the left of the warning text, same sizing
+   convention `.recovering-banner-icon`/`.checkin-status-icon` already use. */
+.name-warning-icon {
+  flex: none;
+  display: flex;
+  width: 24px;
+  height: 24px;
+}
+
 .unsupported-browser-note {
   white-space: pre-line;
+}
+
+/* components.md 16.4: name field + fixed-size shuffle button share one row. */
+.name-field {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.name-field-input {
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 48px; /* touchTarget.min_px */
+  padding: 8px 12px;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.button_px */
+  background: #ffffff; /* bg.surface */
+  color: #1a1a22; /* ink.900 */
+  font: inherit;
+  font-size: 16px;
+}
+
+/* V-F10-07: the filter-rejected state is a border colour change on the field itself, not only the
+   text underneath it (components.md 16.4's own "ขอบช่องเปลี่ยนเป็น state.danger 2px"). */
+.name-field-input-error {
+  border-color: #cc2222; /* state.danger */
+}
+
+.name-field-error {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #cc2222; /* state.danger */
+}
+
+/* Square, fixed 48x48 (never the browser's shrink-to-content button box) — components.md 16.4
+   "สี่เหลี่ยม 48×48 px ข้างช่องชื่อ". */
+.shuffle-button {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+}
+
+.shuffle-button-icon {
+  display: flex;
+  width: 24px;
+  height: 24px;
 }
 
 /* --- Class-select sheet (components.md, onboarding) ---------------------------------------------- */
@@ -1107,6 +1202,15 @@ body {
   width: 100%;
   margin-top: 8px;
   text-align: left;
+}
+
+/* V-F10-10 (components.md 3.2/16.7): "ลบข้อมูลในเครื่อง" is the one row that still destroys data —
+   `state.danger` text, same canon colour `.btn-danger-confirm` already uses, kept separate from the
+   logout row right below it (`settings-menu-logout-icon`/its label stay plain `ink.900`, F10-R40). */
+/* `:not(.btn-disabled)` so the pre-existing disabled (run-active) treatment above still wins its own
+   greyed-out `ink.500` — danger red only applies while the row is actually pressable. */
+.settings-menu-clear-local-data:not(.btn-disabled) {
+  color: #cc2222; /* state.danger */
 }
 
 .settings-menu-clear-local-data-blocked-note {
@@ -1270,6 +1374,16 @@ body {
   justify-content: center;
 }
 
+/* V-F10-03: caps the shared `.story-image` box at 200px tall (its own suggested fix) so the image
+   and the button both fit on a 360x640 viewport without scrolling — `.story-image`'s own
+   `aspect-ratio: 4/3` then derives the matching max-width from this height. */
+.intro-image {
+  width: 100%;
+  max-width: 267px; /* 200px * 4/3, rounded up */
+  max-height: 200px;
+  margin-bottom: 16px; /* space.scale_px */
+}
+
 .intro-start {
   width: 100%;
   max-width: 320px;
@@ -1317,6 +1431,140 @@ body {
   flex-direction: column;
   gap: 8px;
   margin-top: 16px;
+}
+
+/* --- Login / email auth (V-F10-06, components.md 3.1/16.6) ---------------------------------------- */
+
+.login-title {
+  margin-bottom: 16px; /* space.scale_px */
+}
+
+/* components.md 16.6: both provider buttons stacked full-column, 12px apart. */
+.login-main-view {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-provider-button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* overrides `.btn`'s centred group: glyph "ชิดซ้าย", label follows */
+  width: 100%;
+  min-height: 56px; /* touchTarget.primaryButtonHeight_px, same exception components.md 16.6 names */
+  padding: 8px 16px;
+  gap: 12px;
+}
+
+/* components.md 16.6: "12px แนวตั้ง" is the gap *between* the two provider buttons — a sibling
+   combinator (rather than `:first-child`, which the title `<h1>` sitting before the Google button
+   would always beat) so this only ever lands on the Apple button that actually follows one. */
+.login-provider-button + .login-provider-button {
+  margin-top: 12px;
+}
+
+.login-provider-icon {
+  flex: none;
+  display: flex;
+  width: 24px;
+  height: 24px;
+}
+
+.login-provider-label {
+  text-align: left;
+}
+
+/* components.md 5.2 item 3: a plain underlined link, never a bordered button — `display:block` here
+   overrides `.btn`'s own `inline-flex` (same technique `.settings-menu-row` already uses) so this
+   can stack full-width below the provider buttons without wrapping onto a half-line. */
+.login-email-link {
+  display: block;
+  width: 100%;
+  min-height: 48px; /* touchTarget.min_px, even though the visible underline is just text */
+  margin-top: 24px; /* space.scale_px, a clear break from the two provider buttons above */
+  border: none;
+  background: none;
+  padding: 0;
+  color: #006699; /* state.info, a plain text-link affordance */
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  cursor: pointer;
+}
+
+.login-test-mode-note {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #333344; /* ink.700 */
+}
+
+/* email login / register / forgot: field + label pair, and the secondary links underneath each
+   confirm button, all one full-width column (V-F10-06: "ไม่วางข้างกันแล้วตัดบรรทัด"). */
+.login-email-screen,
+.register-screen,
+.forgot-screen {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* "ป้ายอยู่บนช่อง ระยะ 4 px" */
+  margin-top: 16px;
+}
+
+.login-email-screen > .login-field-row:first-of-type,
+.register-screen > .login-field-row:first-of-type,
+.forgot-screen > .login-field-row:first-of-type {
+  margin-top: 0;
+}
+
+.login-field-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333344; /* ink.700 */
+}
+
+.login-email-input,
+.login-password-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px; /* touchTarget.min_px */
+  padding: 8px 12px;
+  border: 2px solid #1a1a22; /* ink.900 */
+  border-radius: 12px; /* radius.button_px */
+  background: #ffffff; /* bg.surface */
+  color: #1a1a22; /* ink.900 */
+  font: inherit;
+  font-size: 16px;
+  outline: none; /* replaced by the focus-visible ring below, never the browser's own blue ring */
+}
+
+.login-email-input:focus,
+.login-password-input:focus {
+  border-color: #1a1a22; /* ink.900, border colour itself never changes on focus */
+  box-shadow: 0 0 0 3px #ffcc00; /* accent.signal, same flat-ring language as `.card.selected` */
+}
+
+.login-email-confirm,
+.register-confirm,
+.forgot-confirm {
+  margin-top: 16px;
+}
+
+/* The secondary links below each confirm button (register/forgot/back) — same full-width,
+   no-side-by-side treatment the provider buttons above already use. */
+.login-register-link,
+.login-forgot-link,
+.login-back-to-login,
+.register-back-to-login-email,
+.forgot-back-to-login-email {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
 }
 
 /* --- Check-in row (components.md 13.3) ------------------------------------------------------------ */

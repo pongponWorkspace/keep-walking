@@ -188,6 +188,7 @@ export function mountCreateCharacterScreen(
   shuffleButton.className = 'btn btn-secondary shuffle-button';
   shuffleButton.setAttribute('aria-label', getCopyText('character.shuffleAria'));
   const shuffleIcon = document.createElement('span');
+  shuffleIcon.className = 'shuffle-button-icon';
   shuffleButton.append(shuffleIcon);
   // V-F10-01: this mounts before `assets.load()` necessarily settles.
   if (deps.iconGlyph !== undefined) {
@@ -206,6 +207,7 @@ export function mountCreateCharacterScreen(
   const warningBanner = document.createElement('div');
   warningBanner.className = 'banner info name-warning-banner';
   const warningIcon = document.createElement('span');
+  warningIcon.className = 'name-warning-icon';
   warningBanner.append(warningIcon);
   if (deps.iconGlyph !== undefined) {
     setIconGlyphWhenReady(deps.assets, deps.iconGlyph, warningIcon, 'icon.ui.consent', {
@@ -298,6 +300,7 @@ export function mountCreateCharacterScreen(
     if (!segmenterSupported) {
       lastValidation = undefined;
       nameError.textContent = '';
+      nameInput.classList.remove('name-field-input-error');
       updateCreateButtonState();
       return;
     }
@@ -305,9 +308,13 @@ export function mountCreateCharacterScreen(
     lastValidation = result;
     if (result.ok || result.reason === 'empty') {
       nameError.textContent = '';
+      // V-F10-07 (components.md 16.4): the border-colour change is tied to the same "really
+      // failing" condition as the error text itself, never shown for an empty/untouched field.
+      nameInput.classList.remove('name-field-input-error');
       previousWasFail = false;
     } else {
       nameError.textContent = reasonCopyText(result.reason, deps.nameParams);
+      nameInput.classList.add('name-field-input-error');
       // F10-R19/tech note section 8 "filter_reject_count": only a transition *into* failing from
       // passing-or-empty counts, never every keystroke that stays failing.
       if (!previousWasFail) filterRejectCount += 1;
@@ -323,6 +330,7 @@ export function mountCreateCharacterScreen(
   function showUnsupportedBrowser(): void {
     unsupportedBanner.hidden = false;
     nameError.textContent = '';
+    nameInput.classList.remove('name-field-input-error');
     shuffleButton.disabled = true;
     shuffleButton.classList.add('btn-disabled');
     lastValidation = undefined;
@@ -386,6 +394,7 @@ export function mountCreateCharacterScreen(
         previousWasFail = false;
         nameInput.value = '';
         nameError.textContent = '';
+        nameInput.classList.remove('name-field-input-error');
         if (shuffleButton.disabled) {
           shuffleButton.disabled = false;
           shuffleButton.classList.remove('btn-disabled');

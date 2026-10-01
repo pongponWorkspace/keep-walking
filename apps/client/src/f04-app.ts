@@ -411,9 +411,12 @@ export function createF04App(deps: F04AppDeps): F04App {
     e2eSkipOnboarding,
     filterRejectCountBuckets: appTelemetryConfig.f10Events.filterRejectCountBuckets,
   });
-  const introScreen = mountIntroScreen(deps.hudContainer, () => {
-    onboarding.completeIntro();
-    render(engine.getState(), deps.now());
+  const introScreen = mountIntroScreen(deps.hudContainer, {
+    assets: deps.assets,
+    onContinue: () => {
+      onboarding.completeIntro();
+      render(engine.getState(), deps.now());
+    },
   });
   // S-00-login + its three email sub-screens (D-149, tech note F10 section 3.3 events A2/A10):
   // every confirm button is a bypass, never reading whatever was typed (R11) — `chooseLoginMethod`
