@@ -4,6 +4,7 @@
  */
 import type { CopyEntry, CopyMeta, CopyRules, CopyVariable } from '@keep-walking/shared';
 import { copyEntries, copyMeta, copyVariables } from '@keep-walking/shared';
+import type { CodeRefScan } from './code-refs';
 import { findDuplicateTopLevelKeys } from './io';
 import { nameLeafStrings } from './names';
 import type { WordList } from './words';
@@ -20,6 +21,8 @@ export interface LintContext {
   readonly words: WordList;
   /** `undefined` when config/content/names.th.json does not exist yet (copy-schema 8.1). */
   readonly names: readonly string[] | undefined;
+  /** Copy-key lookups found in apps/client/src (S15). `undefined` when code was not scanned. */
+  readonly codeRefs?: CodeRefScan | undefined;
 }
 
 export function buildContext(input: {
@@ -29,6 +32,7 @@ export function buildContext(input: {
   readonly rules: CopyRules;
   readonly words: WordList;
   readonly namesJson: unknown | undefined;
+  readonly codeRefs?: CodeRefScan | undefined;
 }): LintContext {
   return {
     repoRoot: input.repoRoot,
@@ -41,5 +45,6 @@ export function buildContext(input: {
     rules: input.rules,
     words: input.words,
     names: input.namesJson === undefined ? undefined : nameLeafStrings(input.namesJson),
+    codeRefs: input.codeRefs,
   };
 }

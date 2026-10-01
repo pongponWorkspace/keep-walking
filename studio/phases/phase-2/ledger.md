@@ -283,3 +283,7 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 260 | F10 | P2-F10-T18 รอบ 2 | tech-lead | 13:22:59 | 13:26:34 | PASS — F-01..F-05 ปิด · N-05 ไม่บล็อก (assert validate ใน e2e-skip-seed.test) |
 | 261 | F9 | P2-F10-T19 | qa-tester | 12:47:07 | 13:40:36 | DONE — e2e 170/170 · 36 ภาพ · story-dot ไม่มี CSS → X63 gameplay (dep ของ T21) · T20, T22 เริ่ม |
 | 262 | F10 | P2-X63 | gameplay-programmer | 13:40:36 | 13:44:21 | DONE — จุดบอก slide มองเห็นแล้ว ยืนยันจากภาพ · T21 เริ่ม |
+| 263 | F10 | P2-F10-T20 | narrative-designer | 13:40:36 | 13:47:15 | NEEDS_CHANGES รอบ 1 — key ดิบ story.headerLabel, \n ไม่แสดง, popup logout 4 บรรทัด, ปาร์ตี้, ปุ่ม forgot, เอกสารค้าง · → X64 narrative, X65 gameplay (รอ T21 รวม), X66 tech-lead, X67 qa · D-162 |
+| 264 | F10 | P2-X64 | narrative-designer | 13:47:15 | 13:51:02 | DONE — copy F-01/F-03..F-06 · lint:copy 0 FAIL · names.th.json note ค้าง (ไม่บล็อก) · X67 ต้องถ่ายจอ 05 เพิ่ม |
+| 265 | F10 | P2-F10-T21 | art-director | 13:44:21 | 13:52:17 | NEEDS_CHANGES รอบ 1 — ภาพต้นทางผ่าน · บนจอ glyph ไม่ขึ้น, active ไม่กลับสี, จอเริ่มเกมเปล่า, ปุ่มทับกัน ฯลฯ 10 ข้อ (V-05 ปิดแล้วโดย X64) · → X65 (ขยาย) + X68 gameplay ต่อกัน, X67 qa · polish N-01..08 ยกไป |
+| 266 | F10 | P2-X66 | tech-lead | 13:47:15 | 13:55:14 | DONE — S15 key หาย · orchestrator prettier --write capture-results.json (format) ให้ root lint ผ่าน · X67 แก้ที่ต้นเหตุ |

@@ -15,8 +15,9 @@ import { checkS11 } from './s11';
 import { checkS12 } from './s12';
 import { checkS13 } from './s13';
 import { checkS14 } from './s14';
+import { checkS15 } from './s15';
 
-/** S1-S14, in order (style-guide section 7 / docs/tech/copy-schema.md section 8.1). */
+/** S1-S15, in order (style-guide section 7 / docs/tech/copy-schema.md section 8.1). */
 export function runAllChecks(
   ctx: LintContext,
   copySchemaErrors: readonly SchemaError[],
@@ -36,5 +37,6 @@ export function runAllChecks(
     ...checkS12(ctx),
     ...checkS13(ctx),
     ...checkS14(ctx),
+    ...checkS15(ctx),
   ];
 }

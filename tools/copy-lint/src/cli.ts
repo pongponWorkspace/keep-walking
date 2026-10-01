@@ -3,13 +3,14 @@
  * Copy lint CLI (design/narrative/style-guide.md section 7, docs/tech/copy-schema.md 8.1).
  * Usage: `pnpm lint:copy` (from repo root) or `tsx tools/copy-lint/src/cli.ts [--json]`.
  * Reads config/content/copy.th.json, config/content/copy-rules.json, and (optionally)
- * config/content/names.th.json. Missing copy.th.json or copy-rules.json is exit code 2
+ * config/content/names.th.json, and scans apps/client/src for copy-key lookups (S15). Missing copy.th.json or copy-rules.json is exit code 2
  * (not a lint failure: there is nothing to check). Any FAIL is exit code 1.
  */
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { CopyRules } from '@keep-walking/shared';
 import { runAllChecks } from './checks/index';
+import { scanClientCopyRefs } from './code-refs';
 import { buildContext } from './context';
 import { MissingFileError, loadJsonFile, loadOptionalJsonFile } from './io';
 import type { LintIssue } from './types';
@@ -70,6 +71,8 @@ function main(): number {
       rules: rulesFile.json as CopyRules,
       words,
       namesJson: namesFile?.json,
+      // S15: copy keys the client code asks for (F10 copy gate F-01b).
+      codeRefs: scanClientCopyRefs(repoRoot),
     });
     issues = runAllChecks(ctx, copySchemaErrors);
   }
