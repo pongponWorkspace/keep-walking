@@ -14,6 +14,10 @@ import type { SessionEvent } from '@keep-walking/shared/session';
 import { loadCommittedTrace } from '../traces/lib/load-trace';
 import { qaSessionParams, QA_RECT_DUNGEON_ID } from '../F04/lib/qa-session-params';
 import { confirmAndReplay } from '../F05/lib/confirm-and-replay';
+import type {
+  AccountStorageV1,
+  CharacterStorageV1,
+} from '../../../apps/client/src/onboarding/onboarding-step';
 import {
   currentOnboardingStep,
   isSystemTeachLocked,
@@ -55,6 +59,16 @@ const CLIENT_STEPS_DONE = {
   firstOpenAt_ms: START_EPOCH_MS,
 };
 
+// D-149 added two new steps (`login`, `character`'s own name) ahead of `first_run`/`first_reward`,
+// each backed by its own storage key (`kw.p2.account`, `kw.p2.character`, tech note F10 sections
+// 2.1/2.2) rather than the old `mapAcknowledged` flag this file used to pass (removed from
+// `OnboardingStepInput` entirely, F10-T12). Both cases below are already signed in and past the
+// character/story screens -- the only thing left to resolve is `first_run`/`first_reward`, exactly
+// what this file tests -- so these two fixtures are fixed "already done" shapes, never derived from
+// the engine state the way `classChosen`/`firstRunEntered`/`firstRewardDone` are below.
+const SIGNED_IN_ACCOUNT: AccountStorageV1 = { provider: 'google', signedIn: true };
+const STORY_DONE_CHARACTER: CharacterStorageV1 = { name: 'Rangername', storyDone: true };
+
 describe('F06 onboarding — first reward is an ordinary tick, no reward when the gate fails', () => {
   it('a full session that never moves enough grants zero ticks and never leaves onboarding (F06-C13/C39, H-E20)', () => {
     const params = qaSessionParams();
@@ -73,10 +87,13 @@ describe('F06 onboarding — first reward is an ordinary tick, no reward when th
     expect(
       currentOnboardingStep({
         storage: CLIENT_STEPS_DONE,
+        account: SIGNED_IN_ACCOUNT,
+        character: STORY_DONE_CHARACTER,
+        pendingProvider: null,
+        atStartThisSession: false,
         underageThisSession: false,
         locationConsent: 'granted',
         permissionGranted: true,
-        mapAcknowledged: true,
         classChosen: after.player.classId !== null,
         firstRunEntered: after.player.firstRunEnteredAt_ms !== null,
         firstRewardDone: after.player.lifetimeTicksGranted > 0,
@@ -119,10 +136,13 @@ describe('F06 onboarding — first reward is an ordinary tick, no reward when th
     expect(
       currentOnboardingStep({
         storage: CLIENT_STEPS_DONE,
+        account: SIGNED_IN_ACCOUNT,
+        character: STORY_DONE_CHARACTER,
+        pendingProvider: null,
+        atStartThisSession: false,
         underageThisSession: false,
         locationConsent: 'granted',
         permissionGranted: true,
-        mapAcknowledged: true,
         classChosen: true,
         firstRunEntered: true,
         firstRewardDone: true,

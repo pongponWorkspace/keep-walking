@@ -753,23 +753,42 @@ async function reach18Intro(browser: Browser): Promise<Outcome> {
   return { context, page, reachedVia: 'e2e-onboarding-01, real flow, no skip hook' };
 }
 
+// D-149 inserted a login screen (S-00-login) between the single start button and the age gate
+// (`apps/client/e2e/onboarding.spec.ts`'s own flow, tech note F10 section 3.1 table row 2) — every
+// function below that used to go straight from `.intro-start` to `.age-gate-screen` now waits for
+// `.login-screen` first and bypasses it with `.login-google-button` (R10: every login button is an
+// unconditional bypass, Google is this script's arbitrary pick, same as the real spec's first test).
+async function clickThroughLogin(page: Page): Promise<boolean> {
+  const login = page.locator('.login-screen:not([hidden])');
+  const shown = await login
+    .waitFor({ state: 'visible', timeout: 5_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!shown) return false;
+  await page.click('.login-google-button');
+  return true;
+}
+
 async function reach19AgeGate(browser: Browser): Promise<Outcome> {
   const { context, page } = await gotoOnboarding(browser);
   await page.locator('.intro-screen:not([hidden])').waitFor({ state: 'visible', timeout: 10_000 });
   await page.click('.intro-screen .intro-start');
+  if (!(await clickThroughLogin(page))) return { reason: '.login-screen never appeared' };
   const shown = await page
     .locator('.age-gate-screen:not([hidden])')
     .waitFor({ state: 'visible', timeout: 5_000 })
     .then(() => true)
     .catch(() => false);
   if (!shown) return { reason: '.age-gate-screen never appeared' };
-  return { context, page, reachedVia: 'e2e-onboarding-01, tapped intro' };
+  return { context, page, reachedVia: 'e2e-onboarding-01, tapped intro, bypassed login (Google)' };
 }
 
 async function reach20Consent(browser: Browser): Promise<Outcome> {
   const { context, page } = await gotoOnboarding(browser);
   await page.locator('.intro-screen:not([hidden])').waitFor({ state: 'visible', timeout: 10_000 });
   await page.click('.intro-screen .intro-start');
+  if (!(await clickThroughLogin(page))) return { reason: '.login-screen never appeared' };
+  await page.locator('.age-gate-screen:not([hidden])').waitFor({ state: 'visible', timeout: 5_000 });
   await page.locator('.age-gate-birth-year-select').selectOption('1990');
   await page.click('.age-gate-confirm');
   const shown = await page
@@ -778,7 +797,11 @@ async function reach20Consent(browser: Browser): Promise<Outcome> {
     .then(() => true)
     .catch(() => false);
   if (!shown) return { reason: '.consent-location-screen never appeared' };
-  return { context, page, reachedVia: 'e2e-onboarding-01, passed age gate with 1990' };
+  return {
+    context,
+    page,
+    reachedVia: 'e2e-onboarding-01, bypassed login (Google), passed age gate with 1990',
+  };
 }
 
 async function reach21ClassSelect(browser: Browser): Promise<Outcome> {
@@ -813,6 +836,8 @@ async function reach26HomeUnknown(browser: Browser): Promise<Outcome> {
   const { context, page } = await gotoOnboarding(browser);
   await page.locator('.intro-screen:not([hidden])').waitFor({ state: 'visible', timeout: 10_000 });
   await page.click('.intro-screen .intro-start');
+  if (!(await clickThroughLogin(page))) return { reason: '.login-screen never appeared' };
+  await page.locator('.age-gate-screen:not([hidden])').waitFor({ state: 'visible', timeout: 5_000 });
   await page.locator('.age-gate-birth-year-select').selectOption('1990');
   await page.click('.age-gate-confirm');
   const consentShown = await page
