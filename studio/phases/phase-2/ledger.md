@@ -292,3 +292,6 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 269 | F10 | P2-X65 | gameplay-programmer | 13:52:17 | 14:06:12 | DONE — F-02, V-01, V-02, V-04, V-09 · unit 1095 · ภาพยืนยัน · slide 1 ภาพว่างเพราะ capture ไม่รอ img.complete (X67) · X68 เริ่ม |
 | 270 | F10 | P2-X68 | gameplay-programmer | 14:06:12 | 14:29:43 | DONE — V-03/06/07/08/10 · regression debug panel แก้แล้ว · e2e 169/170 (TC-MAP-05 ios) → X67 · X67 เริ่ม |
 | 271 | F10 | P2-X67 | qa-tester | 14:29:43 | 15:02:31 | DONE — e2e 218/218 · lint 0 · ภาพใหม่ 40 · telemetry restore format สงสัย → backlog · T20, T21 รอบ 2 เริ่ม |
+| 272 | F11 | P2-F10-T20 รอบ 2 | narrative-designer | 15:02:31 | 15:06:06 | PASS — F-01..F-06 + F-01b ปิด · N-01 (ป้ายการ์ด class ตัดบรรทัด) ยกไป backlog |
+| 273 | F11 | P2-F10-T21 รอบ 2 | art-director | 15:02:31 | 15:08:22 | NEEDS_CHANGES ครั้งที่ 2 — ปิด 8/10 · V-07, V-09 ค้าง · safety stop: ถามคน Q-F10-2 |
+| 274 | F11 | — | user | 15:08:22 | — | รอคำตอบ Q-F10-2 |
