@@ -42,7 +42,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-H72: ตรวจ icon/ui/bag.svg แล้ว เส้นและพื้นทุกจุดใช้ fill=\"none\"/stroke=\"currentColor\" ล้วน ไม่มี hex ตายตัว · kind icon-ui อยู่ใน pipeline.config.json#svg.currentColorKinds อยู่แล้ว ดังนั้น tools/art stage คำนวณ assets['icon.ui.bag'].tintable=true ให้อัตโนมัติในรันไทม์ (ManifestEntry ต้นทางนี้ไม่มีฟิลด์ tintable ให้ตั้งเอง — RuntimeAsset.tintable เท่านั้นที่มี, tools/art/src/stage.ts)"
     },
     {
       "id": "icon.ui.closed",
@@ -163,7 +164,7 @@
         "reservedFontName": null,
         "modified": false
       },
-      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): กรวยจราจรกั้นเลน ใช้บน plate 32 px ของจอเร็วๆ นี้ · outline currentColor ล้วน ไม่มี hex ตายตัว"
+      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): กรวยจราจรกั้นเลน ใช้บน plate 32 px ของจอเร็วๆ นี้ · outline currentColor ล้วน ไม่มี hex ตายตัว · P2-H72: ตรวจซ้ำแล้วยังเป็นจริง (ไฟล์ไม่ถูกแก้) → stage คำนวณ assets['icon.ui.coming-soon'].tintable=true ให้อัตโนมัติ"
     },
     {
       "id": "icon.ui.consent",
@@ -324,7 +325,7 @@
         "reservedFontName": null,
         "modified": false
       },
-      "notes": "icon-grammar 7.1.2 (P2-F10-T02) · nav Upgrade · resume P2-F10-T09: เพิ่มความลึกฟันเลื่อยฐาน (ผ่อน valley จาก y19 เป็น y18, tip คงที่ y21) และขยับวง % ขึ้น + ลด r เหลือ 1.2 ให้มีช่องว่างจากฐานซิกแซกและเส้นรายการชัดเจน แก้ปัญหา \"ฐานซิกแซกเป็นก้อน\" และ \"% ทับ\" ของรอบก่อน โดยไม่แตะโครงเดิม (ใบเสร็จ + เส้นรายการ 2 เส้น + % ครึ่งล่าง) จบใน 1 รอบแก้"
+      "notes": "icon-grammar 7.1.2 (P2-F10-T02) · nav Upgrade · resume P2-F10-T09: เพิ่มความลึกฟันเลื่อยฐาน (ผ่อน valley จาก y19 เป็น y18, tip คงที่ y21) และขยับวง % ขึ้น + ลด r เหลือ 1.2 ให้มีช่องว่างจากฐานซิกแซกและเส้นรายการชัดเจน แก้ปัญหา \"ฐานซิกแซกเป็นก้อน\" และ \"% ทับ\" ของรอบก่อน โดยไม่แตะโครงเดิม (ใบเสร็จ + เส้นรายการ 2 เส้น + % ครึ่งล่าง) จบใน 1 รอบแก้ · P2-H72: ตรวจแล้ว ทุกเส้น/วงใช้ stroke หรือ fill=\"currentColor\" ล้วน ไม่มี hex ตายตัว → stage คำนวณ assets['icon.ui.enhance'].tintable=true ให้อัตโนมัติ"
     },
     {
       "id": "icon.ui.exit",
@@ -806,7 +807,7 @@
         "reservedFontName": null,
         "modified": false
       },
-      "notes": "icon-grammar 7.1.2 (P2-F10-T02) · D-157: glyph ใหม่ตระกูล \"บัญชี\" (หัว avatar ย่อ + ลูกศรหัวเปิดก้านสั้น 7 ชี้ขวา) ไม่ใช้ icon.ui.exit ซ้ำ เพราะ exit = ออกจาก run เอง"
+      "notes": "icon-grammar 7.1.2 (P2-F10-T02) · D-157: glyph ใหม่ตระกูล \"บัญชี\" (หัว avatar ย่อ + ลูกศรหัวเปิดก้านสั้น 7 ชี้ขวา) ไม่ใช้ icon.ui.exit ซ้ำ เพราะ exit = ออกจาก run เอง · P2-H72: ตรวจแล้ว ทุกเส้นใช้ stroke=\"currentColor\" ล้วน (fill=\"none\") ไม่มี hex ตายตัว → stage คำนวณ assets['icon.ui.logout'].tintable=true ให้อัตโนมัติ"
     },
     {
       "id": "icon.ui.map",
@@ -846,7 +847,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-H72: ตรวจ icon/ui/map.svg แล้ว เส้นทั้งหมดใช้ stroke=\"currentColor\" ล้วน (fill=\"none\") ไม่มี hex ตายตัว · kind icon-ui อยู่ใน pipeline.config.json#svg.currentColorKinds อยู่แล้ว ดังนั้น tools/art stage คำนวณ assets['icon.ui.map'].tintable=true ให้อัตโนมัติในรันไทม์ (ไม่มีฟิลด์ tintable ให้ตั้งใน ManifestEntry ต้นทางนี้)"
     },
     {
       "id": "icon.ui.market",
@@ -887,7 +889,7 @@
         "reservedFontName": null,
         "modified": false
       },
-      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): nav Shop · ป้ายราคาเอียง 45° + รูร้อย + เชือกโค้ง ไม่มีตาชั่งหรือสัญลักษณ์สกุลเงินจริง"
+      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): nav Shop · ป้ายราคาเอียง 45° + รูร้อย + เชือกโค้ง ไม่มีตาชั่งหรือสัญลักษณ์สกุลเงินจริง · P2-H72: ตรวจแล้ว ทุกเส้น/วงใช้ stroke=\"currentColor\" ล้วน (fill=\"none\") ไม่มี hex ตายตัว → stage คำนวณ assets['icon.ui.market'].tintable=true ให้อัตโนมัติ"
     },
     {
       "id": "icon.ui.navigate",
@@ -968,7 +970,7 @@
         "reservedFontName": null,
         "modified": false
       },
-      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): nav Party · หัวก้อนกลม 2 หัวซ้อนเยื้อง (หน้า d8 หลัง d7 เว้นเส้นแทน fill) ไม่มีหัวที่ 3 ไม่มีจุด/ตัวเลข"
+      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): nav Party · หัวก้อนกลม 2 หัวซ้อนเยื้อง (หน้า d8 หลัง d7 เว้นเส้นแทน fill) ไม่มีหัวที่ 3 ไม่มีจุด/ตัวเลข · P2-H72: ตรวจแล้ว ทุกเส้น/วงใช้ stroke=\"currentColor\" ล้วน (fill=\"none\") ไม่มี hex ตายตัว → stage คำนวณ assets['icon.ui.party'].tintable=true ให้อัตโนมัติ"
     },
     {
       "id": "icon.ui.potion-used",
@@ -1169,7 +1171,8 @@
         "attribution": null,
         "reservedFontName": null,
         "modified": false
-      }
+      },
+      "notes": "P2-H72: ตรวจ icon/ui/settings.svg แล้ว วงกลมกลางใช้ stroke=\"currentColor\" (fill=\"none\") ฟันเฟือง 6 ซี่ใช้ fill=\"currentColor\" ล้วน ไม่มี hex ตายตัวจุดใด · kind icon-ui อยู่ใน pipeline.config.json#svg.currentColorKinds อยู่แล้ว ดังนั้น tools/art stage คำนวณ assets['icon.ui.settings'].tintable=true ให้อัตโนมัติในรันไทม์ (ไม่มีฟิลด์ tintable ให้ตั้งใน ManifestEntry ต้นทางนี้)"
     },
     {
       "id": "icon.ui.shuffle",

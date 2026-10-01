@@ -1647,3 +1647,28 @@ body {
 .cs-body {
   margin: 0;
 }
+
+/* --- Story slide pager (components.md 16.5, F10-shell-direction.md 8.6, P2-X63) ------------------
+   Dots are not pressable (no 48px touch target needed). Current slide is filled solid; other slides
+   are a hollow ring of the same 10px diameter — shape differs, not color alone (style-guide S4). */
+
+.story-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px; /* space.stackGap_px */
+  margin: 16px 0; /* space.scale_px */
+}
+
+.story-dot {
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #1a1a22; /* ink.900, border.ink_px */
+  background: transparent;
+}
+
+.story-dot-active {
+  background: #1a1a22; /* ink.900, filled per components.md 16.5 */
+}

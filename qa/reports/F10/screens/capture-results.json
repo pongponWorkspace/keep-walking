@@ -1,44 +1,254 @@
 [
   {
+    "id": "01-start",
+    "width": 360,
+    "ok": true,
+    "bytes": 4822,
+    "reachedVia": "e2e-onboarding-01, fresh load"
+  },
+  {
+    "id": "01-start",
+    "width": 390,
+    "ok": true,
+    "bytes": 5329,
+    "reachedVia": "e2e-onboarding-01, fresh load"
+  },
+  {
+    "id": "02-login",
+    "width": 360,
+    "ok": true,
+    "bytes": 19226,
+    "reachedVia": "tapped เริ่มเกม"
+  },
+  {
+    "id": "02-login",
+    "width": 390,
+    "ok": true,
+    "bytes": 19884,
+    "reachedVia": "tapped เริ่มเกม"
+  },
+  {
+    "id": "03-login-email",
+    "width": 360,
+    "ok": true,
+    "bytes": 24576,
+    "reachedVia": "login -> email link"
+  },
+  {
+    "id": "03-login-email",
+    "width": 390,
+    "ok": true,
+    "bytes": 25191,
+    "reachedVia": "login -> email link"
+  },
+  {
+    "id": "04-register",
+    "width": 360,
+    "ok": true,
+    "bytes": 18913,
+    "reachedVia": "login -> email -> register"
+  },
+  {
+    "id": "04-register",
+    "width": 390,
+    "ok": true,
+    "bytes": 19549,
+    "reachedVia": "login -> email -> register"
+  },
+  {
+    "id": "05-forgot",
+    "width": 360,
+    "ok": true,
+    "bytes": 17887,
+    "reachedVia": "login -> email -> forgot"
+  },
+  {
+    "id": "05-forgot",
+    "width": 390,
+    "ok": true,
+    "bytes": 18518,
+    "reachedVia": "login -> email -> forgot"
+  },
+  {
+    "id": "06-create-character-fresh",
+    "width": 360,
+    "ok": true,
+    "bytes": 45921,
+    "reachedVia": "google -> age 1990 -> consent decline"
+  },
+  {
+    "id": "06-create-character-fresh",
+    "width": 390,
+    "ok": true,
+    "bytes": 45336,
+    "reachedVia": "google -> age 1990 -> consent decline"
+  },
+  {
+    "id": "07-create-character-name-invalid",
+    "width": 360,
+    "ok": true,
+    "bytes": 50686,
+    "reachedVia": "typed \"a\" (tooShort)"
+  },
+  {
+    "id": "07-create-character-name-invalid",
+    "width": 390,
+    "ok": true,
+    "bytes": 50193,
+    "reachedVia": "typed \"a\" (tooShort)"
+  },
+  {
+    "id": "08-create-character-migration-locked",
+    "width": 360,
+    "ok": true,
+    "bytes": 49807,
+    "reachedVia": "seedLegacyPlayer(withClass:true), google login"
+  },
+  {
+    "id": "08-create-character-migration-locked",
+    "width": 390,
+    "ok": true,
+    "bytes": 49305,
+    "reachedVia": "seedLegacyPlayer(withClass:true), google login"
+  },
+  {
     "id": "09-story-slide-1",
     "width": 360,
     "ok": true,
-    "bytes": 19778,
+    "bytes": 20121,
     "reachedVia": "created a character, advanced to slide 1"
   },
   {
     "id": "09-story-slide-1",
     "width": 390,
     "ok": true,
-    "bytes": 19734,
+    "bytes": 20092,
     "reachedVia": "created a character, advanced to slide 1"
   },
   {
     "id": "10-story-slide-4",
     "width": 360,
     "ok": true,
-    "bytes": 29328,
+    "bytes": 29677,
     "reachedVia": "created a character, advanced to slide 4"
   },
   {
     "id": "10-story-slide-4",
     "width": 390,
     "ok": true,
-    "bytes": 29725,
+    "bytes": 30065,
     "reachedVia": "created a character, advanced to slide 4"
   },
   {
     "id": "11-story-slide-5",
     "width": 360,
     "ok": true,
-    "bytes": 34043,
+    "bytes": 34366,
     "reachedVia": "created a character, advanced to slide 5"
   },
   {
     "id": "11-story-slide-5",
     "width": 390,
     "ok": true,
-    "bytes": 34797,
+    "bytes": 35124,
     "reachedVia": "created a character, advanced to slide 5"
+  },
+  {
+    "id": "12-map-nav",
+    "width": 360,
+    "ok": true,
+    "bytes": 27729,
+    "reachedVia": "e2eSkipOnboarding=1, map home"
+  },
+  {
+    "id": "12-map-nav",
+    "width": 390,
+    "ok": true,
+    "bytes": 28498,
+    "reachedVia": "e2eSkipOnboarding=1, map home"
+  },
+  {
+    "id": "13-coming-soon-upgrade",
+    "width": 360,
+    "ok": true,
+    "bytes": 16872,
+    "reachedVia": "tapped the upgrade nav tab"
+  },
+  {
+    "id": "13-coming-soon-upgrade",
+    "width": 390,
+    "ok": true,
+    "bytes": 17465,
+    "reachedVia": "tapped the upgrade nav tab"
+  },
+  {
+    "id": "14-coming-soon-shop",
+    "width": 360,
+    "ok": true,
+    "bytes": 16880,
+    "reachedVia": "tapped the shop nav tab"
+  },
+  {
+    "id": "14-coming-soon-shop",
+    "width": 390,
+    "ok": true,
+    "bytes": 17456,
+    "reachedVia": "tapped the shop nav tab"
+  },
+  {
+    "id": "15-coming-soon-party",
+    "width": 360,
+    "ok": true,
+    "bytes": 18133,
+    "reachedVia": "tapped the party nav tab"
+  },
+  {
+    "id": "15-coming-soon-party",
+    "width": 390,
+    "ok": true,
+    "bytes": 18746,
+    "reachedVia": "tapped the party nav tab"
+  },
+  {
+    "id": "16-settings-menu",
+    "width": 360,
+    "ok": true,
+    "bytes": 26496,
+    "reachedVia": "tapped the floating Setting button"
+  },
+  {
+    "id": "16-settings-menu",
+    "width": 390,
+    "ok": true,
+    "bytes": 27154,
+    "reachedVia": "tapped the floating Setting button"
+  },
+  {
+    "id": "17-logout-confirm-outside-run",
+    "width": 360,
+    "ok": true,
+    "bytes": 40714,
+    "reachedVia": "settings -> logout (no run in progress)"
+  },
+  {
+    "id": "17-logout-confirm-outside-run",
+    "width": 390,
+    "ok": true,
+    "bytes": 41573,
+    "reachedVia": "settings -> logout (no run in progress)"
+  },
+  {
+    "id": "18-logout-confirm-in-run",
+    "width": 360,
+    "ok": true,
+    "bytes": 48876,
+    "reachedVia": "entered a run, #/settings, tapped logout"
+  },
+  {
+    "id": "18-logout-confirm-in-run",
+    "width": 390,
+    "ok": true,
+    "bytes": 50074,
+    "reachedVia": "entered a run, #/settings, tapped logout"
   }
 ]
