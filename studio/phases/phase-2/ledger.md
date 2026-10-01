@@ -288,3 +288,4 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 265 | F10 | P2-F10-T21 | art-director | 13:44:21 | 13:52:17 | NEEDS_CHANGES รอบ 1 — ภาพต้นทางผ่าน · บนจอ glyph ไม่ขึ้น, active ไม่กลับสี, จอเริ่มเกมเปล่า, ปุ่มทับกัน ฯลฯ 10 ข้อ (V-05 ปิดแล้วโดย X64) · → X65 (ขยาย) + X68 gameplay ต่อกัน, X67 qa · polish N-01..08 ยกไป |
 | 266 | F10 | P2-X66 | tech-lead | 13:47:15 | 13:55:14 | DONE — S15 key หาย · orchestrator prettier --write capture-results.json (format) ให้ root lint ผ่าน · X67 แก้ที่ต้นเหตุ |
 | 267 | F10 | P2-F10-T22 | qa-tester | 13:40:36 | 13:57:01 | PASS — acceptance 13/13, E18–E23 MET · test 3519, e2e 170/170 · 37 PARTIAL/GAP ไม่บล็อก · T24 เริ่ม |
+| 268 | F10 | P2-F10-T24 | product-manager | 13:57:01 | 14:01:59 | PASS — คำสั่งคน 7/7, event ครบไม่มี PII · PM-01/02 รวมเข้า X67 |
