@@ -234,3 +234,39 @@ Run 2 closed — 2026-09-30 21:56 · สถานะ COMPLETE — AGENT SIDE, WA
 | 217 | post-close | P2-X55 + P2-X56 | orchestrator | — | 01:34:49 | DONE — ไม่พึ่งจังหวะเวลาแคบแล้ว · 2 spec ผ่าน 50/50 (repeat 5, workers 8, retries 0) · e2e เต็ม 106/106 · prettier แก้ 1 ไฟล์ · lint+typecheck เขียว · push เพื่อยืนยันบน CI |
 | 218 | post-close | P2-X57 | orchestrator | — | 02:01:42 | DONE — deploy-preview dry run ล้มที่ Build tiles: source 20260923 ตอบ 404 (daily build ถูกลบ) · pin → 20260930 · tiles test อ่าน id fixture จาก manifest · build ในเครื่อง PASS · → X58 location-engineer (กันพังซ้ำ) |
 | 219 | post-close | P2-X59 | orchestrator | — | 02:19:45 | DONE — age gate ไม่ล้างค่าที่เลือก, intro เหลือปุ่มเริ่มเกม (D-144) · ต้อง narrative-designer ตรวจ copy key onboarding.introStart ใน content gate รอบถัดไป |
+
+## Run 3 — started 2026-10-01 02:22
+ขอบเขต: P2-F10 (D-144..D-149) + CI เขียว · งาน playtest และ HUMAN ภาคสนามคนจัดการเอง agent ไม่แตะ
+
+| # | wave | task | agent | start | end | result |
+| --- | --- | --- | --- | --- | --- | --- |
+| 220 | F0 | P2-PLAN-F10 | producer | 02:22:12 | 03:06:06 | DONE — F10 ลง board 25 แถว (T01..T24 + CI), exit E18–E26, plan-sync-f10.md 10 wave · Q-F10-1 เลข F10 ชนกับ roadmap (ไม่บล็อก) |
+| 221 | F1 | P2-F10-T04 | systems-designer | 03:21:30 | 03:45:16 | DONE — character.json + 75 vector (0 mismatch) · schema-missing รอ T07 (pnpm test แดงจนกว่า T07) · D-150 PROPOSED, D-151 |
+| 222 | F1 | P2-F10-T05 | product-manager | 03:21:30 | 03:46:29 | DONE — 8 event F10 + funnel step 6 ค่า + PRD addendum · handoff allowlist → T07, ปุ่มข้ามเรื่อง/logout ระหว่าง run → T01 |
+| 223 | F1 | P2-F10-T01 | game-director | 03:21:30 | 03:46:53 | DONE — spec F10 R01..R52 + ร่างแก้ GDD (D-153 → คน, Q-P2-10) · D-152 ACCEPTED · → P2-H62 pillars/F06 (dep ของ T23) |
+| 224 | F1 | P2-F10-T02, T07, T08, P2-H62 | art-director, tech-lead, qa-tester, game-director | 03:47 | 04:28:12 | ค้างแล้วหลุด (stream stall 600 s) · T02 มีไฟล์ 233 บรรทัด ที่เหลือไม่มีไฟล์ · ส่งใหม่ครั้งที่ 2 พร้อม context resume และให้เขียนทีละน้อย |
+| 225 | F1 | P2-X58 | location-engineer | 03:21:30 | 04:29:19 | DONE — ADR 0004 + resolve-build.sh · tiles test 89/89 · pin ที่ถูกลบแล้วยัง build ผ่าน · D-154 PROPOSED → P2-H63 tech-lead |
+| 226 | F1 | P2-F10-T03 | narrative-designer | 03:21:30 | 04:30:06 | DONE — story 5 slide + ชื่อสุ่ม 256 + blockedTerms · lint:copy exit 0 (orchestrator รัน) · key ไม่ตรงกับ T04 → P2-H64 (dep ของ T12) · D-155 ACCEPTED, D-156 PROPOSED → T10 |
+| 227 | F1 | P2-H62 | game-director | 04:21:59 | 04:31:08 | DONE (attempt 2) — pillars NN-4/6.1/6.2/ดัชนี + F06 ชี้ F10 · ไม่ผ่อน non-negotiable · ตาราง F06 3.8 ให้ T23 ตรวจ |
+| 228 | F1 | P2-F10-T02 | art-director | 04:21:59 | 04:31:18 | DONE (attempt 2) — shell direction ครบ 11 หัวข้อ + icon-grammar nav · D-157 logout glyph ใหม่ |
+| 229 | F2 | P2-F10-T08 | qa-tester | 04:21:59 | 04:35:47 | DONE (attempt 2) — test plan 85 case · e2eSkipOnboarding ต้องครอบขั้น F10 → T07/T12/T14 |
+| 230 | F2 | P2-H64 | systems-designer | 04:30:17 | 04:38:28 | DONE — character.json v2 อ้าง key จริง, กฎจับคำอยู่ที่เดียว · 116 check 0 mismatch · ชื่อสุ่มผ่านครบ · prose ใน content → T11 (เพิ่ม character-names.th.json ใน writes) |
+| 231 | F2 | P2-F10-T09 | artist-2d | 04:31:18 | 05:13:44 | หลุด (stall 600 s) หลังวาด 7 SVG ครบแต่ยังไม่ลง manifest · ส่งใหม่ครั้งที่ 2 ให้ทำต่อ |
+| 232 | F2 | P2-F10-T06 | uiux-designer | 04:31:18 | 05:28:48 | หลุด (stall 600 s) flow หัวข้อ 0–7 มีแล้ว 144 บรรทัด ยังไม่มี wireframe · ส่งใหม่ครั้งที่ 2 ให้ทำต่อ แยก wireframe เป็นไฟล์เล็ก |
+| 233 | F2 | P2-F10-T07 | tech-lead | 04:21:59 | 06:46:10 | DONE (attempt 2, ข้อ lint/test แดงจากงานอื่น) — tech note + schema + allowlist · D-150/D-158/D-159 ACCEPTED · → H65 systems, H66 PM, แก้ข้อความ T17 · T12 พร้อม |
+| 234 | F3 | P2-H65 | systems-designer | 06:49:26 | 06:52:17 | DONE — _source + tolerance · lint:config 0 error · runner ต้องการ evaluator → ขยาย writes ของ T12 ให้ครอบ formulas/vectors.test.ts และ tools/sim/src |
+| 235 | F3 | P2-H63 | tech-lead | 06:50:12 | 06:52:25 | DONE — PASS · ADR 0004 ACCEPTED (D-154) · tiles test 89/89 |
+| 236 | F3 | P2-H66 | product-manager | 06:49:26 | 06:55:09 | DONE — ข้อความ logout ตรง R41 · ปิด 4 assumption · event ตรง config ครบ |
+| 237 | F3 | P2-F10-T09 | artist-2d | 04:59 | 06:56:09 | DONE (attempt 2) — 7 icon + manifest · validate 0 error · ลบ .tmp-artist-check แล้ว root lint ผ่าน · V13 → H67 tech-lead |
+| 238 | F3 | P2-H67 | tech-lead | 06:56:09 | 07:00:19 | DONE — แยก manifest icon ตามกลุ่ม · validate 0/0 · icon-glyph.test นับ 30 ได้ 37 → T14 · doc asset-delivery → T18 |
+| 239 | F3 | P2-F10-T06 | uiux-designer | 06:4x | 07:08:43 | DONE (attempt 2) — flow ครบ + wireframe 6 ไฟล์ + components 16 + ia + tokens · placeholder emoji → H68 · ปลด T10, T11, T13 |
+| 240 | F4 | P2-F10-T10, T11, T12, P2-H68 | game-director, narrative-designer, backend-programmer, uiux-designer | 07:08:43 | 07:57:43 | หลุด (stall 600 s) ทั้ง 4 · T12 มีโมดูล 11 ไฟล์ typecheck ผ่าน ยังไม่มี test · T10/T11/H68 ยังไม่ได้เขียนไฟล์ · ส่งใหม่ครั้งที่ 2 ติด classifier ไม่ตอบ (transient) |
+| 241 | F4 | P2-H68 | orchestrator | 07:42 | 08:14:21 | DONE (done by orchestrator) — uiux หลุด 2 ครั้งโดยไม่เขียนไฟล์ · แทน emoji 22 จุดด้วย img SVG จริง (shuffle, help, settings, enhance, bag, market, party, map, coming-soon) · 0 emoji เหลือ |
+| 242 | F4 | P2-F10-T10, P2-F10-T11 | game-director, narrative-designer | 07:5x | 08:14:33 | หลุดครั้งที่ 2 โดยไม่เขียนไฟล์ · ลดขอบเขตครึ่งหนึ่งตาม failure handling: ส่วน B แยกเป็น P2-H69 (R18 + Intl.Segmenter) และ P2-H70 (nav/comingSoon/logout/areas/character-names) · ส่งครั้งที่ 3 |
+| 243 | F5 | P2-F10-T10 | game-director | 08:14 | 08:16:42 | DONE (attempt 3 ส่วน A) — PASS · D-156 ACCEPTED bodySystem · → H71 uiux (N1/N2) · H69 เริ่ม |
+| 244 | F5 | P2-F10-T11 | narrative-designer | 08:14 | 08:17:55 | DONE (attempt 3 ส่วน A) — 37 key · orchestrator รัน lint:copy: FAIL 6 (button/label เกินเพดาน, ตัวเลขนอก {}) → รวมเข้า H70 |
+| 245 | F5 | P2-H69 | game-director | 08:16 | 08:17:55 | DONE — R18 ตาม D-150 · fail-closed ยืนยัน · → T18/T19/H70 |
+| 246 | F5 | P2-H71 | uiux-designer | 08:16 | 08:18:26 | DONE — flow N1/N2 + wireframe slide 4 ตาม D-156 · F10-story.md ยังอ้าง slide4.body เป็นหลัก → narrative ตรวจใน T20 |
+| 247 | F5 | P2-H70 | narrative-designer | 08:18:01 | 09:27:53 | หลุดครั้งที่ 1 หลังแก้ lint FAIL 6 ข้อ (lint:copy exit 0) + area + nav/comingSoon ครบ · ส่งใหม่เฉพาะที่เหลือ: logout key, unsupportedBrowser, character-names pointer + _source |
+| 248 | F5 | P2-H70 | orchestrator | 08:2x | 09:55:49 | DONE (done by orchestrator หลัง narrative หลุด 2 ครั้ง) — logout 6 key + unsupportedBrowser + pointer/_source ใน character-names · lint:copy 0, lint:config 0 error 13 STALE · ให้ T20 ตรวจถ้อยคำ |
+| 249 | F4 | P2-F10-T13 | artist-2d | 07:08:43 | 10:06:14 | DONE — 5 SVG slide (20.7 KB รวม) · validate 0/0 · lint ผ่าน · จุดให้ T21 ตรวจ 2 ข้อ |

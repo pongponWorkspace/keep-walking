@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F10 Flow F: Setting + ออกจากระบบ (P2-F10-T06)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F10 Flow F — S-22-settings (5 แถว) + popup ยืนยันออกจากระบบ (ไม่มี run / มี run)</h1>
+  <p>อ้างอิง: design/ux/flows/F10-account-shell.md หัวข้อ 7 · components.md หัวข้อ 16.7 · art/direction/F10-shell-direction.md หัวข้อ 3 · แถวออกจากระบบใช้ `icon.ui.logout` (ไม่ใช่ `icon.ui.exit`) สีข้อความ `ink.900` ปกติ ไม่ใช่ `state.danger` เพราะไม่ทำลายข้อมูล (F10-R40)</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>F1. S-22-settings — 5 แถว (เพิ่มแถวออกจากระบบ)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">settings.title</span> <span class="thaidraft">(ตั้งค่า)</span></div></div>
+  <div style="position:absolute;top:66px;right:12px;width:48px;height:48px;border:2px solid var(--ink-900);border-radius:12px;background:var(--bg-surface);box-shadow:0 4px 0 var(--ink-900);display:none;"></div>
+  <div class="screen-body">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card"><span class="copykey">settings.walkingSafetyLink</span> <span class="thaidraft">(การเดินและความปลอดภัย)</span> ›</div>
+      <div class="card"><span class="copykey">settings.privacyLink</span> <span class="thaidraft">(ความเป็นส่วนตัว)</span> ›</div>
+      <div class="card" style="border-color:var(--state-danger);"><span class="copykey">settings.clearLocalDataLink</span> <span class="thaidraft">(ลบข้อมูลในเครื่อง)</span> ›</div>
+      <div class="card"><span class="copykey">settings.creditsLink</span> <span class="thaidraft">(เครดิตและลิขสิทธิ์)</span> ›</div>
+      <div class="card" style="display:flex;align-items:center;gap:8px;"><span>↪</span><span class="copykey">settings.logoutLink</span> <span class="thaidraft">(ออกจากระบบ)</span></div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">แถวที่ 5 ใหม่ของ F10 วางท้ายรายการ · ปุ่ม Setting ไม่แสดงบนจอนี้เอง (flow หัวข้อ 8 — ไม่อยู่ในรายการ R33/R37) · 4 แถวบนไม่เปลี่ยนพฤติกรรมจาก F06</p>
+</div>
+
+<div class="frame-block">
+<h3>F2a. popup ยืนยันออกจากระบบ — ไม่มี run</h3>
+<div class="phone">
+  <div class="screen-body" style="padding:0;">
+    <div class="popup-overlay center"><div class="popup center-sheet">
+      <h1 class="scr-title"><span class="copykey">settings.logoutConfirmTitle</span> <span class="thaidraft">(ออกจากระบบไหม)</span></h1>
+      <p class="body-text"><span class="copykey">settings.logoutConfirmBody</span> <span class="thaidraft">(ตัวละครและของในเครื่องยังอยู่)</span></p>
+      <div class="btn-row">
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">settings.logoutCancelButton</span> <span class="thaidraft">(ยกเลิก)</span></div>
+        <div class="btn btn-primary" style="flex:1;height:48px;"><span class="copykey">settings.logoutConfirmButton</span> <span class="thaidraft">(ออกจากระบบ)</span></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+<p class="frame-caption">ปุ่มยืนยัน**ไม่ใช้** `.btn-danger-confirm` (ไม่ทำลายข้อมูล, F10-R40) · ยืนยัน → ธง signed in = false → S-00-login (ไม่ลบ class/ชื่อ/HP/inventory ใดๆ)</p>
+</div>
+
+<div class="frame-block">
+<h3>F2b. popup ยืนยันออกจากระบบ — มี run อยู่ (เพิ่มบรรทัดเตือน)</h3>
+<div class="phone">
+  <div class="screen-body" style="padding:0;">
+    <div class="popup-overlay center"><div class="popup center-sheet">
+      <h1 class="scr-title"><span class="copykey">settings.logoutConfirmTitle</span></h1>
+      <p class="body-text"><span class="copykey">settings.logoutConfirmBody</span></p>
+      <p class="body-text" style="color:var(--state-info);"><span class="copykey">settings.logoutConfirmRunNote</span> <span class="thaidraft">(run ที่เล่นอยู่จะจบทันที ของที่เก็บมาอยู่ครบ)</span></p>
+      <div class="btn-row">
+        <div class="btn btn-secondary" style="flex:1;"><span class="copykey">settings.logoutCancelButton</span></div>
+        <div class="btn btn-primary" style="flex:1;height:48px;"><span class="copykey">settings.logoutConfirmButton</span></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+<p class="frame-caption">มี run (Active/Grace/Suspended) → ยืนยันแล้ว run จบทันทีด้วย `manual_exit` ทางเดียว ของเก็บครบ หยุดขอตำแหน่งทันที ไม่ผ่าน Grace/Suspended/`timeout` (F10-R42) → หน้าสรุป run ปกติ → S-00-login</p>
+</div>
+
+</div>
+</body>
+</html>

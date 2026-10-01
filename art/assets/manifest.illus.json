@@ -1,7 +1,7 @@
 {
   "manifestVersion": 1,
   "avatarRig": 1,
-  "updated": "2026-09-27",
+  "updated": "2026-10-01",
   "baseDir": "art/assets",
   "assets": [
     {
@@ -36,6 +36,196 @@
         "modified": false
       },
       "notes": "P2 (ลำดับ P2, ไม่บังคับ) · overlay speed lock ใช้ icon.ui.speed-lock 48 px แทนได้ครบ loop โดยไม่มีไฟล์นี้ (P2-assets.md 2.6)"
+    },
+    {
+      "id": "illus.story.slide-1",
+      "kind": "illus",
+      "status": "draft",
+      "placeholder": false,
+      "size": { "width": 320, "height": 240 },
+      "files": [
+        {
+          "path": "illus/story/slide-1.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 4492,
+          "width": 320,
+          "height": 240,
+          "sha256": "5a8e727a7b9f36200b8be2cc39fbfac13143d072d9fa98179613c79bcf83cd7e"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T13",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "F10 เรื่องเล่า slide 1/5 (story.slide1) · art/direction/F10-shell-direction.md หัวข้อ 8.3 แถว slide 1 + 8.2/8.4 · เนื้อหาเดินตาม design/narrative/F10-story.md หัวข้อ 4 (รอยแยกโผล่ตามสวน/ตลาด คนยังวิ่งปกติ) · ไม่ tintable"
+    },
+    {
+      "id": "illus.story.slide-2",
+      "kind": "illus",
+      "status": "draft",
+      "placeholder": false,
+      "size": { "width": 320, "height": 240 },
+      "files": [
+        {
+          "path": "illus/story/slide-2.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 5547,
+          "width": 320,
+          "height": 240,
+          "sha256": "b1c53dd751cb18e6217ca2ef27e3c11810417effdaad4aa44d5435d170ad9206"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T13",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "F10 เรื่องเล่า slide 2/5 (story.slide2) · art/direction/F10-shell-direction.md หัวข้อ 8.3 แถว slide 1 (รถติด+คิวชานม นำมาใช้กับ slide 2 ตามข้อความ T03) + 8.2/8.4 · ไม่ tintable"
+    },
+    {
+      "id": "illus.story.slide-3",
+      "kind": "illus",
+      "status": "draft",
+      "placeholder": false,
+      "size": { "width": 320, "height": 240 },
+      "files": [
+        {
+          "path": "illus/story/slide-3.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 3523,
+          "width": 320,
+          "height": 240,
+          "sha256": "bc7c8edc22478e066f967a24faa5a33e8e44eaa803c2913013b543cbedd5c9fc"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T13",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "F10 เรื่องเล่า slide 3/5 (story.slide3) · art/direction/F10-shell-direction.md หัวข้อ 8.3 แถว slide 3 (รอยแยกเปิดในสวน ซิกแซกแนวตั้ง ≥45% สูง จ๊อกกิ้ง+นกพิราบ) + 8.2/8.4 · ใช้ซ้ำเป็นภาพหลักจอเริ่มเกม S-00-intro (A-P2-F10-T02-1, หัวข้อ 5.1) ห้ามเปลี่ยนสัดส่วนหรือสร้างไฟล์ใหม่สำหรับจอเริ่ม · ไม่ tintable"
+    },
+    {
+      "id": "illus.story.slide-4",
+      "kind": "illus",
+      "status": "draft",
+      "placeholder": false,
+      "size": { "width": 320, "height": 240 },
+      "files": [
+        {
+          "path": "illus/story/slide-4.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 3305,
+          "width": 320,
+          "height": 240,
+          "sha256": "3d83121e72026b222de3bc378d5159202469047562bf38da129a47851bacc7d1"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T13",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "F10 เรื่องเล่า slide 4/5 (story.slide4) · art/direction/F10-shell-direction.md หัวข้อ 8.3 แถว slide 4 (ผู้เล่นตีมอนสเตอร์ถุงพลาสติกด้วยร่มพับ เส้นแรงกระแทก 3 เส้น คนเดินผ่านยักไหล่) + 8.2/8.4 · เสื้อกันฝน+ร่มพับ = ชุดประดับ placeholder เดียวกับผู้เล่นใน slide 5 · ไม่มีท่าวีรบุรุษ ไม่มีแสงรอบตัว · ไม่ tintable"
+    },
+    {
+      "id": "illus.story.slide-5",
+      "kind": "illus",
+      "status": "draft",
+      "placeholder": false,
+      "size": { "width": 320, "height": 240 },
+      "files": [
+        {
+          "path": "illus/story/slide-5.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 3799,
+          "width": 320,
+          "height": 240,
+          "sha256": "717b70c84c48a09fdfcdd36a18e0f71ffe4773523cb44be830fc7eb785077883"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T13",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "F10 เรื่องเล่า slide 5/5 (story.slide5) · art/direction/F10-shell-direction.md หัวข้อ 8.3 แถว slide 5 (ผู้เล่นเดินบนทางสวน รอยเท้า ถุงผงธาตุ 2 ถุงรอเก็บ รอยแยกเล็กไกลๆ แดด) + 8.2/8.4 · นำเข้าปุ่ม \"ออกไปลุย!\" (หัวข้อ 8.6) · ไม่ tintable"
     }
   ]
 }

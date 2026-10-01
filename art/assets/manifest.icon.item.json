@@ -1,0 +1,452 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-10-01",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "icon.item.armor-raincoat",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/armor-raincoat.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 543,
+          "width": 64,
+          "height": 64,
+          "sha256": "121180dde66f4c163b99bf951a4abb08c580ff80f0424f782d5c52bb87b0e3c3"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "สีอ้างอิงชั่วคราวจาก ramp.cone (เสื้อกันฝนโทนส้ม) เพราะยังไม่มี ramp เสื้อกันฝนเฉพาะ · [ASSUMPTION P2-F05-T07-1]"
+    },
+    {
+      "id": "icon.item.boots-rain-boots",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/boots-rain-boots.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 559,
+          "width": 64,
+          "height": 64,
+          "sha256": "d3d173585f2832b061f5c15eed328773d777c67944bbd99e4d8bf3d0bc99c5e7"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "สีอ้างอิงชั่วคราวจาก ramp.cone (คู่กับ armor-raincoat) · [ASSUMPTION P2-F05-T07-1]"
+    },
+    {
+      "id": "icon.item.charm-keychain",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/charm-keychain.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 493,
+          "width": 64,
+          "height": 64,
+          "sha256": "4ef7337d57827b03ea66b40301fe3eb13085797c55b0c45f98649bb3bf47dd99"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "สีอ้างอิงชั่วคราวจาก ramp.wood (ตัวพวงกุญแจ) + วงแหวน ink.900 · [ASSUMPTION P2-F05-T07-1]"
+    },
+    {
+      "id": "icon.item.mat-dust",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/mat-dust.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 468,
+          "width": 64,
+          "height": 64,
+          "sha256": "a87ce8f1f5b21636c49ebbbe7755902fff60a289e6b5975bf4e16bb5d9cd9ff0"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.mat-essence",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/mat-essence.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 516,
+          "width": 64,
+          "height": 64,
+          "sha256": "56ce1cbb797c9a1effff8c6909471abee47b1da19b8b7c5c2034ff770ce23d80"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.mat-rift-stone",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/mat-rift-stone.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 561,
+          "width": 64,
+          "height": 64,
+          "sha256": "a427ab7cc8b82c4582f4931ed3008ab71c5f8322358914688472d8ae0042dcdf"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.potion-hp-large",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/potion-hp-large.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 688,
+          "width": 64,
+          "height": 64,
+          "sha256": "a97a094bc6ef2f49f45041e16a354dc8912c43d7bdcb3c2ea29148d64031e11c"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.potion-hp-medium",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/potion-hp-medium.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 681,
+          "width": 64,
+          "height": 64,
+          "sha256": "cae02cb15fa98073393f2b75e81bdd7629379f487773553c620327af6c383c80"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.potion-hp-small",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/potion-hp-small.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 671,
+          "width": 64,
+          "height": 64,
+          "sha256": "8671d73b59796b89593e981c89a392651745463f61bb189be798870b3844b810"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.potion-revive",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/potion-revive.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 849,
+          "width": 64,
+          "height": 64,
+          "sha256": "337ed99ea100f2150d9786075c7aac4cabd89d5bbba80cbe91d12514997345bf"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.item.weapon-folding-umbrella",
+      "kind": "icon-item",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "files": [
+        {
+          "path": "icon/item/weapon-folding-umbrella.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 635,
+          "width": 64,
+          "height": 64,
+          "sha256": "9d9427803a41c0e610aaed5e75f98f5da437de926d65f3e71c25ed5ba1dc6b2d"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "สีอ้างอิงชั่วคราวจาก ramp.wood (ด้าม) และ ramp.asphalt (ผ้าร่มพับ) เพราะยังเข้าไม่ถึงสีจริงของ avatar.weapon.folding-umbrella master · [ASSUMPTION P2-F05-T07-1] ถ้าไม่ตรง art-director ปรับสีได้โดยไม่ต้องเปลี่ยน id"
+    }
+  ]
+}

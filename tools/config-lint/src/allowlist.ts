@@ -20,5 +20,99 @@ export interface AllowEntry {
   readonly fix: string;
 }
 
-// Empty since P2-X07: the unit-suffix follow-ups of P2-X04 and the P2-X06 renames are all fixed.
-export const ALLOWLIST: readonly AllowEntry[] = [];
+// P2-X07 emptied the list. P2-F10-T07 adds the in-flight F10 entries below: objects without
+// `_source` in the T03 content file (narrative-designer) and in the P2-H64 v2 banned.modes /
+// banned.allow blocks of character.json (systems-designer). Both owners fix in the same wave.
+const H64_SOURCE = {
+  kind: 'in-flight',
+  owner: 'systems-designer',
+  task: 'P2-H64 follow-up (orchestrator schedules)',
+  fix: 'add _source to banned.modes.* and banned.allow.* (ADR 0001 3.10.4)',
+} as const;
+const T03_SOURCE = {
+  kind: 'in-flight',
+  owner: 'narrative-designer',
+  task: 'P2-F10-T03 fix (orchestrator schedules)',
+  fix: 'add _source to every object with values (ADR 0001 3.10.4)',
+} as const;
+
+export const ALLOWLIST: readonly AllowEntry[] = [
+  {
+    rule: 'source-missing',
+    file: 'config/balance/character.json',
+    at: 'banned.modes.substring',
+    ...H64_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/balance/character.json',
+    at: 'banned.modes.token',
+    ...H64_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/balance/character.json',
+    at: 'banned.modes.substringHeavy',
+    ...H64_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/balance/character.json',
+    at: 'banned.allow.light',
+    ...H64_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/balance/character.json',
+    at: 'banned.allow.heavy',
+    ...H64_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/content/character-names.th.json',
+    at: 'randomName',
+    ...T03_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/content/character-names.th.json',
+    at: 'randomName.fallback',
+    ...T03_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/content/character-names.th.json',
+    at: 'blockedTerms.normalization',
+    ...T03_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/content/character-names.th.json',
+    at: 'blockedTerms.normalization.matchModes',
+    ...T03_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/content/character-names.th.json',
+    at: 'blockedTerms.normalization.allow',
+    ...T03_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/content/character-names.th.json',
+    at: 'blockedTerms.substring',
+    ...T03_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/content/character-names.th.json',
+    at: 'blockedTerms.substringHeavy',
+    ...T03_SOURCE,
+  },
+  {
+    rule: 'source-missing',
+    file: 'config/content/character-names.th.json',
+    at: 'blockedTerms.token',
+    ...T03_SOURCE,
+  },
+];

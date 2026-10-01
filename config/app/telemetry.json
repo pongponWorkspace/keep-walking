@@ -103,5 +103,163 @@
       ]
     },
     "_note": "Each exported line is {event_name, t_rel_ms, session_id, platform, app_version, properties}. t_rel_ms is measured from the first event in the file, so the file never carries a wall-clock time or date; the file name has the prefix plus a random 8-hex id, no date. Before building the Blob the exporter and its test reject any property whose name is in forbiddenPropertyNames and any numeric value (or numeric string) that matches the coordinate guard. account_id is absent in Phase 2 (no accounts)"
+  },
+  "f10Events": {
+    "_source": {
+      "events": "product/telemetry-events.md 2b (P2-F10-T05); design/features/F10-account-shell.md R50 (enum or bucket values only)",
+      "funnelSteps": "product/telemetry-events.md 2 onboarding_funnel_step (P2-F10-T05 added six steps, D-149)",
+      "filterRejectCountBuckets": "product/telemetry-events.md 2b character_created.filter_reject_count"
+    },
+    "events": [
+      {
+        "event": "account_login_shown",
+        "properties": [
+          {
+            "property": "context",
+            "type": "enum",
+            "values": [
+              "first_time",
+              "relogin"
+            ]
+          }
+        ]
+      },
+      {
+        "event": "account_login_method_chosen",
+        "properties": [
+          {
+            "property": "method",
+            "type": "enum",
+            "values": [
+              "google",
+              "apple",
+              "email_login",
+              "email_register",
+              "email_forgot"
+            ]
+          }
+        ]
+      },
+      {
+        "event": "character_created",
+        "properties": [
+          {
+            "property": "class_id",
+            "type": "enum",
+            "values": [
+              "tanker",
+              "ranged",
+              "support",
+              "magic"
+            ]
+          },
+          {
+            "property": "name_source",
+            "type": "enum",
+            "values": [
+              "typed",
+              "random"
+            ]
+          },
+          {
+            "property": "filter_reject_count",
+            "type": "enum",
+            "values": [
+              "0",
+              "1-2",
+              "3-5",
+              "6+"
+            ]
+          }
+        ]
+      },
+      {
+        "event": "story_completed",
+        "properties": [
+          {
+            "property": "slides_viewed_count",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "event": "story_skipped",
+        "properties": [
+          {
+            "property": "slide_index_at_skip",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "event": "nav_tab_opened",
+        "properties": [
+          {
+            "property": "tab",
+            "type": "enum",
+            "values": [
+              "inventory",
+              "upgrade",
+              "map",
+              "shop",
+              "party"
+            ]
+          }
+        ]
+      },
+      {
+        "event": "coming_soon_viewed",
+        "properties": [
+          {
+            "property": "tab",
+            "type": "enum",
+            "values": [
+              "upgrade",
+              "shop",
+              "party"
+            ]
+          }
+        ]
+      },
+      {
+        "event": "account_logout",
+        "properties": [
+          {
+            "property": "during_run",
+            "type": "boolean"
+          }
+        ]
+      }
+    ],
+    "funnelSteps": [
+      "login_shown",
+      "login_method_chosen",
+      "character_create_shown",
+      "character_create_done",
+      "story_shown",
+      "story_done"
+    ],
+    "filterRejectCountBuckets": {
+      "upperBoundsInclusive": [
+        0,
+        2,
+        5
+      ],
+      "labels": [
+        "0",
+        "1-2",
+        "3-5",
+        "6+"
+      ]
+    },
+    "forbiddenPropertyNames": [
+      "name",
+      "character_name",
+      "email",
+      "password",
+      "provider_account_id",
+      "typed_text"
+    ],
+    "_note": "Allowlist of the F10 events and their property values, exact names from product/telemetry-events.md 2b. Each property has type enum (with values), integer or boolean. Event and property names are snake_case telemetry identifiers, so they are values here, not keys (config-lint 3.10.3 keys are camelCase). The client mapper records only these names and values (unknown = drop + dev warning, D-088) and the exporter also rejects forbiddenPropertyNames on every event. class_id values mirror config/balance/classes.json roles (checked by the client unit test, not duplicated as a source of truth). character_create_done and story_done funnel steps fire at the same at_ms as character_created and story_completed (A-P2-F10-T05-1, tech note F10 8)"
   }
 }

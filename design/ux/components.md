@@ -1,6 +1,6 @@
 # Component Spec — GPS Dungeon กรุงเทพฯ
 
-Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อยกเว้น `buttonFullWidth` D-050 หัวข้อ 10.1, ยืนยันเพดานชื่อโซน 17/14/34 หัวข้อ 8), P1-X17 (2026-09-23: F-04 ตัดสินทิศทาง A จอพกกระเป๋า/Wake Lock แทนประเด็นเปิดเดิมในหัวข้อ 12, F-08 ตัดเมนูภาษาออกจาก v1), P1-X35 (2026-09-24: แก้ V-02 ตาม `art/reviews/F03-visual-gate.md` 3.7a–d — เลิกพื้นอ่อนนอก token ของ pill/banner, toast จางเป็นทึบ 100%, การ์ดที่เลือกคงขอบหมึก+เพิ่มวงแหวนนอก, รอยแยกจำลองทึบมีขอบหมึก · เพิ่มหัวข้อ 3.1 บันทึกเงื่อนไข R-6 ของปุ่ม login) P2-H05 (2026-09-27: เพิ่มหัวข้อ 13.9 — เทคนิคเรนเดอร์ `icon.ui.*`/`icon.ui16.*` ที่ต้อง tint ตามโทน, ตัดสินใช้ inline SVG + field `tintable` ใหม่ในทะเบียน asset) P2-H39 (2026-09-28: แก้หัวข้อ 12.1 แถว Toast/cue + เพิ่มหัวข้อ 15.4 — ตัดสินไม่เพิ่มระดับ z-index ใหม่เหนือ `overlay` ให้ toast บนจอพกกระเป๋า ใช้เสียง/สั่น/ตัวเลข HP-tick ของจอพกกระเป๋าเองแทน) และ P2-H40 (2026-09-28: ปิด A-P2-X38-4/V-38/V-32/V-22 — เพิ่มหัวข้อ 3.2 (ปุ่มทางลัดในเนื้อหา), 3.3 (ยืนยันปุ่ม primary ของ inventory = 0), แก้ GPS pill หัวข้อ 2.1 เป็น 16px, แก้ตาราง toast/banner หัวข้อ 6 ให้ 16px ทุกแถวและรวมป้าย auto-retreat-off เข้ากับ `.banner.warn`, ยืนยัน `run.hpBarLabel` ไม่ใช้ในหัวข้อ 7) และ P2-H49 (2026-09-28: ตรวจสมมติฐาน CSS ของ P2-X42 — ปิด A-P2-X42-1 เพิ่มตารางสีต่อสถานะของ `.gps-pill` หัวข้อ 2.1 (ไม่ใช่ `state.danger` เดียวทุกสถานะ, `searching`=`state.info`), ปิด A-P2-X42-3 เพิ่มตาราง icon ต่อเหตุของแถว check-in หัวข้อ 13.3 (ยืนยันโค้ดถูกแล้ว), ปิด A-P2-X42-4 เพิ่มหัวข้อ 3.4 (แก้ทิศทาง: `.btn-fullwidth-bottom` ต้อง `position: sticky` ไม่ใช่ normal flow เฉยๆ เพราะรายการรางวัลของ `S-04-run-summary` ไม่มีเพดาน)) และ P2-H51 (2026-09-28: ยืนยันตำแหน่งป้าย Recovering ที่ build เดาไว้เอง (C6-05) เป็นสเปกจริง เพิ่มหัวข้อ 6.1 พร้อมพบไอคอนที่ขาด · ปิด C6-06 เพิ่มย่อหน้าในหัวข้อ 13.8 ว่าชิประยะของ `home.farBody` อยู่บรรทัดใหม่ต่อจาก body ไม่ใช่ฝังกลางประโยค) และ P2-H54 (2026-09-30: ปิด R2-3/R2-5 ของ `art/reviews/F04-F06-visual-gate.md` §7.3 — แก้หัวข้อ 3.4 ให้พื้น `bg.paper` อยู่ที่แถบ `.screen-bottom-bar` ใหม่ ไม่ใช่ที่ตัวปุ่ม `.btn-fullwidth-bottom` เอง, แก้หัวข้อ 13.2 ให้ตัวอักษร run-state pill เป็น 16px ทุกสถานะ, เพิ่มหัวข้อ 13.10 ยืนยันรูปทรงปุ่มแผนที่ตามตัว `#follow-toggle` และหัวข้อ 9.1 ปิด V-42 รูปทรง toggle switch) · เจ้าของ: uiux-designer · สถานะ: แก้ตาม `art/reviews/F03-visual-gate.md` (V-02) รอ re-run gate รอบถัดไป · วันที่: 2026-09-24
+Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อยกเว้น `buttonFullWidth` D-050 หัวข้อ 10.1, ยืนยันเพดานชื่อโซน 17/14/34 หัวข้อ 8), P1-X17 (2026-09-23: F-04 ตัดสินทิศทาง A จอพกกระเป๋า/Wake Lock แทนประเด็นเปิดเดิมในหัวข้อ 12, F-08 ตัดเมนูภาษาออกจาก v1), P1-X35 (2026-09-24: แก้ V-02 ตาม `art/reviews/F03-visual-gate.md` 3.7a–d — เลิกพื้นอ่อนนอก token ของ pill/banner, toast จางเป็นทึบ 100%, การ์ดที่เลือกคงขอบหมึก+เพิ่มวงแหวนนอก, รอยแยกจำลองทึบมีขอบหมึก · เพิ่มหัวข้อ 3.1 บันทึกเงื่อนไข R-6 ของปุ่ม login) P2-H05 (2026-09-27: เพิ่มหัวข้อ 13.9 — เทคนิคเรนเดอร์ `icon.ui.*`/`icon.ui16.*` ที่ต้อง tint ตามโทน, ตัดสินใช้ inline SVG + field `tintable` ใหม่ในทะเบียน asset) P2-H39 (2026-09-28: แก้หัวข้อ 12.1 แถว Toast/cue + เพิ่มหัวข้อ 15.4 — ตัดสินไม่เพิ่มระดับ z-index ใหม่เหนือ `overlay` ให้ toast บนจอพกกระเป๋า ใช้เสียง/สั่น/ตัวเลข HP-tick ของจอพกกระเป๋าเองแทน) และ P2-H40 (2026-09-28: ปิด A-P2-X38-4/V-38/V-32/V-22 — เพิ่มหัวข้อ 3.2 (ปุ่มทางลัดในเนื้อหา), 3.3 (ยืนยันปุ่ม primary ของ inventory = 0), แก้ GPS pill หัวข้อ 2.1 เป็น 16px, แก้ตาราง toast/banner หัวข้อ 6 ให้ 16px ทุกแถวและรวมป้าย auto-retreat-off เข้ากับ `.banner.warn`, ยืนยัน `run.hpBarLabel` ไม่ใช้ในหัวข้อ 7) และ P2-H49 (2026-09-28: ตรวจสมมติฐาน CSS ของ P2-X42 — ปิด A-P2-X42-1 เพิ่มตารางสีต่อสถานะของ `.gps-pill` หัวข้อ 2.1 (ไม่ใช่ `state.danger` เดียวทุกสถานะ, `searching`=`state.info`), ปิด A-P2-X42-3 เพิ่มตาราง icon ต่อเหตุของแถว check-in หัวข้อ 13.3 (ยืนยันโค้ดถูกแล้ว), ปิด A-P2-X42-4 เพิ่มหัวข้อ 3.4 (แก้ทิศทาง: `.btn-fullwidth-bottom` ต้อง `position: sticky` ไม่ใช่ normal flow เฉยๆ เพราะรายการรางวัลของ `S-04-run-summary` ไม่มีเพดาน)) และ P2-H51 (2026-09-28: ยืนยันตำแหน่งป้าย Recovering ที่ build เดาไว้เอง (C6-05) เป็นสเปกจริง เพิ่มหัวข้อ 6.1 พร้อมพบไอคอนที่ขาด · ปิด C6-06 เพิ่มย่อหน้าในหัวข้อ 13.8 ว่าชิประยะของ `home.farBody` อยู่บรรทัดใหม่ต่อจาก body ไม่ใช่ฝังกลางประโยค) และ P2-H54 (2026-09-30: ปิด R2-3/R2-5 ของ `art/reviews/F04-F06-visual-gate.md` §7.3 — แก้หัวข้อ 3.4 ให้พื้น `bg.paper` อยู่ที่แถบ `.screen-bottom-bar` ใหม่ ไม่ใช่ที่ตัวปุ่ม `.btn-fullwidth-bottom` เอง, แก้หัวข้อ 13.2 ให้ตัวอักษร run-state pill เป็น 16px ทุกสถานะ, เพิ่มหัวข้อ 13.10 ยืนยันรูปทรงปุ่มแผนที่ตามตัว `#follow-toggle` และหัวข้อ 9.1 ปิด V-42 รูปทรง toggle switch) และ P2-F10-T06 (2026-10-01: เพิ่มหัวข้อ 16 — bottom nav 5 ช่องคงที่ของ F10 (`.bottombar-f10`), ปุ่ม Setting มุมบนขวาแบบ plate ลอย, จอเร็วๆ นี้, ช่องชื่อตัวละคร+ปุ่มสุ่ม+คำเตือน, story pager, ปุ่ม login bypass, แถวออกจากระบบ · ยืนยัน A-P2-F10-T02-3/A-4 ของ `art/direction/F10-shell-direction.md` เป็นค่าสุดท้าย) · เจ้าของ: uiux-designer · สถานะ: แก้ตาม `art/reviews/F03-visual-gate.md` (V-02) รอ re-run gate รอบถัดไป · วันที่: 2026-10-01
 แหล่งอ้างอิง: `design/ux/tokens.json` (ค่า token) · `design/ux/wireframes/*.html` (ตัวอย่างจริงของทุกคอมโพเนนต์) · `design/ux/ia.md`, `design/ux/flows/F03-core-loop.md` (พฤติกรรมและ copy key) · `art/direction/style-guide.md` หัวข้อ 2–7 (กฎอ่านออกกลางแดด, palette, shape, เส้น, ฟอนต์) · `art/direction/icon-grammar.md` (ขนาด icon, class badge, rarity frame) · `design/narrative/style-guide.md` หัวข้อ 4 (ตัวแปร, ความยาว, `kind`)
 ลำดับอำนาจ: GDD > pillars.md > ia.md > flow (T16) > เอกสารนี้ · สีทุกค่าต้องตรง `tokens.json` เท่านั้น ห้าม hardcode hex ใหม่
 
@@ -20,6 +20,7 @@ Task: P1-F03-T17 · แก้ไขโดย P1-X10 (บันทึกข้อ
 13. คอมโพเนนต์ F04 Phase 2 (state chip, run header, check-in row, speed-lock overlay, direction arrow card, HP bar edge marker, chip-sponsored, distance chip, run-state pill, 13.9 เทคนิคเรนเดอร์ icon ที่ต้อง tint)
 14. สมมติฐานและการส่งต่อ
 15. Z-index scale และโครง `#hud` (D-129, P2-H28)
+16. คอมโพเนนต์ F10 (bottom nav 5 ช่องคงที่, ปุ่ม Setting ลอย, จอเร็วๆ นี้, ช่องชื่อ+ปุ่มสุ่ม, story pager, ปุ่ม login bypass, แถวออกจากระบบ)
 
 ## 1. หลักการออกแบบคอมโพเนนต์
 
@@ -545,6 +546,100 @@ tag เล็กติดกับตัวเลขระยะเสมอท�
 **ผลต่อ flow:** `design/ux/flows/F06-hp-damage-onboarding.md` หัวข้อ 4.1 (C2) แก้ตามคำตัดสินนี้แล้ว (ระบุช่องทางที่ใช้จริงชัดเจน ไม่ใช่แค่ "ไม่ต้องออกจากจอพกกระเป๋า" แบบเปิดกว้าง)
 
 **Handoff:** gameplay-programmer นำสเกลนี้ไปใส่ CSS จริงใน `apps/client/src/app.css` — ตอนนี้มีแค่ `.banner`(10)/`.toast`(30) ตรงกับสเกลอยู่แล้ว ยังไม่มี z-index บน `#map`/`#hud` เอง (0/1), `.popup-overlay` จริง (ควรเป็น 40 ให้ตรง wireframe), `.drawer` (20, ยังไม่มี component จริง), `.overlay-speedlock`/`.screen.run-summary` (50) และจอ consent/age gate (60) ที่ยังไม่ได้ build · **เพิ่ม (P2-H39, ไม่ blocking):** `ui/tick-toast.ts` (`showHpLow`/`showGranted`/`showDenied`/`showAutoPotionUsed`/`showStateResumed`) mount `.toast` DOM + เล่น vfx `play()` เหมือนกันทุกครั้งไม่ว่าจอพกกระเป๋าจะเปิดอยู่หรือไม่ ตามคำตัดสิน 15.4 ควรข้าม DOM mount และ `play()` (ภาพ) เมื่อ `pocket-screen.ts`'s `overlayRoot` กำลังแสดงอยู่ แต่ยังต้องเรียก `deps.audio.submit(...)` เหมือนเดิมเสมอ (ส่วนเสียง/สั่นยังต้องทำงาน) — ไม่ใช่การแก้บั๊กที่ผู้เล่นเห็น (toast มองไม่เห็นอยู่แล้ว) จึงไม่ blocking แค่ลดงาน CPU/แบตที่เสียเปล่าให้ตรงกับกฎข้อ 1 ของ 12.1
+
+## 16. คอมโพเนนต์ F10 — account shell, สร้างตัวละคร, เรื่องเล่า, bottom nav 5 ช่อง
+
+ที่มา: `design/ux/flows/F10-account-shell.md` (พฤติกรรม), `art/direction/F10-shell-direction.md` (ค่าด้านภาพขั้นต่ำ — ยืนยันเป็นค่าสุดท้ายในหัวข้อนี้ตาม A-P2-F10-T02-4), `art/direction/icon-grammar.md` หัวข้อ 7.1.2/7.4 (glyph) · ตัวอย่างจริง: `wireframes/F10-*.html`
+
+### 16.1 Bottom nav 5 ช่อง (`.bottombar-f10`)
+
+ต่างจาก `.bottombar` เดิมของหัวข้อ 2.2 (ที่โตทีละแท็บตามการปลดระบบ): `.bottombar-f10` มีครบ **5 ช่องคงที่ตั้งแต่แรก** ไม่เปลี่ยนตามการปลด (F10-R32, override เหนือ ia.md หัวข้อ 2/6 สำหรับ Phase 2 — ระบบอื่นยังไม่ปลดแต่ช่องนำทางเห็นครบ)
+
+| ส่วน | ค่า | อ้างอิง |
+| --- | --- | --- |
+| พื้นแถบ | `bg.surface` ทึบ เส้นบน 2px `ink.900` ไม่มี blur ไม่มีความโปร่งใส ต่อพื้นลงใต้ `env(safe-area-inset-bottom)` ด้วยสีเดียวกัน | art direction 2.2 |
+| ความสูงพื้นที่กด | 64 px + `safeArea.bottomInset` (**ค่าสุดท้าย ยืนยัน A-4**) | art direction 2.2, `tokens.json#safeArea` |
+| จำนวนช่อง/ลำดับ | 5 ช่องกว้างเท่ากัน ซ้ายไปขวา: Inventory (`icon.ui.bag`) → Upgrade (`icon.ui.enhance`) → Map (`icon.ui.map`, กลาง) → Shop (`icon.ui.market`) → Party (`icon.ui.party`) | F10-R32, D-148 |
+| โครงในช่อง (บนลงล่าง) | padding บน 4px → pill 48×32 px มุม 999px (glyph 24px กลาง) → ระยะ 2px → ป้าย 14px/line-height 1.5 → เหลือล่าง ~5px | art direction 2.2 (**ค่าสุดท้าย ยืนยัน A-4**) |
+| ช่อง Map | ขนาด/น้ำหนักเท่าช่องอื่นทุกประการ **ไม่ใช่ปุ่มกลมยกลอย** (กันชนภาษาภาพของ class badge และกฎปุ่มเด่นเดียวต่อจอ) | art direction 2.2 |
+| ช่องที่ยังไม่ปลด (Upgrade/Shop/Party ใน Phase 2) | หน้าตาเหมือนช่องจริงทุกประการ **ไม่ซีด ไม่มีป้าย "เร็วๆ นี้" ไม่มี badge** กดได้ทันทีไปจอ 16.3 | art direction 2.2 (เหตุผล: ป้าย/สีซีดทำให้ nav ดูยังไม่เสร็จ ขัดกับ D-148 ที่ให้กดได้) |
+| สถานะ active | pill เติม `ink.900` ทึบ + glyph กลับเป็น `bg.paper` (`currentColor` ที่ code ส่งให้) + ป้ายตัวหนา `ink.900` — บอกพร้อมกัน 3 ช่องทาง (รูปทรง/สี/น้ำหนักตัวอักษร) ไม่ใช้สีอย่างเดียว (style-guide S4, S10) | icon-grammar 7.4, art direction 2.3 |
+| สถานะไม่ active | ไม่มี pill (โปร่งเป็นพื้นแถบ) glyph/ป้าย `ink.900` น้ำหนัก 500 | icon-grammar 7.4 |
+| สถานะกดค้าง | pill เติม `ink.100` glyph/ป้าย `ink.900` (ไม่ใช่สถานะที่ค้าง) | art direction 2.3 |
+| badge แจ้งเตือน | ไม่มีเด็ดขาดใน Phase 2 (ไม่มีจุดแดง ไม่มีตัวเลข แม้ช่องที่ยังไม่ปลด) | F10-R38 |
+| ความยาวป้าย | ≤68 px ที่ 14px ตัวหนา (ช่อง 72px ที่จอ 360 − padding 2×2px) ห้ามตัด "…" ห้ามย่อขนาด ห้ามขึ้นบรรทัดสอง — ยาวเกินให้เปลี่ยนคำ (ของ narrative) | art direction 2.4 |
+| การซ่อน/แสดงทั้งแถบ | ดูตารางเต็มที่ `design/ux/flows/F10-account-shell.md` หัวข้อ 8 — สรุป: แสดงเฉพาะ `S-01-map`/`S-11-inventory`/จอเร็วๆ นี้ 3 จอ ไม่แสดงที่อื่นเลย ถูก scrim ของ popup บังเมื่อมี popup เปิด | F10-R33, D-148 |
+| โหมดกลางคืน (ถ้าเปิด) | แถบ `bg.night` เส้นบน `ink.300` · glyph ปกติ `bg.paper` ป้าย `ink.100` · active: pill `bg.paper` glyph `ink.900` ป้าย `bg.paper` ตัวหนา | art direction 2.3 |
+
+DOM: `<nav class="bottombar-f10"><a class="nav-tab" data-tab="inventory">...</a>...</nav>` แต่ละ `.nav-tab` คือ touch target เต็มความสูง 64px (≥48×48 ตาม S8) ห้ามมีเส้นคั่นระหว่างช่อง
+
+### 16.2 ปุ่ม Setting มุมบนขวาแบบ plate ลอย (`.setting-button-float`)
+
+แทนที่ settings icon วงกลม 40px เดิมของ `.headerbar` (หัวข้อ 2.1) **เฉพาะบนจอ shell ที่มี bottom nav** (`S-01-map`, `S-11-inventory`, จอเร็วๆ นี้ 3 จอ) — จอที่เหลือทั้งหมด (onboarding, run, จอพกกระเป๋า, settings เอง, profile) ไม่มีปุ่มนี้เลยตาม `flows/F10-account-shell.md` หัวข้อ 8
+
+| ส่วน | ค่า |
+| --- | --- |
+| รูปทรง | สี่เหลี่ยม 48×48 px มุม 12px (ไม่ใช่วงกลม — วงกลมสงวนให้ avatar/class badge) |
+| พื้น | `bg.surface` ทึบ ขอบ `ink.900` 2px เงาทึบเลื่อน 0/4px `ink.900` (กดได้, ตาม `.btn-secondary`/`elevation.pressable`) |
+| glyph | `icon.ui.settings` (ใช้ซ้ำ ไม่แก้) 24px `ink.900` อยู่กลางปุ่ม |
+| ตำแหน่ง | มุมบนขวา ห่างขอบ 12px + `safeArea.topInset`/`safeArea.rightInset` เป็น plate ของตัวเอง ไม่ใช่ส่วนหนึ่งของ `.headerbar` (ลอยเหนือเนื้อหา, z-index เดียวกับ `#hud`) |
+| กดแล้ว | เงาหายเลื่อนลง 4px (เหมือน `.btn-primary` ที่กด) → เปิด `S-22-settings` |
+| ข้อห้าม | ไม่มี badge จุดแดง, ไม่ทับ HUD ของ run/จอพกกระเป๋า (ไม่ปรากฏบนจอเหล่านั้นอยู่แล้วตามหัวข้อ 8 ของ flow) |
+
+**หมายเหตุสำคัญ:** headerbar เดิม (หัวข้อ 2.1) ยังอยู่ครบ (avatar ซ้าย, context label + GPS pill กลาง) มีแค่ตำแหน่งขวาที่เปลี่ยนจาก settings icon วงกลม 40px ฝังในแถบ เป็นปุ่มสี่เหลี่ยม 48px ลอยแยก plate ของตัวเอง **ไม่ใช่การเพิ่มปุ่มที่สอง** (ยืนยัน A-P2-F10-T06-4 ของ flow)
+
+### 16.3 จอ "เร็วๆ นี้" (`.coming-soon-screen`)
+
+ใช้ร่วมกัน 3 ชุด (Upgrade/Shop/Party) ต่างแค่ glyph และ copy key — โครงกึ่งกลางจอ บนลงล่าง:
+
+| # | องค์ประกอบ | ค่า |
+| --- | --- | --- |
+| 1 | plate glyph หลัก | สี่เหลี่ยม 96×96 px มุม 12px พื้น `bg.surface` ขอบ `ink.900` 2px **ไม่มีเงา** (ไม่ใช่ของกดได้) glyph ของช่องนั้น (`icon.ui.enhance`/`market`/`party`) scale เป็น 48px `stroke-width:1.5` (ไม่ใช่ไฟล์แยก) |
+| 2 | plate กรวยกั้น | สี่เหลี่ยม 56×56 px มุม 12px แบบเดียวกัน วางทับมุมขวาล่างของ plate หลัก เยื้องออกนอก 12px ทั้งสองแกน ใน `icon.ui.coming-soon` 32px |
+| 3 | หัวข้อ | h1 24px `ink.900` จาก `comingSoon.<system>Title` |
+| 4 | เนื้อหา | body 16px `ink.900` 1 บรรทัดจาก `comingSoon.<system>Body` |
+| 5 | ปุ่ม | **ไม่มีเลย** (F10-R35) — ทางกลับคือแตะช่อง Map บน `.bottombar-f10` ที่ยังแสดงอยู่ใต้จอนี้เสมอ |
+
+ข้อห้ามเนื้อหา (ตรวจซ้ำที่ visual/design gate): ไม่มีตัวเลข วันที่ เงื่อนไขปลด กลไกระบบ ภาพตัวอย่างของในร้าน/กราฟ % — จอ Party ห้ามมีอะไรอ่านเป็นจำนวนคนแม้ทางอ้อม (ไม่มีหัวคนเพิ่ม ไม่มีจุด ไม่มี silhouette แถว, F06-R56/R57) DOM: `<div class="coming-soon-screen"><div class="cs-plate-main">...<div class="cs-plate-badge">...`
+
+### 16.4 ช่องชื่อตัวละคร + ปุ่มสุ่ม + คำเตือน (`.name-field`, `.shuffle-button`, `.name-warning-banner`)
+
+| ส่วน | ค่า |
+| --- | --- |
+| ช่องชื่อ | ใช้โครง input เดิม (ขอบ `ink.900` 2px มุม 12px สูง ≥48px ข้อความ 16px) ไม่มีค่าตั้งต้น |
+| ปุ่มสุ่ม | สี่เหลี่ยม 48×48 px ข้างช่องชื่อ (ไม่ใช่วงกลม) `icon.ui.shuffle` 24px กลาง — **ห้ามลูกเต๋า ห้ามลูกศรวงกลม** (icon-grammar 7.4) |
+| แถวจัดวาง | `display:flex;gap:8px` ช่องชื่อ `flex:1` + ปุ่มสุ่ม คงที่ 48px ข้าง |
+| banner คำเตือน | `.banner` แบบ `state.info` เดิม (หัวข้อ 6) + `icon.ui.consent` 24px ซ้ายข้อความ ค้างถาวรใต้ช่อง (ไม่ใช่ toast ที่หายไป) ข้อความ `character.nameRealNameWarning` |
+| error inline | ใต้ช่องชื่อ (ใต้ banner) ขอบช่องเปลี่ยนเป็น `state.danger` 2px + ข้อความ `character.nameError.<reason>` สี `state.danger` 14px — ว่างเปล่าเมื่อผ่านหรือยังไม่พิมพ์ (ดูสถานะว่างที่ flow หัวข้อ 10.4) |
+| ปุ่มสร้าง | `.btn-primary` เดิม `.btn-disabled` จนกว่าจะเลือก class + ชื่อผ่าน (F10-R21) |
+| class ล็อก (migration, C5 ของ flow) | การ์ดที่เคยเลือกมีวงแหวน `accent.signal` ถาวร (เหมือน `.card.selected` แต่ไม่มีทาง deselect) การ์ดอื่นเป็น `.btn-disabled` (กดไม่ได้) + ป้าย `character.classLockedNote` ใต้การ์ดที่เลือก |
+
+### 16.5 Story slide pager (`.story-dots`)
+
+| ส่วน | ค่า |
+| --- | --- |
+| จุด | เส้นผ่านศูนย์กลาง 10px ระยะห่าง 8px (**ค่าสุดท้าย ยืนยัน A-4**) |
+| slide ปัจจุบัน | เติม `ink.900` ทึบ |
+| slide อื่น | outline `ink.900` 2px ไม่เติม (แยกด้วยรูปทรง ไม่ใช่สีอย่างเดียว) |
+| touch target | ไม่ต้องมี 48px (ไม่ใช่ของกดได้ — จุดบอกตำแหน่งอย่างเดียว ไม่ใช่ปุ่มเปลี่ยน slide) |
+| พื้นที่ข้อความใต้ภาพ | **คงที่ 4 บรรทัดทุก slide** (`min-height` คำนวณจาก `type.body.lineHeight` × 4) แม้ slide ที่เนื้อหาสั้นกว่าก็เว้นที่ไว้เท่ากัน กันปุ่ม "ถัดไป"/ลิงก์ข้ามขยับตำแหน่งระหว่างเลื่อน slide |
+| slide 4 (บทพูด) | ชื่อผู้พูดเป็นคำนำหน้าตัวหนาในบรรทัดเดียวกับประโยค (ไม่ใช่บรรทัดแยก) เพื่อคง 4 บรรทัดเท่ากัน — ถ้าบรรทัดแรกล้นที่ 360px ให้ย่อเฉพาะชื่อผู้พูดเหลือ 14px ก่อนเสมอ (เนื้อหายังคง 16px) |
+
+### 16.6 ปุ่มผู้ให้บริการ login (recap — สเปกเต็มอยู่หัวข้อ 3.1, เพิ่มส่วนที่ต่างสำหรับ Phase 2 bypass)
+
+Phase 2 **ไม่ใช้** ปุ่มแบรนด์จริงของหัวข้อ 3.1 (นั่นสงวนไว้ Phase 3 ที่มี auth จริง) ใช้ปุ่มของเกมเองแทนตามนโยบาย bypass:
+
+| ส่วน | ค่า |
+| --- | --- |
+| หน้าตา | `.btn-secondary` เดิม สูง 56px (สูงกว่าปกติของ secondary เพื่อให้เท่าปุ่มหลัก — ข้อยกเว้น SH4: จอ login ไม่มีปุ่ม `accent.signal` เลย) กว้างเต็มคอลัมน์ ทั้งสองปุ่มหน้าตาเหมือนกันทุกอย่าง |
+| glyph | `icon.ui.sign-in` เดียวกันทั้งสองปุ่ม ชิดซ้าย (ของเกมเอง ไม่ใช่ของแบรนด์ — ห้ามตัว G, ผลไม้, วงกลม 4 สี) |
+| ข้อความ | ชื่อผู้ให้บริการเป็นข้อความปกติฟอนต์ของเกม จาก copy key `account.loginGoogleButton`/`account.loginAppleButton` |
+| ระยะห่างระหว่างปุ่ม | 12px แนวตั้ง |
+| ไฟล์ | ไม่มีไฟล์ logo ใดใน repo ห้าม `<image>`/URL ชี้ asset แบรนด์ |
+
+### 16.7 แถวออกจากระบบ + popup ยืนยัน (ใช้คอมโพเนนต์เดิม เพิ่มกฎสี)
+
+แถว `settings.logoutLink` ใช้โครง card-list เดิมของ `S-22-settings` (เหมือนแถวอื่น) glyph `icon.ui.logout` 24px **สีข้อความ `ink.900` ปกติ ไม่ใช่ `state.danger`** (logout ไม่ทำลายข้อมูล ต่างจากแถว "ลบข้อมูลในเครื่อง" ที่ยังคง `state.danger` เดิม) popup ยืนยันใช้ `.popup.center-sheet` เดิม (เหมือน popup ลบข้อมูล) ปุ่มคู่น้ำหนักเท่ากัน **ปุ่มยืนยันไม่ใช้ `.btn-danger-confirm`** (ใช้ `.btn-primary` หรือ `.btn-secondary` ก็ได้ที่ไม่ใช่สี danger — เลือก `.btn-primary` เพื่อให้เด่นเป็นทางหลักของ popup นี้เพราะเป็นการกระทำที่ตั้งใจทำ ไม่ใช่อุบัติเหตุที่ต้องเตือนด้วยสีแดง) บรรทัดเพิ่ม `settings.logoutConfirmRunNote` ต่อท้าย body เมื่อมี run ค้างอยู่ (เงื่อนไขเดียวกับ `privacy.withdrawDuringRunNote` ของ F06)
 
 ## REPORT
 task: P1-F03-T17

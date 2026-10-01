@@ -1,7 +1,12 @@
 // The artist manifest split per root (P2-X22, asset-pipeline 7.2, docs/tech/asset-delivery.md 10.1).
 //
 //   art/assets/manifest.json          the index: header fields + entries not moved yet (legacy)
-//   art/assets/manifest.<root>.json   one part per root in `manifestRoots`, same schema as the index
+//   art/assets/manifest.<key>.json    one part per key in `manifestRoots`, same schema as the index
+//
+// A key is a root (`badge`) or a root.group (`icon.ui`, P2-H67). An entry belongs to the most
+// specific key that matches its id: `icon.ui.map` → `icon.ui` if listed, else `icon`. So a root
+// that outgrows the per-file budget is split by group in config alone, and a new group of that
+// root still has a home (the root key) until it gets its own.
 //
 // Every part is a complete asset-pipeline 6.6 document (schema unchanged), so each file validates
 // on its own. Consumers (validate, build, stage) only ever see the merged `Manifest`, sorted by id,
@@ -17,7 +22,7 @@ export const ROOT_PLACEHOLDER = '{root}';
 export interface ManifestPart {
   /** Repo-relative path of the file. */
   file: string;
-  /** The root every entry must have, or null for the index (accepts any root while legacy). */
+  /** The part key (`root` or `root.group`) every entry must resolve to, or null for the index. */
   root: string | null;
   manifest: Manifest;
 }
@@ -31,8 +36,16 @@ export interface ManifestSet {
   fileOf: Map<string, string>;
 }
 
-export function partPath(cfg: PipelineConfig, root: string): string {
-  return cfg.paths.manifestPart.replace(ROOT_PLACEHOLDER, root);
+export function partPath(cfg: PipelineConfig, key: string): string {
+  return cfg.paths.manifestPart.replace(ROOT_PLACEHOLDER, key);
+}
+
+/** The part key an id belongs to (`root.group` beats `root`), or null if neither is listed. */
+export function partKeyOf(cfg: PipelineConfig, id: string): string | null {
+  const { root, group } = parseId(id);
+  const byGroup = `${root}.${group}`;
+  if (cfg.manifestRoots.includes(byGroup)) return byGroup;
+  return cfg.manifestRoots.includes(root) ? root : null;
 }
 
 /** Every path a part may live at (existing or not): V11 must not flag them as unlisted files. */
@@ -71,9 +84,11 @@ export function loadManifestSet(root: string, cfg: PipelineConfig): ManifestSet 
 }
 
 /**
- * The target layout of `tools/art split-manifest`: every entry moved to the part of its root, the
+ * The target layout of `tools/art split-manifest`: every entry moved to the part of its key, the
  * index left with the header and `assets: []`. Pure: returns file → document, writes nothing.
- * An entry whose root is not in `manifestRoots` stays in the index (V1 then reports it).
+ * An entry with no key in `manifestRoots` stays in the index (V1 then reports it).
+ * A part left with no entries (its root was split by group) is dropped when its file does not
+ * exist, and written as `assets: []` when it does; delete that file by hand after the split.
  */
 export function splitLayout(set: ManifestSet, cfg: PipelineConfig): Map<string, Manifest> {
   const header = set.parts[0]?.manifest ?? set.merged;
@@ -81,12 +96,12 @@ export function splitLayout(set: ManifestSet, cfg: PipelineConfig): Map<string, 
   const indexAssets: ManifestEntry[] = [];
   const byRoot = new Map<string, ManifestEntry[]>();
   for (const entry of set.merged.assets) {
-    const { root } = parseId(entry.id);
-    if (!cfg.manifestRoots.includes(root)) {
+    const key = partKeyOf(cfg, entry.id);
+    if (key === null) {
       indexAssets.push(entry);
       continue;
     }
-    byRoot.set(root, [...(byRoot.get(root) ?? []), entry]);
+    byRoot.set(key, [...(byRoot.get(key) ?? []), entry]);
   }
   out.set(cfg.paths.manifest, { ...header, assets: indexAssets });
   for (const r of cfg.manifestRoots) {

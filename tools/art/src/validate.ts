@@ -1,6 +1,6 @@
 // Validator V1–V13 (art/direction/asset-pipeline.md section 8). Runs inside `pnpm test`
 // (tools/art/test/repo.test.ts) and from the CLI. Checks the artist manifest (art/assets/manifest.json
-// plus its per-root parts art/assets/manifest.<root>.json, manifest-set.ts), art/assets/manifest.build.json
+// plus its per-key parts art/assets/manifest.<root>[.<group>].json, manifest-set.ts), art/assets/manifest.build.json
 // (tools/art output) and the vendored fonts in art/fonts.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -8,7 +8,7 @@ import { buildEntry, currentPlatform, sha256 } from './build';
 import { loadPalette, readJson, type Palette, type PipelineConfig } from './config';
 import { SchemaValidator } from './json-schema';
 import type { BuildManifest, Manifest, ManifestEntry, ManifestFile } from './manifest';
-import { allPartPaths, loadManifestSet, type ManifestPart } from './manifest-set';
+import { allPartPaths, loadManifestSet, partKeyOf, type ManifestPart } from './manifest-set';
 import { defaultPath, isShipped, masterOf, parseId, repoPath, sheetPath } from './manifest';
 import { decodePng, type DecodedPng } from './png';
 import { allHex, attributes, elements, readRoot, styleBlocks, hexIn } from './svg';
@@ -105,7 +105,11 @@ function checkV1(input: ValidateInput, r: Report): void {
   for (const part of parts) {
     for (const e of validator.validate(part.manifest)) r.add('V1', part.file, null, `schema ${e.path}: ${e.message}`);
     for (const a of part.manifest.assets) {
-      if (part.root !== null && parseId(a.id).root !== part.root) r.add('V1', part.file, a.id, `id root is not ${part.root}`);
+      if (part.root === null) continue;
+      const key = partKeyOf(cfg, a.id);
+      if (key === part.root) continue;
+      const why = parseId(a.id).root === part.root.split('.')[0] ? `id belongs to part ${key ?? '(none)'}` : `id root is not ${part.root}`;
+      r.add('V1', part.file, a.id, why);
     }
   }
   for (const e of validator.validateRef(build, '#/$defs/buildManifest')) {
@@ -561,7 +565,7 @@ function checkV13(input: ValidateInput, r: Report): number {
   for (const part of partsOf(input)) {
     const manifestBytes = statSync(join(root, part.file)).size;
     if (manifestBytes <= b.manifestBytes) continue;
-    const hint = part.root === null ? 'move entries to art/assets/manifest.<root>.json (tools/art split-manifest)' : 'split this root by group (tech-lead)';
+    const hint = part.root === null ? 'move entries to art/assets/manifest.<root>.json (tools/art split-manifest)' : 'split by group: add <root>.<group> keys to manifestRoots (tech-lead)';
     r.add('V13', part.file, null, `${manifestBytes} B over ${b.manifestBytes} B: ${hint}`, 'warn');
   }
   return total;

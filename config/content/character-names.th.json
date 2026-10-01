@@ -1,0 +1,119 @@
+{
+  "_meta": {
+    "file": "config/content/character-names.th.json",
+    "version": 1,
+    "owner": "narrative-designer",
+    "task": "P2-F10-T03",
+    "doc": "design/narrative/F10-story.md sections 6, 7; decision D-146",
+    "locale": "th",
+    "date": "2026-10-01",
+    "_note": "Content data for the character-name screen (D-146): the random-name pool and the blocked-term list for the name filter. Numeric limits (min/max length in grapheme clusters, allowed character set, phone/email/URL patterns, max re-rolls before fallback) are NOT here: they live in config/balance/character.json (systems-designer, P2-F10-T04). Schema: packages/shared/schemas/config/ (tech-lead, P2-F10-T07). Every string here is a plain string, never a regex."
+  },
+
+  "randomName": {
+    "_source": "P2-F10-T03 (narrative-designer) · design/narrative/F10-story.md sections 6-7 · _source added by orchestrator P2-H70",
+    "_note": "name = heads[i] + tails[j], concatenated with no separator. 16 x 16 = 256 distinct names. Every head is 3-6 display cells and every tail is 4-6 cells, so every name is 7-12 cells (grapheme clusters <= cells for Thai). Thai characters only, no space, no digit, so every name passes the character-set and phone/email/URL rules of character.json. No head or tail is a Thai personal name or nickname on its own, and no combination matches a known person or brand. Required test (P2-F10-T12): all 256 combinations pass the blocked-term filter below.",
+    "pattern": "headTail",
+    "heads": [
+      "ร่มพับ",
+      "ชานม",
+      "ถุงผ้า",
+      "ข้าวต้ม",
+      "ไข่ต้ม",
+      "ลูกชิ้น",
+      "ส้มตำ",
+      "ขนมครก",
+      "พัดลม",
+      "กระติก",
+      "ถั่วต้ม",
+      "โจ๊ก",
+      "ไอติม",
+      "ข้าวโพด",
+      "ปลาทู",
+      "ขนมปัง"
+    ],
+    "tails": [
+      "เดินไกล",
+      "ขาแรง",
+      "หลบแดด",
+      "ใจเย็น",
+      "ตื่นสาย",
+      "รอรถ",
+      "ก้าวยาว",
+      "สายลุย",
+      "รอคิว",
+      "เดินเล่น",
+      "หิวตลอด",
+      "ไม่รีบ",
+      "ฝ่าแดด",
+      "ติดฝน",
+      "วิ่งเช้า",
+      "กลับดึก"
+    ],
+    "_distinctCount": 256,
+    "_cellsRange": [7, 12],
+    "fallback": {
+      "_source": "P2-F10-T03 (narrative-designer) · design/narrative/F10-story.md sections 6-7 · _source added by orchestrator P2-H70",
+      "_note": "Returned when the generator hits character.json max re-rolls (for example if a future config shortens maxLength below 12). Each is 6-8 cells, Thai only, passes the filter.",
+      "names": [
+        "คนเดินเท้า",
+        "คนรอรถ",
+        "สายเดิน",
+        "คนหลบแดด",
+        "ขาเดินไกล",
+        "คนถือร่ม"
+      ]
+    }
+  },
+
+  "blockedTerms": {
+    "_note": "Name filter word list (D-146). Phase 2 names stay on the device and are never shown to others, so this is a first line only; Phase 3 re-checks on the server (NN-1, risk R-F10-1..3). Categories exist for human review only (telemetry carries only the reject-count bucket of P2-F10-T05, never a category or a word): the player sees one generic message (copy key from P2-F10-T11) and is never told which word matched, so the list is not taught. Terms are plain strings stored already in light-normalized form (step list below); the module must still run the same normalization on every term at load time so an editor typo cannot bypass it.",
+    "normalization": {
+      "_source": "P2-F10-T03 (narrative-designer) · design/narrative/F10-story.md sections 6-7 · _source added by orchestrator P2-H70",
+      "_note": "Apply to BOTH the input and every term. Two passes. A name is rejected if any pass finds a match after allow-list removal.",
+      "light": ["see config/balance/character.json#banned.passes.light (authoritative steps since P2-H64; this file keeps word lists only)"],
+      "heavy": ["see config/balance/character.json#banned.passes.heavy (authoritative steps since P2-H64; this file keeps word lists only)"],
+      "matchModes": {
+        "_source": "P2-F10-T03 (narrative-designer) · design/narrative/F10-story.md sections 6-7 · _source added by orchestrator P2-H70",
+        "substring": "see config/balance/character.json#banned.modes.substring",
+        "substringHeavy": "see config/balance/character.json#banned.modes.substringHeavy",
+        "token": "see config/balance/character.json#banned.modes.token"
+      },
+      "allow": {
+        "_source": "P2-F10-T03 (narrative-designer) · design/narrative/F10-story.md sections 6-7 · _source added by orchestrator P2-H70",
+        "_note": "Everyday words that contain a blocked term. Remove every occurrence (longest first) before matching, each list only in its own pass. allow.light is never applied in the heavy pass, because the heavy form of some entries (กู้ -> กู) would erase a real hit.",
+        "light": ["ตุ๊ดตู่", "สัดส่วน", "เชี่ยว", "แม่งาน", "โป๊ะ", "ห่าง", "ห่าน", "หีบ", "กู้", "badminton", "peacock", "scunthorpe", "cocktail", "dickens", "sussex"],
+        "heavy": []
+      }
+    },
+
+    "substring": {
+      "_source": "P2-F10-T03 (narrative-designer) · design/narrative/F10-story.md sections 6-7 · _source added by orchestrator P2-H70",
+      "profanity": ["กู", "มึง", "ตีน", "ชิบหาย", "ฉิบหาย", "เหี้ย", "เชี่ย", "สัส", "สัด", "สันดาน", "ควย", "เย็ด", "แม่ง", "ห่า", "หี", "แตด", "จัญไร", "ระยำ", "ชาติหมา", "ตอแหล", "ร่าน", "ดอกทอง", "ไอ้สัตว์", "อีสัตว์", "fuck", "shit", "bitch", "cunt", "dick", "pussy", "asshole", "bastard", "whore", "slut", "wank"],
+      "sexual": ["เงี่ยน", "ข่มขืน", "หนังโป๊", "โป๊", "เซ็กส์", "จู๋", "จิ๋ม", "sex", "porn", "penis", "vagina", "cock", "boob", "horny", "milf", "xxx"],
+      "insult": ["โง่", "ควาย", "ปัญญาอ่อน", "ไร้สมอง", "idiot", "stupid", "moron"],
+      "slur": ["ตุ๊ด", "เจ๊ก", "นิโกร", "ไอ้ดำ", "อีดำ", "ง่อย", "ไอ้ใบ้", "อีใบ้", "ขี้ข้า", "nigger", "nigga", "faggot", "chink", "tranny", "retard"],
+      "royal": ["ในหลวง", "พระราช", "ราชวงศ์", "เสด็จ", "รัชกาล", "ราชา", "ราชินี", "เจ้าฟ้า", "สมเด็จ", "จักรพรรดิ", "เจ้าชาย", "เจ้าหญิง", "พระองค์", "เฉลิมพระเกียรติ"],
+      "politics": ["นายก", "พรรค", "รัฐประหาร", "เลือกตั้ง", "ชุมนุม"],
+      "religion": ["พระเจ้า", "พระพุทธ", "อัลลอฮ์", "ศาสดา", "เยซู"],
+      "hate": ["ฮิตเลอร์", "นาซี", "hitler", "nazi"],
+      "drugs": ["ยาบ้า", "ยาเสพติด"],
+      "worldRule1": ["ผู้ถูกเลือก", "โชคชะตา", "คำทำนาย", "พลังที่หลับใหล"],
+      "impersonation": ["แอดมิน", "ทีมงาน", "ผู้ดูแล", "หน่วยงานที่เกี่ยวข้อง", "admin", "moderator", "keepwalking"]
+    },
+
+    "substringHeavy": {
+      "_source": "P2-F10-T03 (narrative-designer) · design/narrative/F10-story.md sections 6-7 · _source added by orchestrator P2-H70",
+      "_note": "Checked on the heavy form so tone swaps and stretched letters do not bypass (เหี๊ย, เหี่ยยย, ควายยย). Each entry here is also in substring. Words whose tone-stripped form collides with normal words are left out on purpose: แม่ง -> แมง (แมงมุม), เชี่ย -> เชีย (เชียร์), ห่า -> หา, กู -> กู้, ตุ๊ด -> ตุด, โง่ -> โง.",
+      "terms": ["เหี้ย", "ควย", "เย็ด", "ชิบหาย", "ฉิบหาย", "สัส", "มึง", "จัญไร", "ระยำ", "ตอแหล", "ดอกทอง", "สันดาน", "เงี่ยน", "ข่มขืน", "ควาย", "fuck", "shit", "bitch", "cunt", "pussy", "nigger", "faggot"]
+    },
+
+    "token": {
+      "_source": "P2-F10-T03 (narrative-designer) · design/narrative/F10-story.md sections 6-7 · _source added by orchestrator P2-H70",
+      "_note": "Short words that live inside normal words (กาก in กากหมู/สีกากี, ass in class, rape in grape). Blocked only as the whole name or a whole space-separated word.",
+      "terms": ["กาก", "หำ", "นบี", "ระบบ", "ass", "tits", "cum", "rape", "fag", "hoe", "gm", "mod", "staff", "official", "system"]
+    },
+
+    "_coverageNote": "Not listed on purpose: names of real people or politicians (a list of them would itself be a list of real names; the real-name warning copy of P2-F10-T11 and the Phase 3 server review cover this), brand names (random names are brand-free; typed brand names are low harm while names are private), and nationality words such as ลาว or แขก that are also neutral everyday words. Evasion by spelling changes beyond the two passes is expected (risk R-F10-3) and is a Phase 3 server job."
+  }
+}

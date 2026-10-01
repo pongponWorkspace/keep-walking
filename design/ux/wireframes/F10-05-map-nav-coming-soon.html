@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F10 Flow E: แผนที่ + bottom nav 5 ปุ่ม + เร็วๆ นี้ (P2-F10-T06)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F10 Flow E — S-01-map (nav 5 ช่อง + Setting ลอย), S-29-coming-soon-party, scrim บังทับ popup confirm</h1>
+  <p>อ้างอิง: design/ux/flows/F10-account-shell.md หัวข้อ 6, 8 · components.md หัวข้อ 16.1–16.3 · art/direction/F10-shell-direction.md หัวข้อ 2, 4 · nav คงที่ 5 ช่องตั้งแต่แรก ไม่ซีด ไม่มีป้าย "เร็วๆ นี้" บน nav เอง (D-148) · จอ Party ห้ามมีอะไรอ่านเป็นจำนวนคน (F06-R56/R57)</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>E1. S-01-map — nav active=Map + ปุ่ม Setting ลอย</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span> <span class="thaidraft">(แผนที่)</span><span class="gps-pill ok"><span class="copykey">gps.pillLabel</span></span></div></div>
+  <div style="position:absolute;top:66px;right:12px;width:48px;height:48px;border:2px solid var(--ink-900);border-radius:12px;background:var(--bg-surface);box-shadow:0 4px 0 var(--ink-900);display:flex;align-items:center;justify-content:center;z-index:5;"><img src="../../../art/assets/icon/ui/settings.svg" width="24" height="24" alt="" style="display:block"></div>
+  <div class="screen-body" style="padding:0;background:var(--map-land);"></div>
+  <nav class="bottombar" style="border-top:2px solid var(--ink-900);">
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/bag.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.inventory</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/enhance.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.upgrade</span> <span class="thaidraft">(ตีบวก)</span></div>
+    <div class="tab active"><span><img src="../../../art/assets/icon/ui/map.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.map</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/market.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.shop</span> <span class="thaidraft">(ร้าน)</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/party.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.party</span> <span class="thaidraft">(ทีม)</span></div>
+  </nav>
+</div>
+<p class="frame-caption">5 ช่องคงที่ตั้งแต่แรก (F10-R32) ทุกช่องกดได้ทันที ไม่ซีด ไม่มี badge · active = pill ทึบ+glyph กลับสี+ป้ายตัวหนา (ที่นี่แทนด้วยพื้นเข้ม) · ปุ่ม Setting สี่เหลี่ยม 48×48 plate ลอยแยกจาก headerbar (components.md 16.2) แทนที่ settings icon วงกลมเดิม</p>
+</div>
+
+<div class="frame-block">
+<h3>E4. S-29-coming-soon-party</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.party</span></div></div>
+  <div style="position:absolute;top:66px;right:12px;width:48px;height:48px;border:2px solid var(--ink-900);border-radius:12px;background:var(--bg-surface);box-shadow:0 4px 0 var(--ink-900);display:flex;align-items:center;justify-content:center;z-index:5;"><img src="../../../art/assets/icon/ui/settings.svg" width="24" height="24" alt="" style="display:block"></div>
+  <div class="screen-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+    <div style="position:relative;width:96px;height:96px;border:2px solid var(--ink-900);border-radius:12px;background:var(--bg-surface);display:flex;align-items:center;justify-content:center;font-size:40px;"><img src="../../../art/assets/icon/ui/party.svg" width="56" height="56" alt="" style="display:block">
+      <div style="position:absolute;right:-12px;bottom:-12px;width:56px;height:56px;border:2px solid var(--ink-900);border-radius:12px;background:var(--bg-surface);display:flex;align-items:center;justify-content:center;font-size:24px;"><img src="../../../art/assets/icon/ui/coming-soon.svg" width="32" height="32" alt="" style="display:block"></div>
+    </div>
+    <h1 class="scr-title" style="margin-top:24px;"><span class="copykey">comingSoon.partyTitle</span> <span class="thaidraft">(เร็วๆ นี้)</span></h1>
+    <p class="body-text"><span class="copykey">comingSoon.partyBody</span> <span class="thaidraft">(ระบบทีมกำลังเตรียมไว้)</span></p>
+  </div>
+  <nav class="bottombar" style="border-top:2px solid var(--ink-900);">
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/bag.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.inventory</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/enhance.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.upgrade</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/map.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.map</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/market.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.shop</span></div>
+    <div class="tab active"><span><img src="../../../art/assets/icon/ui/party.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.party</span></div>
+  </nav>
+</div>
+<p class="frame-caption">plate 96px + กรวยกั้น 56px (icon.ui.coming-soon) · หัวข้อ+เนื้อหา 1 บรรทัด · **ไม่มีปุ่มใดบนจอนี้** ทางกลับคือแตะ Map บน nav · ไม่มีจำนวนคน ไม่มีหัวเพิ่ม ไม่มีจุด ไม่มี silhouette แถว (F06-R56/R57) · nav ยังอยู่ด้านล่างเสมอ</p>
+</div>
+
+<div class="frame-block">
+<h3>E-scrim. popup confirm เข้า dungeon — scrim บังทับ nav และ Setting</h3>
+<div class="phone">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span></div></div>
+  <div style="position:absolute;top:66px;right:12px;width:48px;height:48px;border:2px solid var(--ink-900);border-radius:12px;background:var(--bg-surface);z-index:5;opacity:.3;"><img src="../../../art/assets/icon/ui/settings.svg" width="24" height="24" alt="" style="display:block"></div>
+  <div class="screen-body" style="padding:0;background:var(--map-park);"></div>
+  <nav class="bottombar" style="border-top:2px solid var(--ink-900);opacity:.3;">
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/bag.svg" width="24" height="24" alt="" style="display:block"></span></div><div class="tab"><span><img src="../../../art/assets/icon/ui/enhance.svg" width="24" height="24" alt="" style="display:block"></span></div><div class="tab active"><span><img src="../../../art/assets/icon/ui/map.svg" width="24" height="24" alt="" style="display:block"></span></div><div class="tab"><span><img src="../../../art/assets/icon/ui/market.svg" width="24" height="24" alt="" style="display:block"></span></div><div class="tab"><span><img src="../../../art/assets/icon/ui/party.svg" width="24" height="24" alt="" style="display:block"></span></div>
+  </nav>
+  <div class="popup-overlay"><div class="popup">
+    <h2 class="scr-sub"><span class="copykey">dungeon.confirmTitle</span> <span class="thaidraft">(ลุมพินี — ป่าในเมือง)</span></h2>
+    <div class="btn-row"><div class="btn btn-secondary" style="flex:1;"><span class="copykey">dungeon.confirmCancel</span> <span class="thaidraft">(ยกเลิก)</span></div><div class="btn btn-primary" style="flex:1;height:48px;"><span class="copykey">dungeon.confirmEnter</span> <span class="thaidraft">(เข้า)</span></div></div>
+  </div></div>
+</div>
+<p class="frame-caption">`.popup-overlay` เป็น `inset:0` คลุมทั้ง header/nav/Setting (art direction 2.5) — มองเห็นจางอยู่หลัง scrim 45% แต่กดไม่ได้จนกว่าจะปิด popup (flow F10 หัวข้อ 8) · ภาพนี้แทนพฤติกรรมเดียวกันกับ popup ยืนยัน logout/ลบข้อมูลในไฟล์ F10-06</p>
+</div>
+
+<div class="frame-block">
+<h3>E1-w390. S-01-map ที่ 390 px (ช่อง nav กว้างขึ้น 78 px ตาม art direction 2.2)</h3>
+<div class="phone w390">
+  <div class="headerbar"><div class="avatar-icon">P</div><div class="context-label"><span class="copykey">nav.map</span><span class="gps-pill ok"><span class="copykey">gps.pillLabel</span></span></div></div>
+  <div style="position:absolute;top:66px;right:12px;width:48px;height:48px;border:2px solid var(--ink-900);border-radius:12px;background:var(--bg-surface);box-shadow:0 4px 0 var(--ink-900);display:flex;align-items:center;justify-content:center;z-index:5;"><img src="../../../art/assets/icon/ui/settings.svg" width="24" height="24" alt="" style="display:block"></div>
+  <div class="screen-body" style="padding:0;background:var(--map-land);"></div>
+  <nav class="bottombar" style="border-top:2px solid var(--ink-900);">
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/bag.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.inventory</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/enhance.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.upgrade</span></div>
+    <div class="tab active"><span><img src="../../../art/assets/icon/ui/map.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.map</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/market.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.shop</span></div>
+    <div class="tab"><span><img src="../../../art/assets/icon/ui/party.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">nav.party</span></div>
+  </nav>
+</div>
+<p class="frame-caption">ยืนยันป้ายไม่ตัด ไม่ขึ้นบรรทัดสองที่ความกว้างมากขึ้น (เพดานป้าย ≤68 px ที่ 360 px ยิ่งไม่ตึงที่ 390 px) · โครง headerbar/Setting plate/popup scrim เหมือนกันทุกความกว้าง ต่างแค่ความกว้างแถบ</p>
+</div>
+
+</div>
+</body>
+</html>

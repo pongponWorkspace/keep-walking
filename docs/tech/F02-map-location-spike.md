@@ -91,18 +91,19 @@ infra/                 _headers, publish script, deploy-preview (P1-F02-T08)
 
 | รายการ | ค่าที่ pin (2026-09-23) | หลักฐาน |
 | --- | --- | --- |
-| tile schema | **Protomaps Basemap v4** · build `20260923.pmtiles` ที่ metadata `version = 4.15.2` · `tile type: mvt`, `tile compression: gzip`, zoom 0–15 | `pmtiles show https://build.protomaps.com/20260923.pmtiles` (รันแล้ว) · รายการ build: `https://build-metadata.protomaps.dev/builds.json` |
+| tile schema | **Protomaps Basemap v4** · pin ตัวจริงคือ metadata `version = 4.15.2` (`tools/tiles/config.json#schema.expectedMetadataVersion`) · `schema.buildKey` (ตอนนี้ `20260930`) เป็นค่าที่ต้องการก่อน ไม่ใช่ pin ตายตัว · build ที่ใช้จริงเลือกโดย `tools/tiles/bin/resolve-build.sh` (ADR 0004) · `tile type: mvt`, `tile compression: gzip`, zoom 0–15 | `pmtiles show https://build.protomaps.com/20260923.pmtiles` (รันแล้ว 2026-09-23 · build นี้ถูกลบแล้ว) · รายการ build: `schema.buildsIndexUrl` = `https://build-metadata.protomaps.dev/builds.json` · build ที่ใช้จริงอยู่ใน `manifest.json` (`build_key`, `source_build`) |
 | style package | `@protomaps/basemaps` **5.7.2** (latest บน npm 2026-03-10) · docs ระบุ build v4 ใช้กับ style v4.0.0 ขึ้นไป | `https://docs.protomaps.com/basemaps/downloads` |
 | CLI | `go-pmtiles` **v1.31.2** (2026-07-22) · binary ตาม OS pin checksum ใน `tools/tiles/README.md` | `https://github.com/protomaps/go-pmtiles/releases/tag/v1.31.2` |
 | assets | `protomaps/basemaps-assets`: glyph `fonts/{Noto Sans Regular, Noto Sans Medium, Noto Sans Italic}` (256 ไฟล์ต่อ fontstack) · sprite `sprites/v4/light` (+ `@2x`) | GitHub contents API ของ repo นั้น |
 
-- การเลือก build: ใช้ build ล่าสุดของ patch version ที่ pin (bucket เก็บ build ล่าสุดของทุก patch version ถาวร) · เปลี่ยน build = เปลี่ยน `tileset_id` และบันทึกใน size report
+- การเลือก build (ADR 0004 ACCEPTED, P2-H63): Protomaps เก็บ daily 7 วัน + build ล่าสุดของแต่ละ patch version ถาวร · `bin/resolve-build.sh` ใช้ `schema.buildKey` ถ้า `builds.json` ยังมีและ version ตรง ไม่งั้นใช้ build ใหม่ที่สุดที่ version = `expectedMetadataVersion` (policy `schema.buildSelection`) · build ที่ version ไม่ตรงไม่ถูกเลือกเลย และ archive ที่ได้ถูกตรวจ version อีกชั้น (`check_archive_version` ใน `lib.sh`) · ทำซ้ำ run เก่าด้วย `TILES_BUILD_KEY=<build_key จาก manifest.json>`
+- เปลี่ยน build = เปลี่ยน `tileset_id` · เมื่อ `buildKey` หาย id เปลี่ยนได้รายวัน (A-P2-X58-1 ยืนยันแล้ว รับได้เพราะ client อ่าน id จาก manifest ของ run เดียวกัน) · เปลี่ยน `expectedMetadataVersion` = รับ schema ใหม่ ต้องผ่านการตรวจ style ก่อน และบันทึกใน size report
 - ห้ามผสม schema: style ของ P1-F03-T12 เริ่มจาก `@protomaps/basemaps` 5.7.2 flavor `light` แล้วปรับสี · ห้ามใช้ style แบบ OpenMapTiles
 
 ### 5.2 ขอบเขตพื้นที่และคำสั่ง
 
 - bbox กรุงเทพฯ + นนทบุรี ปทุมธานี สมุทรปราการ สมุทรสาคร นครปฐม: `99.80,13.40,101.00,14.35` (min_lon,min_lat,max_lon,max_lat) · [ASSUMPTION A-P1-F02-T03-2: ค่าประมาณจากขอบจังหวัด ครอบทั้ง 6 จังหวัดพร้อมขอบเผื่อ · location-engineer ยืนยันกับ polygon ขอบเขตปกครองใน T06 และใช้ `--region=<geojson>` แทนได้ถ้าลดจำนวน tile]
-- คำสั่งหลัก (ไม่ต้องใช้บัญชีหรือ credential):
+- คำสั่งหลัก (ไม่ต้องใช้บัญชีหรือ credential) · ตัวอย่างด้านล่างเป็นคำสั่งวันที่ 2026-09-23 · ปัจจุบัน `bin/build.sh` สร้าง URL จาก `schema.sourceUrlTemplate` กับ build ที่ resolver เลือก:
 
 ```
 pmtiles extract https://build.protomaps.com/20260923.pmtiles tools/tiles/out/bkk-pm4-20260923-z15.pmtiles \
@@ -388,7 +389,7 @@ curl -sS -o /dev/null -D - -H "Range: bytes=0-99" -H "Accept-Encoding: identity"
 | F10 | Battery API ไม่มี (iOS Safari) | `navigator.getBattery` undefined | HUD ไม่มี % แบต | แสดง "จดจากเครื่อง" และให้กรอกเองใน form (`battery_source = manual`) |
 | F11 | Resource Timing ให้ 0 | `encodedBodySize = 0` | MB ไม่มีค่า transfer | ใช้ตัวนับหลักแบบ decoded (หัวข้อ 11) |
 | F12 | trace ไม่ผ่าน `validateTrace` | ผลตรวจ `ok: false` | Mock ไม่เริ่ม | แสดง path/code แรกของ error · ไม่ crash |
-| F13 | build.protomaps.com ใช้ไม่ได้ หรือ agent ดาวน์โหลดไม่ได้ | extract ล้ม | ไม่มี tile ใหม่ | ใช้ build ที่ pin จาก cache ในเครื่อง · planetiler + profile Protomaps · HUMAN P1-F02-T25 ดาวน์โหลดแทน |
+| F13 | build.protomaps.com หรือ `builds.json` ใช้ไม่ได้ · agent ดาวน์โหลดไม่ได้ · หรือไม่มี build ที่ version = `expectedMetadataVersion` | `resolve-build.sh` exit 1 หรือ extract ล้ม | ไม่มี tile ใหม่ | daily เก่าถูกลบไม่ใช่ F13 แล้ว: resolver เลือก build ใหม่ที่สุดที่ version ตรงเอง (ADR 0004) · index ใช้ไม่ได้ → `out/resolved-build.json` ของ run ล่าสุด แล้วจึง pin (`buildKey`) · reuse archive ในเครื่องที่ชื่อตรง tileset id (ตรวจ version แล้ว) · ถ้านานเกินรอบ deploy: สำเนาเองบน host ฟรี (ADR 0004 ทาง B, devops) หรือ planetiler + profile Protomaps (ทาง C) · HUMAN P1-F02-T25 ดาวน์โหลดแทน |
 | F14 | พิกัดดิบหลุดเข้า git | CI guard (T07) + gitleaks | ละเมิด PDPA บน repo public | `.gitignore` ครอบ `raw/` · summary ไม่มีพิกัด · raw ผ่าน `validateTrace` แบบ `field` เท่านั้น |
 | F15 | worker URL ของ MapLibre ไม่ถูกตั้ง (6.10 ESM หา worker เองไม่ได้หลัง bundle) | event `load` ไม่ fire และไม่มี tile render แม้ canvas มีอยู่ · console ไม่มี error | แผนที่ดำ | `apps/client/src/map/worker.ts` เรียก `setWorkerUrl()` ก่อน `new Map()` (D-068) · e2e ต้องตรวจว่า `load` fire และ tile render จริง ไม่ใช่แค่มี canvas (P1-X24) |
 
@@ -470,4 +471,5 @@ view model มี 2 source ที่มี `id` และ property 6 ตัว�
 | --- | --- | --- | --- | --- |
 | P1-X27 | 2026-09-24 | 15.1 | สถานะ "นอกพื้นที่" อ้าง `unlocks.home.seeOutOfAreaMask` → `data/map/playarea-mask.geojson` ผ่าน `packages/geo` และ "ไกล" อ้าง `unlocks.home.farDungeonThreshold_m` แทน key ระยะทางที่ถูกลบใน P1-X18 | D-064, D-043, `config/balance/unlocks.json` v3, tech gate T-01 |
 | P2-F04-T05 | 2026-09-26 | 15.1, 15.2 | "นอกพื้นที่" ใช้ `inPlayArea` ของ `packages/geo` (leaf) · 15.2 ครอบ source `kw-dungeon-labels` และจุดป้ายตอน build ด้วย polylabel (D-075) · rewind ย้ายไป geo | ADR 0003, D-064, D-075, P1-X32 |
+| P2-H63 | 2026-10-01 | 5.1, 5.2, 12 (F13) | pin ตัวจริงคือ `expectedMetadataVersion` · `buildKey` เป็นค่าที่ต้องการก่อน เลือกโดย `bin/resolve-build.sh` · F13 แยก daily ถูกลบ (แก้ด้วย resolver) ออกจาก upstream ใช้ไม่ได้ · ยืนยัน A-P2-X58-1 และ A-P2-X58-2 | ADR 0004 ACCEPTED, P2-X57, P2-X58 |
 | P1-X27 | 2026-09-24 | 2, 12 | เพิ่ม `apps/client/src/map/worker.ts` และ failure mode F15 (แผนที่ดำเมื่อไม่ตั้ง worker URL) | D-068, P1-X23, P1-X24 |

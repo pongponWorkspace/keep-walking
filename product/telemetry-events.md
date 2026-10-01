@@ -1,8 +1,8 @@
 # Telemetry Events — GPS Dungeon กรุงเทพฯ
 
-Task: P2-F04-T17 (สืบทอดจาก P1-F03-T19) · แก้ล่าสุด P2-H24 (ก่อนหน้า P2-X23) · เจ้าของ: product-manager · สถานะ: ฉบับเสนอ รอ Tech/QA/Content/Design gate ร่วม F04+F05 (P2-F05-T15..T18) และ Product gate F04–F06 (P2-F06-T25) · วันที่: 2026-09-27
-แหล่งอ้างอิง: `product/metrics.md` (คู่กัน), `product/prd/F04-dungeon-presence.md`, `product/prd/F05-movement-gate-reward.md`, `product/prd/F06-hp-damage-onboarding.md` (ที่มาของ metric/event ที่ต้องประกาศ), `design/features/F04-dungeon-presence.md` (F04-R07/R08/R17/R20–R24, สถานะ 3.3–3.4), `design/features/F05-movement-gate-reward.md` (F05-R18/R19 = R-B1/D-078, F05-R21/R22 = D-059), `docs/tech/F06-hp-damage-onboarding.md` §2.5/§6.3 (`checkin_rejected` reason เพิ่ม, D-114), §8.4 (ถอน consent ตำแหน่งระหว่าง run, D-116, A-P2-X16-1), `product/playtest/phase-2-plan.md` §11.1 (handoff ต้นทางของงานนี้), `audio/manifest.json` + `audio/cue-list.md` (cue `qc.sent`/`qc.received`/`dungeon.closedOrOutOfRange`, `telemetry: null`, A-P2-F05-T06-1), `config/app/telemetry.json`, `config/app/privacy.json`, `config/balance/anticheat.json`, `config/balance/dungeons.json`, `config/balance/unlocks.json` (`antiCheatHelp.unlockOnEvents` ใช้ชื่อ event ภายในตรงกับที่นี่), CLAUDE.md ข้อ 4 และ 7 (PDPA)
-คำตัดสินที่ผูกเอกสารนี้: D-088 (telemetry เป็น ring buffer ในเครื่องล้วน), D-089 (ซ่อนจำนวนคน, ยาจาก drop เท่านั้น, รางวัลแรกเป็น tick ปกติ), D-073 (ลงทะเบียนความสนใจนอกย่านเปิดตัวระดับเขต), D-078 (ลำดับผลของการโดนตี R-B1), D-063 (Wake Lock + pocket screen), D-093 (ช่วงเวลาเดินทดสอบ — ไม่กระทบชื่อ event แต่กระทบการอ่านผล), D-114 (enum `checkin_rejected.reason` เพิ่ม `no_class`/`no_hp`), D-116 (ถอน consent ระหว่าง run จบ run แบบ `manual_exit` เดิม ไม่แตกสาขาใหม่ในกติกาเกม)
+Task: P2-F04-T17 (สืบทอดจาก P1-F03-T19) · แก้ล่าสุด P2-F10-T05 (ก่อนหน้า P2-H24, P2-X23) · เจ้าของ: product-manager · สถานะ: ฉบับเสนอ รอ Tech/QA/Content/Design gate ร่วม F04+F05 (P2-F05-T15..T18), Product gate F04–F06 (P2-F06-T25) และ 6 gate ของ F10 (flow approval T10, tech T18, copy T20, visual T21, QA T22, design T23, product T24) · วันที่: 2026-10-01
+แหล่งอ้างอิง: `product/metrics.md` (คู่กัน), `product/prd/F04-dungeon-presence.md`, `product/prd/F05-movement-gate-reward.md`, `product/prd/F06-hp-damage-onboarding.md`, `product/prd/F10-account-shell.md` (ใหม่ — คู่กับหัวข้อ 2b ของเอกสารนี้) (ที่มาของ metric/event ที่ต้องประกาศ), `design/features/F04-dungeon-presence.md` (F04-R07/R08/R17/R20–R24, สถานะ 3.3–3.4), `design/features/F05-movement-gate-reward.md` (F05-R18/R19 = R-B1/D-078, F05-R21/R22 = D-059), `docs/tech/F06-hp-damage-onboarding.md` §2.5/§6.3 (`checkin_rejected` reason เพิ่ม, D-114), §8.4 (ถอน consent ตำแหน่งระหว่าง run, D-116, A-P2-X16-1), `product/playtest/phase-2-plan.md` §11.1 (handoff ต้นทางของงานนี้), `audio/manifest.json` + `audio/cue-list.md` (cue `qc.sent`/`qc.received`/`dungeon.closedOrOutOfRange`, `telemetry: null`, A-P2-F05-T06-1), `config/app/telemetry.json`, `config/app/privacy.json`, `config/balance/anticheat.json`, `config/balance/dungeons.json`, `config/balance/unlocks.json` (`antiCheatHelp.unlockOnEvents` ใช้ชื่อ event ภายในตรงกับที่นี่), `studio/decisions/decision-log.md` D-144..D-149 (ที่มาของ F10), `studio/phases/phase-2/plan-sync-f10.md` P-5 (เหตุผลย้าย telemetry มา W1 ก่อน build), CLAUDE.md ข้อ 4 และ 7 (PDPA)
+คำตัดสินที่ผูกเอกสารนี้: D-088 (telemetry เป็น ring buffer ในเครื่องล้วน), D-089 (ซ่อนจำนวนคน, ยาจาก drop เท่านั้น, รางวัลแรกเป็น tick ปกติ), D-073 (ลงทะเบียนความสนใจนอกย่านเปิดตัวระดับเขต), D-078 (ลำดับผลของการโดนตี R-B1), D-063 (Wake Lock + pocket screen), D-093 (ช่วงเวลาเดินทดสอบ — ไม่กระทบชื่อ event แต่กระทบการอ่านผล), D-114 (enum `checkin_rejected.reason` เพิ่ม `no_class`/`no_hp`), D-116 (ถอน consent ระหว่าง run จบ run แบบ `manual_exit` เดิม ไม่แตกสาขาใหม่ในกติกาเกม), D-144 (ปุ่ม "เริ่มเกม" เดียวแทน intro tap), D-145 (login Google/Apple/email ทั้งหมด bypass ฝั่ง client ไม่มี auth จริง ไม่เก็บ password/อีเมล), D-146 (จอสร้างตัวละคร: class + ชื่อ + ตัวกรอง + ปุ่มสุ่ม แทน class sheet เดิม), D-147 (เรื่อง 5 slide หลังสร้างตัวละคร), D-148 (map หลัก + nav 5 ปุ่ม + Setting/logout), D-149 (ลำดับ onboarding ใหม่: เริ่มเกม → login → age → consent → permission → สร้างตัวละคร → เรื่อง → map)
 
 ## การเปลี่ยนสถาปัตยกรรมจากฉบับ Phase 1 (สำคัญ — อ่านก่อนทุกหัวข้อ)
 
@@ -29,6 +29,7 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 
 1. Envelope กลาง (ในเครื่อง vs export)
 2. หมวด Onboarding (รวมการควบคุมข้อมูลในเครื่อง)
+2b. หมวด F10 — Account shell, สร้างตัวละคร, เล่าเรื่อง, Main nav (ใหม่ D-144..D-149)
 3. หมวด Places / core loop (run state, check-in, speed lock, ยา, Wake Lock)
 4. หมวด Social (Phase 3)
 5. หมวด Economy (Phase 3–4)
@@ -70,15 +71,15 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 ที่มา: `design/ux/flows/F03-core-loop.md` Flow A, `product/prd/F01-coverage-survey.md` §6 (สาม event แรกด้านล่างต้องคงชื่อนี้ตามที่ PRD เสนอไว้), `product/prd/F06-hp-damage-onboarding.md` §4
 
 ### `onboarding_funnel_step`
-- **ยิงเมื่อ:** ผู้เล่นเห็นหรือผ่านแต่ละขั้นของ Flow A นาที 0–1 ตามลำดับจริงของ `design/features/F06-hp-damage-onboarding.md` F06-R44 (**age gate มาก่อน consent ตำแหน่งเสมอ**, ไม่มีขั้น login ใน Phase 2, F06 หัวข้อ 2 ข้อ 2 / หัวข้อ 7)
+- **ยิงเมื่อ:** ผู้เล่นเห็นหรือผ่านแต่ละขั้นของลำดับ onboarding ใหม่ตาม D-149: **เริ่มเกม (D-144) → login (F10, D-145) → age gate → consent ตำแหน่ง → permission เบราว์เซอร์ → สร้างตัวละคร (F10, D-146) → เรื่อง 5 slide (F10, D-147) → map (F10, D-148)** (**age gate มาก่อน consent ตำแหน่งเสมอ** ตาม NN-7 ไม่เปลี่ยน)
 - **properties:**
   | key | ประเภท | ค่าที่เป็นไปได้ |
   | --- | --- | --- |
-  | `step` | enum | `intro`, `age_gate_shown`, `age_gate_passed`, `age_gate_under_min`, `consent_location_shown`, `consent_location_accepted`, `consent_location_declined`, `permission_browser_shown`, `permission_browser_allowed`, `permission_browser_blocked`, `map_view_reached`, `class_select_shown`, `class_selected` |
-  | `funnel_bucket` | enum | `0-1`, `1-3`, `3-6`, `6-8`, `8-10` (ตามช่วงที่ CLAUDE.md กำหนด) |
+  | `step` | enum | `intro`, `login_shown`, `login_method_chosen`, `age_gate_shown`, `age_gate_passed`, `age_gate_under_min`, `consent_location_shown`, `consent_location_accepted`, `consent_location_declined`, `permission_browser_shown`, `permission_browser_allowed`, `permission_browser_blocked`, `class_select_shown`, `class_selected`, `character_create_shown`, `character_create_done`, `story_shown`, `story_done`, `map_view_reached` |
+  | `funnel_bucket` | enum | `0-1`, `1-3`, `3-6`, `6-8`, `8-10` (ตามช่วงที่ CLAUDE.md กำหนด) — ช่วงเวลาไม่เปลี่ยนแม้ D-149 เพิ่ม 3 ขั้นใหม่ (login, สร้างตัวละคร, เรื่อง) เพราะทั้งหมดยังอยู่ในหน้าต่างนาที 0–10 เดิม ผลต่อการอ่านค่าถูกตรวจใน design gate F10 (T23, R-F10-4 ของ plan-sync-f10) |
   | `class_selected` | enum \| null | `tanker`\|`ranged`\|`support`\|`magic` — มีค่าเฉพาะ `step=class_selected` |
-- **privacy:** ไม่มีพิกัด ไม่มีอายุจริงหรือปีเกิด (แค่ผ่าน/ไม่ผ่านเกณฑ์ ตาม F06-R45 — เก็บเฉพาะธงว่าผ่าน ไม่เก็บปีเกิด/ช่วงอายุ)
-- **แก้จาก Phase 1:** ตัด `login_shown`/`login_success`/`login_error` ออกทั้งหมด (F06 หัวข้อ 2 ข้อ 2: "ไม่มี login ไม่มี account ใน Phase 2 · ขั้น login ของ Flow A ไม่มีใน Phase 2" — ไม่ใช่แค่ไม่ emit แต่ไม่มีขั้นนี้ในระบบเลยจน F07/Phase 3) และสลับลำดับ `age_gate_*` มาก่อน `consent_location_*` ให้ตรง F06-R44 (เหตุผล NN-7 — ไม่ขอ consent/สิทธิ์ตำแหน่งจากผู้เล่นที่ยังไม่ผ่าน age gate) [ASSUMPTION A-P2-F04-T17-3: เมื่อ F07 login เข้ามาใน Phase 3 ให้เพิ่ม `login_*` กลับเข้าตำแหน่งที่ flow จริงของตอนนั้นกำหนด ไม่ใช่ตำแหน่งเดิมของ Phase 1 อัตโนมัติ ยืนยัน: tech-lead, uiux-designer]
+- **privacy:** ไม่มีพิกัด ไม่มีอายุจริงหรือปีเกิด (แค่ผ่าน/ไม่ผ่านเกณฑ์ ตาม F06-R45) ไม่มี provider ของ login และไม่มีชื่อตัวละครใน property นี้ (ดูเหตุผลแยกที่ `account_login_method_chosen`/`character_created` ในหัวข้อ 2b)
+- **แก้จาก Phase 1 (คงไว้เพื่อบันทึกประวัติ):** รอบ P2-F04-T17 เคยตัด `login_shown`/`login_success`/`login_error` ออกทั้งหมดเพราะ Phase 2 เดิมไม่มี login เลยจนกว่าจะถึง F07/Phase 3 — สถานะนั้น**ถูกแทนที่แล้วโดย D-145/D-149 (คนสั่งตรง 2026-10-01, P2-F10-T05)**: F10 นำ login กลับมาใน Phase 2 เป็น **bypass ฝั่ง client ล้วน ไม่มี auth จริง ไม่มี `login_success`/`login_error` เพราะไม่มีทางล้มเหลว** (ทุกปุ่มยืนยัน = bypass ไปขั้นถัดไปเสมอ) จึงมีแค่ `login_shown`/`login_method_chosen` สองค่า ไม่ใช่สามค่าแบบ Phase 1 เดิม — [ASSUMPTION A-P2-F04-T17-3 ปิดแล้วโดย D-149: ตำแหน่งขั้น login ไม่ต้องรอ F07/Phase 3 อีกต่อไป] เพิ่ม `character_create_shown`/`character_create_done`/`story_shown`/`story_done` ตาม D-146/D-147 (แทนที่ "class sheet" เดิม — `class_select_shown`/`class_selected` ยังอยู่เป็น sub-step ภายในจอสร้างตัวละครเดียวกัน ไม่ใช่จอแยก) [A-P2-F10-T05-1 ปิดแล้ว (P2-H66): `docs/tech/F10-account-shell.md` §8 ยืนยันว่า step `character_create_done`/`story_done` ยิงคู่กับ `character_created`/`story_completed` ที่ `at_ms` เดียวกันเสมอ (เหมือนรูปแบบ `onboarding_first_reward_granted` คู่กับ `run_tick_granted`) — `story_done` ยิงคู่ได้ทั้งกับ `story_completed` **และ** `story_skipped` แล้วแต่ทาง (tech note เพิ่มเติม, ดูหัวข้อ 2b และหัวข้อ 10) ยืนยัน: tech-lead, P2-F10-T07]
 
 ### `onboarding_first_reward_granted`
 - **ยิงเมื่อ:** ผู้เล่นได้ผ่าน movement gate ครั้งแรกในเครื่องนี้ (tick แรกของ run แรกในชีวิตที่ผ่าน gate ตาม F05-R15/F06-R39 — เป็น tick ปกติ ไม่มี code path แยก, D-089) — **event นี้คือธงที่ metric "≥70% ถึงรางวัลก้อนแรกใน 10 นาที" (PRD F06 §4) วัดโดยตรง** ทุกครั้งที่ event นี้ยิง จะมี `run_tick_granted` ยิงคู่กันในเวลาเดียวกันเสมอ (event นี้เป็นแค่ธง "เป็นครั้งแรกในชีวิต" ไม่ใช่ tick แยกต่างหาก ไม่มี code path ของตัวเอง)
@@ -128,6 +129,71 @@ Phase 1 ฉบับเดิมเขียนโดยสมมติว่า
 - **privacy:** ไม่มีพิกัด ไม่มี timestamp ใดนอกเหนือ envelope กลาง (`t_rel_ms` ของหัวข้อ 1.2) — object นี้ไม่มี field เวลาของตัวเอง (ต่างจาก `client_ts_ms` ที่ envelope จัดการให้อยู่แล้ว), ไม่มีข้อมูลตัวตน
 - **เหตุผลที่ประกาศแยกจาก `dungeon_exited.exit_reason = manual_exit`:** F06-tech §8.4 ยืนยันว่า `exit_reason` ของ `dungeon_exited` **ยังคงเป็น `manual_exit` เดิมสำหรับตัว run เอง** (ไม่แตกค่าใหม่ ไม่แตกสาขาโค้ดใน `reward`/`hp` — เหตุผลของ tech-lead: R48 ข้อ 3 บังคับให้จ่ายเท่ากับ `manual_exit` ทุกประการอยู่แล้ว) แต่การถอน consent เป็นสัญญาณ PDPA/ความปลอดภัยที่ต่างจาก "ผู้เล่นกดออกเพราะเดินจบแล้ว" โดยเฉพาะช่วง playtest ที่มีผู้ร่วมอายุ 15–17 ปี — ไม่แยก event นี้จะทำให้อัตรา `manual_exit` ปนสองเหตุผลที่ต่างกันจนตีความ funnel/churn ผิด (คาดว่าสัดส่วนน้อยมากใน playtest ตามที่ tech-lead ประเมินไว้)
 - **ตัดสินใจแล้ว (ไม่ใช่คำถามค้าง):** ประกาศ event นี้ — ต้นทุนต่ำ (ความถี่ต่ำมาก ไม่กระทบเพดาน ring buffer หัวข้อ 8) เทียบกับประโยชน์ด้าน PDPA ที่ชัดเจน (ยืนยันร่วม: tech-lead ผู้เสนอ mapper, game-director ยืนยันไม่ต้องแยกเชิงกติกาเกม)
+
+## 2b. หมวด F10 — Account shell, สร้างตัวละคร, เล่าเรื่อง, Main nav
+
+ที่มา: `studio/decisions/decision-log.md` D-144..D-149 (คนสั่งตรง 2026-10-01), `studio/phases/phase-2/board.md` หัวข้อ 4 F10 (โดยเฉพาะ P2-F10-T05, P2-F10-T01/T07 เมื่อพร้อม), `studio/phases/phase-2/plan-sync-f10.md` P-1/P-2/P-6, `product/prd/F10-account-shell.md` (คู่กัน) · **event ทั้งหมดในหัวข้อนี้เป็นของใหม่ พร้อม emit ตั้งแต่ Phase 2** (ต่างจากหมวด Social/Economy/Progression ด้านล่างที่เป็น schema ล่วงหน้ารอ Phase หลัง)
+
+**กติกาเฉพาะของหมวดนี้ (นอกเหนือกติกาบังคับ 7 ข้อด้านบนของทั้งเอกสาร):**
+1. **ไม่มี event ใดเก็บอีเมล, password, token, หรือ provider id จริง** — login ทั้งหมดเป็น bypass ฝั่ง client (D-145, `kw.p2.account` มีแค่ `provider` + `signedIn` ตาม plan-sync-f10 P-1) event ในหมวดนี้จึงมีแค่ **ชื่อวิธี login ที่เลือก** (`method`) ไม่ใช่ข้อมูลบัญชีจริงใดๆ
+2. **ไม่มี event ใดเก็บชื่อตัวละครที่พิมพ์เอง** (NN-4, D-146) — `character_created` เก็บเฉพาะ `class_id`, `name_source` (ผ่านการพิมพ์เองหรือสุ่ม — ไม่ใช่ตัวชื่อ), และจำนวนครั้งที่ตัวกรองปฏิเสธ (bucket) เท่านั้น
+3. **ไม่มี event ใดเก็บข้อความเรื่องที่ narrative เขียน** (slide 5 เป็น copy คงที่ ไม่มีช่องพิมพ์)
+4. Event ที่ยิงคู่กับขั้นของ `onboarding_funnel_step` (หัวข้อ 2) ต้องยิงที่เวลาเดียวกันเสมอ (รูปแบบเดียวกับ `onboarding_first_reward_granted` คู่กับ `run_tick_granted`) — ดู [ASSUMPTION A-P2-F10-T05-1] ท้ายหัวข้อ 2
+
+### `account_login_shown`
+- **ยิงเมื่อ:** จอ login แสดง (หลังกดปุ่ม "เริ่มเกม" ของ D-144 — เป็นขั้นแรกของลำดับ D-149 ต่อจาก intro) หรือกลับมาที่จอ login หลังกด "ออกจากระบบ" (D-148)
+- **properties:** `context` (enum `first_time`\|`relogin` — `relogin` เมื่อ `kw.p2.account` มีอยู่และ `signedIn = false` (เคย logout มาก่อน) · `first_time` เมื่อไม่มี `kw.p2.account` เลย — ครอบทั้งผู้เล่นใหม่และผู้เล่นเดิมก่อน F10 ที่ยังไม่เคยมี account ตามเส้นทาง migration)
+- **privacy:** ไม่มีพิกัด ไม่มีข้อมูลบัญชี
+- **ใช้ตอบอะไร:** ตัวตั้งของ funnel ขั้น login ใหม่ (คู่กับ `onboarding_funnel_step { step: login_shown }`) และแยกอัตราการ relogin ออกจาก first-time onboarding ตามคำตัดสิน R43/D-152 (login ใหม่หลัง relogin ข้ามขั้นที่ผ่านแล้วไป map ตรง) — `relogin` ไม่ควรถูกนับเป็นตัวหารของ metric "≥70% ถึงรางวัลก้อนแรกใน 10 นาที" ของ PRD F06 (แก้ปนกับ first-time)
+- [A-P2-F10-T05-2 ปิดแล้ว (P2-H66): `docs/tech/F10-account-shell.md` §5 ยืนยันกลไกจริงตามที่เขียนไว้ข้างบน (`context` คำนวณจาก "มี key `kw.p2.account`" ตรงๆ ไม่ใช่จาก `provider`) ตรงกับข้อเสนอเดิมของ product-manager ทุกประการ enum สองค่ายังคงเดิม ไม่ต้องตัดค่าใดออก ยืนยัน: tech-lead, P2-F10-T07]
+
+### `account_login_method_chosen`
+- **ยิงเมื่อ:** ผู้เล่นกดยืนยันปุ่มวิธี login ใดวิธีหนึ่งสำเร็จ (bypass ไปขั้นถัดไปเสมอ — ไม่มีทางล้มเหลวตาม D-145 จึงไม่มี event `_error`/`_failed` คู่กัน)
+- **properties:** `method` (enum `google`\|`apple`\|`email_login`\|`email_register`\|`email_forgot`)
+- **privacy:** ไม่มีอีเมล ไม่มี password ไม่มี token ไม่มี provider account id จริง — `method` บอกแค่ "ปุ่มไหนถูกกด" ไม่ใช่ผลของการยืนยันตัวตนจริง
+- **ใช้ตอบอะไร:** สัดส่วนการเลือกวิธี login (Google/Apple เป็นปุ่มหลักตาม D-145 — ใช้ตรวจว่าปุ่มหลักถูกใช้จริงมากกว่าลิงก์ email หรือไม่ เพื่อยืนยันการจัดวาง UI ของ T02/T06)
+
+### `character_created`
+- **ยิงเมื่อ:** ผู้เล่นกดปุ่ม "สร้างตัวละคร" สำเร็จ (ผ่านตัวกรองชื่อและเลือก class แล้ว ตาม D-146 — engine เรียก `chooseClass` แล้ว)
+- **properties:**
+  | key | ประเภท | ค่าที่เป็นไปได้ |
+  | --- | --- | --- |
+  | `class_id` | enum | `tanker`\|`ranged`\|`support`\|`magic` (ตรง `classes.json`) |
+  | `name_source` | enum | `typed` (พิมพ์เอง) \| `random` (ใช้ปุ่มสุ่มแล้วไม่แก้ก่อนกด "สร้างตัวละคร") |
+  | `filter_reject_count` | enum (bucket) | `0`, `1-2`, `3-5`, `6+` — จำนวนครั้งที่ตัวกรอง (`validateCharacterName`) ปฏิเสธชื่อก่อนสำเร็จ ไม่แยกเหตุผลรายครั้ง (เหตุผลรายครั้งอยู่ใน UI แบบ inline เท่านั้น ไม่ export) |
+- **privacy:** **ไม่มีชื่อตัวละครที่พิมพ์จริงในตัว event นี้เด็ดขาด** (NN-4, D-146 "ชื่อเก็บในเครื่องเท่านั้น ไม่แสดงให้ผู้เล่นอื่น ไม่ออกจากเครื่อง") ไม่มีพิกัด
+- **ใช้ตอบอะไร:** `filter_reject_count` ช่วง `6+` มากผิดปกติ = สัญญาณให้ systems-designer ทบทวนความยากของตัวกรอง (`config/balance/character.json`) หรือ narrative-designer ทบทวนคลังชื่อสุ่ม (`character-names.th.json`) สัดส่วน `name_source=random` สูงช่วยตอบว่าผู้เล่นเชื่อใจปุ่มสุ่มแค่ไหนเทียบกับพิมพ์เอง
+
+### `story_completed`
+- **ยิงเมื่อ:** ผู้เล่นกดปุ่ม "ออกไปลุย!" ที่ slide 5 (จบเรื่องครบทุก slide ตาม D-147)
+- **properties:** `slides_viewed_count` (int — ปกติ = 5 เสมอในเส้นทางนี้ เก็บไว้เผื่อ reload กลางเรื่องแล้วกลับมาต่อทำให้ค่าจริงต่างจาก 5 ตามกติกา tech note T07)
+- **privacy:** ไม่มีพิกัด ไม่มีเนื้อหาเรื่อง (จอนี้ไม่มีช่องพิมพ์ใดๆ)
+
+### `story_skipped` *(emit จริงใน Phase 2 — ปิดแล้ว ไม่ใช่ schema ล่วงหน้า)*
+- **ยิงเมื่อ:** ผู้เล่นกดลิงก์รอง "ข้าม" ที่ slide 1–4 (F10-R27, คำตัดสิน 7: slide 5 ไม่มีลิงก์ข้ามเพราะปุ่มเด่นพาไปแผนที่อยู่แล้ว)
+- **properties:** `slide_index_at_skip` (int, 1–4 — ไม่มีทางเป็น 5 เพราะ slide 5 ไม่มีลิงก์ข้าม, `docs/tech/F10-account-shell.md` §8)
+- **privacy:** ไม่มีพิกัด ไม่มีเนื้อหาเรื่อง
+- [A-P2-F10-T05-3 ปิดแล้ว (P2-H66): `design/features/F10-account-shell.md` F10-R27 (คำตัดสิน 7, D-152) ยืนยันว่ามีลิงก์ "ข้าม" จริงที่ slide 1–4 ตามเหตุผล GDD "10 นาทีแรก" (ห้ามบังคับอ่านทุกหน้า) event นี้จึง**ยิงจริงใน Phase 2** ไม่ใช่แค่ประกาศ schema ไว้เฉยๆ อีกต่อไป — แก้ช่วงของ `slide_index_at_skip` จาก `1–5` เป็น `1–4` ให้ตรง `docs/tech/F10-account-shell.md` §8 ยืนยัน: game-director (F10-R27), tech-lead (§8)]
+
+### `nav_tab_opened`
+- **ยิงเมื่อ:** ผู้เล่นกดปุ่มใดปุ่มหนึ่งของ bottom nav 5 ปุ่ม (D-148) สำเร็จ (เปลี่ยนจอจริงหรือเปิดจอ "เร็วๆ นี้")
+- **properties:** `tab` (enum `inventory`\|`upgrade`\|`map`\|`shop`\|`party`)
+- **privacy:** ไม่มีพิกัด
+- **ความสัมพันธ์กับ `coming_soon_viewed`:** เมื่อ `tab` เป็น `upgrade`/`shop`/`party` event นี้ยิงคู่กับ `coming_soon_viewed` ที่เวลาเดียวกันเสมอ (จอเป้าหมายคือ "เร็วๆ นี้") เมื่อ `tab` เป็น `inventory`/`map` มีแค่ event นี้ตัวเดียว (จอจริงเปิด ไม่ใช่ "เร็วๆ นี้")
+- **ไม่ครอบ:** ไอคอน Setting มุมบนขวา (ไม่ใช่ปุ่มใน bottom nav ตาม D-148) — Phase 2 ยังไม่มี event แยกสำหรับเปิดเมนูตั้งค่า [ASSUMPTION A-P2-F10-T05-4: ไม่ใช่ metric ที่ CLAUDE.md เรียกร้องในรอบนี้ (ไม่อยู่ในหมวด Onboarding/Social/Economy/Progression/Places/Seasonality ที่ระบุไว้) ถ้า QA gate หรือ design gate ของ F10 เห็นว่าจำเป็น ให้ handoff กลับมาที่ product-manager เพิ่ม event ใหม่ ไม่ใช่ขยาย enum `tab` นี้ ยืนยัน: game-director (T23), qa-tester (T22)]
+
+### `coming_soon_viewed`
+- **ยิงเมื่อ:** จอ "เร็วๆ นี้" แสดงจริง (คู่กับ `nav_tab_opened` ตามที่อธิบายด้านบน)
+- **properties:** `tab` (enum `upgrade`\|`shop`\|`party` — เฉพาะ 3 ปุ่มที่ยังไม่มีระบบจริงตาม D-148 ไม่รวม `inventory`/`map` ที่เปิดจอจริง)
+- **privacy:** ไม่มีพิกัด
+- **ใช้ตอบอะไร:** ความสนใจของผู้เล่นต่อระบบที่ยังไม่มา (Party มาก่อน Phase 3/F09, Shop/Upgrade มาหลัง) ช่วย producer จัดลำดับความสำคัญของ Phase ถัดไปจากความถี่ที่ผู้เล่นกดจริง
+
+### `account_logout`
+- **ยิงเมื่อ:** ผู้เล่นกดยืนยัน "ออกจากระบบ" ใน Setting (D-148) — ยิง**หลังปลดธง `signedIn`** (`kw.p2.account.state.signedIn = false` เท่านั้น, F10-R41, D-158 — **ไม่ลบ** key `kw.p2.account`) และ**ก่อน**เปลี่ยนจอกลับไป login (ตัวละคร/session/inventory/consent ตำแหน่ง/ธงอายุ/ธง onboarding/ตั้งค่า auto-retreat ยังอยู่ครบตาม F10-R41 ไม่ใช่ "ลบข้อมูลในเครื่อง" ของ `local_data_cleared` ซึ่งล้าง `kw.p2.*` ทั้งหมดรวม account, F10-R44)
+- **properties:** `during_run` (bool — จริงเมื่อกด logout ขณะมี run อยู่ ตาม F10-R42/D-152: ออกจากระบบระหว่างมี run **ทำได้จริง** จบ run ด้วย `manual_exit` ก่อนเสมอ — รูปแบบ property เดียวกับ `location_consent_withdrawn.during_run`)
+- **privacy:** ไม่มีพิกัด ไม่มีข้อมูลบัญชี (event นี้ไม่พก `provider` หรือค่าใดจาก `kw.p2.account` มาด้วย)
+- **ความสัมพันธ์กับ `dungeon_exited`:** เมื่อ `during_run=true` ต้องมี `dungeon_exited { exit_reason: manual_exit }` ที่เวลาเดียวกันเสมอ (รูปแบบเดียวกับ `location_consent_withdrawn`) — `during_run` รับค่าได้ทั้ง `true` และ `false` ตามพฤติกรรมจริงของผู้เล่น (ปุ่ม logout ใช้ได้เสมอไม่ว่ามี run หรือไม่ตาม F10-R42) ไม่ใช่ `false` คงที่
+- [A-P2-F10-T05-5 ปิดแล้ว (P2-H66): `design/features/F10-account-shell.md` F10-R42 (คำตัดสิน 1, D-152) และ `docs/tech/F10-account-shell.md` §4.3/§8 ยืนยันตรงกันว่าออกจากระบบระหว่าง run ทำได้จริง ไม่มีเงื่อนไข "ปุ่มถูกปิด/ซ่อนระหว่าง run" อีกต่อไป — property `during_run` คงชื่อและรูปแบบเดิมตามที่เสนอไว้ ยืนยัน: game-director (F10-R42), tech-lead (§4.3, §8)]
 
 ## 3. หมวด Places / core loop (run state)
 
@@ -340,7 +406,7 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 
 | Event | หมวด | Phase พร้อม emit | สถานะสำคัญ |
 | --- | --- | --- | --- |
-| `onboarding_funnel_step` | Onboarding | 2 (แก้ลำดับ+ตัด login) | — |
+| `onboarding_funnel_step` | Onboarding | 2 (D-149: login กลับมา + เพิ่มขั้นสร้างตัวละคร/เรื่อง) | `step` มี 19 ค่า (P2-F10-T05 เพิ่ม `login_shown`, `login_method_chosen`, `character_create_shown`, `character_create_done`, `story_shown`, `story_done`) |
 | `onboarding_first_reward_granted` | Onboarding | 2 | วัด metric หลักของ F06 |
 | `onboarding_nearest_dungeon_distance` | Onboarding | 2 | ยังไม่มี emit จริง (TG-12) — P2-H50: **ไม่บังคับก่อน playtest**, implement ก่อน regional launch แทน |
 | `onboarding_empty_screen_shown` | Onboarding | 2 (reason ใหม่) | — |
@@ -348,6 +414,14 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 | `interest_registered_outside_area` | Onboarding | 2 (ขยาย scope/area_name) | — |
 | `local_data_cleared` | Onboarding (ควบคุมข้อมูล) | 2 | ไม่มี property — เป็นบรรทัดแรกของ export ครั้งถัดไป |
 | `location_consent_withdrawn` | Onboarding (ควบคุมข้อมูล/privacy) | 2 | ใหม่ (P2-X23, D-116) — คู่กับ `dungeon_exited { exit_reason: manual_exit }` ที่ `at_ms` เดียวกันเมื่อ `during_run=true` |
+| `account_login_shown` | F10 | 2 | ใหม่ (P2-F10-T05, D-145/D-149) — `context: first_time\|relogin` |
+| `account_login_method_chosen` | F10 | 2 | ใหม่ — `method` 5 ค่า ไม่มีทาง `_error`/`_failed` (bypass เสมอ) |
+| `character_created` | F10 | 2 | ใหม่ (D-146) — ไม่มีชื่อตัวละครจริง มีแค่ `class_id`/`name_source`/`filter_reject_count` bucket |
+| `story_completed` | F10 | 2 | ใหม่ (D-147) |
+| `story_skipped` | F10 | 2 | ใหม่ (F10-R27) — emit จริงในเครื่อง, `slide_index_at_skip` 1–4 |
+| `nav_tab_opened` | F10 | 2 | ใหม่ (D-148) — `tab` 5 ค่า ไม่ครอบไอคอน Setting |
+| `coming_soon_viewed` | F10 | 2 | ใหม่ (D-148) — `tab` เฉพาะ `upgrade`/`shop`/`party`, คู่กับ `nav_tab_opened` |
+| `account_logout` | F10 | 2 | ใหม่ (D-148) — ยิงหลังปลดธง `signedIn` (F10-R41, D-158), `during_run` รูปแบบเดียวกับ `location_consent_withdrawn`, ไม่ใช่ `local_data_cleared` |
 | `dungeon_confirm_shown` | Places | 2 | — |
 | `checkin_rejected` | Places | 2 | reason 9 ค่า ตรง engine (P2-X23 เพิ่ม `no_class`, `no_hp`, D-114) |
 | `dungeon_entered` | Places | 2 | — |
@@ -375,15 +449,17 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 | `economy_gold_spent` | Economy | 3–4 (F08, F11) | — |
 | `economy_potion_price_observed` | Economy | 4 (F11) | — |
 | `market_trade_completed` | Economy | 4 (F12) | — |
-| `player_level_up` | Progression | 4 (F10) | — |
-| `loot_rarity_received` | Progression | 4 (F10–F11) | — |
+| `player_level_up` | Progression | 4 (F10*) | — |
+| `loot_rarity_received` | Progression | 4 (F10*–F11) | — |
+
+\* `F10` ในสองแถวนี้คือ feature ของ roadmap Phase 4 "Level, Stat และอุปกรณ์" — **คนละ feature กับ "F10 — Account shell" ของ Phase 2** ที่หัวข้อ 2b ใช้ชื่อเดียวกันโดยบังเอิญ (เลขชนกันตามที่ `studio/phases/phase-2/plan-sync-f10.md` A-P2-PLAN-F10-1 บันทึกไว้แล้ว รอ Q-F10-1 ตัดสินชื่อถาวรก่อนวางแผน Phase 4) อย่าสับสนตอนอ่านตารางนี้
 
 ## 10. สมมติฐานและคำถามค้าง
 
 ### สมมติฐาน
 - A-P2-F04-T17-1: เมื่อ F07 login มาใน Phase 3 ให้เพิ่ม `minutes_since_account_created_bucket` กลับเป็น property คู่กับ `minutes_since_first_open_bucket` ใน `onboarding_first_reward_granted` ไม่ใช่แทนที่ (คนละความหมาย: เปิดแอปครั้งแรก ≠ สร้างบัญชี เพราะ Phase 2 ไม่มีบัญชี) (ยืนยัน: tech-lead)
 - A-P2-F04-T17-2: รายชื่อเขต/อำเภอของ `interest_registered_outside_area.scope=district` มาจาก polygon ขอบเขตย่านเปิดตัวของ level-designer (ชุดเดียวกับ `unlocks.home.seeLaunchAreaMask` ที่ F06 spec เสนอ) ไม่ใช่รายชื่อที่ product-manager กำหนดเอง (ยืนยัน: level-designer, game-director)
-- A-P2-F04-T17-3: เมื่อ F07 login เข้ามาใน Phase 3 ตำแหน่งของ step `login_*` ใน `onboarding_funnel_step` ให้ยึดตาม flow จริงตอนนั้น ไม่ใช่ตำแหน่งเดิมของ Phase 1 (ยืนยัน: tech-lead, uiux-designer)
+- A-P2-F04-T17-3 (**ปิดแล้ว/แทนที่โดย D-149, P2-F10-T05**): เดิมสมมติว่า login กลับมาเฉพาะตอน F07/Phase 3 — คนสั่งตรง 2026-10-01 (D-145/D-149) ให้ F10 นำ login (bypass) กลับมาใน Phase 2 ทันที ตำแหน่งขั้น `login_shown`/`login_method_chosen` ใน `onboarding_funnel_step` จึงถูกกำหนดแล้วในหัวข้อ 2 ของเอกสารนี้ ไม่ต้องรอ flow ของ Phase 3 อีก (ยืนยัน: tech-lead ใน T07 เมื่อ build จริง)
 - A-P2-F04-T17-4: pipeline server telemetry ของ Phase 3 (F08) กลับมาทบทวนรายละเอียดตอน F08 เริ่ม ไม่ใช่ตอนนี้ (ยืนยัน: tech-lead)
 - A-P2-F04-T17-5: `amount_bucket` ของ event หมวด Economy ใช้ bucket แทนตัวเลขจริงเพื่อลด cardinality ยกเว้น `economy_potion_price_observed`/`market_trade_completed` ที่ใช้ราคาจริง (ราคาสาธารณะของไอเทม ไม่ใช่ transaction ต่อบัญชี) — สืบทอดจาก A-P1-F03-T19-5 ไม่เปลี่ยน (ยืนยัน: tech-lead, systems-designer)
 - A-P2-F04-T17-6: `dungeon_report_submitted.reason_category` เป็น enum ที่ยังไม่ถูกกำหนดค่าจริง (รอ F13) — สืบทอดจาก A-P1-F03-T19-6 ไม่เปลี่ยน (ยืนยัน: narrative-designer, game-director)
@@ -397,6 +473,14 @@ Phase 1 เขียนหัวข้อนี้โดยสมมติว่
 - A-P2-H24-1 (**ปิดแล้ว**): ประกาศ `inventory_potion_used { item_id, revived }` (หัวข้อ 3) ตามข้อเสนอของ product-manager เอง (P2-X33) ตอบ gap ที่ sound-designer พบใน P2-H18 (cue เสียงมีแล้ว telemetry ไม่มี) — ไม่มี `dungeon_id`/พิกัด เพราะเกิดนอก run (ยืนยัน: sound-designer เจ้าของ P2-H18)
 - A-P2-H50-1 (**ปิดแล้ว, P2-H50**): tech gate F06 รอบ 1 (TG-12) พบว่า `onboarding_nearest_dungeon_distance` และ `run_gps_status_changed` มีสเปกในเอกสารนี้แล้วแต่ไม่มีจุดยิงจริงใน `apps/client/src` — ตัดสินใจแยกกัน: **`run_gps_status_changed` ต้อง emit ก่อน playtest ภาคสนาม P2-F06-T27** (เป็นหลักฐานเดียวที่ตอบคำถาม pocket screen/GPS ของ `product/playtest/phase-2-plan.md` §5) → handoff P2-X48 ถึง gameplay-programmer พร้อมสเปกเต็ม (ดูหัวข้อ 3 ของเอกสารนี้ ไม่มีการเปลี่ยนชื่อ/property ใดจากที่ประกาศไว้แล้ว) · **`onboarding_nearest_dungeon_distance` ไม่บังคับก่อน playtest** เพราะไม่ผูกกับคำถาม/เกณฑ์ใดใน `phase-2-plan.md` §5/§6 และ guardrail ที่เกี่ยวข้อง (GR-1) ปิดแล้วจากข้อมูล coverage แบบ static — เลื่อนงาน implement เป็น backlog ก่อน regional launch แทน ไม่เปิดงาน gameplay-programmer รอบนี้ (ยืนยัน: product-manager)
 - A-P2-H50-2 (**รับทราบแล้ว, P2-H50**): F06-TG-13 ของ tech gate ยืนยันว่า `kw.p2.runClientStats` (ตัวนับที่ใช้คำนวณ `dungeon_exited.page_hidden_total_s_bucket` และ `wake_lock_engaged_share_bucket`) อยู่ในหน่วยความจำของ `WakeLockController` เท่านั้น ไม่ persist ลง storage — ถ้าเบราว์เซอร์ reload กลาง run ตัวนับเริ่มใหม่จากศูนย์ ทำให้สอง bucket นี้ต่ำกว่าค่าจริงเฉพาะ run ที่มี reload เกิดขึ้น (A-P2-H45-1) — ยอมรับเป็นข้อจำกัดของ Phase 2 ไม่ใช่บั๊กที่ต้องแก้ก่อน playtest (ต้นทุนแก้สูงกว่าประโยชน์สำหรับรอบสนามขนาดเล็กนี้) — ผลต่อแผนวิเคราะห์บันทึกไว้ที่ `product/playtest/phase-2-plan.md` §2 และ §4.1 (อ่านสอง bucket นี้เป็นค่าต่ำสุดที่เป็นไปได้ ไม่ใช่ค่าจริง เมื่อสงสัยว่า run มี reload) (ยืนยัน: product-manager, tech-lead เจ้าของ F06-TG-13)
+
+**สมมติฐานใหม่ของหมวด 2b (F10, P2-F10-T05) — รายละเอียดเต็มอยู่ในหัวข้อ 2 และ 2b ที่ประกาศไว้แล้ว รายการนี้เป็นดัชนีให้ค้นง่าย:**
+- A-P2-F10-T05-1 (หัวข้อ 2): step `character_create_done`/`story_done` ต้องยิงคู่เวลาเดียวกับ `character_created`/`story_completed` เสมอ (ยืนยัน: tech-lead ใน T07)
+- A-P2-F10-T05-2 (หัวข้อ 2b, `account_login_shown`, **ปิดแล้ว P2-H66**): `docs/tech/F10-account-shell.md` §5 ยืนยันกลไกจริง — `context` คำนวณจาก "มี key `kw.p2.account` และ `signedIn=false`" ตรงๆ = `relogin` ไม่งั้น = `first_time` (ครอบผู้เล่นเดิมก่อน F10 ด้วย) ตรงกับข้อเสนอเดิมของ product-manager ทุกประการ enum สองค่าคงเดิม (ยืนยัน: tech-lead, game-director)
+- A-P2-F10-T05-3 (หัวข้อ 2b, `story_skipped`, **ปิดแล้ว P2-H66**): `design/features/F10-account-shell.md` F10-R27 (คำตัดสิน 7, D-152) ยืนยันมีลิงก์ "ข้าม" จริงที่ slide 1–4 (slide 5 ไม่มี) → event นี้ emit จริงใน Phase 2 ไม่ใช่ schema ล่วงหน้าอีกต่อไป แก้ `slide_index_at_skip` จาก `1–5` เป็น `1–4` ให้ตรง `docs/tech/F10-account-shell.md` §8 (ยืนยัน: game-director)
+- A-P2-F10-T05-4 (หัวข้อ 2b, `nav_tab_opened`): ไอคอน Setting ไม่มี event แยกในรอบนี้ (ไม่ใช่ metric ที่ CLAUDE.md เรียกร้อง) — ถ้า gate เห็นว่าจำเป็นให้ handoff กลับมาเพิ่ม event ใหม่แทนการขยาย enum `tab` (ยืนยัน: game-director T23, qa-tester T22)
+- A-P2-F10-T05-5 (หัวข้อ 2b, `account_logout`, **ปิดแล้ว P2-H66**): `design/features/F10-account-shell.md` F10-R42 (คำตัดสิน 1, D-152) และ `docs/tech/F10-account-shell.md` §4.3/§8 ยืนยันตรงกันว่าออกจากระบบระหว่าง run ทำได้จริง (จบด้วย `manual_exit` ก่อนเสมอ) — `during_run` รับค่าได้ทั้ง `true`/`false` ตามพฤติกรรมจริง ไม่ใช่ `false` คงที่ ถ้อยคำ "ยิงหลังปลดธง `signedIn`" (ไม่ใช่ "หลังลบ `kw.p2.account`") แก้ตรงกับ F10-R41/D-158 แล้วในหัวข้อ 2b (ยืนยัน: game-director, tech-lead)
+- A-P2-F10-T05-6: enum ทั้งหมดของหมวด 2b (`method`, `class_id`, `tab`) อ้างอิงชื่อจาก config/content ที่ยังไม่ freeze ตอนเขียนเอกสารนี้ (`config/content/character-names.th.json` ของ T03/T04 ยังไม่เสร็จ, `classes.json` มีอยู่แล้วจาก F06) — ถ้า `class_id` ที่ config จริงใช้ต่างจาก `tanker`\|`ranged`\|`support`\|`magic` (เช่นเปลี่ยนเป็น slug อื่น) ให้ tech-lead handoff กลับมาแก้ค่า enum นี้ในรอบ T07/T18 ไม่ใช่เปลี่ยนชื่อ property หรือ event (ยืนยัน: tech-lead, systems-designer)
 
 **ข้อแตกต่างจากชื่อที่ tech-lead เสนอในข้อความ handoff (ตามที่อนุญาตให้ "keep your choice and list the difference"):** ไม่มี — ทุกชื่อ event และ property ที่ tech-lead ระบุ (`checkin_rejected`, `run_state_changed`, `anticheat_speed_lock_triggered`, `dungeon_closing_soon_notified`, `navigation_link_opened`, `session_state_discarded`, `storage_quota_exceeded`, `local_data_cleared`, `partial`) ถูกนำมาใช้ตรงตัวในเอกสารฉบับนี้แล้ว ส่วนที่ต่างจากร่างเดิมของผมเอง (ก่อนเห็น tech note) คือ property ของ `anticheat_speed_lock_triggered` (ดู A-P2-F04-T17-7) และ `roles_present`/`partial` ของ `run_tick_granted` ซึ่งแก้ตามตารางแล้วเช่นกัน · `inventory_potion_used` (P2-H24) ก็ใช้ field name `item_id`/`revived` ตรงกับ property ภายในของ session reducer (`potion_used.revived`) เป๊ะ ไม่มีการแปลชื่อ
 

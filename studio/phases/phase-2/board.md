@@ -1,7 +1,7 @@
 # Phase 2 Board — Dungeon loop เล่นได้ (client-first)
 
-สถานะ board: COMPLETE — AGENT SIDE, WAITING FOR HUMAN (จบ Run 2, 2026-09-30 · report.md) · เดิม DRAFT rev 2 (P2-PLAN-02, 2026-09-26) — แก้ตาม plan review 3 ฉบับ (game-director, tech-lead, product-manager ทั้งหมด NEEDS_CHANGES) · รอคนทบทวนและตอบคำถามหัวข้อ 6 · Phase 1 ยังไม่ปิด (D-086) งานที่เหลือของ Phase 1 อยู่ในกลุ่ม `P2-C*`
-Feature: F04 Dungeon Presence และ Run State · F05 Movement Gate, Reward Tick และ Drop · F06 HP, Damage และ 10 นาทีแรก
+สถานะ board: IN PROGRESS — F10 (D-144..D-149, Run 3 เริ่ม 2026-10-01) · ก่อนหน้า COMPLETE — AGENT SIDE, WAITING FOR HUMAN (จบ Run 2, 2026-09-30 · report.md) · เดิม DRAFT rev 2 (P2-PLAN-02, 2026-09-26) — แก้ตาม plan review 3 ฉบับ (game-director, tech-lead, product-manager ทั้งหมด NEEDS_CHANGES) · รอคนทบทวนและตอบคำถามหัวข้อ 6 · Phase 1 ยังไม่ปิด (D-086) งานที่เหลือของ Phase 1 อยู่ในกลุ่ม `P2-C*`
+Feature: F04 Dungeon Presence และ Run State · F05 Movement Gate, Reward Tick และ Drop · F06 HP, Damage และ 10 นาทีแรก · F10 Account shell, สร้างตัวละคร, เล่าเรื่อง และ main nav (เพิ่ม 2026-10-01, plan-sync-f10.md)
 Plan review: `studio/phases/phase-2/plan-review-game-director.md`, `plan-review-tech-lead.md`, `plan-review-product-manager.md` · การแก้ทุกข้ออยู่ในหัวข้อ 7
 
 ## 1. บริบท
@@ -66,6 +66,7 @@ Plan review: `studio/phases/phase-2/plan-review-game-director.md`, `plan-review-
 | F04–F06 | Content visual (P2-F06-T23), Product (P2-F06-T25) | ภาพและ telemetry ต้องดูทั้ง loop · product gate ก่อน playtest |
 | Flow ของ core loop | P2-F04-T27 (flow F04), P2-F06-T30 (flow F05 + F06) · game-director | protocol ข้อ 5 "game-director approves core-loop flows" (GD B-01) |
 | Speed filter | P2-F05-T19 (tech-lead) | แยกจาก tech gate F06 เพื่อไม่ให้สายสนามขวาง gate → QA → playtest (TL B-11) |
+| F10 | Flow approval (P2-F10-T10), Tech (T18), Copy (T20), Visual (T21), QA (T22), Design (T23), Product (T24) → P2-F10-CI | คนสั่งให้ผ่าน gate ครบ 6 อัน · flow approval เพิ่มเพราะลำดับ onboarding ของ core loop เปลี่ยน (plan-sync-f10 P-6) |
 
 ### คำตอบจากคน (orchestrator กรอก)
 | วันที่ | คำถาม / decision | คำตอบ | กระทบ task |
@@ -402,8 +403,43 @@ Plan review: `studio/phases/phase-2/plan-review-game-director.md`, `plan-review-
 | P2-X55 | F06 | (CI 4d29ada แดง) qa/tests/e2e/f06-toast-two-lines-real-run.spec.ts ล้มบน ios-safari และ flaky บน android-chrome ใน runner ubuntu (suite 6.3 นาที เทียบกับ 2.0 นาทีในเครื่อง) · ให้เสถียรโดยไม่ลดสิ่งที่ตรวจ: ใช้ trace synthetic-hp-low-leelawadee-01 (ช่วงเตือน 6.17 s ที่ speed=60) หรือลด speed, รอสถานะ DOM แทนการจับเวลา | fix | qa-tester | — | `qa/tests/e2e/` | DONE | verified: 50/50 ซ้ำ 5 รอบ 8 worker retry 0 · e2e 106/106 · lint+typecheck เขียว |
 | P2-X56 | F06 | (CI 4d29ada flaky) apps/client/e2e/toast-position.spec.ts:161 (360/390 px, ios-safari) · ให้เสถียรบน runner ช้า: จับ boundingBox ระหว่าง animation ด้วยการรอ getAnimations() ที่ running แบบมี retry/timeout พอ ไม่พึ่งจังหวะเวลาแคบ · ยังต้องพิสูจน์ความกึ่งกลางระหว่างและหลัง animation | fix | gameplay-programmer | — | `apps/client/e2e/` | DONE | verified: 50/50 ซ้ำ 5 รอบ 8 worker retry 0 · e2e 106/106 · lint+typecheck เขียว |
 | P2-X57 | F02 | (deploy-preview dry run แดง, Build tiles exit 1) source `build.protomaps.com/20260923.pmtiles` ตอบ 404 เพราะ Protomaps ลบ daily build เก่า · เลื่อน pin ไป 20260930 (metadata 4.15.2 เท่าเดิม) · tiles test อ่าน tileset id ของ fixture จาก manifest.json แทน buildKey | fix | orchestrator | — | `tools/tiles/` | DONE | verified: build.sh ในเครื่อง exit 0 PASS Pages Free budget (13,502 tile) · tiles test 71/71 |
-| P2-X58 | F02 | ทำให้ tile build ไม่พังทุก ~7 วัน: pin daily build ของ Protomaps หมดอายุเร็ว · เสนอทางเลือก (เลือก build ล่าสุดที่ metadata version ตรงอัตโนมัติ, เก็บ archive สำเนาเองใน host ฟรี, หรือ planetiler) ใน ADR · ห้ามใช้บริการคิดเงิน (D-001) | adr | location-engineer | P2-X57 | `tools/tiles/`, `docs/adr/` | TODO | pin 20260930 จะหาย ~2026-10-07 |
+| P2-X58 | F02 | ทำให้ tile build ไม่พังทุก ~7 วัน: pin daily build ของ Protomaps หมดอายุเร็ว · เสนอทางเลือก (เลือก build ล่าสุดที่ metadata version ตรงอัตโนมัติ, เก็บ archive สำเนาเองใน host ฟรี, หรือ planetiler) ใน ADR · ห้ามใช้บริการคิดเงิน (D-001) | adr | location-engineer | P2-X57 | `tools/tiles/`, `docs/adr/` | DONE | `docs/adr/0004-tile-source-build-selection.md` (PROPOSED), `tools/tiles/bin/resolve-build.sh` · tiles test 89/89 · build pin หายแล้วยังผ่าน, version ไม่ตรงยังล้ม |
+| P2-H63 | F02 | (handoff จาก P2-X58) ตรวจและตัดสิน ADR 0004 (เลือก Protomaps build อัตโนมัติจาก builds.json, expectedMetadataVersion คือ pin จริง) · ถ้ารับ แก้ docs/tech/F02-map-location-spike.md หัวข้อ 5.1 และ F13 ให้ตรง | review-gate | tech-lead | P2-X58 | `docs/adr/0004-tile-source-build-selection.md` (เฉพาะ status), `docs/tech/F02-map-location-spike.md` | DONE | verdict PASS · ADR 0004 ACCEPTED · tech note F02 5.1/5.2/F13/16 |
 | P2-X59 | F06 | (คนทดสอบ preview 2026-10-01) (1) age gate: ปีเกิดที่เลือกหายและ picker ของ iOS reset ระหว่างเลื่อน เพราะ render() เรียก showGate() ทุก state change แล้วสร้าง option ใหม่ + ตั้งค่าว่าง → reset เฉพาะตอนเปิดจอ (2) S-00-intro เหลือปุ่ม "เริ่มเกม" ปุ่มเดียว (D-144) | fix | orchestrator | — | `apps/client/`, `config/content/copy.th.json` | DONE | verified: unit 3,114 · e2e 106/106 · lint+typecheck · เลือกปีแล้วรอ 8 s ค่ายังอยู่ |
+| P2-F10-T01 | F10 | Feature spec F10: account shell (login bypass Google/Apple + email login/register/forgot), ลำดับ onboarding ใหม่ D-149, จอสร้างตัวละคร D-146, เล่าเรื่อง 5 slide D-147, map หลัก + nav 5 ปุ่ม + Setting/logout D-148, migration ผู้เล่นเดิม · แก้ R36/R44/ข้อ 12 ของ spec F06 ให้ชี้ F10 · ร่างถ้อยคำแก้ GDD เรื่อง password (D-145) เข้า Q-P2-10 | spec | game-director | — | `design/features/F10-account-shell.md`, `design/features/F06-hp-damage-onboarding.md` (เฉพาะ R36, R44, หัวข้อ 8 ข้อ 12, change log), `design/reviews/gdd-wording-D-145.md` | DONE | `design/features/F10-account-shell.md` (R01..R52), `design/reviews/gdd-wording-D-145.md`, F06 R36/R44 ชี้ F10 |
+| P2-H62 | F10 | (handoff จาก P2-F10-T01) แก้ design/pillars.md: (1) ข้อความตรวจ NN-4 เรื่องชื่อตัวละครตามคำตัดสิน 6 ของ spec F10 (2) 6.1 แถวนาที 0–1 ตามลำดับ D-149 (3) 6.2 ข้อยกเว้นจอเร็วๆ นี้ตามคำตัดสิน 8 (4) แถว F10 ในดัชนีหัวข้อ 8 · และแก้ข้อความ F06 R29, R42, R51, หัวข้อ 2 ข้อ 2, หัวข้อ 4 บรรทัด Onboarding, หัวข้อ 8 ข้อ 10 และ 14 ให้ตรง F10 | spec | game-director | P2-F10-T01 | `design/pillars.md`, `design/features/F06-hp-damage-onboarding.md` | DONE | `design/pillars.md` (NN-4 ข้อยกเว้นช่องชื่อ 4 เงื่อนไข, 6.1 ลำดับ D-149, 6.2 ข้อยกเว้นเร็วๆ นี้ 5 เงื่อนไข, ดัชนี F10), F06 R29/R42/R51 ชี้ F10 |
+| P2-F10-T02 | F10 | Art direction ของ shell: icon nav 5 ปุ่ม + Setting + logout ตาม icon-grammar, สไตล์ภาพประกอบ slide เรื่อง 5 ภาพ, นโยบายปุ่ม Google/Apple (ไม่วาด logo แบรนด์เอง) | spec | art-director | — | `art/direction/F10-shell-direction.md`, `art/direction/icon-grammar.md` (เพิ่มหัวข้อ nav) | DONE | `art/direction/F10-shell-direction.md` (หัวข้อ 1–11), `art/direction/icon-grammar.md` 7.1.2 + 7.4 |
+| P2-F10-T03 | F10 | เรื่องเล่า 5 slide (ย้าย onboarding.intro มาใช้ได้ · ปุ่ม "ถัดไป"/"ออกไปลุย!") + คลังชื่อสุ่ม + รายการคำไม่สุภาพสำหรับตัวกรองชื่อ | asset | narrative-designer | — | `config/content/copy.th.json` (เฉพาะ key `story.*`), `config/content/character-names.th.json` (ใหม่), `design/narrative/F10-story.md` (ใหม่) | DONE | `copy.th.json` story.* 14 key, `config/content/character-names.th.json` (ชื่อ 256 + fallback, blockedTerms 2 pass), `design/narrative/F10-story.md` · lint:copy exit 0 (WARN S1 area story → T11) |
+| P2-F10-T04 | F10 | Config ตัวกรองชื่อตัวละคร: ความยาว (หน่วย grapheme), ชุดอักขระที่อนุญาต, ค่าจับรูปแบบเบอร์โทร/อีเมล/ลิงก์, กติกาสุ่มชื่อ + golden vector | build | systems-designer | — | `config/balance/character.json` (ใหม่), `design/systems/test-vectors/character-name.json` (ใหม่) | DONE | `config/balance/character.json`, `design/systems/test-vectors/character-name.json` (75 vector) · schema-missing รอ T07 |
+| P2-H64 | F10 | (orchestrator พบ: key ไม่ตรงกันระหว่าง T03 กับ T04) ปรับ config/balance/character.json ให้อ้างโครงสร้างจริงของ config/content/character-names.th.json (randomName.heads/tails/fallback, blockedTerms: normalization + substring/substringHeavy/token/allow ตาม design/narrative/F10-story.md หัวข้อ 7 และ 9) แทน banned.th/banned.en/random.prefixes/cores/fallbacks · รวมวิธี fold ของสองงานเป็นแบบเดียว · อัปเดต test vector (fixture lexicon ตามโครงสร้างใหม่ + vector ที่ T03 เสนอในหัวข้อ 7) · ยืนยันว่าชื่อสุ่มทั้ง 256 + fallback ผ่านตัวกรอง | fix | systems-designer | P2-F10-T03, P2-F10-T04 | `config/balance/character.json`, `design/systems/test-vectors/character-name.json` | DONE | `config/balance/character.json` v2 (banned.passes/modes/allow), vector v2 116 check 0 mismatch · ชื่อสุ่ม 256/256 + fallback 6/6 ผ่าน |
+| P2-F10-T05 | F10 | Telemetry events ของ F10 (login shown/method, age/consent ตามเดิม, character created, story completed, nav tab, coming soon, logout) + PRD addendum ตัวชี้วัด funnel | spec | product-manager | — | `product/telemetry-events.md` (หมวดใหม่ F10), `product/prd/F10-account-shell.md` (ใหม่) | DONE | `product/telemetry-events.md` §2b (8 event + funnel step 6 ค่า), `product/prd/F10-account-shell.md` |
+| P2-F10-T06 | F10 | Flow F10 + wireframe HTML + component spec: เริ่มเกม → login/register/forgot → age → consent → permission → สร้างตัวละคร → เรื่อง 5 slide → map · bottom nav 5 ปุ่ม · coming soon · Setting + logout · กฎไม่บัง HUD run/จอพกกระเป๋า | spec | uiux-designer | P2-F10-T01, P2-F10-T02 | `design/ux/flows/F10-account-shell.md`, `design/ux/wireframes/F10-*.html`, `design/ux/components.md`, `design/ux/ia.md`, `design/ux/tokens.json`, `design/ux/flows/F06-hp-damage-onboarding.md` (หมายเหตุ superseded เท่านั้น) | DONE | `design/ux/flows/F10-account-shell.md` (หัวข้อ 0–13), wireframe `F10-01..06-*.html`, components.md 16, ia.md override F10, tokens type.title |
+| P2-H68 | F10 | (orchestrator: wireframe F10 ใช้ emoji/ตัวอักษรเป็น placeholder ของ glyph ขัดกฎ "no emoji" ของ CLAUDE.md · icon จริงเสร็จแล้วใน T09) แทน placeholder ใน design/ux/wireframes/F10-*.html ด้วย SVG จริงจาก art/assets/icon/ui/ (อ้าง path หรือ inline) · ยืนยัน A-P2-F10-T06-4 กับ T02 | fix | uiux-designer | P2-F10-T06, P2-F10-T09 | `design/ux/wireframes/F10-*.html` | DONE | (done by orchestrator) emoji 22 จุดใน F10-03/F10-05 → img SVG จริงจาก art/assets/icon/ui · ตรวจแล้ว 0 emoji ทุกไฟล์ F10-*.html · A-P2-F10-T06-4 ให้ T21 ยืนยัน |
+| P2-F10-T07 | F10 | Tech note F10: storage schema `kw.p2.account` + `kw.p2.character`, route ใหม่, ผลต่อ step machine ของ onboarding, migration ผู้เล่นเดิม, test hook/seed ของ e2e · schema config ใหม่ + subpath `./character` + allowlist telemetry F10 | spec | tech-lead | P2-F10-T01, P2-F10-T04, P2-F10-T05 | `docs/tech/F10-account-shell.md`, `docs/tech/F06-hp-damage-onboarding.md` (เฉพาะหัวข้อ 8), `config/app/privacy.json`, `config/app/telemetry.json`, `packages/shared/schemas/config/`, `packages/shared/package.json`, `tools/config-lint/` | DONE | `docs/tech/F10-account-shell.md` (หัวข้อ 1–11), schema character + character-names, config-lint rule character, `./character` subpath, `config/app/telemetry.json` f10Events, `config/app/privacy.json` localData · config-lint 0 error · lint/test แดงจากงานอื่นที่ค้าง (H65, T12, T14, T09) |
+| P2-H65 | F10 | (handoff จาก P2-F10-T07) เพิ่ม `_source` ให้ banned.modes.{substring,token,substringHeavy} และ banned.allow.{light,heavy} ใน character.json · เพิ่ม `tolerance` ให้ vector ใน character-name.json ตามรูปแบบที่ packages/shared/src/formulas/vectors.test.ts และ tools/sim ต้องการ | fix | systems-designer | P2-F10-T07 | `config/balance/character.json`, `design/systems/test-vectors/character-name.json` | DONE | _source 5 object + tolerance 0 ให้ 116 vector · lint:config 0 error (5 STALE รอ tech-lead ลบ) |
+| P2-H66 | F10 | (handoff จาก P2-F10-T07) แก้ข้อความ `account_logout` ใน product/telemetry-events.md เป็น "หลังปลดธง signedIn" (ไม่ลบ kw.p2.account ตาม spec R41) · ปิด A-P2-F10-T05-1/2/3 เทียบ tech note หัวข้อ 5 และ 8 | fix | product-manager | P2-F10-T07 | `product/telemetry-events.md`, `product/prd/F10-account-shell.md` | DONE | account_logout หลังปลดธง signedIn · ปิด A-T05-1/2/3/5 · ชื่อ event ตรง telemetry.json f10Events |
+| P2-F10-T08 | F10 | Test plan F10 (flow ใหม่, ตัวกรองชื่อ, migration, logout, nav, PDPA, ไม่มี request ออกไปผู้ให้บริการ login) + รายการ e2e เดิมที่ต้องแก้ | spec | qa-tester | P2-F10-T01 | `qa/plans/F10-test-plan.md` | DONE | `qa/plans/F10-test-plan.md` (85 case, e2e impact 3 กลุ่ม) |
+| P2-F10-T09 | F10 | Icon SVG: nav Inventory/Upgrade/Map/Shop/Party (ใช้ bag/map เดิมหรือทำรุ่น nav) + Setting + logout + coming soon ตาม T02 · ลง manifest | asset | artist-2d | P2-F10-T02 | `art/assets/icon/ui/` (ไฟล์ใหม่เท่านั้น), `art/assets/manifest.icon.json`, `art/assets/manifest.json` | DONE | 7 SVG ใน `art/assets/icon/ui/` + manifest.icon.json · art validate 0 error (V13 manifest เกินงบ → H67) · tools/art 51 test ผ่าน |
+| P2-H67 | F10 | (handoff จาก P2-F10-T09) art validate WARN V13: art/assets/manifest.icon.json 63,458 B เกิน 61,440 B · แยก root ตามกลุ่มใน pipeline.config.json (manifestRoots) และย้ายรายการ icon ไปไฟล์ใหม่ตามกลุ่ม · validate ต้อง 0 error 0 warning ของ V13 · client ยังโหลด icon ได้ (pnpm test ของ apps/client/src/assets ผ่าน) | fix | tech-lead | P2-F10-T09 | `tools/art/pipeline.config.json`, `art/assets/manifest.icon.json`, `art/assets/manifest.icon.*.json` (ใหม่), `art/assets/manifest.json`, `tools/art/` | DONE | manifest icon แยกเป็น manifest.icon.{ui,item,ui16}.json · validate 0 error 0 warning · entry 57 ครบ sha เดิม |
+| P2-F10-T10 | F10 | อนุมัติ flow F10 (แตะลำดับ onboarding ของ core loop) ก่อน build | review-gate | game-director | P2-F10-T06 | `design/reviews/F10-flow-approval.md`, `design/features/F10-account-shell.md` (แก้ถ้อยคำ R18 ตาม D-150 และผลคำตัดสิน D-156 เท่านั้น) | DONE | verdict PASS (attempt 3 ส่วน A) · `design/reviews/F10-flow-approval.md` · D-156 = bodySystem |
+| P2-F10-T11 | F10 | Copy key ของจอ F10: login/register/forgot, error ของฟอร์ม, จอสร้างตัวละคร + ข้อความตัวกรอง + คำเตือนชื่อจริง, nav 5 ป้าย, coming soon, Setting/logout + confirm · ตัดสินที่อยู่ของ onboarding.intro/introTap (D-144) | asset | narrative-designer | P2-F10-T06, P2-F10-T03 | `config/content/copy.th.json`, `config/content/copy-rules.json`, `config/content/character-names.th.json` (เฉพาะ blockedTerms.normalization, H64) | DONE | (attempt 3 ส่วน A) 37 key: account.login*/email/register/forgot, character.* + nameError 11 reason · lint:copy มี FAIL 6 → แก้ใน H70 |
+| P2-H69 | F10 | (แยกจาก P2-F10-T10 หลังหลุด 2 ครั้ง) ส่วน B ของ flow approval: แก้ spec R18 ข้อ 1 เป็น name.minGraphemes/maxGraphemes (D-150) · ยืนยัน A-P2-F10-T07-2 (ไม่มี Intl.Segmenter = fail-closed) | spec | game-director | P2-F10-T10 | `design/features/F10-account-shell.md` (R18 เท่านั้น) | DONE | R18 ใช้ minGraphemes/maxGraphemes · ยืนยัน fail-closed เมื่อไม่มี Intl.Segmenter (เหตุผลหลัก: ความปลอดภัยของตัวกรอง) |
+| P2-H71 | F10 | (handoff จาก P2-F10-T10) flow F10: (N1) ลบบรรทัดค้าง "F4-note-continued: (ดูต่อด้านล่าง)" ราวบรรทัด 140 (N2) Flow D ข้อ D2 ให้ slide 4 อ่าน story.slide4.bodySystem เป็น key เดียว เลิกใช้ป้ายชื่อผู้พูด (D-156) · แก้ wireframe F10-04-story.html ให้ตรง | fix | uiux-designer | P2-F10-T10 | `design/ux/flows/F10-account-shell.md`, `design/ux/wireframes/F10-04-story.html` | DONE | flow N1 ลบบรรทัดค้าง, N2 slide 4 = bodySystem คีย์เดียว · wireframe F10-04 ตรง D-156 |
+| P2-H70 | F10 | (แยกจาก P2-F10-T11 หลังหลุด 2 ครั้ง) ส่วน B ของ copy: nav 5 ป้าย, comingSoon.*, settings.logout* + confirm, area ใหม่ใน copy-rules.json#areas, character-names.th.json (pointer + _source 8 object + ยืนยัน A-P2-H64-1/2) | asset | narrative-designer | P2-F10-T11 | `config/content/copy.th.json`, `config/content/copy-rules.json`, `config/content/character-names.th.json` | DONE | (ส่วนท้าย done by orchestrator) lint FAIL 6 แก้แล้ว, area ใหม่, nav/comingSoon, settings.logout* 6 key, character.unsupportedBrowser, character-names: prose → pointer + _source 8 object · lint:copy exit 0 · lint:config 0 error (13 STALE) · A-P2-H64-1/2 ยังไม่มี narrative ยืนยัน → T20 |
+| P2-F10-T12 | F10 | โมดูล pure: ตัวกรองชื่อ + สุ่มชื่อ (`packages/shared/src/character`) ผ่าน vector ของ T04 · step machine onboarding ลำดับใหม่ D-149 + migration (`apps/client/src/onboarding/`) | build | backend-programmer | P2-F10-T07, P2-F10-T04, P2-F10-T03, P2-H64 | `packages/shared/src/character/`, `apps/client/src/onboarding/`, `packages/shared/src/formulas/vectors.test.ts` (ลงทะเบียน evaluator เท่านั้น), `tools/sim/src/` (evaluator ของ character-name เท่านั้น) | IN_PROGRESS | — |
+| P2-F10-T13 | F10 | ภาพประกอบ SVG slide เรื่อง 5 ภาพ ตาม T02 + ข้อความ T03 + ขนาดจาก wireframe T06 · ลง manifest | asset | artist-2d | P2-F10-T02, P2-F10-T03, P2-F10-T06 | `art/assets/illus/` (ไฟล์ `story-*` ใหม่), `art/assets/manifest.illus.json`, `art/assets/manifest.json` | DONE | `art/assets/illus/story/slide-1..5.svg` (รวม 20,666 B) + manifest.illus.json · validate 0/0 · status draft |
+| P2-F10-T14 | F10 | Build 1: จอเริ่มเกม → login (Google/Apple/email) + register + forgot แบบ bypass, `kw.p2.account`, ต่อ step machine ใหม่เข้า onboarding-flow ถึงขั้น permission, migration, e2e ใน apps/client ให้ผ่านกับ flow ใหม่ | build | gameplay-programmer | P2-F10-T07, P2-F10-T10, P2-F10-T11, P2-F10-T12, P2-F10-T02, P2-H70 | `apps/client/` (ยกเว้น `apps/client/package.json`), `config/app/client.json` | TODO | — |
+| P2-F10-T15 | F10 | Build 2: จอสร้างตัวละคร (class + ชื่อ + ตัวกรอง + สุ่ม + คำเตือน + ปุ่มสร้าง) แทน class sheet เดิม + เรื่อง 5 slide → map · telemetry F10 ส่วนนี้ | build | gameplay-programmer | P2-F10-T14, P2-F10-T13 | `apps/client/` (ยกเว้น `apps/client/package.json`), `config/app/client.json` | TODO | — |
+| P2-F10-T16 | F10 | แก้ e2e เดิมใน qa/tests/e2e (และ script ถ่ายภาพ visual) ที่พังเพราะมีขั้น login ใหม่ ใช้ seed/test hook ของ tech note โดยไม่ลดสิ่งที่ตรวจ | fix | qa-tester | P2-F10-T14, P2-F10-T08 | `qa/tests/e2e/`, `qa/bugs.md` | TODO | — |
+| P2-F10-T17 | F10 | Build 3: map เป็นหน้าหลัก + bottom nav 5 ปุ่ม + route coming soon (Upgrade/Shop/Party) + Setting มุมบนขวา (ตั้งค่า + ออกจากระบบ) · nav ไม่บัง HUD run/จอพกกระเป๋า · telemetry F10 ส่วนที่เหลือ | build | gameplay-programmer | P2-F10-T15, P2-F10-T09 | `apps/client/` (ยกเว้น `apps/client/package.json`), `config/app/client.json` | TODO | — |
+| P2-F10-T18 | F10 | Tech gate F10 | review-gate | tech-lead | P2-F10-T17, P2-F10-T12, P2-F10-T07 | `docs/reviews/F10-tech-gate.md` | TODO | — |
+| P2-F10-T19 | F10 | e2e ใหม่ของ flow F10 ตาม test plan + รัน e2e ทั้งชุด + ภาพหน้าจอ 360/390 px ของทุกจอ F10 ให้ gate copy/visual | build | qa-tester | P2-F10-T17, P2-F10-T16, P2-F10-T08 | `qa/tests/e2e/`, `qa/reports/F10/`, `qa/bugs.md` | TODO | — |
+| P2-F10-T20 | F10 | Content gate (copy) F10 | review-gate | narrative-designer | P2-F10-T19, P2-F10-T11, P2-F10-T03 | `design/reviews/F10-copy-gate.md` | TODO | — |
+| P2-F10-T21 | F10 | Content gate (visual) F10 | review-gate | art-director | P2-F10-T19, P2-F10-T09, P2-F10-T13 | `art/reviews/F10-visual-gate.md` | TODO | — |
+| P2-F10-T22 | F10 | QA gate F10 | review-gate | qa-tester | P2-F10-T18, P2-F10-T19 | `qa/reports/F10-qa-gate.md`, `qa/bugs.md` | TODO | — |
+| P2-F10-T23 | F10 | Design gate F10 | review-gate | game-director | P2-F10-T22, P2-F10-T20, P2-F10-T21, P2-F10-T10, P2-H62, P2-H69 | `design/reviews/F10-design-gate.md` | TODO | — |
+| P2-F10-T24 | F10 | Product gate F10 | review-gate | product-manager | P2-F10-T22, P2-F10-T05 | `product/reviews/F10-product-gate.md` | TODO | — |
+| P2-F10-CI | F10 | รัน lint, typecheck, pnpm test, build, e2e ทั้งหมดในเครื่องแบบ CI=1 ให้เขียว + แนบ output | build | qa-tester | P2-F10-T23, P2-F10-T24 | `qa/reports/F10-ci-local.md`, `qa/tests/e2e/`, `qa/bugs.md` | TODO | — |
 
 กติกา deps ที่เป็น CUT: ถ้างานใน Deps ถูก CUT (เช่น P2-C04 เมื่อไม่มีความยินยอม) orchestrator ถือว่าผ่านและบันทึกในคอลัมน์ Output ของงานที่รอ · P2-F04-T07 และ P2-F06-T15 เป็น CUT แบบรวมงาน ไม่มีงานใดรอสองแถวนี้
 
@@ -1066,6 +1102,138 @@ Lead: gameplay-programmer · ร่วม: systems-designer, backend-programmer 
 - X32 (narrative, 0.5 วัน · W9): `home.outsideLaunchBody` ตามคำตัดสิน H20 · lint:copy 0 FAIL (orchestrator รันถ้า agent ไม่มี shell)
 - X33 (product-manager, 1 วัน · W10): ตาราง GR-1 ใหม่ 3 ย่านพร้อม SHA 3c75c91e · E17 PASS หรือคำถามถึงคน · ตัวเลขประกอบ Q-1
 
+### F10 — Account shell, สร้างตัวละคร, เล่าเรื่อง และ main nav (ที่มา D-144..D-149 · `studio/phases/phase-2/plan-sync-f10.md`)
+
+กฎร่วมของ F10 ทุกงาน: login ทุกแบบ bypass ฝั่ง client ไม่มี auth จริง ไม่มี request ออกไป Google/Apple/อีเมล (origin allowlist C2-1 ยังบังคับ) · **ไม่เก็บ password และไม่เก็บอีเมล** ในเครื่องหรือ telemetry · age gate + consent ตำแหน่งแยกยังอยู่ครบ (NN-7) · ต่ำกว่าเกณฑ์อายุไม่เขียน key ใดเลย รวม `kw.p2.account` (R46) · ชื่อตัวละครเก็บในเครื่อง ไม่ส่งออก ไม่อยู่ใน telemetry/export ไม่แสดงให้ผู้เล่นอื่น · ไม่มีช่องข้อความอิสระอื่นนอกจากชื่อตัวละคร (NN-4) · ค่าและชื่อทุกอย่างจาก config/copy (NN-3) · movement gate, reward, HP ไม่เปลี่ยน (NN-1, NN-2) · **ไม่มีงาน F10 ใดแตะ P2-F06-T26..T29, `qa/playtest/`, `product/playtest/`** (D-149) · ไม่มี dep ถึงงาน HUMAN
+
+#### P2-F10-T01 — Feature spec F10 (game-director, 2 วัน · W1)
+- Inputs: D-144..D-149, spec F06 R36/R44–R49, flow F06, GDD "10 นาทีแรกของคนใหม่", "ความปลอดภัยผู้เล่นและ PDPA", "หลักการที่ห้ามละเมิด", `apps/client/src/onboarding-flow.ts`
+- Acceptance:
+  - [ ] rule ที่มีเลข (F10-Rnn) ครอบ: จอ login (Google, Apple เป็นปุ่มหลัก + ลิงก์ email → login / register / forgot), ผลของทุกปุ่ม = bypass ไปขั้นถัดไป, ลำดับ D-149 ครบ 8 ขั้น, ปฏิเสธ consent ข้าม permission แล้วไปสร้างตัวละครต่อ, จอสร้างตัวละครตาม D-146, เรื่อง 5 slide ตาม D-147 (ข้ามได้หรือไม่ ระบุ), map หลัก + nav ตาม D-148
+  - [ ] ตัดสินพร้อมเหตุผล: (ก) logout ระหว่าง run ทำได้ไหม (ถ้าได้ จบ run ด้วย `manual_exit` ทางเดียว) (ข) หลัง logout แล้ว login ใหม่ข้ามขั้นที่ผ่านแล้วไป map (ค) migration ผู้เล่นที่ผ่าน onboarding เดิม (มี class ไม่มีชื่อ/account) ไปจอไหน class แก้ได้หรือไม่ (ง) login เก็บลงเครื่องหลังผ่าน age gate เท่านั้น (จ) ความต่างของ logout กับ "ลบข้อมูลในเครื่อง"
+  - [ ] ตาราง edge case อย่างน้อย: ต่ำกว่าเกณฑ์อายุ, reload กลางทางทุกขั้น, ชื่อไม่ผ่านตัวกรอง, สุ่มชื่อ, ไม่รู้ตำแหน่ง, logout แล้วเปิดใหม่, ลบข้อมูลในเครื่อง, deep link ไป route nav ก่อนจบ onboarding
+  - [ ] spec F06 R36, R44, หัวข้อ 8 ข้อ 12 ชี้มาที่ F10 (class sheet R44 ถูกแทนด้วยจอสร้างตัวละคร) + change log · ไม่แก้ GDD
+  - [ ] `design/reviews/gdd-wording-D-145.md`: ถ้อยคำเสนอแก้ GDD เรื่อง password (ก่อน/หลัง, หัวข้อที่กระทบ) ให้ orchestrator ผูกกับ Q-P2-10 · ยืนยันใน spec ว่าไม่มี rule ใดขัด non-negotiable 1–7
+
+#### P2-F10-T02 — Art direction shell (art-director, 1 วัน · W1)
+- Acceptance:
+  - [ ] สเปก icon nav 5 ปุ่ม + Setting + logout + coming soon ตาม `icon-grammar.md` (grid, stroke, สถานะ active/inactive, `tintable`) ระบุว่า icon เดิมใดใช้ซ้ำ (`bag.svg`, `map.svg`, `settings.svg`, `exit.svg`)
+  - [ ] direction ภาพ slide เรื่อง 5 ภาพ (สัดส่วน, palette จาก tokens, ข้อห้าม: ไม่มีสถานที่จริงที่ระบุตัวได้ ไม่มีบุคคลจริง ไม่มีสัญลักษณ์ศาสนา/การเมือง) + งบขนาดไฟล์ต่อภาพ
+  - [ ] นโยบายปุ่ม Google/Apple: ไม่วาดหรือดัดแปลง logo แบรนด์เอง · Phase 2 ใช้ป้ายข้อความ (+ glyph กลาง) เว้นแต่อ้าง asset ทางการพร้อมเงื่อนไขการใช้ · ส่งต่อ uiux และ artist
+
+#### P2-F10-T03 — เรื่องเล่า 5 slide + คลังชื่อ + รายการคำ (narrative-designer, 2 วัน · W1)
+- Acceptance:
+  - [ ] key `story.slide1..5.title/body`, `story.next` = "ถัดไป", `story.start` = "ออกไปลุย!" ตาม `design/narrative/world.md` และกฎ copy 6 ข้อ · ความยาวต่อ slide อยู่ในเพดาน cell ของจอ 360 px (ระบุตัวเลข)
+  - [ ] `config/content/character-names.th.json`: คลังส่วนประกอบชื่อสุ่มพอให้ได้ ≥ 200 ชื่อต่างกัน ทุกชื่อไม่ใช่ชื่อคนจริงที่เป็นที่รู้จัก · รายการคำไม่สุภาพ/ต้องห้าม (ไทย + อังกฤษ) พร้อมหมายเหตุวิธีเทียบ (ตัดวรรณยุกต์/ช่องว่าง/ตัวซ้ำ) ให้ tech-lead และ backend
+  - [ ] `design/narrative/F10-story.md` เหตุผลเชิงเรื่อง + ตัดสินว่าใช้ `onboarding.intro` เดิมใน slide ใด · lint:copy 0 FAIL
+
+#### P2-F10-T04 — Config ตัวกรองชื่อ (systems-designer, 1 วัน · W1)
+- Acceptance:
+  - [ ] `config/balance/character.json`: `name.minLength`, `name.maxLength` (หน่วย grapheme cluster), ชุดอักขระที่อนุญาต (ช่วง Unicode ไทย, Latin, ตัวเลข, ช่องว่างเดี่ยว), เกณฑ์จับเบอร์โทร (จำนวนตัวเลขติดกัน/รวม), รูปแบบอีเมล/ลิงก์ (`@`, `://`, `www.`, TLD), จำนวนครั้งสุ่มใหม่สูงสุดก่อนคืนค่าสำรอง · ไม่มี regex ที่ต้อง `new Function`
+  - [ ] `design/systems/test-vectors/character-name.json` ≥ 30 vector (ผ่าน/ไม่ผ่านพร้อมเหตุผล: สั้น/ยาว, อักขระนอกชุด, เบอร์ 0812345678 และแบบเว้นวรรค/ขีด, อีเมล, URL, คำต้องห้ามแบบแทรกช่องว่าง, ชื่อไทยมีสระบน/ล่าง)
+  - [ ] ทุกค่ามีเหตุผลสั้นในไฟล์หรือหมายเหตุ · ไม่แตะไฟล์ balance อื่น
+
+#### P2-F10-T05 — Telemetry F10 + PRD addendum (product-manager, 1 วัน · W1)
+- Acceptance:
+  - [ ] หมวด F10 ใน `product/telemetry-events.md`: event อย่างน้อย `account_login_shown`, `account_login_method_chosen` (`method`: google/apple/email_login/email_register/email_forgot), `character_created` (`class_id`, `name_source`: typed/random, `filter_reject_count` เป็น bucket), `story_completed` / `story_skipped` (ถ้า spec ให้ข้าม), `nav_tab_opened` (`tab`), `coming_soon_viewed` (`tab`), `account_logout` · ต่อ `onboarding_funnel_step` ด้วยขั้นใหม่
+  - [ ] ทุก event ผ่านกติกาบังคับของไฟล์: ไม่มีพิกัด ไม่มีชื่อตัวละคร ไม่มีอีเมล ไม่มีข้อความที่ผู้เล่นพิมพ์
+  - [ ] `product/prd/F10-account-shell.md`: เป้าหมายผู้เล่น, ตัวชี้วัด funnel ใหม่ (เริ่มเกม → map) และ non-goals (auth จริง = F07 Phase 3) · [ASSUMPTION] ถ้า spec T01 ยังไม่มีให้อิง D-144..D-149 แล้วตรวจซ้ำใน product gate
+
+#### P2-F10-T06 — Flow + wireframe + component F10 (uiux-designer, 2–3 วัน · W2)
+- Acceptance:
+  - [ ] `design/ux/flows/F10-account-shell.md`: screen id ใหม่ใน `ia.md` (login, email login, register, forgot, สร้างตัวละคร, story 1–5, coming soon ×3, Setting ที่มีแถวออกจากระบบ + confirm) · ทุกทางเข้า/ออก รวม reload กลางทาง, back ของเบราว์เซอร์, logout, ลบข้อมูลในเครื่อง, deep link route nav ก่อนจบ onboarding
+  - [ ] wireframe HTML `design/ux/wireframes/F10-*.html` ที่ 360 px และ 390 px ทุกจอ · ใช้ copy key (ไม่ใช่ข้อความจริง) · ปุ่มเด่นเดียวต่อจอ
+  - [ ] `components.md`: bottom nav (5 ช่อง, active, safe-area, ขนาดแตะ ≥ 44 px), ช่องชื่อ + ข้อความตัวกรองแบบ inline + ปุ่มสุ่ม, pager ของ slide, coming soon, ปุ่ม login ตามนโยบาย T02
+  - [ ] กฎการแสดง nav: ซ่อนหรือไม่ทับระหว่าง run, จอพกกระเป๋า, sheet confirm และ onboarding (ระบุต่อ state) · Setting มุมบนขวาไม่ทับ HUD
+  - [ ] flow F06 มีหมายเหตุว่าส่วน onboarding ถูกแทนโดย F10 · ไม่มีตำแหน่งรายบุคคล จำนวนคน หรือข้อความอิสระนอกช่องชื่อ
+
+#### P2-F10-T07 — Tech note F10 (tech-lead, 2 วัน · W2)
+- Acceptance:
+  - [ ] `docs/tech/F10-account-shell.md`: schema `kw.p2.account` `{ schemaVersion, provider: 'google'|'apple'|'email', signedIn: bool }` (ไม่มีอีเมล ไม่มี password ไม่มี token) และที่เก็บชื่อตัวละคร (`kw.p2.character` หรือ field ใน `player` พร้อมเหตุผล) · เขียนหลังผ่าน age gate เท่านั้น · อยู่ใต้ prefix `kw.p2.` จึงถูกล้างโดยปุ่มลบข้อมูลและ Phase 3 ตาม C1-5
+  - [ ] step machine ใหม่ตาม D-149 (ตารางขั้น → ธง → แหล่งความจริงเดียว แทน tech note F06 8.2) · class ยังผ่าน `chooseClass` ของ engine · ขั้น permission ยังใช้ LocationProvider
+  - [ ] route ใหม่ (`#/login`, `#/login/email`, `#/register`, `#/forgot`, `#/create-character`, `#/story/<n>`, `#/upgrade`, `#/shop`, `#/party` หรือชื่อที่เลือก) + guard: route nav ใช้ได้เมื่อ onboarding จบ · ความสัมพันธ์กับ route เดิม `#/settings*`, `#/inventory`
+  - [ ] migration ผู้เล่นเดิมตามคำตัดสิน T01 (ไม่ลบ session/inventory) + test hook/seed ของ e2e สำหรับ "ผ่าน onboarding แล้ว" ให้ qa และ gameplay ใช้ร่วม
+  - [ ] schema ของ `config/balance/character.json` และ `config/content/character-names.th.json` ใน `packages/shared/schemas/config/` + ลงทะเบียนใน config-lint (0 error) · subpath `./character` ใน `packages/shared/package.json` · allowlist event F10 ใน `config/app/telemetry.json` ตรงชื่อ T05 · `privacy.json` รายการ key ใหม่
+
+#### P2-F10-T08 — Test plan F10 (qa-tester, 1–2 วัน · W2)
+- Acceptance:
+  - [ ] case ต่อ rule ของ spec T01 + edge case ทุกแถว · case PDPA: ต่ำกว่าเกณฑ์ไม่มี key, ไม่มีอีเมล/password ใน localStorage และ export, ไม่มี request ไป origin นอก allowlist ตอนกดปุ่ม Google/Apple
+  - [ ] รายการ e2e เดิมที่พังเพราะขั้น login/สร้างตัวละคร (ทั้ง `apps/client/e2e/` และ `qa/tests/e2e/` รวม script visual) พร้อมเจ้าของที่แก้ (gameplay ใน T14/T15/T17, qa ใน T16)
+  - [ ] case migration, logout ระหว่าง/นอก run, nav ไม่บัง HUD run และจอพกกระเป๋าที่ 360/390 px, ตัวกรองชื่อผ่าน vector T04
+
+#### P2-F10-T09 — Icon SVG ของ shell (artist-2d, 1–2 วัน · W2)
+- Acceptance:
+  - [ ] SVG ใหม่ใน `art/assets/icon/ui/` ตาม T02 (upgrade, shop, party, logout, coming-soon และรุ่น nav ถ้า T02 สั่ง) · ไม่แก้ไฟล์ icon เดิม · ไม่มี script/external ref · ผ่าน `tools/art` (sanitize + `tintable`)
+  - [ ] ลง `manifest.icon.json` + `manifest.json` ครบ field ตาม schema · ไม่มี logo แบรนด์
+
+#### P2-F10-T10 — อนุมัติ flow F10 (game-director, 0.5–1 วัน · W3)
+- ตรวจ: flow + wireframe ตรง spec T01 และ D-144..D-149, age gate ก่อน consent ก่อน permission, ไม่สอนสิ่งต้องห้ามใน 10 นาทีแรก, ไม่มีตำแหน่งรายบุคคล/จำนวนคน/ข้อความอิสระ, nav ไม่ทับ HUD run · verdict PASS / NEEDS_CHANGES · ข้อแก้เป็น fix ของ uiux ก่อน T14
+
+#### P2-F10-T11 — Copy key ของจอ F10 (narrative-designer, 1–2 วัน · W3)
+- Acceptance:
+  - [ ] ทุก key ที่ flow T06 อ้างมีใน `copy.th.json` (ตรวจด้วยการ grep key จาก wireframe) · ป้าย nav 5 ป้าย ≤ เพดาน cell ของ components · coming soon, logout + confirm, คำเตือนอย่าใช้ชื่อจริง, ข้อความตัวกรองแยกตามเหตุผล (สั้น/ยาว/อักขระ/เบอร์/อีเมล/ลิงก์/คำไม่เหมาะ)
+  - [ ] ข้อความ register/forgot ไม่สัญญาว่ามีอีเมลส่งจริง (Phase 2 bypass) · ป้ายปุ่ม Google/Apple ตามนโยบาย T02
+  - [ ] ตัดสินที่อยู่ของ `onboarding.intro` / `onboarding.introTap` (D-144) · area ใหม่ใน `copy-rules.json` ถ้าต้องมี · lint:copy 0 FAIL
+
+#### P2-F10-T12 — โมดูล pure ของ F10 (backend-programmer, 2 วัน · W3 · ข้อยกเว้นกฎสลับ 10)
+- Acceptance:
+  - [ ] `packages/shared/src/character/`: `validateCharacterName(name, params, lexicon)` คืนผ่าน/เหตุผลเป็น enum ตาม T04 · normalize (NFC, ตัด zero-width, ยุบช่องว่าง, เทียบคำต้องห้ามหลังตัดวรรณยุกต์/ตัวซ้ำ) · `randomCharacterName(rng, lexicon, params)` คืนชื่อที่ผ่าน validate เสมอ (test 10,000 seed)
+  - [ ] ผ่านทุก vector ใน `design/systems/test-vectors/character-name.json` (ค้นแบบ dynamic) · ค่าทั้งหมดจาก config ไม่มีฝัง · pure ตาม ESLint boundary
+  - [ ] `apps/client/src/onboarding/`: step machine ลำดับ D-149 + migration ตาม tech note T07 · test ทุกขั้น, reload กลางทาง, consent ปฏิเสธ, ต่ำกว่าเกณฑ์ (ไม่เขียน key) · lint/typecheck/test เขียว
+
+#### P2-F10-T13 — ภาพประกอบ slide 5 ภาพ (artist-2d, 2 วัน · W3)
+- Acceptance:
+  - [ ] `art/assets/illus/story-01..05.svg` ตาม direction T02 และเนื้อหา T03 · อยู่ในงบขนาดของ T02 · ไม่มีสถานที่จริงระบุตัวได้/บุคคลจริง/ข้อความฝังในภาพ
+  - [ ] ลง `manifest.illus.json` + `manifest.json` · ผ่าน `tools/art`
+
+#### P2-F10-T14 — Build 1: login shell + ลำดับ onboarding (gameplay-programmer, 2–3 วัน · W4)
+- Acceptance:
+  - [ ] จอเริ่มเกม (D-144 เดิม) → login: ปุ่ม Google, Apple เด่น + ลิงก์ email → email login / register / forgot · ทุกปุ่มยืนยัน = bypass ไปขั้นถัดไป · ช่อง password เป็น `type=password` `autocomplete=off` และค่าไม่ถูกเขียนลง storage/log/telemetry (test ตรวจ localStorage ทั้งหมดหลัง submit)
+  - [ ] ไม่มี request ใหม่ออกนอก origin allowlist (e2e origin allowlist เดิมผ่าน) · ไม่ load SDK ของผู้ให้บริการ login
+  - [ ] ใช้ step machine ของ T12: login → age → consent → permission ตาม D-149 · `kw.p2.account` เขียนหลังผ่าน age gate เท่านั้น · ต่ำกว่าเกณฑ์ไม่มี key ใด · migration ตาม tech note
+  - [ ] ข้อความทั้งหมดจาก copy key (ไม่มีสตริงไทยในโค้ด) · e2e ใน `apps/client/e2e/` (รวม `onboarding.spec.ts`) ผ่านกับ flow ใหม่ · client unit + lint + typecheck เขียว · ระบุใน REPORT ว่า spec ใดใน `qa/tests/e2e/` พังแล้ว (ให้ T16)
+
+#### P2-F10-T15 — Build 2: สร้างตัวละคร + เรื่อง 5 slide (gameplay-programmer, 2–3 วัน · W5)
+- Acceptance:
+  - [ ] จอสร้างตัวละครแทน class sheet เดิม: เลือก class (ข้อมูลจาก `classes.json`), ช่องชื่อ + validate แบบ inline ด้วย `validateCharacterName`, คำเตือนอย่าใช้ชื่อจริง, ปุ่มสุ่มชื่อ, ปุ่มสร้างตัวละคร disabled จนผ่าน · class ผ่าน `chooseClass` ของ engine
+  - [ ] migration: ผู้เล่นเดิมที่มี class เข้าจอนี้ตามคำตัดสิน T01 (เช่น class ล็อก ใส่แค่ชื่อ) โดย session/inventory/HP ไม่หาย
+  - [ ] เรื่อง 5 slide ใช้ภาพ T13 + key `story.*` · "ถัดไป" ทีละ slide, slide 5 ปุ่ม "ออกไปลุย!" → map · reload กลางเรื่องกลับ slide ตามกติกา tech note
+  - [ ] ชื่อไม่อยู่ใน telemetry/export (test) · emit event F10 ส่วนนี้ตรงชื่อ T05 · unit + e2e `apps/client/e2e/` เขียว
+
+#### P2-F10-T16 — แก้ e2e เดิมของ qa ตาม flow ใหม่ (qa-tester, 1–2 วัน · W5)
+- Acceptance:
+  - [ ] ทุก spec ใน `qa/tests/e2e/` ที่ผ่าน onboarding ใช้ seed/test hook ของ tech note T07 หรือเดินขั้น login ใหม่ · ไม่ลบ assertion เดิม (diff ของ `expect` นับได้)
+  - [ ] script visual (`qa/tests/e2e/visual/`) เดินถึงจอเดิมได้ · e2e ของ qa ผ่านทั้งชุด (ส่วนที่รอ T15 ระบุชื่อ spec + เหตุผล แล้วปิดใน T19)
+
+#### P2-F10-T17 — Build 3: map หลัก + nav + Setting/logout (gameplay-programmer, 2 วัน · W6)
+- Acceptance:
+  - [ ] หลังจบ onboarding map เป็นหน้าหลัก · bottom nav 5 ปุ่ม Inventory, Upgrade, Map, Shop, Party (icon T09, ป้าย key T11) · Inventory เปิด `S-11` เดิม · Upgrade/Shop/Party เปิดจอ "เร็วๆ นี้" · route guard ก่อนจบ onboarding
+  - [ ] icon Setting มุมบนขวา เปิดเมนูตั้งค่าเดิม + แถวออกจากระบบ + confirm · logout ตั้ง `kw.p2.account.signedIn = false` อย่างเดียว ไม่ลบ key (spec R41, D-158, orchestrator แก้ 2026-10-01) แล้วกลับจอ login · ตัวละคร/session/inventory ยังอยู่ (test) · พฤติกรรมระหว่าง run ตามคำตัดสิน T01
+  - [ ] nav ไม่ทับ HUD run, จอพกกระเป๋า, sheet confirm ที่ 360/390 px (e2e วัด boundingBox ไม่ซ้อนกัน) · ท่าปัดขึ้นค้างของจอพกกระเป๋ายังทำงาน
+  - [ ] emit event F10 ที่เหลือ · unit + lint + typecheck + e2e `apps/client/e2e/` เขียว · bundle เริ่มต้นยังอยู่ในงบของ CI
+
+#### P2-F10-T18 — Tech gate F10 (tech-lead, 1 วัน · W7)
+- ตรวจ: ตรง tech note T07, config-not-hardcode (ค่าตัวกรอง, คลังชื่อ, route), ไม่มี password/อีเมล/ชื่อใน storage ที่ไม่ควร/telemetry/log, origin allowlist, lint boundary ของ `packages/shared/src/character`, migration ไม่ทำข้อมูลหาย, test ครบและเขียว, gate/reward/HP ไม่ถูกแตะ (diff `packages/shared/src/{reward,hp,session,run}` = ไม่มี หรือมีเหตุผล) · verdict PASS / NEEDS_CHANGES
+
+#### P2-F10-T19 — e2e ใหม่ F10 + ภาพหน้าจอ (qa-tester, 2 วัน · W7)
+- Acceptance:
+  - [ ] e2e ครอบทุก case อัตโนมัติได้ใน test plan T08: ลำดับ D-149 ครบ, ปฏิเสธ consent, ต่ำกว่าเกณฑ์, ตัวกรองชื่อ (≥ 1 case ต่อเหตุผล), สุ่มชื่อ, เรื่อง 5 slide, nav 5 ปุ่ม + coming soon, logout แล้วข้อมูลตัวละครยังอยู่, migration จาก seed ผู้เล่นเดิม, ไม่มี request นอก allowlist
+  - [ ] ภาพหน้าจอ 360/390 px ทุกจอ F10 + run HUD/จอพกกระเป๋าพร้อม nav ใน `qa/reports/F10/` · e2e ทั้งชุด (apps + qa) ผ่านบน android-chrome และ ios-safari
+
+#### P2-F10-T20, T21, T22, T23, T24 — gate ของ F10
+- T20 copy (narrative-designer, 1 วัน · W8): กฎ copy 6 ข้อ, key ครบไม่มี key ดิบบนจอ (จากภาพ T19), ความยาวในเพดาน, ไม่สัญญาอีเมลจริง · `design/reviews/F10-copy-gate.md` verdict
+- T21 visual (art-director, 1 วัน · W8): icon/ภาพตาม T02, ความเข้ากันกับ HUD เดิม, contrast, ไม่มี logo แบรนด์ผิดนโยบาย · `art/reviews/F10-visual-gate.md` verdict
+- T22 QA (qa-tester, 1 วัน · W8): ทุก acceptance ของ T01–T19 มีหลักฐาน, test report `qa/reports/F10-qa-gate.md`, bug blocking = 0 · E18–E23 มีหลักฐาน (E24 เติมหลัง T23/T24, E26 ใน P2-F10-CI)
+- T23 design (game-director, 1 วัน · W9): ตรง spec + pillar + non-negotiable 1–7, 10 นาทีแรกยังถึงรางวัลก้อนแรกได้ (ขั้นใหม่ไม่ดันเวลาเกินเป้า spec F06), ไม่สอนสิ่งต้องห้าม · `design/reviews/F10-design-gate.md`
+- T24 product (product-manager, 1 วัน · W9): เป้าหมายผู้เล่นใน PRD T05 ถึง, event F10 ทุกตัวถูก emit และอยู่ใน export ไม่มีข้อมูลส่วนบุคคล (E25) · `product/reviews/F10-product-gate.md`
+- ทุก gate: NEEDS_CHANGES → orchestrator เปิด X ให้เจ้าของเดิม แล้วรัน gate ซ้ำครั้งเดียว (protocol ข้อ 6) · ครั้งที่สอง escalate ถึงคน
+
+#### P2-F10-CI — CI ในเครื่องเขียว (qa-tester, 0.5–1 วัน · W10)
+- Acceptance:
+  - [ ] รันจาก root ด้วย `CI=1`: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, e2e ทั้งหมด (`apps/client/e2e/` + `qa/tests/e2e/` ทุก project) · แนบบรรทัดสรุปของแต่ละคำสั่งใน `qa/reports/F10-ci-local.md` (exit 0 ทุกคำสั่ง, จำนวน test, retry = 0)
+  - [ ] flaky ใน `qa/tests/e2e/` แก้เองโดยไม่ลดสิ่งที่ตรวจ · ล้มนอก path ของ qa → handoff ถึงเจ้าของ (blocking: yes) แล้ว orchestrator รันงานนี้ซ้ำหลัง fix · ห้ามข้าม/skip test
+  - [ ] ยืนยัน `lint:copy` 0 FAIL และ config-lint 0 error · E26 มีหลักฐาน
+
 ### ปิด phase
 
 #### P2-CLOSE-QA — Regression ปิด Phase 2 (qa-tester, 1 วัน)
@@ -1102,6 +1270,19 @@ Lead: gameplay-programmer · ร่วม: systems-designer, backend-programmer 
 | E7 | copy สามจังหวะ (HP ต่ำ / auto-retreat / ตาย) ผ่าน content gate | qa-tester | `design/reviews/F06-copy-gate.md` PASS | TODO |
 | E8 | ไม่สอนสิ่งต้องห้ามใน 10 นาทีแรก | qa-tester + product-manager (หลักฐานหลักจาก game-director) | `design/reviews/F06-design-gate.md` PASS + case ต่อจอใน `qa/reports/F06-qa-gate.md` + ยืนยันใน `product/reviews/F04-F06-product-gate.md` | TODO |
 | E9 | งานของคน: playtest เดินจริงอย่างน้อย 3 คน กรอกแบบสอบถาม | HUMAN | P2-F06-T27 DONE + `product/playtest/results/` ≥ 3 ไฟล์ | TODO |
+
+### F10 — Account shell, สร้างตัวละคร, เล่าเรื่อง และ main nav (D-144..D-149 · คนสั่ง 2026-10-01 · ไม่อยู่ใน roadmap เดิม)
+| # | เกณฑ์ | ผู้ตรวจ | หลักฐานที่คาด | สถานะ |
+| --- | --- | --- | --- | --- |
+| E18 | ลำดับ เริ่มเกม → login → ยืนยันอายุ → consent → permission → สร้างตัวละคร → เรื่อง 5 slide → map ทำงานครบ รวม reload กลางทางและปฏิเสธ consent (D-149) | qa-tester | e2e ของ P2-F10-T19 + `qa/reports/F10-qa-gate.md` | TODO |
+| E19 | login Google/Apple/email (login, register, forgot) bypass ฝั่ง client: ไม่มี request นอก allowlist, ไม่มี password และอีเมลใน localStorage/telemetry/export (D-145) | qa-tester | e2e ตรวจ storage + origin allowlist + QA gate | TODO |
+| E20 | จอสร้างตัวละคร: เลือก class + ชื่อ, ตัวกรองจาก config ปฏิเสธความยาว/อักขระ/เบอร์โทร/อีเมล/ลิงก์/คำต้องห้าม, คำเตือนชื่อจริง, ชื่อสุ่มผ่านตัวกรองเสมอ (D-146) | qa-tester | vector `character-name.json` ผ่าน + e2e + tech gate F10 | TODO |
+| E21 | map หลัก + nav 5 ปุ่ม, Upgrade/Shop/Party = "เร็วๆ นี้", Setting มุมบนขวามีตั้งค่า + ออกจากระบบ, logout กลับ login โดยตัวละครยังอยู่, nav ไม่บัง HUD run และจอพกกระเป๋า (D-148) | qa-tester | e2e boundingBox 360/390 px + ภาพ `qa/reports/F10/` | TODO |
+| E22 | ผู้เล่นเดิมที่ผ่าน onboarding แล้วอัปเดตโดย session, class, inventory ไม่หาย | qa-tester | e2e migration จาก seed + unit ของ T12 | TODO |
+| E23 | PDPA และ non-negotiable: age gate ก่อน consent ยังอยู่, ต่ำกว่าเกณฑ์ไม่มี key ใด, ชื่อตัวละครไม่ออกจากเครื่องและไม่แสดงให้ผู้อื่น, ไม่มีข้อความอิสระอื่น, ไม่มีค่าหรือชื่อฝังโค้ด, gate/reward/HP ไม่เปลี่ยน | qa-tester | QA gate + tech gate + design gate F10 | TODO |
+| E24 | gate F10 ครบ 6 อัน PASS (design T23, tech T18, copy T20, visual T21, QA T22, product T24) + flow approval T10 PASS | qa-tester | `design/reviews/F10-flow-approval.md`, `design/reviews/F10-design-gate.md`, `design/reviews/F10-copy-gate.md`, `docs/reviews/F10-tech-gate.md`, `art/reviews/F10-visual-gate.md`, `qa/reports/F10-qa-gate.md`, `product/reviews/F10-product-gate.md` | TODO |
+| E25 | event F10 อยู่ใน `product/telemetry-events.md`, ถูก emit ตรงชื่อ และไม่มีข้อมูลส่วนบุคคล · product gate PASS | product-manager | `product/reviews/F10-product-gate.md` | TODO |
+| E26 | lint, typecheck, pnpm test, build, e2e ทั้งหมดเขียวในเครื่องแบบ CI=1 หลัง F10 | qa-tester | `qa/reports/F10-ci-local.md` (P2-F10-CI) | TODO |
 
 ### ปิด Phase 2
 | # | เกณฑ์ | ผู้ตรวจ | หลักฐานที่คาด | สถานะ |
@@ -1152,6 +1333,7 @@ Lead: gameplay-programmer · ร่วม: systems-designer, backend-programmer 
 | 2026-09-26 | producer (P2-PLAN-01) | สร้าง board ฉบับร่าง 82 task (P1 carry-in 9, RISK 1, F04 23, F05 18, F06 29, ปิด phase 2 · agent 74, HUMAN 8) · ย้ายงาน Phase 1 ที่เหลือเป็น P2-C01..C08 ตาม D-086 + P2-C09 · จับคู่รายการยกมาทุกข้อในหัวข้อ 1.9 · มอบ reward/HP engine ให้ backend-programmer (รอ plan review) |
 | 2026-09-26 | producer (P2-PLAN-02) | rev 2 ตาม plan review 3 ฉบับ: เพิ่ม 7 งาน (P2-F04-T24..T27, P2-F05-T19, P2-F05-T20, P2-F06-T30), รวม 2 งาน (P2-F04-T07 → T16, P2-F06-T15 → P2-F04-T10), ย้าย engine ทั้งชุดไป backend (รับข้อขยาย A-6), แก้ deps สายสนาม, จัด wave ใหม่ 17 wave (ไม่มีงานสนามบนเส้นวิกฤต), เพิ่ม E15–E17, หัวข้อ 6 คำถามถึงคน · รวม 89 แถว (agent 79, HUMAN 8, CUT 2) |
 | 2026-09-27 | producer (P2-PLAN-SYNC-W7) | plan-sync W7 ตาม `studio/phases/phase-2/plan-sync-w7.md`: เพิ่ม P2-H20, P2-X27..X33 (8 แถว) · P2-H03 CUT รวมเข้า F05-T10 (ส่วน test) + F06-T10 (route) · P2-H14 CUT รวมเข้า X29 + F06-T14 · composite-f03 อยู่ใน H17/X26 แล้ว (ไม่มี op แยก) · deps ใหม่: F05-T17, F05-T18, F06-T09, T10, T14, T20, T21, T22, T23, T24, P2-CLOSE-QA · F06-T25 บันทึกทางเลือก O-22 รอ PM · ตัดส่วนย่อยนอกขอบเขต: V-15 chip-sponsored, geometry 76 เขต (ถ้า H20 เลือกทาง ข), slot-empty · H08 → W10 · แผน wave W8–W18 · ไม่มีการตัด gate หรือ exit item · คำถามคน Q-1 (D-083 หลัง G1/G2), Q-2 (วันเดิน) · ค้างให้ orchestrator ลงเอง (ตัวจัดสิทธิ์ปฏิเสธ producer): context note ของ F05-T10, deps F05-T15 (+X21, H02), deps F06-T08 (+F06-T05), กฎสลับข้อ 8–10 + ประมาณการ |
+| 2026-10-01 | producer (P2-PLAN-F10) | เพิ่ม feature F10 ตาม D-144..D-149 (คนสั่งใน chat 2026-10-01): 25 แถว P2-F10-T01..T24 + P2-F10-CI (spec 6, asset 4, build 7, fix 1, review-gate 7 รวม flow approval · agent ทั้งหมด ไม่มี HUMAN ไม่มี dep ถึงงาน HUMAN) · detail block "F10" ในหัวข้อ 4 · exit E18–E26 ในหัวข้อ 5 · แผน wave F1–F10 + critical path ใน `studio/phases/phase-2/plan-sync-f10.md` · ไม่แตะ P2-F06-T26..T29, `qa/playtest/`, `product/playtest/` (D-149) · ไม่ตัด gate หรือ exit item · หมายเหตุ: แถว change log 2026-09-30 ของ orchestrator อยู่ท้ายตาราง "rev 2: review points" (ที่ผิด) ไม่ได้ย้าย |
 
 ### rev 2: การกำหนด ID ของงานใหม่ (ID ที่ review เสนอ → ID สุดท้าย)
 | Review | ID ที่เสนอ | งาน | ID สุดท้าย | เหตุผล |

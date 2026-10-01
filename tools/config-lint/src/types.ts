@@ -39,7 +39,8 @@ export type RuleId =
   | 'pointer-name'
   | 'null-undeclared'
   | 'null-means'
-  | 'cross-file';
+  | 'cross-file'
+  | 'character';
 
 export interface Finding {
   readonly level: Level;

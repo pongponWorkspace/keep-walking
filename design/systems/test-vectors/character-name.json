@@ -1,0 +1,1548 @@
+{
+  "_meta": {
+    "file": "character-name.json",
+    "version": 2,
+    "owner": "systems-designer",
+    "task": "P2-F10-T04; P2-H64",
+    "doc": "config/balance/character.json (version 2); design/narrative/F10-story.md sections 6, 7; config/content/character-names.th.json; studio/decisions/decision-log.md D-146; board detail blocks P2-F10-T04 and P2-F10-T12",
+    "_note": "Golden vectors for validateCharacterName(name, params, lexicon) and randomCharacterName(rng, lexicon, params). params = the whole of config/balance/character.json version 2; a vector may carry paramsOverride (dotted path -> value) applied on top. lexicon for vectors = the fixture below, NOT the real content file: it has the same shape as config/content/character-names.th.json (randomName.heads/tails/fallback.names/pattern, blockedTerms.substring.<category>, substringHeavy.terms, token.terms, normalization.allow.light/heavy) so every key path in character.json resolves in both, but the words are neutral placeholders so these vectors do not change when narrative-designer edits the real lists. The fixture exercises every mode: substring (catA, catB, and a _note key that collect must skip), substringHeavy, token, allow.light and allow.heavy. validate expected: ok true -> normalized (the stored string) and graphemes (count after normalize); ok false -> reason, the first failing entry of name.checkOrder (which mode matched is not part of the contract). random: rngDraws are the uniform draws in [0, 1) in the order the rng is called; expected.draws is how many were used, expected.attempts counts template attempts, expected.fallback tells whether the fallback list was used. contentVectors run against the real content file (integration checks, see its _note). Invisible and non-Thai code points are written as \\u escapes. Computed by a scratch reference implementation of character.json (not committed: tools/sim is outside the writes of P2-F10-T04 and P2-H64); version 2 re-checked all 75 version 1 vectors with 0 mismatch before adding the new ones"
+  },
+  "formula": "character-name",
+  "lexicon": {
+    "randomName": {
+      "_note": "Fixture in the shape of config/content/character-names.th.json randomName. Neutral placeholders, not the real pool.",
+      "pattern": "headTail",
+      "heads": [
+        "นัก",
+        "จอม",
+        "ขุน"
+      ],
+      "tails": [
+        "เดินทาง",
+        "สายลม",
+        "คำต้องห้าม",
+        "ผจญภัยแห่งทุ่งกว้างไกลสุดขอบฟ้า"
+      ],
+      "fallback": {
+        "names": [
+          "คำต้องห้ามเสมอ",
+          "นักเดินเท้า"
+        ]
+      }
+    },
+    "blockedTerms": {
+      "normalization": {
+        "_note": "Fixture: word lists only. The steps are config/balance/character.json banned.passes.",
+        "allow": {
+          "light": [
+            "แมวน้ำ",
+            "ข้าว",
+            "badwordle"
+          ],
+          "heavy": [
+            "badwordle"
+          ]
+        }
+      },
+      "substring": {
+        "_note": "Ignored by collect categoryArrays (starts with _).",
+        "catA": [
+          "badword",
+          "คำต้องห้าม",
+          "stop"
+        ],
+        "catB": [
+          "แมว",
+          "ขาว",
+          "ม้าลาย"
+        ]
+      },
+      "substringHeavy": {
+        "_note": "Fixture heavy list.",
+        "terms": [
+          "badword",
+          "คำต้องห้าม",
+          "ขาว"
+        ]
+      },
+      "token": {
+        "_note": "Fixture token list.",
+        "terms": [
+          "กา",
+          "tea"
+        ]
+      }
+    }
+  },
+  "vectors": [
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สมชาย"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "สมชาย",
+        "graphemes": 5
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Thai name, 5 graphemes"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "น้ำ"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "tooShort"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 sara am and tone join the consonant: 1 grapheme, tooShort"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "น้ำใส"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "น้ำใส",
+        "graphemes": 3
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Thai with sara am + tone: 3 graphemes (น้ำ ใ ส)"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "กี้"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "tooShort"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 upper vowel + tone in one cluster = 1 grapheme: tooShort"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ปั๊มน้ำ"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "ปั๊มน้ำ",
+        "graphemes": 3
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 upper vowel + tone (ปั๊) and sara am"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ญูญู"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "ญูญู",
+        "graphemes": 2
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 lower vowel ู, 2 graphemes"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สิทธิ์"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "สิทธิ์",
+        "graphemes": 3
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 thanthakhat over upper vowel ธิ์ = 3 code points"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ฤๅษีเดินทาง"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "ฤๅษีเดินทาง",
+        "graphemes": 9
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 ฤ ๅ allowed"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "เด็กดีๆ"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "เด็กดีๆ",
+        "graphemes": 5
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 maitaikhu + maiyamok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Ranger"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "Ranger",
+        "graphemes": 6
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Latin"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Ranger 2026"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "Ranger 2026",
+        "graphemes": 11
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Latin + single space + 4-digit run"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "นักเดิน Walker"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "นักเดิน Walker",
+        "graphemes": 12
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 mixed Thai + Latin + space"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "  สมชาย   ใจดี  "
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "สมชาย ใจดี",
+        "graphemes": 9
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 trim + collapse spaces -> normalized"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สม\u200Bชาย"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "สมชาย",
+        "graphemes": 5
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 zero-width space stripped before counting"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สม\u00A0ชาย"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "สม ชาย",
+        "graphemes": 6
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 no-break space mapped to a normal space"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "เกิน"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "เกิน",
+        "graphemes": 3
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 NFC unchanged Thai: เกิน"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": ""
+      },
+      "expected": {
+        "ok": false,
+        "reason": "empty"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 empty string"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "     "
+      },
+      "expected": {
+        "ok": false,
+        "reason": "empty"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 only spaces -> empty after trim"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "\u200B\u200B"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "empty"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 only zero-width -> empty"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "A"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "tooShort"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 1 grapheme: tooShort"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Ab"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "Ab",
+        "graphemes": 2
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 minLength boundary 2: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ABCDEFGHIJKLMNOP"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "ABCDEFGHIJKLMNOP",
+        "graphemes": 16
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 maxLength boundary 16: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ABCDEFGHIJKLMNOPQ"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "tooLong"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 17 graphemes: tooLong"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "นักเดินทางผู้กล้าหาญมาก"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "tooLong"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Thai over 16 graphemes: tooLong"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "นักเดินทางผู้กล้าหาญ"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "นักเดินทางผู้กล้าหาญ",
+        "graphemes": 15
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Thai with many marks: count graphemes not code points"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "0812345678"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Thai mobile number: phone"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "081 234 5678"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 phone with spaces"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "081-234-5678"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 phone with hyphens"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "โทร 081.234.5678"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 phone with dots after Thai word"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "(02) 123 4567"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Bangkok landline with parentheses"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "+66812345678"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 international prefix"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "๐๘๑๒๓๔๕๖๗๘"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 phone in Thai digits (still phone, not charset)"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "\uFF10\uFF18\uFF11\uFF12\uFF13\uFF14\uFF15\uFF16\uFF17\uFF18"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 fullwidth digits fold through NFKC: phone"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Ranger12345"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 run of 5 digits: phone"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "A12 B34 C567"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "phone"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 total 7 digits in short runs: phone"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "A12 B34 C56"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "A12 B34 C56",
+        "graphemes": 11
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 total 6 digits, runs of 2: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Hero99"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "Hero99",
+        "graphemes": 6
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 short lucky number: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "somchai@mail"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "email"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 email marker"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "a@b.co"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "email"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 short email"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สมชาย\uFF20gmail"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "email"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 fullwidth at sign folds through NFKC: email"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "https://x.y"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "url"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 URL scheme"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "www.somchai"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "url"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 www. marker"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "somchai.com"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "url"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 TLD after dot"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "shop.co.th"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "url"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 TLD .co followed by dot"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ABC.company"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "charset"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 .company is not a TLD hit: charset"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "somchai dot com"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "url"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 spelled marker after removing spaces"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "เว็บ ดอทคอม"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "url"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Thai spelled marker"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สมชาย!"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "charset"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 punctuation outside charset"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Zo\u00EB"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "charset"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Latin with diacritic outside charset"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สมชาย฿"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "charset"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 baht sign outside charset"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "\uFF80\uFF9B\uFF73"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "charset"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 halfwidth katakana outside charset"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Hero\uD83D\uDE00"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "charset"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 emoji outside charset"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สม\nชาย"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "สม ชาย",
+        "graphemes": 6
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 newline mapped to space: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "้สมชาย"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "misplacedMark"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 leading tone mark: misplacedMark"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "สม ิชาย"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "misplacedMark"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 vowel mark after a space: misplacedMark"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Hero้"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "misplacedMark"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Thai mark on a Latin letter: misplacedMark"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ก้้้้ขา"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "stackedMarks"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 mark stacking (zalgo): stackedMarks"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ก่้ข"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "stackedMarks"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 two tone marks in one cluster: stackedMarks"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "กิิ"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "stackedMarks"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 same vowel twice in one cluster: stackedMarks"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "1234"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "noLetter"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 digits only: noLetter"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "badword"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 banned (fixture) exact"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Mr BadWord"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 banned case-insensitive, inside a longer name"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "bad word"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 banned with inserted space"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "b-a-d-w-o-r-d"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "charset"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 hyphen is outside charset, so charset wins over banned (checkOrder)"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "b a d w o r d"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 banned with a space between every letter"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "baaadwoord"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04, P2-H64 reference (scratch) \u00B7 heavy pass: repeats collapse to badword (badword is in the fixture substringHeavy)"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "b4dw0rd"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04, P2-H64 reference (scratch) \u00B7 latinRunMap (light step 4): 4 -> a, 0 -> o inside a Latin run"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "คำ ต้อง ห้าม"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 Thai banned with inserted spaces"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "คำตองหาม"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04, P2-H64 reference (scratch) \u00B7 heavy pass: Thai typed without tone marks, term is in the fixture substringHeavy"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "คำต้องห้ามมม"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04, P2-H64 reference (scratch) \u00B7 light substring: the term is still inside the stretched name"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "badminton"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "badminton",
+        "graphemes": 9
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04, P2-H64 reference (scratch) \u00B7 no false hit on a shared prefix with badword: ok"
+    },
+    {
+      "input": {
+        "fn": "randomCharacterName",
+        "rngDraws": [
+          0,
+          0
+        ]
+      },
+      "expected": {
+        "name": "นักเดินทาง",
+        "attempts": 1,
+        "fallback": false,
+        "draws": 2
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 first attempt passes: prefix 0 + core 0"
+    },
+    {
+      "input": {
+        "fn": "randomCharacterName",
+        "rngDraws": [
+          0.5,
+          0.6,
+          0.9,
+          0.3
+        ]
+      },
+      "expected": {
+        "name": "ขุนสายลม",
+        "attempts": 2,
+        "fallback": false,
+        "draws": 4
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 attempt 1 จอม+คำต้องห้าม banned, attempt 2 ขุน+สายลม ok"
+    },
+    {
+      "input": {
+        "fn": "randomCharacterName",
+        "rngDraws": [
+          0.1,
+          0.8,
+          0.4,
+          0.3
+        ]
+      },
+      "expected": {
+        "name": "จอมสายลม",
+        "attempts": 2,
+        "fallback": false,
+        "draws": 4
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 attempt 1 นัก+long core tooLong, attempt 2 จอม+สายลม ok"
+    },
+    {
+      "input": {
+        "fn": "randomCharacterName",
+        "rngDraws": [
+          0,
+          0.5,
+          0.99,
+          0.5,
+          0
+        ],
+        "paramsOverride": {
+          "random.maxAttempts": 2
+        }
+      },
+      "expected": {
+        "name": "นักเดินเท้า",
+        "attempts": 2,
+        "fallback": true,
+        "draws": 5
+      },
+      "tolerance": 0,
+      "source": "P2-F10-T04 reference (scratch) \u00B7 maxAttempts 2, both attempts banned (นัก/ขุน + คำต้องห้าม), fallback draw picks index 0 which is banned, walk to index 1"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ม้าลายยยย"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 light substring: stretched ending still contains the term (catB)"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ม๊าลาย"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "ม๊าลาย",
+        "graphemes": 5
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 tone swap on a light-only term: light misses, term is not in substringHeavy, so ok (F10-story.md 7: heavy only for listed terms)"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "มาลาย"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "มาลาย",
+        "graphemes": 5
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 light-only term typed without tone: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "คำต๊องห้าม"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 tone swap on a substringHeavy term: light misses, heavy hits"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "BADWORD"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 light: Latin lower-cased"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Nonstop"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 light substring inside a longer Latin word (accepted over-blocking of substring mode)"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "5top"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 latinRunMap: 5 -> s inside a run that has a Latin letter"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "st0p 2026"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 latinRunMap after space removal: st0p2026 is one run -> stop2o26 contains stop"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "แมวน้ำ"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "แมวน้ำ",
+        "graphemes": 4
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 allow.light: แมวน้ำ removed before matching, so แมว does not hit"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "แมว น้ำ"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "แมว น้ำ",
+        "graphemes": 5
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 allow.light after space removal: แมวน้ำ removed: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "แมวดำ"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 light substring แมว without an allow word around it"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "แมวน้ำแมว"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 allow removal leaves the second แมว: banned"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ข้าวขาว"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 allow.light removes ข้าว, the plain ขาว still hits in light"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "ข้าวต้ม"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 allow.light is not used in heavy: heavy ขาวตม contains ขาว. Shows why words whose heavy form collides stay out of substringHeavy"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "badwordle"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "badwordle",
+        "graphemes": 9
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 allow.light and allow.heavy both remove badwordle: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "baaadwoordle"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "baaadwoordle",
+        "graphemes": 12
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 light has no term; heavy collapses to badwordle, allow.heavy removes it: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "กา"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 token: the whole name equals the term"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "นก กา"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 token: one space-separated token equals the term"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "กาแฟ"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "กาแฟ",
+        "graphemes": 4
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 token term inside a word: ok"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Tea"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 token: whole name, lower-cased"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Green Tea"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 token: second token"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "Te a"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "banned"
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 token: whole name after light removes the space equals tea"
+    },
+    {
+      "input": {
+        "fn": "validateCharacterName",
+        "name": "steam"
+      },
+      "expected": {
+        "ok": true,
+        "normalized": "steam",
+        "graphemes": 5
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 token term inside a word: ok"
+    }
+  ],
+  "contentVectors": {
+    "_note": "Integration vectors against the real config/content/character-names.th.json (P2-F10-T03): the cases proposed in design/narrative/F10-story.md section 7 plus the allow cases of P2-H64 and the accepted false positives. They depend on the word lists, so when narrative-designer changes a list these may change and are regenerated (owner systems-designer); the fixture vectors above must not change. Where the story expects a reject, the reason may be an earlier check than banned (f*ck -> charset, spaced letters -> misplacedMark): the name is still rejected and the player still sees no hint of which word matched. pool: T12 runs validate over every head+tail combination and every fallback name of the real file; expected counts are for the file at version 1 (16 x 16 heads/tails, 6 fallback names)",
+    "lexiconRef": "config/content/character-names.th.json",
+    "vectors": [
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "เหี๊ย"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "banned"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: tone swap; light hits หี, heavy hits เหีย"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "เ ห ี้ ย"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "misplacedMark"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: spaced letters; rejected earlier by misplacedMark (mark after a space), banned is never reached"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "ควายยยย"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "banned"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: stretched; light and heavy both hit"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "f*ck"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "charset"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: masking character; rejected earlier by charset (* is outside name.allowed)"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "FUCK"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "banned"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: upper case"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "ห่าง"
+        },
+        "expected": {
+          "ok": true,
+          "normalized": "ห่าง",
+          "graphemes": 3
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: allow.light removes ห่าง: ok"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "หีบเหล็ก"
+        },
+        "expected": {
+          "ok": true,
+          "normalized": "หีบเหล็ก",
+          "graphemes": 6
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: allow.light removes หีบ: ok"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "กู้ภัย"
+        },
+        "expected": {
+          "ok": true,
+          "normalized": "กู้ภัย",
+          "graphemes": 3
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: allow.light removes กู้; heavy กูภัย has no heavy term: ok"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "กู้เงิน"
+        },
+        "expected": {
+          "ok": true,
+          "normalized": "กู้เงิน",
+          "graphemes": 4
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 P2-H64 brief (กู้ must pass): allow.light: ok"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "กู้"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "tooShort"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 P2-H64 brief: กู้ alone is one grapheme, so tooShort before banned"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "class"
+        },
+        "expected": {
+          "ok": true,
+          "normalized": "class",
+          "graphemes": 5
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: token ass is not a whole token: ok"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "ass"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "banned"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: token whole name"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "badminton"
+        },
+        "expected": {
+          "ok": true,
+          "normalized": "badminton",
+          "graphemes": 9
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: allow.light removes badminton so admin does not hit: ok"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "admin"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "banned"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7: substring impersonation"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "ตีนไก่"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "banned"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7 accepted false positive"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "กูเกิล"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "banned"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7 accepted false positive"
+      },
+      {
+        "input": {
+          "fn": "validateCharacterName",
+          "name": "นายกร"
+        },
+        "expected": {
+          "ok": false,
+          "reason": "banned"
+        },
+        "tolerance": 0,
+        "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 7 accepted false positive"
+      }
+    ],
+    "pool": {
+      "input": {
+        "fn": "validateEveryRandomName",
+        "template": [
+          "randomName.heads",
+          "randomName.tails"
+        ],
+        "fallbackKey": "randomName.fallback.names"
+      },
+      "expected": {
+        "combinations": 256,
+        "pass": 256,
+        "fallback": 6,
+        "fallbackPass": 6
+      },
+      "tolerance": 0,
+      "source": "P2-H64 reference (scratch) \u00B7 F10-story.md 6: all 256 head+tail names and every fallback name pass validate against the real content file"
+    }
+  }
+}

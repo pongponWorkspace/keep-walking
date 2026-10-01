@@ -10,7 +10,7 @@ jq -r --slurpfile c "$CONFIG" '
   def pct(a; b): ((a / b * 1000 | round) / 10 | tostring) + "%";
   $c[0].budget as $b |
   "SIZE REPORT  \(.tileset_id)  (layout \(.layout), generated \(.generated_at), build \(.build_seconds // "?") s)",
-  "schema       Protomaps Basemap v\(.schema.major) metadata \(.schema.metadataVersion) · build \(.build_key) · OSM replication \(.osm_replication_time)",
+  "schema       Protomaps Basemap v\(.schema.major) metadata \(.schema.metadataVersion) · build \(.build_key)\(if .source_build then " (" + .source_build.resolution + ", pin " + .source_build.pinned + ")" else "" end) · OSM replication \(.osm_replication_time)",
   "area         bbox \(.bbox | map(tostring) | join(",")) · region_mode \(.region_mode) · z\(.minzoom)-\(.maxzoom) · client overzoom to z\(.overzoom_to)",
   "",
   "zoom  files   bytes (uncompressed MVT)   largest tile",

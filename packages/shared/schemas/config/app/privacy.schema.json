@@ -13,7 +13,9 @@
     "externalNavigation"
   ],
   "properties": {
-    "_meta": { "$ref": "../common.schema.json#/$defs/meta" },
+    "_meta": {
+      "$ref": "../common.schema.json#/$defs/meta"
+    },
     "rawTraceExport": {
       "type": "object",
       "required": [
@@ -24,25 +26,50 @@
         "autoUploadAllowed"
       ],
       "properties": {
-        "_source": { "$ref": "../common.schema.json#/$defs/source" },
-        "rawTraceTrim_m": { "$ref": "../common.schema.json#/$defs/meters" },
-        "coordinateDecimals": { "type": "integer", "minimum": 0 },
-        "relativeTimeOnly": { "type": "boolean" },
-        "requiresExplicitOptIn": { "type": "boolean" },
-        "autoUploadAllowed": { "type": "boolean" }
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "rawTraceTrim_m": {
+          "$ref": "../common.schema.json#/$defs/meters"
+        },
+        "coordinateDecimals": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "relativeTimeOnly": {
+          "type": "boolean"
+        },
+        "requiresExplicitOptIn": {
+          "type": "boolean"
+        },
+        "autoUploadAllowed": {
+          "type": "boolean"
+        }
       },
-      "patternProperties": { "^_": {} }
+      "patternProperties": {
+        "^_": {}
+      }
     },
     "summaryExport": {
       "type": "object",
       "required": ["isDefaultExport", "includesCoordinates", "sessionIdRegeneratedPerSession"],
       "properties": {
-        "_source": { "$ref": "../common.schema.json#/$defs/source" },
-        "isDefaultExport": { "type": "boolean" },
-        "includesCoordinates": { "type": "boolean" },
-        "sessionIdRegeneratedPerSession": { "type": "boolean" }
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "isDefaultExport": {
+          "type": "boolean"
+        },
+        "includesCoordinates": {
+          "type": "boolean"
+        },
+        "sessionIdRegeneratedPerSession": {
+          "type": "boolean"
+        }
       },
-      "patternProperties": { "^_": {} }
+      "patternProperties": {
+        "^_": {}
+      }
     },
     "logging": {
       "type": "object",
@@ -52,12 +79,23 @@
         "byteCounterStoresTileUrls"
       ],
       "properties": {
-        "_source": { "$ref": "../common.schema.json#/$defs/source" },
-        "rawCoordinatesInProductionLog": { "type": "boolean" },
-        "rawCoordinatesInDebugLogRequiresFlag": { "type": "string", "minLength": 1 },
-        "byteCounterStoresTileUrls": { "type": "boolean" }
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "rawCoordinatesInProductionLog": {
+          "type": "boolean"
+        },
+        "rawCoordinatesInDebugLogRequiresFlag": {
+          "type": "string",
+          "minLength": 1
+        },
+        "byteCounterStoresTileUrls": {
+          "type": "boolean"
+        }
       },
-      "patternProperties": { "^_": {} }
+      "patternProperties": {
+        "^_": {}
+      }
     },
     "onDeviceSamples": {
       "type": "object",
@@ -72,7 +110,9 @@
         "seePairGap"
       ],
       "properties": {
-        "_source": { "$ref": "../common.schema.json#/$defs/source" },
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
         "maxAge_s": {
           "$ref": "../common.schema.json#/$defs/positiveSeconds",
           "description": "D-088; bounds in cross.ts"
@@ -90,33 +130,114 @@
           "const": true,
           "description": "C2-5: no coordinates kept after a run ends"
         },
-        "hudSamplesMemoryOnly": { "const": true, "description": "C2-5" },
-        "seeUpperBound": { "$ref": "../common.schema.json#/$defs/pointer" },
-        "seeGateWindow": { "$ref": "../common.schema.json#/$defs/pointer" },
-        "seePairGap": { "$ref": "../common.schema.json#/$defs/pointer" }
+        "hudSamplesMemoryOnly": {
+          "const": true,
+          "description": "C2-5"
+        },
+        "seeUpperBound": {
+          "$ref": "../common.schema.json#/$defs/pointer"
+        },
+        "seeGateWindow": {
+          "$ref": "../common.schema.json#/$defs/pointer"
+        },
+        "seePairGap": {
+          "$ref": "../common.schema.json#/$defs/pointer"
+        }
       },
-      "patternProperties": { "^_": {} }
+      "patternProperties": {
+        "^_": {}
+      }
     },
     "localData": {
       "type": "object",
-      "required": ["storageKeyPrefix", "clearScope", "afterClear", "onQuotaExceeded"],
+      "required": [
+        "storageKeyPrefix",
+        "clearScope",
+        "afterClear",
+        "onQuotaExceeded",
+        "keys",
+        "neverStored",
+        "onSignOut"
+      ],
       "properties": {
-        "_source": { "$ref": "../common.schema.json#/$defs/source" },
-        "storageKeyPrefix": { "type": "string", "minLength": 1 },
-        "clearScope": { "type": "string", "minLength": 1 },
-        "afterClear": { "type": "string", "minLength": 1 },
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "storageKeyPrefix": {
+          "type": "string",
+          "minLength": 1
+        },
+        "clearScope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "afterClear": {
+          "type": "string",
+          "minLength": 1
+        },
         "onQuotaExceeded": {
           "type": "object",
           "required": ["evictFirst", "neverEvictFor", "lastResort"],
           "properties": {
-            "evictFirst": { "type": "string", "minLength": 1 },
-            "neverEvictFor": { "type": "string", "minLength": 1 },
-            "lastResort": { "type": "string", "minLength": 1 }
+            "evictFirst": {
+              "type": "string",
+              "minLength": 1
+            },
+            "neverEvictFor": {
+              "type": "string",
+              "minLength": 1
+            },
+            "lastResort": {
+              "type": "string",
+              "minLength": 1
+            }
           },
-          "patternProperties": { "^_": {} }
+          "patternProperties": {
+            "^_": {}
+          }
+        },
+        "keys": {
+          "description": "Every Phase 2 kw.p2.* key (tech note F06 8.1, F10 2). A key ending in '.' is a prefix of one-value keys.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["key", "owner", "contains", "writtenAfterAgeGate"],
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^kw\\.p2\\.[a-z][A-Za-z0-9]*\\.?$"
+              },
+              "owner": {
+                "enum": ["engine", "client"]
+              },
+              "contains": {
+                "type": "string",
+                "minLength": 1
+              },
+              "writtenAfterAgeGate": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "neverStored": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][A-Za-z0-9]*$"
+          }
+        },
+        "onSignOut": {
+          "const": "clearSignedInFlagOnly"
         }
       },
-      "patternProperties": { "^_": {} }
+      "patternProperties": {
+        "^_": {}
+      }
     },
     "externalNavigation": {
       "type": "object",
@@ -128,15 +249,36 @@
         "apiKeyAllowed"
       ],
       "properties": {
-        "_source": { "$ref": "../common.schema.json#/$defs/source" },
-        "includesPlayerPosition": { "type": "boolean" },
-        "destinationSource": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-        "referrerPolicy": { "type": "string", "minLength": 1 },
-        "requiresUserGesture": { "type": "boolean" },
-        "apiKeyAllowed": { "type": "boolean" }
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "includesPlayerPosition": {
+          "type": "boolean"
+        },
+        "destinationSource": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "referrerPolicy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiresUserGesture": {
+          "type": "boolean"
+        },
+        "apiKeyAllowed": {
+          "type": "boolean"
+        }
       },
-      "patternProperties": { "^_": {} }
+      "patternProperties": {
+        "^_": {}
+      }
     }
   },
-  "patternProperties": { "^_": {} }
+  "patternProperties": {
+    "^_": {}
+  }
 }

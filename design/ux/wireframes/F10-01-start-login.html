@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F10 Flow A: จอเริ่มเกม + login (P2-F10-T06)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F10 Flow A (1/2) — S-00-start → S-00-login</h1>
+  <p>อ้างอิง: design/ux/flows/F10-account-shell.md หัวข้อ 2 (A1–A2) · art/direction/F10-shell-direction.md หัวข้อ 5 · D-144 (จอเริ่มเกมปุ่มเดียว), D-145 (login เป็น shell bypass ไม่มี auth จริง) · ไม่มี headerbar จนกว่าจะถึง S-00-login (F10-R33) · ไม่มีโลโก้แบรนด์ใดในจอ login (art direction หัวข้อ 6)</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>A1. S-00-start (เต็มจอ ไม่มี headerbar)</h3>
+<div class="phone">
+  <div class="screen-body" style="padding:0;display:flex;flex-direction:column;">
+    <div style="margin:16px;border:2px solid var(--ink-900);border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:var(--bg-paper);display:flex;align-items:center;justify-content:center;color:var(--ink-500);font-size:12px;">illus.story.slide-3 (ซ้ำ, A-P2-F10-T02-1)</div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:0 16px;">
+      <div style="position:relative;background:var(--bg-surface);border:3px solid var(--ink-900);border-radius:12px;padding:16px 24px;text-align:center;">
+        <div style="position:absolute;top:-8px;right:-8px;width:32px;height:32px;border:2px solid var(--ink-900);border-radius:6px;background:var(--rift-500);"></div>
+        <div style="font-size:36px;font-weight:700;line-height:1.5;"><span class="copykey">app.title</span><br><span class="thaidraft">(GPS Dungeon กรุงเทพฯ)</span></div>
+      </div>
+    </div>
+    <div style="padding:16px;">
+      <div class="btn btn-primary" style="width:100%;"><span class="copykey">onboarding.introStart</span> <span class="thaidraft">(เริ่มเกม)</span></div>
+    </div>
+  </div>
+</div>
+<p class="frame-caption">SH1 (จุดเด่นภาพ) + SH3 (plate ป้ายชื่อเกม, ขอบ 3px ไม่มีเงาเพราะไม่ใช่ของกดได้) · <span class="config-ref">type.title 36px</span> (เพิ่มใหม่ ปิด A-P2-F10-T02-3) · ปุ่มกดได้ทันทีไม่รอภาพโหลด · แตะนอกปุ่มไม่ไปต่อ (F10-R07) → S-00-login</p>
+</div>
+
+<div class="frame-block">
+<h3>A2. S-00-login</h3>
+<div class="phone">
+  <div class="headerbar"><div class="context-label"><span class="copykey">account.loginHeader</span> <span class="thaidraft">(เข้าสู่ระบบ)</span></div></div>
+  <div class="screen-body" style="display:flex;flex-direction:column;padding-top:32px;">
+    <h1 class="scr-title" style="text-align:center;font-size:20px;"><span class="copykey">account.loginTitle</span> <span class="thaidraft">(เข้าสู่ระบบก่อนเริ่มเดิน)</span></h1>
+    <div style="margin-top:24px;">
+      <div class="btn btn-secondary" style="width:100%;height:56px;justify-content:flex-start;gap:12px;padding-left:16px;"><span style="width:24px;height:24px;border:2px solid var(--ink-900);border-radius:4px;flex:none;"></span><span class="copykey">account.loginGoogleButton</span> <span class="thaidraft">(ดำเนินการต่อด้วย Google)</span></div>
+      <div class="btn btn-secondary" style="width:100%;height:56px;margin-top:12px;justify-content:flex-start;gap:12px;padding-left:16px;"><span style="width:24px;height:24px;border:2px solid var(--ink-900);border-radius:4px;flex:none;"></span><span class="copykey">account.loginAppleButton</span> <span class="thaidraft">(ดำเนินการต่อด้วย Apple)</span></div>
+    </div>
+    <div style="text-align:center;text-decoration:underline;font-size:16px;font-weight:500;padding:14px;min-height:48px;"><span class="copykey">account.loginEmailLink</span> <span class="thaidraft">(ใช้อีเมลแทน)</span></div>
+    <p class="caption" style="text-align:center;margin-top:16px;"><span class="copykey">account.testModeNote</span> <span class="thaidraft">(โหมดทดสอบ ยังไม่เชื่อมบัญชีจริง)</span></p>
+  </div>
+</div>
+<p class="frame-caption">ปุ่มสองปุ่มน้ำหนักเท่ากัน ไม่มีปุ่ม `accent.signal` ในจอนี้ (ข้อยกเว้น SH4) · glyph <span class="config-ref">icon.ui.sign-in</span> เดียวกันทั้งคู่ (ของเกม ไม่ใช่ของแบรนด์) · กดปุ่มใดก็ bypass ไป S-00-age-gate ทันที (provider เก็บในหน่วยความจำ ยังไม่เขียน storage, F10-R10/R13) · ไม่มี popup ไม่มี SDK โหลด ไม่มี request นอก allowlist (F10-R12, A-E23 ใช้ได้แม้ออฟไลน์)</p>
+</div>
+
+</div>
+</body>
+</html>

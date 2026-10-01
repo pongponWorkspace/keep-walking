@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — F10 Flow C: สร้างตัวละคร (P2-F10-T06)</title>
+<link rel="stylesheet" href="./shared/style.css">
+</head>
+<body>
+<div class="doc-header">
+  <h1>F10 Flow C — S-00-create-character (ปกติ + migration class ล็อก)</h1>
+  <p>อ้างอิง: design/ux/flows/F10-account-shell.md หัวข้อ 4 · components.md หัวข้อ 16.4 · จอเต็มจอไม่ใช่ sheet ทับแผนที่ (F10-R15) · ไม่มีตัวเลข % หรือสูตรใดในคำอธิบาย class (F06-R32) · ตัวกรองชื่อ 11 เหตุผลตามลำดับ checkOrder ของ config/balance/character.json</p>
+</div>
+<div class="storyboard">
+
+<div class="frame-block">
+<h3>C1. S-00-create-character — ปกติ (ชื่อไม่ผ่านตัวกรอง, ตัวอย่างเหตุผล tooShort)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="context-label"><span class="copykey">character.headerLabel</span> <span class="thaidraft">(สร้างตัวละคร)</span></div></div>
+  <div class="screen-body">
+    <h2 class="scr-sub" style="font-size:16px;"><span class="copykey">onboarding.pickRoleTitle</span> <span class="thaidraft">(เลือกพลัง)</span></h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 16px;">
+      <div class="card selected" style="text-align:center;padding:8px;"><div class="class-badge" style="background:var(--class-tanker);margin:0 auto 4px;">T</div><b style="font-size:13px;"><span class="copykey">class.tanker</span></b></div>
+      <div class="card" style="text-align:center;padding:8px;"><div class="class-badge" style="background:var(--class-ranged);margin:0 auto 4px;">R</div><b style="font-size:13px;"><span class="copykey">class.ranged</span></b></div>
+      <div class="card" style="text-align:center;padding:8px;"><div class="class-badge" style="background:var(--class-support);margin:0 auto 4px;">S</div><b style="font-size:13px;"><span class="copykey">class.support</span></b></div>
+      <div class="card" style="text-align:center;padding:8px;"><div class="class-badge" style="background:var(--class-magic);margin:0 auto 4px;">M</div><b style="font-size:13px;"><span class="copykey">class.magic</span></b></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <input value="อา" style="flex:1;height:48px;border:2px solid var(--state-danger);border-radius:8px;padding:0 12px;font-size:16px;">
+      <div class="btn btn-secondary" style="width:48px;height:48px;padding:0;flex:none;"><img src="../../../art/assets/icon/ui/shuffle.svg" width="24" height="24" alt="" style="display:block"></div>
+    </div>
+    <p class="caption" style="color:var(--state-danger);margin-top:4px;"><span class="copykey">character.nameError.tooShort</span> <span class="thaidraft">(สั้นไป อย่างน้อย 2 ตัวอักษร)</span></p>
+    <div class="banner info" style="position:relative;top:auto;left:auto;right:auto;text-align:left;margin-top:12px;display:flex;gap:8px;align-items:center;border-radius:12px;border:2px solid var(--state-info);"><span><img src="../../../art/assets/icon/ui/help.svg" width="24" height="24" alt="" style="display:block"></span><span class="copykey">character.nameRealNameWarning</span> <span class="thaidraft">(อย่าใช้ชื่อจริงหรือเบอร์โทร)</span></div>
+    <div class="btn btn-disabled" style="width:100%;margin-top:16px;"><span class="copykey">character.createButton</span> <span class="thaidraft">(สร้างตัวละคร)</span></div>
+  </div>
+</div>
+<p class="frame-caption">ไม่มีค่าเลือกไว้ล่วงหน้า เลือกการ์ดเปลี่ยนใจได้จนกว่าจะกดสร้าง · ปุ่มสุ่ม 48×48px `icon.ui.shuffle` (ห้ามลูกเต๋า/ลูกศรวงกลม) · error inline 1 เหตุผลแรกตามลำดับ checkOrder หายทันทีที่แก้ผ่าน (F10-R19) · ปุ่มสร้าง `.btn-disabled` จนกว่า class+ชื่อผ่าน</p>
+</div>
+
+<div class="frame-block">
+<h3>C5. S-00-create-character — ผู้เล่นเดิม migration (class ล็อก)</h3>
+<div class="phone">
+  <div class="headerbar"><div class="context-label"><span class="copykey">character.headerLabel</span></div></div>
+  <div class="screen-body">
+    <h2 class="scr-sub" style="font-size:16px;"><span class="copykey">onboarding.pickRoleTitle</span></h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 4px;">
+      <div class="card selected" style="text-align:center;padding:8px;"><div class="class-badge" style="background:var(--class-magic);margin:0 auto 4px;">M</div><b style="font-size:13px;"><span class="copykey">class.magic</span></b></div>
+      <div class="card" style="text-align:center;padding:8px;opacity:.5;"><div class="class-badge" style="background:var(--class-tanker);margin:0 auto 4px;">T</div><b style="font-size:13px;"><span class="copykey">class.tanker</span></b></div>
+      <div class="card" style="text-align:center;padding:8px;opacity:.5;"><div class="class-badge" style="background:var(--class-ranged);margin:0 auto 4px;">R</div><b style="font-size:13px;"><span class="copykey">class.ranged</span></b></div>
+      <div class="card" style="text-align:center;padding:8px;opacity:.5;"><div class="class-badge" style="background:var(--class-support);margin:0 auto 4px;">S</div><b style="font-size:13px;"><span class="copykey">class.support</span></b></div>
+    </div>
+    <p class="caption"><span class="copykey">character.classLockedNote</span> <span class="thaidraft">(เลือกไว้แล้ว เปลี่ยนไม่ได้)</span></p>
+    <div style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;">
+      <input placeholder="ตั้งชื่อตัวละคร" style="flex:1;height:48px;border:2px solid var(--ink-900);border-radius:8px;padding:0 12px;font-size:16px;">
+      <div class="btn btn-secondary" style="width:48px;height:48px;padding:0;flex:none;"><img src="../../../art/assets/icon/ui/shuffle.svg" width="24" height="24" alt="" style="display:block"></div>
+    </div>
+    <div class="btn btn-disabled" style="width:100%;margin-top:24px;"><span class="copykey">character.createButton</span></div>
+  </div>
+</div>
+<p class="frame-caption">C5 (F10-R45–R47): class ที่เลือกไว้แล้วมีวงแหวน `accent.signal` ถาวร การ์ดอื่น `.btn-disabled` กดไม่ได้ · มีแค่ช่องชื่อให้กรอกใหม่ · ไม่ถามอายุ/consent ซ้ำ (เข้าจอนี้ต่อจาก S-00-login ตรงๆ)</p>
+</div>
+
+</div>
+</body>
+</html>

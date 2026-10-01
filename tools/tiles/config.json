@@ -5,7 +5,11 @@
     "majorVersion": 4,
     "buildKey": "20260930",
     "expectedMetadataVersion": "4.15.2",
-    "sourceUrl": "https://build.protomaps.com/20260930.pmtiles",
+    "sourceUrlTemplate": "https://build.protomaps.com/{build}.pmtiles",
+    "buildsIndexUrl": "https://build-metadata.protomaps.dev/builds.json",
+    "buildSelection": "pinned-or-latest-matching",
+    "probeCandidates": 3,
+    "_buildComment": "P2-X58, ADR 0004: buildKey is a preference, not a hard pin. Protomaps keeps dailies for one week plus the latest build of each patch version, so bin/resolve-build.sh uses buildKey while builds.json lists it with expectedMetadataVersion, else the newest listed build with that version. Another metadata version always fails. manifest.json build_key + source_build record the build actually used; TILES_BUILD_KEY=<key> reproduces it.",
     "tilesetIdTemplate": "pm4-{build}-z{maxzoom}"
   },
   "area": {

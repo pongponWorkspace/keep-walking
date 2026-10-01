@@ -3,6 +3,7 @@
 Task: P1-F03-T10 · เจ้าของ: art-director · สถานะ: ฉบับเสนอ รอ HUMAN อนุมัติทิศทางภาพ · วันที่: 2026-09-23
 แก้ใน P2-F05-T03 (2026-09-26): 3 และ 8 ข้อยกเว้น miter ของรอยแยก (F-AD-4) · 4.2/4.3 พิกัดเส้นของกรอบแบบวัดได้ (V-12) · 5.1/5.2 ขนนก Ranged และ stroke glyph 2 px (V-13) · 7.1 glyph ใหม่ของ Phase 2 (7.1.1) · 7.3 id ยาและอุปกรณ์ของ Phase 2 · 9 กฎลูกศรไม่ชนกัน · รายการ asset และสถานะของ Phase 2 อยู่ใน `art/direction/briefs/P2-assets.md`
 แก้ใน P2-H17 (2026-09-27): 7.1.1 แถว `in-run` (`currentColor`) และ `suspended` (ตายตัว `bg.surface` ขอบหมึก) · 8 กฎ `currentColor` และ ui16 ตามกลุ่ม ui · ผลตรวจอยู่ใน `art/direction/reviews/P2-H17-icon-night-and-composite.md`
+แก้ใน P2-F10-T02 (2026-10-01): เพิ่ม 7.1.2 glyph ของ shell F10 และ 7.4 กฎ icon ของ nav, Setting, logout และจอเร็วๆ นี้ · ไม่แก้ token ไม่แก้กฎเดิม · ทิศภาพจอของ F10 อยู่ใน `art/direction/F10-shell-direction.md`
 อ้างอิง: `art/direction/style-guide.md` (token สี, contrast, เส้น, แสงเงา, motif ที่ห้าม) · GDD "Class และ Party", "Quick command", "อุปกรณ์", "วัตถุดิบและการตีบวก", "Drop table" · `design/narrative/world.md` หัวข้อ 9, 12
 สีทุกค่าในเอกสารนี้คือ token ใน style guide หัวข้อ 3 · ค่า contrast อ้างตารางหัวข้อ 4 ของ style guide
 
@@ -224,6 +225,21 @@ kind `icon-ui` · 24 px = `icon.ui.<name>` · 16 px วาดแยก = `icon.u
 
 ทุกตัวต้องมีเวอร์ชัน 16 px (`icon.ui16.<name>`) เฉพาะที่ brief ระบุว่าใช้ inline · ตัวที่แสดง 48 px (`direction`, `speed-lock`, `signal-wait`, `walk-in`, `closed`, `knocked-out`) ใช้ไฟล์ 24 ไฟล์เดียว scale 2 เท่า แล้วให้เส้นบนจอเป็น 3 px ตามหัวข้อ 2.1 ด้วย CSS บน SVG แบบ inline: `stroke-width: 1.5` ในหน่วยของ viewBox (1.5 × 2 = 3 px) · ดังนั้นทุกเส้นในไฟล์ต้องเป็น `stroke` จริง ไม่แปลงเป็น path (สอดคล้องกับหัวข้อ 8)
 
+#### 7.1.2 UI glyph ของ shell F10 (P2-F10-T02 · ผู้วาด artist-2d ใน P2-F10-T09 · ที่ใช้บนจออยู่ใน `F10-shell-direction.md`)
+ทุกตัวเป็น **outline `ink.900` 2 px เส้น `stroke` จริง `stroke="currentColor"` ไม่มี fill สี** (tintable ตามหัวข้อ 8 แถว "สีที่ code เปลี่ยนได้") · 24 px เท่านั้น ไม่มี 16 px ใน Phase 2 (ไม่มีที่ใช้ inline) ยกเว้น `coming-soon` ที่วาด 16 ได้ถ้า uiux ขอ
+| id สุดท้าย (24 px) | ความหมาย | glyph (ใน live area 20 × 20) | ห้าม |
+| --- | --- | --- | --- |
+| `icon.ui.enhance` | ช่อง Upgrade ใน nav (id เดิมจาก 7.1 ยังไม่มีไฟล์) | ใบเสร็จตั้ง 14 × 20 ขอบล่างฟันเลื่อย 4 ฟัน · เส้นรายการแนวนอน 2 เส้นครึ่งบน · เครื่องหมาย % ครึ่งล่าง (วง 2 วงเส้นผ่านศูนย์กลาง 4 + ขีดเฉียง) · ความหมาย "ระบบที่กินเงิน" (style guide 9.1) | ค้อน ทั่ง เตา ประกายไฟ ลูกเต๋า ลูกศรขึ้น (อ่านเป็นการันตีบวก) |
+| `icon.ui.market` | ช่อง Shop ใน nav (id เดิมจาก 7.1) | ป้ายราคาห้าเหลี่ยมเอียง 45° มุมมน 2 · รูร้อยวงกลมเส้นผ่านศูนย์กลาง 4 ที่ปลายแหลม · เชือกโค้งจากรูออกไปมุมขวาบน | ตาชั่ง สัญลักษณ์ ฿ $ หรือสกุลเงินจริง ตะกร้าที่คล้ายโลโก้ร้าน |
+| `icon.ui.party` | ช่อง Party ใน nav (id เดิมจาก 7.1 ความหมายขยาย) | หัวก้อนกลม 2 หัวซ้อนเยื้อง หัวหน้าวง 8 หัวหลังวง 7 เลื่อนขวาบน 5 · ไหล่โค้งใต้หัวหน้า · ตัวหลังถูกบังด้วยการเว้นเส้น 2 px (ไม่ใช่ fill) | หัวที่ 3 ขึ้นไป · จุดหรือตัวเลข · วงกลมพื้นทึบ (ชน class badge) · มือจับกัน |
+| `icon.ui.coming-soon` | จอเร็วๆ นี้ (กรวยกั้นเลน) | กรวยจราจร: สี่เหลี่ยมคางหมูสูง 14 ยอดตัดกว้าง 4 ฐานกว้าง 12 · แถบคาดแนวนอน 2 แถบเป็นเส้น 2 px · ฐานแบนกว้าง 20 สูง 3 มุมมน 1 | นาฬิกาทราย (Grace) · แม่กุญแจ (speed lock) · หน้าปัดนาฬิกา (hours) · เครื่องหมาย ! ในสามเหลี่ยม (อ่านเป็นคำเตือน error) · ตัวอักษร · แถบสีส้ม fill |
+| `icon.ui.logout` | แถวออกจากระบบใน Setting | หัว avatar ของ `icon.ui.profile` ย่อ (หัววง 7 + ไหล่โค้ง) ชิดซ้าย · ลูกศรหัวเปิด (chevron 90°) ก้านสั้น 7 ชี้ขวาออกจากตัว ที่ครึ่งขวา | ประตู (สงวนให้ `exit`/`qc.retreating`) · สีแดง · กากบาท · ไอคอนปิดเครื่อง (วงกลมมีขีดบน) |
+| `icon.ui.sign-in` | ปุ่มผู้ให้บริการบนจอ login (glyph กลาง ไม่ใช่ของแบรนด์) | กระจกของ `logout`: ลูกศรหัวเปิดก้านสั้นชิดซ้ายชี้ขวา **เข้าหา** หัว avatar ที่อยู่ครึ่งขวา | ตัว G, ผลไม้, วงกลม 4 สี, ตัวอักษรใดๆ · แม่กุญแจ กุญแจ (ชน speed lock) |
+| `icon.ui.shuffle` | สุ่มชื่อตัวละคร | ป้ายชื่อ 2 ใบ (สี่เหลี่ยมนอน 12 × 7 มุมมน 2) ซ้อนเยื้องทแยง ใบบนซ้าย ใบล่างขวา · เส้นโค้งสั้น 2 เส้นหัวเปิดสลับทิศระหว่างสองใบ (บอก "สลับ") | ลูกเต๋า ไพ่ วงล้อ (การพนัน style guide 8.2) · ลูกศรวงกลมปิด (อ่านเป็นรีเฟรช) · ลูกศรไขว้แบบเครื่องเล่นเพลง (ก้านยาวอ่านเป็นลูกศร Ranged ที่ 24 px) |
+
+- `logout` และ `sign-in` เป็นตระกูล "บัญชี" เดียวกัน (หัว avatar + ลูกศร) · ไม่อยู่บนจอเดียวกัน (login ก่อน shell · logout อยู่ใน Setting) จึงไม่สับกัน
+- ลูกศรใน 3 ตัวนี้ใช้ **หัวเปิด chevron ก้านสั้น ≤ 8** ไม่มีขนนก ไม่หนา จึงไม่ชนลูกศร 3 แบบในหัวข้อ 9
+
 ### 7.2 Quick command 10 ตัว (32 px, ตาม GDD "Quick command")
 kind `icon-qc` · id ตามตาราง asset-pipeline 3.4 (copy key `qc.*` ของ narrative-designer แปลง camelCase เป็น kebab) · pose ของ avatar ที่คู่กันอยู่ใน asset-pipeline 3.4 และ avatar-spec 10
 | คำสั่ง (GDD) | copy key | id สุดท้าย | glyph | ห้าม |
@@ -258,6 +274,34 @@ kind `icon-item` · id = `icon.item.<category>-<name>` (asset-pipeline 3.3) · `
 | gold | `icon.item.currency-gold` | เหรียญทองเกลี้ยง มีวงแหวนนูน 1 วง | **รูปหน้าคนบนเหรียญ** ตราหรือลายของเหรียญจริง (เหรียญไทยจริงมีพระบรมรูป) |
 | อุปกรณ์ที่ drop ใน Phase 2 (Epic/Legendary ตาม `drops.rewardTypeByRarity`) | `icon.item.weapon-folding-umbrella`, `icon.item.armor-raincoat`, `icon.item.charm-keychain`, `icon.item.boots-rain-boots` (1 ภาพต่อช่อง ใช้ร่วมทุก tier จนกว่า content จะมีรายการอุปกรณ์จริง · ระดับบอกด้วยกรอบ rarity ไม่ใช่ตัว icon) | ของชิ้นเดียวกับชุดประดับ placeholder ของ avatar วาดเป็น item icon 64 ตามหลัก V2 | ตามแถวอาวุธ เกราะ เครื่องราง รองเท้าด้านบน |
 | badge | `icon.item.badge-<name>` (ของสะสมของผู้เล่น ไม่ใช่ `badge.class.*`) | เข็มกลัดกลมก้อนกลม · ภายในเป็น motif จาก style guide 8.1 | สัญลักษณ์ในหมวดห้ามของ style guide 8.2 |
+
+### 7.4 Icon ของ nav, Setting, logout และจอเร็วๆ นี้ (F10 · P2-F10-T02)
+ลำดับ nav ซ้ายไปขวา (D-148, F10-R32): Inventory, Upgrade, Map, Shop, Party · ป้ายทุกช่องมาจาก copy key ไม่อยู่ใน icon
+| ที่ใช้ | id | ไฟล์ | ใช้ซ้ำหรือใหม่ | ขนาดแสดง | tint |
+| --- | --- | --- | --- | --- | --- |
+| nav Inventory | `icon.ui.bag` | `art/assets/icon/ui/bag.svg` | **ใช้ซ้ำ ไม่แก้** | 24 | `currentColor` |
+| nav Upgrade | `icon.ui.enhance` | `art/assets/icon/ui/enhance.svg` | ใหม่ (7.1.2) | 24 · 48 บนจอเร็วๆ นี้ | `currentColor` |
+| nav Map | `icon.ui.map` | `art/assets/icon/ui/map.svg` | **ใช้ซ้ำ ไม่แก้** | 24 | `currentColor` |
+| nav Shop | `icon.ui.market` | `art/assets/icon/ui/market.svg` | ใหม่ (7.1.2) | 24 · 48 บนจอเร็วๆ นี้ | `currentColor` |
+| nav Party | `icon.ui.party` | `art/assets/icon/ui/party.svg` | ใหม่ (7.1.2) | 24 · 48 บนจอเร็วๆ นี้ | `currentColor` |
+| ปุ่ม Setting มุมบนขวา | `icon.ui.settings` | `art/assets/icon/ui/settings.svg` | **ใช้ซ้ำ ไม่แก้** (เฟือง 6 ซี่ ตรวจแล้ว) | 24 ในปุ่ม 48 × 48 | `currentColor` |
+| แถวออกจากระบบ | `icon.ui.logout` | `art/assets/icon/ui/logout.svg` | ใหม่ (7.1.2) · **ไม่ใช้ `exit.svg` ซ้ำ** | 24 | `currentColor` |
+| จอเร็วๆ นี้ (กรวย) | `icon.ui.coming-soon` | `art/assets/icon/ui/coming-soon.svg` | ใหม่ (7.1.2) | 32 บน plate 56 | `currentColor` |
+| ออกจาก run (คงเดิม ไม่อยู่ใน nav) | `icon.ui.exit` | `art/assets/icon/ui/exit.svg` | ใช้ที่เดิมบนแถบ run เท่านั้น ไม่แก้ | 24 | ตามเดิม |
+
+เหตุที่ไม่ใช้ `exit` กับ logout: `exit` = "ออกจาก run เอง" (7.1.1) และ logout ระหว่าง run ทำให้ run จบ (F10-R42) · ถ้า glyph เดียวกัน ผู้เล่นแยกไม่ออกว่ากดแล้วจบ run หรือออกจากบัญชี · logout จึงอยู่ตระกูล "บัญชี" (หัว avatar) ไม่ใช่ตระกูล "ประตู"
+
+กฎสถานะของ icon ใน nav (ขยายหัวข้อ 3 แถว active)
+| สถานะ | glyph | พื้นหลัง glyph | หมายเหตุ |
+| --- | --- | --- | --- |
+| ไม่ active | outline สีที่ code ส่ง = `ink.900` (กลางวัน) / `bg.paper` (กลางคืน) | ไม่มี pill | ห้ามซีด ห้าม opacity ห้าม `ink.500` แม้ช่องนั้นเป็นจอเร็วๆ นี้ |
+| active | outline เดิม สี `bg.paper` (กลางวัน) / `ink.900` (กลางคืน) | pill 48 × 32 เติม `ink.900` (กลางวัน) / `bg.paper` (กลางคืน) | "เติม `ink.900`" ของหัวข้อ 3 ทำด้วย pill หลัง glyph **ไม่ใช่ไฟล์ filled แยก** · 1 ช่อง = 1 ไฟล์ |
+| กดค้าง | outline `ink.900` | pill `ink.100` | ไม่ค้าง |
+
+- ทุก glyph ใน 7.4 ห้ามมี hex ตายตัว ห้าม fill สี · ถ้าวาดแล้วต้องการพื้นทึบเพื่ออ่านออก ให้แก้รูปทรงแทน (pill เป็นคนให้พื้น)
+- ห้ามทำ glyph ช่อง Map ให้ใหญ่หรือหนากว่าช่องอื่น · ห้ามวงกลมพื้นรอบ glyph ใดใน nav (วงกลม = class badge หัวข้อ 1)
+- ห้าม badge จุดแดงหรือตัวเลขซ้อนบน icon nav ใน Phase 2 (F10-R38)
+- บนจอเร็วๆ นี้ glyph ของช่อง 48 px ใช้ไฟล์ 24 scale 2 เท่า `stroke-width: 1.5` ตามหัวข้อ 2.1 · ไม่มีภาพเพิ่มที่อธิบายระบบ (F10-R36)
 
 ## 8. กฎ SVG และการส่งมอบ
 

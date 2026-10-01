@@ -13,8 +13,8 @@ bad()  { FAIL=$((FAIL + 1)); printf 'FAIL  %s  -- %s\n' "$1" "$2"; }
 skip() { SKIP=$((SKIP + 1)); printf 'SKIP  %s  -- %s\n' "$1" "$2"; }
 check() { local name="$1"; shift; if "$@" >/dev/null 2>&1; then ok "$name"; else bad "$name" "$*"; fi; }
 
-TMP="$(mktemp -d)"; SERVER_PID=""
-cleanup() { if [[ -n "$SERVER_PID" ]]; then kill "$SERVER_PID" 2>/dev/null; wait "$SERVER_PID" 2>/dev/null || true; fi; rm -rf "$TMP"; }
+TMP="$(mktemp -d)"; SERVER_PID=""; PROBE_PID=""
+cleanup() { local p; for p in "$SERVER_PID" "$PROBE_PID"; do [[ -n "$p" ]] && { kill "$p" 2>/dev/null; wait "$p" 2>/dev/null || true; }; done; rm -rf "$TMP"; }
 trap cleanup EXIT
 
 [[ -x "$PMTILES_BIN" ]] || "$TILES_DIR/bin/fetch-tools.sh" >/dev/null 2>&1 || true
@@ -131,6 +131,56 @@ while IFS=$'\t' read -r sname smaxz; do
     if diff -rq -x tiles.json "$TMP/sxyz" "$sfix/tiles/$sid" >/dev/null; then ok "$sname: XYZ = unpacked PMTiles"; else bad "$sname: XYZ = unpacked PMTiles" "diff -r"; fi
   fi
 done < <(jq -r '.screenFixtures.items[] | [.name, (.maxzoom | tostring)] | @tsv' "$CONFIG")
+
+# ---- build resolution (P2-X58, ADR 0004): synthetic builds.json, no network ----
+RB="$TILES_DIR/bin/resolve-build.sh"; EXP="$(cfg .schema.expectedMetadataVersion)"
+mk_index() { # mk_index <file> <key:version>... (uploaded = key date)
+  local f="$1"; shift
+  printf '%s\n' "$@" | jq -Rn --arg d "" '[inputs | split(":") | {key: (.[0] + ".pmtiles"), version: .[1],
+    uploaded: (.[0][0:4] + "-" + .[0][4:6] + "-" + .[0][6:8] + "T09:00:00Z"), size: 1, b3sum: "x"}]' >"$f"
+}
+rkey() { TILES_BUILD_KEY="${TBK:-}" "$RB" --no-probe --no-cache "$@" 2>/dev/null | jq -r '.key + " " + .resolution'; }
+mk_index "$TMP/idx1.json" "20260101:$EXP" "20260102:$EXP" "20260103:$EXP"
+mk_index "$TMP/idx2.json" "20260102:$EXP" "20260103:4.99.0" "20260104:4.99.0"
+check "resolve: pin listed with expected version -> pin" test "$(rkey --index "$TMP/idx1.json" --pin 20260102)" = "20260102 pinned"
+check "resolve: pin deleted upstream -> newest with expected version" test "$(rkey --index "$TMP/idx1.json" --pin 20251201)" = "20260103 latest-matching"
+check "resolve: pin listed with another version -> newest with expected version" test "$(rkey --index "$TMP/idx2.json" --pin 20260103)" = "20260102 latest-matching"
+check "resolve: after an upstream version bump -> the build kept for the expected version" test "$(rkey --index "$TMP/idx2.json" --pin 20251201)" = "20260102 latest-matching"
+check "resolve: newer upstream versions are reported" test "$("$RB" --no-probe --no-cache --index "$TMP/idx2.json" 2>/dev/null | jq -c .newer_versions)" = '["4.99.0"]'
+check "resolve: policy latest-matching ignores an older listed pin" test "$(rkey --index "$TMP/idx1.json" --pin 20260101 --policy latest-matching)" = "20260103 latest-matching"
+check "resolve: no build with the expected version -> exit 1" bash -c "! '$RB' --no-probe --no-cache --index '$TMP/idx2.json' --expected 9.9.9"
+check "resolve: policy pinned + pin deleted -> exit 1" bash -c "! '$RB' --no-probe --no-cache --index '$TMP/idx1.json' --pin 20251201 --policy pinned"
+check "resolve: TILES_BUILD_KEY forces that build" test "$(TBK=20260101 rkey --index "$TMP/idx1.json")" = "20260101 pinned"
+check "resolve: TILES_BUILD_KEY with another version -> exit 1" bash -c "! TILES_BUILD_KEY=20260103 '$RB' --no-probe --no-cache --index '$TMP/idx2.json'"
+check "resolve: source_url comes from sourceUrlTemplate" test "$("$RB" --no-probe --no-cache --index "$TMP/idx1.json" --pin 20260102 2>/dev/null | jq -r .source_url)" = "$(source_url_for 20260102)"
+# offline: index unreachable -> last resolution if cached with the expected version, else the pin
+export TILES_RESOLVED_CACHE="$TMP/resolved.json"
+"$RB" --no-probe --index "$TMP/idx1.json" --pin 20251201 >/dev/null 2>&1
+check "resolve: online run caches the resolution" jq -e '.key == "20260103"' "$TMP/resolved.json"
+check "resolve: offline -> last resolved build" test "$(TILES_BUILD_KEY='' "$RB" --no-probe --index "$TMP/nope.json" --pin 20251201 2>/dev/null | jq -r '.key + " " + .resolution')" = "20260103 offline-last-resolved"
+check "resolve: offline without cache -> pin" test "$(rkey --index "$TMP/nope.json" --pin 20251201)" = "20251201 offline-pin"
+unset TILES_RESOLVED_CACHE
+# probe: a listed build that answers 404 is skipped (local serve.py stands in for build.protomaps.com)
+mkdir -p "$TMP/probe"; cp "$ARCH" "$TMP/probe/20260102.pmtiles"
+pport="$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()')"
+python3 "$TILES_DIR/bin/serve.py" --root "$TMP/probe" --port "$pport" >/dev/null 2>&1 & PROBE_PID=$!
+for _ in $(seq 1 50); do curl -s -o /dev/null "http://127.0.0.1:$pport/" && break; sleep 0.1; done
+check "resolve: listed build answering 404 -> next build that answers 206" test "$("$RB" --no-cache --index "$TMP/idx1.json" --pin 20251201 \
+  --url-template "http://127.0.0.1:$pport/{build}.pmtiles" 2>/dev/null | jq -r .key)" = 20260102
+kill "$PROBE_PID" 2>/dev/null; wait "$PROBE_PID" 2>/dev/null || true; PROBE_PID=""
+# hard guard inside the archive and the manifest record of the build actually used
+if [[ -x "$PMTILES_BIN" ]]; then
+  check "check_archive_version passes on the fixture" bash -c "source '$TILES_DIR/bin/lib.sh'; check_archive_version '$ARCH'"
+  jq '.schema.expectedMetadataVersion = "9.9.9"' "$CONFIG" >"$TMP/cfg-ver.json"
+  check "check_archive_version fails when the archive version != expectedMetadataVersion" \
+    bash -c "! TILES_CONFIG='$TMP/cfg-ver.json' bash -c \"source '$TILES_DIR/bin/lib.sh'; check_archive_version '$ARCH'\""
+  cp -R "$FIX" "$TMP/mf"
+  ( TILES_RESOLVED_BUILD_KEY=20991231 SOURCE_URL="$(source_url_for 20991231)" BBOX="$(bbox_csv .fixture.bbox)" REGION_MODE=bbox MINZOOM=0
+    SOURCE_BUILD='{"pinned":"20260930","policy":"pinned-or-latest-matching","resolution":"latest-matching","version":"x","uploaded":null,"size":null,"b3sum":null,"index_url":"i","newer_versions":[]}'
+    write_manifest "$TMP/mf" "$ARCH" 15 "$ID" fixture ) >/dev/null 2>&1
+  check "manifest records the build actually used + resolution" jq -e '.build_key == "20991231" and (.source_url | contains("20991231"))
+    and .source_build.resolution == "latest-matching" and .source_build.pinned == "20260930"' "$TMP/mf/manifest.json"
+fi
 
 # ---- bbox vs province boundaries + mask hole (committed inputs, never skipped: P2-F04-T23) ----
 check "bbox covers all 6 provinces and the mask hole (verify-bbox.py, committed polygon)" python3 "$TILES_DIR/bin/verify-bbox.py"

@@ -1,453 +1,9 @@
 {
   "manifestVersion": 1,
   "avatarRig": 1,
-  "updated": "2026-09-27",
+  "updated": "2026-10-01",
   "baseDir": "art/assets",
   "assets": [
-    {
-      "id": "icon.item.armor-raincoat",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/armor-raincoat.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 543,
-          "width": 64,
-          "height": 64,
-          "sha256": "121180dde66f4c163b99bf951a4abb08c580ff80f0424f782d5c52bb87b0e3c3"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      },
-      "notes": "สีอ้างอิงชั่วคราวจาก ramp.cone (เสื้อกันฝนโทนส้ม) เพราะยังไม่มี ramp เสื้อกันฝนเฉพาะ · [ASSUMPTION P2-F05-T07-1]"
-    },
-    {
-      "id": "icon.item.boots-rain-boots",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/boots-rain-boots.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 559,
-          "width": 64,
-          "height": 64,
-          "sha256": "d3d173585f2832b061f5c15eed328773d777c67944bbd99e4d8bf3d0bc99c5e7"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      },
-      "notes": "สีอ้างอิงชั่วคราวจาก ramp.cone (คู่กับ armor-raincoat) · [ASSUMPTION P2-F05-T07-1]"
-    },
-    {
-      "id": "icon.item.charm-keychain",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/charm-keychain.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 493,
-          "width": 64,
-          "height": 64,
-          "sha256": "4ef7337d57827b03ea66b40301fe3eb13085797c55b0c45f98649bb3bf47dd99"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      },
-      "notes": "สีอ้างอิงชั่วคราวจาก ramp.wood (ตัวพวงกุญแจ) + วงแหวน ink.900 · [ASSUMPTION P2-F05-T07-1]"
-    },
-    {
-      "id": "icon.item.mat-dust",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/mat-dust.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 468,
-          "width": 64,
-          "height": 64,
-          "sha256": "a87ce8f1f5b21636c49ebbbe7755902fff60a289e6b5975bf4e16bb5d9cd9ff0"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.item.mat-essence",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/mat-essence.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 516,
-          "width": 64,
-          "height": 64,
-          "sha256": "56ce1cbb797c9a1effff8c6909471abee47b1da19b8b7c5c2034ff770ce23d80"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.item.mat-rift-stone",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/mat-rift-stone.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 561,
-          "width": 64,
-          "height": 64,
-          "sha256": "a427ab7cc8b82c4582f4931ed3008ab71c5f8322358914688472d8ae0042dcdf"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.item.potion-hp-large",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/potion-hp-large.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 688,
-          "width": 64,
-          "height": 64,
-          "sha256": "a97a094bc6ef2f49f45041e16a354dc8912c43d7bdcb3c2ea29148d64031e11c"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.item.potion-hp-medium",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/potion-hp-medium.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 681,
-          "width": 64,
-          "height": 64,
-          "sha256": "cae02cb15fa98073393f2b75e81bdd7629379f487773553c620327af6c383c80"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.item.potion-hp-small",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/potion-hp-small.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 671,
-          "width": 64,
-          "height": 64,
-          "sha256": "8671d73b59796b89593e981c89a392651745463f61bb189be798870b3844b810"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.item.potion-revive",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/potion-revive.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 849,
-          "width": 64,
-          "height": 64,
-          "sha256": "337ed99ea100f2150d9786075c7aac4cabd89d5bbba80cbe91d12514997345bf"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.item.weapon-folding-umbrella",
-      "kind": "icon-item",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 64,
-        "height": 64
-      },
-      "files": [
-        {
-          "path": "icon/item/weapon-folding-umbrella.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 635,
-          "width": 64,
-          "height": 64,
-          "sha256": "9d9427803a41c0e610aaed5e75f98f5da437de926d65f3e71c25ed5ba1dc6b2d"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      },
-      "notes": "สีอ้างอิงชั่วคราวจาก ramp.wood (ด้าม) และ ramp.asphalt (ผ้าร่มพับ) เพราะยังเข้าไม่ถึงสีจริงของ avatar.weapon.folding-umbrella master · [ASSUMPTION P2-F05-T07-1] ถ้าไม่ตรง art-director ปรับสีได้โดยไม่ต้องเปลี่ยน id"
-    },
     {
       "id": "icon.ui.bag",
       "kind": "icon-ui",
@@ -569,6 +125,47 @@
       }
     },
     {
+      "id": "icon.ui.coming-soon",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/coming-soon.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 565,
+          "width": 24,
+          "height": 24,
+          "sha256": "eaa783d1267f0cf1426eb5dbe23b2f6b88cefdb183465a96cbfa2a29e0418f0a"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T09",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): กรวยจราจรกั้นเลน ใช้บน plate 32 px ของจอเร็วๆ นี้ · outline currentColor ล้วน ไม่มี hex ตายตัว"
+    },
+    {
       "id": "icon.ui.consent",
       "kind": "icon-ui",
       "status": "draft",
@@ -687,6 +284,47 @@
         "reservedFontName": null,
         "modified": false
       }
+    },
+    {
+      "id": "icon.ui.enhance",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/enhance.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 841,
+          "width": 24,
+          "height": 24,
+          "sha256": "c1f0fffadd74202269be903534a72e897d241414341767e4ef3fe9c2df6549f5"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T09",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "icon-grammar 7.1.2 (P2-F10-T02) · nav Upgrade · resume P2-F10-T09: เพิ่มความลึกฟันเลื่อยฐาน (ผ่อน valley จาก y19 เป็น y18, tip คงที่ y21) และขยับวง % ขึ้น + ลด r เหลือ 1.2 ให้มีช่องว่างจากฐานซิกแซกและเส้นรายการชัดเจน แก้ปัญหา \"ฐานซิกแซกเป็นก้อน\" และ \"% ทับ\" ของรอบก่อน โดยไม่แตะโครงเดิม (ใบเสร็จ + เส้นรายการ 2 เส้น + % ครึ่งล่าง) จบใน 1 รอบแก้"
     },
     {
       "id": "icon.ui.exit",
@@ -1130,6 +768,47 @@
       }
     },
     {
+      "id": "icon.ui.logout",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/logout.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 492,
+          "width": 24,
+          "height": 24,
+          "sha256": "acab35dc87ba7f19083074a64501b8c0b1efdefd0360d0afe3ba1356b816af52"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T09",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "icon-grammar 7.1.2 (P2-F10-T02) · D-157: glyph ใหม่ตระกูล \"บัญชี\" (หัว avatar ย่อ + ลูกศรหัวเปิดก้านสั้น 7 ชี้ขวา) ไม่ใช้ icon.ui.exit ซ้ำ เพราะ exit = ออกจาก run เอง"
+    },
+    {
       "id": "icon.ui.map",
       "kind": "icon-ui",
       "status": "draft",
@@ -1170,6 +849,47 @@
       }
     },
     {
+      "id": "icon.ui.market",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/market.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 463,
+          "width": 24,
+          "height": 24,
+          "sha256": "6e69c37027dc40290781605c136778499133655f5eff081649449e4e527ae01f"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T09",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): nav Shop · ป้ายราคาเอียง 45° + รูร้อย + เชือกโค้ง ไม่มีตาชั่งหรือสัญลักษณ์สกุลเงินจริง"
+    },
+    {
       "id": "icon.ui.navigate",
       "kind": "icon-ui",
       "status": "draft",
@@ -1208,6 +928,47 @@
         "reservedFontName": null,
         "modified": false
       }
+    },
+    {
+      "id": "icon.ui.party",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/party.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 485,
+          "width": 24,
+          "height": 24,
+          "sha256": "9527bceb20b3f3f057d848613d4f648a7fdf03adefe113772f5dbcd3b1250ccb"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T09",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "icon-grammar 7.1.2/7.4 (P2-F10-T02): nav Party · หัวก้อนกลม 2 หัวซ้อนเยื้อง (หน้า d8 หลัง d7 เว้นเส้นแทน fill) ไม่มีหัวที่ 3 ไม่มีจุด/ตัวเลข"
     },
     {
       "id": "icon.ui.potion-used",
@@ -1411,6 +1172,88 @@
       }
     },
     {
+      "id": "icon.ui.shuffle",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/shuffle.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 680,
+          "width": 24,
+          "height": 24,
+          "sha256": "ad1b367d582816d2732d54bc2ff4cf94528b8320cc845a08a380c37255d70ed2"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T09",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "icon-grammar 7.1.2 (P2-F10-T02): สุ่มชื่อตัวละคร · ป้ายชื่อ 2 ใบซ้อนเยื้องทแยง + ลูกศรหัวเปิดโค้งสลับทิศ ไม่ใช่ลูกเต๋า/ไพ่/วงล้อ/ลูกศรวงกลมปิด"
+    },
+    {
+      "id": "icon.ui.sign-in",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 24,
+        "height": 24
+      },
+      "files": [
+        {
+          "path": "icon/ui/sign-in.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 492,
+          "width": 24,
+          "height": 24,
+          "sha256": "6e5d6156575289769c9f55a1e5545c7cbdd01b90acb2ab7c930c707c4e1f35f9"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F10-T09",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-10-01"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "icon-grammar 7.1.2 (P2-F10-T02): ปุ่มผู้ให้บริการบนจอ login (glyph กลาง) · กระจกของ icon.ui.logout ลูกศรชี้เข้าหาหัว avatar ไม่ชี้ถึงแบรนด์ใด"
+    },
+    {
       "id": "icon.ui.signal-wait",
       "kind": "icon-ui",
       "status": "draft",
@@ -1570,449 +1413,6 @@
         "reservedFontName": null,
         "modified": false
       }
-    },
-    {
-      "id": "icon.ui16.closed",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/closed.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 297,
-          "width": 16,
-          "height": 16,
-          "sha256": "c3b3e8a956596aa0892ea7fd200ac2feff8a75f657d8294c9d18de141e33fb0c"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.ui16.closing-soon",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/closing-soon.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 212,
-          "width": 16,
-          "height": 16,
-          "sha256": "cd6704aad35a77accfbe773f359c8d63ceb0563c25131bb3fe9caa64d47581a9"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.ui16.gate-miss",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/gate-miss.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 184,
-          "width": 16,
-          "height": 16,
-          "sha256": "7e1c80bbcf7af5c791e86aba1a9bd43d0ade0a55abd1aeaf4f3c8d44e9651acd"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.ui16.gate-pass",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/gate-pass.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 337,
-          "width": 16,
-          "height": 16,
-          "sha256": "fb05fe165d7042372b549327012d6306a4790ad36b91f40b743b4da178f7c7f4"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.ui16.grace",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/grace.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 154,
-          "width": 16,
-          "height": 16,
-          "sha256": "9155b8f9cf6c4f7439187fd9941da63b93c5ea749411b8d7f210d04e0bfdf28a"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.ui16.help",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/help.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 355,
-          "width": 16,
-          "height": 16,
-          "sha256": "7e00b763e2d610a75103084bc581f47941570370d3cb7337156d4bf3265ba3e0"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.ui16.hp",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/hp.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 224,
-          "width": 16,
-          "height": 16,
-          "sha256": "2cb15ad3e2edaf85a25f7fac37d3a3060fb712f31f8c71ed7976324129ed6158"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.ui16.in-run",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/in-run.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 249,
-          "width": 16,
-          "height": 16,
-          "sha256": "51b395c8be6104d50a2e37e000fa8c01b7cd63d3df6af544b405a4dd4bf7c801"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-X26",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      },
-      "notes": "P2-X26 (art-director review P2-H17, V-23+V-25): fill/stroke #1A1A22 คงที่ → currentColor (16 px อยู่กลุ่มสีเดียวกับ icon.ui.in-run 24 px เสมอตามกฎใหม่ icon-grammar 8) พร้อมขยับจุดยอดบน y=1.4→2 กันปลาย miter ล้นขอบ · tools/art stage จะคำนวณ tintable:true ให้ id นี้อัตโนมัติจากการสแกน currentColor"
-    },
-    {
-      "id": "icon.ui16.location-off",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/location-off.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 379,
-          "width": 16,
-          "height": 16,
-          "sha256": "61ef07ffbfeb80ff97e616745d1101f00e2855158350ba7c7bca729756ac1f9e"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-F05-T07",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      }
-    },
-    {
-      "id": "icon.ui16.rift",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/rift.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 239,
-          "width": 16,
-          "height": 16,
-          "sha256": "b8843c9e4125d93d4725f5bbc7f144fd421783ec3a03791deb2cd6b3854ea2bd"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-X26",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      },
-      "notes": "P2-X26 (art-director review P2-H17, V-25): ขยับจุดยอดบน y=1.4→2 กันปลาย miter ล้นขอบ viewBox (path เดียวกับ icon.ui16.in-run ทุกพิกัดหลังแก้ ไม่แตะสี — ยังตายตัวเหมือนเดิม)"
-    },
-    {
-      "id": "icon.ui16.suspended",
-      "kind": "icon-ui",
-      "status": "draft",
-      "placeholder": false,
-      "size": {
-        "width": 16,
-        "height": 16
-      },
-      "files": [
-        {
-          "path": "icon/ui16/suspended.svg",
-          "format": "svg",
-          "scale": null,
-          "variant": null,
-          "bytes": 209,
-          "width": 16,
-          "height": 16,
-          "sha256": "7b20d4ab08f151648a6086ca9692f803df9dcf2dac2da9413105d09a18c0396e"
-        }
-      ],
-      "source": {
-        "method": "agent-svg",
-        "author": "artist-2d",
-        "task": "P2-X26",
-        "master": null,
-        "prompt": null,
-        "tool": null,
-        "origin": null,
-        "date": "2026-09-27"
-      },
-      "license": {
-        "spdx": "LicenseRef-KeepWalking-Original",
-        "holder": "keep-walking studio",
-        "file": null,
-        "attribution": null,
-        "reservedFontName": null,
-        "modified": false
-      },
-      "notes": "P2-X26 (art-director review P2-H17, V-24, D-123): ไฟล์เดิมไม่มีขอบหมึกเลย (fill=#006699 ไม่มี stroke) ตกบนพื้น state.info เดียวกันสนิท (contrast 1.00) — แก้เป็น fill=#FFFFFF (bg.surface) เพิ่ม stroke=#1A1A22 stroke-width=2 stroke-linejoin=round บน path เดิม ไม่มี currentColor (ตายตัวเหมือน icon.ui.suspended 24 px)"
     }
   ]
 }

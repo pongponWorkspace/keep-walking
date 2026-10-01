@@ -1,0 +1,631 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/balance/character.schema.json",
+  "title": "config/balance/character.json",
+  "description": "Character-name filter and random-name rules, file version 2 (D-146, P2-F10-T04, P2-H64, tech note F10 section 7). Structure only here; cross-field rules (range from <= to, maxGraphemes >= minGraphemes, maxDigitRun <= maxTotalDigits, lexicon paths exist, fallbacks fit the length and charset) live in tools/config-lint/src/character.ts. Lexicon fields are generic dot paths into the file named by lexiconRef, so the content file can change shape without a schema change here.",
+  "type": "object",
+  "required": ["_meta", "name", "contact", "banned", "random"],
+  "properties": {
+    "_meta": {
+      "$ref": "../common.schema.json#/$defs/meta"
+    },
+    "_source": {
+      "$ref": "../common.schema.json#/$defs/source"
+    },
+    "name": {
+      "type": "object",
+      "required": [
+        "minGraphemes",
+        "maxGraphemes",
+        "lengthUnit",
+        "segmenter",
+        "normalize",
+        "allowed",
+        "letters",
+        "requireLetter",
+        "thaiMarks",
+        "thaiMarkBases",
+        "toneMarks",
+        "maxCodePointsPerGrapheme",
+        "maxToneMarksPerGrapheme",
+        "rejectRepeatedMarkInGrapheme",
+        "checkOrder"
+      ],
+      "properties": {
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "minGraphemes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxGraphemes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lengthUnit": {
+          "const": "graphemeCluster"
+        },
+        "segmenter": {
+          "type": "object",
+          "required": ["api", "locale", "granularity"],
+          "properties": {
+            "_source": {
+              "$ref": "../common.schema.json#/$defs/source"
+            },
+            "api": {
+              "const": "Intl.Segmenter"
+            },
+            "locale": {
+              "type": "string",
+              "pattern": "^[a-z]{2}$"
+            },
+            "granularity": {
+              "const": "grapheme"
+            }
+          },
+          "patternProperties": {
+            "^_": {}
+          },
+          "additionalProperties": false
+        },
+        "normalize": {
+          "type": "object",
+          "required": ["form", "stripCodePoints", "mapToSpace", "trimSpaces", "collapseSpaces"],
+          "properties": {
+            "_source": {
+              "$ref": "../common.schema.json#/$defs/source"
+            },
+            "form": {
+              "$ref": "#/$defs/normalForm"
+            },
+            "stripCodePoints": {
+              "$ref": "#/$defs/rangeList"
+            },
+            "mapToSpace": {
+              "$ref": "#/$defs/rangeList"
+            },
+            "trimSpaces": {
+              "type": "boolean"
+            },
+            "collapseSpaces": {
+              "type": "boolean"
+            }
+          },
+          "patternProperties": {
+            "^_": {}
+          },
+          "additionalProperties": false
+        },
+        "allowed": {
+          "$ref": "#/$defs/nonEmptyRangeList"
+        },
+        "letters": {
+          "$ref": "#/$defs/nonEmptyRangeList"
+        },
+        "requireLetter": {
+          "type": "boolean"
+        },
+        "thaiMarks": {
+          "$ref": "#/$defs/rangeList"
+        },
+        "thaiMarkBases": {
+          "$ref": "#/$defs/rangeList"
+        },
+        "toneMarks": {
+          "$ref": "#/$defs/rangeList"
+        },
+        "maxCodePointsPerGrapheme": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "maxToneMarksPerGrapheme": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rejectRepeatedMarkInGrapheme": {
+          "type": "boolean"
+        },
+        "checkOrder": {
+          "type": "array",
+          "minItems": 11,
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/rejectReason"
+          }
+        }
+      },
+      "patternProperties": {
+        "^_": {}
+      },
+      "additionalProperties": false
+    },
+    "contact": {
+      "type": "object",
+      "required": ["detectionForm", "phone", "email", "url"],
+      "properties": {
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "detectionForm": {
+          "type": "object",
+          "required": ["form", "lowercase"],
+          "properties": {
+            "_source": {
+              "$ref": "../common.schema.json#/$defs/source"
+            },
+            "form": {
+              "$ref": "#/$defs/normalForm"
+            },
+            "lowercase": {
+              "type": "boolean"
+            }
+          },
+          "patternProperties": {
+            "^_": {}
+          },
+          "additionalProperties": false
+        },
+        "phone": {
+          "type": "object",
+          "required": ["digits", "separators", "maxDigitRun", "maxTotalDigits"],
+          "properties": {
+            "_source": {
+              "$ref": "../common.schema.json#/$defs/source"
+            },
+            "digits": {
+              "$ref": "#/$defs/nonEmptyRangeList"
+            },
+            "separators": {
+              "$ref": "#/$defs/markerList"
+            },
+            "maxDigitRun": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxTotalDigits": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "patternProperties": {
+            "^_": {}
+          },
+          "additionalProperties": false
+        },
+        "email": {
+          "type": "object",
+          "required": ["markers"],
+          "properties": {
+            "_source": {
+              "$ref": "../common.schema.json#/$defs/source"
+            },
+            "markers": {
+              "$ref": "#/$defs/nonEmptyMarkerList"
+            }
+          },
+          "patternProperties": {
+            "^_": {}
+          },
+          "additionalProperties": false
+        },
+        "url": {
+          "type": "object",
+          "required": ["markers", "tlds", "spelledMarkers"],
+          "properties": {
+            "_source": {
+              "$ref": "../common.schema.json#/$defs/source"
+            },
+            "markers": {
+              "$ref": "#/$defs/nonEmptyMarkerList"
+            },
+            "tlds": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+$"
+              }
+            },
+            "spelledMarkers": {
+              "$ref": "#/$defs/markerList"
+            }
+          },
+          "patternProperties": {
+            "^_": {}
+          },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": {
+        "^_": {}
+      },
+      "additionalProperties": false
+    },
+    "banned": {
+      "description": "v2 (P2-H64). passes = named normalization pipelines; modes = which pass and which lexicon list each match uses; allow = lexicon lists removed before matching. Cross-field rules (pass names resolve, lexicon paths resolve, terms use termCharset, no term empty after its pass) live in tools/config-lint/src/character.ts.",
+      "type": "object",
+      "required": ["lexiconRef", "termCharset", "passes", "modes", "allow"],
+      "properties": {
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "lexiconRef": {
+          "$ref": "#/$defs/lexiconRef"
+        },
+        "termCharset": {
+          "description": "Dot path inside this file to the range list every term must fit.",
+          "$ref": "#/$defs/lexiconPath"
+        },
+        "passes": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^_": {},
+            "^[a-z][A-Za-z0-9]*$": {
+              "$ref": "#/$defs/pass"
+            }
+          },
+          "additionalProperties": false
+        },
+        "modes": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^_": {},
+            "^[a-z][A-Za-z0-9]*$": {
+              "type": "object",
+              "required": ["pass", "termsKey", "collect", "match"],
+              "properties": {
+                "_source": {
+                  "$ref": "../common.schema.json#/$defs/source"
+                },
+                "pass": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "termsKey": {
+                  "$ref": "#/$defs/lexiconPath"
+                },
+                "collect": {
+                  "enum": ["array", "categoryArrays"]
+                },
+                "match": {
+                  "enum": ["contains", "wholeOrToken"]
+                }
+              },
+              "patternProperties": {
+                "^_": {}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "allow": {
+          "type": "object",
+          "patternProperties": {
+            "^_": {},
+            "^[a-z][A-Za-z0-9]*$": {
+              "type": "object",
+              "required": ["key", "removal"],
+              "properties": {
+                "_source": {
+                  "$ref": "../common.schema.json#/$defs/source"
+                },
+                "key": {
+                  "$ref": "#/$defs/lexiconPath"
+                },
+                "removal": {
+                  "enum": ["longestAtPosition"]
+                }
+              },
+              "patternProperties": {
+                "^_": {}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": {
+        "^_": {}
+      },
+      "additionalProperties": false
+    },
+    "random": {
+      "description": "v2 (P2-H64). pattern must equal the lexicon value at patternKey; template = ordered lexicon paths, one pick per part; fallbackKey = lexicon path of the fallback list (non-empty, every entry passes validate).",
+      "type": "object",
+      "required": [
+        "lexiconRef",
+        "patternKey",
+        "pattern",
+        "template",
+        "joiner",
+        "fallbackKey",
+        "maxAttempts",
+        "pick"
+      ],
+      "properties": {
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "lexiconRef": {
+          "$ref": "#/$defs/lexiconRef"
+        },
+        "patternKey": {
+          "$ref": "#/$defs/lexiconPath"
+        },
+        "pattern": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9]*$"
+        },
+        "template": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/lexiconPath"
+          }
+        },
+        "joiner": {
+          "type": "string"
+        },
+        "fallbackKey": {
+          "$ref": "#/$defs/lexiconPath"
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pick": {
+          "const": "floorUniform"
+        }
+      },
+      "patternProperties": {
+        "^_": {}
+      },
+      "additionalProperties": false
+    }
+  },
+  "patternProperties": {
+    "^_": {}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "codePoint": {
+      "type": "string",
+      "pattern": "^U\\+[0-9A-F]{4,6}$"
+    },
+    "range": {
+      "type": "object",
+      "required": ["from", "to", "label"],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/codePoint"
+        },
+        "to": {
+          "$ref": "#/$defs/codePoint"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "rangeList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/range"
+      }
+    },
+    "nonEmptyRangeList": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/range"
+      }
+    },
+    "markerList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "nonEmptyMarkerList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "normalForm": {
+      "enum": ["NFC", "NFKC"]
+    },
+    "rejectReason": {
+      "enum": [
+        "empty",
+        "email",
+        "url",
+        "phone",
+        "charset",
+        "misplacedMark",
+        "stackedMarks",
+        "noLetter",
+        "tooShort",
+        "tooLong",
+        "banned"
+      ]
+    },
+    "lexiconRef": {
+      "description": "Repo-relative path of the content lexicon (config-lint checks it is a loaded config file).",
+      "type": "string",
+      "pattern": "^config/content/[a-z][a-z0-9.-]*\\.json$"
+    },
+    "lexiconPath": {
+      "description": "Dot path into the lexicon file. config-lint checks it resolves to a string list, or to an object whose non-underscore values are string lists.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9]*(\\.[A-Za-z][A-Za-z0-9]*)*$"
+    },
+    "char": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2
+    },
+    "charList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/char"
+      }
+    },
+    "passStep": {
+      "type": "object",
+      "required": ["op", "label"],
+      "properties": {
+        "op": {
+          "enum": [
+            "nameNormalize",
+            "lowercaseLatin",
+            "removeCodePoints",
+            "latinRunMap",
+            "removeChars",
+            "mapCodePointRange",
+            "collapseRepeats"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ranges": {
+          "$ref": "#/$defs/nonEmptyRangeList"
+        },
+        "runCodePoints": {
+          "$ref": "#/$defs/nonEmptyRangeList"
+        },
+        "letterCodePoints": {
+          "$ref": "#/$defs/nonEmptyRangeList"
+        },
+        "runChars": {
+          "$ref": "#/$defs/charList"
+        },
+        "chars": {
+          "$ref": "#/$defs/charList"
+        },
+        "map": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["from", "to"],
+            "properties": {
+              "from": {
+                "$ref": "#/$defs/char"
+              },
+              "to": {
+                "$ref": "#/$defs/char"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "from": {
+          "$ref": "#/$defs/codePoint"
+        },
+        "to": {
+          "$ref": "#/$defs/codePoint"
+        },
+        "toStart": {
+          "$ref": "#/$defs/codePoint"
+        }
+      },
+      "patternProperties": {
+        "^_": {}
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "removeCodePoints"
+              }
+            }
+          },
+          "then": {
+            "required": ["ranges"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "latinRunMap"
+              }
+            }
+          },
+          "then": {
+            "required": ["runCodePoints", "runChars", "letterCodePoints", "map"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "removeChars"
+              }
+            }
+          },
+          "then": {
+            "required": ["chars"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "mapCodePointRange"
+              }
+            }
+          },
+          "then": {
+            "required": ["from", "to", "toStart"]
+          }
+        }
+      ]
+    },
+    "pass": {
+      "type": "object",
+      "required": ["steps"],
+      "properties": {
+        "_source": {
+          "$ref": "../common.schema.json#/$defs/source"
+        },
+        "base": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9]*$"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/passStep"
+          }
+        }
+      },
+      "patternProperties": {
+        "^_": {}
+      },
+      "additionalProperties": false
+    }
+  }
+}

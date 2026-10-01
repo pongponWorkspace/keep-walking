@@ -383,6 +383,8 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 | `kw.p2.onboarding` | client (P2-F06-T09) | `{ schemaVersion: 1, introSeen: bool, ageGatePassed: bool, consentAnswered: bool, firstOpenAt_ms: number }` | ปีเกิด, ช่วงอายุ (R45) |
 | `kw.p2.consent` | client | `{ schemaVersion: 1, location: 'granted' \| 'declined' \| 'withdrawn' }` | เวลาที่ให้ consent, ข้อความ |
 | `kw.p2.interest` | client | `{ schemaVersion: 1, scope: 'district' \| 'province', areaId: string } \| null` (id จากรายการใน content) | พิกัด, ข้อความอิสระ (R53) |
+| `kw.p2.account` | client (F10, P2-F10-T07) | `{ provider: 'google' \| 'apple' \| 'email', signedIn: bool }` ใน envelope v1 · เขียนหลังผ่าน age gate เท่านั้น · logout ปลด `signedIn` อย่างเดียว (tech note F10 2.1) | อีเมล, password, token, ข้อมูลจาก provider |
+| `kw.p2.character` | client (F10, P2-F10-T07) | `{ name: string, storyDone: bool }` ใน envelope v1 (tech note F10 2.2) | class (อยู่ใน `player`), ข้อความอื่นที่พิมพ์ |
 | `kw.p2.settings.<name>` | client | ค่าตั้งของ UI ที่ไม่มีผลต่อเกม **หนึ่ง key ต่อหนึ่งค่า** (ไม่ใช่ object รวม) · Phase 2: `kw.p2.settings.pocketScreenEnabled` (`ui/settings-walking-safety.ts`), `kw.p2.settings.pocketWakeHintShown`, `kw.p2.settings.screenLockNoticeShown` (`ui/pocket-screen.ts`) · ดู 8.5 | auto-retreat (อยู่ใน `player` เพราะมีผลต่อ hit) |
 | `kw.p2.telemetry` | client (มีแล้ว) | ring buffer (F04 12.2) | พิกัด |
 
@@ -394,23 +396,16 @@ hpAt(player.hp, t) = t ≤ anchorAt_ms ? value
 
 ### 8.2 ขั้นของ onboarding และแหล่งความจริงเดียว
 
-| ขั้น (R36) | ผ่านเมื่อ | แหล่ง |
-| --- | --- | --- |
-| `intro` | `kw.p2.onboarding.introSeen` | client |
-| `age` | `ageGatePassed` | client |
-| `consent` | `consentAnswered` (ตอบแล้ว ไม่ว่ารับหรือปฏิเสธ · R48) | client |
-| `class` | `player.classId ≠ null` | engine |
-| `first_run_entered` | `player.firstRunEnteredAt_ms ≠ null` (engine ตั้งที่ `dungeon_entered` ครั้งแรก) | engine |
-| `first_reward` | `player.lifetimeTicksGranted > 0` | engine |
+**แทนที่โดย tech note F10 หัวข้อ 3 (P2-F10-T07, D-149).** ลำดับใหม่ `intro → login → age → consent → permission → character → story → map → first_run → first_reward → done` · ตารางขั้น → ธง → แหล่งความจริงเดียวอยู่ที่ `docs/tech/F10-account-shell.md` 3.1 · ขั้น `class` เดิมรวมเข้า `character` และ `mapAcknowledged` ถูกลบ · สิ่งที่ยังเป็นของหัวข้อนี้:
 
-- ขั้นที่ engine รู้อยู่แล้วไม่ถูกเก็บซ้ำใน `kw.p2.onboarding` · ถ้ามีสองแหล่งจะขัดกันได้เมื่อ storage เขียนสำเร็จไม่พร้อมกัน
-- เปิดแอปใหม่: ไปขั้นแรกที่ยังไม่ผ่านตามลำดับ R44 (`intro → age → consent → permission → map → class`) · `permission` ไม่มีธง: ถามเบราว์เซอร์ตรง (`navigator.permissions` ถ้ามี) เมื่อ `consent.location = granted` · ปฏิเสธ consent ข้ามไป `map` ที่สถานะไม่รู้ตำแหน่ง แล้วเลือก class ได้ตามปกติ (R48)
-- `O-nearest` / `O-home` / `O-first-run` / `O-done` ของ spec หัวข้อ 4 คำนวณจากสถานะที่บ้าน (หัวข้อ 9) + ธงของ engine ไม่มี state ของตัวเอง
-- บรรทัด tutorial ของ run แสดงเมื่อ `lifetimeTicksGranted = 0` (R38) · onboarding จบเมื่อ `lifetimeTicksGranted > 0` แม้ run นั้นจบด้วย `death` ภายหลัง (R40 · ค่านี้ไม่ลดเมื่อตาย)
+- ขั้นที่ engine รู้อยู่แล้ว (`player.classId`, `firstRunEnteredAt_ms`, `lifetimeTicksGranted`) ไม่ถูกเก็บซ้ำใน `kw.p2.onboarding` · ถ้ามีสองแหล่งจะขัดกันได้เมื่อ storage เขียนสำเร็จไม่พร้อมกัน
+- `permission` ไม่มีธง: ถามเบราว์เซอร์ตรงผ่าน LocationProvider (`navigator.permissions` ถ้ามี) เมื่อ `consent.location = granted` · ปฏิเสธ consent ข้าม `permission` ไป `character` ที่สถานะไม่รู้ตำแหน่ง (F10-R03)
+- `O-nearest` / `O-home` / `O-first-run` / `O-done` คำนวณจากสถานะที่บ้าน (หัวข้อ 9) + ธงของ engine ไม่มี state ของตัวเอง
+- บรรทัด tutorial ของ run แสดงเมื่อ `lifetimeTicksGranted = 0` (R38) · onboarding จบเมื่อ `lifetimeTicksGranted > 0` แม้ run นั้นจบด้วย `death` ภายหลัง (R40)
 
 ### 8.3 ลบข้อมูลในเครื่อง (R49, H-E23, C2-6)
 
-- ขอบเขต: ทุก key ที่ขึ้นต้น `app.privacy.localData.storageKeyPrefix` (`kw.p2.`) ตาม `clearScope = allKeysWithPrefix` · ผลคือ class, HP, inventory, onboarding, สรุป run, ความสนใจ, consent, telemetry หายทั้งหมด แล้วเขียน `local_data_cleared` เป็นบรรทัดแรกของ ring buffer ใหม่ และโหลดหน้าใหม่เข้า onboarding (F04 10.4 · มีแล้วใน `clear-local-data.ts`)
+- ขอบเขต: ทุก key ที่ขึ้นต้น `app.privacy.localData.storageKeyPrefix` (`kw.p2.`) ตาม `clearScope = allKeysWithPrefix` · ผลคือ class, HP, inventory, onboarding, สรุป run, ความสนใจ, consent, telemetry, account และชื่อตัวละคร (F10-R44) หายทั้งหมด แล้วเขียน `local_data_cleared` เป็นบรรทัดแรกของ ring buffer ใหม่ และโหลดหน้าใหม่เข้า onboarding (F04 10.4 · มีแล้วใน `clear-local-data.ts`)
 - **ปิดระหว่าง run:** session เพิ่ม selector `selectCanClearLocalData(state) = state.run === null` · ปุ่มในตั้งค่า disabled เมื่อ `false` · ฟังก์ชัน `clearLocalData` ของ client ต้องรับผลของ selector นี้และปฏิเสธเมื่อมี run (กันการเรียกจากที่อื่น) · `lastSummary` ที่ยังไม่ปิดไม่บล็อก
 - หลังลบ: `createSession` ใหม่ → `classId: null`, HP เต็ม, auto-retreat ตามค่าเริ่ม (R22), inventory ว่าง
 - การถอน consent ตำแหน่ง (R48) ไม่ใช่การลบข้อมูล และ **ไม่รอ run จบ** ต่างจากปุ่มลบข้อมูล · ลำดับและผลอยู่ใน 8.4 (แทนข้อความเดิมของฉบับแรกที่ให้ run ไหลเป็น Grace → Suspended → `timeout` ซึ่ง B-06 / D-116 ยกเลิกแล้ว)

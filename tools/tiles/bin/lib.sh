@@ -53,7 +53,25 @@ platform_key() {
 PMTILES_VERSION="$(cfg .tools.pmtiles.version)"
 PMTILES_BIN="$DOWNLOADS/pmtiles-$PMTILES_VERSION/pmtiles"
 
-build_key()  { cfg .schema.buildKey; }
+# build_key: the build actually used after use_resolved_build (P2-X58), else the config preference.
+build_key()  { if [[ -n "${TILES_RESOLVED_BUILD_KEY:-}" ]]; then printf '%s' "$TILES_RESOLVED_BUILD_KEY"; else cfg .schema.buildKey; fi; }
+source_url_for() { local t; t="$(cfg .schema.sourceUrlTemplate)"; printf '%s' "${t//\{build\}/$1}"; }
+
+# use_resolved_build [resolve-build.sh args...] : pick the build (bin/resolve-build.sh, ADR 0004)
+# and set TILES_RESOLVED_BUILD_KEY, SOURCE_URL and SOURCE_BUILD (JSON, written into manifest.json).
+use_resolved_build() {
+  SOURCE_BUILD="$("$TILES_DIR/bin/resolve-build.sh" "$@")" || die "no usable Protomaps build (see the message above)"
+  TILES_RESOLVED_BUILD_KEY="$(jq -r .key <<<"$SOURCE_BUILD")"
+  SOURCE_URL="$(jq -r .source_url <<<"$SOURCE_BUILD")"
+  export TILES_RESOLVED_BUILD_KEY SOURCE_URL SOURCE_BUILD
+}
+
+# check_archive_version <archive> : the hard schema guard (tech note 5.1), independent of builds.json.
+check_archive_version() {
+  local ver; ver="$("$PMTILES_BIN" show --metadata "$1" | jq -r .version)"
+  [[ "$ver" == "$(cfg .schema.expectedMetadataVersion)" ]] \
+    || die "schema version $ver in $1 != pinned $(cfg .schema.expectedMetadataVersion) (tech note 5.1)"
+}
 tileset_id() { # tileset_id <maxzoom>
   cfg .schema.tilesetIdTemplate | sed -e "s/{build}/$(build_key)/" -e "s/{maxzoom}/$1/"
 }

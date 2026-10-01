@@ -58,7 +58,9 @@
     "_source": {
       "storageKeyPrefix": "ADR 0003 3.4 C1-5 (every localStorage key / IndexedDB name of Phase 2 starts with kw.p2.)",
       "clearScope": "C2-6 (button to delete on-device data, P2-F06-T09); docs/tech/F04-dungeon-presence.md 10.4",
-      "onQuotaExceeded": "board P2-F04-T14 acceptance (storage full: drop telemetry before run state); docs/tech/F04-dungeon-presence.md 10.3"
+      "onQuotaExceeded": "board P2-F04-T14 acceptance (storage full: drop telemetry before run state); docs/tech/F04-dungeon-presence.md 10.3",
+      "keys": "docs/tech/F06-hp-damage-onboarding.md 8.1; docs/tech/F10-account-shell.md 2 (P2-F10-T07); design/features/F10-account-shell.md R13, R41, R49",
+      "onSignOut": "design/features/F10-account-shell.md R41 (sign-out clears the signed-in flag only, no other key); decision 5 of that spec (sign-out is not delete)"
     },
     "storageKeyPrefix": "kw.p2.",
     "clearScope": "allKeysWithPrefix",
@@ -68,7 +70,67 @@
       "neverEvictFor": "telemetry",
       "lastResort": "keepSessionInMemoryAndFlag"
     },
-    "_note": "Clearing removes every key with the prefix (session, telemetry, consent, settings) and reloads into onboarding. Telemetry writes never evict the session; a session write that hits the quota first trims then clears the telemetry ring buffer, and only then keeps the session in memory with a visible storage-degraded flag. Nothing here leaves the device"
+    "_note": "Clearing removes every key with the prefix (session, telemetry, consent, settings) and reloads into onboarding. Telemetry writes never evict the session; a session write that hits the quota first trims then clears the telemetry ring buffer, and only then keeps the session in memory with a visible storage-degraded flag. Nothing here leaves the device. keys lists every Phase 2 key (kw.p2.settings. is a prefix of one-value keys); writtenAfterAgeGate false only for kw.p2.onboarding, whose introSeen is written on the start screen before the age gate (F06). neverStored names fields no kw.p2.* value may carry (F10-R49, R50); the F10 storage writers and their tests check against it. onSignOut: sign-out rewrites kw.p2.account with signedIn false and touches nothing else",
+    "keys": [
+      {
+        "key": "kw.p2.session",
+        "owner": "engine",
+        "contains": "SessionState incl. player (class, level, exp, HP, auto-retreat, inventory)",
+        "writtenAfterAgeGate": true
+      },
+      {
+        "key": "kw.p2.onboarding",
+        "owner": "client",
+        "contains": "introSeen, ageGatePassed, consentAnswered, firstOpenAt_ms",
+        "writtenAfterAgeGate": false
+      },
+      {
+        "key": "kw.p2.consent",
+        "owner": "client",
+        "contains": "location consent answer",
+        "writtenAfterAgeGate": true
+      },
+      {
+        "key": "kw.p2.interest",
+        "owner": "client",
+        "contains": "district or province id of interest",
+        "writtenAfterAgeGate": true
+      },
+      {
+        "key": "kw.p2.account",
+        "owner": "client",
+        "contains": "provider label of the pressed button (google, apple, email) and signedIn",
+        "writtenAfterAgeGate": true
+      },
+      {
+        "key": "kw.p2.character",
+        "owner": "client",
+        "contains": "normalized character name and storyDone",
+        "writtenAfterAgeGate": true
+      },
+      {
+        "key": "kw.p2.settings.",
+        "owner": "client",
+        "contains": "one UI setting per key (prefix)",
+        "writtenAfterAgeGate": true
+      },
+      {
+        "key": "kw.p2.telemetry",
+        "owner": "client",
+        "contains": "telemetry ring buffer",
+        "writtenAfterAgeGate": true
+      }
+    ],
+    "neverStored": [
+      "email",
+      "password",
+      "token",
+      "birthYear",
+      "ageBand",
+      "providerAccountId",
+      "providerProfile"
+    ],
+    "onSignOut": "clearSignedInFlagOnly"
   },
   "externalNavigation": {
     "_source": "D-089 / A-P2-PLAN-01-3 conditions 3 and 5; spec F04 R37; docs/tech/F04-dungeon-presence.md 14",

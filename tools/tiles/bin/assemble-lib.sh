@@ -68,7 +68,8 @@ check_budget() {
 }
 
 # write_manifest <root> <archive> <maxzoom> <tileset_id> <layout>
-# Uses globals set by the caller: SOURCE_URL BBOX REGION_MODE MINZOOM.
+# Uses globals set by the caller: SOURCE_URL BBOX REGION_MODE MINZOOM, optional SOURCE_BUILD
+# (resolver JSON from use_resolved_build: pin, policy, resolution, upstream uploaded/size/b3sum).
 # shellcheck disable=SC2153
 write_manifest() {
   local root="$1" archive="$2" z="$3" id="$4" layout="$5" meta tdir
@@ -79,7 +80,7 @@ write_manifest() {
   if [[ -d "$tdir" ]]; then nt="$(count_files "$tdir" -name '*.mvt')"; bt="$(sum_bytes "$tdir" -name '*.mvt')"; zt="$(per_zoom_table "$tdir")"; fi
   local big bigpath; IFS=$'\t' read -r big bigpath < <(largest_file "$root")
   jq -n --argjson meta "$meta" --argjson zt "$zt" \
-    --arg id "$id" --arg layout "$layout" --arg build "$(build_key)" --arg src "$SOURCE_URL" \
+    --arg id "$id" --arg layout "$layout" --arg build "$(build_key)" --arg src "$SOURCE_URL" --argjson sb "${SOURCE_BUILD:-null}" \
     --arg bbox "$BBOX" --arg mode "$REGION_MODE" --argjson minz "$MINZOOM" --argjson maxz "$z" \
     --argjson over "$(cfg .area.overzoomTo)" --arg pm "$PMTILES_VERSION" \
     --argjson nt "$nt" --argjson bt "$bt" \
@@ -93,6 +94,7 @@ write_manifest() {
       tileset_id: $id, layout: $layout,
       schema: { name: "protomaps-basemap", major: 4, metadataVersion: $meta.version },
       build_key: $build, source_url: $src,
+      source_build: (if $sb == null then null else ($sb | {pinned, policy, resolution, version, uploaded, size, b3sum, index_url, newer_versions}) end),
       osm_replication_time: ($meta["planetiler:osm:osmosisreplicationtime"] // null),
       bbox: ($bbox | split(",") | map(tonumber)), region_mode: $mode,
       minzoom: $minz, maxzoom: $maxz, overzoom_to: $over,

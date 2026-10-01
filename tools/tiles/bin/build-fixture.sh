@@ -4,7 +4,8 @@
 #   fixtures/lumpini/pmtiles/<id>.pmtiles           PMTiles source  (pmtiles://...)
 #   fixtures/lumpini/tiles/<id>/tiles.json + z/x/y  XYZ source      (TileJSON URL)
 #   fixtures/lumpini/glyphs/...  sprites/...  manifest.json
-# Source: the local full archive from build.sh when present (offline), else the pinned remote build.
+# Source: the local full archive from build.sh when present (offline), else the remote build that
+# bin/resolve-build.sh picks (ADR 0004).
 # usage: build-fixture.sh [--public-url URL]   (URL written into tiles.json; default config fixture.publicUrl)
 source "$(dirname "$0")/lib.sh"
 source "$(dirname "$0")/assemble-lib.sh"
@@ -16,13 +17,14 @@ FIX="$TILES_DIR/fixtures/$NAME"
 BBOX="$(bbox_csv .fixture.bbox)"; MINZOOM="$(cfg .fixture.minzoom)"; MAXZ="$(cfg .fixture.maxzoom)"
 # shellcheck disable=SC2034  # read by write_manifest (assemble-lib.sh)
 REGION_MODE="bbox"
-ID="$(tileset_id "$MAXZ")-$NAME"
 
 "$TILES_DIR/bin/fetch-tools.sh"
 "$TILES_DIR/bin/fetch-assets.sh"
 ASSETS="$DOWNLOADS/assets"
 
-SOURCE_URL="$(cfg .schema.sourceUrl)"
+# shellcheck disable=SC2119  # no resolver args: config defaults
+use_resolved_build
+ID="$(tileset_id "$MAXZ")-$NAME"
 src="$SOURCE_URL"
 local_full="$OUT/pmtiles/$(tileset_id "$(cfg .area.maxzoom)").pmtiles"
 [[ -f "$local_full" ]] && src="$local_full"

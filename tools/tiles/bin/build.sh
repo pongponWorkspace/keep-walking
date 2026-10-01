@@ -4,7 +4,8 @@
 #   tools/tiles/bin/build.sh [--maxzoom N] [--region-mode bbox|provinces] [--public-url URL]
 #                            [--allow-over-target] [--no-fallback] [--force]
 #
-# Steps: pinned tools + assets -> verify bbox against province boundaries -> pmtiles extract
+# Steps: pinned tools + assets -> pick the Protomaps build (bin/resolve-build.sh, ADR 0004)
+# -> verify bbox against province boundaries -> pmtiles extract
 # -> unpack to XYZ + tiles.json -> glyphs, font-faces, sprites -> manifest.json -> budget check
 # -> size report. Fallback order (tech note 7.3): XYZ at area.maxzoom -> XYZ at
 # area.fallbackMaxzoom -> GitHub Pages PMTiles set (exit 3) -> stop for HUMAN (exit 4).
@@ -38,13 +39,17 @@ done
 T0="$(date +%s)"
 BBOX="$(bbox_csv .area.bbox)"
 MINZOOM="$(cfg .area.minzoom)"
-SOURCE_URL="$(cfg .schema.sourceUrl)"
 mkdir -p "$OUT/pmtiles"
 
 # ---------- 1. pinned tools and assets ----------
 "$TILES_DIR/bin/fetch-tools.sh"
 "$TILES_DIR/bin/fetch-assets.sh"
 ASSETS="$DOWNLOADS/assets"
+# schema.buildKey while builds.json still lists it with expectedMetadataVersion, else the newest
+# build with that version (old dailies are deleted upstream after ~7 days). Sets SOURCE_URL and the
+# build key used by tileset_id and manifest.json. TILES_BUILD_KEY=<key> forces one build.
+# shellcheck disable=SC2119  # no resolver args: config defaults
+use_resolved_build
 
 # ---------- 2. bbox against the 6 playable provinces + mask hole (always runs) ----------
 # area.boundariesGeojson is the small committed data/map/playable-provinces.geojson (exact
@@ -64,7 +69,7 @@ extract_archive() {
   local z="$1" id path src args=()
   id="$(tileset_id "$z")"; [[ "$REGION_MODE" == provinces ]] && id="$id-prov"
   path="$OUT/pmtiles/$id.pmtiles"
-  if [[ -f "$path" && $FORCE -eq 0 ]]; then log "reusing $path"; printf '%s' "$path"; return; fi
+  if [[ -f "$path" && $FORCE -eq 0 ]]; then log "reusing $path"; check_archive_version "$path"; printf '%s' "$path"; return; fi
   src="$SOURCE_URL"
   # Offline-friendly: derive a lower maxzoom from an existing higher-zoom local archive.
   for cand in "$OUT"/pmtiles/"$(tileset_id "$MAXZOOM" | sed 's/-z[0-9]*$//')"-z*.pmtiles; do
@@ -79,9 +84,7 @@ extract_archive() {
     || die "pmtiles extract failed (fallback: planetiler with the Protomaps profile, or HUMAN P1-F02-T25)"
   mv "$path.part" "$path"
   "$PMTILES_BIN" verify "$path" >&2 || die "pmtiles verify failed for $path"
-  local ver; ver="$("$PMTILES_BIN" show --metadata "$path" | jq -r .version)"
-  [[ "$ver" == "$(cfg .schema.expectedMetadataVersion)" ]] \
-    || die "schema version $ver != pinned $(cfg .schema.expectedMetadataVersion) (tech note 5.1)"
+  check_archive_version "$path"
   printf '%s' "$path"
 }
 

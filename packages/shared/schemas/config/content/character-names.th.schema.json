@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keep-walking.invalid/schemas/config/content/character-names.th.schema.json",
+  "title": "config/content/character-names.th.json",
+  "description": "Random-name pool and blocked-term lexicon of the character-name screen (D-146, P2-F10-T03, design/narrative/F10-story.md sections 6, 7, 9; tech note F10 section 7). Content owned by narrative-designer. Structure only: config/balance/character.json points into this file by dot path and config-lint checks every path resolves. Terms are never shown to players (F10-R19) and never logged (F10-R50).",
+  "type": "object",
+  "required": ["_meta", "randomName", "blockedTerms"],
+  "properties": {
+    "_meta": {
+      "allOf": [
+        { "$ref": "../common.schema.json#/$defs/meta" },
+        { "properties": { "locale": { "const": "th" } }, "required": ["locale"], "type": "object" }
+      ]
+    },
+    "randomName": {
+      "type": "object",
+      "required": ["pattern", "heads", "tails", "fallback"],
+      "properties": {
+        "pattern": { "const": "headTail" },
+        "heads": { "$ref": "#/$defs/nameList" },
+        "tails": { "$ref": "#/$defs/nameList" },
+        "fallback": {
+          "type": "object",
+          "required": ["names"],
+          "properties": { "names": { "$ref": "#/$defs/nameList" } },
+          "patternProperties": { "^_": {} },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    },
+    "blockedTerms": {
+      "type": "object",
+      "required": ["normalization", "substring", "substringHeavy", "token"],
+      "properties": {
+        "normalization": {
+          "type": "object",
+          "required": ["light", "heavy", "matchModes", "allow"],
+          "properties": {
+            "light": { "$ref": "#/$defs/stepList" },
+            "heavy": { "$ref": "#/$defs/stepList" },
+            "matchModes": {
+              "type": "object",
+              "required": ["substring", "substringHeavy", "token"],
+              "properties": {
+                "substring": { "$ref": "#/$defs/text" },
+                "substringHeavy": { "$ref": "#/$defs/text" },
+                "token": { "$ref": "#/$defs/text" }
+              },
+              "patternProperties": { "^_": {} },
+              "additionalProperties": false
+            },
+            "allow": {
+              "type": "object",
+              "required": ["light", "heavy"],
+              "properties": {
+                "light": { "$ref": "#/$defs/termList" },
+                "heavy": { "$ref": "#/$defs/termList" }
+              },
+              "patternProperties": { "^_": {} },
+              "additionalProperties": false
+            }
+          },
+          "patternProperties": { "^_": {} },
+          "additionalProperties": false
+        },
+        "substring": {
+          "description": "Category id -> terms (light pass). Categories are open; each must be non-empty.",
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^_": {},
+            "^[a-z][A-Za-z0-9]*$": { "$ref": "#/$defs/nonEmptyTermList" }
+          },
+          "additionalProperties": false
+        },
+        "substringHeavy": { "$ref": "#/$defs/termGroup" },
+        "token": { "$ref": "#/$defs/termGroup" }
+      },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    }
+  },
+  "patternProperties": { "^_": {} },
+  "additionalProperties": false,
+  "$defs": {
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "term": { "type": "string", "minLength": 1, "pattern": "^\\S(.*\\S)?$" },
+    "termList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/term" } },
+    "nonEmptyTermList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/term" }
+    },
+    "nameList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/term" }
+    },
+    "stepList": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text" } },
+    "termGroup": {
+      "type": "object",
+      "required": ["terms"],
+      "properties": { "terms": { "$ref": "#/$defs/nonEmptyTermList" } },
+      "patternProperties": { "^_": {} },
+      "additionalProperties": false
+    }
+  }
+}

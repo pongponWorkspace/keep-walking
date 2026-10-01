@@ -1,5 +1,5 @@
 {
-  "_comment": "Every tunable value of tools/art (P2-F06-T07). manifestPart + manifestRoots: the per-root split of the artist manifest (P2-X22, asset-pipeline 3.1 root list and 7.2, docs/tech/asset-delivery.md 10.1). Sources: art/direction/asset-pipeline.md (sections noted per key), art/direction/avatar-spec.md 6 and 7.4, art/direction/style-guide.md 3 and 6. Change a value here only after the owning doc changes.",
+  "_comment": "Every tunable value of tools/art (P2-F06-T07). manifestPart + manifestRoots: the per-root split of the artist manifest (P2-X22, asset-pipeline 3.1 root list and 7.2, docs/tech/asset-delivery.md 10.1). A manifestRoots key is a root or root.group; an entry goes to the most specific key (P2-H67: icon split by group after manifest.icon.json passed budgets.manifestBytes; plain icon keeps any other icon group, e.g. icon.qc). Sources: art/direction/asset-pipeline.md (sections noted per key), art/direction/avatar-spec.md 6 and 7.4, art/direction/style-guide.md 3 and 6. Change a value here only after the owning doc changes.",
   "paths": {
     "manifest": "art/assets/manifest.json",
     "manifestPart": "art/assets/manifest.{root}.json",
@@ -22,6 +22,9 @@
     "font",
     "frame",
     "icon",
+    "icon.item",
+    "icon.ui",
+    "icon.ui16",
     "illus",
     "map",
     "ref",

@@ -22,7 +22,7 @@ task: P1-F02-T06 · เจ้าของ: location-engineer · อ้างอ�
 
 | รายการ | ค่า | การตรวจ |
 | --- | --- | --- |
-| tile schema | Protomaps Basemap v4 · build `20260930` (`https://build.protomaps.com/20260930.pmtiles`) · metadata `version = 4.15.2` · OSM replication `2026-09-30T04:00:00Z` | build ล้มถ้า metadata version ไม่ตรง `schema.expectedMetadataVersion` · Protomaps ลบ daily build เก่าราว 7 วัน ถ้า source ตอบ 404 ให้เลื่อน `schema.buildKey` + `sourceUrl` ไป build ล่าสุดที่ version เดียวกัน (fixture ยังเป็นชุด `20260923` ตาม manifest ของมัน) |
+| tile schema | Protomaps Basemap v4 · metadata `version = 4.15.2` (`schema.expectedMetadataVersion`, pin ตัวจริง) · build ที่อยากใช้ `20260930` (`schema.buildKey`) · URL จาก `schema.sourceUrlTemplate` · OSM replication `2026-09-30T04:00:00Z` | build ล้มถ้า metadata version ไม่ตรง (ตรวจทั้งใน `builds.json` และใน archive) · Protomaps เก็บ daily 7 วัน + build ล่าสุดของแต่ละ patch version ถาวร ดังนั้น `bin/resolve-build.sh` ใช้ `buildKey` ถ้ายังอยู่ ไม่งั้นใช้ build ใหม่ที่สุดที่ version ตรง (ADR 0004) · build ที่ใช้จริงอยู่ใน `manifest.json` (`build_key`, `source_build`) · fixture ยังเป็นชุด `20260923` ตาม manifest ของมัน |
 | CLI | go-pmtiles v1.31.2 (commit `a3e4951`, 2026-07-22) | sha256 ต่อ OS/arch ใน `tools.pmtiles.assets` (ค่าจาก GitHub release) |
 | glyph PBF + sprite | `protomaps/basemaps-assets` commit `028c18f713baecad011301ff7a69acc39bcc2ae7` (2025-10-31) · fontstack `Noto Sans Regular/Medium/Italic` (256 ไฟล์ต่อ stack) · sprite `v4/light` (+`@2x`) | `treeSha256` = sha256 ของรายการ sha256 ทุกไฟล์ที่ใช้ (tarball ของ codeload ไม่รับประกันว่า byte คงที่ จึงไม่ตรวจที่ตัว tarball) |
 | font-faces ไทย (D-032) | Noto Sans Thai release `NotoSansThai-v2.002` (notofonts/thai) · zip sha256 `af889cc6…a485` · ใช้ `unhinted/ttf/NotoSansThai-Regular.ttf` และ `-Medium.ttf` | sha256 ของ zip, ของแต่ละ TTF และของ `OFL.txt` |
@@ -30,11 +30,12 @@ task: P1-F02-T06 · เจ้าของ: location-engineer · อ้างอ�
 
 ใช้ font แบบ unhinted เพราะ MapLibre วาด font-faces เป็น SDF ผ่าน canvas (TinySDF) hinting จึงไม่มีผล แต่ทำให้ไฟล์ใหญ่ขึ้นเกือบเท่าตัว (20.9 KB เทียบ 37.8 KB)
 
-### 2.1 เปลี่ยน build ของ Protomaps
+### 2.1 เปลี่ยน build ของ Protomaps (ADR 0004)
 
-1. เลือก build ใหม่จาก `https://build-metadata.protomaps.dev/builds.json` (patch version เดียวกันกับ `expectedMetadataVersion` หรืออัปเดตค่านั้นหลัง art-director ยืนยันว่า style ยังเข้ากันได้)
-2. แก้ `schema.buildKey` และ `schema.sourceUrl` → `tileset_id` เปลี่ยนเอง (`pm4-<build>-z<maxzoom>`) ทำให้ URL ใหม่และ cache เก่าไม่ชนกัน
-3. รัน `bin/build.sh` และ `bin/build-fixture.sh` แล้วบันทึกผลใน size report
+- **ไม่ต้องเลื่อน pin เมื่อ daily เก่าถูกลบ:** `bin/resolve-build.sh` อ่าน `schema.buildsIndexUrl` แล้วเลือกตาม `schema.buildSelection` (`pinned-or-latest-matching` เป็นค่าเริ่มต้น · `pinned` = แบบเดิม ล้มเมื่อ pin หาย · `latest-matching`) · probe range request ไม่เกิน `schema.probeCandidates` ตัว · ผลล่าสุดเก็บใน `out/resolved-build.json` ไว้ใช้ตอน offline
+- ทำซ้ำ run เก่า: `TILES_BUILD_KEY=<build_key จาก manifest.json> bin/build.sh` (บังคับ policy `pinned`)
+- ดูว่าจะเลือก build ไหนโดยไม่ build: `bin/resolve-build.sh --no-cache`
+- รับ schema ใหม่ (เช่น 4.15.3 ซึ่ง resolver จะ log เป็น note): อัปเดต `schema.expectedMetadataVersion` หลัง art-director ยืนยันว่า style ยังเข้ากันได้ แล้วรัน `bin/build.sh` และ `bin/build-fixture.sh` และบันทึกผลใน size report · `tileset_id` (`pm4-<build>-z<maxzoom>`) เปลี่ยนเอง URL ใหม่จึงไม่ชน cache เก่า
 
 ## 3. คำสั่ง
 
@@ -43,6 +44,7 @@ task: P1-F02-T06 · เจ้าของ: location-engineer · อ้างอ�
 | คำสั่ง | ทำอะไร |
 | --- | --- |
 | `tools/tiles/bin/build.sh` | **คำสั่งหลัก:** เครื่องมือ + asset ที่ pin → ตรวจ bbox กับขอบจังหวัด → `pmtiles extract` → แตกเป็น XYZ + `tiles.json` → glyph, font-faces, sprite → `manifest.json` → ตรวจงบ → size report |
+| `tools/tiles/bin/resolve-build.sh` | เลือก build ของ Protomaps จาก `builds.json` (pin ถ้ายังอยู่ ไม่งั้น build ใหม่ที่สุดที่ version ตรง) · build.sh และสคริปต์ fixture เรียกเอง · พิมพ์ JSON ของ build ที่เลือก (ADR 0004) |
 | `tools/tiles/bin/build-fixture.sh` | สร้าง fixture สวนลุมพินีใน `fixtures/lumpini/` (commit ได้) |
 | `tools/tiles/bin/build-screen-fixtures.sh [--only NAME]` | สร้าง fixture ของจอ S2/S5/S6 ใน `fixtures/screens/` (commit ได้, หัวข้อ 5.1) |
 | `tools/tiles/test/run.sh` | test แบบ offline กับ fixture (71 ข้อ ไม่มีข้อที่ข้าม) · root `pnpm test` เรียกผ่าน `test/tiles.test.ts` |
@@ -65,6 +67,7 @@ task: P1-F02-T06 · เจ้าของ: location-engineer · อ้างอ�
 | `--no-fallback` | ปิด | ไม่ลด maxzoom อัตโนมัติ |
 | `--force` | ปิด | extract ใหม่แม้มีไฟล์ใน `out/pmtiles/` แล้ว |
 | env `TILES_CONFIG` | `tools/tiles/config.json` | ใช้ config อื่น (test ใช้ทดสอบทางแก้) |
+| env `TILES_BUILD_KEY` | ไม่ตั้ง | บังคับใช้ build นี้ (policy `pinned`) · ล้มถ้า upstream ไม่มีแล้วหรือ version ไม่ตรง (ADR 0004) |
 | env `TILES_JOBS` | จำนวน CPU | จำนวน worker ตอนแตก XYZ |
 
 ### 3.2 exit code และลำดับทางแก้ (tech note 7.3)

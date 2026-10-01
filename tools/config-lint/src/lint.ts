@@ -1,5 +1,6 @@
 // Runs every config-lint check and applies the allowlist (P2-F04-T24).
 import { ALLOWLIST, type AllowEntry } from './allowlist';
+import { checkCharacter } from './character';
 import { checkConventions } from './convention';
 import { checkCrossFile } from './cross';
 import { loadConfigFiles } from './files';
@@ -19,7 +20,12 @@ export interface LintResult {
 
 /** Checks that only need the parsed files (no schema directory): used by fixture tests. */
 export function checkFiles(files: readonly ConfigFile[]): Finding[] {
-  return [...files.flatMap(checkConventions), ...checkPointers(files), ...checkCrossFile(files)];
+  return [
+    ...files.flatMap(checkConventions),
+    ...checkPointers(files),
+    ...checkCrossFile(files),
+    ...checkCharacter(files),
+  ];
 }
 
 function matches(entry: AllowEntry, finding: Finding): boolean {

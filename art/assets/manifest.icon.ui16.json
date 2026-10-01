@@ -1,0 +1,451 @@
+{
+  "manifestVersion": 1,
+  "avatarRig": 1,
+  "updated": "2026-10-01",
+  "baseDir": "art/assets",
+  "assets": [
+    {
+      "id": "icon.ui16.closed",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/closed.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 297,
+          "width": 16,
+          "height": 16,
+          "sha256": "c3b3e8a956596aa0892ea7fd200ac2feff8a75f657d8294c9d18de141e33fb0c"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.closing-soon",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/closing-soon.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 212,
+          "width": 16,
+          "height": 16,
+          "sha256": "cd6704aad35a77accfbe773f359c8d63ceb0563c25131bb3fe9caa64d47581a9"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.gate-miss",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/gate-miss.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 184,
+          "width": 16,
+          "height": 16,
+          "sha256": "7e1c80bbcf7af5c791e86aba1a9bd43d0ade0a55abd1aeaf4f3c8d44e9651acd"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.gate-pass",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/gate-pass.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 337,
+          "width": 16,
+          "height": 16,
+          "sha256": "fb05fe165d7042372b549327012d6306a4790ad36b91f40b743b4da178f7c7f4"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.grace",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/grace.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 154,
+          "width": 16,
+          "height": 16,
+          "sha256": "9155b8f9cf6c4f7439187fd9941da63b93c5ea749411b8d7f210d04e0bfdf28a"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.help",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/help.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 355,
+          "width": 16,
+          "height": 16,
+          "sha256": "7e00b763e2d610a75103084bc581f47941570370d3cb7337156d4bf3265ba3e0"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.hp",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/hp.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 224,
+          "width": 16,
+          "height": 16,
+          "sha256": "2cb15ad3e2edaf85a25f7fac37d3a3060fb712f31f8c71ed7976324129ed6158"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.in-run",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/in-run.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 249,
+          "width": 16,
+          "height": 16,
+          "sha256": "51b395c8be6104d50a2e37e000fa8c01b7cd63d3df6af544b405a4dd4bf7c801"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-X26",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "P2-X26 (art-director review P2-H17, V-23+V-25): fill/stroke #1A1A22 คงที่ → currentColor (16 px อยู่กลุ่มสีเดียวกับ icon.ui.in-run 24 px เสมอตามกฎใหม่ icon-grammar 8) พร้อมขยับจุดยอดบน y=1.4→2 กันปลาย miter ล้นขอบ · tools/art stage จะคำนวณ tintable:true ให้ id นี้อัตโนมัติจากการสแกน currentColor"
+    },
+    {
+      "id": "icon.ui16.location-off",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/location-off.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 379,
+          "width": 16,
+          "height": 16,
+          "sha256": "61ef07ffbfeb80ff97e616745d1101f00e2855158350ba7c7bca729756ac1f9e"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-F05-T07",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      }
+    },
+    {
+      "id": "icon.ui16.rift",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/rift.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 239,
+          "width": 16,
+          "height": 16,
+          "sha256": "b8843c9e4125d93d4725f5bbc7f144fd421783ec3a03791deb2cd6b3854ea2bd"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-X26",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "P2-X26 (art-director review P2-H17, V-25): ขยับจุดยอดบน y=1.4→2 กันปลาย miter ล้นขอบ viewBox (path เดียวกับ icon.ui16.in-run ทุกพิกัดหลังแก้ ไม่แตะสี — ยังตายตัวเหมือนเดิม)"
+    },
+    {
+      "id": "icon.ui16.suspended",
+      "kind": "icon-ui",
+      "status": "draft",
+      "placeholder": false,
+      "size": {
+        "width": 16,
+        "height": 16
+      },
+      "files": [
+        {
+          "path": "icon/ui16/suspended.svg",
+          "format": "svg",
+          "scale": null,
+          "variant": null,
+          "bytes": 209,
+          "width": 16,
+          "height": 16,
+          "sha256": "7b20d4ab08f151648a6086ca9692f803df9dcf2dac2da9413105d09a18c0396e"
+        }
+      ],
+      "source": {
+        "method": "agent-svg",
+        "author": "artist-2d",
+        "task": "P2-X26",
+        "master": null,
+        "prompt": null,
+        "tool": null,
+        "origin": null,
+        "date": "2026-09-27"
+      },
+      "license": {
+        "spdx": "LicenseRef-KeepWalking-Original",
+        "holder": "keep-walking studio",
+        "file": null,
+        "attribution": null,
+        "reservedFontName": null,
+        "modified": false
+      },
+      "notes": "P2-X26 (art-director review P2-H17, V-24, D-123): ไฟล์เดิมไม่มีขอบหมึกเลย (fill=#006699 ไม่มี stroke) ตกบนพื้น state.info เดียวกันสนิท (contrast 1.00) — แก้เป็น fill=#FFFFFF (bg.surface) เพิ่ม stroke=#1A1A22 stroke-width=2 stroke-linejoin=round บน path เดิม ไม่มี currentColor (ตายตัวเหมือน icon.ui.suspended 24 px)"
+    }
+  ]
+}

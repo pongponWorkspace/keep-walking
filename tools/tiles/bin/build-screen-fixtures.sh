@@ -26,7 +26,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 "$TILES_DIR/bin/fetch-tools.sh"
-SOURCE_URL="$(cfg .schema.sourceUrl)"
+# shellcheck disable=SC2119  # no resolver args: config defaults
+use_resolved_build
 src="$SOURCE_URL"
 local_full="$OUT/pmtiles/$(tileset_id "$(cfg .area.maxzoom)").pmtiles"
 [[ -f "$local_full" ]] && src="$local_full"
@@ -54,8 +55,8 @@ for ((i = 0; i < n; i++)); do
   "$PMTILES_BIN" extract "$src" "$archive" --bbox="$bbox" --minzoom="$minz" --maxzoom="$maxz" -q \
     || die "$name: extract failed"
   "$PMTILES_BIN" verify "$archive" >&2
+  check_archive_version "$archive"
   ver="$("$PMTILES_BIN" show --metadata "$archive" | jq -r .version)"
-  [[ "$ver" == "$(cfg .schema.expectedMetadataVersion)" ]] || die "$name: schema $ver not pinned"
   "$TILES_DIR/bin/unpack-xyz.sh" "$archive" "$fix/tiles/$id" "$bbox" "$minz" "$maxz" >/dev/null
   write_tilejson "$archive" "$fix/tiles/$id/tiles.json" "$PUBLIC_BASE/$name" "$id" "$bbox" "$minz" "$maxz"
   jq -n --argjson item "$(jq -c "$it" "$CONFIG")" --arg id "$id" --arg src "$SOURCE_URL" \
